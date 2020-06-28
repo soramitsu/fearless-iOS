@@ -1,0 +1,823 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 51;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		581F8F02D0FBC6160BD7A2A6 /* Pods_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 076BA3A7F5EC1B569F5D14E7 /* Pods_fearless.framework */; };
+		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
+		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
+		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
+		849013C324A80986008F705E /* fearlessTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013C224A80986008F705E /* fearlessTests.swift */; };
+		849013D024A9267F008F705E /* R.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013CF24A9267F008F705E /* R.generated.swift */; };
+		849013DB24A927E2008F705E /* Logger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013D424A927E2008F705E /* Logger.swift */; };
+		849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013D624A927E2008F705E /* ApplicationConfigs.swift */; };
+		849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013D824A927E2008F705E /* KeystoreExtensions.swift */; };
+		849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013D924A927E2008F705E /* LocalizationManager+Shared.swift */; };
+		849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013DA24A927E2008F705E /* SettingsExtension.swift */; };
+		849013E224A9288B008F705E /* Language.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013E124A9288B008F705E /* Language.swift */; };
+		849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F824A92A05008F705E /* fearless.dev.xcconfig */; };
+		849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F924A92A05008F705E /* fearless.release.xcconfig */; };
+		849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013FA24A92A05008F705E /* fearless.debug.xcconfig */; };
+		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		849013BF24A80986008F705E /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 849013A024A80984008F705E /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 849013A724A80984008F705E;
+			remoteInfo = fearless;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		076BA3A7F5EC1B569F5D14E7 /* Pods_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		169CF6A824FEBA312ECC387F /* Pods-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.release.xcconfig"; sourceTree = "<group>"; };
+		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
+		570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		8151AAFFC77E52A233647A1E /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
+		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		849013B724A80986008F705E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		849013B924A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		849013BE24A80986008F705E /* fearlessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fearlessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		849013C224A80986008F705E /* fearlessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests.swift; sourceTree = "<group>"; };
+		849013C424A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		849013CF24A9267F008F705E /* R.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = R.generated.swift; sourceTree = SOURCE_ROOT; };
+		849013D424A927E2008F705E /* Logger.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Logger.swift; sourceTree = "<group>"; };
+		849013D624A927E2008F705E /* ApplicationConfigs.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ApplicationConfigs.swift; sourceTree = "<group>"; };
+		849013D824A927E2008F705E /* KeystoreExtensions.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = KeystoreExtensions.swift; sourceTree = "<group>"; };
+		849013D924A927E2008F705E /* LocalizationManager+Shared.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LocalizationManager+Shared.swift"; sourceTree = "<group>"; };
+		849013DA24A927E2008F705E /* SettingsExtension.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SettingsExtension.swift; sourceTree = "<group>"; };
+		849013E124A9288B008F705E /* Language.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Language.swift; sourceTree = "<group>"; };
+		849013F824A92A05008F705E /* fearless.dev.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.dev.xcconfig; sourceTree = "<group>"; };
+		849013F924A92A05008F705E /* fearless.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.release.xcconfig; sourceTree = "<group>"; };
+		849013FA24A92A05008F705E /* fearless.debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.debug.xcconfig; sourceTree = "<group>"; };
+		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
+		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
+		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		849013A524A80984008F705E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				581F8F02D0FBC6160BD7A2A6 /* Pods_fearless.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		849013BB24A80986008F705E /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		2698CD398B0412EB85D620AB /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */,
+				169CF6A824FEBA312ECC387F /* Pods-fearless.release.xcconfig */,
+				8151AAFFC77E52A233647A1E /* Pods-fearlessTests.debug.xcconfig */,
+				E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */,
+				9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */,
+				3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
+		8490139F24A80984008F705E = {
+			isa = PBXGroup;
+			children = (
+				849013AA24A80984008F705E /* fearless */,
+				849013C124A80986008F705E /* fearlessTests */,
+				849013A924A80984008F705E /* Products */,
+				2698CD398B0412EB85D620AB /* Pods */,
+				BFB3965A583F11EF3045E064 /* Frameworks */,
+			);
+			sourceTree = "<group>";
+		};
+		849013A924A80984008F705E /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				849013A824A80984008F705E /* fearless.app */,
+				849013BE24A80986008F705E /* fearlessTests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		849013AA24A80984008F705E /* fearless */ = {
+			isa = PBXGroup;
+			children = (
+				849013E324A92915008F705E /* Configs */,
+				849013D124A92686008F705E /* Common */,
+				849013D224A9268D008F705E /* Modules */,
+				849013AB24A80984008F705E /* AppDelegate.swift */,
+				849013CF24A9267F008F705E /* R.generated.swift */,
+				849013B424A80986008F705E /* Assets.xcassets */,
+				849013B624A80986008F705E /* LaunchScreen.storyboard */,
+				849013B924A80986008F705E /* Info.plist */,
+			);
+			path = fearless;
+			sourceTree = "<group>";
+		};
+		849013C124A80986008F705E /* fearlessTests */ = {
+			isa = PBXGroup;
+			children = (
+				849013C224A80986008F705E /* fearlessTests.swift */,
+				849013C424A80986008F705E /* Info.plist */,
+			);
+			path = fearlessTests;
+			sourceTree = "<group>";
+		};
+		849013D124A92686008F705E /* Common */ = {
+			isa = PBXGroup;
+			children = (
+				849013E024A9287F008F705E /* Model */,
+				849013D524A927E2008F705E /* Configs */,
+				849013D724A927E2008F705E /* Extension */,
+				849013D324A927E2008F705E /* Logger */,
+			);
+			path = Common;
+			sourceTree = "<group>";
+		};
+		849013D224A9268D008F705E /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Modules;
+			sourceTree = "<group>";
+		};
+		849013D324A927E2008F705E /* Logger */ = {
+			isa = PBXGroup;
+			children = (
+				849013D424A927E2008F705E /* Logger.swift */,
+			);
+			path = Logger;
+			sourceTree = "<group>";
+		};
+		849013D524A927E2008F705E /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				849013D624A927E2008F705E /* ApplicationConfigs.swift */,
+			);
+			path = Configs;
+			sourceTree = "<group>";
+		};
+		849013D724A927E2008F705E /* Extension */ = {
+			isa = PBXGroup;
+			children = (
+				849013D824A927E2008F705E /* KeystoreExtensions.swift */,
+				849013D924A927E2008F705E /* LocalizationManager+Shared.swift */,
+				849013DA24A927E2008F705E /* SettingsExtension.swift */,
+			);
+			path = Extension;
+			sourceTree = "<group>";
+		};
+		849013E024A9287F008F705E /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				849013E124A9288B008F705E /* Language.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
+		849013E324A92915008F705E /* Configs */ = {
+			isa = PBXGroup;
+			children = (
+				849013FA24A92A05008F705E /* fearless.debug.xcconfig */,
+				849013F824A92A05008F705E /* fearless.dev.xcconfig */,
+				849013F924A92A05008F705E /* fearless.release.xcconfig */,
+			);
+			path = Configs;
+			sourceTree = "<group>";
+		};
+		BFB3965A583F11EF3045E064 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				076BA3A7F5EC1B569F5D14E7 /* Pods_fearless.framework */,
+				570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		849013A724A80984008F705E /* fearless */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */;
+			buildPhases = (
+				BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */,
+				849013CD24A92260008F705E /* Swiftlint */,
+				849013CE24A92280008F705E /* R.swift */,
+				849013A424A80984008F705E /* Sources */,
+				849013A524A80984008F705E /* Frameworks */,
+				849013A624A80984008F705E /* Resources */,
+				814F6F81A24CB16EC99A1485 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = fearless;
+			productName = fearless;
+			productReference = 849013A824A80984008F705E /* fearless.app */;
+			productType = "com.apple.product-type.application";
+		};
+		849013BD24A80986008F705E /* fearlessTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 849013CA24A80986008F705E /* Build configuration list for PBXNativeTarget "fearlessTests" */;
+			buildPhases = (
+				37CB4B90B98CFA452A29AA46 /* [CP] Check Pods Manifest.lock */,
+				849013BA24A80986008F705E /* Sources */,
+				849013BB24A80986008F705E /* Frameworks */,
+				849013BC24A80986008F705E /* Resources */,
+				63EE755C93B651D0D5388B14 /* [CP] Embed Pods Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				849013C024A80986008F705E /* PBXTargetDependency */,
+			);
+			name = fearlessTests;
+			productName = fearlessTests;
+			productReference = 849013BE24A80986008F705E /* fearlessTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		849013A024A80984008F705E /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastSwiftUpdateCheck = 1150;
+				LastUpgradeCheck = 1150;
+				ORGANIZATIONNAME = Soramitsu;
+				TargetAttributes = {
+					849013A724A80984008F705E = {
+						CreatedOnToolsVersion = 11.5;
+					};
+					849013BD24A80986008F705E = {
+						CreatedOnToolsVersion = 11.5;
+						TestTargetID = 849013A724A80984008F705E;
+					};
+				};
+			};
+			buildConfigurationList = 849013A324A80984008F705E /* Build configuration list for PBXProject "fearless" */;
+			compatibilityVersion = "Xcode 9.3";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = 8490139F24A80984008F705E;
+			productRefGroup = 849013A924A80984008F705E /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				849013A724A80984008F705E /* fearless */,
+				849013BD24A80986008F705E /* fearlessTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		849013A624A80984008F705E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
+				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
+				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
+				849013B524A80986008F705E /* Assets.xcassets in Resources */,
+				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		849013BC24A80986008F705E /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		37CB4B90B98CFA452A29AA46 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-fearlessTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		63EE755C93B651D0D5388B14 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearlessTests/Pods-fearlessTests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		814F6F81A24CB16EC99A1485 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearless/Pods-fearless-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-fearless/Pods-fearless-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-fearless/Pods-fearless-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		849013CD24A92260008F705E /* Swiftlint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = Swiftlint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/SwiftLint/swiftlint\" --config \".swiftlint.yml\"\n";
+		};
+		849013CE24A92280008F705E /* R.swift */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$TEMP_DIR/rswift-lastrun",
+			);
+			name = R.swift;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				$PROJECT_DIR/R.generated.swift,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$PROJECT_DIR/R.generated.swift\"\n";
+		};
+		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-fearless-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		849013A424A80984008F705E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
+				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
+				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
+				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				849013DB24A927E2008F705E /* Logger.swift in Sources */,
+				849013E224A9288B008F705E /* Language.swift in Sources */,
+				849013D024A9267F008F705E /* R.generated.swift in Sources */,
+				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		849013BA24A80986008F705E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				849013C324A80986008F705E /* fearlessTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		849013C024A80986008F705E /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 849013A724A80984008F705E /* fearless */;
+			targetProxy = 849013BF24A80986008F705E /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		849013B624A80986008F705E /* LaunchScreen.storyboard */ = {
+			isa = PBXVariantGroup;
+			children = (
+				849013B724A80986008F705E /* Base */,
+			);
+			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		849013C524A80986008F705E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		849013C624A80986008F705E /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		849013C824A80986008F705E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 849013FA24A92A05008F705E /* fearless.debug.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearless/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		849013C924A80986008F705E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 849013F924A92A05008F705E /* fearless.release.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearless/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		849013CB24A80986008F705E /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 8151AAFFC77E52A233647A1E /* Pods-fearlessTests.debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearlessTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/fearless";
+			};
+			name = Debug;
+		};
+		849013CC24A80986008F705E /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearlessTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/fearless";
+			};
+			name = Release;
+		};
+		849013FE24A92A27008F705E /* Dev */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Dev;
+		};
+		849013FF24A92A27008F705E /* Dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 849013F824A92A05008F705E /* fearless.dev.xcconfig */;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearless/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Dev;
+		};
+		8490140024A92A27008F705E /* Dev */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				INFOPLIST_FILE = fearlessTests/Info.plist;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearlessTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/fearless.app/fearless";
+			};
+			name = Dev;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		849013A324A80984008F705E /* Build configuration list for PBXProject "fearless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				849013C524A80986008F705E /* Debug */,
+				849013FE24A92A27008F705E /* Dev */,
+				849013C624A80986008F705E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		849013C724A80986008F705E /* Build configuration list for PBXNativeTarget "fearless" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				849013C824A80986008F705E /* Debug */,
+				849013FF24A92A27008F705E /* Dev */,
+				849013C924A80986008F705E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		849013CA24A80986008F705E /* Build configuration list for PBXNativeTarget "fearlessTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				849013CB24A80986008F705E /* Debug */,
+				8490140024A92A27008F705E /* Dev */,
+				849013CC24A80986008F705E /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 849013A024A80984008F705E /* Project object */;
+}

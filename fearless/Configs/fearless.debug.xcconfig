@@ -1,0 +1,5 @@
+#include "../../Pods/Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"
+
+OTHER_SWIFT_FLAGS = $(inherited) "-DENABLE_UITUNNEL" "-DF_DEV"
+
+APP_NAME = Fearless Dev
