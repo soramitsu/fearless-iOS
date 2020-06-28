@@ -1,0 +1,13 @@
+"common.signup" = "サインアップ";
+"common.close" = "Close";
+
+"operation.error.title" = "Operation Failed";
+"operation.error.message" = "Please, try again later";
+
+"connection.error.title" = "Connection Failed";
+"connection.error.message" = "Please, check internet connection and try again later.";
+
+"onboarding.restore.account" = "アカウントを復元する";
+"onboarding.terms.and.conditions.1" = "利用規約、個人情報保護方針に同意してサインアップする。";
+"onboarding.terms.and.conditions.2" = "Terms and Conditions";
+"onboarding.privacy.policy" = "Privacy Policy";

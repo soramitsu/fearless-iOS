@@ -1,10 +1,23 @@
 import Foundation
 import os
 
-protocol ApplicationConfigProtocol {}
+protocol ApplicationConfigProtocol {
+    var termsURL: URL { get }
+    var privacyPolicyURL: URL { get }
+}
 
 final class ApplicationConfig {
     static let shared: ApplicationConfig! = ApplicationConfig()
 }
 
-extension ApplicationConfig: ApplicationConfigProtocol {}
+extension ApplicationConfig: ApplicationConfigProtocol {
+    var termsURL: URL {
+        // TODO: Replace terms URL
+        URL(string: "https://google.com")!
+    }
+
+    var privacyPolicyURL: URL {
+        // TODO: Replace privacy URL
+        URL(string: "https://google.com")!
+    }
+}
