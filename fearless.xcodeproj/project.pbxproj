@@ -22,6 +22,40 @@
 		849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F824A92A05008F705E /* fearless.dev.xcconfig */; };
 		849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013F924A92A05008F705E /* fearless.release.xcconfig */; };
 		849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = 849013FA24A92A05008F705E /* fearless.debug.xcconfig */; };
+		8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140224A92F6D008F705E /* OnboardingMainViewController.swift */; };
+		8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140524A92F6D008F705E /* AttributedStringDecorator+Terms.swift */; };
+		8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8490140624A92F6D008F705E /* OnbordingMain.xib */; };
+		8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140824A92F6D008F705E /* OnboardingMainPresenter.swift */; };
+		8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */; };
+		8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */; };
+		8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */; };
+		8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */; };
+		8490142224A93027008F705E /* sora-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490141E24A93027008F705E /* sora-Regular.otf */; };
+		8490142324A93027008F705E /* sora-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490141F24A93027008F705E /* sora-Bold.otf */; };
+		8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490142024A93027008F705E /* sora-ExtraBold.otf */; };
+		8490142524A93027008F705E /* sora-SemiBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490142124A93027008F705E /* sora-SemiBold.otf */; };
+		8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142724A935FE008F705E /* ErrorPresentable.swift */; };
+		8490142D24A935FE008F705E /* WebPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142824A935FE008F705E /* WebPresentable.swift */; };
+		8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142924A935FE008F705E /* LoadableViewProtocol.swift */; };
+		8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */; };
+		8490143024A935FE008F705E /* AlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142B24A935FE008F705E /* AlertPresentable.swift */; };
+		8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */; };
+		8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144924A93D0B008F705E /* FearlessNavigationBar.swift */; };
+		8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144A24A93D0B008F705E /* FearlessNavigationController.swift */; };
+		8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144E24A93E2E008F705E /* UIImage+Drawing.swift */; };
+		8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490145024A93FD1008F705E /* FearlessLoadingViewPresenter.swift */; };
+		8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490145124A93FD1008F705E /* FearlessLoadingViewFactory.swift */; };
+		8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490145524A9404E008F705E /* AttributedStringDecorator.swift */; };
+		8490145824A9406D008F705E /* LegalData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490145724A9406D008F705E /* LegalData.swift */; };
+		8490145A24A94102008F705E /* UIColor+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490145924A94102008F705E /* UIColor+Style.swift */; };
+		8490145E24A94373008F705E /* Localizable.strings in Resources */ = {isa = PBXBuildFile; fileRef = 8490146024A94373008F705E /* Localizable.strings */; };
+		8490146A24A9463B008F705E /* Locale+Localization.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490146924A9463B008F705E /* Locale+Localization.swift */; };
+		8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490146C24A9487A008F705E /* ErrorPresentable+AlertText.swift */; };
+		8490147424A94A37008F705E /* RootProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490146F24A94A37008F705E /* RootProtocol.swift */; };
+		8490147524A94A37008F705E /* RootWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147024A94A37008F705E /* RootWireframe.swift */; };
+		8490147624A94A37008F705E /* RootInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147124A94A37008F705E /* RootInteractor.swift */; };
+		8490147724A94A37008F705E /* RootPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147224A94A37008F705E /* RootPresenter.swift */; };
+		8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147324A94A37008F705E /* RootPresenterFactory.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -44,7 +78,6 @@
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		849013B724A80986008F705E /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		849013B924A80986008F705E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		849013BE24A80986008F705E /* fearlessTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fearlessTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013C224A80986008F705E /* fearlessTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = fearlessTests.swift; sourceTree = "<group>"; };
@@ -59,6 +92,48 @@
 		849013F824A92A05008F705E /* fearless.dev.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.dev.xcconfig; sourceTree = "<group>"; };
 		849013F924A92A05008F705E /* fearless.release.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.release.xcconfig; sourceTree = "<group>"; };
 		849013FA24A92A05008F705E /* fearless.debug.xcconfig */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xcconfig; path = fearless.debug.xcconfig; sourceTree = "<group>"; };
+		8490140224A92F6D008F705E /* OnboardingMainViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainViewController.swift; sourceTree = "<group>"; };
+		8490140524A92F6D008F705E /* AttributedStringDecorator+Terms.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "AttributedStringDecorator+Terms.swift"; sourceTree = "<group>"; };
+		8490140724A92F6D008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/OnbordingMain.xib; sourceTree = "<group>"; };
+		8490140824A92F6D008F705E /* OnboardingMainPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainPresenter.swift; sourceTree = "<group>"; };
+		8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainViewFactory.swift; sourceTree = "<group>"; };
+		8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainWireframe.swift; sourceTree = "<group>"; };
+		8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainProtocol.swift; sourceTree = "<group>"; };
+		8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainInteractor.swift; sourceTree = "<group>"; };
+		8490141E24A93027008F705E /* sora-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-Regular.otf"; sourceTree = "<group>"; };
+		8490141F24A93027008F705E /* sora-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-Bold.otf"; sourceTree = "<group>"; };
+		8490142024A93027008F705E /* sora-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-ExtraBold.otf"; sourceTree = "<group>"; };
+		8490142124A93027008F705E /* sora-SemiBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-SemiBold.otf"; sourceTree = "<group>"; };
+		8490142724A935FE008F705E /* ErrorPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorPresentable.swift; sourceTree = "<group>"; };
+		8490142824A935FE008F705E /* WebPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WebPresentable.swift; sourceTree = "<group>"; };
+		8490142924A935FE008F705E /* LoadableViewProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadableViewProtocol.swift; sourceTree = "<group>"; };
+		8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerBackedProtocol.swift; sourceTree = "<group>"; };
+		8490142B24A935FE008F705E /* AlertPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertPresentable.swift; sourceTree = "<group>"; };
+		8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DesignableNavigationBarProtocol.swift; sourceTree = "<group>"; };
+		8490144924A93D0B008F705E /* FearlessNavigationBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessNavigationBar.swift; sourceTree = "<group>"; };
+		8490144A24A93D0B008F705E /* FearlessNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessNavigationController.swift; sourceTree = "<group>"; };
+		8490144E24A93E2E008F705E /* UIImage+Drawing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Drawing.swift"; sourceTree = "<group>"; };
+		8490145024A93FD1008F705E /* FearlessLoadingViewPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessLoadingViewPresenter.swift; sourceTree = "<group>"; };
+		8490145124A93FD1008F705E /* FearlessLoadingViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessLoadingViewFactory.swift; sourceTree = "<group>"; };
+		8490145524A9404E008F705E /* AttributedStringDecorator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AttributedStringDecorator.swift; sourceTree = "<group>"; };
+		8490145724A9406D008F705E /* LegalData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LegalData.swift; sourceTree = "<group>"; };
+		8490145924A94102008F705E /* UIColor+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIColor+Style.swift"; sourceTree = "<group>"; };
+		8490145B24A94328008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = en; path = en.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		8490145F24A94373008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146124A94385008F705E /* ba-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ba-RU"; path = "ba-RU.lproj/Localizable.strings"; sourceTree = "<group>"; };
+		8490146224A9438E008F705E /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146324A94399008F705E /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146424A943A1008F705E /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = it; path = it.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146524A943A9008F705E /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = fr; path = fr.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146624A943B5008F705E /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146724A943C3008F705E /* es */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = es; path = es.lproj/Localizable.strings; sourceTree = "<group>"; };
+		8490146924A9463B008F705E /* Locale+Localization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Locale+Localization.swift"; sourceTree = "<group>"; };
+		8490146C24A9487A008F705E /* ErrorPresentable+AlertText.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ErrorPresentable+AlertText.swift"; sourceTree = "<group>"; };
+		8490146F24A94A37008F705E /* RootProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootProtocol.swift; sourceTree = "<group>"; };
+		8490147024A94A37008F705E /* RootWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootWireframe.swift; sourceTree = "<group>"; };
+		8490147124A94A37008F705E /* RootInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootInteractor.swift; sourceTree = "<group>"; };
+		8490147224A94A37008F705E /* RootPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPresenter.swift; sourceTree = "<group>"; };
+		8490147324A94A37008F705E /* RootPresenterFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPresenterFactory.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -120,6 +195,7 @@
 		849013AA24A80984008F705E /* fearless */ = {
 			isa = PBXGroup;
 			children = (
+				8490141D24A93027008F705E /* Fonts */,
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
@@ -128,6 +204,7 @@
 				849013B424A80986008F705E /* Assets.xcassets */,
 				849013B624A80986008F705E /* LaunchScreen.storyboard */,
 				849013B924A80986008F705E /* Info.plist */,
+				8490146024A94373008F705E /* Localizable.strings */,
 			);
 			path = fearless;
 			sourceTree = "<group>";
@@ -144,6 +221,9 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8490145424A9403C008F705E /* Helpers */,
+				8490144124A93CDC008F705E /* ViewController */,
+				8490142624A935FE008F705E /* Protocols */,
 				849013E024A9287F008F705E /* Model */,
 				849013D524A927E2008F705E /* Configs */,
 				849013D724A927E2008F705E /* Extension */,
@@ -155,6 +235,9 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				8490146E24A94A37008F705E /* Root */,
+				8490143124A9373E008F705E /* LoadingView */,
+				8490140124A92F6D008F705E /* OnbordingMain */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -178,6 +261,9 @@
 		849013D724A927E2008F705E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				8490146B24A94864008F705E /* Error */,
+				8490146824A9463B008F705E /* Foundation */,
+				8490144D24A93E2E008F705E /* UIKit */,
 				849013D824A927E2008F705E /* KeystoreExtensions.swift */,
 				849013D924A927E2008F705E /* LocalizationManager+Shared.swift */,
 				849013DA24A927E2008F705E /* SettingsExtension.swift */,
@@ -189,6 +275,7 @@
 			isa = PBXGroup;
 			children = (
 				849013E124A9288B008F705E /* Language.swift */,
+				8490145724A9406D008F705E /* LegalData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -201,6 +288,124 @@
 				849013F924A92A05008F705E /* fearless.release.xcconfig */,
 			);
 			path = Configs;
+			sourceTree = "<group>";
+		};
+		8490140124A92F6D008F705E /* OnbordingMain */ = {
+			isa = PBXGroup;
+			children = (
+				8490140324A92F6D008F705E /* ViewModel */,
+				8490140224A92F6D008F705E /* OnboardingMainViewController.swift */,
+				8490140624A92F6D008F705E /* OnbordingMain.xib */,
+				8490140824A92F6D008F705E /* OnboardingMainPresenter.swift */,
+				8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */,
+				8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */,
+				8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */,
+				8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */,
+			);
+			path = OnbordingMain;
+			sourceTree = "<group>";
+		};
+		8490140324A92F6D008F705E /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				8490140524A92F6D008F705E /* AttributedStringDecorator+Terms.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		8490141D24A93027008F705E /* Fonts */ = {
+			isa = PBXGroup;
+			children = (
+				8490141E24A93027008F705E /* sora-Regular.otf */,
+				8490141F24A93027008F705E /* sora-Bold.otf */,
+				8490142024A93027008F705E /* sora-ExtraBold.otf */,
+				8490142124A93027008F705E /* sora-SemiBold.otf */,
+			);
+			path = Fonts;
+			sourceTree = "<group>";
+		};
+		8490142624A935FE008F705E /* Protocols */ = {
+			isa = PBXGroup;
+			children = (
+				8490142724A935FE008F705E /* ErrorPresentable.swift */,
+				8490142824A935FE008F705E /* WebPresentable.swift */,
+				8490142924A935FE008F705E /* LoadableViewProtocol.swift */,
+				8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */,
+				8490142B24A935FE008F705E /* AlertPresentable.swift */,
+			);
+			path = Protocols;
+			sourceTree = "<group>";
+		};
+		8490143124A9373E008F705E /* LoadingView */ = {
+			isa = PBXGroup;
+			children = (
+				8490145124A93FD1008F705E /* FearlessLoadingViewFactory.swift */,
+				8490145024A93FD1008F705E /* FearlessLoadingViewPresenter.swift */,
+			);
+			path = LoadingView;
+			sourceTree = "<group>";
+		};
+		8490144124A93CDC008F705E /* ViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8490144224A93CDC008F705E /* NavigationController */,
+			);
+			path = ViewController;
+			sourceTree = "<group>";
+		};
+		8490144224A93CDC008F705E /* NavigationController */ = {
+			isa = PBXGroup;
+			children = (
+				8490144924A93D0B008F705E /* FearlessNavigationBar.swift */,
+				8490144A24A93D0B008F705E /* FearlessNavigationController.swift */,
+				8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */,
+			);
+			path = NavigationController;
+			sourceTree = "<group>";
+		};
+		8490144D24A93E2E008F705E /* UIKit */ = {
+			isa = PBXGroup;
+			children = (
+				8490144E24A93E2E008F705E /* UIImage+Drawing.swift */,
+				8490145924A94102008F705E /* UIColor+Style.swift */,
+			);
+			path = UIKit;
+			sourceTree = "<group>";
+		};
+		8490145424A9403C008F705E /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				8490145524A9404E008F705E /* AttributedStringDecorator.swift */,
+			);
+			path = Helpers;
+			sourceTree = "<group>";
+		};
+		8490146824A9463B008F705E /* Foundation */ = {
+			isa = PBXGroup;
+			children = (
+				8490146924A9463B008F705E /* Locale+Localization.swift */,
+			);
+			path = Foundation;
+			sourceTree = "<group>";
+		};
+		8490146B24A94864008F705E /* Error */ = {
+			isa = PBXGroup;
+			children = (
+				8490146C24A9487A008F705E /* ErrorPresentable+AlertText.swift */,
+			);
+			path = Error;
+			sourceTree = "<group>";
+		};
+		8490146E24A94A37008F705E /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				8490146F24A94A37008F705E /* RootProtocol.swift */,
+				8490147024A94A37008F705E /* RootWireframe.swift */,
+				8490147124A94A37008F705E /* RootInteractor.swift */,
+				8490147224A94A37008F705E /* RootPresenter.swift */,
+				8490147324A94A37008F705E /* RootPresenterFactory.swift */,
+			);
+			path = Root;
 			sourceTree = "<group>";
 		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
@@ -281,7 +486,13 @@
 			hasScannedForEncodings = 0;
 			knownRegions = (
 				en,
-				Base,
+				"ba-RU",
+				ru,
+				ja,
+				it,
+				fr,
+				uk,
+				es,
 			);
 			mainGroup = 8490139F24A80984008F705E;
 			productRefGroup = 849013A924A80984008F705E /* Products */;
@@ -299,10 +510,16 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
+				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
+				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
+				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
 				849013B524A80986008F705E /* Assets.xcassets in Resources */,
+				8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */,
+				8490142524A93027008F705E /* sora-SemiBold.otf in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -440,14 +657,42 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
+				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
+				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
+				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
+				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
+				8490145A24A94102008F705E /* UIColor+Style.swift in Sources */,
+				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
+				8490146A24A9463B008F705E /* Locale+Localization.swift in Sources */,
+				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
+				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
+				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
+				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
+				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
+				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
+				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
+				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
+				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
+				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
+				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
+				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
+				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
+				8490145824A9406D008F705E /* LegalData.swift in Sources */,
+				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
+				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
+				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
+				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -473,9 +718,32 @@
 		849013B624A80986008F705E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (
-				849013B724A80986008F705E /* Base */,
+				8490145B24A94328008F705E /* en */,
 			);
 			name = LaunchScreen.storyboard;
+			sourceTree = "<group>";
+		};
+		8490140624A92F6D008F705E /* OnbordingMain.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8490140724A92F6D008F705E /* en */,
+			);
+			name = OnbordingMain.xib;
+			sourceTree = "<group>";
+		};
+		8490146024A94373008F705E /* Localizable.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8490145F24A94373008F705E /* en */,
+				8490146124A94385008F705E /* ba-RU */,
+				8490146224A9438E008F705E /* ru */,
+				8490146324A94399008F705E /* ja */,
+				8490146424A943A1008F705E /* it */,
+				8490146524A943A9008F705E /* fr */,
+				8490146624A943B5008F705E /* uk */,
+				8490146724A943C3008F705E /* es */,
+			);
+			name = Localizable.strings;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */
@@ -485,6 +753,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -545,6 +814,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -611,7 +881,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -631,7 +901,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -685,6 +955,7 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_LOCALIZABILITY_NONLOCALIZED = YES;
 				CLANG_ANALYZER_NONNULL = YES;
 				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
 				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
@@ -757,7 +1028,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Dev;
 		};

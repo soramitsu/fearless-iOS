@@ -1,0 +1,13 @@
+"common.signup" = "Реєстрація";
+"common.close" = "Close";
+
+"operation.error.title" = "Operation Failed";
+"operation.error.message" = "Please, try again later";
+
+"connection.error.title" = "Connection Failed";
+"connection.error.message" = "Please, check internet connection and try again later.";
+
+"onboarding.restore.account" = "Відновлення доступу до облікового запису";
+"onboarding.terms.and.conditions.1" = "Я підтверджую, що прочитав і згоден з\nУмовами користування та Політикою конфіденційності";
+"onboarding.terms.and.conditions.2" = "Terms and Conditions";
+"onboarding.privacy.policy" = "Privacy Policy";

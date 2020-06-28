@@ -4,6 +4,11 @@ import IrohaCrypto
 
 enum SettingsKey: String {
     case selectedLocalization
+    case accountId
 }
 
-extension SettingsManagerProtocol {}
+extension SettingsManagerProtocol {
+    var hasAccountId: Bool {
+        string(for: SettingsKey.accountId.rawValue) != nil
+    }
+}
