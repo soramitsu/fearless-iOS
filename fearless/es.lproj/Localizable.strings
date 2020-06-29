@@ -4,6 +4,7 @@
 "common.cancel" = "Cancel";
 "common.skip" = "Skip";
 "common.use" = "Use";
+"common.error.general.title" = "Error";
 
 "operation.error.title" = "Operation Failed";
 "operation.error.message" = "Please, try again later";
@@ -35,6 +36,13 @@
 "ask.faceid.title" = "Face ID";
 "ask.faceid.message" = "Would you like to user Face ID for authentication?";
 "ask.biometry.reason" = "Authenticate to access the account";
+
+"access.restore.words.error.message" = "Passphrase must contain 24 words at max";
+"access.restore.phrase.error.message" = "Your mnemonic is invalid. Please, try another one.";
+"recovery.title" = "Restore access";
+"recovery.body.title" = "Enter your mnemonic";
+"recovery.passphrase" = "Mnemonic";
+"recovery.body.subtitle" = "Unfortunately there is no way to access your account if you lost your mnemonic.";
 
 "tabbar.wallet.title" = "Wallet";
 "tabbar.staking.title" = "Staking";
