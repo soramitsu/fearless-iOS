@@ -60,6 +60,41 @@
 		8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */; };
 		8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148124AA1F5B008F705E /* SR25519AccountOperationFactory.swift */; };
 		8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148324AA27C1008F705E /* OperationManagerFacade.swift */; };
+		8490149124AA7834008F705E /* AccessBackupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8490148924AA7834008F705E /* AccessBackupViewController.xib */; };
+		8490149224AA7834008F705E /* AccessBackupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148B24AA7834008F705E /* AccessBackupInteractor.swift */; };
+		8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148C24AA7834008F705E /* AccessBackupPresenter.swift */; };
+		8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148D24AA7834008F705E /* AccessBackupProtocol.swift */; };
+		8490149524AA7834008F705E /* AccessBackupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148E24AA7834008F705E /* AccessBackupViewController.swift */; };
+		8490149624AA7834008F705E /* AccessBackupViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148F24AA7834008F705E /* AccessBackupViewFactory.swift */; };
+		8490149724AA7834008F705E /* AccessBackupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490149024AA7834008F705E /* AccessBackupWireframe.swift */; };
+		8490149924AA7892008F705E /* SharingPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490149824AA7892008F705E /* SharingPresentable.swift */; };
+		8490149C24AA7EF6008F705E /* AccessoryViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490149B24AA7EF6008F705E /* AccessoryViewController.swift */; };
+		849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490149F24AA7F9A008F705E /* AccessoryViewFactory.swift */; };
+		849014A324AA7F9A008F705E /* AccessoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 849014A024AA7F9A008F705E /* AccessoryView.xib */; };
+		849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014A124AA7F9A008F705E /* AccessoryView.swift */; };
+		849014A624AA801B008F705E /* TextSharingSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014A524AA801B008F705E /* TextSharingSource.swift */; };
+		849014B824AA87E3008F705E /* PinSetupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 849014A924AA87E3008F705E /* PinSetupViewController.xib */; };
+		849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014AB24AA87E3008F705E /* PinSetupViewController.swift */; };
+		849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014AC24AA87E3008F705E /* PinSetupProtocol.swift */; };
+		849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014AD24AA87E3008F705E /* PinSetupWireframe.swift */; };
+		849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014AE24AA87E3008F705E /* PinSetupInteractor.swift */; };
+		849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014AF24AA87E3008F705E /* PinViewFactory.swift */; };
+		849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B024AA87E3008F705E /* PinSetupPresenter.swift */; };
+		849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B224AA87E3008F705E /* ScreenAuthorizationProtocol.swift */; };
+		849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B324AA87E3008F705E /* ScreenAuthorizationPresenter.swift */; };
+		849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B524AA87E3008F705E /* LocalAuthProtocol.swift */; };
+		849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B624AA87E3008F705E /* LocalAuthPresenter.swift */; };
+		849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014B724AA87E3008F705E /* LocalAuthInteractor.swift */; };
+		849014C524AA890D008F705E /* UIFont+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014C424AA890D008F705E /* UIFont+Style.swift */; };
+		849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014C724AA8A28008F705E /* BiometryAuth.swift */; };
+		849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014CA24AA8B75008F705E /* RootControllerAnimationCoordinator.swift */; };
+		849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014CD24AA8F60008F705E /* MainTabBarProtocol.swift */; };
+		849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014CE24AA8F60008F705E /* MainTabBarPresenter.swift */; };
+		849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014CF24AA8F60008F705E /* MainTabBarViewFactory.swift */; };
+		849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014D024AA8F60008F705E /* MainTabBarInteractor.swift */; };
+		849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014D124AA8F60008F705E /* MainTabBarViewController.swift */; };
+		849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014D224AA8F60008F705E /* MainTabBarWireframe.swift */; };
+		849014E824AA925C008F705E /* ScrollsToTop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014E724AA925C008F705E /* ScrollsToTop.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -142,6 +177,41 @@
 		8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SR25519KeypairFactory.swift; sourceTree = "<group>"; };
 		8490148124AA1F5B008F705E /* SR25519AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SR25519AccountOperationFactory.swift; sourceTree = "<group>"; };
 		8490148324AA27C1008F705E /* OperationManagerFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationManagerFacade.swift; sourceTree = "<group>"; };
+		8490148A24AA7834008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AccessBackupViewController.xib; sourceTree = "<group>"; };
+		8490148B24AA7834008F705E /* AccessBackupInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupInteractor.swift; sourceTree = "<group>"; };
+		8490148C24AA7834008F705E /* AccessBackupPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupPresenter.swift; sourceTree = "<group>"; };
+		8490148D24AA7834008F705E /* AccessBackupProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupProtocol.swift; sourceTree = "<group>"; };
+		8490148E24AA7834008F705E /* AccessBackupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupViewController.swift; sourceTree = "<group>"; };
+		8490148F24AA7834008F705E /* AccessBackupViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupViewFactory.swift; sourceTree = "<group>"; };
+		8490149024AA7834008F705E /* AccessBackupWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessBackupWireframe.swift; sourceTree = "<group>"; };
+		8490149824AA7892008F705E /* SharingPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharingPresentable.swift; sourceTree = "<group>"; };
+		8490149B24AA7EF6008F705E /* AccessoryViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessoryViewController.swift; sourceTree = "<group>"; };
+		8490149F24AA7F9A008F705E /* AccessoryViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessoryViewFactory.swift; sourceTree = "<group>"; };
+		849014A024AA7F9A008F705E /* AccessoryView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AccessoryView.xib; sourceTree = "<group>"; };
+		849014A124AA7F9A008F705E /* AccessoryView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessoryView.swift; sourceTree = "<group>"; };
+		849014A524AA801B008F705E /* TextSharingSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextSharingSource.swift; sourceTree = "<group>"; };
+		849014AA24AA87E3008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/PinSetupViewController.xib; sourceTree = "<group>"; };
+		849014AB24AA87E3008F705E /* PinSetupViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinSetupViewController.swift; sourceTree = "<group>"; };
+		849014AC24AA87E3008F705E /* PinSetupProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinSetupProtocol.swift; sourceTree = "<group>"; };
+		849014AD24AA87E3008F705E /* PinSetupWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinSetupWireframe.swift; sourceTree = "<group>"; };
+		849014AE24AA87E3008F705E /* PinSetupInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinSetupInteractor.swift; sourceTree = "<group>"; };
+		849014AF24AA87E3008F705E /* PinViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinViewFactory.swift; sourceTree = "<group>"; };
+		849014B024AA87E3008F705E /* PinSetupPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PinSetupPresenter.swift; sourceTree = "<group>"; };
+		849014B224AA87E3008F705E /* ScreenAuthorizationProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenAuthorizationProtocol.swift; sourceTree = "<group>"; };
+		849014B324AA87E3008F705E /* ScreenAuthorizationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScreenAuthorizationPresenter.swift; sourceTree = "<group>"; };
+		849014B524AA87E3008F705E /* LocalAuthProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalAuthProtocol.swift; sourceTree = "<group>"; };
+		849014B624AA87E3008F705E /* LocalAuthPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalAuthPresenter.swift; sourceTree = "<group>"; };
+		849014B724AA87E3008F705E /* LocalAuthInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocalAuthInteractor.swift; sourceTree = "<group>"; };
+		849014C424AA890D008F705E /* UIFont+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIFont+Style.swift"; sourceTree = "<group>"; };
+		849014C724AA8A28008F705E /* BiometryAuth.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BiometryAuth.swift; sourceTree = "<group>"; };
+		849014CA24AA8B75008F705E /* RootControllerAnimationCoordinator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootControllerAnimationCoordinator.swift; sourceTree = "<group>"; };
+		849014CD24AA8F60008F705E /* MainTabBarProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarProtocol.swift; sourceTree = "<group>"; };
+		849014CE24AA8F60008F705E /* MainTabBarPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarPresenter.swift; sourceTree = "<group>"; };
+		849014CF24AA8F60008F705E /* MainTabBarViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarViewFactory.swift; sourceTree = "<group>"; };
+		849014D024AA8F60008F705E /* MainTabBarInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarInteractor.swift; sourceTree = "<group>"; };
+		849014D124AA8F60008F705E /* MainTabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarViewController.swift; sourceTree = "<group>"; };
+		849014D224AA8F60008F705E /* MainTabBarWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarWireframe.swift; sourceTree = "<group>"; };
+		849014E724AA925C008F705E /* ScrollsToTop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollsToTop.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -229,6 +299,9 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				849014C924AA8B75008F705E /* Animation */,
+				849014C624AA8A28008F705E /* LocalAuthentication */,
+				8490149D24AA7F9A008F705E /* View */,
 				8490147C24AA14AF008F705E /* Crypto */,
 				8490147924AA13C7008F705E /* Operation */,
 				8490145424A9403C008F705E /* Helpers */,
@@ -245,6 +318,9 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				849014CC24AA8F60008F705E /* MainTabBar */,
+				849014A724AA87E3008F705E /* Pincode */,
+				8490148824AA7834008F705E /* AccessBackup */,
 				8490146E24A94A37008F705E /* Root */,
 				8490143124A9373E008F705E /* LoadingView */,
 				8490140124A92F6D008F705E /* OnbordingMain */,
@@ -286,6 +362,7 @@
 			children = (
 				849013E124A9288B008F705E /* Language.swift */,
 				8490145724A9406D008F705E /* LegalData.swift */,
+				849014A524AA801B008F705E /* TextSharingSource.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -337,6 +414,8 @@
 		8490142624A935FE008F705E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				849014E724AA925C008F705E /* ScrollsToTop.swift */,
+				8490149824AA7892008F705E /* SharingPresentable.swift */,
 				8490142724A935FE008F705E /* ErrorPresentable.swift */,
 				8490142824A935FE008F705E /* WebPresentable.swift */,
 				8490142924A935FE008F705E /* LoadableViewProtocol.swift */,
@@ -358,6 +437,7 @@
 		8490144124A93CDC008F705E /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				8490149A24AA7EF6008F705E /* AccessoryViewController */,
 				8490144224A93CDC008F705E /* NavigationController */,
 			);
 			path = ViewController;
@@ -378,6 +458,7 @@
 			children = (
 				8490144E24A93E2E008F705E /* UIImage+Drawing.swift */,
 				8490145924A94102008F705E /* UIColor+Style.swift */,
+				849014C424AA890D008F705E /* UIFont+Style.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -434,6 +515,118 @@
 				8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */,
 			);
 			path = Crypto;
+			sourceTree = "<group>";
+		};
+		8490148824AA7834008F705E /* AccessBackup */ = {
+			isa = PBXGroup;
+			children = (
+				8490148924AA7834008F705E /* AccessBackupViewController.xib */,
+				8490148B24AA7834008F705E /* AccessBackupInteractor.swift */,
+				8490148C24AA7834008F705E /* AccessBackupPresenter.swift */,
+				8490148D24AA7834008F705E /* AccessBackupProtocol.swift */,
+				8490148E24AA7834008F705E /* AccessBackupViewController.swift */,
+				8490148F24AA7834008F705E /* AccessBackupViewFactory.swift */,
+				8490149024AA7834008F705E /* AccessBackupWireframe.swift */,
+			);
+			path = AccessBackup;
+			sourceTree = "<group>";
+		};
+		8490149A24AA7EF6008F705E /* AccessoryViewController */ = {
+			isa = PBXGroup;
+			children = (
+				8490149B24AA7EF6008F705E /* AccessoryViewController.swift */,
+			);
+			path = AccessoryViewController;
+			sourceTree = "<group>";
+		};
+		8490149D24AA7F9A008F705E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8490149E24AA7F9A008F705E /* AccessoryView */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		8490149E24AA7F9A008F705E /* AccessoryView */ = {
+			isa = PBXGroup;
+			children = (
+				8490149F24AA7F9A008F705E /* AccessoryViewFactory.swift */,
+				849014A024AA7F9A008F705E /* AccessoryView.xib */,
+				849014A124AA7F9A008F705E /* AccessoryView.swift */,
+			);
+			path = AccessoryView;
+			sourceTree = "<group>";
+		};
+		849014A724AA87E3008F705E /* Pincode */ = {
+			isa = PBXGroup;
+			children = (
+				849014A824AA87E3008F705E /* PinSetup */,
+				849014B124AA87E3008F705E /* ScreenAuthorization */,
+				849014B424AA87E3008F705E /* LocalAuthentification */,
+			);
+			path = Pincode;
+			sourceTree = "<group>";
+		};
+		849014A824AA87E3008F705E /* PinSetup */ = {
+			isa = PBXGroup;
+			children = (
+				849014A924AA87E3008F705E /* PinSetupViewController.xib */,
+				849014AB24AA87E3008F705E /* PinSetupViewController.swift */,
+				849014AC24AA87E3008F705E /* PinSetupProtocol.swift */,
+				849014AD24AA87E3008F705E /* PinSetupWireframe.swift */,
+				849014AE24AA87E3008F705E /* PinSetupInteractor.swift */,
+				849014AF24AA87E3008F705E /* PinViewFactory.swift */,
+				849014B024AA87E3008F705E /* PinSetupPresenter.swift */,
+			);
+			path = PinSetup;
+			sourceTree = "<group>";
+		};
+		849014B124AA87E3008F705E /* ScreenAuthorization */ = {
+			isa = PBXGroup;
+			children = (
+				849014B224AA87E3008F705E /* ScreenAuthorizationProtocol.swift */,
+				849014B324AA87E3008F705E /* ScreenAuthorizationPresenter.swift */,
+			);
+			path = ScreenAuthorization;
+			sourceTree = "<group>";
+		};
+		849014B424AA87E3008F705E /* LocalAuthentification */ = {
+			isa = PBXGroup;
+			children = (
+				849014B524AA87E3008F705E /* LocalAuthProtocol.swift */,
+				849014B624AA87E3008F705E /* LocalAuthPresenter.swift */,
+				849014B724AA87E3008F705E /* LocalAuthInteractor.swift */,
+			);
+			path = LocalAuthentification;
+			sourceTree = "<group>";
+		};
+		849014C624AA8A28008F705E /* LocalAuthentication */ = {
+			isa = PBXGroup;
+			children = (
+				849014C724AA8A28008F705E /* BiometryAuth.swift */,
+			);
+			path = LocalAuthentication;
+			sourceTree = "<group>";
+		};
+		849014C924AA8B75008F705E /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				849014CA24AA8B75008F705E /* RootControllerAnimationCoordinator.swift */,
+			);
+			path = Animation;
+			sourceTree = "<group>";
+		};
+		849014CC24AA8F60008F705E /* MainTabBar */ = {
+			isa = PBXGroup;
+			children = (
+				849014CD24AA8F60008F705E /* MainTabBarProtocol.swift */,
+				849014CE24AA8F60008F705E /* MainTabBarPresenter.swift */,
+				849014CF24AA8F60008F705E /* MainTabBarViewFactory.swift */,
+				849014D024AA8F60008F705E /* MainTabBarInteractor.swift */,
+				849014D124AA8F60008F705E /* MainTabBarViewController.swift */,
+				849014D224AA8F60008F705E /* MainTabBarWireframe.swift */,
+			);
+			path = MainTabBar;
 			sourceTree = "<group>";
 		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
@@ -548,6 +741,9 @@
 				849013B524A80986008F705E /* Assets.xcassets in Resources */,
 				8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */,
 				8490142524A93027008F705E /* sora-SemiBold.otf in Resources */,
+				849014A324AA7F9A008F705E /* AccessoryView.xib in Resources */,
+				8490149124AA7834008F705E /* AccessBackupViewController.xib in Resources */,
+				849014B824AA87E3008F705E /* PinSetupViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -685,44 +881,76 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
+				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				8490145A24A94102008F705E /* UIColor+Style.swift in Sources */,
+				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
+				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
+				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
+				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
+				849014E824AA925C008F705E /* ScrollsToTop.swift in Sources */,
 				8490146A24A9463B008F705E /* Locale+Localization.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
+				8490149724AA7834008F705E /* AccessBackupWireframe.swift in Sources */,
 				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
+				849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
+				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
+				8490149524AA7834008F705E /* AccessBackupViewController.swift in Sources */,
+				8490149224AA7834008F705E /* AccessBackupInteractor.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
+				8490149624AA7834008F705E /* AccessBackupViewFactory.swift in Sources */,
+				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
+				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
+				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
+				849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
+				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
+				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
+				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
+				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
+				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
+				8490149C24AA7EF6008F705E /* AccessoryViewController.swift in Sources */,
+				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */,
 				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
+				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
+				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
+				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
+				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
+				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
+				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
+				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 			);
@@ -776,6 +1004,22 @@
 				8490146724A943C3008F705E /* es */,
 			);
 			name = Localizable.strings;
+			sourceTree = "<group>";
+		};
+		8490148924AA7834008F705E /* AccessBackupViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8490148A24AA7834008F705E /* en */,
+			);
+			name = AccessBackupViewController.xib;
+			sourceTree = "<group>";
+		};
+		849014A924AA87E3008F705E /* PinSetupViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				849014AA24AA87E3008F705E /* en */,
+			);
+			name = PinSetupViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

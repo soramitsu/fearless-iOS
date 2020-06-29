@@ -29,7 +29,7 @@ extension RootInteractor: RootInteractorInputProtocol {
             if pincodeExists {
                 presenter?.didDecideLocalAuthentication()
             } else {
-                presenter?.didDecideAuthVerification()
+                presenter?.didDecidePincodeSetup()
             }
 
         } catch {

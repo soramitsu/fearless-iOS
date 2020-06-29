@@ -1,5 +1,9 @@
 "common.signup" = "サインアップ";
 "common.close" = "Close";
+"common.next" = "Next";
+"common.cancel" = "Cancel";
+"common.skip" = "Skip";
+"common.use" = "Use";
 
 "operation.error.title" = "Operation Failed";
 "operation.error.message" = "Please, try again later";
@@ -11,3 +15,28 @@
 "onboarding.terms.and.conditions.1" = "利用規約、個人情報保護方針に同意してサインアップする。";
 "onboarding.terms.and.conditions.2" = "Terms and Conditions";
 "onboarding.privacy.policy" = "Privacy Policy";
+
+"common.passphrase.title" = "Mnemonic";
+"common.passphrase.sharing.subject" = "Fearless access backup";
+"common.passphrase.title" = "Mnemonic";
+"common.passphrase.save.or.send" = "Save or send";
+"common.passphrase.header" = "Mnemonic is\na type of password.";
+"common.passphrase.body" = "It is used to recover access to account. Write it down, we will not be able to recover your account without it!";
+"common.passphrase.your.passphrase" = "Your mnemonic";
+
+"access.backup.error.message" = "Please, try repeat registration from scratch.";
+"access.backup.load.error.title" = "Credentials Loading Failed";
+
+"pincode.enter.pin.code" = "Enter pin code";
+"pincode.confirm.your.pin.code" = "Confirm your pin code";
+"pincode.set.your.pin.code" = "Set your pin code";
+"ask.touchid.title" = "Touch ID";
+"ask.touchid.message" = "Would you like to use Touch ID for authentication?";
+"ask.faceid.title" = "Face ID";
+"ask.faceid.message" = "Would you like to user Face ID for authentication?";
+"ask.biometry.reason" = "Authenticate to access the account";
+
+"tabbar.wallet.title" = "Wallet";
+"tabbar.staking.title" = "Staking";
+"tabbar.governance.title" = "Governance";
+"tabbar.settings.title" = "Settings";

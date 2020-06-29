@@ -11,9 +11,20 @@ final class RootWireframe: RootWireframeProtocol {
         view.rootViewController = navigationController
     }
 
-    func showLocalAuthentication(on view: UIWindow) {}
+    func showLocalAuthentication(on view: UIWindow) {
+        let pincodeView = PinViewFactory.createSecuredPinView()
+        let pincodeController = pincodeView?.controller ?? UIViewController()
 
-    func showAuthVerification(on view: UIWindow) {}
+        view.rootViewController = pincodeController
+    }
+
+    func showPincodeSetup(on view: UIWindow) {
+        guard let controller = PinViewFactory.createPinSetupView()?.controller else {
+            return
+        }
+
+        view.rootViewController = controller
+    }
 
     func showBroken(on view: UIWindow) {
         // normally user must not see this but on malicious devices it is possible
