@@ -95,6 +95,15 @@
 		849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014D124AA8F60008F705E /* MainTabBarViewController.swift */; };
 		849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014D224AA8F60008F705E /* MainTabBarWireframe.swift */; };
 		849014E824AA925C008F705E /* ScrollsToTop.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014E724AA925C008F705E /* ScrollsToTop.swift */; };
+		849014F324AA961E008F705E /* AccessRestoreViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 849014EA24AA961E008F705E /* AccessRestoreViewController.xib */; };
+		849014F424AA961E008F705E /* AccessRestoreWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014EC24AA961E008F705E /* AccessRestoreWireframe.swift */; };
+		849014F524AA961E008F705E /* AccessRestoreInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014ED24AA961E008F705E /* AccessRestoreInteractor.swift */; };
+		849014F624AA961E008F705E /* AccessRestorePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014EE24AA961E008F705E /* AccessRestorePresenter.swift */; };
+		849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014EF24AA961E008F705E /* AccessRestoreViewFactory.swift */; };
+		849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014F024AA961E008F705E /* AccessRestoreError.swift */; };
+		849014F924AA961E008F705E /* AccessRestoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014F124AA961E008F705E /* AccessRestoreViewController.swift */; };
+		849014FA24AA961E008F705E /* AccessRestoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014F224AA961E008F705E /* AccessRestoreProtocol.swift */; };
+		849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014FB24AA9939008F705E /* Charset+Mnemonic.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -212,6 +221,15 @@
 		849014D124AA8F60008F705E /* MainTabBarViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarViewController.swift; sourceTree = "<group>"; };
 		849014D224AA8F60008F705E /* MainTabBarWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MainTabBarWireframe.swift; sourceTree = "<group>"; };
 		849014E724AA925C008F705E /* ScrollsToTop.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ScrollsToTop.swift; sourceTree = "<group>"; };
+		849014EB24AA961E008F705E /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/AccessRestoreViewController.xib; sourceTree = "<group>"; };
+		849014EC24AA961E008F705E /* AccessRestoreWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreWireframe.swift; sourceTree = "<group>"; };
+		849014ED24AA961E008F705E /* AccessRestoreInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreInteractor.swift; sourceTree = "<group>"; };
+		849014EE24AA961E008F705E /* AccessRestorePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestorePresenter.swift; sourceTree = "<group>"; };
+		849014EF24AA961E008F705E /* AccessRestoreViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreViewFactory.swift; sourceTree = "<group>"; };
+		849014F024AA961E008F705E /* AccessRestoreError.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreError.swift; sourceTree = "<group>"; };
+		849014F124AA961E008F705E /* AccessRestoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreViewController.swift; sourceTree = "<group>"; };
+		849014F224AA961E008F705E /* AccessRestoreProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreProtocol.swift; sourceTree = "<group>"; };
+		849014FB24AA9939008F705E /* Charset+Mnemonic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Charset+Mnemonic.swift"; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -318,6 +336,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				849014E924AA961E008F705E /* AccessRestore */,
 				849014CC24AA8F60008F705E /* MainTabBar */,
 				849014A724AA87E3008F705E /* Pincode */,
 				8490148824AA7834008F705E /* AccessBackup */,
@@ -475,6 +494,7 @@
 			isa = PBXGroup;
 			children = (
 				8490146924A9463B008F705E /* Locale+Localization.swift */,
+				849014FB24AA9939008F705E /* Charset+Mnemonic.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -629,6 +649,21 @@
 			path = MainTabBar;
 			sourceTree = "<group>";
 		};
+		849014E924AA961E008F705E /* AccessRestore */ = {
+			isa = PBXGroup;
+			children = (
+				849014EA24AA961E008F705E /* AccessRestoreViewController.xib */,
+				849014EC24AA961E008F705E /* AccessRestoreWireframe.swift */,
+				849014ED24AA961E008F705E /* AccessRestoreInteractor.swift */,
+				849014EE24AA961E008F705E /* AccessRestorePresenter.swift */,
+				849014EF24AA961E008F705E /* AccessRestoreViewFactory.swift */,
+				849014F024AA961E008F705E /* AccessRestoreError.swift */,
+				849014F124AA961E008F705E /* AccessRestoreViewController.swift */,
+				849014F224AA961E008F705E /* AccessRestoreProtocol.swift */,
+			);
+			path = AccessRestore;
+			sourceTree = "<group>";
+		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -735,6 +770,7 @@
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
+				849014F324AA961E008F705E /* AccessRestoreViewController.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
@@ -882,6 +918,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,
+				849014F524AA961E008F705E /* AccessRestoreInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
 				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
@@ -892,6 +929,7 @@
 				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
+				849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */,
 				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
 				849014E824AA925C008F705E /* ScrollsToTop.swift in Sources */,
@@ -924,20 +962,25 @@
 				849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
+				849014F424AA961E008F705E /* AccessRestoreWireframe.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				849014F624AA961E008F705E /* AccessRestorePresenter.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
 				8490149C24AA7EF6008F705E /* AccessoryViewController.swift in Sources */,
+				849014FA24AA961E008F705E /* AccessRestoreProtocol.swift in Sources */,
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */,
 				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
+				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
+				849014F924AA961E008F705E /* AccessRestoreViewController.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
@@ -952,6 +995,7 @@
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
+				849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1020,6 +1064,14 @@
 				849014AA24AA87E3008F705E /* en */,
 			);
 			name = PinSetupViewController.xib;
+			sourceTree = "<group>";
+		};
+		849014EA24AA961E008F705E /* AccessRestoreViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				849014EB24AA961E008F705E /* en */,
+			);
+			name = AccessRestoreViewController.xib;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

@@ -12,6 +12,12 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showAccountRestore(from view: OnboardingMainViewProtocol?) {
+        guard let restorationController = AccessRestoreViewFactory.createView()?.controller else {
+            return
+        }
 
+        if let navigationController = view?.controller.navigationController {
+            navigationController.pushViewController(restorationController, animated: true)
+        }
     }
 }
