@@ -22,8 +22,8 @@ extension RootPresenter: RootInteractorOutputProtocol {
         wireframe.showLocalAuthentication(on: view)
     }
 
-    func didDecideAuthVerification() {
-        wireframe.showAuthVerification(on: view)
+    func didDecidePincodeSetup() {
+        wireframe.showPincodeSetup(on: view)
     }
 
     func didDecideBroken() {
