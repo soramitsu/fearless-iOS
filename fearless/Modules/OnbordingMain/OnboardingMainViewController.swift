@@ -31,8 +31,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
         configureLogoView()
         configureTermsLabel()
         adjustLayout()
-
-        presenter.setup()
     }
 
     private func configureTermsLabel() {

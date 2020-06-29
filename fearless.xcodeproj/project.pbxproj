@@ -56,6 +56,10 @@
 		8490147624A94A37008F705E /* RootInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147124A94A37008F705E /* RootInteractor.swift */; };
 		8490147724A94A37008F705E /* RootPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147224A94A37008F705E /* RootPresenter.swift */; };
 		8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147324A94A37008F705E /* RootPresenterFactory.swift */; };
+		8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147A24AA13D9008F705E /* AccountOperationFactory.swift */; };
+		8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */; };
+		8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148124AA1F5B008F705E /* SR25519AccountOperationFactory.swift */; };
+		8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490148324AA27C1008F705E /* OperationManagerFacade.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -134,6 +138,10 @@
 		8490147124A94A37008F705E /* RootInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootInteractor.swift; sourceTree = "<group>"; };
 		8490147224A94A37008F705E /* RootPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPresenter.swift; sourceTree = "<group>"; };
 		8490147324A94A37008F705E /* RootPresenterFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RootPresenterFactory.swift; sourceTree = "<group>"; };
+		8490147A24AA13D9008F705E /* AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactory.swift; sourceTree = "<group>"; };
+		8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SR25519KeypairFactory.swift; sourceTree = "<group>"; };
+		8490148124AA1F5B008F705E /* SR25519AccountOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SR25519AccountOperationFactory.swift; sourceTree = "<group>"; };
+		8490148324AA27C1008F705E /* OperationManagerFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OperationManagerFacade.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -221,6 +229,8 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8490147C24AA14AF008F705E /* Crypto */,
+				8490147924AA13C7008F705E /* Operation */,
 				8490145424A9403C008F705E /* Helpers */,
 				8490144124A93CDC008F705E /* ViewController */,
 				8490142624A935FE008F705E /* Protocols */,
@@ -406,6 +416,24 @@
 				8490147324A94A37008F705E /* RootPresenterFactory.swift */,
 			);
 			path = Root;
+			sourceTree = "<group>";
+		};
+		8490147924AA13C7008F705E /* Operation */ = {
+			isa = PBXGroup;
+			children = (
+				8490147A24AA13D9008F705E /* AccountOperationFactory.swift */,
+				8490148124AA1F5B008F705E /* SR25519AccountOperationFactory.swift */,
+				8490148324AA27C1008F705E /* OperationManagerFacade.swift */,
+			);
+			path = Operation;
+			sourceTree = "<group>";
+		};
+		8490147C24AA14AF008F705E /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */,
+			);
+			path = Crypto;
 			sourceTree = "<group>";
 		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
@@ -671,10 +699,12 @@
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
+				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
+				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
@@ -683,8 +713,10 @@
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
+				8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */,
 				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
+				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,

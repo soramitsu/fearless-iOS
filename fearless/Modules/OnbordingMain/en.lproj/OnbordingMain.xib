@@ -89,7 +89,7 @@
                     </connections>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bcI-vv-wu7" customClass="RoundedButton" customModule="SoraUI">
-                    <rect key="frame" x="78" y="579" width="219.5" height="34"/>
+                    <rect key="frame" x="100.5" y="581" width="174.5" height="32"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Restore your account access"/>

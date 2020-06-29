@@ -31,7 +31,10 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
     }
 
     private static func createInteractor() -> OnboardingMainInteractor {
-        let interactor = OnboardingMainInteractor(logger: Logger.shared)
+        let accountOperationFactory = SR25519AccountOperationFactory(keystore: Keychain(),
+                                                                     settings: SettingsManager.shared)
+        let interactor = OnboardingMainInteractor(accountOperationFactory: accountOperationFactory,
+                                                  operationManager: OperationManagerFacade.sharedManager)
         return interactor
     }
 }
