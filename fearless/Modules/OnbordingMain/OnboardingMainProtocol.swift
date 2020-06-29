@@ -3,7 +3,6 @@ import Foundation
 protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {}
 
 protocol OnboardingMainPresenterProtocol: class {
-    func setup()
     func activateSignup()
     func activateAccountRestore()
     func activateTerms()
@@ -11,7 +10,6 @@ protocol OnboardingMainPresenterProtocol: class {
 }
 
 protocol OnboardingMainInputInteractorProtocol: class {
-    func setup()
     func signup()
 }
 

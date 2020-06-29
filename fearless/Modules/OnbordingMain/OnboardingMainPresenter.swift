@@ -32,10 +32,6 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
         }
     }
 
-    func setup() {
-        interactor.setup()
-    }
-
     func activateSignup() {
         interactor.signup()
     }
