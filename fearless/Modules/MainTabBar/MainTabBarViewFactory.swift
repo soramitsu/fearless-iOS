@@ -40,28 +40,36 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	}
 
     static func createWalletController(localizationManager: LocalizationManagerProtocol) -> UIViewController? {
-        let viewController = UIViewController()
+        do {
+            let walletContext = try WalletContextFactory().createContext()
+            let viewController = try walletContext.createRootController()
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
-        }
+            let localizableTitle = LocalizableResource { locale in
+                R.string.localizable.tabbarWalletTitle(preferredLanguages: locale.rLanguages)
+            }
 
-        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: nil,
-                                                     selectedImage: nil)
-
-        localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            viewController?.tabBarItem.title = currentTitle
-        }
+            viewController.tabBarItem = createTabBarItem(title: currentTitle,
+                                                         normalImage: nil,
+                                                         selectedImage: nil)
 
-        return viewController
+            localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
+                let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+                viewController?.tabBarItem.title = currentTitle
+            }
+
+            return viewController
+        } catch {
+            Logger.shared.error("Can't create wallet: \(error)")
+
+            return nil
+        }
     }
 
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
+        viewController.view.backgroundColor = .white
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -83,6 +91,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
+        viewController.view.backgroundColor = .white
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
@@ -104,6 +113,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createSettingsController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
+        viewController.view.backgroundColor = .white
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
