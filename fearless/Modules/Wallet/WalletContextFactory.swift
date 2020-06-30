@@ -38,10 +38,13 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
 
+        WalletCommonConfigurator().configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
         let accountListConfigurator = WalletAccountListConfigurator(logger: logger)
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)
+
+        TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
 
         let context = try builder.build()
 
