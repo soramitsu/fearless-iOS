@@ -30,14 +30,15 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             throw WalletPrimitiveFactoryError.missingAccountId
         }
 
-        let localizableName = LocalizableResource<String> { _ in "Kusama" }
+        let localizableName = LocalizableResource<String> { _ in "KSM" }
+        let platformName = LocalizableResource<String> { _ in "Kusama" }
 
         let asset = WalletAsset(identifier: WalletAssetIds.kusama.rawValue,
                                 name: localizableName,
-                                platform: nil,
+                                platform: platformName,
                                 symbol: "KSM",
                                 precision: 18,
-                                modes: [.view])
+                                modes: .all)
 
         return WalletAccountSettings(accountId: accountId, assets: [asset])
     }
