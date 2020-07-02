@@ -14,11 +14,20 @@ struct AlertPresentableAction {
     }
 }
 
+struct AlertPresentableViewModel {
+    let title: String?
+    let message: String?
+    let actions: [AlertPresentableAction]
+    let closeAction: String?
+}
+
 protocol AlertPresentable: class {
     func present(message: String?, title: String?,
-                 closeAction: String?, from view: ControllerBackedProtocol?)
-    func present(message: String?, title: String?,
-                 actions: [AlertPresentableAction],
+                 closeAction: String?,
+                 from view: ControllerBackedProtocol?)
+
+    func present(viewModel: AlertPresentableViewModel,
+                 style: UIAlertController.Style,
                  from view: ControllerBackedProtocol?)
 }
 
@@ -43,8 +52,8 @@ extension AlertPresentable {
                                   with: controller)
     }
 
-    func present(message: String?, title: String?,
-                 actions: [AlertPresentableAction],
+    func present(viewModel: AlertPresentableViewModel,
+                 style: UIAlertController.Style,
                  from view: ControllerBackedProtocol?) {
 
         var currentController = view?.controller
@@ -57,14 +66,23 @@ extension AlertPresentable {
             return
         }
 
-        let alertView = UIAlertController(title: title, message: message, preferredStyle: .alert)
+        let alertView = UIAlertController(title: viewModel.title,
+                                          message: viewModel.message,
+                                          preferredStyle: style)
 
-        actions.forEach { action in
+        viewModel.actions.forEach { action in
             let alertAction = UIAlertAction(title: action.title, style: .default) { _ in
                 action.handler?()
             }
 
             alertView.addAction(alertAction)
+        }
+
+        if let closeAction = viewModel.closeAction {
+            let action = UIAlertAction(title: closeAction,
+                                       style: .cancel,
+                                       handler: nil)
+            alertView.addAction(action)
         }
 
         controller.present(alertView, animated: true, completion: nil)

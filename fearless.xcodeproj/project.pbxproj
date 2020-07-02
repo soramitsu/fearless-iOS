@@ -26,6 +26,24 @@
 		8428763C24AD7C8900D91AD8 /* Data+xxh128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */; };
 		8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763D24AD917300D91AD8 /* AccountInfo.swift */; };
 		8428764024ADA55400D91AD8 /* Decimal+Kusama.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */; };
+		8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */; };
+		8428765324ADDE0200D91AD8 /* ProfileViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8428764424ADDE0200D91AD8 /* ProfileViewController.xib */; };
+		8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764724ADDE0200D91AD8 /* ProfileViewModelFactory.swift */; };
+		8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764824ADDE0200D91AD8 /* ProfileUserViewModel.swift */; };
+		8428765624ADDE0200D91AD8 /* ProfileOptionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764924ADDE0200D91AD8 /* ProfileOptionViewModel.swift */; };
+		8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764B24ADDE0200D91AD8 /* ProfileTableViewCell.swift */; };
+		8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8428764C24ADDE0200D91AD8 /* ProfileTableViewCell.xib */; };
+		8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764D24ADDE0200D91AD8 /* ProfileProtocol.swift */; };
+		8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764E24ADDE0200D91AD8 /* ProfileViewFactory.swift */; };
+		8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */; };
+		8428765C24ADDE0200D91AD8 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765024ADDE0200D91AD8 /* ProfileViewController.swift */; };
+		8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */; };
+		8428765F24ADE0BB00D91AD8 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserData.swift */; };
+		8428766324ADE1E300D91AD8 /* ProfileButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */; };
+		8428766424ADE1E400D91AD8 /* ProfileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766224ADE1E300D91AD8 /* ProfileButton.swift */; };
+		8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */; };
+		8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */; };
+		8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */; };
 		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
 		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
 		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
@@ -192,6 +210,24 @@
 		8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+xxh128.swift"; sourceTree = "<group>"; };
 		8428763D24AD917300D91AD8 /* AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfo.swift; sourceTree = "<group>"; };
 		8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Kusama.swift"; sourceTree = "<group>"; };
+		8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePresenter.swift; sourceTree = "<group>"; };
+		8428764524ADDE0200D91AD8 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ProfileViewController.xib; sourceTree = "<group>"; };
+		8428764724ADDE0200D91AD8 /* ProfileViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewModelFactory.swift; sourceTree = "<group>"; };
+		8428764824ADDE0200D91AD8 /* ProfileUserViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileUserViewModel.swift; sourceTree = "<group>"; };
+		8428764924ADDE0200D91AD8 /* ProfileOptionViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileOptionViewModel.swift; sourceTree = "<group>"; };
+		8428764B24ADDE0200D91AD8 /* ProfileTableViewCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileTableViewCell.swift; sourceTree = "<group>"; };
+		8428764C24ADDE0200D91AD8 /* ProfileTableViewCell.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = ProfileTableViewCell.xib; sourceTree = "<group>"; };
+		8428764D24ADDE0200D91AD8 /* ProfileProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileProtocol.swift; sourceTree = "<group>"; };
+		8428764E24ADDE0200D91AD8 /* ProfileViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewFactory.swift; sourceTree = "<group>"; };
+		8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileWireframe.swift; sourceTree = "<group>"; };
+		8428765024ADDE0200D91AD8 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
+		8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileInteractor.swift; sourceTree = "<group>"; };
+		8428765E24ADE0BB00D91AD8 /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
+		8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ProfileButton+Inspectable.swift"; sourceTree = "<group>"; };
+		8428766224ADE1E300D91AD8 /* ProfileButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileButton.swift; sourceTree = "<group>"; };
+		8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformAnimator+Common.swift"; sourceTree = "<group>"; };
+		8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthorizationPresentable.swift; sourceTree = "<group>"; };
+		8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Modal.swift"; sourceTree = "<group>"; };
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -370,6 +406,58 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		8428764224ADDE0200D91AD8 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */,
+				8428764424ADDE0200D91AD8 /* ProfileViewController.xib */,
+				8428764624ADDE0200D91AD8 /* ProfileViewModel */,
+				8428764A24ADDE0200D91AD8 /* ProfileView */,
+				8428764D24ADDE0200D91AD8 /* ProfileProtocol.swift */,
+				8428764E24ADDE0200D91AD8 /* ProfileViewFactory.swift */,
+				8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */,
+				8428765024ADDE0200D91AD8 /* ProfileViewController.swift */,
+				8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+		8428764624ADDE0200D91AD8 /* ProfileViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				8428764724ADDE0200D91AD8 /* ProfileViewModelFactory.swift */,
+				8428764824ADDE0200D91AD8 /* ProfileUserViewModel.swift */,
+				8428764924ADDE0200D91AD8 /* ProfileOptionViewModel.swift */,
+			);
+			path = ProfileViewModel;
+			sourceTree = "<group>";
+		};
+		8428764A24ADDE0200D91AD8 /* ProfileView */ = {
+			isa = PBXGroup;
+			children = (
+				8428764B24ADDE0200D91AD8 /* ProfileTableViewCell.swift */,
+				8428764C24ADDE0200D91AD8 /* ProfileTableViewCell.xib */,
+			);
+			path = ProfileView;
+			sourceTree = "<group>";
+		};
+		8428766024ADE1E300D91AD8 /* ProfileButton */ = {
+			isa = PBXGroup;
+			children = (
+				8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */,
+				8428766224ADE1E300D91AD8 /* ProfileButton.swift */,
+			);
+			path = ProfileButton;
+			sourceTree = "<group>";
+		};
+		8428766524ADF20700D91AD8 /* Animation */ = {
+			isa = PBXGroup;
+			children = (
+				8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */,
+			);
+			path = Animation;
+			sourceTree = "<group>";
+		};
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
@@ -440,6 +528,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				8428764224ADDE0200D91AD8 /* Profile */,
 				849014FD24AB698B008F705E /* Wallet */,
 				849014E924AA961E008F705E /* AccessRestore */,
 				849014CC24AA8F60008F705E /* MainTabBar */,
@@ -471,6 +560,7 @@
 		849013D724A927E2008F705E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				8428766524ADF20700D91AD8 /* Animation */,
 				8490152C24ABD0EA008F705E /* Wallet */,
 				8490146B24A94864008F705E /* Error */,
 				8490146824A9463B008F705E /* Foundation */,
@@ -488,6 +578,7 @@
 				849013E124A9288B008F705E /* Language.swift */,
 				8490145724A9406D008F705E /* LegalData.swift */,
 				849014A524AA801B008F705E /* TextSharingSource.swift */,
+				8428765E24ADE0BB00D91AD8 /* UserData.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -539,6 +630,7 @@
 		8490142624A935FE008F705E /* Protocols */ = {
 			isa = PBXGroup;
 			children = (
+				8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */,
 				849014E724AA925C008F705E /* ScrollsToTop.swift */,
 				8490149824AA7892008F705E /* SharingPresentable.swift */,
 				8490142724A935FE008F705E /* ErrorPresentable.swift */,
@@ -584,6 +676,7 @@
 				8490144E24A93E2E008F705E /* UIImage+Drawing.swift */,
 				8490145924A94102008F705E /* UIColor+Style.swift */,
 				849014C424AA890D008F705E /* UIFont+Style.swift */,
+				8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -674,6 +767,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				8428766024ADE1E300D91AD8 /* ProfileButton */,
 				8490149E24AA7F9A008F705E /* AccessoryView */,
 			);
 			path = View;
@@ -997,6 +1091,7 @@
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				849014F324AA961E008F705E /* AccessRestoreViewController.xib in Resources */,
+				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
 				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
@@ -1007,6 +1102,7 @@
 				849014A324AA7F9A008F705E /* AccessoryView.xib in Resources */,
 				8490149124AA7834008F705E /* AccessBackupViewController.xib in Resources */,
 				849014B824AA87E3008F705E /* PinSetupViewController.xib in Resources */,
+				8428765324ADDE0200D91AD8 /* ProfileViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1149,19 +1245,23 @@
 				849014F524AA961E008F705E /* AccessRestoreInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
 				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
+				8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */,
 				8490155024ACD582008F705E /* ScaleCoding.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
+				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				8490145A24A94102008F705E /* UIColor+Style.swift in Sources */,
 				8428763424AD5B3A00D91AD8 /* String+Scale.swift in Sources */,
 				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
+				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				8428764024ADA55400D91AD8 /* Decimal+Kusama.swift in Sources */,
 				849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
+				8428765624ADDE0200D91AD8 /* ProfileOptionViewModel.swift in Sources */,
 				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				8490155324AD203D008F705E /* BigInt+Scale.swift in Sources */,
@@ -1179,6 +1279,7 @@
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
 				849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */,
+				8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				8490151124AB8A3A008F705E /* WalletHeaderViewModel.swift in Sources */,
 				8428763224AD58C800D91AD8 /* Array+Scale.swift in Sources */,
@@ -1196,16 +1297,20 @@
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
+				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
+				8428765C24ADDE0200D91AD8 /* ProfileViewController.swift in Sources */,
 				8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */,
 				849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
+				8428766324ADE1E300D91AD8 /* ProfileButton+Inspectable.swift in Sources */,
 				849014F424AA961E008F705E /* AccessRestoreWireframe.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
@@ -1214,8 +1319,10 @@
 				8428762A24AD531200D91AD8 /* ScaleOptional.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
+				8428766424ADE1E400D91AD8 /* ProfileButton.swift in Sources */,
 				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
 				8490156924AD470C008F705E /* UInt16+Scale.swift in Sources */,
+				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				849014F624AA961E008F705E /* AccessRestorePresenter.swift in Sources */,
@@ -1226,6 +1333,7 @@
 				8490156724AD469D008F705E /* UInt8+Scale.swift in Sources */,
 				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
+				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
 				8490155F24AD401F008F705E /* Int32+Scale.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
 				8490151B24ABC44E008F705E /* TransactionHistoryConfigurator.swift in Sources */,
@@ -1241,6 +1349,7 @@
 				849014F924AA961E008F705E /* AccessRestoreViewController.swift in Sources */,
 				8490155D24AD3D20008F705E /* Int16+Scale.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
+				8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
@@ -1249,8 +1358,10 @@
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
+				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
 				8490150724AB7732008F705E /* Data+Hex.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
+				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
 				8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */,
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
@@ -1260,6 +1371,7 @@
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
+				8428765F24ADE0BB00D91AD8 /* UserData.swift in Sources */,
 				8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */,
 				849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
@@ -1296,6 +1408,14 @@
 /* End PBXTargetDependency section */
 
 /* Begin PBXVariantGroup section */
+		8428764424ADDE0200D91AD8 /* ProfileViewController.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				8428764524ADDE0200D91AD8 /* en */,
+			);
+			name = ProfileViewController.xib;
+			sourceTree = "<group>";
+		};
 		849013B624A80986008F705E /* LaunchScreen.storyboard */ = {
 			isa = PBXVariantGroup;
 			children = (

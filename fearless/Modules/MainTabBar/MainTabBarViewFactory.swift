@@ -17,12 +17,22 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
+        guard let extrinsicsController = createExtrinsicsController(for: localizationManager) else {
+            return nil
+        }
+
         guard let settingsController = createSettingsController(for: localizationManager) else {
             return nil
         }
 
         let view = MainTabBarViewController()
-        view.viewControllers = [walletController, stakingController, governanceController, settingsController]
+        view.viewControllers = [
+            walletController,
+            stakingController,
+            governanceController,
+            extrinsicsController,
+            settingsController
+        ]
 
         let presenter = MainTabBarPresenter()
 
@@ -110,13 +120,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createSettingsController(for localizationManager: LocalizationManagerProtocol)
+    static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
         viewController.view.backgroundColor = .white
 
         let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
@@ -130,6 +140,31 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         return viewController
+    }
+
+    static func createSettingsController(for localizationManager: LocalizationManagerProtocol)
+        -> UIViewController? {
+        guard let settingsView = ProfileViewFactory.createView() else {
+            return nil
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: settingsView.controller)
+
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        navigationController.tabBarItem = createTabBarItem(title: currentTitle,
+                                                           normalImage: nil,
+                                                           selectedImage: nil)
+
+        localizationManager.addObserver(with: navigationController) { [weak navigationController] (_, _) in
+            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+            navigationController?.tabBarItem.title = currentTitle
+        }
+
+        return navigationController
     }
 
     static func createTabBarItem(title: String,

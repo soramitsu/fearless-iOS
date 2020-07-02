@@ -5,6 +5,8 @@
 "common.skip" = "Skip";
 "common.use" = "Use";
 "common.error.general.title" = "Error";
+"common.copy.address" = "Copy address";
+"common.select.option" = "Select an option";
 
 "operation.error.title" = "Operation Failed";
 "operation.error.message" = "Please, try again later";
@@ -47,7 +49,14 @@
 "tabbar.wallet.title" = "Wallet";
 "tabbar.staking.title" = "Staking";
 "tabbar.governance.title" = "Governance";
+"tabbar.extrinsics.title" = "Extrinsics";
 "tabbar.settings.title" = "Settings";
 
 "wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
 "wallet.title" = "Wallet";
+
+"profile.passphrase.title" = "View passphrase";
+"profile.title" = "Settings";
+"profile.about.title" = "About";
+"profile.language.title" = "Language";
+"profile.subtitle" = "Kusama network";
