@@ -30,7 +30,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .connection:
-                return nil
+                return createConnectionViewModel(locale: locale)
             case .passphrase:
                 return createPassphraseViewModel(for: locale)
             case .language:
@@ -63,5 +63,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let title = R.string.localizable
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
         return ProfileOptionViewModel(title: title, icon: R.image.iconTermsProfile()!)
+    }
+
+    private func createConnectionViewModel(locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profileConnectionTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconProfileLanguage()!)
+
+        return viewModel
     }
 }

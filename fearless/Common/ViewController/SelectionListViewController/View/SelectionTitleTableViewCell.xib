@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="15505" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="15510"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="selectionItemCellId" id="YYX-zy-r8e" customClass="SelectionTitleTableViewCell" customModule="SoraPassport" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="YYX-zy-r8e" id="8ct-lA-VKE">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="US Dollars, $" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.90000000000000002" translatesAutoresizingMaskIntoConstraints="NO" id="ULU-ej-rTm">
+                        <rect key="frame" x="16" y="20.5" width="90" height="18"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" placeholderIntrinsicWidth="50" placeholderIntrinsicHeight="50" translatesAutoresizingMaskIntoConstraints="NO" id="xYj-ho-RcB">
+                        <rect key="frame" x="305" y="4.5" width="50" height="50"/>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="ULU-ej-rTm" firstAttribute="leading" secondItem="8ct-lA-VKE" secondAttribute="leading" constant="16" id="JSa-gu-zbH"/>
+                    <constraint firstAttribute="trailing" secondItem="xYj-ho-RcB" secondAttribute="trailing" constant="20" id="XSp-bw-82v"/>
+                    <constraint firstItem="xYj-ho-RcB" firstAttribute="centerY" secondItem="8ct-lA-VKE" secondAttribute="centerY" id="bJj-Pc-QPh"/>
+                    <constraint firstItem="xYj-ho-RcB" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="ULU-ej-rTm" secondAttribute="trailing" constant="8" id="f3j-Ha-rPT"/>
+                    <constraint firstItem="ULU-ej-rTm" firstAttribute="centerY" secondItem="8ct-lA-VKE" secondAttribute="centerY" id="ukZ-9N-cxK"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <userDefinedRuntimeAttributes>
+                <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                    <color key="value" red="0.1803921568627451" green="0.1803921568627451" blue="0.1803921568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="color" keyPath="selectedTitleColor">
+                    <color key="value" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </userDefinedRuntimeAttribute>
+                <userDefinedRuntimeAttribute type="image" keyPath="checkmarkIcon" value="listCheckmarkIcon"/>
+            </userDefinedRuntimeAttributes>
+            <connections>
+                <outlet property="checkmarkImageView" destination="xYj-ho-RcB" id="Xr5-5P-U9K"/>
+                <outlet property="titleLabel" destination="ULU-ej-rTm" id="OYk-Aa-aiu"/>
+            </connections>
+            <point key="canvasLocation" x="138" y="153"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="listCheckmarkIcon" width="19" height="14"/>
+    </resources>
+</document>
