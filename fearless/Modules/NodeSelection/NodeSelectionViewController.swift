@@ -27,6 +27,6 @@ extension NodeSelectionViewController: NodeSelectionViewProtocol {}
 extension NodeSelectionViewController: Localizable {
     func applyLocalization() {
         let languages = localizationManager?.preferredLocalizations
-        title = R.string.localizable.languageTitle(preferredLanguages: languages)
+        title = R.string.localizable.nodeConnectionsTitle(preferredLanguages: languages)
     }
 }
