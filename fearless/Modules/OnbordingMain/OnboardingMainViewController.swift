@@ -22,6 +22,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
 
     var termDecorator: AttributedStringDecoratorProtocol?
 
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
     // MARK: Appearance
 
     override func viewDidLoad() {
@@ -40,12 +42,12 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
     }
 
     private func configureLogoView() {
-        logoView.tintColor = .accentColor
+        logoView.tintColor = .iconTintColor
     }
 
     private func setupLocalization() {
         signUpButton.imageWithTitleView?.title = R.string.localizable
-            .commonSignup(preferredLanguages: locale?.rLanguages)
+            .onboardingCreateAccount(preferredLanguages: locale?.rLanguages)
         restoreButton.imageWithTitleView?.title = R.string.localizable
             .onboardingRestoreAccount(preferredLanguages: locale?.rLanguages)
 

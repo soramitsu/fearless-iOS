@@ -2,7 +2,7 @@ import UIKit
 
 extension CompoundAttributedStringDecorator {
     static func legal(for locale: Locale?) -> AttributedStringDecoratorProtocol {
-        let textColor = UIColor(red: 155.0 / 255.0, green: 155.0 / 255.0, blue: 155.0 / 255.0, alpha: 1.0)
+        let textColor = UIColor.iconTintColor
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: textColor,
             .font: R.font.soraRc0040417Regular(size: 12)!

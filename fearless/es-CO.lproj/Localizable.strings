@@ -1,4 +1,3 @@
-"common.signup" = "Regístrate";
 "common.close" = "Cerrar";
 "common.next" = "Siguiente";
 "common.cancel" = "Cancelar";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Por favor, inténtelo de nuevo más tarde";
 "connection.error.title" = "La conexión falló";
 "connection.error.message" = "Por favor, verifique la conexión a Internet e intente nuevamente más tarde.";
-"onboarding.restore.account" = "Reestablece el acceso a tu cuenta";
+"onboarding.restore.account" = "Cuenta de importación";
 "onboarding.terms.and.conditions.1" = "He leído y acepto \
  Términos y condiciones y Política de privacidad";
 "onboarding.terms.and.conditions.2" = "Términos y Condiciones";
@@ -65,3 +64,4 @@ transferencias aparecerán aquí";
 "help.support.title" = "Fearless apoyo";
 "no.email.bound.error.message" = "Por favor, asegúrese de que la aplicación de correo esté instalada en el dispositivo.";
 "node.connections.title" = "Seleccionar conexión";
+"onboarding.create.account" = "Crear una cuenta";

@@ -1,4 +1,3 @@
-"common.signup" = "Регистрация";
 "common.close" = "Закрыть";
 "common.next" = "Далее";
 "common.cancel" = "Отмена";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Пожалуйста, попробуйте позже";
 "connection.error.title" = "Ошибка соединения";
 "connection.error.message" = "Пожалуйста, проверьте подключение к Интернету и повторите попытку.";
-"onboarding.restore.account" = "Восстановить доступ к аккаунту";
+"onboarding.restore.account" = "Восстановить";
 "onboarding.terms.and.conditions.1" = "Я подтверждаю, что прочитал и согласен с \
 Условиями использования и Политикой конфиденциальности";
 "onboarding.terms.and.conditions.2" = "Условиями использования";
@@ -65,3 +64,4 @@ a type of password.";
 "help.support.title" = "Fearless поддержка";
 "no.email.bound.error.message" = "Пожалуйста, убедитесь, что на устройстве установлено почтовое приложение.";
 "node.connections.title" = "Выберите соединение";
+"onboarding.create.account" = "Создать аккаунт";

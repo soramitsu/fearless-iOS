@@ -32,7 +32,7 @@ extension WalletCommonStyleConfigurator {
         .with(bodyRegular: R.font.soraRc0040417Regular(size: 14.0)!)
         .with(small: R.font.soraRc0040417Regular(size: 14.0)!)
         .with(keyboardIcon: R.image.iconKeyboardOff()!)
-        .with(caretColor: UIColor.accentColor)
+        .with(caretColor: UIColor.iconTintColor)
         .with(inlineErrorStyle: errorStyle)
     }
 }

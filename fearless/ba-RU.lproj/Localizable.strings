@@ -1,4 +1,3 @@
-"common.signup" = "Теркәлеү";
 "common.close" = "Ябырға";
 "common.next" = "Киләһе";
 "common.cancel" = "Кире ҡағыу";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Зинһар, һуңыраҡ ҡабатлап ҡарағыҙ";
 "connection.error.title" = "Тоташыу килеп сыҡмаған";
 "connection.error.message" = "Зинһар, интернет селтәрен тикшерегеҙ һәм һуңыраҡ ҡабатлап ҡарағыҙ.";
-"onboarding.restore.account" = "Аккаунтҡа доступты тергеҙеү";
+"onboarding.restore.account" = "Импортҡа Иҫәп Яҙмаһы";
 "onboarding.terms.and.conditions.1" = "Мин шарттарҙы һәм хосусил сәйәсәтен уҡыным һәм уҡығаны менән риза";
 "onboarding.terms.and.conditions.2" = "Ҡағиҙәләр һәм шарттар";
 "onboarding.privacy.policy" = "Хосусил сәйәсәте";
@@ -62,3 +61,4 @@
 "help.support.title" = "Fearless ярҙам";
 "no.email.bound.error.message" = "Тышҡы һылтанманы асыу мөмкин түгел. Зинһар, көйләүҙәрҙе тикшерегеҙ.";
 "node.connections.title" = "Үҙ илегеҙҙе һайлағыҙ";
+"onboarding.create.account" = "Создать аккаунт";

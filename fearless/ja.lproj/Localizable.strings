@@ -1,4 +1,3 @@
-"common.signup" = "サインアップ";
 "common.close" = "閉じる";
 "common.next" = "次へ";
 "common.cancel" = "キャンセル";
@@ -11,7 +10,7 @@
 "operation.error.message" = "後でもう一度試してください";
 "connection.error.title" = "接続できません";
 "connection.error.message" = "インターネット接続を確認して、後でもう一度やり直してください。";
-"onboarding.restore.account" = "アカウントを復元する";
+"onboarding.restore.account" = "アカウントをインポート";
 "onboarding.terms.and.conditions.1" = "利用規約、個人情報保護方針に同意してサインアップする。";
 "onboarding.terms.and.conditions.2" = "規約と条件";
 "onboarding.privacy.policy" = "個人情報保護方針";
@@ -63,3 +62,4 @@ a type of password.";
 "help.support.title" = "Fearlessサポート";
 "no.email.bound.error.message" = "メールアプリケーションがデバイスにインストールされていることを確認してください。";
 "node.connections.title" = "接続を選択";
+"onboarding.create.account" = "アカウントを作成する";

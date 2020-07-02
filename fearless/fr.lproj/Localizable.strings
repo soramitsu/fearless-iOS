@@ -1,4 +1,3 @@
-"common.signup" = "S'inscrire";
 "common.close" = "Fermer";
 "common.next" = "Suivant";
 "common.cancel" = "Annuler";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Veuillez réessayer ultérieurement";
 "connection.error.title" = "La connexion a échoué";
 "connection.error.message" = "Veuillez vérifier votre connexion Internet et réessayer plus tard.";
-"onboarding.restore.account" = "Restaurer l'accès à votre compte";
+"onboarding.restore.account" = "Importer un compte";
 "onboarding.terms.and.conditions.1" = "J'ai lu et j'accepte\
 les Termes et Conditions et la politique de confidentialité";
 "onboarding.terms.and.conditions.2" = "Conditions générales";
@@ -65,3 +64,4 @@ apparaitront ici";
 "help.support.title" = "Support Fearless";
 "no.email.bound.error.message" = "Veuillez vous assurer que l'application de messagerie est installée sur l'appareil.";
 "node.connections.title" = "Sélectionnez la connexion";
+"onboarding.create.account" = "Créer un compte";

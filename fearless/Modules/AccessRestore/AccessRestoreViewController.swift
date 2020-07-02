@@ -12,6 +12,8 @@ final class AccessRestoreViewController: AccessoryViewController {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!
 
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
     private var model: InputViewModelProtocol? {
         didSet {
             phraseTextView.text = model?.inputHandler.value
@@ -44,7 +46,7 @@ final class AccessRestoreViewController: AccessoryViewController {
     }
 
     private func configureTextView() {
-        phraseTextView.tintColor = UIColor.accentColor
+        phraseTextView.tintColor = UIColor.iconTintColor
     }
 
     // MARK: Accessory Override
