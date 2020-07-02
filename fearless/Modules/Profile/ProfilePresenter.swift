@@ -70,7 +70,7 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 
         switch option {
         case .connection:
-            break
+            wireframe.showNodeSelection(from: view)
         case .passphrase:
             wireframe.showPassphraseView(from: view)
         case .language:

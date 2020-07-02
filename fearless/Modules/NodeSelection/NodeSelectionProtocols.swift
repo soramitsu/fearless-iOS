@@ -10,11 +10,9 @@ protocol NodeSelectionInteractorInputProtocol: class {
 }
 
 protocol NodeSelectionInteractorOutputProtocol: class {
-    func didLoad(nodeItem: NodeSelectionItem)
+    func didLoad(selectedNodeItem: NodeSelectionItem)
     func didLoad(nodeItems: [NodeSelectionItem])
 }
-
-protocol NodeSelectionWireframeProtocol: class {}
 
 protocol NodeSelectionViewFactoryProtocol: class {
     static func createView() -> NodeSelectionViewProtocol?

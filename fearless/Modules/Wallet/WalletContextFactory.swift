@@ -42,7 +42,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let address = try SS58AddressFactory().address(from: publicKey, type: .kusamaMain)
         logger.debug("Loading wallet account: \(address)")
 
-        guard let url = ApplicationConfig.shared.nodes.first else {
+        guard let node = ApplicationConfig.shared.nodes.first, let url = URL(string: node.address) else {
             throw WalletContextFactoryError.missingNode
         }
 

@@ -46,13 +46,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createPassphraseViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profilePassphraseTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title, icon: R.image.iconProfilePassphrase()!)
+        return ProfileOptionViewModel(title: title, icon: R.image.iconViewMnemonic()!)
     }
 
     private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileLanguageTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconProfileLanguage()!)
+        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconLanguage()!)
 
         viewModel.accessoryTitle = language?.title(in: locale)?.capitalized
 
@@ -62,13 +62,13 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title, icon: R.image.iconTermsProfile()!)
+        return ProfileOptionViewModel(title: title, icon: R.image.iconAbout()!)
     }
 
     private func createConnectionViewModel(locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileConnectionTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconProfileLanguage()!)
+        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconConnections()!)
 
         return viewModel
     }

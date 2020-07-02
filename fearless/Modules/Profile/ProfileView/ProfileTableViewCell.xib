@@ -21,12 +21,12 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconProfilePassphrase" translatesAutoresizingMaskIntoConstraints="NO" id="g7b-eE-oyd">
-                        <rect key="frame" x="20" y="18.5" width="16" height="22"/>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconViewMnemonic" translatesAutoresizingMaskIntoConstraints="NO" id="g7b-eE-oyd">
+                        <rect key="frame" x="20" y="19.5" width="20" height="20"/>
                         <color key="tintColor" red="0.81568627450980391" green="0.0078431372549019607" blue="0.10588235294117647" alpha="1" colorSpace="calibratedRGB"/>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Passphrase" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="OG9-GY-G1z">
-                        <rect key="frame" x="50" y="20.5" width="80.5" height="18"/>
+                        <rect key="frame" x="54" y="20.5" width="80.5" height="18"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                         <color key="textColor" red="0.10980392156862745" green="0.31372549019607843" blue="0.30588235294117649" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                         <nil key="highlightedColor"/>
@@ -106,7 +106,7 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="iconProfilePassphrase" width="16" height="22"/>
         <image name="iconSmallArrow" width="6" height="11"/>
+        <image name="iconViewMnemonic" width="20" height="20"/>
     </resources>
 </document>

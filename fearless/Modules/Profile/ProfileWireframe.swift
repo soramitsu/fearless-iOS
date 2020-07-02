@@ -17,6 +17,17 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
+    func showNodeSelection(from view: ProfileViewProtocol?) {
+        guard let nodeSelection = NodeSelectionViewFactory.createView() else {
+            return
+        }
+
+        if let navigationController = view?.controller.navigationController {
+            nodeSelection.controller.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(nodeSelection.controller, animated: true)
+        }
+    }
+
     func showLanguageSelection(from view: ProfileViewProtocol?) {
         guard let languageSelection = LanguageSelectionViewFactory.createView() else {
             return

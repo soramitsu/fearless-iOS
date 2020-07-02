@@ -22,6 +22,7 @@ protocol ProfileInteractorOutputProtocol: class {
 
 protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresentable {
     func showPassphraseView(from view: ProfileViewProtocol?)
+    func showNodeSelection(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
 }

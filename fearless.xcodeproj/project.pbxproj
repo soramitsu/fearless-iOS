@@ -212,6 +212,7 @@
 		8490156B24AD47AC008F705E /* UInt32+Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490156A24AD47AC008F705E /* UInt32+Scale.swift */; };
 		8490156D24AD47E4008F705E /* UInt64+Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490156C24AD47E4008F705E /* UInt64+Scale.swift */; };
 		8490156F24AD489E008F705E /* ScaleInt8Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490156E24AD489E008F705E /* ScaleInt8Tests.swift */; };
+		84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -446,6 +447,7 @@
 		8490156A24AD47AC008F705E /* UInt32+Scale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt32+Scale.swift"; sourceTree = "<group>"; };
 		8490156C24AD47E4008F705E /* UInt64+Scale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UInt64+Scale.swift"; sourceTree = "<group>"; };
 		8490156E24AD489E008F705E /* ScaleInt8Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleInt8Tests.swift; sourceTree = "<group>"; };
+		84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewFactory.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -626,6 +628,7 @@
 				842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */,
 				842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */,
 				842876C024AE2A5C00D91AD8 /* NodeSelectionItem.swift */,
+				84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */,
 			);
 			path = NodeSelection;
 			sourceTree = "<group>";
@@ -1446,6 +1449,7 @@
 				8428768F24AE046300D91AD8 /* AboutNavigationCell.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				8490145A24A94102008F705E /* UIColor+Style.swift in Sources */,
+				84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */,
 				8428763424AD5B3A00D91AD8 /* String+Scale.swift in Sources */,
 				842876BF24AE29A800D91AD8 /* NodeSelectionPresenter.swift in Sources */,
 				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
