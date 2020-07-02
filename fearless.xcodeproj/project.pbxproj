@@ -104,6 +104,27 @@
 		849014F924AA961E008F705E /* AccessRestoreViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014F124AA961E008F705E /* AccessRestoreViewController.swift */; };
 		849014FA24AA961E008F705E /* AccessRestoreProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014F224AA961E008F705E /* AccessRestoreProtocol.swift */; };
 		849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014FB24AA9939008F705E /* Charset+Mnemonic.swift */; };
+		849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849014FE24AB69A4008F705E /* WalletContextFactory.swift */; };
+		8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */; };
+		8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */; };
+		8490150724AB7732008F705E /* Data+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150624AB7732008F705E /* Data+Hex.swift */; };
+		8490150F24AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150824AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift */; };
+		8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8490150B24AB8A3A008F705E /* WalletAccountHeaderView.xib */; };
+		8490151124AB8A3A008F705E /* WalletHeaderViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150C24AB8A3A008F705E /* WalletHeaderViewModel.swift */; };
+		8490151224AB8A3A008F705E /* WalletAccountHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150D24AB8A3A008F705E /* WalletAccountHeaderView.swift */; };
+		8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490150E24AB8A3A008F705E /* WalletEmptyStateDataSource.swift */; };
+		8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490151524AB8C45008F705E /* WalletAccountListConfigurator.swift */; };
+		8490151824AB8C6D008F705E /* WalletCommonStyleConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490151724AB8C6D008F705E /* WalletCommonStyleConfigurator.swift */; };
+		8490151B24ABC44E008F705E /* TransactionHistoryConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490151A24ABC44E008F705E /* TransactionHistoryConfigurator.swift */; };
+		8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490151C24ABC57A008F705E /* AssetStyleFactory.swift */; };
+		8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490151E24ABC61F008F705E /* WalletAssetViewModelFactory.swift */; };
+		8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152024ABC721008F705E /* WalletStaticImageViewModel.swift */; };
+		8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152224ABC77E008F705E /* WalletAssetViewModel.swift */; };
+		8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152424ABCBF3008F705E /* AmountFormatterFactory.swift */; };
+		8490152724ABCC40008F705E /* NumberFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152624ABCC40008F705E /* NumberFormatter.swift */; };
+		8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */; };
+		8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */; };
+		8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152D24ABD0F5008F705E /* Logger+Wallet.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -230,6 +251,27 @@
 		849014F124AA961E008F705E /* AccessRestoreViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreViewController.swift; sourceTree = "<group>"; };
 		849014F224AA961E008F705E /* AccessRestoreProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccessRestoreProtocol.swift; sourceTree = "<group>"; };
 		849014FB24AA9939008F705E /* Charset+Mnemonic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Charset+Mnemonic.swift"; sourceTree = "<group>"; };
+		849014FE24AB69A4008F705E /* WalletContextFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletContextFactory.swift; sourceTree = "<group>"; };
+		8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletNetworkOperationFactory.swift; sourceTree = "<group>"; };
+		8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletPrimitiveFactory.swift; sourceTree = "<group>"; };
+		8490150624AB7732008F705E /* Data+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Hex.swift"; sourceTree = "<group>"; };
+		8490150824AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "WalletEmptyStateDataSource+Module.swift"; sourceTree = "<group>"; };
+		8490150B24AB8A3A008F705E /* WalletAccountHeaderView.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = WalletAccountHeaderView.xib; sourceTree = "<group>"; };
+		8490150C24AB8A3A008F705E /* WalletHeaderViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletHeaderViewModel.swift; sourceTree = "<group>"; };
+		8490150D24AB8A3A008F705E /* WalletAccountHeaderView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletAccountHeaderView.swift; sourceTree = "<group>"; };
+		8490150E24AB8A3A008F705E /* WalletEmptyStateDataSource.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WalletEmptyStateDataSource.swift; sourceTree = "<group>"; };
+		8490151524AB8C45008F705E /* WalletAccountListConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAccountListConfigurator.swift; sourceTree = "<group>"; };
+		8490151724AB8C6D008F705E /* WalletCommonStyleConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCommonStyleConfigurator.swift; sourceTree = "<group>"; };
+		8490151A24ABC44E008F705E /* TransactionHistoryConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryConfigurator.swift; sourceTree = "<group>"; };
+		8490151C24ABC57A008F705E /* AssetStyleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetStyleFactory.swift; sourceTree = "<group>"; };
+		8490151E24ABC61F008F705E /* WalletAssetViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetViewModelFactory.swift; sourceTree = "<group>"; };
+		8490152024ABC721008F705E /* WalletStaticImageViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletStaticImageViewModel.swift; sourceTree = "<group>"; };
+		8490152224ABC77E008F705E /* WalletAssetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetViewModel.swift; sourceTree = "<group>"; };
+		8490152424ABCBF3008F705E /* AmountFormatterFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountFormatterFactory.swift; sourceTree = "<group>"; };
+		8490152624ABCC40008F705E /* NumberFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFormatter.swift; sourceTree = "<group>"; };
+		8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCommandDecorator.swift; sourceTree = "<group>"; };
+		8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCommonConfigurator.swift; sourceTree = "<group>"; };
+		8490152D24ABD0F5008F705E /* Logger+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Wallet.swift"; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -317,6 +359,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8490150124AB6BEA008F705E /* Network */,
 				849014C924AA8B75008F705E /* Animation */,
 				849014C624AA8A28008F705E /* LocalAuthentication */,
 				8490149D24AA7F9A008F705E /* View */,
@@ -336,6 +379,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				849014FD24AB698B008F705E /* Wallet */,
 				849014E924AA961E008F705E /* AccessRestore */,
 				849014CC24AA8F60008F705E /* MainTabBar */,
 				849014A724AA87E3008F705E /* Pincode */,
@@ -366,6 +410,7 @@
 		849013D724A927E2008F705E /* Extension */ = {
 			isa = PBXGroup;
 			children = (
+				8490152C24ABD0EA008F705E /* Wallet */,
 				8490146B24A94864008F705E /* Error */,
 				8490146824A9463B008F705E /* Foundation */,
 				8490144D24A93E2E008F705E /* UIKit */,
@@ -486,6 +531,7 @@
 			isa = PBXGroup;
 			children = (
 				8490145524A9404E008F705E /* AttributedStringDecorator.swift */,
+				8490152424ABCBF3008F705E /* AmountFormatterFactory.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -495,6 +541,8 @@
 			children = (
 				8490146924A9463B008F705E /* Locale+Localization.swift */,
 				849014FB24AA9939008F705E /* Charset+Mnemonic.swift */,
+				8490150624AB7732008F705E /* Data+Hex.swift */,
+				8490152624ABCC40008F705E /* NumberFormatter.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -533,6 +581,7 @@
 			isa = PBXGroup;
 			children = (
 				8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */,
+				8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -664,6 +713,68 @@
 			path = AccessRestore;
 			sourceTree = "<group>";
 		};
+		849014FD24AB698B008F705E /* Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				8490151924ABC343008F705E /* History */,
+				8490150924AB8A3A008F705E /* AccountList */,
+				8490150E24AB8A3A008F705E /* WalletEmptyStateDataSource.swift */,
+				8490150824AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift */,
+				849014FE24AB69A4008F705E /* WalletContextFactory.swift */,
+				8490151724AB8C6D008F705E /* WalletCommonStyleConfigurator.swift */,
+				8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */,
+				8490152024ABC721008F705E /* WalletStaticImageViewModel.swift */,
+				8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */,
+			);
+			path = Wallet;
+			sourceTree = "<group>";
+		};
+		8490150124AB6BEA008F705E /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		8490150924AB8A3A008F705E /* AccountList */ = {
+			isa = PBXGroup;
+			children = (
+				8490150A24AB8A3A008F705E /* View */,
+				8490151524AB8C45008F705E /* WalletAccountListConfigurator.swift */,
+			);
+			path = AccountList;
+			sourceTree = "<group>";
+		};
+		8490150A24AB8A3A008F705E /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8490150B24AB8A3A008F705E /* WalletAccountHeaderView.xib */,
+				8490150C24AB8A3A008F705E /* WalletHeaderViewModel.swift */,
+				8490150D24AB8A3A008F705E /* WalletAccountHeaderView.swift */,
+				8490151C24ABC57A008F705E /* AssetStyleFactory.swift */,
+				8490151E24ABC61F008F705E /* WalletAssetViewModelFactory.swift */,
+				8490152224ABC77E008F705E /* WalletAssetViewModel.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		8490151924ABC343008F705E /* History */ = {
+			isa = PBXGroup;
+			children = (
+				8490151A24ABC44E008F705E /* TransactionHistoryConfigurator.swift */,
+			);
+			path = History;
+			sourceTree = "<group>";
+		};
+		8490152C24ABD0EA008F705E /* Wallet */ = {
+			isa = PBXGroup;
+			children = (
+				8490152D24ABD0F5008F705E /* Logger+Wallet.swift */,
+			);
+			path = Wallet;
+			sourceTree = "<group>";
+		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -772,6 +883,7 @@
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				849014F324AA961E008F705E /* AccessRestoreViewController.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
+				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
 				849013B524A80986008F705E /* Assets.xcassets in Resources */,
@@ -930,7 +1042,9 @@
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */,
+				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
 				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
+				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
 				849014E824AA925C008F705E /* ScrollsToTop.swift in Sources */,
 				8490146A24A9463B008F705E /* Locale+Localization.swift in Sources */,
@@ -938,12 +1052,14 @@
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
 				8490149724AA7834008F705E /* AccessBackupWireframe.swift in Sources */,
 				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
+				8490151824AB8C6D008F705E /* WalletCommonStyleConfigurator.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
 				849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
+				8490151124AB8A3A008F705E /* WalletHeaderViewModel.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
@@ -953,25 +1069,34 @@
 				8490149624AA7834008F705E /* AccessBackupViewFactory.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
+				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
+				8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */,
 				849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */,
+				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
 				849014F424AA961E008F705E /* AccessRestoreWireframe.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
+				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
+				8490152724ABCC40008F705E /* NumberFormatter.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
+				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
+				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
 				849014F624AA961E008F705E /* AccessRestorePresenter.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
+				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
+				8490151B24ABC44E008F705E /* TransactionHistoryConfigurator.swift in Sources */,
 				8490149C24AA7EF6008F705E /* AccessoryViewController.swift in Sources */,
 				849014FA24AA961E008F705E /* AccessRestoreProtocol.swift in Sources */,
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
@@ -980,6 +1105,7 @@
 				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
+				8490151224AB8A3A008F705E /* WalletAccountHeaderView.swift in Sources */,
 				849014F924AA961E008F705E /* AccessRestoreViewController.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
@@ -989,14 +1115,20 @@
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
+				8490150724AB7732008F705E /* Data+Hex.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
+				8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */,
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
+				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
+				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
 				849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
+				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
+				8490150F24AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

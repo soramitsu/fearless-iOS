@@ -48,3 +48,6 @@
 "tabbar.staking.title" = "Staking";
 "tabbar.governance.title" = "Governance";
 "tabbar.settings.title" = "Settings";
+
+"wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
+"wallet.title" = "Wallet";
