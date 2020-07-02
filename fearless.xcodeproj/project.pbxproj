@@ -21,6 +21,11 @@
 		8428763224AD58C800D91AD8 /* Array+Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763124AD58C800D91AD8 /* Array+Scale.swift */; };
 		8428763424AD5B3A00D91AD8 /* String+Scale.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763324AD5B3A00D91AD8 /* String+Scale.swift */; };
 		8428763624AD5D9C00D91AD8 /* ScaleStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763524AD5D9C00D91AD8 /* ScaleStringTests.swift */; };
+		8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763724AD67E300D91AD8 /* JSONRPCData.swift */; };
+		8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */; };
+		8428763C24AD7C8900D91AD8 /* Data+xxh128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */; };
+		8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763D24AD917300D91AD8 /* AccountInfo.swift */; };
+		8428764024ADA55400D91AD8 /* Decimal+Kusama.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */; };
 		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
 		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
 		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
@@ -182,6 +187,11 @@
 		8428763124AD58C800D91AD8 /* Array+Scale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+Scale.swift"; sourceTree = "<group>"; };
 		8428763324AD5B3A00D91AD8 /* String+Scale.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Scale.swift"; sourceTree = "<group>"; };
 		8428763524AD5D9C00D91AD8 /* ScaleStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleStringTests.swift; sourceTree = "<group>"; };
+		8428763724AD67E300D91AD8 /* JSONRPCData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCData.swift; sourceTree = "<group>"; };
+		8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCInfo.swift; sourceTree = "<group>"; };
+		8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+xxh128.swift"; sourceTree = "<group>"; };
+		8428763D24AD917300D91AD8 /* AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfo.swift; sourceTree = "<group>"; };
+		8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Kusama.swift"; sourceTree = "<group>"; };
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -594,6 +604,7 @@
 				849014FB24AA9939008F705E /* Charset+Mnemonic.swift */,
 				8490150624AB7732008F705E /* Data+Hex.swift */,
 				8490152624ABCC40008F705E /* NumberFormatter.swift */,
+				8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -633,6 +644,7 @@
 			children = (
 				8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */,
 				8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */,
+				8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -784,6 +796,9 @@
 			isa = PBXGroup;
 			children = (
 				8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */,
+				8428763724AD67E300D91AD8 /* JSONRPCData.swift */,
+				8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */,
+				8428763D24AD917300D91AD8 /* AccountInfo.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -1144,6 +1159,7 @@
 				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
+				8428764024ADA55400D91AD8 /* Decimal+Kusama.swift in Sources */,
 				849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
 				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
@@ -1208,6 +1224,7 @@
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
 				8490156724AD469D008F705E /* UInt8+Scale.swift in Sources */,
+				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
 				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
 				8490155F24AD401F008F705E /* Int32+Scale.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
@@ -1225,6 +1242,7 @@
 				8490155D24AD3D20008F705E /* Int16+Scale.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
+				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
@@ -1237,10 +1255,12 @@
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
+				8428763C24AD7C8900D91AD8 /* Data+xxh128.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
+				8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */,
 				849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */,
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
@@ -1457,6 +1477,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1477,6 +1498,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1607,6 +1629,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
+				ENABLE_BITCODE = YES;
 				INFOPLIST_FILE = fearless/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
 				LD_RUNPATH_SEARCH_PATHS = (
