@@ -4,6 +4,7 @@ import os
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
     var privacyPolicyURL: URL { get }
+    var nodes: [URL] { get }
 }
 
 final class ApplicationConfig {
@@ -19,5 +20,11 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var privacyPolicyURL: URL {
         // TODO: Replace privacy URL
         URL(string: "https://google.com")!
+    }
+
+    var nodes: [URL] {
+        [
+            URL(string: "wss://kusama-rpc.polkadot.io/")!
+        ]
     }
 }
