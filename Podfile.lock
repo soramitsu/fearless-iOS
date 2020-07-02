@@ -1,4 +1,5 @@
 PODS:
+  - BigInt (5.0.0)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.5.0)
     - SoraFoundation/DateProcessing (~> 0.8.0)
@@ -9,11 +10,13 @@ PODS:
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.4.1):
+  - IrohaCrypto/BIP39 (0.4.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/Common (0.4.1)
-  - IrohaCrypto/sr25519 (0.4.1):
+  - IrohaCrypto/blake2 (0.4.2)
+  - IrohaCrypto/Common (0.4.2)
+  - IrohaCrypto/sr25519 (0.4.2):
     - IrohaCrypto/BIP39
+    - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - R.swift (5.2.2):
     - R.swift.Library (~> 5.2.0)
@@ -66,8 +69,10 @@ PODS:
   - SoraUI/Skrull (1.8.10)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
+  - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
+  - BigInt (~> 5.0)
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `7cd987b2c03cdfc83ed6605049e6529c6a59b732`)
   - Cuckoo
   - FireMock
@@ -79,9 +84,11 @@ DEPENDENCIES:
   - SoraUI
   - SwiftLint
   - SwiftyBeaver
+  - xxHash-Swift
 
 SPEC REPOS:
   trunk:
+    - BigInt
     - Cuckoo
     - FireMock
     - IrohaCrypto
@@ -93,6 +100,7 @@ SPEC REPOS:
     - SoraUI
     - SwiftLint
     - SwiftyBeaver
+    - xxHash-Swift
 
 EXTERNAL SOURCES:
   CommonWallet:
@@ -105,10 +113,11 @@ CHECKOUT OPTIONS:
     :git: https://github.com/soramitsu/Capital-iOS.git
 
 SPEC CHECKSUMS:
+  BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
   CommonWallet: cdfe1cf798e942df6c93cf579650169e698dfb2e
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: a6e9df6ae20c3bab95766b2176ec7de4849694bb
+  IrohaCrypto: 7ff738c4b737650ea33e487c701635a114947d04
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
   RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6
@@ -117,7 +126,8 @@ SPEC CHECKSUMS:
   SoraUI: 236036ed20c4cbe8d379aa3212db4ae6a15a577c
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
+  xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 57551ab2d91268d4f74728bf8d2c4fc0ba9e16da
+PODFILE CHECKSUM: 064c7888bafde5bf0a524944e3e319695d182e25
 
 COCOAPODS: 1.9.3
