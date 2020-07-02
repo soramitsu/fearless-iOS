@@ -1,79 +1,67 @@
 "common.signup" = "Реєстрація";
-"common.close" = "Close";
-"common.next" = "Next";
-"common.cancel" = "Cancel";
-"common.skip" = "Skip";
-"common.use" = "Use";
-"common.error.general.title" = "Error";
-"common.copy.address" = "Copy address";
-"common.select.option" = "Select an option";
-
-"operation.error.title" = "Operation Failed";
-"operation.error.message" = "Please, try again later";
-
-"connection.error.title" = "Connection Failed";
-"connection.error.message" = "Please, check internet connection and try again later.";
-
+"common.close" = "Закрити";
+"common.next" = "Далі";
+"common.cancel" = "Скасувати";
+"common.skip" = "Пропустити";
+"common.use" = "Використати";
+"common.error.general.title" = "Помилка";
+"common.copy.address" = "Скопіюйте адресу";
+"common.select.option" = "Виберіть варіант";
+"operation.error.title" = "Не вдалося виконати операцію";
+"operation.error.message" = "Будь ласка, спробуйте пізніше";
+"connection.error.title" = "Помилка підключення";
+"connection.error.message" = "Будь ласка, перевірте підключення до Інтернету та повторіть спробу пізніше.";
 "onboarding.restore.account" = "Відновлення доступу до облікового запису";
-"onboarding.terms.and.conditions.1" = "Я підтверджую, що прочитав і згоден з\nУмовами користування та Політикою конфіденційності";
-"onboarding.terms.and.conditions.2" = "Terms and Conditions";
-"onboarding.privacy.policy" = "Privacy Policy";
-
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.sharing.subject" = "Fearless access backup";
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.save.or.send" = "Save or send";
-"common.passphrase.header" = "Mnemonic is\na type of password.";
-"common.passphrase.body" = "It is used to recover access to account. Write it down, we will not be able to recover your account without it!";
-"common.passphrase.your.passphrase" = "Your mnemonic";
-
-"access.backup.error.message" = "Please, try repeat registration from scratch.";
-"access.backup.load.error.title" = "Credentials Loading Failed";
-
-"pincode.enter.pin.code" = "Enter pin code";
-"pincode.confirm.your.pin.code" = "Confirm your pin code";
-"pincode.set.your.pin.code" = "Set your pin code";
+"onboarding.terms.and.conditions.1" = "Я підтверджую, що прочитав і згоден з\
+Умовами користування та Політикою конфіденційності";
+"onboarding.terms.and.conditions.2" = "Умови користування";
+"onboarding.privacy.policy" = "Політикою конфіденційності";
+"common.passphrase.title" = "Мнемонічний";
+"common.passphrase.sharing.subject" = "Збереження даних для доступу в Fearless";
+"common.passphrase.save.or.send" = "Зберегти або надіслати";
+"common.passphrase.header" = "Мнемонічний є\
+типом пароля.";
+"common.passphrase.body" = "Вона використовується для відновлення доступу до облікового запису. У разі втрати відновити доступ буде неможливо!";
+"common.passphrase.your.passphrase" = "Ваш мнемонічний";
+"access.backup.error.message" = "Будь ласка, спробуйте повторити реєстрацію з нуля.";
+"access.backup.load.error.title" = "Помилка завантаження облікових даних";
+"pincode.enter.pin.code" = "Введіть PIN-код";
+"pincode.confirm.your.pin.code" = "Підтвердьте свій PIN-код";
+"pincode.set.your.pin.code" = "Встановіть свій PIN-код";
 "ask.touchid.title" = "Touch ID";
-"ask.touchid.message" = "Would you like to use Touch ID for authentication?";
+"ask.touchid.message" = "Чи хочете Ви використовувати Touch ID для автентифікації?";
 "ask.faceid.title" = "Face ID";
-"ask.faceid.message" = "Would you like to user Face ID for authentication?";
-"ask.biometry.reason" = "Authenticate to access the account";
-
-"access.restore.words.error.message" = "Passphrase must contain 24 words at max";
-"access.restore.phrase.error.message" = "Your mnemonic is invalid. Please, try another one.";
-"recovery.title" = "Restore access";
-"recovery.body.title" = "Enter your mnemonic";
-"recovery.passphrase" = "Mnemonic";
-"recovery.body.subtitle" = "Unfortunately there is no way to access your account if you lost your mnemonic.";
-
-"tabbar.wallet.title" = "Wallet";
-"tabbar.staking.title" = "Staking";
-"tabbar.governance.title" = "Governance";
+"ask.faceid.message" = "Чи хочете Ви користуватися Face ID для автентифікації?";
+"ask.biometry.reason" = "Авторизуйтесь для доступу до облікового запису";
+"access.restore.words.error.message" = "Парольна фраза має містити 24 слів";
+"access.restore.phrase.error.message" = "Ваш мнемонічний недійсний. Будь ласка, спробуйте ще один.";
+"recovery.title" = "Відновлення доступу";
+"recovery.body.title" = "Введіть мнемонічне";
+"recovery.passphrase" = "Мнемонічний";
+"recovery.body.subtitle" = "На жаль, немає способу отримати доступ до вашого облікового запису без мнемонічний.";
+"tabbar.wallet.title" = "Гаманець";
+"tabbar.staking.title" = "Стекiнг";
+"tabbar.governance.title" = "Управління";
 "tabbar.extrinsics.title" = "Extrinsics";
-"tabbar.settings.title" = "Settings";
-
-"wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
-"wallet.title" = "Wallet";
-
-"profile.passphrase.title" = "View passphrase";
-"profile.title" = "Settings";
-"profile.about.title" = "About";
-"profile.language.title" = "Language";
-"profile.connection.title" = "Manage connections";
-"profile.subtitle" = "Kusama network";
-
-"about.software" = "Software";
-"about.version" = "Version";
-"about.source.code" = "Source code";
-"about.contact.us" = "Contact Us";
-"about.legal" = "Legal";
-"about.title" = "About";
-"about.privacy" = "Privacy policy";
-"about.terms" = "Terms and conditions";
-
-"language.title" = "Select language";
-
-"help.support.title" = "Fearless support";
-"no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
-
-"node.connections.title" = "Select connection";
+"tabbar.settings.title" = "Параметри";
+"wallet.empty.description" = "Вхідні й вихідні\
+транзакції з'являтимуться тут";
+"wallet.title" = "Гаманець";
+"profile.passphrase.title" = "Переглянути парольну фразу";
+"profile.title" = "Параметри";
+"profile.about.title" = "Про додаток";
+"profile.language.title" = "Мова";
+"profile.connection.title" = "Керування підключеннями";
+"profile.subtitle" = "Kusama мережа";
+"about.software" = "Додаток";
+"about.version" = "Версія";
+"about.source.code" = "Вихідний код";
+"about.contact.us" = "Зв'яжіться з нами";
+"about.legal" = "Юридична інформація";
+"about.title" = "Про додаток";
+"about.privacy" = "Політика конфіденційності";
+"about.terms" = "Умови користування";
+"language.title" = "Оберіть мову";
+"help.support.title" = "Fearless підтримка";
+"no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
+"node.connections.title" = "Виберіть з'єднання";

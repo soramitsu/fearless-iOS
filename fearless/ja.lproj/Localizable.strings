@@ -1,79 +1,65 @@
 "common.signup" = "サインアップ";
-"common.close" = "Close";
-"common.next" = "Next";
-"common.cancel" = "Cancel";
-"common.skip" = "Skip";
-"common.use" = "Use";
-"common.error.general.title" = "Error";
-"common.copy.address" = "Copy address";
-"common.select.option" = "Select an option";
-
-"operation.error.title" = "Operation Failed";
-"operation.error.message" = "Please, try again later";
-
-"connection.error.title" = "Connection Failed";
-"connection.error.message" = "Please, check internet connection and try again later.";
-
+"common.close" = "閉じる";
+"common.next" = "次へ";
+"common.cancel" = "キャンセル";
+"common.skip" = "スキップ";
+"common.use" = "設定";
+"common.error.general.title" = "エラー";
+"common.copy.address" = "住所をコピー";
+"common.select.option" = "選択肢一つを選択してください";
+"operation.error.title" = "操作できません";
+"operation.error.message" = "後でもう一度試してください";
+"connection.error.title" = "接続できません";
+"connection.error.message" = "インターネット接続を確認して、後でもう一度やり直してください。";
 "onboarding.restore.account" = "アカウントを復元する";
 "onboarding.terms.and.conditions.1" = "利用規約、個人情報保護方針に同意してサインアップする。";
-"onboarding.terms.and.conditions.2" = "Terms and Conditions";
-"onboarding.privacy.policy" = "Privacy Policy";
-
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.sharing.subject" = "Fearless access backup";
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.save.or.send" = "Save or send";
-"common.passphrase.header" = "Mnemonic is\na type of password.";
-"common.passphrase.body" = "It is used to recover access to account. Write it down, we will not be able to recover your account without it!";
-"common.passphrase.your.passphrase" = "Your mnemonic";
-
-"access.backup.error.message" = "Please, try repeat registration from scratch.";
-"access.backup.load.error.title" = "Credentials Loading Failed";
-
-"pincode.enter.pin.code" = "Enter pin code";
-"pincode.confirm.your.pin.code" = "Confirm your pin code";
-"pincode.set.your.pin.code" = "Set your pin code";
+"onboarding.terms.and.conditions.2" = "規約と条件";
+"onboarding.privacy.policy" = "個人情報保護方針";
+"common.passphrase.title" = "ニモニック";
+"common.passphrase.sharing.subject" = "Fearlessがバックアップにアクセスします";
+"common.passphrase.save.or.send" = "保存 or 送信";
+"common.passphrase.header" = "Mnemonic is\
+a type of password.";
+"common.passphrase.body" = "アカウントを復元する際に使います。下記に記入してください。これが無いと、アカウントを復元することができません。";
+"common.passphrase.your.passphrase" = "あなたのニーモニック";
+"access.backup.error.message" = "最初から登録をやり直してください。";
+"access.backup.load.error.title" = "認証情報の読み込みに失敗しました";
+"pincode.enter.pin.code" = "PINコードを入力する";
+"pincode.confirm.your.pin.code" = "pinコードの確認";
+"pincode.set.your.pin.code" = "pinコードを入力";
 "ask.touchid.title" = "Touch ID";
-"ask.touchid.message" = "Would you like to use Touch ID for authentication?";
+"ask.touchid.message" = "指紋認証を設定しますか？";
 "ask.faceid.title" = "Face ID";
-"ask.faceid.message" = "Would you like to user Face ID for authentication?";
-"ask.biometry.reason" = "Authenticate to access the account";
-
-"access.restore.words.error.message" = "Passphrase must contain 24 words at max";
+"ask.faceid.message" = "顔認証を設定しますか？";
+"ask.biometry.reason" = "アカウントへのアクセスを認証する";
+"access.restore.words.error.message" = "パスフレーズは24個単語を含んでください";
 "access.restore.phrase.error.message" = "Your mnemonic is invalid. Please, try another one.";
-"recovery.title" = "Restore access";
+"recovery.title" = "アカウントを復元する";
 "recovery.body.title" = "Enter your mnemonic";
-"recovery.passphrase" = "Mnemonic";
-"recovery.body.subtitle" = "Unfortunately there is no way to access your account if you lost your mnemonic.";
-
-"tabbar.wallet.title" = "Wallet";
-"tabbar.staking.title" = "Staking";
-"tabbar.governance.title" = "Governance";
-"tabbar.extrinsics.title" = "Extrinsics";
-"tabbar.settings.title" = "Settings";
-
-"wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
-"wallet.title" = "Wallet";
-
-"profile.passphrase.title" = "View passphrase";
-"profile.title" = "Settings";
-"profile.about.title" = "About";
-"profile.language.title" = "Language";
-"profile.connection.title" = "Manage connections";
-"profile.subtitle" = "Kusama network";
-
-"about.software" = "Software";
-"about.version" = "Version";
-"about.source.code" = "Source code";
-"about.contact.us" = "Contact Us";
-"about.legal" = "Legal";
-"about.title" = "About";
-"about.privacy" = "Privacy policy";
-"about.terms" = "Terms and conditions";
-
-"language.title" = "Select language";
-
-"help.support.title" = "Fearless support";
-"no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
-
-"node.connections.title" = "Select connection";
+"recovery.passphrase" = "ニモニック";
+"recovery.body.subtitle" = "パスフレーズを忘れてしまった場合、アカウントが復元できなくなります";
+"tabbar.wallet.title" = "ウォレット";
+"tabbar.staking.title" = "抵押";
+"tabbar.governance.title" = "治理";
+"tabbar.extrinsics.title" = "外因剤";
+"tabbar.settings.title" = "設定";
+"wallet.empty.description" = "出入金の取引履歴はここに表示されます";
+"wallet.title" = "ウォレット";
+"profile.passphrase.title" = "パスフレーズを見る";
+"profile.title" = "設定";
+"profile.about.title" = "情報";
+"profile.language.title" = "言語";
+"profile.connection.title" = "接続の管理";
+"profile.subtitle" = "Kusama通信網";
+"about.software" = "このアプリケーションについて";
+"about.version" = "バーション";
+"about.source.code" = "ソースコード";
+"about.contact.us" = "お問い合わせ";
+"about.legal" = "約款";
+"about.title" = "情報";
+"about.privacy" = "個人情報保護方針";
+"about.terms" = "規約と条件";
+"language.title" = "言語を選択する";
+"help.support.title" = "Fearlessサポート";
+"no.email.bound.error.message" = "メールアプリケーションがデバイスにインストールされていることを確認してください。";
+"node.connections.title" = "接続を選択";

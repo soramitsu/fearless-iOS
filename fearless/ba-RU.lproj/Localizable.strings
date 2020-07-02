@@ -1,79 +1,64 @@
 "common.signup" = "Теркәлеү";
-"common.close" = "Close";
-"common.next" = "Next";
-"common.cancel" = "Cancel";
-"common.skip" = "Skip";
-"common.use" = "Use";
-"common.error.general.title" = "Error";
-"common.copy.address" = "Copy address";
-"common.select.option" = "Select an option";
-
-"operation.error.title" = "Operation Failed";
-"operation.error.message" = "Please, try again later";
-
-"connection.error.title" = "Connection Failed";
-"connection.error.message" = "Please, check internet connection and try again later.";
-
+"common.close" = "Ябырға";
+"common.next" = "Киләһе";
+"common.cancel" = "Кире ҡағыу";
+"common.skip" = "Үткэрергә";
+"common.use" = "Ҡулланыу";
+"common.error.general.title" = "Хата";
+"common.copy.address" = "Копировать адрес";
+"common.select.option" = "Hайлағыҙ";
+"operation.error.title" = "Барыш хатаһы";
+"operation.error.message" = "Зинһар, һуңыраҡ ҡабатлап ҡарағыҙ";
+"connection.error.title" = "Тоташыу килеп сыҡмаған";
+"connection.error.message" = "Зинһар, интернет селтәрен тикшерегеҙ һәм һуңыраҡ ҡабатлап ҡарағыҙ.";
 "onboarding.restore.account" = "Аккаунтҡа доступты тергеҙеү";
 "onboarding.terms.and.conditions.1" = "Мин шарттарҙы һәм хосусил сәйәсәтен уҡыным һәм уҡығаны менән риза";
-"onboarding.terms.and.conditions.2" = "Terms and Conditions";
-"onboarding.privacy.policy" = "Privacy Policy";
-
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.sharing.subject" = "Fearless access backup";
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.save.or.send" = "Save or send";
-"common.passphrase.header" = "Mnemonic is\na type of password.";
-"common.passphrase.body" = "It is used to recover access to account. Write it down, we will not be able to recover your account without it!";
-"common.passphrase.your.passphrase" = "Your mnemonic";
-
-"access.backup.error.message" = "Please, try repeat registration from scratch.";
-"access.backup.load.error.title" = "Credentials Loading Failed";
-
-"pincode.enter.pin.code" = "Enter pin code";
-"pincode.confirm.your.pin.code" = "Confirm your pin code";
-"pincode.set.your.pin.code" = "Set your pin code";
+"onboarding.terms.and.conditions.2" = "Ҡағиҙәләр һәм шарттар";
+"onboarding.privacy.policy" = "Хосусил сәйәсәте";
+"common.passphrase.title" = "Мнемоника";
+"common.passphrase.sharing.subject" = "Fearless доступ мәғлүмәттәрен һаҡлау";
+"common.passphrase.save.or.send" = "Һаҡларға йәки ебәрергә";
+"common.passphrase.header" = "Мнемоника паролден төрө.";
+"common.passphrase.body" = "Ул аккаунтҡа инеү өсөн ҡулланыла. Юғалтыу осоронда һеҙ аккаунтҡа инеү ҡайтара алмайығыҙ!";
+"common.passphrase.your.passphrase" = "Ваша мнемоника";
+"access.backup.error.message" = "Теркәүҙе яңынан башлағыҙ";
+"access.backup.load.error.title" = "Тәьмин ителеү хатаһы";
+"pincode.enter.pin.code" = "Пин кодты индерегеҙ";
+"pincode.confirm.your.pin.code" = "Пин кодты раҫлаһыҙ";
+"pincode.set.your.pin.code" = "Пин кодты индерегеҙ";
 "ask.touchid.title" = "Touch ID";
-"ask.touchid.message" = "Would you like to use Touch ID for authentication?";
+"ask.touchid.message" = "Приложенияға инеү өсөн Touch ID ҡулланырға теләйһегеҙ?";
 "ask.faceid.title" = "Face ID";
-"ask.faceid.message" = "Would you like to user Face ID for authentication?";
-"ask.biometry.reason" = "Authenticate to access the account";
-
-"access.restore.words.error.message" = "Passphrase must contain 24 words at max";
-"access.restore.phrase.error.message" = "Your mnemonic is invalid. Please, try another one.";
-"recovery.title" = "Restore access";
-"recovery.body.title" = "Enter your mnemonic";
-"recovery.passphrase" = "Mnemonic";
-"recovery.body.subtitle" = "Unfortunately there is no way to access your account if you lost your mnemonic.";
-
-"tabbar.wallet.title" = "Wallet";
-"tabbar.staking.title" = "Staking";
-"tabbar.governance.title" = "Governance";
-"tabbar.extrinsics.title" = "Extrinsics";
-"tabbar.settings.title" = "Settings";
-
-"wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
-"wallet.title" = "Wallet";
-
-"profile.passphrase.title" = "View passphrase";
-"profile.title" = "Settings";
-"profile.about.title" = "About";
-"profile.language.title" = "Language";
-"profile.connection.title" = "Manage connections";
-"profile.subtitle" = "Kusama network";
-
-"about.software" = "Software";
-"about.version" = "Version";
-"about.source.code" = "Source code";
-"about.contact.us" = "Contact Us";
-"about.legal" = "Legal";
-"about.title" = "About";
-"about.privacy" = "Privacy policy";
-"about.terms" = "Terms and conditions";
-
-"language.title" = "Select language";
-
-"help.support.title" = "Fearless support";
-"no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
-
-"node.connections.title" = "Select connection";
+"ask.faceid.message" = "Приложенияға инеү өсөн Face ID ҡулланырға теләйһегеҙ?";
+"ask.biometry.reason" = "Приложенияға инеү өсөн аутентификация кәрәк";
+"access.restore.words.error.message" = "Мнемоника 24 һүҙҙән торорға тейеш.";
+"access.restore.phrase.error.message" = "Һеҙҙең мнемоника яраҡһыҙ. Зинһар, икенсене ҡулланып ҡарағыҙ.";
+"recovery.title" = "Аккаунтҡа доступ яңыртырға";
+"recovery.body.title" = "Мнемоника индерегеҙ";
+"recovery.passphrase" = "Мнемоника";
+"recovery.body.subtitle" = "Ҡыҙғанысҡа ҡаршы, әгәр серһүҙҙе онотһағыҙ, аккаунтҡа инә алмайһығыҙ";
+"tabbar.wallet.title" = "Янсыҡ";
+"tabbar.staking.title" = "Стейкинг";
+"tabbar.governance.title" = "Управление";
+"tabbar.extrinsics.title" = "Экстринсики";
+"tabbar.settings.title" = "Көйләүҙәр";
+"wallet.empty.description" = "Килгән һәм ебәрелгән транзакциялар бында күрһәтеләсәк";
+"wallet.title" = "Янсыҡ";
+"profile.passphrase.title" = "Серһүҙҙе ҡарарға";
+"profile.title" = "Көйләүҙәр";
+"profile.about.title" = "Тураһында";
+"profile.language.title" = "Тел";
+"profile.connection.title" = "Настройки подключения";
+"profile.subtitle" = "Kusama көтәбеҙ";
+"about.software" = "Ҡушымта";
+"about.version" = "Версия";
+"about.source.code" = "Сығанаҡ код";
+"about.contact.us" = "Бәйләнеш";
+"about.legal" = "Хоҡуҡ мәғлүмәт";
+"about.title" = "Тураһында";
+"about.privacy" = "Хосусил сәйәсәте";
+"about.terms" = "Ҡағиҙәләр һәм шарттар";
+"language.title" = "Телде һайлағыҙ";
+"help.support.title" = "Fearless ярҙам";
+"no.email.bound.error.message" = "Тышҡы һылтанманы асыу мөмкин түгел. Зинһар, көйләүҙәрҙе тикшерегеҙ.";
+"node.connections.title" = "Үҙ илегеҙҙе һайлағыҙ";
