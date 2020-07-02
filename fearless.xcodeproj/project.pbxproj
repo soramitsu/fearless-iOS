@@ -78,6 +78,11 @@
 		842876B324AE059700D91AD8 /* AboutData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B024AE059700D91AD8 /* AboutData.swift */; };
 		842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B124AE059700D91AD8 /* SocialMessage.swift */; };
 		842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B524AE05C700D91AD8 /* EmailPresentable.swift */; };
+		842876B924AE295300D91AD8 /* NodeSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */; };
+		842876BB24AE296F00D91AD8 /* NodeSelectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */; };
+		842876BD24AE299600D91AD8 /* NodeSelectionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */; };
+		842876BF24AE29A800D91AD8 /* NodeSelectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */; };
+		842876C124AE2A5C00D91AD8 /* NodeSelectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876C024AE2A5C00D91AD8 /* NodeSelectionItem.swift */; };
 		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
 		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
 		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
@@ -296,6 +301,11 @@
 		842876B024AE059700D91AD8 /* AboutData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutData.swift; sourceTree = "<group>"; };
 		842876B124AE059700D91AD8 /* SocialMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocialMessage.swift; sourceTree = "<group>"; };
 		842876B524AE05C700D91AD8 /* EmailPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailPresentable.swift; sourceTree = "<group>"; };
+		842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewController.swift; sourceTree = "<group>"; };
+		842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionInteractor.swift; sourceTree = "<group>"; };
+		842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionProtocols.swift; sourceTree = "<group>"; };
+		842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionPresenter.swift; sourceTree = "<group>"; };
+		842876C024AE2A5C00D91AD8 /* NodeSelectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionItem.swift; sourceTree = "<group>"; };
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -608,6 +618,18 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		842876B724AE290800D91AD8 /* NodeSelection */ = {
+			isa = PBXGroup;
+			children = (
+				842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */,
+				842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */,
+				842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */,
+				842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */,
+				842876C024AE2A5C00D91AD8 /* NodeSelectionItem.swift */,
+			);
+			path = NodeSelection;
+			sourceTree = "<group>";
+		};
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
@@ -678,6 +700,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				842876B724AE290800D91AD8 /* NodeSelection */,
 				8428767524AE046300D91AD8 /* About */,
 				8428766C24AE046200D91AD8 /* LanguageSelection */,
 				8428767324AE046200D91AD8 /* ViewPassphrase */,
@@ -1408,6 +1431,7 @@
 				8490156D24AD47E4008F705E /* UInt64+Scale.swift in Sources */,
 				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,
 				849014F524AA961E008F705E /* AccessRestoreInteractor.swift in Sources */,
+				842876BB24AE296F00D91AD8 /* NodeSelectionInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
 				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
 				8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */,
@@ -1423,6 +1447,7 @@
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				8490145A24A94102008F705E /* UIColor+Style.swift in Sources */,
 				8428763424AD5B3A00D91AD8 /* String+Scale.swift in Sources */,
+				842876BF24AE29A800D91AD8 /* NodeSelectionPresenter.swift in Sources */,
 				8490149424AA7834008F705E /* AccessBackupProtocol.swift in Sources */,
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
 				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
@@ -1454,6 +1479,7 @@
 				842876A824AE049B00D91AD8 /* SelectionListViewController.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
+				842876C124AE2A5C00D91AD8 /* NodeSelectionItem.swift in Sources */,
 				849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */,
 				8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
@@ -1475,6 +1501,8 @@
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				842876B924AE295300D91AD8 /* NodeSelectionViewController.swift in Sources */,
+				842876BD24AE299600D91AD8 /* NodeSelectionProtocols.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
