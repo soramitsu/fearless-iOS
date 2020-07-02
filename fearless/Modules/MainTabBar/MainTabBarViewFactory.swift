@@ -17,12 +17,22 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let settingsController = createSettingsController(for: localizationManager) else {
+        guard let extrinsicsController = createExtrinsicsController(for: localizationManager) else {
+            return nil
+        }
+
+        guard let settingsController = createProfileController(for: localizationManager) else {
             return nil
         }
 
         let view = MainTabBarViewController()
-        view.viewControllers = [walletController, stakingController, governanceController, settingsController]
+        view.viewControllers = [
+            walletController,
+            extrinsicsController,
+            stakingController,
+            governanceController,
+            settingsController
+        ]
 
         let presenter = MainTabBarPresenter()
 
@@ -49,9 +59,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             }
 
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+            let normalIcon = R.image.iconTabWallet()?.withRenderingMode(.alwaysOriginal)
+            let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
             viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                         normalImage: nil,
-                                                         selectedImage: nil)
+                                                         normalImage: normalIcon,
+                                                         selectedImage: selectedIcon)
 
             localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
                 let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
@@ -76,9 +88,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let normalIcon = R.image.iconTabStaking()?.withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: nil,
-                                                     selectedImage: nil)
+                                                     normalImage: normalIcon,
+                                                     selectedImage: selectedIcon)
 
         localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
@@ -98,9 +112,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let normalIcon = R.image.iconTabGov()?.withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: nil,
-                                                     selectedImage: nil)
+                                                     normalImage: normalIcon,
+                                                     selectedImage: selectedIcon)
 
         localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
@@ -110,19 +126,21 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createSettingsController(for localizationManager: LocalizationManagerProtocol)
+    static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
         viewController.view.backgroundColor = .white
 
         let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
+            R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let normalIcon = R.image.iconTabExtrinsics()?.withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: nil,
-                                                     selectedImage: nil)
+                                                     normalImage: normalIcon,
+                                                     selectedImage: selectedIcon)
 
         localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
@@ -130,6 +148,33 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         return viewController
+    }
+
+    static func createProfileController(for localizationManager: LocalizationManagerProtocol)
+        -> UIViewController? {
+        guard let settingsView = ProfileViewFactory.createView() else {
+            return nil
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: settingsView.controller)
+
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarSettingsTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let normalIcon = R.image.iconTabProfile()?.withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+        navigationController.tabBarItem = createTabBarItem(title: currentTitle,
+                                                           normalImage: normalIcon,
+                                                           selectedImage: selectedIcon)
+
+        localizationManager.addObserver(with: navigationController) { [weak navigationController] (_, _) in
+            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+            navigationController?.tabBarItem.title = currentTitle
+        }
+
+        return navigationController
     }
 
     static func createTabBarItem(title: String,
