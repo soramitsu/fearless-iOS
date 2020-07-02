@@ -3,6 +3,7 @@ import CommonWallet
 import SoraKeystore
 import RobinHood
 import IrohaCrypto
+import SoraFoundation
 
 enum WalletContextFactoryError: Error {
     case missingNode
@@ -31,6 +32,22 @@ final class WalletContextFactory {
         primitiveFactory = WalletPrimitiveFactory(keystore: keychain,
                                                   settings: settings)
     }
+
+    private func subscribeContextToLanguageSwitch(_ context: CommonWalletContextProtocol,
+                                                  localizationManager: LocalizationManagerProtocol,
+                                                  logger: LoggerProtocol) {
+        localizationManager.addObserver(with: context) { [weak context] (_, newLocalization) in
+            if let newLanguage = WalletLanguage(rawValue: newLocalization) {
+                do {
+                    try context?.prepareLanguageSwitchCommand(with: newLanguage).execute()
+                } catch {
+                    logger.error("Error received when tried to change wallet language")
+                }
+            } else {
+                logger.error("New selected language \(newLocalization) error is unsupported")
+            }
+        }
+    }
 }
 
 extension WalletContextFactory: WalletContextFactoryProtocol {
@@ -50,7 +67,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
 
-        WalletCommonConfigurator().configure(builder: builder)
+        let localizationManager = LocalizationManager.shared
+
+        WalletCommonConfigurator(localizationManager: localizationManager).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
         let accountListConfigurator = WalletAccountListConfigurator(logger: logger)
@@ -59,6 +78,10 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
 
         let context = try builder.build()
+
+        subscribeContextToLanguageSwitch(context,
+                                         localizationManager: localizationManager,
+                                         logger: logger)
 
         accountListConfigurator.context = context
 
