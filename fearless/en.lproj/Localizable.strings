@@ -1,4 +1,3 @@
-"common.signup" = "Sign up";
 "common.close" = "Close";
 "common.next" = "Next";
 "common.cancel" = "Cancel";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Please, try again later";
 "connection.error.title" = "Connection Failed";
 "connection.error.message" = "Please, check internet connection and try again later.";
-"onboarding.restore.account" = "Restore your account access";
+"onboarding.restore.account" = "Import Account";
 "onboarding.terms.and.conditions.1" = "I have read and agreed to\
 Terms and Conditions and Privacy Policy";
 "onboarding.terms.and.conditions.2" = "Terms and Conditions";
@@ -65,3 +64,4 @@ transfers will appear here";
 "help.support.title" = "Fearless support";
 "no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
 "node.connections.title" = "Select connection";
+"onboarding.create.account" = "Create Account";

@@ -1,4 +1,3 @@
-"common.signup" = "Registrati";
 "common.close" = "Vicino";
 "common.next" = "Il prossimo";
 "common.cancel" = "Annulla";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Per favore riprova più tardi";
 "connection.error.title" = "Connessione fallita";
 "connection.error.message" = "Controlla la connessione a Internet e riprova più tardi.";
-"onboarding.restore.account" = "Ripristina l'accesso al tuo account";
+"onboarding.restore.account" = "Importa account";
 "onboarding.terms.and.conditions.1" = "Ho letto e accetto i Termini e le condizioni sulla politica della privacy";
 "onboarding.terms.and.conditions.2" = "Termini e condizioni";
 "onboarding.privacy.policy" = "Informativa sulla privacy";
@@ -64,3 +63,4 @@ trasferimenti appariranno qui";
 "help.support.title" = "Fearless supporto";
 "no.email.bound.error.message" = "Assicurati che l'applicazione di posta sia installata sul dispositivo.";
 "node.connections.title" = "Seleziona la connessione";
+"onboarding.create.account" = "Creare un profilo";

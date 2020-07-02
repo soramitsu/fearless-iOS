@@ -1,4 +1,3 @@
-"common.signup" = "Реєстрація";
 "common.close" = "Закрити";
 "common.next" = "Далі";
 "common.cancel" = "Скасувати";
@@ -11,7 +10,7 @@
 "operation.error.message" = "Будь ласка, спробуйте пізніше";
 "connection.error.title" = "Помилка підключення";
 "connection.error.message" = "Будь ласка, перевірте підключення до Інтернету та повторіть спробу пізніше.";
-"onboarding.restore.account" = "Відновлення доступу до облікового запису";
+"onboarding.restore.account" = "Імпорт рахунку";
 "onboarding.terms.and.conditions.1" = "Я підтверджую, що прочитав і згоден з\
 Умовами користування та Політикою конфіденційності";
 "onboarding.terms.and.conditions.2" = "Умови користування";
@@ -65,3 +64,4 @@
 "help.support.title" = "Fearless підтримка";
 "no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
 "node.connections.title" = "Виберіть з'єднання";
+"onboarding.create.account" = "Створити рахунок";

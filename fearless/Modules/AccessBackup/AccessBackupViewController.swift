@@ -18,6 +18,8 @@ final class AccessBackupViewController: AccessoryViewController {
 
     var mode: Mode = .registration
 
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 

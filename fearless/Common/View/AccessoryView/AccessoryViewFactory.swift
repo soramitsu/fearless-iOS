@@ -14,7 +14,7 @@ final class AccessoryViewFactory: AccessoryViewFactoryProtocol {
                                     completionSelector: Selector?) -> AccessoryViewProtocol {
         let view = R.nib.accessoryView(owner: nil)!
 
-        view.titleColor = UIColor.accentColor
+        view.titleColor = UIColor.iconTintColor
         view.titleFont = UIFont.accessoryTitle
 
         if let target = target, let selector = completionSelector {
@@ -28,7 +28,7 @@ final class AccessoryViewFactory: AccessoryViewFactoryProtocol {
                                       target: Any?,
                                       actionHandler: Selector?) -> RoundedButton {
         let actionButton = RoundedButton()
-        actionButton.imageWithTitleView?.titleColor = UIColor.accentColor
+        actionButton.imageWithTitleView?.titleColor = UIColor.iconTintColor
         actionButton.imageWithTitleView?.titleFont = UIFont.accessoryTitle
         actionButton.imageWithTitleView?.title = title
         actionButton.roundedBackgroundView?.fillColor = .clear
