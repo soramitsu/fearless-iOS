@@ -53,7 +53,9 @@ extension BigUInt: ScaleEncodable {
 
 extension BigUInt: ScaleDecodable {
     init(scaleDecoder: ScaleDecoding) throws {
-        let mode: UInt8 = (try scaleDecoder.read(count: 1)[0]) & 0b11
+        let byte = try scaleDecoder.read(count: 1)
+        let byteValue = UInt8(littleEndian: byte.withUnsafeBytes({ $0.load(as: UInt8.self) }))
+        let mode: UInt8 = byteValue & 0b11
 
         if mode == 0b00 {
             let data = try scaleDecoder.read(count: 1)
@@ -68,7 +70,9 @@ extension BigUInt: ScaleDecodable {
             self = BigUInt(Data(data.reversed())) >> 2
             try scaleDecoder.confirm(count: 4)
         } else {
-            let count = ((try scaleDecoder.read(count: 1)[0]) >> 2) + 4
+            let header = try scaleDecoder.read(count: 1)
+            let headerValue = UInt8(littleEndian: header.withUnsafeBytes({ $0.load(as: UInt8.self) }))
+            let count = (headerValue >> 2) + 4
             try scaleDecoder.confirm(count: 1)
 
             guard count > 0 else {

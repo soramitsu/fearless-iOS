@@ -2,6 +2,11 @@ import Foundation
 import CommonWallet
 import SoraKeystore
 import RobinHood
+import IrohaCrypto
+
+enum WalletContextFactoryError: Error {
+    case missingNode
+}
 
 protocol WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol
@@ -32,9 +37,16 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol {
         let accountSettings = try primitiveFactory.createAccountSettings()
 
-        logger.debug("Loading wallet account: \(accountSettings.accountId)")
+        let publicKeyRaw = try Data(hexString: accountSettings.accountId)
+        let publicKey = try SNPublicKey(rawData: publicKeyRaw)
+        let address = try SS58AddressFactory().address(from: publicKey, type: .kusamaMain)
+        logger.debug("Loading wallet account: \(address)")
 
-        let networkFactory = WalletNetworkOperationFactory()
+        guard let url = ApplicationConfig.shared.nodes.first else {
+            throw WalletContextFactoryError.missingNode
+        }
+
+        let networkFactory = WalletNetworkOperationFactory(url: url, accountSettings: accountSettings)
 
         let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
 

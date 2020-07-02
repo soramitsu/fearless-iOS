@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraKeystore
 import SoraFoundation
+import IrohaCrypto
 
 enum WalletAssetIds: String {
     case kusama
@@ -37,7 +38,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                                 name: localizableName,
                                 platform: platformName,
                                 symbol: "KSM",
-                                precision: 18,
+                                precision: 12,
                                 modes: .all)
 
         return WalletAccountSettings(accountId: accountId, assets: [asset])
