@@ -1,0 +1,137 @@
+PODS:
+  - BigInt (5.0.0)
+  - CommonWallet/Core (1.14.0):
+    - RobinHood (~> 2.5.0)
+    - SoraFoundation/DateProcessing (~> 0.8.0)
+    - SoraFoundation/Localization (~> 0.8.0)
+    - SoraFoundation/NotificationHandlers (~> 0.8.0)
+    - SoraUI (~> 1.8.7)
+  - Cuckoo (1.4.0):
+    - Cuckoo/Swift (= 1.4.0)
+  - Cuckoo/Swift (1.4.0)
+  - FireMock (3.1)
+  - IrohaCrypto/BIP39 (0.4.3):
+    - IrohaCrypto/Common
+  - IrohaCrypto/blake2 (0.4.3)
+  - IrohaCrypto/Common (0.4.3)
+  - IrohaCrypto/sr25519 (0.4.3):
+    - IrohaCrypto/BIP39
+    - IrohaCrypto/blake2
+    - IrohaCrypto/Common
+  - R.swift (5.2.2):
+    - R.swift.Library (~> 5.2.0)
+  - R.swift.Library (5.2.0)
+  - RobinHood (2.5.0)
+  - SoraFoundation (0.8.0):
+    - SoraFoundation/DateProcessing (= 0.8.0)
+    - SoraFoundation/Localization (= 0.8.0)
+    - SoraFoundation/NotificationHandlers (= 0.8.0)
+    - SoraFoundation/QueryProcessing (= 0.8.0)
+    - SoraFoundation/Timer (= 0.8.0)
+    - SoraFoundation/ViewModel (= 0.8.0)
+  - SoraFoundation/DateProcessing (0.8.0):
+    - SoraFoundation/Localization
+  - SoraFoundation/Localization (0.8.0):
+    - SoraKeystore (~> 0.1.5)
+  - SoraFoundation/NotificationHandlers (0.8.0)
+  - SoraFoundation/QueryProcessing (0.8.0)
+  - SoraFoundation/Timer (0.8.0):
+    - SoraFoundation/NotificationHandlers
+  - SoraFoundation/ViewModel (0.8.0)
+  - SoraKeystore (0.1.5)
+  - SoraUI (1.8.10):
+    - SoraUI/AdaptiveDesign (= 1.8.10)
+    - SoraUI/Animator (= 1.8.10)
+    - SoraUI/Camera (= 1.8.10)
+    - SoraUI/Controls (= 1.8.10)
+    - SoraUI/DetailsView (= 1.8.10)
+    - SoraUI/EmptyState (= 1.8.10)
+    - SoraUI/LoadingView (= 1.8.10)
+    - SoraUI/ModalInputPresentation (= 1.8.10)
+    - SoraUI/PageLoader (= 1.8.10)
+    - SoraUI/PinView (= 1.8.10)
+    - SoraUI/Skrull (= 1.8.10)
+  - SoraUI/AdaptiveDesign (1.8.10)
+  - SoraUI/Animator (1.8.10)
+  - SoraUI/Camera (1.8.10)
+  - SoraUI/Controls (1.8.10)
+  - SoraUI/DetailsView (1.8.10):
+    - SoraUI/Controls
+  - SoraUI/EmptyState (1.8.10):
+    - SoraUI/Animator
+  - SoraUI/LoadingView (1.8.10):
+    - SoraUI/Controls
+  - SoraUI/ModalInputPresentation (1.8.10):
+    - SoraUI/Animator
+  - SoraUI/PageLoader (1.8.10)
+  - SoraUI/PinView (1.8.10):
+    - SoraUI/Controls
+  - SoraUI/Skrull (1.8.10)
+  - Starscream (4.0.3)
+  - SwiftLint (0.39.2)
+  - SwiftyBeaver (1.9.1)
+  - xxHash-Swift (1.0.13)
+
+DEPENDENCIES:
+  - BigInt (~> 5.0)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `272969f1311f7c9d23621c1e9fa1a05545ad21f9`)
+  - Cuckoo
+  - FireMock
+  - IrohaCrypto/sr25519 (= 0.4.3)
+  - R.swift
+  - RobinHood
+  - SoraFoundation (~> 0.8.0)
+  - SoraKeystore
+  - SoraUI
+  - Starscream (~> 4.0.0)
+  - SwiftLint
+  - SwiftyBeaver
+  - xxHash-Swift
+
+SPEC REPOS:
+  trunk:
+    - BigInt
+    - Cuckoo
+    - FireMock
+    - IrohaCrypto
+    - R.swift
+    - R.swift.Library
+    - RobinHood
+    - SoraFoundation
+    - SoraKeystore
+    - SoraUI
+    - Starscream
+    - SwiftLint
+    - SwiftyBeaver
+    - xxHash-Swift
+
+EXTERNAL SOURCES:
+  CommonWallet:
+    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
+    :git: https://github.com/soramitsu/Capital-iOS.git
+
+CHECKOUT OPTIONS:
+  CommonWallet:
+    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
+    :git: https://github.com/soramitsu/Capital-iOS.git
+
+SPEC CHECKSUMS:
+  BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
+  CommonWallet: cdfe1cf798e942df6c93cf579650169e698dfb2e
+  Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
+  FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
+  IrohaCrypto: cfdfe162065705d1055bed4e37345abcbf5184de
+  R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
+  R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
+  RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6
+  SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
+  SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
+  SoraUI: 236036ed20c4cbe8d379aa3212db4ae6a15a577c
+  Starscream: ef06f0961fff0880bca0604416d61141e4faca67
+  SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
+  SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
+  xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
+
+PODFILE CHECKSUM: 72ab63da61e6c4ecf2f5f7fbff12ac940045bb35
+
+COCOAPODS: 1.9.3
