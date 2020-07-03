@@ -36,6 +36,7 @@ final class WalletAccountListConfigurator {
                 .inserting(viewModelFactory: { localHeaderViewModel }, at: 0)
             .with(cellNib: UINib(resource: R.nib.walletAccountHeaderView),
                   for: localHeaderViewModel.cellReuseIdentifier)
+            .withActions(cellNib: UINib(resource: R.nib.walletActionsCell))
             .with(listViewModelFactory: viewModelFactory)
             .with(assetCellStyleFactory: assetStyleFactory)
         } catch {
