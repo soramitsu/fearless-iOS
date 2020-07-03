@@ -14,7 +14,7 @@ struct AssetStyleFactory: AssetCellStyleFactoryProtocol {
         let regularFont = R.font.soraRc0040417Regular(size: 14)!
 
         let cardStyle = CardAssetStyle(backgroundColor: UIColor.black.withAlphaComponent(0.7),
-                                       leftFillColor: UIColor.black.withAlphaComponent(0.4),
+                                       leftFillColor: UIColor.black.withAlphaComponent(0.0),
                                        symbol: WalletTextStyle(font: headerFont, color: UIColor.white),
                                        title: WalletTextStyle(font: headerFont, color: textColor),
                                        subtitle: WalletTextStyle(font: regularFont, color: subtitleColor),

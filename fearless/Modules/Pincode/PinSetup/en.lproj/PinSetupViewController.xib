@@ -35,7 +35,7 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="44" id="3o3-0z-Cvc"/>
                     </constraints>
-                    <color key="tintColor" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <items>
                         <navigationItem id="SvB-XX-4EW">
                             <barButtonItem key="backBarButtonItem" title=" " id="C9a-uE-kbu">
