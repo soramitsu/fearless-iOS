@@ -28,6 +28,8 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var pinViewTopConstraint: NSLayoutConstraint!
     @IBOutlet private var pinViewBottomConstraint: NSLayoutConstraint!
 
+    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
+
     private var cancelButton: UIButton?
 
     // MARK: View Setup
@@ -108,6 +110,9 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     private func configurePinView() {
         pinView.mode = mode
         pinView.delegate = self
+
+        pinView.numpadView?.accessoryIcon = pinView.numpadView?.accessoryIcon?.tinted(with: UIColor.iconTintColor)
+        pinView.numpadView?.backspaceIcon = pinView.numpadView?.backspaceIcon?.tinted(with: UIColor.iconTintColor)
     }
 
     private func setupLocalization() {

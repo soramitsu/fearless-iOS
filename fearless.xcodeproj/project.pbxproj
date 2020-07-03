@@ -214,6 +214,9 @@
 		8490156F24AD489E008F705E /* ScaleInt8Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490156E24AD489E008F705E /* ScaleInt8Tests.swift */; };
 		84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */; };
 		84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EDA24AF1924008FC35B /* InfoPlist.strings */; };
+		84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */; };
+		84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EE924AF303D008FC35B /* WalletActionsCell.xib */; };
+		84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -457,6 +460,9 @@
 		84C07EE424AF1986008FC35B /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ja; path = ja.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C07EE524AF1990008FC35B /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = ru; path = ru.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		84C07EE624AF1998008FC35B /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = uk; path = uk.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryStyle.swift; sourceTree = "<group>"; };
+		84C07EE924AF303D008FC35B /* WalletActionsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WalletActionsCell.xib; sourceTree = "<group>"; };
+		84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletActionsCell.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -1109,6 +1115,8 @@
 				8490151C24ABC57A008F705E /* AssetStyleFactory.swift */,
 				8490151E24ABC61F008F705E /* WalletAssetViewModelFactory.swift */,
 				8490152224ABC77E008F705E /* WalletAssetViewModel.swift */,
+				84C07EE924AF303D008FC35B /* WalletActionsCell.xib */,
+				84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1117,6 +1125,7 @@
 			isa = PBXGroup;
 			children = (
 				8490151A24ABC44E008F705E /* TransactionHistoryConfigurator.swift */,
+				84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -1290,6 +1299,7 @@
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
 				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
+				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8428768E24AE046300D91AD8 /* AboutAccessoryTitleCell.xib in Resources */,
@@ -1454,6 +1464,7 @@
 				8490155024ACD582008F705E /* ScaleCoding.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
+				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
@@ -1505,6 +1516,7 @@
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
 				8490149524AA7834008F705E /* AccessBackupViewController.swift in Sources */,
+				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
 				8490149224AA7834008F705E /* AccessBackupInteractor.swift in Sources */,
 				8490156B24AD47AC008F705E /* UInt32+Scale.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,

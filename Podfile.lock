@@ -74,7 +74,7 @@ PODS:
 
 DEPENDENCIES:
   - BigInt (~> 5.0)
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `7cd987b2c03cdfc83ed6605049e6529c6a59b732`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `272969f1311f7c9d23621c1e9fa1a05545ad21f9`)
   - Cuckoo
   - FireMock
   - IrohaCrypto/sr25519 (= 0.4.3)
@@ -107,12 +107,12 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 7cd987b2c03cdfc83ed6605049e6529c6a59b732
+    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 7cd987b2c03cdfc83ed6605049e6529c6a59b732
+    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
 
 SPEC CHECKSUMS:
@@ -132,6 +132,6 @@ SPEC CHECKSUMS:
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: af51e1f3306f7ffd530dd4e664c00f008e1bd3fd
+PODFILE CHECKSUM: 72ab63da61e6c4ecf2f5f7fbff12ac940045bb35
 
 COCOAPODS: 1.9.3

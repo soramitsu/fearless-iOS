@@ -12,7 +12,7 @@ final class AboutViewController: UIViewController {
     }
 
     private enum Section: Int, CaseIterable {
-        static let height: CGFloat = 55.0
+        static let height: CGFloat = 35.0
 
         case software
         case legal

@@ -1,21 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="14490.70" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
-    <device id="retina4_7" orientation="portrait">
-        <adaptation id="fullscreen"/>
-    </device>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="14490.49"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
-        <array key="sora-Regular.otf">
-            <string>sora-rc004-0417-Regular</string>
+        <array key="sora-Bold.otf">
+            <string>sora-rc004-0417-Bold</string>
         </array>
     </customFonts>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PinSetupViewController" customModule="SoraPassport" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="PinSetupViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="navigationBar" destination="SYy-2D-F5q" id="4Mm-GD-NTm"/>
                 <outlet property="navigationBarTop" destination="Abv-ho-QLD" id="2kV-ae-Iec"/>
@@ -37,23 +35,23 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="44" id="3o3-0z-Cvc"/>
                     </constraints>
-                    <color key="tintColor" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <items>
                         <navigationItem id="SvB-XX-4EW">
                             <barButtonItem key="backBarButtonItem" title=" " id="C9a-uE-kbu">
-                                <color key="tintColor" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </barButtonItem>
                         </navigationItem>
                     </items>
                 </navigationBar>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter pin code" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqY-VK-ps1">
-                    <rect key="frame" x="139.5" y="158" width="96" height="16.5"/>
-                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="13"/>
-                    <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.17254901959999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                    <rect key="frame" x="120.5" y="138" width="134" height="23"/>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
+                    <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" verticalCompressionResistancePriority="749" placeholderIntrinsicWidth="260" placeholderIntrinsicHeight="424.5" translatesAutoresizingMaskIntoConstraints="NO" id="im2-a2-44W" customClass="PinView" customModule="SoraUI">
-                    <rect key="frame" x="57.5" y="194.5" width="260" height="425.5"/>
+                    <rect key="frame" x="57.5" y="181" width="260" height="439"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="_mode">
@@ -82,16 +80,16 @@
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="image" keyPath="_numpadBackspaceIcon" value="pinBackspace"/>
                         <userDefinedRuntimeAttribute type="color" keyPath="_numpadFillColor">
-                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_numpadHighlightedFillColor">
-                            <color key="value" red="0.94901960784313721" green="0.96862745098039216" blue="0.96862745098039216" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_numpadTitleColor">
-                            <color key="value" red="0.14117647059999999" green="0.28627450980000002" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_numpadHighlightedTitleColor">
-                            <color key="value" red="0.14117647059999999" green="0.28627450980000002" blue="0.30588235289999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" white="1" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="string" keyPath="_numpadFontName" value="sora-rc004-0417-Regular"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_numpadFontSize">
@@ -107,13 +105,13 @@
                             <real key="value" value="79"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fieldStrokeColor">
-                            <color key="value" red="0.53725490200000003" green="0.62352941179999999" blue="0.61960784310000006" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fieldFillColor">
-                            <color key="value" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_numpadShadowOpacity">
-                            <real key="value" value="1"/>
+                            <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="shadowRadius">
                             <real key="value" value="0.0"/>
@@ -129,7 +127,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
             </subviews>
-            <color key="backgroundColor" red="0.94901960780000005" green="0.96862745100000003" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" red="0.094117647060000004" green="0.094117647060000004" blue="0.094117647060000004" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstItem="SYy-2D-F5q" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="20" id="Abv-ho-QLD"/>
                 <constraint firstItem="dqY-VK-ps1" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="Hpk-l0-S4V"/>
@@ -141,6 +139,7 @@
                 <constraint firstItem="SYy-2D-F5q" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="wSR-Zd-iw1"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="138" y="154"/>
         </view>
     </objects>
     <resources>

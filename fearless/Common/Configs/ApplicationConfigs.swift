@@ -47,6 +47,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     //swiftlint:enable force_cast
 
     var opensourceURL: URL {
-        URL(string: "https://github.com/soramitsu/fearless")!
+        URL(string: "https://github.com/soramitsu/fearless-iOS/tree/develop")!
     }
 }

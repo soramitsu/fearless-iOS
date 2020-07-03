@@ -10,7 +10,7 @@ target 'fearless' do
   pod 'SoraUI'
   pod 'RobinHood'
   pod 'IrohaCrypto/sr25519', '= 0.4.3'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '7cd987b2c03cdfc83ed6605049e6529c6a59b732'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '272969f1311f7c9d23621c1e9fa1a05545ad21f9'
   pod 'SoraFoundation', '~> 0.8.0'
   pod 'SwiftyBeaver'
   pod 'BigInt', '~> 5.0'
