@@ -23,18 +23,18 @@
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconViewMnemonic" translatesAutoresizingMaskIntoConstraints="NO" id="g7b-eE-oyd">
                         <rect key="frame" x="20" y="19.5" width="20" height="20"/>
-                        <color key="tintColor" red="0.81568627450980391" green="0.0078431372549019607" blue="0.10588235294117647" alpha="1" colorSpace="calibratedRGB"/>
+                        <color key="tintColor" red="0.027450980392156862" green="0.75686274509803919" blue="0.94117647058823528" alpha="1" colorSpace="calibratedRGB"/>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Passphrase" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="OG9-GY-G1z">
                         <rect key="frame" x="54" y="20.5" width="80.5" height="18"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
-                        <color key="textColor" red="0.10980392156862745" green="0.31372549019607843" blue="0.30588235294117649" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="zuZ-sB-qZp">
                         <rect key="frame" x="349" y="24" width="6" height="11"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <color key="tintColor" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </imageView>
                     <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wac-kT-CBb" customClass="RoundedButton" customModule="SoraUI">
                         <rect key="frame" x="277.5" y="15" width="53.5" height="29"/>
@@ -52,7 +52,7 @@
                                 <real key="value" value="0.0"/>
                             </userDefinedRuntimeAttribute>
                             <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                                <color key="value" red="0.45098039215686275" green="0.6588235294117647" blue="0.65098039215686276" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </userDefinedRuntimeAttribute>
                             <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                                 <real key="value" value="0.0"/>
@@ -77,7 +77,7 @@
                                 <real key="value" value="12"/>
                             </userDefinedRuntimeAttribute>
                             <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                                <color key="value" red="0.45098039220000002" green="0.6588235294" blue="0.65098039220000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>

@@ -34,7 +34,7 @@
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Profile" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="1rl-ED-wdW">
                             <rect key="frame" x="20" y="20" width="335" height="29"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="23"/>
-                            <color key="textColor" red="0.01176470588" green="0.36078431370000003" blue="0.35294117650000001" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wyx-6R-Err" customClass="ProfileButton" customModule="fearless" customModuleProvider="target">
@@ -47,7 +47,7 @@
                                 <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Jessica Morris"/>
                                 <userDefinedRuntimeAttribute type="string" keyPath="_subtitle" value="jessica@morris.com"/>
                                 <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                                    <color key="value" red="0.18039215689999999" green="0.18039215689999999" blue="0.18039215689999999" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="size" keyPath="_shadowOffset">
                                     <size key="value" width="0.0" height="3"/>
@@ -56,10 +56,10 @@
                                     <real key="value" value="5"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
-                                    <real key="value" value="1"/>
+                                    <real key="value" value="0.0"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="color" keyPath="_subtitleColor">
-                                    <color key="value" red="0.4823529411764706" green="0.4823529411764706" blue="0.4823529411764706" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                                    <color key="value" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                                     <real key="value" value="20"/>
@@ -87,10 +87,16 @@
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
                                 <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                                    <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
                                     <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_strokeWidth">
+                                    <real key="value" value="1"/>
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                             <connections>
@@ -127,7 +133,7 @@
                     </connections>
                 </scrollView>
             </subviews>
-            <color key="backgroundColor" red="0.94901960780000005" green="0.96862745100000003" blue="0.96862745100000003" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color key="backgroundColor" red="0.094117647060000004" green="0.094117647060000004" blue="0.094117647060000004" alpha="1" colorSpace="calibratedRGB"/>
             <constraints>
                 <constraint firstItem="IfS-MK-7lK" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="22y-fU-Itd"/>
                 <constraint firstAttribute="bottom" secondItem="IfS-MK-7lK" secondAttribute="bottom" id="Flc-X2-6gw"/>
