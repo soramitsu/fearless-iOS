@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Камера використовується для захоплення QR-коду";
+"NSFaceIDUsageDescription" = "Face ID використовується для авторизації в додатку";
+"NSPhotoLibraryUsageDescription" = "Завантажити зображення із бібліотеки";
+"NSPhotoLibraryAddUsageDescription" = "Зберегти запит на переказ як QR-код";
