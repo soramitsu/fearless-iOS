@@ -35,7 +35,7 @@
                     <constraints>
                         <constraint firstAttribute="height" constant="44" id="3o3-0z-Cvc"/>
                     </constraints>
-                    <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <color key="tintColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <items>
                         <navigationItem id="SvB-XX-4EW">
                             <barButtonItem key="backBarButtonItem" title=" " id="C9a-uE-kbu">
@@ -45,13 +45,13 @@
                     </items>
                 </navigationBar>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter pin code" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqY-VK-ps1">
-                    <rect key="frame" x="120.5" y="138" width="134" height="23"/>
+                    <rect key="frame" x="129" y="138" width="117.5" height="21"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" verticalCompressionResistancePriority="749" placeholderIntrinsicWidth="260" placeholderIntrinsicHeight="424.5" translatesAutoresizingMaskIntoConstraints="NO" id="im2-a2-44W" customClass="PinView" customModule="SoraUI">
-                    <rect key="frame" x="57.5" y="181" width="260" height="439"/>
+                    <rect key="frame" x="57.5" y="179" width="260" height="441"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="_mode">
