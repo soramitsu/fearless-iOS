@@ -25,6 +25,9 @@ final class WalletAccountListConfigurator {
 
             let localHeaderViewModel = headerViewModel
 
+            var viewStyle = AccountListViewStyle(refreshIndicatorStyle: UIColor.iconTintColor)
+            viewStyle.backgroundImage = R.image.backgroundImage()
+
             let assetStyleFactory = AssetStyleFactory()
             let amountFormatterFactory = AmountFormatterFactory()
             let viewModelFactory = WalletAssetViewModelFactory(cellIdentifier: builder.assetCellIdentifier,
@@ -39,6 +42,7 @@ final class WalletAccountListConfigurator {
             .withActions(cellNib: UINib(resource: R.nib.walletActionsCell))
             .with(listViewModelFactory: viewModelFactory)
             .with(assetCellStyleFactory: assetStyleFactory)
+            .with(viewStyle: viewStyle)
         } catch {
             logger.error("Can't customize account list: \(error)")
         }
