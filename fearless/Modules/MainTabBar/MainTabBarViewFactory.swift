@@ -85,7 +85,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .white
+        viewController.view.backgroundColor = .background
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -113,7 +113,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .white
+        viewController.view.backgroundColor = .background
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
@@ -141,7 +141,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .white
+        viewController.view.backgroundColor = .background
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
