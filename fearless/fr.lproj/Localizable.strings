@@ -1,79 +1,67 @@
 "common.signup" = "S'inscrire";
-"common.close" = "Close";
-"common.next" = "Next";
-"common.cancel" = "Cancel";
-"common.skip" = "Skip";
-"common.use" = "Use";
-"common.error.general.title" = "Error";
-"common.copy.address" = "Copy address";
-"common.select.option" = "Select an option";
-
-"operation.error.title" = "Operation Failed";
-"operation.error.message" = "Please, try again later";
-
-"connection.error.title" = "Connection Failed";
-"connection.error.message" = "Please, check internet connection and try again later.";
-
+"common.close" = "Fermer";
+"common.next" = "Suivant";
+"common.cancel" = "Annuler";
+"common.skip" = "Passer";
+"common.use" = "Utiliser";
+"common.error.general.title" = "Erreur";
+"common.copy.address" = "Copier l'adresse";
+"common.select.option" = "Sélectionner une option";
+"operation.error.title" = "L'opération a échoué";
+"operation.error.message" = "Veuillez réessayer ultérieurement";
+"connection.error.title" = "La connexion a échoué";
+"connection.error.message" = "Veuillez vérifier votre connexion Internet et réessayer plus tard.";
 "onboarding.restore.account" = "Restaurer l'accès à votre compte";
-"onboarding.terms.and.conditions.1" = "J'ai lu et j'accepte\nles Termes et Conditions et la politique de confidentialité";
-"onboarding.terms.and.conditions.2" = "Terms and Conditions";
-"onboarding.privacy.policy" = "Privacy Policy";
-
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.sharing.subject" = "Fearless access backup";
-"common.passphrase.title" = "Mnemonic";
-"common.passphrase.save.or.send" = "Save or send";
-"common.passphrase.header" = "Mnemonic is\na type of password.";
-"common.passphrase.body" = "It is used to recover access to account. Write it down, we will not be able to recover your account without it!";
-"common.passphrase.your.passphrase" = "Your mnemonic";
-
-"access.backup.error.message" = "Please, try repeat registration from scratch.";
-"access.backup.load.error.title" = "Credentials Loading Failed";
-
-"pincode.enter.pin.code" = "Enter pin code";
-"pincode.confirm.your.pin.code" = "Confirm your pin code";
-"pincode.set.your.pin.code" = "Set your pin code";
+"onboarding.terms.and.conditions.1" = "J'ai lu et j'accepte\
+les Termes et Conditions et la politique de confidentialité";
+"onboarding.terms.and.conditions.2" = "Conditions générales";
+"onboarding.privacy.policy" = "Respect de la vie privée";
+"common.passphrase.title" = "Mnémonique";
+"common.passphrase.sharing.subject" = "Fearless sauvegarde d'accès";
+"common.passphrase.save.or.send" = "Enregistrer ou envoyer";
+"common.passphrase.header" = "Mnemonic is\
+a type of password.";
+"common.passphrase.body" = "Elle est utilisée pour récupérer l'accès au compte. Notez-la, nous ne pourrons pas récupérer votre compte sans elle !";
+"common.passphrase.your.passphrase" = "Votre mnémonique";
+"access.backup.error.message" = "Veuillez réessayer l'enregistrement en recommençant depuis le début";
+"access.backup.load.error.title" = "Échec du chargement des informations d'identification";
+"pincode.enter.pin.code" = "Entrez le code PIN";
+"pincode.confirm.your.pin.code" = "Confirmez votre code PIN";
+"pincode.set.your.pin.code" = "Définissez votre code PIN";
 "ask.touchid.title" = "Touch ID";
-"ask.touchid.message" = "Would you like to use Touch ID for authentication?";
+"ask.touchid.message" = "Souhaitez-vous utiliser Touch ID pour l'authentification?";
 "ask.faceid.title" = "Face ID";
-"ask.faceid.message" = "Would you like to user Face ID for authentication?";
-"ask.biometry.reason" = "Authenticate to access the account";
-
-"access.restore.words.error.message" = "Passphrase must contain 24 words at max";
-"access.restore.phrase.error.message" = "Your mnemonic is invalid. Please, try another one.";
-"recovery.title" = "Restore access";
-"recovery.body.title" = "Enter your mnemonic";
-"recovery.passphrase" = "Mnemonic";
-"recovery.body.subtitle" = "Unfortunately there is no way to access your account if you lost your mnemonic.";
-
-"tabbar.wallet.title" = "Wallet";
+"ask.faceid.message" = "Souhaitez-vous utiliser Face ID pour l'authentification?";
+"ask.biometry.reason" = "Authentifiez-vous pour accéder au compte";
+"access.restore.words.error.message" = "Mnémonique doit contenir 24 mots au maximum";
+"access.restore.phrase.error.message" = "Votre mnémonique n’est pas valide. S’ll vous plaît, essayez un autre.";
+"recovery.title" = "Rétablir l'accès";
+"recovery.body.title" = "Entrez votre mnémonique";
+"recovery.passphrase" = "Mnémonique";
+"recovery.body.subtitle" = "Malheureusement, il n’y a aucun moyen d’accéder à votre compte si vous avez perdu votre mnémonique.";
+"tabbar.wallet.title" = "Portefeuille";
 "tabbar.staking.title" = "Staking";
-"tabbar.governance.title" = "Governance";
-"tabbar.extrinsics.title" = "Extrinsics";
-"tabbar.settings.title" = "Settings";
-
-"wallet.empty.description" = "Incoming and outgoing\ntransfers will appear here";
-"wallet.title" = "Wallet";
-
-"profile.passphrase.title" = "View passphrase";
-"profile.title" = "Settings";
-"profile.about.title" = "About";
-"profile.language.title" = "Language";
-"profile.connection.title" = "Manage connections";
-"profile.subtitle" = "Kusama network";
-
-"about.software" = "Software";
+"tabbar.governance.title" = "Gouvernance";
+"tabbar.extrinsics.title" = "Extrinsèques";
+"tabbar.settings.title" = "Paramètres";
+"wallet.empty.description" = "Les transactions entrantes et sortantes\
+apparaitront ici";
+"wallet.title" = "Portefeuille";
+"profile.passphrase.title" = "Afficher la phrase secrète";
+"profile.title" = "Paramètres";
+"profile.about.title" = "À propos";
+"profile.language.title" = "Langue";
+"profile.connection.title" = "Gérer les connexions";
+"profile.subtitle" = "Kusama réseau";
+"about.software" = "Logiciel";
 "about.version" = "Version";
-"about.source.code" = "Source code";
-"about.contact.us" = "Contact Us";
-"about.legal" = "Legal";
-"about.title" = "About";
-"about.privacy" = "Privacy policy";
-"about.terms" = "Terms and conditions";
-
-"language.title" = "Select language";
-
-"help.support.title" = "Fearless support";
-"no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
-
-"node.connections.title" = "Select connection";
+"about.source.code" = "Code source";
+"about.contact.us" = "Nous contacter";
+"about.legal" = "Légal";
+"about.title" = "À propos";
+"about.privacy" = "Respect de la vie privée";
+"about.terms" = "Termes et conditions";
+"language.title" = "Choisir la langue";
+"help.support.title" = "Support Fearless";
+"no.email.bound.error.message" = "Veuillez vous assurer que l'application de messagerie est installée sur l'appareil.";
+"node.connections.title" = "Sélectionnez la connexion";

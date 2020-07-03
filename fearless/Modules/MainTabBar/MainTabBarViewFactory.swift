@@ -59,8 +59,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             }
 
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-            let normalIcon = R.image.iconTabWallet()?.withRenderingMode(.alwaysOriginal)
-            let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+            let normalIcon = R.image.iconTabWallet()?
+                .tinted(with: .tabBarItemNormal)?
+                .withRenderingMode(.alwaysOriginal)
+            let selectedIcon = normalIcon?
+                .tinted(with: .tabBarItemSelected)?
+                .withRenderingMode(.alwaysOriginal)
             viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                          normalImage: normalIcon,
                                                          selectedImage: selectedIcon)
@@ -88,8 +92,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabStaking()?.withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+        let normalIcon = R.image.iconTabStaking()?
+            .tinted(with: .tabBarItemNormal)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
+            .tinted(with: .tabBarItemSelected)?
+            .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
                                                      selectedImage: selectedIcon)
@@ -112,8 +120,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabGov()?.withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+        let normalIcon = R.image.iconTabGov()?
+            .tinted(with: .tabBarItemNormal)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
+            .tinted(with: .tabBarItemSelected)?
+            .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
                                                      selectedImage: selectedIcon)
@@ -136,8 +148,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabExtrinsics()?.withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+        let normalIcon = R.image.iconTabExtrinsics()?
+            .tinted(with: .tabBarItemNormal)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
+            .tinted(with: .tabBarItemSelected)?
+            .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
                                                      selectedImage: selectedIcon)
@@ -163,8 +179,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabProfile()?.withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?.withRenderingMode(.alwaysOriginal)
+        let normalIcon = R.image.iconTabProfile()?
+            .tinted(with: .tabBarItemNormal)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
+            .tinted(with: .tabBarItemSelected)?
+            .withRenderingMode(.alwaysOriginal)
         navigationController.tabBarItem = createTabBarItem(title: currentTitle,
                                                            normalImage: normalIcon,
                                                            selectedImage: selectedIcon)
