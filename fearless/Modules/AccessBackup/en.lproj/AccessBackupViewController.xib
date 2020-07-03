@@ -20,7 +20,6 @@
             <connections>
                 <outlet property="phraseHeaderLabel" destination="762-Bd-67i" id="6VX-ah-ahN"/>
                 <outlet property="phraseLabel" destination="34j-xn-udH" id="rDk-Hs-H0X"/>
-                <outlet property="saveButton" destination="CBD-aN-JtU" id="1ok-SK-62e"/>
                 <outlet property="subtitleLabel" destination="q2b-eM-gv1" id="fsT-zI-DNe"/>
                 <outlet property="titleLabel" destination="KRl-fY-tOE" id="Nb8-OM-mvb"/>
                 <outlet property="view" destination="iN0-l3-epB" id="Vv0-PO-Bmt"/>
@@ -31,7 +30,7 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="leY-Yq-RBX">
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="leY-Yq-RBX">
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" verticalCompressionResistancePriority="749" text="Passphase is  a type of password" lineBreakMode="tailTruncation" numberOfLines="5" baselineAdjustment="alignBaselines" minimumScaleFactor="0.5" translatesAutoresizingMaskIntoConstraints="NO" id="KRl-fY-tOE">
@@ -108,70 +107,13 @@ Write it down, we will not be able to recover your account without it!</string>
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                         </view>
-                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="CBD-aN-JtU" customClass="RoundedButton" customModule="SoraUI">
-                            <rect key="frame" x="20" y="320.5" width="133" height="50"/>
-                            <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            <constraints>
-                                <constraint firstAttribute="height" constant="50" id="DXf-cN-jpI"/>
-                            </constraints>
-                            <userDefinedRuntimeAttributes>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
-                                    <real key="value" value="0.0"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
-                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_highlightedStrokeColor">
-                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Save or send"/>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                                    <color key="value" red="0.81568627449999997" green="0.0078431372550000003" blue="0.1058823529" alpha="1" colorSpace="calibratedRGB"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="image" keyPath="_iconImage" value="iconSaveSend"/>
-                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                                    <real key="value" value="13"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                                    <real key="value" value="0.0"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
-                                    <real key="value" value="0.0"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
-                                    <real key="value" value="0.0"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
-                                    <real key="value" value="0.0"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_spacingBetweenItems">
-                                    <real key="value" value="16"/>
-                                </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
-                                <userDefinedRuntimeAttribute type="color" keyPath="_iconTintColor">
-                                    <color key="value" red="0.0" green="0.29803921570000003" blue="0.71764705880000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </userDefinedRuntimeAttribute>
-                            </userDefinedRuntimeAttributes>
-                            <connections>
-                                <action selector="actionShareWithSender:" destination="-1" eventType="touchUpInside" id="6dl-sN-7gL"/>
-                            </connections>
-                        </view>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstItem="bHZ-Rs-VdZ" firstAttribute="top" secondItem="q2b-eM-gv1" secondAttribute="bottom" constant="19" id="1lB-iP-IjM"/>
-                        <constraint firstAttribute="bottom" secondItem="CBD-aN-JtU" secondAttribute="bottom" id="34o-hi-sAX"/>
                         <constraint firstItem="bHZ-Rs-VdZ" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="6Xc-fm-gwb"/>
                         <constraint firstAttribute="trailing" secondItem="KRl-fY-tOE" secondAttribute="trailing" constant="20" id="Avl-ed-3LA"/>
                         <constraint firstAttribute="trailing" secondItem="q2b-eM-gv1" secondAttribute="trailing" constant="20" id="HaI-wm-bKG"/>
-                        <constraint firstItem="CBD-aN-JtU" firstAttribute="top" secondItem="vXI-S9-0uY" secondAttribute="bottom" constant="10" id="LJh-4I-GzK"/>
                         <constraint firstItem="762-Bd-67i" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="ZeP-wi-BI9"/>
                         <constraint firstAttribute="trailing" secondItem="bHZ-Rs-VdZ" secondAttribute="trailing" constant="20" id="Ziw-KD-Q2O"/>
                         <constraint firstItem="vXI-S9-0uY" firstAttribute="top" secondItem="762-Bd-67i" secondAttribute="bottom" constant="16" id="a3l-af-mZE"/>
@@ -179,7 +121,6 @@ Write it down, we will not be able to recover your account without it!</string>
                         <constraint firstItem="KRl-fY-tOE" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="efU-ax-Ifx"/>
                         <constraint firstItem="vXI-S9-0uY" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="fSM-f7-tSF"/>
                         <constraint firstAttribute="trailing" secondItem="vXI-S9-0uY" secondAttribute="trailing" constant="20" id="gep-8W-d5D"/>
-                        <constraint firstItem="CBD-aN-JtU" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="lpC-vE-TaL"/>
                         <constraint firstItem="q2b-eM-gv1" firstAttribute="top" secondItem="KRl-fY-tOE" secondAttribute="bottom" constant="14" id="mWV-ko-F5n"/>
                         <constraint firstItem="q2b-eM-gv1" firstAttribute="leading" secondItem="leY-Yq-RBX" secondAttribute="leading" constant="20" id="nPR-Pe-doE"/>
                         <constraint firstItem="762-Bd-67i" firstAttribute="top" secondItem="bHZ-Rs-VdZ" secondAttribute="bottom" constant="19" id="nnn-TJ-inn"/>
@@ -199,7 +140,4 @@ Write it down, we will not be able to recover your account without it!</string>
             <point key="canvasLocation" x="140" y="153"/>
         </view>
     </objects>
-    <resources>
-        <image name="iconSaveSend" width="33" height="33"/>
-    </resources>
 </document>

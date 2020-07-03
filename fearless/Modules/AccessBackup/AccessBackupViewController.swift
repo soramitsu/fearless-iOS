@@ -14,7 +14,6 @@ final class AccessBackupViewController: AccessoryViewController {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!
     @IBOutlet private var phraseHeaderLabel: UILabel!
-    @IBOutlet private var saveButton: RoundedButton!
 
     var mode: Mode = .registration
 
@@ -49,8 +48,6 @@ final class AccessBackupViewController: AccessoryViewController {
             .commonPassphraseBody(preferredLanguages: languages)
         phraseHeaderLabel.text = R.string.localizable
             .commonPassphraseYourPassphrase(preferredLanguages: languages)
-        saveButton.imageWithTitleView?.title = R.string.localizable
-            .commonPassphraseSaveOrSend(preferredLanguages: languages)
     }
 
     override func configureAccessoryView() {
@@ -61,12 +58,6 @@ final class AccessBackupViewController: AccessoryViewController {
 
     override func actionAccessory() {
         presenter.activateNext()
-    }
-
-    // MARK: Actions
-
-    @IBAction private func actionShare(sender: AnyObject?) {
-        presenter.activateSharing()
     }
 }
 
