@@ -7,7 +7,9 @@ extension WalletEmptyStateDataSource {
             R.string.localizable.walletEmptyDescription(preferredLanguages: locale.rLanguages)
         }
 
-        let image = R.image.transactionsEmptyState()
+        let image = R.image.iconAbout()?
+            .tinted(with: UIColor.iconTintColor)?
+            .withRenderingMode(.alwaysOriginal)
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
         dataSource.localizationManager = LocalizationManager.shared
 
