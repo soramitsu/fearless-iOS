@@ -1,0 +1,4 @@
+"NSCameraUsageDescription" = "Камера QR кодты эләктерер өсөн ҡуллана";
+"NSFaceIDUsageDescription" = "Face ID ҡушымтаға инеү өсөн ҡулланыла";
+"NSPhotoLibraryUsageDescription" = "Китапханан фотоларҙы тәьмин итеү өсөн";
+"NSPhotoLibraryAddUsageDescription" = "QR код итеп аҡса мөрәжәғәтен һаҡлағыҙ";
