@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		581F8F02D0FBC6160BD7A2A6 /* Pods_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 076BA3A7F5EC1B569F5D14E7 /* Pods_fearless.framework */; };
+		8427B57F24BF94A100186BD0 /* StorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */; };
 		8428761E24AD4F0300D91AD8 /* ScaleInt16Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428761D24AD4F0300D91AD8 /* ScaleInt16Tests.swift */; };
 		8428762024AD4FD700D91AD8 /* ScaleUInt16Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428761F24AD4FD700D91AD8 /* ScaleUInt16Tests.swift */; };
 		8428762224AD50A900D91AD8 /* ScaleInt32Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428762124AD50A900D91AD8 /* ScaleInt32Tests.swift */; };
@@ -23,7 +24,7 @@
 		8428763624AD5D9C00D91AD8 /* ScaleStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763524AD5D9C00D91AD8 /* ScaleStringTests.swift */; };
 		8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763724AD67E300D91AD8 /* JSONRPCData.swift */; };
 		8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */; };
-		8428763C24AD7C8900D91AD8 /* Data+xxh128.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */; };
+		8428763C24AD7C8900D91AD8 /* Data+Hash.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763B24AD7C8900D91AD8 /* Data+Hash.swift */; };
 		8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763D24AD917300D91AD8 /* AccountInfo.swift */; };
 		8428764024ADA55400D91AD8 /* Decimal+Kusama.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */; };
 		8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */; };
@@ -217,6 +218,9 @@
 		84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */; };
 		84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EE924AF303D008FC35B /* WalletActionsCell.xib */; };
 		84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */; };
+		84CAF52224BDB94700F4C295 /* JSONRPCEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52124BDB94700F4C295 /* JSONRPCEngine.swift */; };
+		84CAF52424BDBD3900F4C295 /* WebSocketEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52324BDBD3900F4C295 /* WebSocketEngine.swift */; };
+		84CAF52724BEF24C00F4C295 /* JSONRPCOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52624BEF24C00F4C295 /* JSONRPCOperation.swift */; };
 		A1E819131F11B94E9095D71A /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */; };
 /* End PBXBuildFile section */
 
@@ -236,6 +240,7 @@
 		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		570496740F6BFF551DCE1E28 /* Pods_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		8151AAFFC77E52A233647A1E /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
+		8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeyFactory.swift; sourceTree = "<group>"; };
 		8428761D24AD4F0300D91AD8 /* ScaleInt16Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleInt16Tests.swift; sourceTree = "<group>"; };
 		8428761F24AD4FD700D91AD8 /* ScaleUInt16Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleUInt16Tests.swift; sourceTree = "<group>"; };
 		8428762124AD50A900D91AD8 /* ScaleInt32Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleInt32Tests.swift; sourceTree = "<group>"; };
@@ -251,7 +256,7 @@
 		8428763524AD5D9C00D91AD8 /* ScaleStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleStringTests.swift; sourceTree = "<group>"; };
 		8428763724AD67E300D91AD8 /* JSONRPCData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCData.swift; sourceTree = "<group>"; };
 		8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCInfo.swift; sourceTree = "<group>"; };
-		8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+xxh128.swift"; sourceTree = "<group>"; };
+		8428763B24AD7C8900D91AD8 /* Data+Hash.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+Hash.swift"; sourceTree = "<group>"; };
 		8428763D24AD917300D91AD8 /* AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfo.swift; sourceTree = "<group>"; };
 		8428763F24ADA55400D91AD8 /* Decimal+Kusama.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Kusama.swift"; sourceTree = "<group>"; };
 		8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfilePresenter.swift; sourceTree = "<group>"; };
@@ -463,6 +468,9 @@
 		84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryStyle.swift; sourceTree = "<group>"; };
 		84C07EE924AF303D008FC35B /* WalletActionsCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WalletActionsCell.xib; sourceTree = "<group>"; };
 		84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletActionsCell.swift; sourceTree = "<group>"; };
+		84CAF52124BDB94700F4C295 /* JSONRPCEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCEngine.swift; sourceTree = "<group>"; };
+		84CAF52324BDBD3900F4C295 /* WebSocketEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEngine.swift; sourceTree = "<group>"; };
+		84CAF52624BEF24C00F4C295 /* JSONRPCOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCOperation.swift; sourceTree = "<group>"; };
 		9150DC9DC2F6B5C6EB23C4B7 /* Pods-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		EA47F65E5F09D4A41F925AE4 /* Pods-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearless/Pods-fearless.debug.xcconfig"; sourceTree = "<group>"; };
@@ -886,6 +894,7 @@
 			children = (
 				8490145524A9404E008F705E /* AttributedStringDecorator.swift */,
 				8490152424ABCBF3008F705E /* AmountFormatterFactory.swift */,
+				8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -937,7 +946,7 @@
 			children = (
 				8490147D24AA15A0008F705E /* SR25519KeypairFactory.swift */,
 				8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */,
-				8428763B24AD7C8900D91AD8 /* Data+xxh128.swift */,
+				8428763B24AD7C8900D91AD8 /* Data+Hash.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -1089,10 +1098,8 @@
 		8490150124AB6BEA008F705E /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				84CAF52524BEEF2F00F4C295 /* JSONRPC */,
 				8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */,
-				8428763724AD67E300D91AD8 /* JSONRPCData.swift */,
-				8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */,
-				8428763D24AD917300D91AD8 /* AccountInfo.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -1184,6 +1191,19 @@
 				8428763524AD5D9C00D91AD8 /* ScaleStringTests.swift */,
 			);
 			path = Scale;
+			sourceTree = "<group>";
+		};
+		84CAF52524BEEF2F00F4C295 /* JSONRPC */ = {
+			isa = PBXGroup;
+			children = (
+				8428763724AD67E300D91AD8 /* JSONRPCData.swift */,
+				8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */,
+				8428763D24AD917300D91AD8 /* AccountInfo.swift */,
+				84CAF52124BDB94700F4C295 /* JSONRPCEngine.swift */,
+				84CAF52324BDBD3900F4C295 /* WebSocketEngine.swift */,
+				84CAF52624BEF24C00F4C295 /* JSONRPCOperation.swift */,
+			);
+			path = JSONRPC;
 			sourceTree = "<group>";
 		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
@@ -1503,6 +1523,7 @@
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
 				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				842876A824AE049B00D91AD8 /* SelectionListViewController.swift in Sources */,
+				84CAF52224BDB94700F4C295 /* JSONRPCEngine.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8490147E24AA15A0008F705E /* SR25519KeypairFactory.swift in Sources */,
 				842876C124AE2A5C00D91AD8 /* NodeSelectionItem.swift in Sources */,
@@ -1511,6 +1532,7 @@
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				8490151124AB8A3A008F705E /* WalletHeaderViewModel.swift in Sources */,
 				8428763224AD58C800D91AD8 /* Array+Scale.swift in Sources */,
+				84CAF52424BDBD3900F4C295 /* WebSocketEngine.swift in Sources */,
 				842876AD24AE049B00D91AD8 /* SelectionSubtitleTableViewCell.swift in Sources */,
 				849013DE24A927E2008F705E /* LocalizationManager+Shared.swift in Sources */,
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
@@ -1521,6 +1543,7 @@
 				8490156B24AD47AC008F705E /* UInt32+Scale.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
+				8427B57F24BF94A100186BD0 /* StorageKeyFactory.swift in Sources */,
 				8490149624AA7834008F705E /* AccessBackupViewFactory.swift in Sources */,
 				8428762C24AD54BF00D91AD8 /* Bool+Scale.swift in Sources */,
 				8490156124AD423C008F705E /* Int64+Scale.swift in Sources */,
@@ -1583,6 +1606,7 @@
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				8490148224AA1F5B008F705E /* SR25519AccountOperationFactory.swift in Sources */,
 				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
+				84CAF52724BEF24C00F4C295 /* JSONRPCOperation.swift in Sources */,
 				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				8428769224AE046300D91AD8 /* AboutHeaderView.swift in Sources */,
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
@@ -1611,7 +1635,7 @@
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
-				8428763C24AD7C8900D91AD8 /* Data+xxh128.swift in Sources */,
+				8428763C24AD7C8900D91AD8 /* Data+Hash.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,

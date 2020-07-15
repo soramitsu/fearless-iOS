@@ -8,7 +8,7 @@ struct JSONRPCInfo: Encodable {
         case params
     }
 
-    let identifier: Int64
+    let identifier: UInt16
     let jsonrpc: String
     let method: String
     let params: [String]

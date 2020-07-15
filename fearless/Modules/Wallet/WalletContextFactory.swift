@@ -63,7 +63,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             throw WalletContextFactoryError.missingNode
         }
 
-        let networkFactory = WalletNetworkOperationFactory(url: url, accountSettings: accountSettings)
+        let networkFactory = WalletNetworkOperationFactory(url: url,
+                                                           accountSettings: accountSettings,
+                                                           logger: logger)
 
         let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
 
