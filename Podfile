@@ -1,6 +1,6 @@
 platform :ios, '11.0'
 
-target 'fearless' do
+abstract_target 'fearlessAll' do
   use_frameworks!
 
   pod 'SwiftLint'
@@ -23,6 +23,10 @@ target 'fearless' do
     pod 'Cuckoo'
     pod 'FireMock'
   end
+
+  target 'fearlessIntegrationTests'
+
+  target 'fearless'
 
 end
 

@@ -5,7 +5,7 @@ struct JSONRPCError: Error, Decodable {
     let code: Int
 }
 
-struct JSONRPCData: Decodable {
+struct JSONRPCData<T: Decodable>: Decodable {
     enum CodingKeys: String, CodingKey {
         case jsonrpc
         case result
@@ -14,7 +14,19 @@ struct JSONRPCData: Decodable {
     }
 
     let jsonrpc: String
-    let result: String?
+    let result: T
+    let error: JSONRPCError?
+    let identifier: UInt16
+}
+
+struct JSONRPCBasicData: Decodable {
+    enum CodingKeys: String, CodingKey {
+        case jsonrpc
+        case error
+        case identifier = "id"
+    }
+
+    let jsonrpc: String
     let error: JSONRPCError?
     let identifier: UInt16
 }

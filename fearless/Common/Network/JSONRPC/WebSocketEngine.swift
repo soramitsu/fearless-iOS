@@ -8,7 +8,14 @@ final class WebSocketEngine {
     struct PendingRequest: Equatable {
         let requestId: UInt16
         let data: Data
-        let completionClosure: JSONRPCEngineClosure?
+        let responseHandler: ResponseHandling?
+
+        static func == (lhs: Self, rhs: Self) -> Bool { lhs.requestId == rhs.requestId }
+    }
+
+    struct InProgressRequest: Equatable {
+        let requestId: UInt16
+        let responseHandler: ResponseHandling
 
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.requestId == rhs.requestId }
     }
@@ -31,7 +38,7 @@ final class WebSocketEngine {
     private var jsonDecoder = JSONDecoder()
 
     private var pendingRequests: [PendingRequest] = []
-    private var inProgressRequests: [UInt16: PendingRequest] = [:]
+    private var inProgressRequests: [UInt16: InProgressRequest] = [:]
 
     init(url: URL, version: String = "2.0", completionQueue: DispatchQueue? = nil, logger: LoggerProtocol) {
         self.version = version
@@ -60,7 +67,11 @@ final class WebSocketEngine {
     }
 
     private func send(request: PendingRequest) {
-        inProgressRequests[request.requestId] = request
+        if let handler = request.responseHandler {
+            inProgressRequests[request.requestId] = InProgressRequest(requestId: request.requestId,
+                                                                      responseHandler: handler)
+        }
+
         connection.write(data: request.data, completion: nil)
     }
 
@@ -89,18 +100,23 @@ final class WebSocketEngine {
         mutex.unlock()
 
         currentInProgress.forEach { _, value in
-            value.completionClosure?(.failure(error))
+            value.responseHandler.handle(error: error)
         }
 
         currentPendings.forEach { value in
-            value.completionClosure?(.failure(error))
+            value.responseHandler?.handle(error: error)
         }
     }
 
     private func process(data: Data) {
         do {
-            let response = try jsonDecoder.decode(JSONRPCData.self, from: data)
-            completeRequest(for: response)
+            let response = try jsonDecoder.decode(JSONRPCBasicData.self, from: data)
+
+            if let error = response.error {
+                completeRequestForId(response.identifier, error: error)
+            } else {
+                completeRequestForId(response.identifier, data: data)
+            }
         } catch {
             if let stringData = String(data: data, encoding: .utf8) {
                 logger.error("Can't parse data: \(stringData)")
@@ -110,27 +126,31 @@ final class WebSocketEngine {
         }
     }
 
-    private func completeRequest(for response: JSONRPCData) {
+    private func completeRequestForId(_ identifier: UInt16, data: Data) {
         mutex.lock()
 
-        let completionClosure = inProgressRequests[response.identifier]?.completionClosure
-        inProgressRequests[response.identifier] = nil
+        let request = inProgressRequests.removeValue(forKey: identifier)
 
         mutex.unlock()
 
-        if let result = response.result {
-            completionClosure?(.success(result))
-        } else {
-            let error: Error = response.error ?? JSONRPCEngineError.emptyResult
-            completionClosure?(.failure(error))
-        }
+        request?.responseHandler.handle(data: data)
+    }
+
+    private func completeRequestForId(_ identifier: UInt16, error: Error) {
+        mutex.lock()
+
+        let request = inProgressRequests.removeValue(forKey: identifier)
+
+        mutex.unlock()
+
+        request?.responseHandler.handle(error: error)
     }
 }
 
 extension WebSocketEngine: JSONRPCEngine {
-    func callMethod(_ method: String,
-                    params: [String],
-                    completion closure: JSONRPCEngineClosure?) throws -> UInt16 {
+    func callMethod<T: Decodable>(_ method: String,
+                                  params: [String],
+                                  completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
         mutex.lock()
 
         defer {
@@ -146,7 +166,15 @@ extension WebSocketEngine: JSONRPCEngine {
 
         let currentRequestId = requestId
 
-        let request = PendingRequest(requestId: currentRequestId, data: data, completionClosure: closure)
+        let handler: ResponseHandling?
+
+        if let completionClosure = closure {
+            handler = ResponseHandler(completionClosure: completionClosure)
+        } else {
+            handler = nil
+        }
+
+        let request = PendingRequest(requestId: currentRequestId, data: data, responseHandler: handler)
 
         requestId += 1
 
@@ -173,15 +201,23 @@ extension WebSocketEngine: JSONRPCEngine {
     func cancelForIdentifier(_ identifier: UInt16) {
         mutex.lock()
 
-        pendingRequests = pendingRequests.filter { $0.requestId != identifier }
-        let request = inProgressRequests[identifier]
-        inProgressRequests[identifier] = nil
+        defer {
+            mutex.unlock()
+        }
 
-        mutex.unlock()
+        if let index = pendingRequests.firstIndex(where: { $0.requestId == identifier }) {
+            let request = pendingRequests.remove(at: index)
 
-        if let completionClosure = request?.completionClosure {
             connection.callbackQueue.async {
-                completionClosure(.failure(JSONRPCEngineError.clientCancelled))
+                request.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
+            }
+
+            return
+        }
+
+        if let request = inProgressRequests.removeValue(forKey: identifier) {
+            connection.callbackQueue.async {
+                request.responseHandler.handle(error: JSONRPCEngineError.clientCancelled)
             }
         }
     }
@@ -191,36 +227,15 @@ extension WebSocketEngine: WebSocketDelegate {
     func didReceive(event: WebSocketEvent, client: WebSocket) {
         switch event {
         case .binary(let data):
-            process(data: data)
+            handleBinaryEvent(data: data)
         case .text(let string):
-            logger.debug("Did receive text: \(string)")
-            if let data = string.data(using: .utf8) {
-                process(data: data)
-            } else {
-                logger.warning("Unsupported text event: \(string)")
-            }
+            handleTextEvent(string: string)
         case .ping, .pong:
             break
         case .connected:
-            logger.debug("connection established")
-
-            mutex.lock()
-
-            state = .connected
-
-            mutex.unlock()
-
-            sendAllPendingRequests()
+            handleConnectedEvent()
         case .disconnected(let reason, let code):
-            logger.warning("Disconnected with code \(code): \(reason)")
-
-            mutex.lock()
-
-            state = .notConnected
-
-            mutex.unlock()
-
-            completeAllWithError(JSONRPCError(message: reason, code: Int(code)))
+            handleDisconnectedEvent(reason: reason, code: code)
         case .reconnectSuggested:
             logger.debug("reconnect suggested")
         case .viabilityChanged:
@@ -234,5 +249,42 @@ extension WebSocketEngine: WebSocketDelegate {
         case .cancelled:
             logger.warning("Remote cancelled")
         }
+    }
+
+    private func handleBinaryEvent(data: Data) {
+        process(data: data)
+    }
+
+    private func handleTextEvent(string: String) {
+        logger.debug("Did receive text: \(string)")
+        if let data = string.data(using: .utf8) {
+            process(data: data)
+        } else {
+            logger.warning("Unsupported text event: \(string)")
+        }
+    }
+
+    private func handleConnectedEvent() {
+        logger.debug("connection established")
+
+        mutex.lock()
+
+        state = .connected
+
+        mutex.unlock()
+
+        sendAllPendingRequests()
+    }
+
+    private func handleDisconnectedEvent(reason: String, code: UInt16) {
+        logger.warning("Disconnected with code \(code): \(reason)")
+
+        mutex.lock()
+
+        state = .notConnected
+
+        mutex.unlock()
+
+        completeAllWithError(JSONRPCError(message: reason, code: Int(code)))
     }
 }

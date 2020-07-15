@@ -5,7 +5,7 @@ enum JSONRPCOperationError: Error {
     case timeout
 }
 
-final class JSONRPCOperation<T: ScaleDecodable>: BaseOperation<T> {
+final class JSONRPCOperation<T: Decodable>: BaseOperation<T> {
     let engine: JSONRPCEngine
     private(set) var requestId: UInt16?
     let method: String
@@ -35,9 +35,9 @@ final class JSONRPCOperation<T: ScaleDecodable>: BaseOperation<T> {
         do {
             let semaphore = DispatchSemaphore(value: 0)
 
-            var optionalCallResult: Result<String, Error>?
+            var optionalCallResult: Result<T, Error>?
 
-            requestId = try engine.callMethod(method, params: parameters) { result in
+            requestId = try engine.callMethod(method, params: parameters) { (result: Result<T, Error>) in
                 optionalCallResult = result
 
                 semaphore.signal()
@@ -54,11 +54,16 @@ final class JSONRPCOperation<T: ScaleDecodable>: BaseOperation<T> {
                 return
             }
 
+            if
+                case .failure(let error) = callResult,
+                let jsonRPCEngineError = error as? JSONRPCEngineError,
+                jsonRPCEngineError == .clientCancelled {
+                return
+            }
+
             switch callResult {
             case .success(let response):
-                let data = try Data(hexString: response)
-                let resultObject = try T.init(scaleDecoder: ScaleDecoder(data: data))
-                result = .success(resultObject)
+                result = .success(response)
             case .failure(let error):
                 result = .failure(error)
             }

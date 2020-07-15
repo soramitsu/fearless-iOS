@@ -33,19 +33,21 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
                                                                identifier: accountId).toHex(includePrefix: true)
 
             let engine = WebSocketEngine(url: url, logger: logger)
-            let accountInfoOperation = JSONRPCOperation<AccountInfo>(engine: engine,
-                                                                     method: "state_getStorage",
-                                                                     parameters: [key])
+            let accountInfoOperation = JSONRPCOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
+                                                                                         method: "state_getStorage",
+                                                                                         parameters: [key])
             let mappingOperation = ClosureOperation<[BalanceData]?> {
                 guard let accountInfoResult = accountInfoOperation.result else {
                     return nil
                 }
 
                 switch accountInfoResult {
-                case .success(let accountInfo):
+                case .success(let info):
                     let amount: AmountDecimal
 
-                    if let amountDecimal = Decimal.fromKusamaAmount(accountInfo.data.free.value) {
+                    if
+                        let accountInfo = info.underlyingValue,
+                        let amountDecimal = Decimal.fromKusamaAmount(accountInfo.data.free.value) {
                         amount = AmountDecimal(value: amountDecimal)
                     } else {
                         amount = AmountDecimal(value: 0)
@@ -55,12 +57,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
                     return [balance]
                 case .failure(let error):
-                    if let jsonRpcError = error as? JSONRPCEngineError, jsonRpcError == .emptyResult {
-                        let balance = BalanceData(identifier: asset, balance: AmountDecimal(value: 0))
-                        return [balance]
-                    } else {
-                        throw error
-                    }
+                    throw error
                 }
             }
 
