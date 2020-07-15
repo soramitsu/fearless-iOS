@@ -18,8 +18,6 @@ abstract_target 'fearlessAll' do
   pod 'Starscream', '~> 4.0.0'
 
   target 'fearlessTests' do
-    inherit! :search_paths
-
     pod 'Cuckoo'
     pod 'FireMock'
   end
