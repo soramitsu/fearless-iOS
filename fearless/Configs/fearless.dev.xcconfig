@@ -1,4 +1,4 @@
-#include "../../Pods/Target Support Files/Pods-fearless/Pods-fearless.dev.xcconfig"
+#include "../../Pods/Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.dev.xcconfig"
 
 OTHER_SWIFT_FLAGS = $(inherited) "-DF_DEV"
 

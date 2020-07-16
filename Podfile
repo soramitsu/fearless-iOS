@@ -1,6 +1,6 @@
 platform :ios, '11.0'
 
-target 'fearless' do
+abstract_target 'fearlessAll' do
   use_frameworks!
 
   pod 'SwiftLint'
@@ -18,11 +18,13 @@ target 'fearless' do
   pod 'Starscream', '~> 4.0.0'
 
   target 'fearlessTests' do
-    inherit! :search_paths
-
     pod 'Cuckoo'
     pod 'FireMock'
   end
+
+  target 'fearlessIntegrationTests'
+
+  target 'fearless'
 
 end
 
