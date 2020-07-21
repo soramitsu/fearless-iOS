@@ -11,4 +11,9 @@ extension Decimal {
 
         return (decimalValue as NSDecimalNumber).multiplying(byPowerOf10: -12).decimalValue
     }
+
+    func toKusamaAmount() -> BigUInt? {
+        let valueString = (self as NSDecimalNumber).multiplying(byPowerOf10: 12).stringValue
+        return BigUInt(valueString)
+    }
 }

@@ -27,12 +27,26 @@ struct AccountData: ScaleDecodable {
     }
 }
 
-struct Balance: ScaleDecodable {
+struct Balance: ScaleCodable {
     let value: BigUInt
+
+    init(value: BigUInt) {
+        self.value = value
+    }
 
     init(scaleDecoder: ScaleDecoding) throws {
         let data = try scaleDecoder.read(count: 16)
         value = BigUInt(Data(data.reversed()))
         try scaleDecoder.confirm(count: 16)
+    }
+
+    func encode(scaleEncoder: ScaleEncoding) throws {
+        var encodedData: [UInt8] = value.serialize().reversed()
+
+        while encodedData.count < 16 {
+            encodedData.append(0)
+        }
+
+        scaleEncoder.appendRaw(data: Data(encodedData))
     }
 }

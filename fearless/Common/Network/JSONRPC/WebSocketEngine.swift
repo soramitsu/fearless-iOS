@@ -252,6 +252,10 @@ extension WebSocketEngine: WebSocketDelegate {
     }
 
     private func handleBinaryEvent(data: Data) {
+        if let decodedString = String(data: data, encoding: .utf8) {
+            logger.debug("Did receive data: \(decodedString)")
+        }
+
         process(data: data)
     }
 
