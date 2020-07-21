@@ -21,6 +21,14 @@ protocol ScaleDecoding: class {
     func confirm(count: Int) throws
 }
 
+extension ScaleDecoding {
+    func readAndConfirm(count: Int) throws -> Data {
+        let data = try read(count: count)
+        try confirm(count: count)
+        return data
+    }
+}
+
 final class ScaleEncoder: ScaleEncoding {
     var data: Data = Data()
 
@@ -55,7 +63,7 @@ final class ScaleDecoder: ScaleDecoding {
             throw ScaleDecoderError.outOfBounds
         }
 
-        return data[pointer..<(pointer + count)]
+        return Data(data[pointer..<(pointer + count)])
     }
 
     func confirm(count: Int) throws {
