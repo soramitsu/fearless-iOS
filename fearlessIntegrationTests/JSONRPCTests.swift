@@ -132,47 +132,6 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
-    func testTransfer() throws {
-        // given
-
-        let mnemonic = "list mad bid cradle real behave west upon lab extend fetch brass"
-        let keypairResult = try SR25519KeypairFactory().deriveKeypair(from: mnemonic, password: "")
-        let logger = Logger.shared
-        let addressFactory = SS58AddressFactory()
-        let address = try addressFactory.address(from: keypairResult.keypair.publicKey(), type: .genericSubstrate)
-
-        logger.debug("Transfer from: \(address)")
-
-        let operationQueue = OperationQueue()
-
-        let url = URL(string: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443")!
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        // when
-
-        let extrinsicData = try generateExtrinsicToAccount("5FCj3BzHo5274Jwd6PFdsGzSgDtQ724k7o7GRYTzAf7n37vk",
-                                                           amount: Decimal(0.001).toKusamaAmount()!,
-                                                           nonce: 3,
-                                                           keypair: keypairResult.keypair)
-
-        Logger.shared.debug("Extrinsic: \(extrinsicData.toHex())")
-
-        let operation = JSONRPCOperation<String>(engine: engine,
-                                                 method: "author_submitExtrinsic",
-                                                 parameters: [extrinsicData.toHex(includePrefix: true)])
-
-        operationQueue.addOperations([operation], waitUntilFinished: true)
-
-        // then
-
-        do {
-            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            logger.debug("Received response: \(result)")
-        } catch {
-            XCTFail("Unexpected error: \(error)")
-        }
-    }
-
     // MARK: Private
 
     func generateExtrinsicToAccount(_ account: String,
