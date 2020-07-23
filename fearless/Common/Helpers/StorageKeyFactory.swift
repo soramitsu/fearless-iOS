@@ -1,4 +1,5 @@
 import Foundation
+import FearlessUtils
 
 protocol StorageKeyFactoryProtocol {
     func createStorageKey(moduleName: String, serviceName: String, identifier: Data) throws -> Data

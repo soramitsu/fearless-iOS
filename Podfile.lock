@@ -9,6 +9,10 @@ PODS:
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
+  - FearlessUtils (0.1.0):
+    - BigInt (~> 5.0)
+    - IrohaCrypto/sr25519 (~> 0.4.0)
+    - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
   - IrohaCrypto/BIP39 (0.4.3):
     - IrohaCrypto/Common
@@ -73,11 +77,10 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - BigInt (~> 5.0)
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `272969f1311f7c9d23621c1e9fa1a05545ad21f9`)
   - Cuckoo
+  - FearlessUtils
   - FireMock
-  - IrohaCrypto/sr25519 (= 0.4.3)
   - R.swift
   - RobinHood
   - SoraFoundation (~> 0.8.0)
@@ -86,12 +89,12 @@ DEPENDENCIES:
   - Starscream (~> 4.0.0)
   - SwiftLint
   - SwiftyBeaver
-  - xxHash-Swift
 
 SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
@@ -119,6 +122,7 @@ SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
   CommonWallet: cdfe1cf798e942df6c93cf579650169e698dfb2e
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
+  FearlessUtils: aef3e364c3767287e5302cedff888d3e13dddcdd
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: cfdfe162065705d1055bed4e37345abcbf5184de
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
@@ -132,6 +136,6 @@ SPEC CHECKSUMS:
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: da4454781d9d901716131402ba7ba5bb9cd67226
+PODFILE CHECKSUM: ad7b02070d068facceac0a10b659eea5a6b176a2
 
 COCOAPODS: 1.9.3

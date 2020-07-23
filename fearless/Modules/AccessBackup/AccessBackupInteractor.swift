@@ -5,16 +5,30 @@ import IrohaCrypto
 final class AccessBackupInteractor {
     weak var presenter: AccessBackupInteractorOutputProtocol?
     let keystore: KeystoreProtocol
+    let settings: SettingsManagerProtocol
     let mnemonicCreator: IRMnemonicCreatorProtocol
 
-    init(keystore: KeystoreProtocol, mnemonicCreator: IRMnemonicCreatorProtocol) {
+    init(keystore: KeystoreProtocol,
+         settings: SettingsManagerProtocol,
+         mnemonicCreator: IRMnemonicCreatorProtocol) {
         self.keystore = keystore
+        self.settings = settings
         self.mnemonicCreator = mnemonicCreator
     }
 
     private func loadPhrase() throws -> String {
-        let entropy = try keystore.fetchKey(for: KeystoreKey.seedEntropy.rawValue)
-        let mnemonic = try mnemonicCreator.mnemonic(fromEntropy: entropy)
+        guard let accountItem = settings.selectedAccount else {
+            throw AccessBackupInteractorError.missingSelectedAccount
+        }
+
+        guard let entropy = try keystore.fetchEntropyForAddress(accountItem.address) else {
+            throw AccessBackupInteractorError.missingSelectedAccount
+        }
+
+        guard let mnemonic = try? mnemonicCreator.mnemonic(fromEntropy: entropy) else {
+            throw AccessBackupInteractorError.mnemonicGenerationFailed
+        }
+
         return mnemonic.toString()
     }
 }
@@ -25,7 +39,7 @@ extension AccessBackupInteractor: AccessBackupInteractorInputProtocol {
             let mnemonic = try loadPhrase()
             presenter?.didLoad(mnemonic: mnemonic)
         } catch {
-            presenter?.didReceive(error: AccessBackupInteractorError.loading)
+            presenter?.didReceive(error: error)
         }
     }
 }

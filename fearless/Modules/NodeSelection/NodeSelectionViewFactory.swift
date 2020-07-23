@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
 
 final class NodeSelectionViewFactory: NodeSelectionViewFactoryProtocol {
     static func createView() -> NodeSelectionViewProtocol? {
@@ -7,7 +8,8 @@ final class NodeSelectionViewFactory: NodeSelectionViewFactoryProtocol {
 
         let view = NodeSelectionViewController(nib: R.nib.selectionListViewController)
         let presenter = NodeSelectionPresenter()
-        let interactor = NodeSelectionInteractor(applicationConfig: ApplicationConfig.shared)
+        let interactor = NodeSelectionInteractor(settings: SettingsManager.shared,
+                                                 applicationConfig: ApplicationConfig.shared)
 
         view.localizationManager = localizationManager
         view.listPresenter = presenter

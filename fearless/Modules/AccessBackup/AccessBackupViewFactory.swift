@@ -12,6 +12,7 @@ final class AccessBackupViewFactory: AccessBackupViewFactoryProtocol {
 
         let presenter = AccessBackupPresenter()
         let interactor = AccessBackupInteractor(keystore: Keychain(),
+                                                settings: SettingsManager.shared,
                                                 mnemonicCreator: IRMnemonicCreator(language: .english))
         let wireframe = AccessBackupWireframe()
 

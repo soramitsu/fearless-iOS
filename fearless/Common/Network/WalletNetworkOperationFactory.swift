@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import RobinHood
 import xxHash_Swift
+import FearlessUtils
 import IrohaCrypto
 import Starscream
 
@@ -47,7 +48,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
                     if
                         let accountInfo = info.underlyingValue,
-                        let amountDecimal = Decimal.fromKusamaAmount(accountInfo.data.free.value) {
+                        let amountDecimal = Decimal.fromSubstrateAmount(accountInfo.data.free.value) {
                         amount = AmountDecimal(value: amountDecimal)
                     } else {
                         amount = AmountDecimal(value: 0)

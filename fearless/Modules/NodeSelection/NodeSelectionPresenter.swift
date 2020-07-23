@@ -7,9 +7,9 @@ final class NodeSelectionPresenter {
 
     private var viewModels: [SelectableSubtitleListViewModel] = []
 
-    private var nodeItems: [NodeSelectionItem] = []
+    private var nodeItems: [ConnectionItem] = []
 
-    private var selectedNodeItem: NodeSelectionItem?
+    private var selectedNodeItem: ConnectionItem?
 
     var logger: LoggerProtocol?
 
@@ -17,7 +17,7 @@ final class NodeSelectionPresenter {
         viewModels = nodeItems.map {
             let isSelected: Bool = $0 == selectedNodeItem
             let title: String = $0.title
-            let subtitle: String = $0.address
+            let subtitle: String = $0.url.absoluteString
 
             return SelectableSubtitleListViewModel(title: title,
                                                    subtitle: subtitle,
@@ -53,12 +53,12 @@ extension NodeSelectionPresenter: NodeSelectionPresenterProtocol {
 }
 
 extension NodeSelectionPresenter: NodeSelectionInteractorOutputProtocol {
-    func didLoad(selectedNodeItem: NodeSelectionItem) {
+    func didLoad(selectedNodeItem: ConnectionItem) {
         self.selectedNodeItem = selectedNodeItem
         updateSelectedNode()
     }
 
-    func didLoad(nodeItems: [NodeSelectionItem]) {
+    func didLoad(nodeItems: [ConnectionItem]) {
         self.nodeItems = nodeItems
         updateView()
     }

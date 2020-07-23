@@ -1,17 +1,26 @@
 import Foundation
 import RobinHood
 import SoraKeystore
+import IrohaCrypto
+
+enum OnboardingMainInteractorError: Error {
+    case undefinedConnectionType
+}
 
 final class OnboardingMainInteractor {
     weak var presenter: OnboardingMainOutputInteractorProtocol?
 
     let accountOperationFactory: AccountOperationFactoryProtocol
+    let settings: SettingsManagerProtocol
     let operationManager: OperationManagerProtocol
 
     private var currentOperation: Operation?
 
-    init(accountOperationFactory: AccountOperationFactoryProtocol, operationManager: OperationManagerProtocol) {
+    init(accountOperationFactory: AccountOperationFactoryProtocol,
+         settings: SettingsManagerProtocol,
+         operationManager: OperationManagerProtocol) {
         self.accountOperationFactory = accountOperationFactory
+        self.settings = settings
         self.operationManager = operationManager
     }
 
@@ -25,7 +34,12 @@ extension OnboardingMainInteractor: OnboardingMainInputInteractorProtocol {
 
         presenter?.didStartSignup()
 
-        let operation = accountOperationFactory.newAccountOperation()
+        guard let addressType = SNAddressType(rawValue: settings.selectedConnection.type) else {
+            presenter?.didReceiveSignup(error: OnboardingMainInteractorError.undefinedConnectionType)
+            return
+        }
+
+        let operation = accountOperationFactory.newAccountOperation(addressType: addressType)
 
         operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {

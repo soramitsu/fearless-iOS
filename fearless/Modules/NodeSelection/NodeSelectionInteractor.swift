@@ -1,24 +1,27 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
 
 final class NodeSelectionInteractor {
     weak var presenter: NodeSelectionInteractorOutputProtocol!
 
     let applicationConfig: ApplicationConfigProtocol
+    let settings: SettingsManagerProtocol
 
-    init(applicationConfig: ApplicationConfigProtocol) {
+    init(settings: SettingsManagerProtocol, applicationConfig: ApplicationConfigProtocol) {
+        self.settings = settings
         self.applicationConfig = applicationConfig
     }
 }
 
 extension NodeSelectionInteractor: NodeSelectionInteractorInputProtocol {
     func load() {
-        presenter?.didLoad(nodeItems: applicationConfig.nodes)
+        let selectedConnection = settings.selectedConnection
 
-        if let node = applicationConfig.nodes.first {
-            presenter?.didLoad(selectedNodeItem: node)
-        }
+        presenter?.didLoad(nodeItems: [selectedConnection])
+
+        presenter?.didLoad(selectedNodeItem: selectedConnection)
     }
 
-    func select(nodeItem: NodeSelectionItem) {}
+    func select(nodeItem: ConnectionItem) {}
 }

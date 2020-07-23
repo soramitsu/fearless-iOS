@@ -1,4 +1,5 @@
 import Foundation
+import FearlessUtils
 
 struct JSONScaleDecodable<T: ScaleDecodable>: Decodable {
     let underlyingValue: T?

@@ -6,12 +6,12 @@ protocol NodeSelectionPresenterProtocol: SelectionListPresenterProtocol {
 
 protocol NodeSelectionInteractorInputProtocol: class {
     func load()
-    func select(nodeItem: NodeSelectionItem)
+    func select(nodeItem: ConnectionItem)
 }
 
 protocol NodeSelectionInteractorOutputProtocol: class {
-    func didLoad(selectedNodeItem: NodeSelectionItem)
-    func didLoad(nodeItems: [NodeSelectionItem])
+    func didLoad(selectedNodeItem: ConnectionItem)
+    func didLoad(nodeItems: [ConnectionItem])
 }
 
 protocol NodeSelectionViewFactoryProtocol: class {
