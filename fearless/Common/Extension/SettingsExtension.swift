@@ -7,6 +7,7 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
+    case username
 }
 
 extension SettingsManagerProtocol {
@@ -38,6 +39,20 @@ extension SettingsManagerProtocol {
                 set(value: existingValue, for: SettingsKey.biometryEnabled.rawValue)
             } else {
                 removeValue(for: SettingsKey.biometryEnabled.rawValue)
+            }
+        }
+    }
+
+    var username: String? {
+        get {
+            string(for: SettingsKey.username.rawValue)
+        }
+
+        set {
+            if let existingValue = newValue {
+                set(value: existingValue, for: SettingsKey.username.rawValue)
+            } else {
+                removeValue(for: SettingsKey.username.rawValue)
             }
         }
     }
