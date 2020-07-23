@@ -10,10 +10,11 @@ final class AccessRestoreViewFactory: AccessRestoreViewFactoryProtocol {
         let view = AccessRestoreViewController(nib: R.nib.accessRestoreViewController)
         let presenter = AccessRestorePresenter()
 
-        let accountOperationFactory = SR25519AccountOperationFactory(keystore: Keychain(),
-                                                                     settings: SettingsManager.shared)
+        let accountOperationFactory = AccountOperationFactory(keystore: Keychain(),
+                                                              settings: SettingsManager.shared)
 
         let interactor = AccessRestoreInteractor(accountOperationFactory: accountOperationFactory,
+                                                 settings: SettingsManager.shared,
                                                  operationManager: OperationManagerFacade.sharedManager)
 
         let wireframe = AccessRestoreWireframe()

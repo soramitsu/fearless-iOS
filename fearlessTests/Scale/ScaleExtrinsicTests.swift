@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import IrohaCrypto
+import FearlessUtils
 
 class ScaleExtrinsicTestsTests: XCTestCase {
     func testImmortal() throws {

@@ -1,4 +1,5 @@
 import Foundation
+import FearlessUtils
 import BigInt
 
 struct AccountInfo: ScaleDecodable {

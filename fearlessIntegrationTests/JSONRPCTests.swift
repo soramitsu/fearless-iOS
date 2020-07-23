@@ -1,5 +1,6 @@
 import XCTest
 @testable import fearless
+import FearlessUtils
 import RobinHood
 import IrohaCrypto
 import BigInt
@@ -110,7 +111,7 @@ class JSONRPCTests: XCTestCase {
         // when
 
         let extrinsicData = try generateExtrinsicToAccount("5FCj3BzHo5274Jwd6PFdsGzSgDtQ724k7o7GRYTzAf7n37vk",
-                                                           amount: Decimal(10).toKusamaAmount()!,
+                                                           amount: Decimal(10).toSubstrateAmount()!,
                                                            nonce: 0,
                                                            keypair: keypair)
 

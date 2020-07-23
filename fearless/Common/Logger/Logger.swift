@@ -41,8 +41,6 @@ final class Logger {
 
         #if F_DEV
             destination.minLevel = .verbose
-        #elseif F_TEST
-            destination.minLevel = .verbose
         #else
             destination.minLevel = .info
         #endif

@@ -9,12 +9,15 @@ final class AccessRestoreInteractor {
 
     let accountOperationFactory: AccountOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
+    let settings: SettingsManagerProtocol
 
     private var currentOperation: Operation?
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
+         settings: SettingsManagerProtocol,
          operationManager: OperationManagerProtocol) {
         self.accountOperationFactory = accountOperationFactory
+        self.settings = settings
         self.operationManager = operationManager
     }
 }
@@ -25,7 +28,15 @@ extension AccessRestoreInteractor: AccessRestoreInteractorInputProtocol {
             return
         }
 
-        let operation = accountOperationFactory.deriveAccountOperation(mnemonic: mnemonic)
+        let selectedConnection = settings.selectedConnection
+
+        guard let addressType = SNAddressType(rawValue: selectedConnection.type) else {
+            presenter?.didReceiveRestoreAccess(error: AccessRestoreInteractorError.undefinedConnectionType)
+            return
+        }
+
+        let operation = accountOperationFactory.deriveAccountOperation(addressType: addressType,
+                                                                       mnemonic: mnemonic)
         currentOperation = operation
 
         operation.completionBlock = { [weak self] in

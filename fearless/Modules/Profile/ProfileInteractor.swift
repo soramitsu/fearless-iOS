@@ -25,14 +25,11 @@ final class ProfileInteractor {
 extension ProfileInteractor: ProfileInteractorInputProtocol {
     func setup() {
         do {
-            guard let accountId = settingsManager.accountId else {
+            guard let address = settingsManager.selectedAccount?.address else {
                 throw ProfileInteractorError.invalidUserData
             }
 
-            let publicKey = try SNPublicKey(rawData: accountId)
-            let address = try ss58AddressFactory.address(from: publicKey, type: .kusamaMain)
-
-            presenter?.didReceive(userData: UserData(address: address, publicKey: accountId.toHex()))
+            presenter?.didReceive(userData: UserData(address: address))
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
