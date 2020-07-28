@@ -60,10 +60,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
             let normalIcon = R.image.iconTabWallet()?
-                .tinted(with: .tabBarItemNormal)?
+                .tinted(with: R.color.colorLightGray()!)?
                 .withRenderingMode(.alwaysOriginal)
             let selectedIcon = normalIcon?
-                .tinted(with: .tabBarItemSelected)?
+                .tinted(with: R.color.colorWhite()!)?
                 .withRenderingMode(.alwaysOriginal)
             viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                          normalImage: normalIcon,
@@ -85,7 +85,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .background
+        viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -93,10 +93,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let normalIcon = R.image.iconTabStaking()?
-            .tinted(with: .tabBarItemNormal)?
+            .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
-            .tinted(with: .tabBarItemSelected)?
+        let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
+            .tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
@@ -113,7 +113,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .background
+        viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
@@ -121,10 +121,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let normalIcon = R.image.iconTabGov()?
-            .tinted(with: .tabBarItemNormal)?
+            .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
-            .tinted(with: .tabBarItemSelected)?
+        let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
+            .tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
@@ -141,7 +141,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
-        viewController.view.backgroundColor = .background
+        viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
@@ -149,10 +149,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let normalIcon = R.image.iconTabExtrinsics()?
-            .tinted(with: .tabBarItemNormal)?
+            .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
-            .tinted(with: .tabBarItemSelected)?
+        let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
+            .tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         viewController.tabBarItem = createTabBarItem(title: currentTitle,
                                                      normalImage: normalIcon,
@@ -180,10 +180,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let normalIcon = R.image.iconTabProfile()?
-            .tinted(with: .tabBarItemNormal)?
+            .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
-        let selectedIcon = normalIcon?.tinted(with: .accentColor)?
-            .tinted(with: .tabBarItemSelected)?
+        let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
+            .tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
         navigationController.tabBarItem = createTabBarItem(title: currentTitle,
                                                            normalImage: normalIcon,
@@ -212,8 +212,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return tabBarItem
         }
 
-        let normalAttributes = [NSAttributedString.Key.foregroundColor: UIColor.tabBarItemNormal]
-        let selectedAttributes = [NSAttributedString.Key.foregroundColor: UIColor.tabBarItemSelected]
+        let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!]
+        let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
 
         tabBarItem.setTitleTextAttributes(normalAttributes, for: .normal)
         tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)

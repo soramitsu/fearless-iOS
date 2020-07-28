@@ -39,7 +39,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
     }
 
     private func configureLogoView() {
-        logoView.tintColor = .iconTintColor
+        logoView.tintColor = R.color.colorWhite()!
     }
 
     private func setupLocalization() {
