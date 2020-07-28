@@ -20,7 +20,7 @@
                                 <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                             </imageView>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="eBa-Mk-uzt">
-                                <rect key="frame" x="40" y="197" width="334" height="158"/>
+                                <rect key="frame" x="40" y="156.66666666666666" width="334" height="157.99999999999997"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                         </subviews>
@@ -31,7 +31,7 @@
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="e3N-fi-1cm"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="jT4-bh-2Kg"/>
                             <constraint firstAttribute="bottom" secondItem="uNk-tt-Coo" secondAttribute="bottom" id="m2l-xc-ZRp"/>
-                            <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" multiplier="0.75" id="oSK-Pu-J59"/>
+                            <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" multiplier="0.64" id="oSK-Pu-J59"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="tA1-r1-8ya"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
