@@ -58,7 +58,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
 
         navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationBar.shadowImage = UIImage()
-        navigationBar.tintColor = UIColor.navigationBarBackTintColor
+        navigationBar.tintColor = R.color.colorWhite()!
         navigationBar.delegate = self
     }
 
@@ -79,8 +79,8 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
 
         cancelButton.trailingAnchor.constraint(equalTo: pinView.trailingAnchor).isActive = true
 
-        cancelButton.setTitleColor(UIColor.navigationBarBackTintColor, for: .normal)
-        cancelButton.titleLabel?.font = UIFont.accessoryTitle
+        cancelButton.setTitleColor(R.color.colorWhite()!, for: .normal)
+        cancelButton.titleLabel?.font = UIFont.p1Paragraph
 
         cancelButton.addTarget(self,
                                action: #selector(actionCancel),
@@ -111,8 +111,8 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
         pinView.mode = mode
         pinView.delegate = self
 
-        pinView.numpadView?.accessoryIcon = pinView.numpadView?.accessoryIcon?.tinted(with: UIColor.iconTintColor)
-        pinView.numpadView?.backspaceIcon = pinView.numpadView?.backspaceIcon?.tinted(with: UIColor.iconTintColor)
+        pinView.numpadView?.accessoryIcon = pinView.numpadView?.accessoryIcon?.tinted(with: R.color.colorWhite()!)
+        pinView.numpadView?.backspaceIcon = pinView.numpadView?.backspaceIcon?.tinted(with: R.color.colorWhite()!)
     }
 
     private func setupLocalization() {

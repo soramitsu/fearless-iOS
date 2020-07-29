@@ -9,16 +9,22 @@ PODS:
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
-  - FearlessUtils (0.1.0):
+  - FearlessUtils (0.2.0):
     - BigInt (~> 5.0)
-    - IrohaCrypto/sr25519 (~> 0.4.0)
+    - IrohaCrypto/ed25519 (~> 0.5.0)
+    - IrohaCrypto/secp256k1 (~> 0.5.0)
+    - IrohaCrypto/sr25519 (~> 0.5.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.4.3):
+  - IrohaCrypto/BIP39 (0.5.0):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.4.3)
-  - IrohaCrypto/Common (0.4.3)
-  - IrohaCrypto/sr25519 (0.4.3):
+  - IrohaCrypto/blake2 (0.5.0)
+  - IrohaCrypto/Common (0.5.0)
+  - IrohaCrypto/ed25519 (0.5.0):
+    - IrohaCrypto/Common
+  - IrohaCrypto/secp256k1 (0.5.0):
+    - IrohaCrypto/Common
+  - IrohaCrypto/sr25519 (0.5.0):
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
@@ -122,9 +128,9 @@ SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
   CommonWallet: cdfe1cf798e942df6c93cf579650169e698dfb2e
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: aef3e364c3767287e5302cedff888d3e13dddcdd
+  FearlessUtils: 751aa5c71c552a081c50547e0337a2ab36b226ab
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: cfdfe162065705d1055bed4e37345abcbf5184de
+  IrohaCrypto: 7c5a8973d473e97e6de34447eb22298c41cd3470
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
   RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6

@@ -7,13 +7,13 @@ struct WalletCommonStyleConfigurator {
                                             icon: R.image.iconWarning()!)
 
     let navigationBarStyle: WalletNavigationBarStyleProtocol = {
-        var navigationBarStyle = WalletNavigationBarStyle(barColor: UIColor.navigationBarColor,
-                                                          shadowColor: UIColor.darkNavigationShadowColor,
-                                                          itemTintColor: UIColor.navigationBarBackTintColor,
-                                                          titleColor: UIColor.navigationBarTitleColor,
-                                                          titleFont: UIFont.navigationTitleFont)
-        navigationBarStyle.titleFont = .navigationTitleFont
-        navigationBarStyle.titleColor = .navigationBarTitleColor
+        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorAlmostBlack()!,
+                                                          shadowColor: R.color.colorDarkGray()!,
+                                                          itemTintColor: R.color.colorWhite()!,
+                                                          titleColor: R.color.colorWhite()!,
+                                                          titleFont: UIFont.h3Title)
+        navigationBarStyle.titleFont = .h3Title
+        navigationBarStyle.titleColor = R.color.colorWhite()!
 
         return navigationBarStyle
     }()
@@ -22,7 +22,7 @@ struct WalletCommonStyleConfigurator {
 extension WalletCommonStyleConfigurator {
     func configure(builder: WalletStyleBuilderProtocol) {
         builder
-        .with(background: .background)
+        .with(background: R.color.colorAlmostBlack()!)
         .with(navigationBarStyle: navigationBarStyle)
         .with(header1: R.font.soraRc0040417Bold(size: 30.0)!)
         .with(header2: R.font.soraRc0040417SemiBold(size: 18.0)!)
@@ -32,7 +32,7 @@ extension WalletCommonStyleConfigurator {
         .with(bodyRegular: R.font.soraRc0040417Regular(size: 14.0)!)
         .with(small: R.font.soraRc0040417Regular(size: 14.0)!)
         .with(keyboardIcon: R.image.iconKeyboardOff()!)
-        .with(caretColor: UIColor.iconTintColor)
+        .with(caretColor: R.color.colorWhite()!)
         .with(inlineErrorStyle: errorStyle)
     }
 }

@@ -2,11 +2,6 @@ import UIKit
 import SoraUI
 
 final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, HiddableBarWhenPushed {
-    private struct Constants {
-        static let restoreBottomFriction: CGFloat = 0.9
-        static let signupBottomFriction: CGFloat = 0.9
-    }
-
     var presenter: OnboardingMainPresenterProtocol!
 
     @IBOutlet private var termsLabel: UILabel!
@@ -15,7 +10,9 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
     @IBOutlet private var logoView: UIImageView!
 
     @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
-    @IBOutlet private var signupBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private var restoreWidthConstraint: NSLayoutConstraint!
+    @IBOutlet private var signupWidthConstraint: NSLayoutConstraint!
+
     @IBOutlet private var termsBottomConstraint: NSLayoutConstraint!
 
     var locale: Locale?
@@ -42,7 +39,7 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
     }
 
     private func configureLogoView() {
-        logoView.tintColor = .iconTintColor
+        logoView.tintColor = R.color.colorWhite()!
     }
 
     private func setupLocalization() {
@@ -60,15 +57,13 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
 
         if isAdaptiveHeightDecreased {
             restoreBottomConstraint.constant *= designScaleRatio.height
-            signupBottomConstraint.constant *= designScaleRatio.height
+            termsBottomConstraint.constant *= designScaleRatio.height
         }
 
-        if isAdaptiveHeightIncreased {
-            restoreBottomConstraint.constant *= designScaleRatio.height * Constants.restoreBottomFriction
-            signupBottomConstraint.constant *= designScaleRatio.height * Constants.signupBottomFriction
+        if isAdaptiveWidthDecreased {
+            restoreWidthConstraint.constant *= designScaleRatio.width
+            signupWidthConstraint.constant *= designScaleRatio.width
         }
-
-        termsBottomConstraint.constant *= designScaleRatio.height
     }
 
     // MARK: Action

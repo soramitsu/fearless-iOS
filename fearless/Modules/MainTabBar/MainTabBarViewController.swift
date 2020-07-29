@@ -28,19 +28,19 @@ final class MainTabBarViewController: UITabBarController {
         if #available(iOS 13.0, *) {
             let appearance = UITabBarAppearance()
 
-            appearance.backgroundImage = UIImage.background(from: UIColor.tabBarBackground)
-            appearance.shadowImage = UIImage.background(from: UIColor.tabBarShadow)
+            appearance.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
+            appearance.shadowImage = UIImage.background(from: R.color.colorDarkGray()!)
 
-            let normalAttributes = [NSAttributedString.Key.foregroundColor: UIColor.tabBarItemNormal]
-            let selectedAttributes = [NSAttributedString.Key.foregroundColor: UIColor.tabBarItemSelected]
+            let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!]
+            let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
 
             appearance.stackedLayoutAppearance.normal.titleTextAttributes = normalAttributes
             appearance.stackedLayoutAppearance.selected.titleTextAttributes = selectedAttributes
 
             tabBar.standardAppearance = appearance
         } else {
-            tabBar.backgroundImage = UIImage.background(from: UIColor.tabBarBackground)
-            tabBar.shadowImage = UIImage.background(from: UIColor.tabBarShadow)
+            tabBar.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
+            tabBar.shadowImage = UIImage.background(from: R.color.colorDarkGray()!)
         }
     }
 }
