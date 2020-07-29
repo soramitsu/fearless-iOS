@@ -67,3 +67,7 @@ a type of password.";
 "onboarding.create.account" = "Создать аккаунт";
 "username.setup.choose.title" = "Выберите имя";
 "username.setup.hint" = "Имя аккаунта и его отображение рядом с адресом. Используя хранение идентификационных данных в блокчейне, имя можно сделать доступных для остальных.";
+"username.setup.title" = "Создать аккаунт";
+"common.no.screenshot.title" = "Не делайте скриншоты";
+"common.no.screenshot.message" = "Не делайте скриншоты, которые могут быть собраны сторонними вредоносными программами";
+"common.ok" = "OK";

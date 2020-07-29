@@ -65,3 +65,7 @@ a type of password.";
 "onboarding.create.account" = "アカウントを作成する";
 "username.setup.choose.title" = "名前を選択してください";
 "username.setup.hint" = "このアカウントの名前と、アドレスの下での表示方法。チェーン上のIDを使用すると、他のユーザーが使用できるようになります。";
+"username.setup.title" = "アカウントを作成する";
+"common.no.screenshot.title" = "スクリーンショットを撮らないでください";
+"common.no.screenshot.message" = "サードパーティのマルウェアによって収集される可能性のあるスクリーンショットを撮らないでください";
+"common.ok" = "OK";

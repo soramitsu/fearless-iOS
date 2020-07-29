@@ -31,10 +31,17 @@ class UsernameSetupTests: XCTestCase {
         }
 
         stub(wireframe) { stub in
-            when(stub).proceed(username: any()).then { name in
+            when(stub).proceed(from: any(), username: any()).then { (_, name) in
                 receivedName = name
 
                 proceedExpectation.fulfill()
+            }
+
+            when(stub).present(viewModel: any(),
+                               style: any(),
+                               from: any()).then { (viewModel, _, _) in
+                viewModel.actions.first?.handler?()
+
             }
         }
 

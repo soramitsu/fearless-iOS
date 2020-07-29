@@ -67,3 +67,7 @@ apparaitront ici";
 "onboarding.create.account" = "Créer un compte";
 "username.setup.choose.title" = "Choisissez le nom";
 "username.setup.hint" = "Le nom de ce compte et comment il apparaîtra sous vos adresses. Avec une identité en chaîne, il peut être mis à la disposition des autres.";
+"username.setup.title" = "Créer un compte";
+"common.no.screenshot.title" = "Ne prenez pas de captures d'écran";
+"common.no.screenshot.message" = "Ne prenez pas de captures d'écran, qui pourraient être collectées par des logiciels malveillants tiers";
+"common.ok" = "OK";

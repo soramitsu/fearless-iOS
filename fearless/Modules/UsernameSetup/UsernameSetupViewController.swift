@@ -125,7 +125,7 @@ extension UsernameSetupViewController: Localizable {
     private func setupLocalization() {
         let languages = localizationManager?.preferredLocalizations
 
-        title = R.string.localizable.onboardingCreateAccount(preferredLanguages: languages)
+        title = R.string.localizable.usernameSetupTitle(preferredLanguages: languages)
 
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: languages)

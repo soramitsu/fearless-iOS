@@ -67,3 +67,7 @@ transferencias aparecerán aquí";
 "onboarding.create.account" = "Crear una cuenta";
 "username.setup.choose.title" = "Elegir nombre";
 "username.setup.hint" = "El nombre de esta cuenta y cómo aparecerá bajo sus direcciones. Con una identidad en cadena, puede estar disponible para otros.";
+"username.setup.title" = "Crear una cuenta";
+"common.no.screenshot.title" = "No tomes capturas de pantalla";
+"common.no.screenshot.message" = "No tome capturas de pantalla, que pueden ser recopiladas por malware de terceros";
+"common.ok" = "OK";

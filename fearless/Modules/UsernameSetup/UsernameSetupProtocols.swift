@@ -9,8 +9,8 @@ protocol UsernameSetupPresenterProtocol: class {
     func proceed()
 }
 
-protocol UsernameSetupWireframeProtocol: class {
-    func proceed(username: String)
+protocol UsernameSetupWireframeProtocol: AlertPresentable {
+    func proceed(from view: UsernameSetupViewProtocol?, username: String)
 }
 
 protocol UsernameSetupViewFactoryProtocol: class {

@@ -67,3 +67,7 @@
 "onboarding.create.account" = "Створити рахунок";
 "username.setup.choose.title" = "Виберіть ім'я";
 "username.setup.hint" = "Назва цього облікового запису та спосіб відображення під вашими адресами. Завдяки ланцюговій ідентичності він може бути доступний для інших.";
+"username.setup.title" = "Створити рахунок";
+"common.no.screenshot.title" = "Не робити знімки екрана";
+"common.no.screenshot.message" = "Не робіть знімки екрана, які можуть збирати сторонні зловмисні програми";
+"common.ok" = "OK";

@@ -67,3 +67,7 @@ transfers will appear here";
 "onboarding.create.account" = "Create account";
 "username.setup.choose.title" = "Choose name";
 "username.setup.hint" = "The name for this account and how it will appear under your addresses. With an on-chain identity, it can be made available to others.";
+"username.setup.title" = "Create account";
+"common.no.screenshot.title" = "Do not take screenshots";
+"common.no.screenshot.message" = "Do not take screenshots, which may be collected by third-party malware";
+"common.ok" = "OK";

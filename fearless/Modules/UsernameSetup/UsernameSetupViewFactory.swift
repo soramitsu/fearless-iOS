@@ -12,6 +12,7 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
         presenter.wireframe = wireframe
 
         view.localizationManager = LocalizationManager.shared
+        presenter.localizationManager = LocalizationManager.shared
 
         return view
     }
