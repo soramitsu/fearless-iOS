@@ -110,6 +110,9 @@
                             <real key="value" value="10"/>
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="actionNext" destination="-1" eventType="touchUpInside" id="D6U-eV-4bk"/>
+                    </connections>
                 </view>
             </subviews>
             <color key="backgroundColor" name="colorBlack"/>

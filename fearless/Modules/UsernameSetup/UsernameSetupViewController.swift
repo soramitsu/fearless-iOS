@@ -70,6 +70,12 @@ final class UsernameSetupViewController: UIViewController {
 
         updateActionButton()
     }
+
+    @IBAction private func actionNext() {
+        inputField.resignFirstResponder()
+
+        presenter.proceed()
+    }
 }
 
 extension UsernameSetupViewController: UITextFieldDelegate {
