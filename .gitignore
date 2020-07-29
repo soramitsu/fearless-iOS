@@ -51,6 +51,8 @@ iOSInjectionProject/
 #
 # Custom scripts
 *.generated.swift
+Tests/Mocks/CommonMocks.swift
+Tests/Mocks/ModuleMocks.swift
 #
 # Generamba
 Templates/

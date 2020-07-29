@@ -1,6 +1,6 @@
 import Foundation
 
-protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {}
+protocol OnboardingMainViewProtocol: ControllerBackedProtocol {}
 
 protocol OnboardingMainPresenterProtocol: class {
     func activateSignup()

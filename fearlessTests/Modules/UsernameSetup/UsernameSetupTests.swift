@@ -1,16 +1,66 @@
 import XCTest
+@testable import fearless
+import Cuckoo
+import SoraFoundation
 
 class UsernameSetupTests: XCTestCase {
 
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
+    func testSuccessfullUsernameInput() {
+        // given
 
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
+        let view = MockUsernameSetupViewProtocol()
+        let wireframe = MockUsernameSetupWireframeProtocol()
 
-    func testExample() {
-        XCTFail("Did you forget to add tests?")   
+        let presenter = UsernameSetupPresenter()
+        presenter.view = view
+        presenter.wireframe = wireframe
+
+        let expectedName = "test name"
+
+        var receivedViewModel: InputViewModelProtocol?
+        var receivedName: String?
+
+        let viewModelExpectation = XCTestExpectation()
+        let proceedExpectation = XCTestExpectation()
+
+        stub(view) { stub in
+            when(stub).set(viewModel: any()).then { viewModel in
+                receivedViewModel = viewModel
+                viewModelExpectation.fulfill()
+            }
+        }
+
+        stub(wireframe) { stub in
+            when(stub).proceed(username: any()).then { name in
+                receivedName = name
+
+                proceedExpectation.fulfill()
+            }
+        }
+
+        // when
+
+        presenter.setup()
+
+        // then
+
+        wait(for: [viewModelExpectation], timeout: Constants.defaultExpectationDuration)
+
+        // when
+
+        guard
+            let accepted = receivedViewModel?.inputHandler
+                .didReceiveReplacement(expectedName, for: NSRange(location: 0, length: 0)), accepted else {
+            XCTFail("Unexpected empty view model")
+            return
+        }
+
+        presenter.proceed()
+
+        // then
+
+        wait(for: [proceedExpectation], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertEqual(expectedName, receivedName)
     }
 }
