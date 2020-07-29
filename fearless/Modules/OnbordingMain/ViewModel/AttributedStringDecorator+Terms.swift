@@ -5,7 +5,7 @@ extension CompoundAttributedStringDecorator {
         let textColor = R.color.colorWhite()!
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: textColor,
-            .font: R.font.soraRc0040417Regular(size: 14)!
+            .font: UIFont.p1Paragraph
         ]
 
         let rangeDecorator = RangeAttributedStringDecorator(attributes: attributes)

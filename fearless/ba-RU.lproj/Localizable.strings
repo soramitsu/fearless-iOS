@@ -11,9 +11,9 @@
 "connection.error.title" = "Тоташыу килеп сыҡмаған";
 "connection.error.message" = "Зинһар, интернет селтәрен тикшерегеҙ һәм һуңыраҡ ҡабатлап ҡарағыҙ.";
 "onboarding.restore.account" = "Импортҡа Иҫәп Яҙмаһы";
-"onboarding.terms.and.conditions.1" = "Мин шарттарҙы һәм хосусил сәйәсәтен уҡыным һәм уҡығаны менән риза";
-"onboarding.terms.and.conditions.2" = "Ҡағиҙәләр һәм шарттар";
-"onboarding.privacy.policy" = "Хосусил сәйәсәте";
+"onboarding.terms.and.conditions.1" = "Мин шарттарҙы һәм xосусил сәйәсәтен уҡыным һәм уҡығаны менән риза";
+"onboarding.terms.and.conditions.2" = "шарттарҙы";
+"onboarding.privacy.policy" = "Хосусил сәйәсәтен";
 "common.passphrase.title" = "Мнемоника";
 "common.passphrase.sharing.subject" = "Fearless доступ мәғлүмәттәрен һаҡлау";
 "common.passphrase.save.or.send" = "Һаҡларға йәки ебәрергә";

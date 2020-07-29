@@ -12,9 +12,9 @@
 "connection.error.message" = "Veuillez vérifier votre connexion Internet et réessayer plus tard.";
 "onboarding.restore.account" = "Importer un compte";
 "onboarding.terms.and.conditions.1" = "J'ai lu et j'accepte\
-les Termes et Conditions et la politique de confidentialité";
-"onboarding.terms.and.conditions.2" = "Conditions générales";
-"onboarding.privacy.policy" = "Respect de la vie privée";
+les Termes et Conditions et la Politique de confidentialité";
+"onboarding.terms.and.conditions.2" = "Termes et Conditions";
+"onboarding.privacy.policy" = "Politique de confidentialité";
 "common.passphrase.title" = "Mnémonique";
 "common.passphrase.sharing.subject" = "Fearless sauvegarde d'accès";
 "common.passphrase.save.or.send" = "Enregistrer ou envoyer";

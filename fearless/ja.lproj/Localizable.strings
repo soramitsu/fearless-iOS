@@ -12,7 +12,7 @@
 "connection.error.message" = "インターネット接続を確認して、後でもう一度やり直してください。";
 "onboarding.restore.account" = "アカウントをインポート";
 "onboarding.terms.and.conditions.1" = "利用規約、個人情報保護方針に同意してサインアップする。";
-"onboarding.terms.and.conditions.2" = "規約と条件";
+"onboarding.terms.and.conditions.2" = "利用規約";
 "onboarding.privacy.policy" = "個人情報保護方針";
 "common.passphrase.title" = "ニモニック";
 "common.passphrase.sharing.subject" = "Fearlessがバックアップにアクセスします";
