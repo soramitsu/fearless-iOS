@@ -65,3 +65,5 @@ transferencias aparecerán aquí";
 "no.email.bound.error.message" = "Por favor, asegúrese de que la aplicación de correo esté instalada en el dispositivo.";
 "node.connections.title" = "Seleccionar conexión";
 "onboarding.create.account" = "Crear una cuenta";
+"username.setup.choose.title" = "Elegir nombre";
+"username.setup.hint" = "El nombre de esta cuenta y cómo aparecerá bajo sus direcciones. Con una identidad en cadena, puede estar disponible para otros.";

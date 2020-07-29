@@ -124,6 +124,9 @@ extension UsernameSetupViewController: Localizable {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: languages)
         nextButton.invalidateLayout()
+
+        hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: languages)
+        inputField.placeholder = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: languages)
     }
 
     func applyLocalization() {

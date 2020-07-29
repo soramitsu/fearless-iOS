@@ -63,3 +63,5 @@ a type of password.";
 "no.email.bound.error.message" = "メールアプリケーションがデバイスにインストールされていることを確認してください。";
 "node.connections.title" = "接続を選択";
 "onboarding.create.account" = "アカウントを作成する";
+"username.setup.choose.title" = "名前を選択してください";
+"username.setup.hint" = "このアカウントの名前と、アドレスの下での表示方法。チェーン上のIDを使用すると、他のユーザーが使用できるようになります。";
