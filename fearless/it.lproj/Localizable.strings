@@ -12,8 +12,8 @@
 "connection.error.message" = "Controlla la connessione a Internet e riprova più tardi.";
 "onboarding.restore.account" = "Importa account";
 "onboarding.terms.and.conditions.1" = "Ho letto e accetto i Termini e le condizioni sulla politica della privacy";
-"onboarding.terms.and.conditions.2" = "Termini e condizioni";
-"onboarding.privacy.policy" = "Informativa sulla privacy";
+"onboarding.terms.and.conditions.2" = "Termini e le condizioni";
+"onboarding.privacy.policy" = "politica della privacy";
 "common.passphrase.title" = "Mnemonico";
 "common.passphrase.sharing.subject" = "Fearless accedere al backup";
 "common.passphrase.save.or.send" = "Salva o invia";
