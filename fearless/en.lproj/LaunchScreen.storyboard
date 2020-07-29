@@ -23,16 +23,21 @@
                                 <rect key="frame" x="40" y="156.66666666666666" width="334" height="157.99999999999997"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logoCompany" translatesAutoresizingMaskIntoConstraints="NO" id="zP0-18-4id">
+                                <rect key="frame" x="111" y="669" width="192" height="23"/>
+                            </imageView>
                         </subviews>
                         <color key="backgroundColor" red="0.094117647060000004" green="0.094117647060000004" blue="0.094117647060000004" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="uNk-tt-Coo" secondAttribute="trailing" id="1kr-VF-oxV"/>
+                            <constraint firstItem="6Tk-OE-BBY" firstAttribute="bottom" secondItem="zP0-18-4id" secondAttribute="bottom" constant="44" id="TSr-YF-Erh"/>
                             <constraint firstItem="6Tk-OE-BBY" firstAttribute="trailing" secondItem="eBa-Mk-uzt" secondAttribute="trailing" constant="40" id="YY2-9j-2Bq"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="e3N-fi-1cm"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="jT4-bh-2Kg"/>
                             <constraint firstAttribute="bottom" secondItem="uNk-tt-Coo" secondAttribute="bottom" id="m2l-xc-ZRp"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" multiplier="0.64" id="oSK-Pu-J59"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="tA1-r1-8ya"/>
+                            <constraint firstItem="zP0-18-4id" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="v4C-CL-jhR"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="6Tk-OE-BBY"/>
                     </view>
@@ -45,5 +50,6 @@
     <resources>
         <image name="backgroundImage" width="414" height="896"/>
         <image name="logo" width="246" height="158"/>
+        <image name="logoCompany" width="192" height="23"/>
     </resources>
 </document>
