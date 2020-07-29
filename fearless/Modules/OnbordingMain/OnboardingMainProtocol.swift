@@ -9,16 +9,6 @@ protocol OnboardingMainPresenterProtocol: class {
     func activatePrivacy()
 }
 
-protocol OnboardingMainInputInteractorProtocol: class {
-    func signup()
-}
-
-protocol OnboardingMainOutputInteractorProtocol: class {
-    func didStartSignup()
-    func didCompleteSignup()
-    func didReceiveSignup(error: Error)
-}
-
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, AlertPresentable {
     func showSignup(from view: OnboardingMainViewProtocol?)
     func showAccountRestore(from view: OnboardingMainViewProtocol?)

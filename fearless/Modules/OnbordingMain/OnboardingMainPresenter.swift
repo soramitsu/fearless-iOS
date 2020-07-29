@@ -2,7 +2,6 @@ import Foundation
 
 final class OnboardingMainPresenter {
     weak var view: OnboardingMainViewProtocol?
-    var interactor: OnboardingMainInputInteractorProtocol!
     var wireframe: OnboardingMainWireframeProtocol!
 
     let legalData: LegalData
@@ -33,26 +32,10 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
     }
 
     func activateSignup() {
-        interactor.signup()
+        wireframe.showSignup(from: view)
     }
 
     func activateAccountRestore() {
         wireframe.showAccountRestore(from: view)
-    }
-}
-
-extension OnboardingMainPresenter: OnboardingMainOutputInteractorProtocol {
-    func didStartSignup() {
-        view?.didStartLoading()
-    }
-
-    func didCompleteSignup() {
-        view?.didStopLoading()
-        wireframe.showSignup(from: view)
-    }
-
-    func didReceiveSignup(error: Error) {
-        view?.didStopLoading()
-        _ = wireframe.present(error: error, from: view, locale: locale)
     }
 }

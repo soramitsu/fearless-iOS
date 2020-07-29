@@ -12,8 +12,8 @@ protocol SelectableViewModelProtocol: class {
 }
 
 private struct Constants {
-    static var isSelectedKey = "co.jp.sora.selectable.selected"
-    static var observersKey = "co.jp.sora.observers"
+    static var isSelectedKey = "co.jp.fearless.selectable.selected"
+    static var observersKey = "co.jp.fearless.observers"
 }
 
 private struct Observation {

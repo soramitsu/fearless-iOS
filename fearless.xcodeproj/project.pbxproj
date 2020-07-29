@@ -7,7 +7,13 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */; };
 		03D819679A2C6793E825ED29 /* Pods_fearlessAll_fearless.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 93838A49BDD7AC508A6FFB06 /* Pods_fearlessAll_fearless.framework */; };
+		093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */; };
+		1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */; };
+		3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172B3E9BE51A339D7A09BDA3 /* UsernameSetupPresenter.swift */; };
+		4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */; };
+		7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */; };
 		8427B57F24BF94A100186BD0 /* StorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */; };
 		8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763724AD67E300D91AD8 /* JSONRPCData.swift */; };
 		8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */; };
@@ -73,6 +79,8 @@
 		842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */; };
 		842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */; };
 		842D1E8124D0BEF400C30A7A /* RTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8024D0BEF400C30A7A /* RTests.swift */; };
+		842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8324D197C900C30A7A /* KeyboardAdoptable.swift */; };
+		842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */; };
 		8438E1CA24BFA4D9001BDB13 /* JSONScaleDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8438E1C924BFA4D9001BDB13 /* JSONScaleDecodable.swift */; };
 		8438E1D224BFAAD2001BDB13 /* JSONRPCTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */; };
 		8438E1DE24C18FAD001BDB13 /* Extrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8438E1DD24C18FAD001BDB13 /* Extrinsic.swift */; };
@@ -96,7 +104,6 @@
 		8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */; };
 		8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */; };
 		8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */; };
-		8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */; };
 		8490142224A93027008F705E /* sora-Regular.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490141E24A93027008F705E /* sora-Regular.otf */; };
 		8490142324A93027008F705E /* sora-Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490141F24A93027008F705E /* sora-Bold.otf */; };
 		8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */ = {isa = PBXBuildFile; fileRef = 8490142024A93027008F705E /* sora-ExtraBold.otf */; };
@@ -205,6 +212,7 @@
 		84DA3B1924C8200E00B5E27F /* ConnectionItem+Default.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DA3B1824C8200E00B5E27F /* ConnectionItem+Default.swift */; };
 		9CC92E94373355580598CA2C /* Pods_fearlessAll_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01195B79853ED2C88C6227A3 /* Pods_fearlessAll_fearlessTests.framework */; };
 		9EB01F8D2AEB38772BFBDCA7 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64247F0C1E5D025939E0B01F /* Pods_fearlessAll_fearlessIntegrationTests.framework */; };
+		DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD098B40697FD6CC08F9A6AC /* UsernameSetupProtocols.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -226,8 +234,12 @@
 
 /* Begin PBXFileReference section */
 		01195B79853ED2C88C6227A3 /* Pods_fearlessAll_fearlessTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearlessTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		172B3E9BE51A339D7A09BDA3 /* UsernameSetupPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupPresenter.swift; sourceTree = "<group>"; };
 		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
+		4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupTests.swift; sourceTree = "<group>"; };
+		5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewController.swift; sourceTree = "<group>"; };
 		64247F0C1E5D025939E0B01F /* Pods_fearlessAll_fearlessIntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearlessIntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupWireframe.swift; sourceTree = "<group>"; };
 		6B6FA3628C9FA252473A9689 /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
 		8151AAFFC77E52A233647A1E /* Pods-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeyFactory.swift; sourceTree = "<group>"; };
@@ -295,6 +307,8 @@
 		842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedButton.swift; sourceTree = "<group>"; };
 		842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Inspectable.swift"; sourceTree = "<group>"; };
 		842D1E8024D0BEF400C30A7A /* RTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RTests.swift; sourceTree = "<group>"; };
+		842D1E8324D197C900C30A7A /* KeyboardAdoptable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeyboardAdoptable.swift; sourceTree = "<group>"; };
+		842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSPredicate+Validation.swift"; sourceTree = "<group>"; };
 		8438E1C924BFA4D9001BDB13 /* JSONScaleDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONScaleDecodable.swift; sourceTree = "<group>"; };
 		8438E1CF24BFAAD2001BDB13 /* fearlessIntegrationTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = fearlessIntegrationTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCTests.swift; sourceTree = "<group>"; };
@@ -323,7 +337,6 @@
 		8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainViewFactory.swift; sourceTree = "<group>"; };
 		8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainWireframe.swift; sourceTree = "<group>"; };
 		8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainProtocol.swift; sourceTree = "<group>"; };
-		8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OnboardingMainInteractor.swift; sourceTree = "<group>"; };
 		8490141E24A93027008F705E /* sora-Regular.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-Regular.otf"; sourceTree = "<group>"; };
 		8490141F24A93027008F705E /* sora-Bold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-Bold.otf"; sourceTree = "<group>"; };
 		8490142024A93027008F705E /* sora-ExtraBold.otf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "sora-ExtraBold.otf"; sourceTree = "<group>"; };
@@ -449,10 +462,13 @@
 		A9C0466677704CFA94E5015E /* Pods-fearlessAll-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		BC3439ACD1458063EA66AA55 /* Pods-fearlessAll-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		C011116F48131D1700767769 /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; sourceTree = "<group>"; };
+		C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewFactory.swift; sourceTree = "<group>"; };
 		C7B15FAB5FF28DE88EC2A66A /* Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.debug.xcconfig"; sourceTree = "<group>"; };
+		CD098B40697FD6CC08F9A6AC /* UsernameSetupProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupProtocols.swift; sourceTree = "<group>"; };
 		D243FDE613F9214394A9DCEB /* Pods-fearlessAll-fearless.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.dev.xcconfig"; sourceTree = "<group>"; };
 		DCA8F503A90EFA93C1118E8E /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
 		E8557776291856E466BD7F64 /* Pods-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
+		EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = UsernameSetupViewController.xib; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -502,6 +518,22 @@
 				F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */,
 			);
 			path = Pods;
+			sourceTree = "<group>";
+		};
+		3DD9FDD642A97C4CA267604A /* UsernameSetup */ = {
+			isa = PBXGroup;
+			children = (
+				4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */,
+			);
+			path = UsernameSetup;
+			sourceTree = "<group>";
+		};
+		6784511E27C7B7E095FFD4AB /* Modules */ = {
+			isa = PBXGroup;
+			children = (
+				3DD9FDD642A97C4CA267604A /* UsernameSetup */,
+			);
+			path = Modules;
 			sourceTree = "<group>";
 		};
 		8428764224ADDE0200D91AD8 /* Profile */ = {
@@ -742,6 +774,7 @@
 			children = (
 				842D1E7E24D0BED200C30A7A /* Common */,
 				849013C424A80986008F705E /* Info.plist */,
+				6784511E27C7B7E095FFD4AB /* Modules */,
 			);
 			path = fearlessTests;
 			sourceTree = "<group>";
@@ -783,6 +816,7 @@
 				8490146E24A94A37008F705E /* Root */,
 				8490143124A9373E008F705E /* LoadingView */,
 				8490140124A92F6D008F705E /* OnbordingMain */,
+				C7AEDB8341B78EC46F6F98DC /* UsernameSetup */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -855,7 +889,6 @@
 				8490140924A92F6D008F705E /* OnboardingMainViewFactory.swift */,
 				8490140A24A92F6D008F705E /* OnboardingMainWireframe.swift */,
 				8490140E24A92F6D008F705E /* OnboardingMainProtocol.swift */,
-				8490140F24A92F6D008F705E /* OnboardingMainInteractor.swift */,
 			);
 			path = OnbordingMain;
 			sourceTree = "<group>";
@@ -891,6 +924,7 @@
 				8490142924A935FE008F705E /* LoadableViewProtocol.swift */,
 				8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */,
 				8490142B24A935FE008F705E /* AlertPresentable.swift */,
+				842D1E8324D197C900C30A7A /* KeyboardAdoptable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -950,6 +984,7 @@
 				8490146924A9463B008F705E /* Locale+Localization.swift */,
 				849014FB24AA9939008F705E /* Charset+Mnemonic.swift */,
 				8490152624ABCC40008F705E /* NumberFormatter.swift */,
+				842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -1235,6 +1270,19 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		C7AEDB8341B78EC46F6F98DC /* UsernameSetup */ = {
+			isa = PBXGroup;
+			children = (
+				CD098B40697FD6CC08F9A6AC /* UsernameSetupProtocols.swift */,
+				65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */,
+				172B3E9BE51A339D7A09BDA3 /* UsernameSetupPresenter.swift */,
+				5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */,
+				EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */,
+				C74A2166B054240BD5D925B6 /* UsernameSetupViewFactory.swift */,
+			);
+			path = UsernameSetup;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1388,6 +1436,7 @@
 				8428769424AE046300D91AD8 /* AboutViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 				842876A924AE049B00D91AD8 /* SelectionSubtitleTableViewCell.xib in Resources */,
+				1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1598,9 +1647,11 @@
 				84DA3B0E24C5AEB600B5E27F /* TransferCall.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				8428768C24AE046300D91AD8 /* AboutPresenter.swift in Sources */,
+				842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */,
 				849014F824AA961E008F705E /* AccessRestoreError.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
 				842876A524AE049B00D91AD8 /* SelectableTitleListViewModel.swift in Sources */,
+				842D1E8624D1A90400C30A7A /* NSPredicate+Validation.swift in Sources */,
 				8428765624ADDE0200D91AD8 /* ProfileOptionViewModel.swift in Sources */,
 				8490149324AA7834008F705E /* AccessBackupPresenter.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
@@ -1686,7 +1737,6 @@
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
 				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
-				8490141B24A92F6D008F705E /* OnboardingMainInteractor.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
 				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
@@ -1736,6 +1786,11 @@
 				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
 				84DA3B1924C8200E00B5E27F /* ConnectionItem+Default.swift in Sources */,
 				8490150F24AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift in Sources */,
+				DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */,
+				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
+				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
+				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
+				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1745,6 +1800,7 @@
 			files = (
 				842D1E8124D0BEF400C30A7A /* RTests.swift in Sources */,
 				84DA3B1024C5CA0200B5E27F /* ScaleExtrinsicTests.swift in Sources */,
+				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

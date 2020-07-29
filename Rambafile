@@ -1,0 +1,35 @@
+### Headers settings
+company: Soramitsu
+
+### Xcode project settings
+project_name: fearless
+xcodeproj_path: fearless.xcodeproj
+
+### Code generation settings section
+# The main project target name
+project_target: fearless
+
+# The file path for new modules
+project_file_path: fearless/Modules/
+
+# The Xcode group path to new modules
+project_group_path: fearless/Modules/
+
+### Tests generation settings section
+# The tests target name
+test_target: fearlessTests
+
+# The file path for new tests
+test_file_path: fearlessTests/Modules/
+
+# The Xcode group path to new tests
+test_group_path: fearlessTests/Modules/
+
+### Dependencies settings section
+podfile_path: Podfile
+
+### Templates
+catalogs:
+- 'https://github.com/ERussel/GenerambaTemplates'
+templates:
+- {name: sora-viper}
