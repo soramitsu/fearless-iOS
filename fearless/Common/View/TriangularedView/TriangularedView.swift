@@ -6,9 +6,9 @@ import SoraUI
  */
 
 class TriangularedView: ShadowShapeView {
-    /// Side of the triangle that cuts the corners. Defaults `8.0`
+    /// Side of the triangle that cuts the corners. Defaults `10.0`
     @IBInspectable
-    open var sideLength: CGFloat = 8.0 {
+    open var sideLength: CGFloat = 10.0 {
         didSet {
             applyPath()
         }
