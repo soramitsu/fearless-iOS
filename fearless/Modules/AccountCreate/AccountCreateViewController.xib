@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina5_5" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountCreateViewController" customModule="fearless" customModuleProvider="target">
+            <connections>
+                <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>
+                <outlet property="view" destination="iN0-l3-epB" id="w8H-PT-VAl"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="j2J-jw-4dD">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="nt2-2c-HuT">
+                            <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                            <subviews>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
+                                    <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                                    <subviews>
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
+                                            <rect key="frame" x="16" y="38" width="24" height="24"/>
+                                        </imageView>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
+                                            <rect key="frame" x="56" y="16" width="342" height="68"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                                            <color key="textColor" name="colorLightGray"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstItem="Ihh-eg-GQw" firstAttribute="leading" secondItem="43P-Ll-Had" secondAttribute="leading" constant="56" id="47h-Jw-amy"/>
+                                        <constraint firstItem="Ihh-eg-GQw" firstAttribute="top" secondItem="43P-Ll-Had" secondAttribute="top" constant="16" id="UcA-vg-9XO"/>
+                                        <constraint firstAttribute="height" secondItem="Ihh-eg-GQw" secondAttribute="height" constant="32" id="f6v-0M-MSx"/>
+                                        <constraint firstItem="Ihh-eg-GQw" firstAttribute="leading" secondItem="ps1-21-qIL" secondAttribute="trailing" constant="16" id="iCa-NF-DVD"/>
+                                        <constraint firstItem="ps1-21-qIL" firstAttribute="leading" secondItem="43P-Ll-Had" secondAttribute="leading" constant="16" id="jHo-hN-3XE"/>
+                                        <constraint firstAttribute="trailing" secondItem="Ihh-eg-GQw" secondAttribute="trailing" constant="16" id="myW-Pk-Zik"/>
+                                        <constraint firstItem="ps1-21-qIL" firstAttribute="centerY" secondItem="Ihh-eg-GQw" secondAttribute="centerY" id="wdt-7P-rvJ"/>
+                                    </constraints>
+                                </view>
+                            </subviews>
+                            <constraints>
+                                <constraint firstItem="43P-Ll-Had" firstAttribute="top" secondItem="nt2-2c-HuT" secondAttribute="top" id="ClJ-CJ-WSE"/>
+                                <constraint firstItem="43P-Ll-Had" firstAttribute="leading" secondItem="nt2-2c-HuT" secondAttribute="leading" id="SqE-JS-Pa3"/>
+                                <constraint firstAttribute="trailing" secondItem="43P-Ll-Had" secondAttribute="trailing" id="we0-TM-7Gb"/>
+                            </constraints>
+                        </stackView>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstItem="nt2-2c-HuT" firstAttribute="leading" secondItem="j2J-jw-4dD" secondAttribute="leading" id="82n-k2-wqx"/>
+                        <constraint firstAttribute="bottom" secondItem="nt2-2c-HuT" secondAttribute="bottom" id="CFG-nF-ZZa"/>
+                        <constraint firstAttribute="trailing" secondItem="nt2-2c-HuT" secondAttribute="trailing" id="VtT-t0-Orj"/>
+                        <constraint firstItem="nt2-2c-HuT" firstAttribute="top" secondItem="j2J-jw-4dD" secondAttribute="top" id="gmQ-sX-Pdw"/>
+                    </constraints>
+                </scrollView>
+            </subviews>
+            <color key="backgroundColor" name="colorBlack"/>
+            <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="j2J-jw-4dD" secondAttribute="bottom" id="Jgi-61-xv7"/>
+                <constraint firstItem="j2J-jw-4dD" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Zgy-8d-skT"/>
+                <constraint firstItem="43P-Ll-Had" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" id="c4I-cs-jLq"/>
+                <constraint firstItem="j2J-jw-4dD" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="jZd-l6-FuG"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="j2J-jw-4dD" secondAttribute="trailing" id="nZX-kU-Kp9"/>
+            </constraints>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="139" y="133"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="iconAlert" width="24" height="24"/>
+        <namedColor name="colorBlack">
+            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorLightGray">
+            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

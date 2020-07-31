@@ -2,11 +2,11 @@ import Foundation
 
 final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
     func proceed(from view: UsernameSetupViewProtocol?, username: String) {
-        guard let accessBackup = AccessBackupViewFactory.createView() else {
+        guard let accountCreation = AccountCreateViewFactory.createView() else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(accessBackup.controller,
+        view?.controller.navigationController?.pushViewController(accountCreation.controller,
                                                                   animated: true)
     }
 }
