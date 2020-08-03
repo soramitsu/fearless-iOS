@@ -92,7 +92,7 @@ DEPENDENCIES:
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc`)
+  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `273b80f5a20586c5950033bba826fcbd9f43004d`)
   - Starscream (~> 4.0.0)
   - SwiftLint
   - SwiftyBeaver
@@ -119,7 +119,7 @@ EXTERNAL SOURCES:
     :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
   SoraUI:
-    :commit: ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc
+    :commit: 273b80f5a20586c5950033bba826fcbd9f43004d
     :git: https://github.com/soramitsu/UIkit-iOS.git
 
 CHECKOUT OPTIONS:
@@ -127,7 +127,7 @@ CHECKOUT OPTIONS:
     :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
   SoraUI:
-    :commit: ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc
+    :commit: 273b80f5a20586c5950033bba826fcbd9f43004d
     :git: https://github.com/soramitsu/UIkit-iOS.git
 
 SPEC CHECKSUMS:
@@ -148,6 +148,6 @@ SPEC CHECKSUMS:
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6bb16795ac7f0f084d71ae654929ce1923352b60
+PODFILE CHECKSUM: 78ac4ee635fbe8a59e26729f741c77eb86b926b3
 
 COCOAPODS: 1.9.3

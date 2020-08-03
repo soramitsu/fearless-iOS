@@ -109,8 +109,8 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
                                     <rect key="frame" x="0.0" y="150" width="382" height="158.33333333333337"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="48"/>
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="16" width="380" height="52"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -153,8 +153,8 @@
                                                 <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="80" width="380" height="56.333333333333343"/>
+                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="84" width="380" height="58.333333333333343"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">

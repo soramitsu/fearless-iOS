@@ -13,16 +13,30 @@ final class AccountCreateViewController: UIViewController {
 
     @IBOutlet var advancedContainerView: UIView!
 
-    let stackViewAnimator = TransitionAnimator(type: .reveal)
+    var advancedAppearanceAnimator = TransitionAnimator(type: .push,
+                                                        duration: 0.35,
+                                                        subtype: .fromBottom,
+                                                        curve: .easeOut)
+
+    var advancedDismissalAnimator = TransitionAnimator(type: .push,
+                                                       duration: 0.35,
+                                                       subtype: .fromTop,
+                                                       curve: .easeIn)
 
     private var mnemonicView: MnemonicDisplayView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        advancedContainerView.isHidden = !self.expadableControl.isActivated
+        configure()
 
         presenter.setup()
+    }
+
+    private func configure() {
+        stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+
+        advancedContainerView.isHidden = !self.expadableControl.isActivated
     }
 
     private func setupMnemonicViewIfNeeded() {
@@ -42,6 +56,7 @@ final class AccountCreateViewController: UIViewController {
 
         mnemonicView.indexFontInColumn = .p0Digits
         mnemonicView.wordFontInColumn = .p0Paragraph
+        mnemonicView.backgroundColor = R.color.colorBlack()
 
         stackView.insertArrangedSubview(mnemonicView, at: 1)
 
@@ -49,31 +64,15 @@ final class AccountCreateViewController: UIViewController {
     }
 
     @IBAction private func actionExpand() {
-        stackView.subviews.forEach { view in
-            view.backgroundColor = R.color.colorBlack()
-        }
-
         stackView.sendSubviewToBack(advancedContainerView)
-
-        CATransaction.begin()
-
-        let animation = CATransition()
-        animation.type = .push
-
-        if expadableControl.isActivated {
-            animation.subtype = .fromBottom
-            animation.timingFunction = CAMediaTimingFunction(name: .easeOut)
-        } else {
-            animation.subtype = .fromTop
-            animation.timingFunction = CAMediaTimingFunction(name: .easeIn)
-        }
-
-        animation.duration = 0.35
-        advancedContainerView.layer.add(animation, forKey: nil)
 
         advancedContainerView.isHidden = !expadableControl.isActivated
 
-        CATransaction.commit()
+        if expadableControl.isActivated {
+            advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
+        } else {
+            advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
+        }
     }
 }
 
