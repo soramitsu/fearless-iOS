@@ -16,10 +16,11 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
         do {
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
+            let availableAccountTypes: [SNAddressType] = [.kusamaMain, .polkadotMain, .genericSubstrate]
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
-                                                   availableAccountTypes: [.kusamaMain],
+                                                   availableAccountTypes: availableAccountTypes,
                                                    defaultAccountType: .kusamaMain,
-                                                   availableCryptoTypes: [.sr25519],
+                                                   availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)
         } catch {

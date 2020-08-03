@@ -217,6 +217,19 @@
 		84CAF52224BDB94700F4C295 /* JSONRPCEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52124BDB94700F4C295 /* JSONRPCEngine.swift */; };
 		84CAF52424BDBD3900F4C295 /* WebSocketEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52324BDBD3900F4C295 /* WebSocketEngine.swift */; };
 		84CAF52724BEF24C00F4C295 /* JSONRPCOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CAF52624BEF24C00F4C295 /* JSONRPCOperation.swift */; };
+		84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F15424D80CA100AF43E9 /* ModalPickerViewController.swift */; };
+		84D8F15724D80D5500AF43E9 /* ModalPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D8F15624D80D5500AF43E9 /* ModalPickerViewController.xib */; };
+		84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F15A24D8136700AF43E9 /* ModalPickerCellProtocol.swift */; };
+		84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F15C24D8178000AF43E9 /* IconWithTitleViewModel.swift */; };
+		84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F15E24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift */; };
+		84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16024D8193200AF43E9 /* IconWithTitleTableViewCell.swift */; };
+		84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16224D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift */; };
+		84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D8F16624D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib */; };
+		84D8F16924D821ED00AF43E9 /* IconWithTitleTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D8F16824D821ED00AF43E9 /* IconWithTitleTableViewCell.xib */; };
+		84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16A24D8263300AF43E9 /* ModalPickerFactory.swift */; };
+		84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16C24D82C7E00AF43E9 /* ModalPickerConfiguration.swift */; };
+		84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */; };
+		84D8F17124D856D300AF43E9 /* NetworkType+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */; };
 		84DA3B0C24C590E700B5E27F /* Era.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DA3B0B24C590E700B5E27F /* Era.swift */; };
 		84DA3B0E24C5AEB600B5E27F /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DA3B0D24C5AEB600B5E27F /* TransferCall.swift */; };
 		84DA3B1024C5CA0200B5E27F /* ScaleExtrinsicTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DA3B0F24C5CA0200B5E27F /* ScaleExtrinsicTests.swift */; };
@@ -488,6 +501,19 @@
 		84CAF52124BDB94700F4C295 /* JSONRPCEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCEngine.swift; sourceTree = "<group>"; };
 		84CAF52324BDBD3900F4C295 /* WebSocketEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEngine.swift; sourceTree = "<group>"; };
 		84CAF52624BEF24C00F4C295 /* JSONRPCOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCOperation.swift; sourceTree = "<group>"; };
+		84D8F15424D80CA100AF43E9 /* ModalPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerViewController.swift; sourceTree = "<group>"; };
+		84D8F15624D80D5500AF43E9 /* ModalPickerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ModalPickerViewController.xib; sourceTree = "<group>"; };
+		84D8F15A24D8136700AF43E9 /* ModalPickerCellProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerCellProtocol.swift; sourceTree = "<group>"; };
+		84D8F15C24D8178000AF43E9 /* IconWithTitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithTitleViewModel.swift; sourceTree = "<group>"; };
+		84D8F15E24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleWithSubtitleViewModel.swift; sourceTree = "<group>"; };
+		84D8F16024D8193200AF43E9 /* IconWithTitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconWithTitleTableViewCell.swift; sourceTree = "<group>"; };
+		84D8F16224D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleWithSubtitleTableViewCell.swift; sourceTree = "<group>"; };
+		84D8F16624D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TitleWithSubtitleTableViewCell.xib; sourceTree = "<group>"; };
+		84D8F16824D821ED00AF43E9 /* IconWithTitleTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = IconWithTitleTableViewCell.xib; sourceTree = "<group>"; };
+		84D8F16A24D8263300AF43E9 /* ModalPickerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerFactory.swift; sourceTree = "<group>"; };
+		84D8F16C24D82C7E00AF43E9 /* ModalPickerConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerConfiguration.swift; sourceTree = "<group>"; };
+		84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+ViewModel.swift"; sourceTree = "<group>"; };
+		84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkType+ViewModel.swift"; sourceTree = "<group>"; };
 		84DA3B0B24C590E700B5E27F /* Era.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Era.swift; sourceTree = "<group>"; };
 		84DA3B0D24C5AEB600B5E27F /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		84DA3B0F24C5CA0200B5E27F /* ScaleExtrinsicTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScaleExtrinsicTests.swift; sourceTree = "<group>"; };
@@ -1034,6 +1060,7 @@
 		8490144124A93CDC008F705E /* ViewController */ = {
 			isa = PBXGroup;
 			children = (
+				84D8F15324D80C8300AF43E9 /* ModalPicker */,
 				8428769624AE049A00D91AD8 /* SelectionListViewController */,
 				8490149A24AA7EF6008F705E /* AccessoryViewController */,
 				8490144224A93CDC008F705E /* NavigationController */,
@@ -1360,10 +1387,46 @@
 			path = JSONRPC;
 			sourceTree = "<group>";
 		};
+		84D8F15324D80C8300AF43E9 /* ModalPicker */ = {
+			isa = PBXGroup;
+			children = (
+				84D8F15924D8135200AF43E9 /* ViewModel */,
+				84D8F15824D8134E00AF43E9 /* Cell */,
+				84D8F15424D80CA100AF43E9 /* ModalPickerViewController.swift */,
+				84D8F15624D80D5500AF43E9 /* ModalPickerViewController.xib */,
+				84D8F16A24D8263300AF43E9 /* ModalPickerFactory.swift */,
+				84D8F16C24D82C7E00AF43E9 /* ModalPickerConfiguration.swift */,
+			);
+			path = ModalPicker;
+			sourceTree = "<group>";
+		};
+		84D8F15824D8134E00AF43E9 /* Cell */ = {
+			isa = PBXGroup;
+			children = (
+				84D8F15A24D8136700AF43E9 /* ModalPickerCellProtocol.swift */,
+				84D8F16024D8193200AF43E9 /* IconWithTitleTableViewCell.swift */,
+				84D8F16224D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift */,
+				84D8F16624D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib */,
+				84D8F16824D821ED00AF43E9 /* IconWithTitleTableViewCell.xib */,
+			);
+			path = Cell;
+			sourceTree = "<group>";
+		};
+		84D8F15924D8135200AF43E9 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				84D8F15C24D8178000AF43E9 /* IconWithTitleViewModel.swift */,
+				84D8F15E24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		84DA3B1724C8200100B5E27F /* Model */ = {
 			isa = PBXGroup;
 			children = (
 				84DA3B1824C8200E00B5E27F /* ConnectionItem+Default.swift */,
+				84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */,
+				84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1529,12 +1592,14 @@
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
 				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
+				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
 				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8428768E24AE046300D91AD8 /* AboutAccessoryTitleCell.xib in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
 				849013B524A80986008F705E /* Assets.xcassets in Resources */,
+				84D8F15724D80D5500AF43E9 /* ModalPickerViewController.xib in Resources */,
 				8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */,
 				8490142524A93027008F705E /* sora-SemiBold.otf in Resources */,
 				849014A324AA7F9A008F705E /* AccessoryView.xib in Resources */,
@@ -1542,6 +1607,7 @@
 				8490149124AA7834008F705E /* AccessBackupViewController.xib in Resources */,
 				8428768D24AE046300D91AD8 /* AboutHeaderView.xib in Resources */,
 				849014B824AA87E3008F705E /* PinSetupViewController.xib in Resources */,
+				84D8F16924D821ED00AF43E9 /* IconWithTitleTableViewCell.xib in Resources */,
 				8428765324ADDE0200D91AD8 /* ProfileViewController.xib in Resources */,
 				8428769424AE046300D91AD8 /* AboutViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
@@ -1784,6 +1850,7 @@
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
 				8428768F24AE046300D91AD8 /* AboutNavigationCell.swift in Sources */,
 				842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */,
+				84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
 				84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
@@ -1814,6 +1881,7 @@
 				8490149724AA7834008F705E /* AccessBackupWireframe.swift in Sources */,
 				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
 				8428768A24AE046300D91AD8 /* AboutProtocols.swift in Sources */,
+				84D8F17124D856D300AF43E9 /* NetworkType+ViewModel.swift in Sources */,
 				842876B324AE059700D91AD8 /* AboutData.swift in Sources */,
 				8490151824AB8C6D008F705E /* WalletCommonStyleConfigurator.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
@@ -1851,6 +1919,7 @@
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
+				84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
@@ -1888,6 +1957,8 @@
 				84DA3B0C24C590E700B5E27F /* Era.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
+				84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */,
+				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,
 				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
 				842876A624AE049B00D91AD8 /* SelectableViewModelProtocol.swift in Sources */,
 				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
@@ -1916,13 +1987,16 @@
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
+				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
+				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
 				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
+				84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */,
 				8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */,
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
@@ -1943,6 +2017,7 @@
 				DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
+				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,
@@ -1951,6 +2026,7 @@
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
 				9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */,
+				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
 				84C6801624D7036B00006BF5 /* SubtitleActionControl.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

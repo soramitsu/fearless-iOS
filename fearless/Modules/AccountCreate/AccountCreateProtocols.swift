@@ -21,6 +21,9 @@ protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func setSelectedCrypto(title: String)
     func setSelectedNetwork(title: String)
     func setDerivationPath(viewModel: InputViewModelProtocol)
+
+    func didCompleteCryptoTypeSelection()
+    func didCompleteNetworkTypeSelection()
 }
 
 protocol AccountCreatePresenterProtocol: class {
@@ -46,6 +49,16 @@ protocol AccountCreateInteractorOutputProtocol: class {
 
 protocol AccountCreateWireframeProtocol: class {
     func proceed(from view: AccountCreateViewProtocol?)
+    func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
+                                    availableTypes: [CryptoType],
+                                    selectedType: CryptoType,
+                                    delegate: ModalPickerViewControllerDelegate?,
+                                    context: AnyObject?)
+    func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?,
+                                     availableTypes: [SNAddressType],
+                                     selectedType: SNAddressType,
+                                     delegate: ModalPickerViewControllerDelegate?,
+                                     context: AnyObject?)
 }
 
 protocol AccountCreateViewFactoryProtocol: class {

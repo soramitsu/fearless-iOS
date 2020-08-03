@@ -10,6 +10,7 @@ final class AccountCreateViewController: UIViewController {
 
     @IBOutlet var networkTypeView: BorderedSubtitleActionView!
     @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
+    @IBOutlet var derivationPathField: UITextField!
 
     @IBOutlet var advancedContainerView: UIView!
 
@@ -36,7 +37,22 @@ final class AccountCreateViewController: UIViewController {
     private func configure() {
         stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
 
-        advancedContainerView.isHidden = !self.expadableControl.isActivated
+        advancedContainerView.isHidden = !expadableControl.isActivated
+
+        if let placeholder = derivationPathField.placeholder {
+            let color = R.color.colorGray() ?? .gray
+            let attributedPlaceholder = NSAttributedString(string: placeholder,
+                                                           attributes: [.foregroundColor: color])
+            derivationPathField.attributedPlaceholder = attributedPlaceholder
+        }
+
+        cryptoTypeView.actionControl.addTarget(self,
+                                               action: #selector(actionOpenCryptoType),
+                                               for: .valueChanged)
+
+        networkTypeView.actionControl.addTarget(self,
+                                                action: #selector(actionOpenNetworkType),
+                                                for: .valueChanged)
     }
 
     private func setupMnemonicViewIfNeeded() {
@@ -71,7 +87,25 @@ final class AccountCreateViewController: UIViewController {
         if expadableControl.isActivated {
             advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
         } else {
+            derivationPathField.resignFirstResponder()
+
             advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
+        }
+    }
+
+    @IBAction private func actionTextFieldEditingChanged() {
+
+    }
+
+    @objc private func actionOpenCryptoType() {
+        if cryptoTypeView.actionControl.isActivated {
+            presenter.selectCryptoType()
+        }
+    }
+
+    @objc private func actionOpenNetworkType() {
+        if networkTypeView.actionControl.isActivated {
+            presenter.selectNetworkType()
         }
     }
 }
@@ -95,4 +129,25 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
 
     }
 
+    func didCompleteCryptoTypeSelection() {
+        cryptoTypeView.actionControl.deactivate(animated: true)
+    }
+
+    func didCompleteNetworkTypeSelection() {
+        networkTypeView.actionControl.deactivate(animated: true)
+    }
+}
+
+extension AccountCreateViewController: UITextFieldDelegate {
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+
+        return false
+    }
+
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+        return true
+    }
 }

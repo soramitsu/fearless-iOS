@@ -1,6 +1,6 @@
 import Foundation
 
-enum CryptoType: UInt8, Codable {
+enum CryptoType: UInt8, Codable, CaseIterable {
     case sr25519
     case ed25519
     case ecdsa
