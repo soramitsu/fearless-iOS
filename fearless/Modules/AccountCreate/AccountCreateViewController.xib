@@ -16,6 +16,10 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountCreateViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="advancedContainerView" destination="ufd-ci-pPo" id="gPp-JR-knR"/>
+                <outlet property="cryptoTypeView" destination="eM4-fP-HgV" id="fYg-xP-gfX"/>
+                <outlet property="expadableControl" destination="oE5-fi-Ix8" id="EF1-2d-paz"/>
+                <outlet property="networkTypeView" destination="Mz8-da-wtW" id="5QK-hP-kmk"/>
                 <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>
                 <outlet property="view" destination="iN0-l3-epB" id="w8H-PT-VAl"/>
             </connections>
@@ -29,45 +33,201 @@
                     <rect key="frame" x="0.0" y="0.0" width="414" height="736"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="nt2-2c-HuT">
-                            <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                            <rect key="frame" x="16" y="0.0" width="382" height="308.33333333333331"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
-                                    <rect key="frame" x="0.0" y="0.0" width="414" height="100"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="382" height="100"/>
                                     <subviews>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
-                                            <rect key="frame" x="16" y="38" width="24" height="24"/>
+                                            <rect key="frame" x="0.0" y="38" width="24" height="24"/>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
-                                            <rect key="frame" x="56" y="16" width="342" height="68"/>
+                                            <rect key="frame" x="40" y="16" width="342" height="68"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                     </subviews>
-                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
-                                        <constraint firstItem="Ihh-eg-GQw" firstAttribute="leading" secondItem="43P-Ll-Had" secondAttribute="leading" constant="56" id="47h-Jw-amy"/>
                                         <constraint firstItem="Ihh-eg-GQw" firstAttribute="top" secondItem="43P-Ll-Had" secondAttribute="top" constant="16" id="UcA-vg-9XO"/>
                                         <constraint firstAttribute="height" secondItem="Ihh-eg-GQw" secondAttribute="height" constant="32" id="f6v-0M-MSx"/>
                                         <constraint firstItem="Ihh-eg-GQw" firstAttribute="leading" secondItem="ps1-21-qIL" secondAttribute="trailing" constant="16" id="iCa-NF-DVD"/>
-                                        <constraint firstItem="ps1-21-qIL" firstAttribute="leading" secondItem="43P-Ll-Had" secondAttribute="leading" constant="16" id="jHo-hN-3XE"/>
-                                        <constraint firstAttribute="trailing" secondItem="Ihh-eg-GQw" secondAttribute="trailing" constant="16" id="myW-Pk-Zik"/>
+                                        <constraint firstItem="ps1-21-qIL" firstAttribute="leading" secondItem="43P-Ll-Had" secondAttribute="leading" id="jHo-hN-3XE"/>
+                                        <constraint firstAttribute="trailing" secondItem="Ihh-eg-GQw" secondAttribute="trailing" id="myW-Pk-Zik"/>
                                         <constraint firstItem="ps1-21-qIL" firstAttribute="centerY" secondItem="Ihh-eg-GQw" secondAttribute="centerY" id="wdt-7P-rvJ"/>
+                                    </constraints>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cYH-wY-iJt" customClass="BorderedContainerView" customModule="SoraUI">
+                                    <rect key="frame" x="0.0" y="100" width="382" height="50"/>
+                                    <subviews>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oE5-fi-Ix8" customClass="ExpandableActionControl" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="0.0" y="0.0" width="382" height="50"/>
+                                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
+                                                    <color key="value" name="colorWhite"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Advanced"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_layoutType">
+                                                    <integer key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                                                    <color key="value" name="colorWhite"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                                    <real key="value" value="14"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="actionExpand" destination="-1" eventType="valueChanged" id="4DY-hm-uam"/>
+                                            </connections>
+                                        </view>
+                                    </subviews>
+                                    <color key="backgroundColor" name="colorBlack"/>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="oE5-fi-Ix8" secondAttribute="trailing" id="6Hy-bQ-COu"/>
+                                        <constraint firstItem="oE5-fi-Ix8" firstAttribute="leading" secondItem="cYH-wY-iJt" secondAttribute="leading" id="IwE-su-HTX"/>
+                                        <constraint firstItem="oE5-fi-Ix8" firstAttribute="top" secondItem="cYH-wY-iJt" secondAttribute="top" id="JSX-Kg-u4a"/>
+                                        <constraint firstAttribute="height" constant="50" id="dgT-Cs-DPd"/>
+                                        <constraint firstAttribute="bottom" secondItem="oE5-fi-Ix8" secondAttribute="bottom" id="xhO-cq-cQU"/>
+                                    </constraints>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                            <color key="value" name="colorGray"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                            <real key="value" value="1"/>
+                                        </userDefinedRuntimeAttribute>
+                                    </userDefinedRuntimeAttributes>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
+                                    <rect key="frame" x="0.0" y="150" width="382" height="158.33333333333337"/>
+                                    <subviews>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="16" width="380" height="48"/>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
+                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                                    <real key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                    <real key="value" value="0.0"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Encription type"/>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_layoutType">
+                                                    <integer key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                                    <real key="value" value="12"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitle" value="Schnorrkel | sr25519 (recommended)"/>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_subtitleColor">
+                                                    <color key="value" name="colorWhite"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
+                                                    <real key="value" value="14"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
+                                            </userDefinedRuntimeAttributes>
+                                        </view>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="80" width="380" height="56.333333333333343"/>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
+                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                                    <real key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                                                    <real key="value" value="0.0"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Choose network"/>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                                                    <color key="value" name="colorGray"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_layoutType">
+                                                    <integer key="value" value="1"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                                    <real key="value" value="12"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitle" value="Kusama, Parity node"/>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_subtitleColor">
+                                                    <color key="value" name="colorWhite"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
+                                                    <real key="value" value="14"/>
+                                                </userDefinedRuntimeAttribute>
+                                                <userDefinedRuntimeAttribute type="image" keyPath="_subtitleIcon" value="iconKsmSmall"/>
+                                                <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
+                                            </userDefinedRuntimeAttributes>
+                                        </view>
+                                    </subviews>
+                                    <color key="backgroundColor" name="colorBlack"/>
+                                    <constraints>
+                                        <constraint firstAttribute="trailing" secondItem="eM4-fP-HgV" secondAttribute="trailing" constant="1" id="90J-li-h3x"/>
+                                        <constraint firstItem="Mz8-da-wtW" firstAttribute="top" secondItem="ufd-ci-pPo" secondAttribute="top" constant="16" id="9t0-hb-mrS"/>
+                                        <constraint firstItem="eM4-fP-HgV" firstAttribute="top" secondItem="Mz8-da-wtW" secondAttribute="bottom" constant="16" id="GqK-hd-H4O"/>
+                                        <constraint firstItem="eM4-fP-HgV" firstAttribute="leading" secondItem="ufd-ci-pPo" secondAttribute="leading" constant="1" id="LV3-XM-RGY"/>
+                                        <constraint firstItem="Mz8-da-wtW" firstAttribute="leading" secondItem="ufd-ci-pPo" secondAttribute="leading" constant="1" id="Otw-Ii-U8t"/>
+                                        <constraint firstAttribute="trailing" secondItem="Mz8-da-wtW" secondAttribute="trailing" constant="1" id="TUD-GL-5Bc"/>
+                                        <constraint firstAttribute="height" constant="158.33333333333337" id="f1i-IW-n8c"/>
                                     </constraints>
                                 </view>
                             </subviews>
                             <constraints>
+                                <constraint firstItem="ufd-ci-pPo" firstAttribute="leading" secondItem="nt2-2c-HuT" secondAttribute="leading" id="BJN-VB-cZI"/>
                                 <constraint firstItem="43P-Ll-Had" firstAttribute="top" secondItem="nt2-2c-HuT" secondAttribute="top" id="ClJ-CJ-WSE"/>
+                                <constraint firstAttribute="trailing" secondItem="ufd-ci-pPo" secondAttribute="trailing" id="DSu-aV-Wrt"/>
                                 <constraint firstItem="43P-Ll-Had" firstAttribute="leading" secondItem="nt2-2c-HuT" secondAttribute="leading" id="SqE-JS-Pa3"/>
+                                <constraint firstAttribute="trailing" secondItem="cYH-wY-iJt" secondAttribute="trailing" id="Xq6-aH-rO1"/>
+                                <constraint firstItem="cYH-wY-iJt" firstAttribute="leading" secondItem="nt2-2c-HuT" secondAttribute="leading" id="jQH-hc-t4U"/>
                                 <constraint firstAttribute="trailing" secondItem="43P-Ll-Had" secondAttribute="trailing" id="we0-TM-7Gb"/>
                             </constraints>
                         </stackView>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="nt2-2c-HuT" firstAttribute="leading" secondItem="j2J-jw-4dD" secondAttribute="leading" id="82n-k2-wqx"/>
+                        <constraint firstItem="nt2-2c-HuT" firstAttribute="leading" secondItem="j2J-jw-4dD" secondAttribute="leading" constant="16" id="82n-k2-wqx"/>
                         <constraint firstAttribute="bottom" secondItem="nt2-2c-HuT" secondAttribute="bottom" id="CFG-nF-ZZa"/>
-                        <constraint firstAttribute="trailing" secondItem="nt2-2c-HuT" secondAttribute="trailing" id="VtT-t0-Orj"/>
+                        <constraint firstItem="nt2-2c-HuT" firstAttribute="centerX" secondItem="j2J-jw-4dD" secondAttribute="centerX" id="PH6-xU-vGw"/>
+                        <constraint firstAttribute="trailing" secondItem="nt2-2c-HuT" secondAttribute="trailing" constant="16" id="VtT-t0-Orj"/>
                         <constraint firstItem="nt2-2c-HuT" firstAttribute="top" secondItem="j2J-jw-4dD" secondAttribute="top" id="gmQ-sX-Pdw"/>
                     </constraints>
                 </scrollView>
@@ -76,21 +236,29 @@
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="j2J-jw-4dD" secondAttribute="bottom" id="Jgi-61-xv7"/>
                 <constraint firstItem="j2J-jw-4dD" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="Zgy-8d-skT"/>
-                <constraint firstItem="43P-Ll-Had" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" id="c4I-cs-jLq"/>
                 <constraint firstItem="j2J-jw-4dD" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="jZd-l6-FuG"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="j2J-jw-4dD" secondAttribute="trailing" id="nZX-kU-Kp9"/>
+                <constraint firstItem="nt2-2c-HuT" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" constant="-32" id="ysR-LX-OTN"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
-            <point key="canvasLocation" x="139" y="133"/>
+            <point key="canvasLocation" x="137.68115942028987" y="132.88043478260872"/>
         </view>
     </objects>
     <resources>
         <image name="iconAlert" width="24" height="24"/>
+        <image name="iconDropDown" width="24" height="24"/>
+        <image name="iconKsmSmall" width="24" height="24"/>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <namedColor name="colorGray">
+            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <namedColor name="colorLightGray">
             <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
     </resources>
 </document>

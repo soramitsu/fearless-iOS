@@ -5,7 +5,7 @@ import SoraUI
     Subclass of ShadowShapeView designed to provided view with rounded corners.
  */
 
-class TriangularedView: ShadowShapeView {
+open class TriangularedView: ShadowShapeView {
     /// Side of the triangle that cuts the corners. Defaults `10.0`
     @IBInspectable
     open var sideLength: CGFloat = 10.0 {

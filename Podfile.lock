@@ -73,6 +73,7 @@ PODS:
     - SoraUI/Controls
   - SoraUI/ModalInputPresentation (1.8.10):
     - SoraUI/Animator
+    - SoraUI/Controls
   - SoraUI/PageLoader (1.8.10)
   - SoraUI/PinView (1.8.10):
     - SoraUI/Controls
@@ -91,7 +92,7 @@ DEPENDENCIES:
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI
+  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc`)
   - Starscream (~> 4.0.0)
   - SwiftLint
   - SwiftyBeaver
@@ -108,7 +109,6 @@ SPEC REPOS:
     - RobinHood
     - SoraFoundation
     - SoraKeystore
-    - SoraUI
     - Starscream
     - SwiftLint
     - SwiftyBeaver
@@ -118,11 +118,17 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc
+    :git: https://github.com/soramitsu/UIkit-iOS.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: ac6b3e70dfe10ad49ab3c77b4883c87a6fc331bc
+    :git: https://github.com/soramitsu/UIkit-iOS.git
 
 SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
@@ -136,12 +142,12 @@ SPEC CHECKSUMS:
   RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 236036ed20c4cbe8d379aa3212db4ae6a15a577c
+  SoraUI: 40cf33f0e7c7c2ffe7eaf16ba217eb7339a7ea68
   Starscream: ef06f0961fff0880bca0604416d61141e4faca67
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: ad7b02070d068facceac0a10b659eea5a6b176a2
+PODFILE CHECKSUM: 6bb16795ac7f0f084d71ae654929ce1923352b60
 
 COCOAPODS: 1.9.3

@@ -8,7 +8,7 @@ abstract_target 'fearlessAll' do
   pod 'R.swift', :inhibit_warnings => true
   pod 'FireMock', :inhibit_warnings => true
   pod 'SoraKeystore'
-  pod 'SoraUI'
+  pod 'SoraUI', :git => 'https://github.com/soramitsu/UIkit-iOS.git', :commit => '273b80f5a20586c5950033bba826fcbd9f43004d'
   pod 'RobinHood'
   pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '272969f1311f7c9d23621c1e9fa1a05545ad21f9'
   pod 'SoraFoundation', '~> 0.8.0'
