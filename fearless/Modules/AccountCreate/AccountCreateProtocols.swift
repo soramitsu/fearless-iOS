@@ -24,12 +24,15 @@ protocol AccountCreateViewProtocol: ControllerBackedProtocol {
 
     func didCompleteCryptoTypeSelection()
     func didCompleteNetworkTypeSelection()
+    func didValidateDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountCreatePresenterProtocol: class {
     func setup()
     func selectCryptoType()
     func selectNetworkType()
+    func activateInfo()
+    func validate()
     func proceed()
 }
 
@@ -47,7 +50,7 @@ protocol AccountCreateInteractorOutputProtocol: class {
     func didReceiveAccountCreation(error: Error)
 }
 
-protocol AccountCreateWireframeProtocol: class {
+protocol AccountCreateWireframeProtocol: AlertPresentable {
     func proceed(from view: AccountCreateViewProtocol?)
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
                                     availableTypes: [CryptoType],

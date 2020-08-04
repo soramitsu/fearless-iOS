@@ -20,6 +20,7 @@
                 <outlet property="advancedControl" destination="oE5-fi-Ix8" id="oAe-gj-wwV"/>
                 <outlet property="cryptoTypeView" destination="Mz8-da-wtW" id="P7K-29-Qj2"/>
                 <outlet property="derivationPathField" destination="rzy-lG-JEs" id="MES-Hd-Jwo"/>
+                <outlet property="derivationPathImageView" destination="6jg-8i-zAa" id="I6I-h0-GGE"/>
                 <outlet property="derivationPathLabel" destination="i8u-Ig-8Iw" id="kQM-Xr-q2J"/>
                 <outlet property="derivationPathView" destination="TpH-WZ-8oM" id="hwp-s7-xjC"/>
                 <outlet property="detailsLabel" destination="Ihh-eg-GQw" id="F0e-x4-ZTp"/>
@@ -44,10 +45,10 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
                                     <rect key="frame" x="0.0" y="0.0" width="382" height="100"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
                                             <rect key="frame" x="0.0" y="38" width="24" height="24"/>
                                         </imageView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" ambiguous="YES" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
                                             <rect key="frame" x="40" y="16" width="342" height="68"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
@@ -115,7 +116,7 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
                                     <rect key="frame" x="0.0" y="150" width="382" height="226"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="1" y="16" width="380" height="48"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <userDefinedRuntimeAttributes>
@@ -159,17 +160,17 @@
                                                 <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="1" y="80" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i8u-Ig-8Iw">
-                                                    <rect key="frame" x="15.999999999999993" y="8" width="118.33333333333331" height="14"/>
+                                                    <rect key="frame" x="16" y="8" width="319" height="14"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                     <color key="textColor" name="colorLightGray"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="//hard/soft///password" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="rzy-lG-JEs">
-                                                    <rect key="frame" x="16" y="26" width="348" height="18"/>
+                                                    <rect key="frame" x="16" y="26" width="319" height="18"/>
                                                     <color key="tintColor" name="colorWhite"/>
                                                     <color key="textColor" name="colorWhite"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
@@ -179,13 +180,23 @@
                                                         <outlet property="delegate" destination="-1" id="u3t-fF-59j"/>
                                                     </connections>
                                                 </textField>
+                                                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="6jg-8i-zAa">
+                                                    <rect key="frame" x="340" y="14" width="24" height="24"/>
+                                                    <constraints>
+                                                        <constraint firstAttribute="width" constant="24" id="KIg-1r-8Bh"/>
+                                                        <constraint firstAttribute="height" constant="24" id="klx-CM-7kS"/>
+                                                    </constraints>
+                                                </imageView>
                                             </subviews>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>
-                                                <constraint firstAttribute="trailing" secondItem="rzy-lG-JEs" secondAttribute="trailing" constant="16" id="9SW-hx-waG"/>
+                                                <constraint firstItem="6jg-8i-zAa" firstAttribute="centerY" secondItem="TpH-WZ-8oM" secondAttribute="centerY" id="9yV-zQ-ve6"/>
+                                                <constraint firstAttribute="trailing" secondItem="6jg-8i-zAa" secondAttribute="trailing" constant="16" id="B7e-Bu-QFn"/>
+                                                <constraint firstItem="6jg-8i-zAa" firstAttribute="leading" secondItem="rzy-lG-JEs" secondAttribute="trailing" constant="5" id="C57-0a-gH9"/>
                                                 <constraint firstItem="i8u-Ig-8Iw" firstAttribute="top" secondItem="TpH-WZ-8oM" secondAttribute="top" constant="8" id="GQ7-f6-4Fn"/>
                                                 <constraint firstItem="rzy-lG-JEs" firstAttribute="leading" secondItem="TpH-WZ-8oM" secondAttribute="leading" constant="16" id="Q0Y-Xh-6hm"/>
                                                 <constraint firstAttribute="bottom" secondItem="rzy-lG-JEs" secondAttribute="bottom" constant="8" id="R7Z-Gp-LpV"/>
+                                                <constraint firstItem="6jg-8i-zAa" firstAttribute="leading" secondItem="i8u-Ig-8Iw" secondAttribute="trailing" constant="5" id="ddE-aJ-sGn"/>
                                                 <constraint firstItem="i8u-Ig-8Iw" firstAttribute="leading" secondItem="TpH-WZ-8oM" secondAttribute="leading" constant="16" id="wfF-3J-QKT"/>
                                                 <constraint firstAttribute="height" constant="52" id="ykE-zE-2Fv"/>
                                             </constraints>
@@ -210,7 +221,7 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="1" y="148" width="380" height="56.333333333333343"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <userDefinedRuntimeAttributes>

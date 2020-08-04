@@ -84,3 +84,10 @@
 "sr25519.selection.title" = "Schnorrkel";
 "ed25519.selection.title" = "Edwards";
 "ecdsa.selection.title" = "ECDSA";
+"account.creation.info" = "Mnemonic використовується для відновлення доступу до рахунку. Запишіть це, ми не зможемо відновити ваш рахунок без нього!";
+"common.info" = "Інформація";
+"common.invalid.path.title" = "Недійсний формат";
+"common.invalid.path.with.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /. Шлях може закінчитися /// 'password'. Наприклад, // 1 / soramitsu /// mypass.";
+"common.invalid.path.without.soft.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, що не включає / Шлях може закінчитися /// 'паролем'. Наприклад, // 1 // soramitsu /// mypass.";
+"common.undefined.error.title" = "Невизначена помилка";
+"common.undefined.error.message" = "Спробуйте ще раз з іншим вкладом. Якщо помилка з’явиться знову, зверніться до служби підтримки.";

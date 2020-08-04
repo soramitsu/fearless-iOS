@@ -13,4 +13,9 @@ extension NSPredicate {
         let format = "(//?[^/]+)*(///[^/]+)?"
         return NSPredicate(format: "SELF MATCHES %@", format)
     }
+
+    static var deriviationPathWithoutSoft: NSPredicate {
+        let format = "(//[^/]+)*(///[^/]+)?"
+        return NSPredicate(format: "SELF MATCHES %@", format)
+    }
 }

@@ -16,6 +16,7 @@ final class AccountCreateViewController: UIViewController {
     @IBOutlet var derivationPathView: UIView!
     @IBOutlet var derivationPathLabel: UILabel!
     @IBOutlet var derivationPathField: UITextField!
+    @IBOutlet var derivationPathImageView: UIImageView!
 
     @IBOutlet var advancedContainerView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
@@ -39,6 +40,7 @@ final class AccountCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupNavigationItem()
         setupLocalization()
         configure()
 
@@ -78,6 +80,14 @@ final class AccountCreateViewController: UIViewController {
         networkTypeView.actionControl.addTarget(self,
                                                 action: #selector(actionOpenNetworkType),
                                                 for: .valueChanged)
+    }
+
+    private func setupNavigationItem() {
+        let infoItem = UIBarButtonItem(image: R.image.iconInfo(),
+                                       style: .plain,
+                                       target: self,
+                                       action: #selector(actionOpenInfo))
+        navigationItem.rightBarButtonItem = infoItem
     }
 
     private func setupMnemonicViewIfNeeded() {
@@ -125,6 +135,10 @@ final class AccountCreateViewController: UIViewController {
         networkTypeView.invalidateLayout()
     }
 
+    private func updateDerivationPath(status: FieldStatus) {
+        derivationPathImageView.image = status.icon
+    }
+
     @IBAction private func actionExpand() {
         stackView.sendSubviewToBack(advancedContainerView)
 
@@ -155,6 +169,10 @@ final class AccountCreateViewController: UIViewController {
         if networkTypeView.actionControl.isActivated {
             presenter.selectNetworkType()
         }
+    }
+
+    @objc private func actionOpenInfo() {
+        presenter.activateInfo()
     }
 }
 
@@ -195,11 +213,17 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     func didCompleteNetworkTypeSelection() {
         networkTypeView.actionControl.deactivate(animated: true)
     }
+
+    func didValidateDerivationPath(_ status: FieldStatus) {
+        updateDerivationPath(status: status)
+    }
 }
 
 extension AccountCreateViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         textField.resignFirstResponder()
+
+        presenter.validate()
 
         return false
     }

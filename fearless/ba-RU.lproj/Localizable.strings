@@ -81,3 +81,10 @@
 "sr25519.selection.title" = "Schnorrkel";
 "ed25519.selection.title" = "Edwards";
 "ecdsa.selection.title" = "ECDSA";
+"account.creation.info" = "Мнемоническая фраза используется для восстановления доступа к аккаунту. Запишите ее, мы не сможем восстановить доступ к аккаунту без нее!";
+"common.info" = "Информация";
+"common.invalid.path.title" = "Неверный формат";
+"common.invalid.path.with.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.  Путь может оканчиваться ///'password'. Например, //1/soramitsu///mypass";
+"common.invalid.path.without.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard', где 'hard' может быть любой последовательностью символов, не включая /.  Путь может оканчиваться ///'password'. Например, //1//soramitsu///mypass";
+"common.undefined.error.title" = "Неопределенная ошибка";
+"common.undefined.error.message" = "Пожалуйста, попробуйте снова с другими входными данными. Если ошибка повторяется, то свяжитесь со службой поддержки.";

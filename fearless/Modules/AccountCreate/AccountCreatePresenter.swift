@@ -19,10 +19,7 @@ final class AccountCreatePresenter {
     private var selectedCryptoType: CryptoType?
     private var selectedAddressType: SNAddressType?
 
-    private var derivationPathViewModel: InputViewModelProtocol = {
-        let inputHandling = InputHandler(predicate: NSPredicate.deriviationPath)
-        return InputViewModel(inputHandler: inputHandling)
-    }()
+    private var derivationPathViewModel: InputViewModelProtocol?
 
     private var isSetup = false
 
@@ -55,15 +52,82 @@ final class AccountCreatePresenter {
 
         view?.setSelectedNetwork(model: viewModel)
     }
+
+    private func applyDerivationPathViewModel() {
+        guard let cryptoType = selectedCryptoType else {
+            return
+        }
+
+        let predicate: NSPredicate
+
+        if cryptoType == .sr25519 {
+            predicate = NSPredicate.deriviationPath
+        } else {
+            predicate = NSPredicate.deriviationPathWithoutSoft
+        }
+
+        let inputHandling = InputHandler(predicate: predicate)
+        let viewModel = InputViewModel(inputHandler: inputHandling)
+
+        self.derivationPathViewModel = viewModel
+
+        view?.setDerivationPath(viewModel: viewModel)
+        view?.didValidateDerivationPath(.none)
+    }
+
+    private func presentDerivationPathError(_ cryptoType: CryptoType) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let message: String
+
+        switch cryptoType {
+        case .sr25519:
+            message = R.string.localizable
+                .commonInvalidPathWithSoftMessage(preferredLanguages: locale.rLanguages)
+        case .ed25519, .ecdsa:
+            message = R.string.localizable
+                .commonInvalidPathWithoutSoftMessage(preferredLanguages: locale.rLanguages)
+        }
+
+        let title = R.string.localizable.commonInvalidPathTitle(preferredLanguages: locale.rLanguages)
+        let close = R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
+
+        wireframe.present(message: message,
+                          title: title,
+                          closeAction: close,
+                          from: view)
+    }
 }
 
 extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         isSetup = true
 
-        view?.setDerivationPath(viewModel: derivationPathViewModel)
-
         interactor.setup()
+    }
+
+    func activateInfo() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let message = R.string.localizable.accountCreationInfo(preferredLanguages: locale.rLanguages)
+        let title = R.string.localizable.commonInfo(preferredLanguages: locale.rLanguages)
+        wireframe.present(message: message,
+                          title: title,
+                          closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+                          from: view)
+    }
+
+    func validate() {
+        guard let viewModel = derivationPathViewModel, let cryptoType = selectedCryptoType else {
+            return
+        }
+
+        if viewModel.inputHandler.completed {
+            view?.didValidateDerivationPath(.valid)
+        } else {
+            view?.didValidateDerivationPath(.invalid)
+            presentDerivationPathError(cryptoType)
+        }
     }
 
     func selectCryptoType() {
@@ -93,13 +157,20 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func proceed() {
         guard
             let addressType = selectedAddressType,
-            let cryptoType = selectedCryptoType else {
+            let cryptoType = selectedCryptoType,
+            let viewModel = derivationPathViewModel else {
+            return
+        }
+
+        guard viewModel.inputHandler.completed else {
+            view?.didValidateDerivationPath(.invalid)
+            presentDerivationPathError(cryptoType)
             return
         }
 
         let request = AccountCreationRequest(username: username,
                                              type: addressType,
-                                             derivationPath: derivationPathViewModel.inputHandler.value,
+                                             derivationPath: viewModel.inputHandler.value,
                                              cryptoType: cryptoType)
 
         interactor.createAccount(request: request)
@@ -117,6 +188,7 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
 
         applyCryptoTypeViewModel()
         applyAddressTypeViewModel()
+        applyDerivationPathViewModel()
     }
 
     func didReceiveMnemonicGeneration(error: Error) {
@@ -140,6 +212,8 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
 
                 applyCryptoTypeViewModel()
+                applyDerivationPathViewModel()
+
                 view?.didCompleteCryptoTypeSelection()
             case .networkType:
                 selectedAddressType = metadata?.availableAccountTypes[index]
