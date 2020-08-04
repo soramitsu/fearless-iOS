@@ -7,12 +7,15 @@ final class AccountCreateViewController: UIViewController {
 
     @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var expadableControl: ExpandableActionControl!
+    @IBOutlet private var detailsLabel: UILabel!
 
     @IBOutlet var networkTypeView: BorderedSubtitleActionView!
     @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
+    @IBOutlet var derivationPathLabel: UILabel!
     @IBOutlet var derivationPathField: UITextField!
 
     @IBOutlet var advancedContainerView: UIView!
+    @IBOutlet var advancedControl: ExpandableActionControl!
 
     var advancedAppearanceAnimator = TransitionAnimator(type: .push,
                                                         duration: 0.35,
@@ -29,6 +32,7 @@ final class AccountCreateViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupLocalization()
         configure()
 
         presenter.setup()
@@ -79,6 +83,27 @@ final class AccountCreateViewController: UIViewController {
         self.mnemonicView = mnemonicView
     }
 
+    private func setupLocalization() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        title = R.string.localizable.accountCreateTitle(preferredLanguages: locale.rLanguages)
+        detailsLabel.text = R.string.localizable.accountCreateDetails(preferredLanguages: locale.rLanguages)
+
+        advancedControl.titleLabel.text = R.string.localizable
+            .commonAdvanced(preferredLanguages: locale.rLanguages)
+        advancedControl.invalidateLayout()
+
+        cryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonEncryptionType(preferredLanguages: locale.rLanguages)
+        cryptoTypeView.actionControl.invalidateLayout()
+
+        derivationPathLabel.text = R.string.localizable
+            .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
+
+        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable.commonChooseNetwork()
+        networkTypeView.invalidateLayout()
+    }
+
     @IBAction private func actionExpand() {
         stackView.sendSubviewToBack(advancedContainerView)
 
@@ -117,12 +142,21 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         mnemonicView?.bind(words: mnemonic, columnsCount: 2)
     }
 
-    func setSelectedCrypto(title: String) {
+    func setSelectedCrypto(model: TitleWithSubtitleViewModel) {
+        let title = "\(model.title) | \(model.subtitle)"
 
+        cryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+
+        cryptoTypeView.actionControl.contentView.invalidateLayout()
+        cryptoTypeView.actionControl.invalidateLayout()
     }
 
-    func setSelectedNetwork(title: String) {
+    func setSelectedNetwork(model: IconWithTitleViewModel) {
+        networkTypeView.actionControl.contentView.subtitleImageView.image = model.icon
+        networkTypeView.actionControl.contentView.subtitleLabelView.text = model.title
 
+        networkTypeView.actionControl.contentView.invalidateLayout()
+        networkTypeView.actionControl.invalidateLayout()
     }
 
     func setDerivationPath(viewModel: InputViewModelProtocol) {
@@ -149,5 +183,14 @@ extension AccountCreateViewController: UITextFieldDelegate {
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
         return true
+    }
+}
+
+extension AccountCreateViewController: Localizable {
+    func applyLocalization() {
+        if isViewLoaded {
+            setupLocalization()
+            view.setNeedsLayout()
+        }
     }
 }

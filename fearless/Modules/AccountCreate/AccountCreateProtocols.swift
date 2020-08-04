@@ -18,8 +18,8 @@ struct AccountCreationRequest {
 
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
-    func setSelectedCrypto(title: String)
-    func setSelectedNetwork(title: String)
+    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
+    func setSelectedNetwork(model: IconWithTitleViewModel)
     func setDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()

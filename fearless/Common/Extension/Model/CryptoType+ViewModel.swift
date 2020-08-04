@@ -4,22 +4,22 @@ extension CryptoType {
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
         case .sr25519:
-            return "Schnorrkel"
+            return R.string.localizable.sr25519SelectionTitle(preferredLanguages: locale.rLanguages)
         case .ed25519:
-            return "Edwards"
+            return R.string.localizable.ed25519SelectionTitle(preferredLanguages: locale.rLanguages)
         case .ecdsa:
-            return "ECDSA"
+            return R.string.localizable.ecdsaSelectionTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
     func subtitleForLocale(_ locale: Locale) -> String {
         switch self {
         case .sr25519:
-            return "sr25519 (recommended)"
+            return R.string.localizable.sr25519SelectionSubtitle(preferredLanguages: locale.rLanguages)
         case .ed25519:
-            return "ed25519 (alternative)"
+            return R.string.localizable.ed25519SelectionSubtitle(preferredLanguages: locale.rLanguages)
         case .ecdsa:
-            return "(BTC/ETH compatible)"
+            return R.string.localizable.ecdsaSelectionSubtitle(preferredLanguages: locale.rLanguages)
         }
     }
 }

@@ -68,3 +68,16 @@
 "common.no.screenshot.title" = "Не делайте снимков экрана";
 "common.no.screenshot.message" = "Не делайте снимков экрана, так как они могут быть похищены сторонним вредоносным программным обеспечением";
 "common.ok" = "ОК";
+"account.create.title" = "Мнемоника";
+"account.create.details" = "Используйте нецифровой носитель для сохранения, например, выпишите слова на бумагу.";
+"common.advanced" = "Продвинутый";
+"common.encryption.type" = "Тип шифрования";
+"common.secret.derivation.path" = "Последовательность для вывода секрета";
+"common.choose.network" = "Выберите сеть";
+"derivation.path.incorrect.message" = "Неверный формат последовательности для вывода секрета";
+"sr25519.selection.subtitle" = "sr25519 (рекомендованный)";
+"ed25519.selection.subtitle" = "ed25519 (альтернативный)";
+"ecdsa.selection.subtitle" = "(BTC/ETH совместимый)";
+"sr25519.selection.title" = "Schnorrkel";
+"ed25519.selection.title" = "Edwards";
+"ecdsa.selection.title" = "ECDSA";

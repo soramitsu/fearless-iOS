@@ -72,22 +72,22 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _subtitle: String? {
         get {
-            return actionControl.contentView.subtitleView.title
+            return actionControl.contentView.subtitleLabelView.text
         }
 
         set {
-            actionControl.contentView.subtitleView.title = newValue
+            actionControl.contentView.subtitleLabelView.text = newValue
         }
     }
 
     @IBInspectable
     private var _subtitleColor: UIColor? {
         get {
-            return actionControl.contentView.subtitleView.titleColor
+            return actionControl.contentView.subtitleLabelView.textColor
         }
 
         set {
-            actionControl.contentView.subtitleView.titleColor = newValue
+            actionControl.contentView.subtitleLabelView.textColor = newValue
         }
     }
 
@@ -95,41 +95,41 @@ extension BorderedSubtitleActionView {
     private var _subtitleFontName: String? {
         set(newValue) {
             guard let fontName = newValue else {
-                actionControl.contentView.subtitleView.titleFont = nil
+                actionControl.contentView.subtitleLabelView.font = nil
                 return
             }
 
-            guard let pointSize = actionControl.contentView.subtitleView.titleFont?.pointSize else {
-                actionControl.contentView.subtitleView.titleFont = UIFont(name: fontName,
+            guard let pointSize = actionControl.contentView.subtitleLabelView.font?.pointSize else {
+                actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName,
                                                                           size: UIFont.buttonFontSize)
                 return
             }
 
-            actionControl.contentView.subtitleView.titleFont = UIFont(name: fontName, size: pointSize)
+            actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName, size: pointSize)
 
             self.invalidateLayout()
         }
 
         get {
-            return actionControl.contentView.subtitleView.titleFont?.fontName
+            return actionControl.contentView.subtitleLabelView.font?.fontName
         }
     }
 
     @IBInspectable
     private var _subtitleFontSize: CGFloat {
         set(newValue) {
-            guard let fontName = actionControl.contentView.subtitleView.titleFont?.fontName else {
-                actionControl.contentView.subtitleView.titleFont = UIFont.systemFont(ofSize: newValue)
+            guard let fontName = actionControl.contentView.subtitleLabelView.font?.fontName else {
+                actionControl.contentView.subtitleLabelView.font = UIFont.systemFont(ofSize: newValue)
                 return
             }
 
-            actionControl.contentView.subtitleView.titleFont = UIFont(name: fontName, size: newValue)
+            actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName, size: newValue)
 
             self.invalidateLayout()
         }
 
         get {
-            if let pointSize = actionControl.contentView.subtitleView.titleFont?.pointSize {
+            if let pointSize = actionControl.contentView.subtitleLabelView.font?.pointSize {
                 return pointSize
             } else {
                 return 0.0
@@ -140,11 +140,11 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _subtitleIcon: UIImage? {
         get {
-            return actionControl.contentView.subtitleView.iconImage
+            return actionControl.contentView.subtitleImageView.image
         }
 
         set {
-            actionControl.contentView.subtitleView.iconImage = newValue
+            actionControl.contentView.subtitleImageView.image = newValue
         }
     }
 

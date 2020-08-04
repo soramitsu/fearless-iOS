@@ -17,8 +17,11 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountCreateViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="advancedContainerView" destination="ufd-ci-pPo" id="gPp-JR-knR"/>
+                <outlet property="advancedControl" destination="oE5-fi-Ix8" id="oAe-gj-wwV"/>
                 <outlet property="cryptoTypeView" destination="Mz8-da-wtW" id="P7K-29-Qj2"/>
                 <outlet property="derivationPathField" destination="rzy-lG-JEs" id="MES-Hd-Jwo"/>
+                <outlet property="derivationPathLabel" destination="i8u-Ig-8Iw" id="kQM-Xr-q2J"/>
+                <outlet property="detailsLabel" destination="Ihh-eg-GQw" id="F0e-x4-ZTp"/>
                 <outlet property="expadableControl" destination="oE5-fi-Ix8" id="EF1-2d-paz"/>
                 <outlet property="networkTypeView" destination="eM4-fP-HgV" id="Rl8-px-KPP"/>
                 <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>

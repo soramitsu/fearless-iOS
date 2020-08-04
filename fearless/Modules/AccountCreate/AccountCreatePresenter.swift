@@ -1,5 +1,6 @@
 import UIKit
 import IrohaCrypto
+import SoraFoundation
 
 enum AdvancedSelectionContext: String {
     case cryptoType
@@ -15,10 +16,40 @@ final class AccountCreatePresenter {
 
     private var selectedCryptoType: CryptoType?
     private var selectedAddressType: SNAddressType?
+
+    private var isSetup = false
+
+    private func applyCryptoTypeViewModel() {
+        guard let cryptoType = selectedCryptoType else {
+            return
+        }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = TitleWithSubtitleViewModel(title: cryptoType.titleForLocale(locale),
+                                                   subtitle: cryptoType.subtitleForLocale(locale))
+
+        view?.setSelectedCrypto(model: viewModel)
+    }
+
+    private func applyAddressTypeViewModel() {
+        guard let addressType = selectedAddressType else {
+            return
+        }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = IconWithTitleViewModel(icon: addressType.icon,
+                                               title: addressType.titleForLocale(locale))
+
+        view?.setSelectedNetwork(model: viewModel)
+    }
 }
 
 extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
+        isSetup = true
+
         interactor.setup()
     }
 
@@ -59,6 +90,9 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
         selectedAddressType = metadata.defaultAccountType
 
         view?.set(mnemonic: metadata.mnemonic)
+
+        applyCryptoTypeViewModel()
+        applyAddressTypeViewModel()
     }
 
     func didReceiveMnemonicGeneration(error: Error) {
@@ -80,9 +114,13 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
             switch selectionContext {
             case .cryptoType:
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
+
+                applyCryptoTypeViewModel()
                 view?.didCompleteCryptoTypeSelection()
             case .networkType:
                 selectedAddressType = metadata?.availableAccountTypes[index]
+
+                applyAddressTypeViewModel()
                 view?.didCompleteNetworkTypeSelection()
             }
         }
@@ -98,6 +136,15 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
             case .networkType:
                 view?.didCompleteNetworkTypeSelection()
             }
+        }
+    }
+}
+
+extension AccountCreatePresenter: Localizable {
+    func applyLocalization() {
+        if isSetup {
+            applyCryptoTypeViewModel()
+            applyAddressTypeViewModel()
         }
     }
 }

@@ -71,3 +71,16 @@
 "common.no.screenshot.title" = "Не робити знімки екрана";
 "common.no.screenshot.message" = "Не робіть знімки екрана, які можуть збирати сторонні зловмисні програми";
 "common.ok" = "OK";
+"account.create.title" = "Мнемонічний";
+"account.create.details" = "Використовуйте не цифровий спосіб резервного копіювання, наприклад запису на папері.";
+"common.advanced" = "Розширений";
+"common.encryption.type" = "Тип шифрування";
+"common.secret.derivation.path" = "Таємний шлях виведення";
+"common.choose.network" = "Виберіть мережу";
+"derivation.path.incorrect.message" = "Неправильний формат шляху виведення";
+"sr25519.selection.subtitle" = "sr25519 (рекомендується)";
+"ed25519.selection.subtitle" = "ed25519 (альтернатива)";
+"ecdsa.selection.subtitle" = "(Сумісний з BTC / ETH)";
+"sr25519.selection.title" = "Schnorrkel";
+"ed25519.selection.title" = "Edwards";
+"ecdsa.selection.title" = "ECDSA";
