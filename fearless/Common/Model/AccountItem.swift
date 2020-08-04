@@ -9,4 +9,6 @@ enum CryptoType: UInt8, Codable, CaseIterable {
 struct AccountItem: Codable {
     let address: String
     let cryptoType: CryptoType
+    let username: String
+    let publicKeyData: Data
 }

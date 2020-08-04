@@ -2,7 +2,7 @@ import Foundation
 
 final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
     func proceed(from view: UsernameSetupViewProtocol?, username: String) {
-        guard let accountCreation = AccountCreateViewFactory.createView() else {
+        guard let accountCreation = AccountCreateViewFactory.createView(username: username) else {
             return
         }
 

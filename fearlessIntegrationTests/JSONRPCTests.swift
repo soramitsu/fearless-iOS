@@ -99,7 +99,8 @@ class JSONRPCTests: XCTestCase {
         let keypair = try SNKeyFactory().createKeypair(fromSeed: seed)
         let logger = Logger.shared
         let addressFactory = SS58AddressFactory()
-        let address = try addressFactory.address(from: keypair.publicKey(), type: .genericSubstrate)
+        let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
+                                                 type: .genericSubstrate)
 
         logger.debug("Transfer from: \(address)")
 
@@ -135,15 +136,16 @@ class JSONRPCTests: XCTestCase {
 
     // MARK: Private
 
-    func generateExtrinsicToAccount(_ account: String,
+    func generateExtrinsicToAccount(_ address: String,
                                     amount: BigUInt,
                                     nonce: UInt32,
                                     keypair: SNKeypairProtocol) throws -> Data {
         let genesisHash = try Data(hexString: "0xe143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e")
 
         let addressFactory = SS58AddressFactory()
-        let receiverPublicKey = try addressFactory.publicKey(fromAddress: account, type: .genericSubstrate)
-        let transferCall = TransferCall(receiver: receiverPublicKey.rawData(),
+        let receiverAccountId = try addressFactory.accountId(fromAddress: address,
+                                                             type: .genericSubstrate)
+        let transferCall = TransferCall(receiver: receiverAccountId,
                                         amount: amount)
 
         let callEncoder = ScaleEncoder()
@@ -170,7 +172,7 @@ class JSONRPCTests: XCTestCase {
         let signer = SNSigner(keypair: keypair)
         let signature = try signer.sign(payloadEncoder.encode())
 
-        let transaction = Transaction(accountId: receiverPublicKey.rawData(),
+        let transaction = Transaction(accountId: receiverAccountId,
                                       signatureVersion: 1,
                                       signature: signature.rawData(),
                                       era: era,

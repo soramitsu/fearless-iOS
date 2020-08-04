@@ -5,68 +5,69 @@ import RobinHood
 import SoraKeystore
 
 protocol AccountOperationFactoryProtocol {
-    func newAccountOperation(addressType: SNAddressType,
-                             password: String,
-                             strength: IRMnemonicStrength) -> BaseOperation<Void>
-
-    func deriveAccountOperation(addressType: SNAddressType,
-                                mnemonic: String,
-                                password: String) -> BaseOperation<Void>
-}
-
-extension AccountOperationFactoryProtocol {
-    func newAccountOperation(addressType: SNAddressType,
-                             password: String) -> BaseOperation<Void> {
-        newAccountOperation(addressType: addressType, password: password, strength: .entropy128)
-    }
-
-    func newAccountOperation(addressType: SNAddressType) -> BaseOperation<Void> {
-        newAccountOperation(addressType: addressType, password: "", strength: .entropy128)
-    }
-
-    func deriveAccountOperation(addressType: SNAddressType, mnemonic: String) -> BaseOperation<Void> {
-        deriveAccountOperation(addressType: addressType, mnemonic: mnemonic, password: "")
-    }
+    func newAccountOperation(request: AccountCreationRequest,
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<Void>
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
     private(set) var keystore: KeystoreProtocol
     private(set) var settings: SettingsManagerProtocol
 
-    private lazy var keypairFactory: SNKeyFactoryProtocol = SNKeyFactory()
-    private lazy var addressFactory: SS58AddressFactoryProtocol = SS58AddressFactory()
-    private lazy var seedFactory: SeedFactoryProtocol = SeedFactory()
-
     init(keystore: KeystoreProtocol, settings: SettingsManagerProtocol) {
         self.keystore = keystore
         self.settings = settings
     }
 
-    func newAccountOperation(addressType: SNAddressType,
-                             password: String,
-                             strength: IRMnemonicStrength) -> BaseOperation<Void> {
+    func newAccountOperation(request: AccountCreationRequest,
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<Void> {
         ClosureOperation {
-            let result = try self.seedFactory.createSeed(from: password, strength: strength)
-            try self.save(addressType: addressType, result: result)
+            let junctionResult: JunctionResult?
+
+            if !request.derivationPath.isEmpty {
+                let junctionFactory = JunctionFactory()
+                junctionResult = try junctionFactory.parse(path: request.derivationPath)
+            } else {
+                junctionResult = nil
+            }
+
+            let password = junctionResult?.password ?? ""
+
+            let seedFactory = SeedFactory()
+            let result = try seedFactory.deriveSeed(from: mnemonic.toString(),
+                                                    password: password)
+
+            let keypairFactory = self.createKeypairFactory(request.cryptoType)
+
+            let chaincodes = junctionResult?.chaincodes ?? []
+            let keypair = try keypairFactory.createKeypairFromSeed(result.seed,
+                                                                   chaincodeList: chaincodes)
+
+            let addressFactory = SS58AddressFactory()
+            let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
+                                                     type: request.type)
+
+            self.settings.selectedAccount = AccountItem(address: address,
+                                                        cryptoType: request.cryptoType,
+                                                        username: request.username,
+                                                        publicKeyData: keypair.publicKey().rawData())
+
+            try self.keystore.saveSeed(result.seed, address: address)
+            try self.keystore.saveEntropy(result.mnemonic.entropy(), address: address)
+
+            if !request.derivationPath.isEmpty {
+                try self.keystore.saveDeriviation(request.derivationPath, address: address)
+            }
         }
     }
 
-    func deriveAccountOperation(addressType: SNAddressType,
-                                mnemonic: String,
-                                password: String) -> BaseOperation<Void> {
-        ClosureOperation {
-            let result = try self.seedFactory.deriveSeed(from: mnemonic, password: password)
-            try self.save(addressType: addressType, result: result)
+    private func createKeypairFactory(_ cryptoType: CryptoType) -> KeypairFactoryProtocol {
+        switch cryptoType {
+        case .sr25519:
+            return SR25519KeypairFactory()
+        case .ed25519:
+            return Ed25519KeypairFactory()
+        case .ecdsa:
+            return EcdsaKeypairFactory()
         }
-    }
-
-    private func save(addressType: SNAddressType, result: SeedFactoryResult) throws {
-        let keypair = try keypairFactory.createKeypair(fromSeed: result.seed)
-        let address = try addressFactory.address(from: keypair.publicKey(), type: addressType)
-
-        settings.selectedAccount = AccountItem(address: address, cryptoType: .sr25519)
-
-        try keystore.saveSeed(result.seed, address: address)
-        try keystore.saveEntropy(result.mnemonic.entropy(), address: address)
     }
 }

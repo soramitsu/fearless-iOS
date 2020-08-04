@@ -12,12 +12,23 @@ final class AccountCreatePresenter {
     var wireframe: AccountCreateWireframeProtocol!
     var interactor: AccountCreateInteractorInputProtocol!
 
+    let username: String
+
     private var metadata: AccountCreationMetadata?
 
     private var selectedCryptoType: CryptoType?
     private var selectedAddressType: SNAddressType?
 
+    private var derivationPathViewModel: InputViewModelProtocol = {
+        let inputHandling = InputHandler(predicate: NSPredicate.deriviationPath)
+        return InputViewModel(inputHandler: inputHandling)
+    }()
+
     private var isSetup = false
+
+    init(username: String) {
+        self.username = username
+    }
 
     private func applyCryptoTypeViewModel() {
         guard let cryptoType = selectedCryptoType else {
@@ -50,6 +61,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
         isSetup = true
 
+        view?.setDerivationPath(viewModel: derivationPathViewModel)
+
         interactor.setup()
     }
 
@@ -78,7 +91,18 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     }
 
     func proceed() {
+        guard
+            let addressType = selectedAddressType,
+            let cryptoType = selectedCryptoType else {
+            return
+        }
 
+        let request = AccountCreationRequest(username: username,
+                                             type: addressType,
+                                             derivationPath: derivationPathViewModel.inputHandler.value,
+                                             cryptoType: cryptoType)
+
+        interactor.createAccount(request: request)
     }
 }
 
@@ -100,7 +124,7 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
     }
 
     func didCompleteAccountCreation() {
-
+        wireframe.proceed(from: view)
     }
 
     func didReceiveAccountCreation(error: Error) {}

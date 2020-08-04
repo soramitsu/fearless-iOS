@@ -5,17 +5,24 @@ import SoraUI
 final class AccountCreateViewController: UIViewController {
     var presenter: AccountCreatePresenterProtocol!
 
+    @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var expadableControl: ExpandableActionControl!
     @IBOutlet private var detailsLabel: UILabel!
 
     @IBOutlet var networkTypeView: BorderedSubtitleActionView!
     @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
+
+    @IBOutlet var derivationPathView: UIView!
     @IBOutlet var derivationPathLabel: UILabel!
     @IBOutlet var derivationPathField: UITextField!
 
     @IBOutlet var advancedContainerView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
+
+    private var derivationPathModel: InputViewModelProtocol?
+
+    var keyboardHandler: KeyboardHandler?
 
     var advancedAppearanceAnimator = TransitionAnimator(type: .push,
                                                         duration: 0.35,
@@ -36,6 +43,20 @@ final class AccountCreateViewController: UIViewController {
         configure()
 
         presenter.setup()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        clearKeyboardHandler()
     }
 
     private func configure() {
@@ -119,7 +140,9 @@ final class AccountCreateViewController: UIViewController {
     }
 
     @IBAction private func actionTextFieldEditingChanged() {
-
+        if derivationPathModel?.inputHandler.value != derivationPathField.text {
+            derivationPathField.text = derivationPathModel?.inputHandler.value
+        }
     }
 
     @objc private func actionOpenCryptoType() {
@@ -160,7 +183,9 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
     }
 
     func setDerivationPath(viewModel: InputViewModelProtocol) {
+        derivationPathModel = viewModel
 
+        derivationPathField.text = viewModel.inputHandler.value
     }
 
     func didCompleteCryptoTypeSelection() {
@@ -182,7 +207,37 @@ extension AccountCreateViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
-        return true
+
+        guard let viewModel = derivationPathModel else {
+            return true
+        }
+
+        let shouldApply = viewModel.inputHandler.didReceiveReplacement(string, for: range)
+
+        if !shouldApply, textField.text != viewModel.inputHandler.value {
+            textField.text = viewModel.inputHandler.value
+        }
+
+        return shouldApply
+    }
+}
+
+extension AccountCreateViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
+
+        var contentInsets = scrollView.contentInset
+        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
+        scrollView.contentInset = contentInsets
+
+        if contentInsets.bottom > 0.0 {
+            let fieldFrame = scrollView.convert(networkTypeView.frame,
+                                                from: networkTypeView.superview)
+
+            scrollView.scrollRectToVisible(fieldFrame, animated: true)
+        }
     }
 }
 

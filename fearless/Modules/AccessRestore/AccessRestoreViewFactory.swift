@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import IrohaCrypto
 
 final class AccessRestoreViewFactory: AccessRestoreViewFactoryProtocol {
     static func createView() -> AccessRestoreViewProtocol? {
@@ -13,7 +14,10 @@ final class AccessRestoreViewFactory: AccessRestoreViewFactoryProtocol {
         let accountOperationFactory = AccountOperationFactory(keystore: Keychain(),
                                                               settings: SettingsManager.shared)
 
+        let mnemonicCreator = IRMnemonicCreator()
+
         let interactor = AccessRestoreInteractor(accountOperationFactory: accountOperationFactory,
+                                                 mnemonicCreator: mnemonicCreator,
                                                  settings: SettingsManager.shared,
                                                  operationManager: OperationManagerFacade.sharedManager)
 

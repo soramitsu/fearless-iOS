@@ -62,5 +62,5 @@ protocol AccountCreateWireframeProtocol: class {
 }
 
 protocol AccountCreateViewFactoryProtocol: class {
-	static func createView() -> AccountCreateViewProtocol?
+    static func createView(username: String) -> AccountCreateViewProtocol?
 }

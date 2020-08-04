@@ -1,12 +1,19 @@
 import Foundation
 import IrohaCrypto
 import SoraFoundation
+import SoraKeystore
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
-    static func createView() -> AccountCreateViewProtocol? {
+    static func createView(username: String) -> AccountCreateViewProtocol? {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter()
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let presenter = AccountCreatePresenter(username: username)
+
+        let operationFactory = AccountOperationFactory(keystore: Keychain(),
+                                                       settings: SettingsManager.shared)
+
+        let interactor = AccountCreateInteractor(accountOperationFactory: operationFactory,
+                                                 mnemonicCreator: IRMnemonicCreator(),
+                                                 operationManager: OperationManagerFacade.sharedManager)
         let wireframe = AccountCreateWireframe()
 
         view.presenter = presenter

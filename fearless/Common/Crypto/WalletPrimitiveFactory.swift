@@ -74,9 +74,6 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                                 precision: 12,
                                 modes: .all)
 
-        let publicKey = try SS58AddressFactory().publicKey(fromAddress: selectedAccount.address,
-                                                           type: selectedConnectionType)
-
-        return WalletAccountSettings(accountId: publicKey.rawData().toHex(), assets: [asset])
+        return WalletAccountSettings(accountId: selectedAccount.publicKeyData.toHex(), assets: [asset])
     }
 }
