@@ -11,8 +11,8 @@ protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
 private let authorization = UUID().uuidString
 
 private struct AuthorizationConstants {
-    static var completionBlockKey: String = "co.jp.sora.auth.delegate"
-    static var authorizationViewKey: String = "co.jp.sora.auth.view"
+    static var completionBlockKey: String = "co.jp.fearless.auth.delegate"
+    static var authorizationViewKey: String = "co.jp.fearless.auth.view"
 }
 
 extension AuthorizationPresentable {

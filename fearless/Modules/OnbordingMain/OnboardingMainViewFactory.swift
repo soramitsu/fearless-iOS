@@ -18,23 +18,10 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         let presenter = OnboardingMainPresenter(legalData: legalData, locale: locale)
         let wireframe = OnboardingMainWireframe()
 
-        let interactor = createInteractor()
-
         view.presenter = presenter
         presenter.view = view
-        presenter.interactor = interactor
         presenter.wireframe = wireframe
 
-        interactor.presenter = presenter
-
         return view
-    }
-
-    private static func createInteractor() -> OnboardingMainInteractor {
-        let accountOperationFactory = SR25519AccountOperationFactory(keystore: Keychain(),
-                                                                     settings: SettingsManager.shared)
-        let interactor = OnboardingMainInteractor(accountOperationFactory: accountOperationFactory,
-                                                  operationManager: OperationManagerFacade.sharedManager)
-        return interactor
     }
 }

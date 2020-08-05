@@ -3,7 +3,7 @@ import SoraUI
 
 final class FearlessLoadingViewFactory: LoadingViewFactoryProtocol {
     static func createLoadingView() -> LoadingView {
-        let icon = R.image.iconLoadingIndicator()?.tinted(with: UIColor.iconTintColor)
+        let icon = R.image.iconLoadingIndicator()?.tinted(with: R.color.colorWhite()!)
         let loadingView = LoadingView(frame: UIScreen.main.bounds,
                                       indicatorImage: icon ?? UIImage())
         loadingView.backgroundColor = UIColor.black.withAlphaComponent(0.19)

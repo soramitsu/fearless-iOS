@@ -2,12 +2,12 @@ import Foundation
 
 final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     func showSignup(from view: OnboardingMainViewProtocol?) {
-        guard let accessBackup = AccessBackupViewFactory.createView() else {
+        guard let usernameSetup = UsernameSetupViewFactory.createView() else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            navigationController.pushViewController(accessBackup.controller, animated: true)
+            navigationController.pushViewController(usernameSetup.controller, animated: true)
         }
     }
 

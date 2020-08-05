@@ -4,6 +4,7 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -11,10 +12,11 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="OnboardingMainViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="logoView" destination="0Nf-e6-35C" id="tec-Ux-Fnk"/>
-                <outlet property="restoreBottomConstraint" destination="cyj-cq-JHW" id="gP8-eX-hRz"/>
+                <outlet property="restoreBottomConstraint" destination="m1H-rG-MTz" id="bI7-l2-gza"/>
                 <outlet property="restoreButton" destination="bcI-vv-wu7" id="YpM-nc-RY5"/>
+                <outlet property="restoreWidthConstraint" destination="2tI-30-TKr" id="vfQ-Kl-LGm"/>
                 <outlet property="signUpButton" destination="JKh-WT-j8k" id="OFv-PY-UOw"/>
-                <outlet property="signupBottomConstraint" destination="tLW-Tl-ooc" id="knL-gp-UYC"/>
+                <outlet property="signupWidthConstraint" destination="8De-N6-KGr" id="wm2-ea-1If"/>
                 <outlet property="termsBottomConstraint" destination="fwl-WI-8T8" id="0tN-iw-8xS"/>
                 <outlet property="termsLabel" destination="eVe-aO-QFR" id="6Oj-lk-IC8"/>
                 <outlet property="view" destination="iN0-l3-epB" id="OWf-6C-L4X"/>
@@ -29,22 +31,19 @@
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                 </imageView>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="logo" translatesAutoresizingMaskIntoConstraints="NO" id="0Nf-e6-35C">
-                    <rect key="frame" x="40" y="171" width="295" height="158"/>
+                    <rect key="frame" x="40" y="152" width="295" height="123"/>
                     <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 </imageView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JKh-WT-j8k" customClass="RoundedButton" customModule="SoraUI">
-                    <rect key="frame" x="95.5" y="506" width="184" height="40"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JKh-WT-j8k" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="16" y="442.5" width="343" height="52"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="184" id="8De-N6-KGr"/>
-                        <constraint firstAttribute="height" constant="40" id="Xyl-Nj-SvL"/>
+                        <constraint firstAttribute="width" constant="343" id="8De-N6-KGr"/>
+                        <constraint firstAttribute="height" constant="52" id="Xyl-Nj-SvL"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" red="0.0" green="0.29803921568627451" blue="0.71764705882352942" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerRadius">
-                            <real key="value" value="28"/>
+                            <color key="value" name="colorDarkBlue"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
                             <real key="value" value="0.0"/>
@@ -55,10 +54,10 @@
                             <real key="value" value="14"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
-                            <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_strokeWidth">
                             <real key="value" value="0.0"/>
@@ -70,9 +69,9 @@
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" red="0.0" green="0.29803921570000003" blue="0.71764705880000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" name="colorHighlightedBlue"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                             <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
@@ -91,20 +90,20 @@
                         <action selector="actionSignupWithSender:" destination="-1" eventType="touchUpInside" id="TJA-qA-tUz"/>
                     </connections>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bcI-vv-wu7" customClass="RoundedButton" customModule="SoraUI">
-                    <rect key="frame" x="95.5" y="563" width="184" height="40"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bcI-vv-wu7" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="16" y="508.5" width="343" height="52"/>
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="width" constant="184" id="2tI-30-TKr"/>
-                        <constraint firstAttribute="height" constant="40" id="sJ8-CV-RXx"/>
+                        <constraint firstAttribute="width" constant="343" id="2tI-30-TKr"/>
+                        <constraint firstAttribute="height" constant="52" id="sJ8-CV-RXx"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Import Account"/>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" red="0.0" green="0.29803921570000003" blue="0.71764705880000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" name="colorDarkBlue"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" red="0.0" green="0.29803921570000003" blue="0.71764705880000002" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                            <color key="value" name="colorHighlightedBlue"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -126,10 +125,7 @@
                             <real key="value" value="14"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerRadius">
-                            <real key="value" value="28"/>
-                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                             <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
@@ -148,7 +144,7 @@
                     </connections>
                 </view>
                 <label opaque="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" usesAttributedText="YES" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" minimumScaleFactor="0.59999999999999998" translatesAutoresizingMaskIntoConstraints="NO" id="eVe-aO-QFR">
-                    <rect key="frame" x="20" y="622.5" width="335" height="30.5"/>
+                    <rect key="frame" x="20" y="604.5" width="335" height="30.5"/>
                     <gestureRecognizers/>
                     <attributedString key="attributedText">
                         <fragment content="I have read and agreed to  Terms and Conditions and Privacy Policy">
@@ -172,14 +168,14 @@
                 <constraint firstItem="X9x-Jk-vyU" firstAttribute="trailing" secondItem="0Nf-e6-35C" secondAttribute="trailing" constant="40" id="0zs-oe-HWO"/>
                 <constraint firstAttribute="trailing" secondItem="trf-yN-ktU" secondAttribute="trailing" id="8sR-VN-C3f"/>
                 <constraint firstItem="trf-yN-ktU" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="IX1-se-Eii"/>
-                <constraint firstItem="0Nf-e6-35C" firstAttribute="centerY" secondItem="X9x-Jk-vyU" secondAttribute="centerY" multiplier="0.75" id="LQt-v6-Rpv"/>
+                <constraint firstItem="0Nf-e6-35C" firstAttribute="centerY" secondItem="X9x-Jk-vyU" secondAttribute="centerY" multiplier="0.64" id="LQt-v6-Rpv"/>
                 <constraint firstItem="X9x-Jk-vyU" firstAttribute="trailing" secondItem="eVe-aO-QFR" secondAttribute="trailing" constant="20" id="M2i-Nf-3Bk"/>
-                <constraint firstItem="X9x-Jk-vyU" firstAttribute="bottom" secondItem="bcI-vv-wu7" secondAttribute="bottom" constant="64" id="cyj-cq-JHW"/>
+                <constraint firstItem="bcI-vv-wu7" firstAttribute="top" secondItem="JKh-WT-j8k" secondAttribute="bottom" constant="14" id="bIS-I7-hsz"/>
                 <constraint firstItem="eVe-aO-QFR" firstAttribute="leading" secondItem="X9x-Jk-vyU" secondAttribute="leading" constant="20" id="d0N-bD-8tF"/>
                 <constraint firstItem="bcI-vv-wu7" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="fFb-NZ-LvD"/>
-                <constraint firstItem="X9x-Jk-vyU" firstAttribute="bottom" secondItem="eVe-aO-QFR" secondAttribute="bottom" constant="14" id="fwl-WI-8T8"/>
+                <constraint firstItem="X9x-Jk-vyU" firstAttribute="bottom" secondItem="eVe-aO-QFR" secondAttribute="bottom" constant="32" id="fwl-WI-8T8"/>
+                <constraint firstItem="eVe-aO-QFR" firstAttribute="top" secondItem="bcI-vv-wu7" secondAttribute="bottom" constant="44" id="m1H-rG-MTz"/>
                 <constraint firstItem="JKh-WT-j8k" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="mRJ-51-cbY"/>
-                <constraint firstItem="X9x-Jk-vyU" firstAttribute="bottom" secondItem="JKh-WT-j8k" secondAttribute="bottom" constant="121" id="tLW-Tl-ooc"/>
                 <constraint firstItem="trf-yN-ktU" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="xyd-oA-EH8"/>
             </constraints>
             <viewLayoutGuide key="safeArea" id="X9x-Jk-vyU"/>
@@ -193,6 +189,15 @@
     </objects>
     <resources>
         <image name="backgroundImage" width="414" height="896"/>
-        <image name="logo" width="246" height="158"/>
+        <image name="logo" width="246" height="123"/>
+        <namedColor name="colorDarkBlue">
+            <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorHighlightedBlue">
+            <color red="0.0" green="0.21799999475479126" blue="0.71799999475479126" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

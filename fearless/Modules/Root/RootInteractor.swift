@@ -18,13 +18,13 @@ final class RootInteractor {
 
 extension RootInteractor: RootInteractorInputProtocol {
     func decideModuleSynchroniously() {
-        if !settings.hasAccountId {
+        if !settings.hasSelectedAccount {
             presenter?.didDecideOnboarding()
             return
         }
 
         do {
-            let pincodeExists = try keystore.checkKey(for: KeystoreKey.pincode.rawValue)
+            let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
 
             if pincodeExists {
                 presenter?.didDecideLocalAuthentication()

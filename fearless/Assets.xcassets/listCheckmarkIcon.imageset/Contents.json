@@ -1,19 +1,8 @@
 {
   "images" : [
     {
-      "filename" : "icons8Checkmark2.png",
-      "idiom" : "universal",
-      "scale" : "1x"
-    },
-    {
-      "filename" : "icons8Checkmark2@2x.png",
-      "idiom" : "universal",
-      "scale" : "2x"
-    },
-    {
-      "filename" : "icons8Checkmark2@3x.png",
-      "idiom" : "universal",
-      "scale" : "3x"
+      "filename" : "listCheckmarkIcon.pdf",
+      "idiom" : "universal"
     }
   ],
   "info" : {

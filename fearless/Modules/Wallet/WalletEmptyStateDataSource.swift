@@ -5,8 +5,8 @@ import SoraFoundation
 final class WalletEmptyStateDataSource {
     var titleResource: LocalizableResource<String>?
     var imageForEmptyState: UIImage?
-    var titleColorForEmptyState: UIColor? = UIColor.emptyStateTitle
-    var titleFontForEmptyState: UIFont? = UIFont.emptyStateTitle
+    var titleColorForEmptyState: UIColor? = R.color.colorWhite()!
+    var titleFontForEmptyState: UIFont? = UIFont.p2Paragraph
     var verticalSpacingForEmptyState: CGFloat? = 16.0
     var trimStrategyForEmptyState: EmptyStateView.TrimStrategy = .none
 

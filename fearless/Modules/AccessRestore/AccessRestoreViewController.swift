@@ -46,7 +46,7 @@ final class AccessRestoreViewController: AccessoryViewController {
     }
 
     private func configureTextView() {
-        phraseTextView.tintColor = UIColor.iconTintColor
+        phraseTextView.tintColor = R.color.colorWhite()!
     }
 
     // MARK: Accessory Override

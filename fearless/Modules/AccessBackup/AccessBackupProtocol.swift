@@ -20,7 +20,9 @@ protocol AccessBackupInteractorOutputProtocol: class {
 }
 
 enum AccessBackupInteractorError: Error {
-    case loading
+    case missingSelectedAccount
+    case missingEntropy
+    case mnemonicGenerationFailed
 }
 
 protocol AccessBackupWireframeProtocol: SharingPresentable, AlertPresentable, ErrorPresentable {

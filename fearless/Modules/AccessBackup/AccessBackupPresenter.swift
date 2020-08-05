@@ -45,18 +45,16 @@ extension AccessBackupPresenter: AccessBackupInteractorOutputProtocol {
     }
 
     func didReceive(error: Error) {
-        if let interactorError = error as? AccessBackupInteractorError {
+        if error is AccessBackupInteractorError {
             let languages = localizationManager?.preferredLocalizations
-            switch interactorError {
-            case .loading:
-                wireframe.present(message: R.string.localizable
-                    .accessBackupErrorMessage(preferredLanguages: languages),
-                                  title: R.string.localizable
-                                    .accessBackupLoadErrorTitle(preferredLanguages: languages),
-                                  closeAction: R.string.localizable
-                                    .commonClose(preferredLanguages: languages),
-                                  from: view)
-            }
+
+            wireframe.present(message: R.string.localizable
+            .accessBackupErrorMessage(preferredLanguages: languages),
+                          title: R.string.localizable
+                            .accessBackupLoadErrorTitle(preferredLanguages: languages),
+                          closeAction: R.string.localizable
+                            .commonClose(preferredLanguages: languages),
+                          from: view)
         }
     }
 }

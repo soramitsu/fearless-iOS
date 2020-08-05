@@ -1,14 +1,79 @@
 import Foundation
 import SoraKeystore
 
-enum KeystoreKey: String, CaseIterable {
-    case privateKey
+enum KeystoreTag: String, CaseIterable {
     case pincode
-    case seedEntropy
+
+    static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
+    static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy"}
+    static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv"}
 }
 
 extension KeystoreProtocol {
-    func deleteAll() throws {
-        try deleteKeysIfExist(for: KeystoreKey.allCases.map({ $0.rawValue }))
+    func loadIfKeyExists(_ tag: String) throws -> Data? {
+        guard try checkKey(for: tag) else {
+            return nil
+        }
+
+        return try fetchKey(for: tag)
+    }
+
+    func saveSeed(_ seed: Data, address: String) throws {
+        let tag = KeystoreTag.seedTagForAddress(address)
+
+        try saveKey(seed, with: tag)
+    }
+
+    func fetchSeedForAddress(_ address: String) throws -> Data? {
+        let tag = KeystoreTag.seedTagForAddress(address)
+
+        return try loadIfKeyExists(tag)
+    }
+
+    func checkSeedForAddress(_ address: String) throws -> Bool {
+        let tag = KeystoreTag.seedTagForAddress(address)
+        return try checkKey(for: tag)
+    }
+
+    func saveEntropy(_ entropy: Data, address: String) throws {
+        let tag = KeystoreTag.entropyTagForAddress(address)
+
+        try saveKey(entropy, with: tag)
+    }
+
+    func fetchEntropyForAddress(_ address: String) throws -> Data? {
+        let tag = KeystoreTag.entropyTagForAddress(address)
+
+        return try loadIfKeyExists(tag)
+    }
+
+    func checkEntropyForAddress(_ address: String) throws -> Bool {
+        let tag = KeystoreTag.entropyTagForAddress(address)
+        return try checkKey(for: tag)
+    }
+
+    func saveDeriviation(_ path: String, address: String) throws {
+        guard let data = path.data(using: .utf8) else {
+            return
+        }
+
+        let tag = KeystoreTag.deriviationTagForAddress(address)
+
+        try saveKey(data, with: tag)
+    }
+
+    func fetchDeriviationForAddress(_ address: String) throws -> String? {
+        let tag = KeystoreTag.deriviationTagForAddress(address)
+
+        guard let data = try loadIfKeyExists(tag) else {
+            return nil
+        }
+
+        return String(data: data, encoding: .utf8)
+    }
+
+    func checkDeriviationForAddress(_ address: String) throws -> Bool {
+        let tag = KeystoreTag.deriviationTagForAddress(address)
+        return try checkKey(for: tag)
     }
 }

@@ -9,12 +9,18 @@ final class AccessRestoreInteractor {
 
     let accountOperationFactory: AccountOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
+    let settings: SettingsManagerProtocol
+    let mnemonicCreator: IRMnemonicCreatorProtocol
 
     private var currentOperation: Operation?
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
+         mnemonicCreator: IRMnemonicCreatorProtocol,
+         settings: SettingsManagerProtocol,
          operationManager: OperationManagerProtocol) {
         self.accountOperationFactory = accountOperationFactory
+        self.mnemonicCreator = mnemonicCreator
+        self.settings = settings
         self.operationManager = operationManager
     }
 }
@@ -25,7 +31,28 @@ extension AccessRestoreInteractor: AccessRestoreInteractorInputProtocol {
             return
         }
 
-        let operation = accountOperationFactory.deriveAccountOperation(mnemonic: mnemonic)
+        let selectedConnection = settings.selectedConnection
+
+        guard let addressType = SNAddressType(rawValue: selectedConnection.type) else {
+            presenter?.didReceiveRestoreAccess(error: AccessRestoreInteractorError.undefinedConnectionType)
+            return
+        }
+
+        guard let mnemonicWrapper = try? mnemonicCreator.mnemonic(fromList: mnemonic) else {
+            return
+        }
+
+        // TODO: Will be implemented in FLW-82
+
+        let accountRequest = AccountCreationRequest(username: "",
+                                                    type: addressType,
+                                                    derivationPath: "",
+                                                    cryptoType: .sr25519)
+
+        let connection = ConnectionItem.defaultConnection
+        let operation = accountOperationFactory.newAccountOperation(request: accountRequest,
+                                                                    mnemonic: mnemonicWrapper,
+                                                                    connection: connection)
         currentOperation = operation
 
         operation.completionBlock = { [weak self] in

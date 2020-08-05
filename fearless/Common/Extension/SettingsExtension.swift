@@ -4,25 +4,26 @@ import IrohaCrypto
 
 enum SettingsKey: String {
     case selectedLocalization
-    case accountId
+    case selectedAccount
     case biometryEnabled
+    case selectedConnection
 }
 
 extension SettingsManagerProtocol {
-    var hasAccountId: Bool {
-        accountId != nil
+    var hasSelectedAccount: Bool {
+        selectedAccount != nil
     }
 
-    var accountId: Data? {
+    var selectedAccount: AccountItem? {
         get {
-            data(for: SettingsKey.accountId.rawValue)
+            value(of: AccountItem.self, for: SettingsKey.selectedAccount.rawValue)
         }
 
         set {
             if let newValue = newValue {
-                set(value: newValue, for: SettingsKey.accountId.rawValue)
+                set(value: newValue, for: SettingsKey.selectedAccount.rawValue)
             } else {
-                removeValue(for: SettingsKey.accountId.rawValue)
+                removeValue(for: SettingsKey.selectedAccount.rawValue)
             }
         }
     }
@@ -38,6 +39,20 @@ extension SettingsManagerProtocol {
             } else {
                 removeValue(for: SettingsKey.biometryEnabled.rawValue)
             }
+        }
+    }
+
+    var selectedConnection: ConnectionItem {
+        get {
+            if let nodeItem = value(of: ConnectionItem.self, for: SettingsKey.selectedConnection.rawValue) {
+                return nodeItem
+            } else {
+                return .defaultConnection
+            }
+        }
+
+        set {
+            set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
         }
     }
 }

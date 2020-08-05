@@ -3,3 +3,4 @@ excluded:
   - PrivatePods
   - R.generated.swift
   - fearlessTests
+  - fearlessIntegrationTests

@@ -1,22 +1,12 @@
 import Foundation
 
-protocol OnboardingMainViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {}
+protocol OnboardingMainViewProtocol: ControllerBackedProtocol {}
 
 protocol OnboardingMainPresenterProtocol: class {
     func activateSignup()
     func activateAccountRestore()
     func activateTerms()
     func activatePrivacy()
-}
-
-protocol OnboardingMainInputInteractorProtocol: class {
-    func signup()
-}
-
-protocol OnboardingMainOutputInteractorProtocol: class {
-    func didStartSignup()
-    func didCompleteSignup()
-    func didReceiveSignup(error: Error)
 }
 
 protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, AlertPresentable {

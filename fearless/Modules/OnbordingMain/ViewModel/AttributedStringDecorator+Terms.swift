@@ -2,16 +2,16 @@ import UIKit
 
 extension CompoundAttributedStringDecorator {
     static func legal(for locale: Locale?) -> AttributedStringDecoratorProtocol {
-        let textColor = UIColor.iconTintColor
+        let textColor = R.color.colorWhite()!
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: textColor,
-            .font: R.font.soraRc0040417Regular(size: 12)!
+            .font: UIFont.p1Paragraph
         ]
 
         let rangeDecorator = RangeAttributedStringDecorator(attributes: attributes)
 
         let highlightAttributes: [NSAttributedString.Key: Any] = [
-            .underlineStyle: NSNumber(value: NSUnderlineStyle.single.rawValue)
+            .foregroundColor: R.color.colorPink()!
         ]
 
         let termsConditions = R.string.localizable

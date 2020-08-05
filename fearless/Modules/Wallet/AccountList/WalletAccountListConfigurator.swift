@@ -25,7 +25,7 @@ final class WalletAccountListConfigurator {
 
             let localHeaderViewModel = headerViewModel
 
-            var viewStyle = AccountListViewStyle(refreshIndicatorStyle: UIColor.iconTintColor)
+            var viewStyle = AccountListViewStyle(refreshIndicatorStyle: R.color.colorWhite()!)
             viewStyle.backgroundImage = R.image.backgroundImage()
 
             let assetStyleFactory = AssetStyleFactory()

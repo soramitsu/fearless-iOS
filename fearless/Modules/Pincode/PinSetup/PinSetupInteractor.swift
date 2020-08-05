@@ -47,7 +47,7 @@ class PinSetupInteractor {
         guard state == .submitingPincode, let currentPincode = pincode else { return }
 
         secretManager.saveSecret(currentPincode,
-                                 for: KeystoreKey.pincode.rawValue,
+                                 for: KeystoreTag.pincode.rawValue,
                                  completionQueue: DispatchQueue.main) { _ -> Void in
                                     self.completeSetup()
         }
