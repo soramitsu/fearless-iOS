@@ -54,10 +54,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol {
         let accountSettings = try primitiveFactory.createAccountSettings()
 
-        let publicKeyRaw = try Data(hexString: accountSettings.accountId)
-        let publicKey = try SNPublicKey(rawData: publicKeyRaw)
-        let address = try SS58AddressFactory().address(from: publicKey, type: .kusamaMain)
-        logger.debug("Loading wallet account: \(address)")
+        if let selectedAccount = SettingsManager.shared.selectedAccount {
+            logger.debug("Loading wallet account: \(selectedAccount.address)")
+        }
 
         let nodeUrl = SettingsManager.shared.selectedConnection.url
 
