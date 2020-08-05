@@ -93,6 +93,10 @@
 		8438E1DE24C18FAD001BDB13 /* Extrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8438E1DD24C18FAD001BDB13 /* Extrinsic.swift */; };
 		84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */; };
 		84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFD24DA0000008F6A3F /* FieldStatus.swift */; };
+		84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0024DA861C008F6A3F /* AccountCreationMetadata.swift */; };
+		84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */; };
+		84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0424DA8663008F6A3F /* AccountCreationError.swift */; };
+		84893C0724DA890F008F6A3F /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0624DA890F008F6A3F /* CommonError.swift */; };
 		849013AC24A80984008F705E /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849013AB24A80984008F705E /* AppDelegate.swift */; };
 		849013B524A80986008F705E /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 849013B424A80986008F705E /* Assets.xcassets */; };
 		849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 849013B624A80986008F705E /* LaunchScreen.storyboard */; };
@@ -361,6 +365,10 @@
 		8438E1DD24C18FAD001BDB13 /* Extrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Extrinsic.swift; sourceTree = "<group>"; };
 		84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredicateTests.swift; sourceTree = "<group>"; };
 		84893BFD24DA0000008F6A3F /* FieldStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldStatus.swift; sourceTree = "<group>"; };
+		84893C0024DA861C008F6A3F /* AccountCreationMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationMetadata.swift; sourceTree = "<group>"; };
+		84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationRequest.swift; sourceTree = "<group>"; };
+		84893C0424DA8663008F6A3F /* AccountCreationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationError.swift; sourceTree = "<group>"; };
+		84893C0624DA890F008F6A3F /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		849013A824A80984008F705E /* fearless.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = fearless.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		849013AB24A80984008F705E /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		849013B424A80986008F705E /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -609,6 +617,7 @@
 		4C5888389F25B5C82454F92D /* AccountCreate */ = {
 			isa = PBXGroup;
 			children = (
+				84893BFF24DA8600008F6A3F /* Model */,
 				842D1E9424D2DD5500C30A7A /* View */,
 				48C158C8D1855BCE53636934 /* AccountCreateProtocols.swift */,
 				ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */,
@@ -858,6 +867,16 @@
 			path = Extensions;
 			sourceTree = "<group>";
 		};
+		84893BFF24DA8600008F6A3F /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				84893C0024DA861C008F6A3F /* AccountCreationMetadata.swift */,
+				84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */,
+				84893C0424DA8663008F6A3F /* AccountCreationError.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		8490139F24A80984008F705E = {
 			isa = PBXGroup;
 			children = (
@@ -998,6 +1017,7 @@
 				842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */,
 				84DA3B1524C81ECE00B5E27F /* AccountItem.swift */,
 				84893BFD24DA0000008F6A3F /* FieldStatus.swift */,
+				84893C0624DA890F008F6A3F /* CommonError.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1902,6 +1922,7 @@
 				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				842876A824AE049B00D91AD8 /* SelectionListViewController.swift in Sources */,
 				84CAF52224BDB94700F4C295 /* JSONRPCEngine.swift in Sources */,
+				84893C0724DA890F008F6A3F /* CommonError.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8438E1DE24C18FAD001BDB13 /* Extrinsic.swift in Sources */,
 				842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */,
@@ -1944,6 +1965,7 @@
 				842D1E9624D2DD6700C30A7A /* MnemonicDisplayView.swift in Sources */,
 				849014A424AA7F9A008F705E /* AccessoryView.swift in Sources */,
 				842876B224AE059700D91AD8 /* SupportData.swift in Sources */,
+				84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
@@ -1956,6 +1978,7 @@
 				8428768B24AE046300D91AD8 /* AboutViewFactory.swift in Sources */,
 				8428768624AE046300D91AD8 /* LanguageSelectionPresenter.swift in Sources */,
 				8490152724ABCC40008F705E /* NumberFormatter.swift in Sources */,
+				84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
 				8428766424ADE1E400D91AD8 /* ProfileButton.swift in Sources */,
@@ -1986,6 +2009,7 @@
 				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				8428769224AE046300D91AD8 /* AboutHeaderView.swift in Sources */,
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
+				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				842876AA24AE049B00D91AD8 /* SelectionTitleTableViewCell.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,

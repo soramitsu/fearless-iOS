@@ -49,8 +49,10 @@ extension AccessRestoreInteractor: AccessRestoreInteractorInputProtocol {
                                                     derivationPath: "",
                                                     cryptoType: .sr25519)
 
+        let connection = ConnectionItem.defaultConnection
         let operation = accountOperationFactory.newAccountOperation(request: accountRequest,
-                                                                    mnemonic: mnemonicWrapper)
+                                                                    mnemonic: mnemonicWrapper,
+                                                                    connection: connection)
         currentOperation = operation
 
         operation.completionBlock = { [weak self] in

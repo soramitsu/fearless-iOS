@@ -1,21 +1,6 @@
 import IrohaCrypto
 import SoraFoundation
 
-struct AccountCreationMetadata {
-    let mnemonic: [String]
-    let availableAccountTypes: [SNAddressType]
-    let defaultAccountType: SNAddressType
-    let availableCryptoTypes: [CryptoType]
-    let defaultCryptoType: CryptoType
-}
-
-struct AccountCreationRequest {
-    let username: String
-    let type: SNAddressType
-    let derivationPath: String
-    let cryptoType: CryptoType
-}
-
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
@@ -50,7 +35,7 @@ protocol AccountCreateInteractorOutputProtocol: class {
     func didReceiveAccountCreation(error: Error)
 }
 
-protocol AccountCreateWireframeProtocol: AlertPresentable {
+protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceed(from view: AccountCreateViewProtocol?)
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
                                     availableTypes: [CryptoType],

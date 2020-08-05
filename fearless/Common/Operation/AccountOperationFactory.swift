@@ -6,7 +6,8 @@ import SoraKeystore
 
 protocol AccountOperationFactoryProtocol {
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol) -> BaseOperation<Void>
+                             mnemonic: IRMnemonicProtocol,
+                             connection: ConnectionItem) -> BaseOperation<Void>
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
@@ -19,7 +20,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
     }
 
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol) -> BaseOperation<Void> {
+                             mnemonic: IRMnemonicProtocol,
+                             connection: ConnectionItem) -> BaseOperation<Void> {
         ClosureOperation {
             let junctionResult: JunctionResult?
 
@@ -57,6 +59,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
+
+            self.settings.selectedConnection = connection
         }
     }
 

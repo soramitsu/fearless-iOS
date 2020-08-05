@@ -2,7 +2,15 @@ import Foundation
 import IrohaCrypto
 
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
-    func proceed(from view: AccountCreateViewProtocol?) {}
+    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
+
+    func proceed(from view: AccountCreateViewProtocol?) {
+        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+            return
+        }
+
+        rootAnimator.animateTransition(to: pincodeViewController)
+    }
 
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
                                     availableTypes: [CryptoType],

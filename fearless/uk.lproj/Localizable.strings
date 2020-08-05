@@ -77,7 +77,6 @@
 "common.encryption.type" = "Тип шифрування";
 "common.secret.derivation.path" = "Таємний шлях виведення";
 "common.choose.network" = "Виберіть мережу";
-"derivation.path.incorrect.message" = "Неправильний формат шляху виведення";
 "sr25519.selection.subtitle" = "sr25519 (рекомендується)";
 "ed25519.selection.subtitle" = "ed25519 (альтернатива)";
 "ecdsa.selection.subtitle" = "(Сумісний з BTC / ETH)";
@@ -91,3 +90,4 @@
 "common.invalid.path.without.soft.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, що не включає / Шлях може закінчитися /// 'паролем'. Наприклад, // 1 // soramitsu /// mypass.";
 "common.undefined.error.title" = "Невизначена помилка";
 "common.undefined.error.message" = "Спробуйте ще раз з іншим вкладом. Якщо помилка з’явиться знову, зверніться до служби підтримки.";
+"common.unsupported.network.message" = "Тип мережі ще не підтримується. Виберіть інший.";

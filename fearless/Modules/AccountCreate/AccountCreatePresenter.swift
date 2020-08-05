@@ -78,24 +78,16 @@ final class AccountCreatePresenter {
     private func presentDerivationPathError(_ cryptoType: CryptoType) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let message: String
-
         switch cryptoType {
         case .sr25519:
-            message = R.string.localizable
-                .commonInvalidPathWithSoftMessage(preferredLanguages: locale.rLanguages)
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationPath,
+                                  from: view,
+                                  locale: locale)
         case .ed25519, .ecdsa:
-            message = R.string.localizable
-                .commonInvalidPathWithoutSoftMessage(preferredLanguages: locale.rLanguages)
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationPathWithoutSoft,
+                                  from: view,
+                                  locale: locale)
         }
-
-        let title = R.string.localizable.commonInvalidPathTitle(preferredLanguages: locale.rLanguages)
-        let close = R.string.localizable.commonClose(preferredLanguages: locale.rLanguages)
-
-        wireframe.present(message: message,
-                          title: title,
-                          closeAction: close,
-                          from: view)
     }
 }
 
@@ -192,14 +184,32 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
     }
 
     func didReceiveMnemonicGeneration(error: Error) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
 
+        guard !wireframe.present(error: error, from: view, locale: locale) else {
+            return
+        }
+
+        _ = wireframe.present(error: CommonError.undefined,
+                              from: view,
+                              locale: locale)
     }
 
     func didCompleteAccountCreation() {
         wireframe.proceed(from: view)
     }
 
-    func didReceiveAccountCreation(error: Error) {}
+    func didReceiveAccountCreation(error: Error) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        guard !wireframe.present(error: error, from: view, locale: locale) else {
+            return
+        }
+
+        _ = wireframe.present(error: CommonError.undefined,
+                              from: view,
+                              locale: locale)
+    }
 }
 
 extension AccountCreatePresenter: ModalPickerViewControllerDelegate {

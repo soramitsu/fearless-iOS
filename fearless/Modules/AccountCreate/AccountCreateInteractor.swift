@@ -29,9 +29,14 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
             self.mnemonic = mnemonic
 
             let availableAccountTypes: [SNAddressType] = [.kusamaMain, .polkadotMain, .genericSubstrate]
+
+            let defaultConnection = ConnectionItem.defaultConnection
+
+            let networkType = SNAddressType(rawValue: defaultConnection.type) ?? .kusamaMain
+
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
                                                    availableAccountTypes: availableAccountTypes,
-                                                   defaultAccountType: .kusamaMain,
+                                                   defaultAccountType: networkType,
                                                    availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)
@@ -49,8 +54,15 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
             return
         }
 
+        guard let connection = ConnectionItem.supportedConnections
+            .first(where: { $0.type == request.type.rawValue}) else {
+            presenter?.didReceiveAccountCreation(error: AccountCreationError.unsupportedNetwork)
+            return
+        }
+
         let operation = accountOperationFactory.newAccountOperation(request: request,
-                                                                    mnemonic: mnemonic)
+                                                                    mnemonic: mnemonic,
+                                                                    connection: connection)
 
         self.currentOperation = operation
 

@@ -153,6 +153,10 @@ final class AccountCreateViewController: UIViewController {
         }
     }
 
+    @IBAction private func actionNext() {
+        presenter.proceed()
+    }
+
     @IBAction private func actionTextFieldEditingChanged() {
         if derivationPathModel?.inputHandler.value != derivationPathField.text {
             derivationPathField.text = derivationPathModel?.inputHandler.value

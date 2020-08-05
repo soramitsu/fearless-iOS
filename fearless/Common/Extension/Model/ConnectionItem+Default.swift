@@ -13,4 +13,15 @@ extension ConnectionItem {
                                   type: SNAddressType.kusamaMain.rawValue)
         #endif
     }
+
+    static var supportedConnections: [ConnectionItem] {
+        let westend = ConnectionItem(title: "Soramitsu Westend node",
+                                     url: URL(string: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443")!,
+                                     type: SNAddressType.genericSubstrate.rawValue)
+        let kusama = ConnectionItem(title: "Parity Kusama public node",
+                                    url: URL(string: "wss://kusama-rpc.polkadot.io/")!,
+                                    type: SNAddressType.kusamaMain.rawValue)
+
+        return [westend, kusama]
+    }
 }
