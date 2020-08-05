@@ -2391,8 +2391,8 @@
 			baseConfigurationReference = 849013F924A92A05008F705E /* fearless.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -2403,7 +2403,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ridev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
@@ -2524,8 +2524,8 @@
 			baseConfigurationReference = 849013F824A92A05008F705E /* fearless.dev.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Manual;
+				CODE_SIGN_IDENTITY = "Apple Development";
+				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = YLWWUD25VZ;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = fearless/Info.plist;
@@ -2536,7 +2536,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = ridev;
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
