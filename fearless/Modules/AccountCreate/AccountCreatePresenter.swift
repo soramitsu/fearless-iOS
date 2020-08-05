@@ -21,8 +21,6 @@ final class AccountCreatePresenter {
 
     private var derivationPathViewModel: InputViewModelProtocol?
 
-    private var isSetup = false
-
     init(username: String) {
         self.username = username
     }
@@ -93,8 +91,6 @@ final class AccountCreatePresenter {
 
 extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func setup() {
-        isSetup = true
-
         interactor.setup()
     }
 
@@ -250,7 +246,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
 
 extension AccountCreatePresenter: Localizable {
     func applyLocalization() {
-        if isSetup {
+        if let view = view, view.isSetup {
             applyCryptoTypeViewModel()
             applyAddressTypeViewModel()
         }
