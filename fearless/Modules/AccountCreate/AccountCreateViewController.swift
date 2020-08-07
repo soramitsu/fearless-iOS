@@ -125,7 +125,7 @@ final class AccountCreateViewController: UIViewController {
         advancedControl.invalidateLayout()
 
         cryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .commonEncryptionType(preferredLanguages: locale.rLanguages)
+            .commonCryptoType(preferredLanguages: locale.rLanguages)
         cryptoTypeView.actionControl.invalidateLayout()
 
         derivationPathLabel.text = R.string.localizable

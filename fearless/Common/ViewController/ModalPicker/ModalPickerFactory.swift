@@ -15,7 +15,9 @@ struct ModalPickerFactory {
         let viewController: ModalPickerViewController<TitleWithSubtitleTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
-        viewController.localizedTitle = LocalizableResource { _ in "Encryption type"}
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonCryptoType(preferredLanguages: locale.rLanguages)
+        }
 
         viewController.cellNib = UINib(resource: R.nib.titleWithSubtitleTableViewCell)
         viewController.delegate = delegate
@@ -58,7 +60,9 @@ struct ModalPickerFactory {
         let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
-        viewController.localizedTitle = LocalizableResource { _ in "Choose network"}
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.commonChooseNetwork(preferredLanguages: locale.rLanguages)
+        }
 
         viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.delegate = delegate

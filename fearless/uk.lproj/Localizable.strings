@@ -74,7 +74,7 @@
 "account.create.title" = "Мнемонічний";
 "account.create.details" = "Використовуйте не цифровий спосіб резервного копіювання, наприклад запису на папері.";
 "common.advanced" = "Розширений";
-"common.encryption.type" = "Тип шифрування";
+"common.crypto.type" = "Тип ключевой пары";
 "common.secret.derivation.path" = "Таємний шлях виведення";
 "common.choose.network" = "Виберіть мережу";
 "sr25519.selection.subtitle" = "sr25519 (рекомендується)";

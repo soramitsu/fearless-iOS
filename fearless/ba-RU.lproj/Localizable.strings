@@ -71,7 +71,7 @@
 "account.create.title" = "Мнемоника";
 "account.create.details" = "Используйте нецифровой носитель для сохранения, например, выпишите слова на бумагу.";
 "common.advanced" = "Продвинутый";
-"common.encryption.type" = "Тип шифрования";
+"common.crypto.type" = "Тип ключевой пары";
 "common.secret.derivation.path" = "Последовательность для вывода секрета";
 "common.choose.network" = "Выберите сеть";
 "sr25519.selection.subtitle" = "sr25519 (рекомендованный)";

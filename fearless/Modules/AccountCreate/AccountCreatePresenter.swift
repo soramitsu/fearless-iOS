@@ -57,15 +57,18 @@ final class AccountCreatePresenter {
         }
 
         let predicate: NSPredicate
+        let placeholder: String
 
         if cryptoType == .sr25519 {
             predicate = NSPredicate.deriviationPath
+            placeholder = DerivationPathConstants.fullPlaceholder
         } else {
             predicate = NSPredicate.deriviationPathWithoutSoft
+            placeholder = DerivationPathConstants.withoutSoftPlaceholder
         }
 
         let inputHandling = InputHandler(predicate: predicate)
-        let viewModel = InputViewModel(inputHandler: inputHandling)
+        let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
 
         self.derivationPathViewModel = viewModel
 

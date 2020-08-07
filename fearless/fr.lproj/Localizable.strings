@@ -74,7 +74,7 @@ apparaitront ici";
 "account.create.title" = "Mnémonique de sauvegarde";
 "account.create.details" = "Utilisez un moyen non numérique de sauvegarder, comme l'écrire sur papier.";
 "common.advanced" = "Avancée";
-"common.encryption.type" = "Type de chiffrement";
+"common.crypto.type" = "Type de crypto Keypair";
 "common.secret.derivation.path" = "Chemin de dérivation secret";
 "common.choose.network" = "Choisissez un réseau";
 "sr25519.selection.subtitle" = "sr25519 (recommandé)";

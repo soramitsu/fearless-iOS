@@ -74,7 +74,7 @@ transferencias aparecerán aquí";
 "account.create.title" = "Copia de seguridad mnemónica";
 "account.create.details" = "Utilice una forma no digital de copia de seguridad, como escribirlo en papel.";
 "common.advanced" = "Avanzado";
-"common.encryption.type" = "Tipo de cifrado";
+"common.crypto.type" = "Tipo de criptografía de par de claves";
 "common.secret.derivation.path" = "Ruta de derivación secreta";
 "common.choose.network" = "Elige red";
 "sr25519.selection.subtitle" = "sr25519 (recomendado)";

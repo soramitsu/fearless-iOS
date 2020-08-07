@@ -28,6 +28,7 @@ final class ExpandableActionControl: BaseActionControl {
         if indicator == nil {
             indicator = PlusIndicatorView()
             indicator?.backgroundColor = .clear
+            indicator?.isUserInteractionEnabled = false
         }
 
         if title == nil {

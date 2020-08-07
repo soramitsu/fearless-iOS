@@ -72,7 +72,7 @@ a type of password.";
 "account.create.title" = "バックアップニーモニック";
 "account.create.details" = "紙に書き留めるなど、デジタル以外の方法でバックアップします。";
 "common.advanced" = "高度な";
-"common.encryption.type" = "暗号化の種類";
+"common.crypto.type" = "鍵ペアの暗号タイプ";
 "common.secret.derivation.path" = "秘密の派生経路";
 "common.choose.network" = "ネットワークを選択";
 "sr25519.selection.subtitle" = "sr25519（推奨）";
