@@ -208,6 +208,7 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         derivationPathModel = viewModel
 
         derivationPathField.text = viewModel.inputHandler.value
+        derivationPathField.placeholder = viewModel.placeholder
     }
 
     func didCompleteCryptoTypeSelection() {
