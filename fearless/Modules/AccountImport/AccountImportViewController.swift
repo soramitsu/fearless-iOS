@@ -274,6 +274,13 @@ extension AccountImportViewController: AccountImportViewProtocol {
             advancedControl.deactivate(animated: false)
             advancedContainerView.isHidden = true
         }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        sourceTypeView.actionControl.contentView.subtitleLabelView.text = type.titleForLocale(locale)
+
+        cryptoTypeView.actionControl.contentView.invalidateLayout()
+        cryptoTypeView.actionControl.invalidateLayout()
     }
 
     func setSource(viewModel: InputViewModelProtocol) {
@@ -300,13 +307,6 @@ extension AccountImportViewController: AccountImportViewProtocol {
         passwordTextField.text = viewModel.inputHandler.value
 
         updateNextButton()
-    }
-
-    func setSelectedSource(model: TitleWithSubtitleViewModel) {
-        sourceTypeView.actionControl.contentView.subtitleLabelView.text = model.title
-
-        cryptoTypeView.actionControl.contentView.invalidateLayout()
-        cryptoTypeView.actionControl.invalidateLayout()
     }
 
     func setSelectedCrypto(model: TitleWithSubtitleViewModel) {

@@ -6,7 +6,6 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setSource(viewModel: InputViewModelProtocol)
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
-    func setSelectedSource(model: TitleWithSubtitleViewModel)
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
     func setSelectedNetwork(model: IconWithTitleViewModel)
     func setDerivationPath(viewModel: InputViewModelProtocol)

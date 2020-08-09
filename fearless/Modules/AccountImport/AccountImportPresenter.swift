@@ -37,12 +37,6 @@ final class AccountImportPresenter {
 
         view?.setSource(type: selectedSourceType)
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let viewModel = TitleWithSubtitleViewModel(title: selectedSourceType.titleForLocale(locale))
-
-        view?.setSelectedSource(model: viewModel)
-
         applySourceTextViewModel()
         applyUsernameViewModel()
         applyPasswordViewModel()
@@ -440,14 +434,8 @@ extension AccountImportPresenter: InputHandlingObserver {
 
 extension AccountImportPresenter: Localizable {
     func applyLocalization() {
-        if let view = view, view.isSetup, let selectedSourceType = selectedSourceType {
-            switch selectedSourceType {
-            case .mnemonic, .seed:
-                applyCryptoTypeViewModel()
-                applyAddressTypeViewModel()
-            case .keystore:
-                break
-            }
+        if let view = view, view.isSetup {
+            applySourceType()
         }
     }
 }
