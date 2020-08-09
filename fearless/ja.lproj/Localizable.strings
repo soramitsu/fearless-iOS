@@ -98,3 +98,5 @@ a type of password.";
 "import.mnemonic" = "ニーモニックパスフレーズ";
 "account.import.invalid.seed" = "シードが無効です。入力に64個の16進記号が含まれていることを確認してください。";
 "account.import.invalid.keystore" = "無効なリカバリーJSON。入力に有効なjsonが含まれていることを確認してください。";
+"account.import.keystore.decryption.error.message" = "パスワードが正しいことを確認して、もう一度お試しください。";
+"account.import.keystore.decryption.error.title" = "キーストアの復号化に失敗しました";

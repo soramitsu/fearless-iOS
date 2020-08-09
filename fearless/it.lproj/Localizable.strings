@@ -99,3 +99,5 @@ trasferimenti appariranno qui";
 "import.mnemonic" = "Passphrase mnemonica";
 "account.import.invalid.seed" = "Seed non è valido. Assicurarsi che l'input contenga 64 simboli esadecimali.";
 "account.import.invalid.keystore" = "Json di ripristino non valido. Per favore, assicurati che l'input contenga json valido.";
+"account.import.keystore.decryption.error.message" = "Per favore, controlla la correttezza della password e riprova.";
+"account.import.keystore.decryption.error.title" = "Decrittografia del keystore non riuscita";

@@ -430,6 +430,10 @@ extension AccountImportPresenter: InputHandlingObserver {
             return
         }
 
+        if let usernameViewModel = usernameViewModel, !usernameViewModel.inputHandler.value.isEmpty {
+            return
+        }
+
         interactor.deriveUsernameFromKeystore(handler.value)
     }
 }

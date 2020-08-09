@@ -100,3 +100,5 @@ transfers will appear here";
 "import.mnemonic" = "Mnemonic passphrase";
 "account.import.invalid.seed" = "Seed is invalid. Please, make sure that your input contains 64 hex symbols.";
 "account.import.invalid.keystore" = "Invalid recovery json. Please, make sure that input contains valid json.";
+"account.import.keystore.decryption.error.message" = "Please, check password correctness and try again.";
+"account.import.keystore.decryption.error.title" = "Keystore decryption failed";

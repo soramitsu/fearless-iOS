@@ -132,8 +132,10 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let keystoreDefinition = try JSONDecoder().decode(KeystoreDefinition.self,
                                                               from: data)
 
-            let keystore = try keystoreExtractor.extractFromDefinition(keystoreDefinition,
-                                                                       password: request.password)
+            guard let keystore = try? keystoreExtractor
+                .extractFromDefinition(keystoreDefinition, password: request.password) else {
+                throw AccountOperationFactoryError.decryption
+            }
 
             let username: String
 

@@ -100,3 +100,5 @@ a type of password.";
 "import.mnemonic" = "Мнемоническая фраза";
 "account.import.invalid.seed" = "Неверный формат сида. Пожалуйста, удостоверьтесь, что введенные данный содержат в точности 64 шестнадцатеричных символа.";
 "account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
+"account.import.keystore.decryption.error.message" = "Пожалуйста, проверьте корректность пароля и попробуйте снова.";
+"account.import.keystore.decryption.error.title" = "Ошибка дешифрования";

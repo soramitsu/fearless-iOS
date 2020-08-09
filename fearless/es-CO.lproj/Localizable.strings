@@ -100,3 +100,5 @@ transferencias aparecerán aquí";
 "import.mnemonic" = "Frase de contraseña mnemónica";
 "account.import.invalid.seed" = "La semilla no es válida. Por favor, asegúrese de que su entrada contenga 64 símbolos hexadecimales.";
 "account.import.invalid.keystore" = "JSON de recuperación no válido. Por favor, asegúrese de que la entrada contenga un json válido.";
+"account.import.keystore.decryption.error.message" = "Por favor, verifique que la contraseña sea correcta e intente nuevamente.";
+"account.import.keystore.decryption.error.title" = "Falló el descifrado del almacén de claves";

@@ -100,3 +100,5 @@
 "import.mnemonic" = "Мнемонічна фраза";
 "account.import.invalid.seed" = "Насіння недійсне. Будь ласка, переконайтеся, що ваш вхід містить 64 шістнадцяткових символів.";
 "account.import.invalid.keystore" = "Недійсний json для відновлення. Переконайтеся, що вхід містить дійсний json.";
+"account.import.keystore.decryption.error.message" = "Перевірте правильність пароля і повторіть спробу.";
+"account.import.keystore.decryption.error.title" = "Не вдалося розшифрувати Keystore";
