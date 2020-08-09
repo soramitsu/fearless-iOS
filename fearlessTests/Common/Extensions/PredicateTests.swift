@@ -34,4 +34,13 @@ class PredicateTests: XCTestCase {
         XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "/soft//hard///"))
     }
 
+    func testSeedPredicate() {
+        XCTAssertTrue(NSPredicate.seed.evaluate(with: "2d02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac"))
+        XCTAssertTrue(NSPredicate.seed.evaluate(with: "0x2d02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac"))
+
+        XCTAssertFalse(NSPredicate.seed.evaluate(with: "0x2d02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961"))
+        XCTAssertFalse(NSPredicate.seed.evaluate(with: "2d02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961"))
+        XCTAssertFalse(NSPredicate.seed.evaluate(with: "2x02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed99696123"))
+        XCTAssertFalse(NSPredicate.seed.evaluate(with: ""))
+    }
 }

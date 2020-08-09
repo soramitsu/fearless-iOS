@@ -91,3 +91,12 @@
 "common.undefined.error.title" = "Невизначена помилка";
 "common.undefined.error.message" = "Спробуйте ще раз з іншим вкладом. Якщо помилка з’явиться знову, зверніться до служби підтримки.";
 "common.unsupported.network.message" = "Тип мережі ще не підтримується. Виберіть інший.";
+"import.source.picker.title" = "Тип джерела";
+"import.raw.seed" = "Сире насіння";
+"import.recovery.json" = "Відновлення JSON";
+"account.import.password.placeholder" = "Пароль";
+"account.import.recovery.json.placeholder" = "Вставити json";
+"account.import.raw.seed.placeholder" = "Сире насіння: 64 шістнадцяткових символів";
+"import.mnemonic" = "Мнемонічна фраза";
+"account.import.invalid.seed" = "Насіння недійсне. Будь ласка, переконайтеся, що ваш вхід містить 64 шістнадцяткових символів.";
+"account.import.invalid.keystore" = "Недійсний json для відновлення. Переконайтеся, що вхід містить дійсний json.";

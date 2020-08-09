@@ -131,7 +131,8 @@ final class AccountCreateViewController: UIViewController {
         derivationPathLabel.text = R.string.localizable
             .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
 
-        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable.commonChooseNetwork()
+        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonChooseNetwork(preferredLanguages: locale.rLanguages)
         networkTypeView.invalidateLayout()
     }
 

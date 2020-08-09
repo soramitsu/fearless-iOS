@@ -1,14 +1,69 @@
-protocol AccountImportViewProtocol: class {}
+import IrohaCrypto
+import SoraFoundation
+
+protocol AccountImportViewProtocol: ControllerBackedProtocol {
+    func setSource(type: AccountImportSource)
+    func setSource(viewModel: InputViewModelProtocol)
+    func setName(viewModel: InputViewModelProtocol)
+    func setPassword(viewModel: InputViewModelProtocol)
+    func setSelectedSource(model: TitleWithSubtitleViewModel)
+    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
+    func setSelectedNetwork(model: IconWithTitleViewModel)
+    func setDerivationPath(viewModel: InputViewModelProtocol)
+
+    func didCompleteSourceTypeSelection()
+    func didCompleteCryptoTypeSelection()
+    func didCompleteAddressTypeSelection()
+
+    func didValidateDerivationPath(_ status: FieldStatus)
+}
 
 protocol AccountImportPresenterProtocol: class {
     func setup()
+    func selectSourceType()
+    func selectCryptoType()
+    func selectAddressType()
+    func activateQrScan()
+    func validateDerivationPath()
+    func proceed()
 }
 
-protocol AccountImportInteractorInputProtocol: class {}
+protocol AccountImportInteractorInputProtocol: class {
+    func setup()
+    func importAccountWithMnemonic(request: AccountImportMnemonicRequest)
+    func importAccountWithSeed(request: AccountImportSeedRequest)
+    func importAccountWithKeystore(request: AccountImportKeystoreRequest)
+    func deriveUsernameFromKeystore(_ keystore: String)
+}
 
-protocol AccountImportInteractorOutputProtocol: class {}
+protocol AccountImportInteractorOutputProtocol: class {
+    func didReceiveAccountImport(metadata: AccountImportMetadata)
+    func didCompleAccountImport()
+    func didReceiveAccountImport(error: Error)
+    func didDeriveKeystore(username: String)
+}
 
-protocol AccountImportWireframeProtocol: class {}
+protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
+    func proceed(from view: AccountImportViewProtocol?)
+
+    func presentSourceTypeSelection(from view: AccountImportViewProtocol?,
+                                    availableSources: [AccountImportSource],
+                                    selectedSource: AccountImportSource,
+                                    delegate: ModalPickerViewControllerDelegate?,
+                                    context: AnyObject?)
+
+    func presentCryptoTypeSelection(from view: AccountImportViewProtocol?,
+                                    availableTypes: [CryptoType],
+                                    selectedType: CryptoType,
+                                    delegate: ModalPickerViewControllerDelegate?,
+                                    context: AnyObject?)
+
+    func presentAddressTypeSelection(from view: AccountImportViewProtocol?,
+                                     availableTypes: [SNAddressType],
+                                     selectedType: SNAddressType,
+                                     delegate: ModalPickerViewControllerDelegate?,
+                                     context: AnyObject?)
+}
 
 protocol AccountImportViewFactoryProtocol: class {
 	static func createView() -> AccountImportViewProtocol?

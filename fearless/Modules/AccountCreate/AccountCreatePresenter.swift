@@ -2,7 +2,7 @@ import UIKit
 import IrohaCrypto
 import SoraFoundation
 
-enum AdvancedSelectionContext: String {
+enum AccountCreateContext: String {
     case cryptoType
     case networkType
 }
@@ -123,7 +123,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func selectCryptoType() {
         if let metadata = metadata {
-            let context = AdvancedSelectionContext.cryptoType.rawValue as NSString
+            let context = AccountCreateContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
             wireframe.presentCryptoTypeSelection(from: view,
                                                  availableTypes: metadata.availableCryptoTypes,
@@ -135,10 +135,10 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func selectNetworkType() {
         if let metadata = metadata {
-            let context = AdvancedSelectionContext.networkType.rawValue as NSString
-            let selectedType = selectedAddressType ?? metadata.defaultAccountType
+            let context = AccountCreateContext.networkType.rawValue as NSString
+            let selectedType = selectedAddressType ?? metadata.defaultAddressType
             wireframe.presentNetworkTypeSelection(from: view,
-                                                  availableTypes: metadata.availableAccountTypes,
+                                                  availableTypes: metadata.availableAddressTypes,
                                                   selectedType: selectedType,
                                                   delegate: self,
                                                   context: context)
@@ -173,7 +173,7 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
         self.metadata = metadata
 
         selectedCryptoType = metadata.defaultCryptoType
-        selectedAddressType = metadata.defaultAccountType
+        selectedAddressType = metadata.defaultAddressType
 
         view?.set(mnemonic: metadata.mnemonic)
 
@@ -215,7 +215,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         if
             let context = context as? NSString,
-            let selectionContext = AdvancedSelectionContext(rawValue: context as String) {
+            let selectionContext = AccountCreateContext(rawValue: context as String) {
             switch selectionContext {
             case .cryptoType:
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
@@ -225,7 +225,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
 
                 view?.didCompleteCryptoTypeSelection()
             case .networkType:
-                selectedAddressType = metadata?.availableAccountTypes[index]
+                selectedAddressType = metadata?.availableAddressTypes[index]
 
                 applyAddressTypeViewModel()
                 view?.didCompleteNetworkTypeSelection()
@@ -236,7 +236,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidCancel(context: AnyObject?) {
         if
             let context = context as? NSString,
-            let selectionContext = AdvancedSelectionContext(rawValue: context as String) {
+            let selectionContext = AccountCreateContext(rawValue: context as String) {
             switch selectionContext {
             case .cryptoType:
                 view?.didCompleteCryptoTypeSelection()

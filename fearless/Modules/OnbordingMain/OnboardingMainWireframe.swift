@@ -12,7 +12,7 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showAccountRestore(from view: OnboardingMainViewProtocol?) {
-        guard let restorationController = AccessRestoreViewFactory.createView()?.controller else {
+        guard let restorationController = AccountImportViewFactory.createView()?.controller else {
             return
         }
 

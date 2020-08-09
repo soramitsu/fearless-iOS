@@ -18,4 +18,9 @@ extension NSPredicate {
         let format = "(//[^/]+)*(///[^/]+)?"
         return NSPredicate(format: "SELF MATCHES %@", format)
     }
+
+    static var seed: NSPredicate {
+        let format = "(0x)?[a-fA-F0-9]{64}"
+        return NSPredicate(format: "SELF MATCHES %@", format)
+    }
 }
