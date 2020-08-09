@@ -5,8 +5,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
     var presenter: OnboardingMainPresenterProtocol!
 
     @IBOutlet private var termsLabel: UILabel!
-    @IBOutlet private var signUpButton: RoundedButton!
-    @IBOutlet private var restoreButton: RoundedButton!
+    @IBOutlet private var signUpButton: TriangularedButton!
+    @IBOutlet private var restoreButton: TriangularedButton!
     @IBOutlet private var logoView: UIImageView!
 
     @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
