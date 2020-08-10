@@ -102,3 +102,5 @@ transfers will appear here";
 "account.import.invalid.keystore" = "Invalid recovery json. Please, make sure that input contains valid json.";
 "account.import.keystore.decryption.error.message" = "Please, check password correctness and try again.";
 "account.import.keystore.decryption.error.title" = "Keystore decryption failed";
+"account.confirmation.title" = "Confirm mnemonic";
+"account.confirmation.details" = "Choose words in the right order";

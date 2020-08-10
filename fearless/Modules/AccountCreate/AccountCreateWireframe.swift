@@ -5,11 +5,14 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
     lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
 
     func proceed(from view: AccountCreateViewProtocol?) {
-        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+        guard let accountConfirmation = AccountConfirmViewFactory.createView()?.controller else {
             return
         }
 
-        rootAnimator.animateTransition(to: pincodeViewController)
+        let navigationController = FearlessNavigationController()
+        navigationController.viewControllers = [accountConfirmation]
+
+        rootAnimator.animateTransition(to: navigationController)
     }
 
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,

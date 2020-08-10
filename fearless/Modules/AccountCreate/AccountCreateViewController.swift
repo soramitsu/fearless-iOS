@@ -21,6 +21,8 @@ final class AccountCreateViewController: UIViewController {
     @IBOutlet var advancedContainerView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
 
+    @IBOutlet var nextButton: TriangularedButton!
+
     private var derivationPathModel: InputViewModelProtocol?
 
     var keyboardHandler: KeyboardHandler?
@@ -134,6 +136,10 @@ final class AccountCreateViewController: UIViewController {
         networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .commonChooseNetwork(preferredLanguages: locale.rLanguages)
         networkTypeView.invalidateLayout()
+
+        nextButton.imageWithTitleView?.title = R.string.localizable
+            .commonNext(preferredLanguages: locale.rLanguages)
+        nextButton.invalidateLayout()
     }
 
     private func updateDerivationPath(status: FieldStatus) {

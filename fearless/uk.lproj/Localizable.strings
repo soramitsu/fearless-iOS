@@ -102,3 +102,5 @@
 "account.import.invalid.keystore" = "Недійсний json для відновлення. Переконайтеся, що вхід містить дійсний json.";
 "account.import.keystore.decryption.error.message" = "Перевірте правильність пароля і повторіть спробу.";
 "account.import.keystore.decryption.error.title" = "Не вдалося розшифрувати Keystore";
+"account.confirmation.title" = "Підтвердіть мнемонічне";
+"account.confirmation.details" = "Вибирайте слова в потрібному порядку";

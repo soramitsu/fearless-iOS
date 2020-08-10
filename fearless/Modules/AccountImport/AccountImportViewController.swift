@@ -137,6 +137,10 @@ final class AccountImportViewController: UIViewController {
         networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .commonChooseNetwork(preferredLanguages: locale.rLanguages)
         networkTypeView.invalidateLayout()
+
+        nextButton.imageWithTitleView?.title = R.string.localizable
+            .commonNext(preferredLanguages: locale.rLanguages)
+        nextButton.invalidateLayout()
     }
 
     private func setupUsernamePlaceholder(for locale: Locale) {
