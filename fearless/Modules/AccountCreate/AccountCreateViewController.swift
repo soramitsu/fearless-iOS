@@ -125,13 +125,14 @@ final class AccountCreateViewController: UIViewController {
         advancedControl.invalidateLayout()
 
         cryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .commonEncryptionType(preferredLanguages: locale.rLanguages)
+            .commonCryptoType(preferredLanguages: locale.rLanguages)
         cryptoTypeView.actionControl.invalidateLayout()
 
         derivationPathLabel.text = R.string.localizable
             .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
 
-        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable.commonChooseNetwork()
+        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonChooseNetwork(preferredLanguages: locale.rLanguages)
         networkTypeView.invalidateLayout()
     }
 
@@ -208,6 +209,7 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         derivationPathModel = viewModel
 
         derivationPathField.text = viewModel.inputHandler.value
+        derivationPathField.placeholder = viewModel.placeholder
     }
 
     func didCompleteCryptoTypeSelection() {

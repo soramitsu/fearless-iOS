@@ -1,8 +1,9 @@
 import Foundation
 import IrohaCrypto
 
-struct AccountCreationMetadata {
-    let mnemonic: [String]
+struct AccountImportMetadata {
+    let availableSources: [AccountImportSource]
+    let defaultSource: AccountImportSource
     let availableAddressTypes: [SNAddressType]
     let defaultAddressType: SNAddressType
     let availableCryptoTypes: [CryptoType]

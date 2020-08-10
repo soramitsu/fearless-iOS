@@ -27,6 +27,7 @@ final class SubtitleActionControl: BaseActionControl {
         if indicator == nil {
             indicator = ImageActionIndicator()
             indicator?.backgroundColor = .clear
+            indicator?.isUserInteractionEnabled = false
         }
 
         if title == nil {

@@ -22,6 +22,10 @@ extension ConnectionItem {
                                     url: URL(string: "wss://kusama-rpc.polkadot.io/")!,
                                     type: SNAddressType.kusamaMain.rawValue)
 
-        return [westend, kusama]
+        let polkadot = ConnectionItem(title: "Parity Polkadot public node",
+                                      url: URL(string: "wss://rpc.polkadot.io")!,
+                                      type: SNAddressType.polkadotMain.rawValue)
+
+        return [westend, kusama, polkadot]
     }
 }

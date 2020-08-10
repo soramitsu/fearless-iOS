@@ -74,7 +74,7 @@
 "account.create.title" = "Мнемонічний";
 "account.create.details" = "Використовуйте не цифровий спосіб резервного копіювання, наприклад запису на папері.";
 "common.advanced" = "Розширений";
-"common.encryption.type" = "Тип шифрування";
+"common.crypto.type" = "Тип ключевой пары";
 "common.secret.derivation.path" = "Таємний шлях виведення";
 "common.choose.network" = "Виберіть мережу";
 "sr25519.selection.subtitle" = "sr25519 (рекомендується)";
@@ -91,3 +91,14 @@
 "common.undefined.error.title" = "Невизначена помилка";
 "common.undefined.error.message" = "Спробуйте ще раз з іншим вкладом. Якщо помилка з’явиться знову, зверніться до служби підтримки.";
 "common.unsupported.network.message" = "Тип мережі ще не підтримується. Виберіть інший.";
+"import.source.picker.title" = "Тип джерела";
+"import.raw.seed" = "Сире насіння";
+"import.recovery.json" = "Відновлення JSON";
+"account.import.password.placeholder" = "Пароль";
+"account.import.recovery.json.placeholder" = "Вставити json";
+"account.import.raw.seed.placeholder" = "Сире насіння: 64 шістнадцяткових символів";
+"import.mnemonic" = "Мнемонічна фраза";
+"account.import.invalid.seed" = "Насіння недійсне. Будь ласка, переконайтеся, що ваш вхід містить 64 шістнадцяткових символів.";
+"account.import.invalid.keystore" = "Недійсний json для відновлення. Переконайтеся, що вхід містить дійсний json.";
+"account.import.keystore.decryption.error.message" = "Перевірте правильність пароля і повторіть спробу.";
+"account.import.keystore.decryption.error.title" = "Не вдалося розшифрувати Keystore";
