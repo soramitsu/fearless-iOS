@@ -99,3 +99,5 @@
 "account.import.invalid.keystore" = "Неверный формат данных восстановления. Пожалуйста, удостоверьтесь, что данные соответствуют json формату.";
 "account.import.keystore.decryption.error.message" = "Пожалуйста, проверьте корректность пароля и попробуйте снова.";
 "account.import.keystore.decryption.error.title" = "Ошибка дешифрования";
+"account.confirmation.title" = "Подтверждение";
+"account.confirmation.details" = "Выберите слова в правильно порядке";

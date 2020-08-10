@@ -102,3 +102,5 @@ transferencias aparecerán aquí";
 "account.import.invalid.keystore" = "JSON de recuperación no válido. Por favor, asegúrese de que la entrada contenga un json válido.";
 "account.import.keystore.decryption.error.message" = "Por favor, verifique que la contraseña sea correcta e intente nuevamente.";
 "account.import.keystore.decryption.error.title" = "Falló el descifrado del almacén de claves";
+"account.confirmation.title" = "Confirmar mnemónico";
+"account.confirmation.details" = "Elija palabras en el orden correcto";

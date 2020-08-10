@@ -26,6 +26,7 @@
                 <outlet property="detailsLabel" destination="Ihh-eg-GQw" id="F0e-x4-ZTp"/>
                 <outlet property="expadableControl" destination="oE5-fi-Ix8" id="EF1-2d-paz"/>
                 <outlet property="networkTypeView" destination="eM4-fP-HgV" id="Rl8-px-KPP"/>
+                <outlet property="nextButton" destination="YBP-AM-Ejm" id="cq0-W4-PL2"/>
                 <outlet property="scrollView" destination="j2J-jw-4dD" id="CyB-r4-B75"/>
                 <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>
                 <outlet property="view" destination="iN0-l3-epB" id="w8H-PT-VAl"/>

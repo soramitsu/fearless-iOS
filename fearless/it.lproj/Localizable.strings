@@ -101,3 +101,5 @@ trasferimenti appariranno qui";
 "account.import.invalid.keystore" = "Json di ripristino non valido. Per favore, assicurati che l'input contenga json valido.";
 "account.import.keystore.decryption.error.message" = "Per favore, controlla la correttezza della password e riprova.";
 "account.import.keystore.decryption.error.title" = "Decrittografia del keystore non riuscita";
+"account.confirmation.title" = "Conferma mnemonico";
+"account.confirmation.details" = "Scegli le parole nell'ordine giusto";

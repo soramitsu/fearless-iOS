@@ -102,3 +102,5 @@ apparaitront ici";
 "account.import.invalid.keystore" = "Json de récupération non valide. Veuillez vous assurer que l'entrée contient un json valide.";
 "account.import.keystore.decryption.error.message" = "Veuillez vérifier l'exactitude du mot de passe et réessayer.";
 "account.import.keystore.decryption.error.title" = "Échec du déchiffrement du magasin de clés";
+"account.confirmation.title" = "Confirmer la mnémonique";
+"account.confirmation.details" = "Choisissez les mots dans le bon ordre";
