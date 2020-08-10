@@ -27,7 +27,7 @@ extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
     }
 
     func didCompleteConfirmation() {
-        wireframe.proceed()
+        wireframe.proceed(from: view)
     }
 
     func didReceive(error: Error) {

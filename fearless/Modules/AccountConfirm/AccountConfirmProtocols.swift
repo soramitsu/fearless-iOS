@@ -20,7 +20,7 @@ protocol AccountConfirmInteractorOutputProtocol: class {
 }
 
 protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed()
+    func proceed(from view: AccountConfirmViewProtocol?)
 }
 
 protocol AccountConfirmViewFactoryProtocol: class {
