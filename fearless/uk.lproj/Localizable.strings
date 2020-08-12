@@ -104,3 +104,4 @@
 "account.import.keystore.decryption.error.title" = "Не вдалося розшифрувати Keystore";
 "account.confirmation.title" = "Підтвердіть мнемонічне";
 "account.confirmation.details" = "Вибирайте слова в потрібному порядку";
+"pincode.create.top.title" = "Створення пін-коду";

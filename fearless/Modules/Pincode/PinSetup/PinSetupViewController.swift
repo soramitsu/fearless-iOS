@@ -18,6 +18,8 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     var keyPrefixAccessibilityId: String? = "KeyPrefixAccessibilityId"
     var backspaceAccessibilityId: String? = "BackspaceAccessibilityId"
 
+    var localizableTopTitle: LocalizableResource<String> = LocalizableResource { _ in "" }
+
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var pinView: PinView!
 
@@ -31,6 +33,8 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
 
     private var cancelButton: UIButton?
+
+    @IBOutlet var topLabel: UILabel!
 
     // MARK: View Setup
 
@@ -104,7 +108,6 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
             titleLabel.text = R.string.localizable
                 .pincodeEnterPinCode(preferredLanguages: languages)
         }
-
     }
 
     private func configurePinView() {
@@ -116,9 +119,11 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupLocalization() {
-        let languages = localizationManager?.preferredLocalizations
-        cancelButton?.setTitle(R.string.localizable.commonCancel(preferredLanguages: languages),
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        cancelButton?.setTitle(R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages),
                                for: .normal)
+
+        topLabel.text = localizableTopTitle.value(for: locale)
 
         updateTitleLabelState()
     }

@@ -18,6 +18,7 @@ abstract_target 'fearlessAll' do
   target 'fearlessTests' do
     pod 'Cuckoo'
     pod 'FireMock'
+    pod 'SoraKeystore'
   end
 
   target 'fearlessIntegrationTests'

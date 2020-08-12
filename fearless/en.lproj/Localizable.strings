@@ -104,3 +104,4 @@ transfers will appear here";
 "account.import.keystore.decryption.error.title" = "Keystore decryption failed";
 "account.confirmation.title" = "Confirm mnemonic";
 "account.confirmation.details" = "Choose words in the right order";
+"pincode.create.top.title" = "Create pin code";
