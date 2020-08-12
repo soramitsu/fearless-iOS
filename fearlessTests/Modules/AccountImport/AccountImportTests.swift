@@ -18,7 +18,8 @@ class AccountImportTests: XCTestCase {
         let operationFactory = AccountOperationFactory(keystore: keychain,
                                                        settings: settings)
         let interactor = AccountImportInteractor(accountOperationFactory: operationFactory,
-                                                 operationManager: OperationManager())
+                                                 operationManager: OperationManager(),
+                                                 settings: settings)
 
         let expectedUsername = "myname"
         let expetedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
@@ -96,5 +97,6 @@ class AccountImportTests: XCTestCase {
         XCTAssertTrue(try keychain.checkSeedForAddress(selectedAccount.address))
         XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
         XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
+        XCTAssertTrue(settings.accountConfirmed)
     }
 }

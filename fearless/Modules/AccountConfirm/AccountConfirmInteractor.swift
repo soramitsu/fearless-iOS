@@ -6,7 +6,7 @@ final class AccountConfirmInteractor {
     weak var presenter: AccountConfirmInteractorOutputProtocol!
 
     let keychain: KeystoreProtocol
-    let settings: SettingsManagerProtocol
+    private(set) var settings: SettingsManagerProtocol
 
     init(keychain: KeystoreProtocol, settings: SettingsManagerProtocol) {
         self.keychain = keychain
@@ -50,6 +50,8 @@ extension AccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
             let mnemonic = try IRMnemonicCreator().mnemonic(fromEntropy: entropy)
 
             if words == mnemonic.allWords() {
+                settings.accountConfirmed = true
+
                 presenter.didCompleteConfirmation()
             } else {
                 provideWords(afterConfirmationFail: true)
