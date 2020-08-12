@@ -76,5 +76,6 @@ class AccountCreateTests: XCTestCase {
         XCTAssertTrue(try keychain.checkSeedForAddress(selectedAccount.address))
         XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
         XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
+        XCTAssertFalse(settings.accountConfirmed)
     }
 }

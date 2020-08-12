@@ -7,6 +7,7 @@ protocol RootPresenterProtocol: class {
 protocol RootWireframeProtocol: class {
     func showLocalAuthentication(on view: UIWindow)
     func showOnboarding(on view: UIWindow)
+    func showAccountConfirmation(on view: UIWindow)
     func showPincodeSetup(on view: UIWindow)
     func showBroken(on view: UIWindow)
 }
@@ -18,6 +19,7 @@ protocol RootInteractorInputProtocol: class {
 
 protocol RootInteractorOutputProtocol: class {
     func didDecideOnboarding()
+    func didDecideAccountConfirmation()
     func didDecideLocalAuthentication()
     func didDecidePincodeSetup()
     func didDecideBroken()

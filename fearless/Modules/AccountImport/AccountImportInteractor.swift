@@ -2,6 +2,7 @@ import UIKit
 import IrohaCrypto
 import FearlessUtils
 import RobinHood
+import SoraKeystore
 
 final class AccountImportInteractor {
     weak var presenter: AccountImportInteractorOutputProtocol!
@@ -12,12 +13,16 @@ final class AccountImportInteractor {
     let accountOperationFactory: AccountOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
 
+    private(set) var settings: SettingsManagerProtocol
+
     private var currentOperation: Operation?
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
-         operationManager: OperationManagerProtocol) {
+         operationManager: OperationManagerProtocol,
+         settings: SettingsManagerProtocol) {
         self.accountOperationFactory = accountOperationFactory
         self.operationManager = operationManager
+        self.settings = settings
     }
 }
 
@@ -65,6 +70,7 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
 
                 switch operation.result {
                 case .success:
+                    self?.settings.accountConfirmed = true
                     self?.presenter?.didCompleAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)

@@ -13,7 +13,8 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
                                                               settings: settings)
 
         let interactor = AccountImportInteractor(accountOperationFactory: accountOperationFactory,
-                                                 operationManager: OperationManagerFacade.sharedManager)
+                                                 operationManager: OperationManagerFacade.sharedManager,
+                                                 settings: settings)
 
         let wireframe = AccountImportWireframe()
 

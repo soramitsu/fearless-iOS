@@ -18,6 +18,10 @@ extension RootPresenter: RootInteractorOutputProtocol {
         wireframe.showOnboarding(on: view)
     }
 
+    func didDecideAccountConfirmation() {
+        wireframe.showAccountConfirmation(on: view)
+    }
+
     func didDecideLocalAuthentication() {
         wireframe.showLocalAuthentication(on: view)
     }
