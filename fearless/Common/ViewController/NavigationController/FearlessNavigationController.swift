@@ -45,7 +45,7 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
         let isHidden = viewController as? HiddableBarWhenPushed != nil
         setNavigationBarHidden(isHidden, animated: true)
 
-        var navigationShadowStyle = NavigationBarSeparatorStyle.dark
+        var navigationShadowStyle = NavigationBarSeparatorStyle.empty
 
         if let navigationBarDesignable = viewController as? DesignableNavigationBarProtocol {
             navigationShadowStyle = navigationBarDesignable.separatorStyle
