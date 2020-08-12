@@ -104,3 +104,4 @@ transferencias aparecerán aquí";
 "account.import.keystore.decryption.error.title" = "Falló el descifrado del almacén de claves";
 "account.confirmation.title" = "Confirmar mnemónico";
 "account.confirmation.details" = "Elija palabras en el orden correcto";
+"pincode.create.top.title" = "Crear código pin";

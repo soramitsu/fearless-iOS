@@ -104,3 +104,4 @@ apparaitront ici";
 "account.import.keystore.decryption.error.title" = "Échec du déchiffrement du magasin de clés";
 "account.confirmation.title" = "Confirmer la mnémonique";
 "account.confirmation.details" = "Choisissez les mots dans le bon ordre";
+"pincode.create.top.title" = "Créer un code PIN";

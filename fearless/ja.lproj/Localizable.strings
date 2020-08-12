@@ -102,3 +102,4 @@ a type of password.";
 "account.import.keystore.decryption.error.title" = "キーストアの復号化に失敗しました";
 "account.confirmation.title" = "ニーモニックを確認する";
 "account.confirmation.details" = "正しい順序で単語を選択する";
+"pincode.create.top.title" = "PINコードを作成";

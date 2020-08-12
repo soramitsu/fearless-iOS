@@ -103,3 +103,4 @@ trasferimenti appariranno qui";
 "account.import.keystore.decryption.error.title" = "Decrittografia del keystore non riuscita";
 "account.confirmation.title" = "Conferma mnemonico";
 "account.confirmation.details" = "Scegli le parole nell'ordine giusto";
+"pincode.create.top.title" = "Crea codice PIN";
