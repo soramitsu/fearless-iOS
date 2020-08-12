@@ -69,5 +69,7 @@ class AccountConfirmTests: XCTestCase {
         // then
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
+
+        XCTAssertTrue(settings.accountConfirmed)
     }
 }

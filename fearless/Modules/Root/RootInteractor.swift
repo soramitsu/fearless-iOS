@@ -20,7 +20,9 @@ extension RootInteractor: RootInteractorInputProtocol {
     func decideModuleSynchroniously() {
         do {
             if !settings.hasSelectedAccount {
+                settings.accountConfirmed = false
                 try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
+
                 presenter?.didDecideOnboarding()
                 return
             }
