@@ -20,4 +20,13 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
             navigationController.pushViewController(restorationController, animated: true)
         }
     }
+
+    func showKeystoreImport(from view: OnboardingMainViewProtocol?) {
+        if
+            let navigationController = view?.controller.navigationController,
+            navigationController.viewControllers.count == 1,
+            navigationController.presentedViewController == nil {
+            showAccountRestore(from: view)
+        }
+    }
 }

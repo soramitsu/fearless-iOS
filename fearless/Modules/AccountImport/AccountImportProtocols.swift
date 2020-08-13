@@ -40,6 +40,7 @@ protocol AccountImportInteractorOutputProtocol: class {
     func didCompleAccountImport()
     func didReceiveAccountImport(error: Error)
     func didDeriveKeystore(username: String)
+    func didSuggestKeystore(text: String, username: String)
 }
 
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
