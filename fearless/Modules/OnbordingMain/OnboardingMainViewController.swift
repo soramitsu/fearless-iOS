@@ -19,8 +19,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
 
     var termDecorator: AttributedStringDecoratorProtocol?
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
     // MARK: Appearance
 
     override func viewDidLoad() {

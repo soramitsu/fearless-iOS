@@ -12,8 +12,6 @@ final class AccessRestoreViewController: AccessoryViewController {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
     private var model: InputViewModelProtocol? {
         didSet {
             phraseTextView.text = model?.inputHandler.value

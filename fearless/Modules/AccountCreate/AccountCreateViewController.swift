@@ -68,13 +68,6 @@ final class AccountCreateViewController: UIViewController {
 
         advancedContainerView.isHidden = !expadableControl.isActivated
 
-        if let placeholder = derivationPathField.placeholder {
-            let color = R.color.colorGray() ?? .gray
-            let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                           attributes: [.foregroundColor: color])
-            derivationPathField.attributedPlaceholder = attributedPlaceholder
-        }
-
         cryptoTypeView.actionControl.addTarget(self,
                                                action: #selector(actionOpenCryptoType),
                                                for: .valueChanged)
@@ -215,7 +208,10 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         derivationPathModel = viewModel
 
         derivationPathField.text = viewModel.inputHandler.value
-        derivationPathField.placeholder = viewModel.placeholder
+
+        let attributedPlaceholder = NSAttributedString(string: viewModel.placeholder,
+                                                       attributes: [.foregroundColor: R.color.colorGray()!])
+        derivationPathField.attributedPlaceholder = attributedPlaceholder
     }
 
     func didCompleteCryptoTypeSelection() {
