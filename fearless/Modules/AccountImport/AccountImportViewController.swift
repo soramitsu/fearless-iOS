@@ -406,7 +406,7 @@ extension AccountImportViewController: UITextViewDelegate {
     func textView(_ textView: UITextView,
                   shouldChangeTextIn range: NSRange,
                   replacementText text: String) -> Bool {
-        if text.rangeOfCharacter(from: CharacterSet.newlines) != nil {
+        if text == String.returnKey {
             textView.resignFirstResponder()
             return false
         }

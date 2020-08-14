@@ -30,8 +30,6 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var pinViewTopConstraint: NSLayoutConstraint!
     @IBOutlet private var pinViewBottomConstraint: NSLayoutConstraint!
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
     private var cancelButton: UIButton?
 
     @IBOutlet var topLabel: UILabel!

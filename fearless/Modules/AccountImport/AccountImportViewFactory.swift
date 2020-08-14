@@ -4,6 +4,12 @@ import SoraKeystore
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     static func createView() -> AccountImportViewProtocol? {
+        guard let keystoreImportService: KeystoreImportServiceProtocol =
+            URLHandlingService.shared.findService() else {
+            Logger.shared.error("Missing required keystore import service")
+            return nil
+        }
+
         let view = AccountImportViewController(nib: R.nib.accountImportViewController)
         let presenter = AccountImportPresenter()
 
@@ -14,7 +20,8 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
         let interactor = AccountImportInteractor(accountOperationFactory: accountOperationFactory,
                                                  operationManager: OperationManagerFacade.sharedManager,
-                                                 settings: settings)
+                                                 settings: settings,
+                                                 keystoreImportService: keystoreImportService)
 
         let wireframe = AccountImportWireframe()
 

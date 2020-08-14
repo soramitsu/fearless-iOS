@@ -20,6 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             rootWindow.makeKeyAndVisible()
         }
+
         return true
+    }
+
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return URLHandlingService.shared.handle(url: url)
     }
 }

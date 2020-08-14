@@ -12,6 +12,7 @@ final class AccountImportInteractor {
 
     let accountOperationFactory: AccountOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
+    let keystoreImportService: KeystoreImportServiceProtocol
 
     private(set) var settings: SettingsManagerProtocol
 
@@ -19,15 +20,37 @@ final class AccountImportInteractor {
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          operationManager: OperationManagerProtocol,
-         settings: SettingsManagerProtocol) {
+         settings: SettingsManagerProtocol,
+         keystoreImportService: KeystoreImportServiceProtocol) {
         self.accountOperationFactory = accountOperationFactory
         self.operationManager = operationManager
         self.settings = settings
+        self.keystoreImportService = keystoreImportService
     }
-}
 
-extension AccountImportInteractor: AccountImportInteractorInputProtocol {
-    func setup() {
+    private func setupKeystoreImportObserver() {
+        keystoreImportService.add(observer: self)
+        handleIfNeededKeystoreImport()
+    }
+
+    private func handleIfNeededKeystoreImport() {
+        if let definition = keystoreImportService.definition {
+            keystoreImportService.clear()
+
+            do {
+                let jsonData = try JSONEncoder().encode(definition)
+
+                if let text = String(data: jsonData, encoding: .utf8) {
+                    presenter.didSuggestKeystore(text: text, username: definition.meta.name)
+                }
+
+            } catch {
+                presenter.didReceiveAccountImport(error: error)
+            }
+        }
+    }
+
+    private func provideMetadata() {
         let availableAddressTypes: [SNAddressType] = [.kusamaMain, .polkadotMain, .genericSubstrate]
 
         let defaultConnection = ConnectionItem.defaultConnection
@@ -40,7 +63,15 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
                                              defaultAddressType: networkType,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
+
         presenter.didReceiveAccountImport(metadata: metadata)
+    }
+}
+
+extension AccountImportInteractor: AccountImportInteractorInputProtocol {
+    func setup() {
+        provideMetadata()
+        setupKeystoreImportObserver()
     }
 
     func importAccountWithMnemonic(request: AccountImportMnemonicRequest) {
@@ -100,6 +131,7 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
 
                 switch operation.result {
                 case .success:
+                    self?.settings.accountConfirmed = true
                     self?.presenter?.didCompleAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
@@ -129,6 +161,7 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
 
                 switch operation.result {
                 case .success:
+                    self?.settings.accountConfirmed = true
                     self?.presenter?.didCompleAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
@@ -148,5 +181,11 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
             let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data) {
             presenter.didDeriveKeystore(username: definition.meta.name)
         }
+    }
+}
+
+extension AccountImportInteractor: KeystoreImportObserver {
+    func didUpdateDefinition(from oldDefinition: KeystoreDefinition?) {
+        handleIfNeededKeystoreImport()
     }
 }

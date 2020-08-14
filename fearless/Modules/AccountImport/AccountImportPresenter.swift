@@ -30,20 +30,20 @@ final class AccountImportPresenter {
 
     private lazy var jsonDeserializer = JSONSerialization()
 
-    private func applySourceType() {
+    private func applySourceType(_ value: String = "") {
         guard let selectedSourceType = selectedSourceType else {
             return
         }
 
         view?.setSource(type: selectedSourceType)
 
-        applySourceTextViewModel()
+        applySourceTextViewModel(value)
         applyUsernameViewModel()
         applyPasswordViewModel()
         applyAdvanced()
     }
 
-    private func applySourceTextViewModel() {
+    private func applySourceTextViewModel(_ value: String = "") {
         guard let selectedSourceType = selectedSourceType else {
             return
         }
@@ -58,20 +58,23 @@ final class AccountImportPresenter {
         case .mnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(maxLength: AccessRestorePresenter.maxMnemonicLength,
+            let inputHandler = InputHandler(value: value,
+                                            maxLength: AccessRestorePresenter.maxMnemonicLength,
                                             validCharacterSet: CharacterSet.englishMnemonic,
                                             predicate: NSPredicate.notEmpty)
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .seed:
             let placeholder = R.string.localizable
                 .accountImportRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(predicate: NSPredicate.seed)
+            let inputHandler = InputHandler(value: value,
+                                            predicate: NSPredicate.seed)
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .keystore:
             let placeholder = R.string.localizable
                 .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(predicate: NSPredicate.notEmpty)
-            viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
+            let inputHandler = InputHandler(value: value, predicate: NSPredicate.notEmpty)
+            viewModel = InputViewModel(inputHandler: inputHandler,
+                                       placeholder: placeholder)
             viewModel.inputHandler.addObserver(self)
         }
 
@@ -367,6 +370,13 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
     }
 
     func didDeriveKeystore(username: String) {
+        applyUsernameViewModel(username)
+    }
+
+    func didSuggestKeystore(text: String, username: String) {
+        selectedSourceType = .keystore
+
+        applySourceType(text)
         applyUsernameViewModel(username)
     }
 }

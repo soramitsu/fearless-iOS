@@ -17,9 +17,13 @@ class AccountImportTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let operationFactory = AccountOperationFactory(keystore: keychain,
                                                        settings: settings)
+
+        let keystoreImportService = KeystoreImportService(logger: Logger.shared)
+
         let interactor = AccountImportInteractor(accountOperationFactory: operationFactory,
                                                  operationManager: OperationManager(),
-                                                 settings: settings)
+                                                 settings: settings,
+                                                 keystoreImportService: keystoreImportService)
 
         let expectedUsername = "myname"
         let expetedMnemonic = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"

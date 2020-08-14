@@ -14,6 +14,11 @@ final class RootInteractor {
         self.settings = settings
         self.keystore = keystore
     }
+
+    private func setupURLHandlingService() {
+        let keystoreImportService = KeystoreImportService(logger: Logger.shared)
+        URLHandlingService.shared.setup(children: [keystoreImportService])
+    }
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
@@ -45,5 +50,7 @@ extension RootInteractor: RootInteractorInputProtocol {
         }
     }
 
-    func setup() {}
+    func setup() {
+        setupURLHandlingService()
+    }
 }

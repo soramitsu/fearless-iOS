@@ -19,8 +19,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
 
     var termDecorator: AttributedStringDecoratorProtocol?
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
     // MARK: Appearance
 
     override func viewDidLoad() {
@@ -30,6 +28,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
         configureLogoView()
         configureTermsLabel()
         adjustLayout()
+
+        presenter.setup()
     }
 
     private func configureTermsLabel() {
