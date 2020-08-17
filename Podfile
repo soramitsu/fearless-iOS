@@ -3,7 +3,7 @@ platform :ios, '11.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => '0f7bdbdf8a759ea33c54d8410dbe82151ca6d963'
+  pod 'FearlessUtils', '~> 0.6.0'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'FireMock', :inhibit_warnings => true
