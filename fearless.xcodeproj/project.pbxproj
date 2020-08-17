@@ -111,8 +111,13 @@
 		8467FD0224E5D2D9005D486C /* OnboardingMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD0124E5D2D9005D486C /* OnboardingMainInteractor.swift */; };
 		8467FD0624E5E0A5005D486C /* invalidKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD0524E5E0A5005D486C /* invalidKeystore.json */; };
 		8467FD0824E5E0BD005D486C /* KeystoreDefinition+Test.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD0724E5E0BD005D486C /* KeystoreDefinition+Test.swift */; };
-		8467FD0A24E5E258005D486C /* validKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD0924E5E258005D486C /* validKeystore.json */; };
+		8467FD0A24E5E258005D486C /* validSrKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD0924E5E258005D486C /* validSrKeystore.json */; };
 		8467FD0D24E5E585005D486C /* KeystoreImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD0C24E5E585005D486C /* KeystoreImportTests.swift */; };
+		8467FD2A24EA6C62005D486C /* SigningWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD2924EA6C62005D486C /* SigningWrapper.swift */; };
+		8467FD3924EACE08005D486C /* AccountCreationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3824EACE08005D486C /* AccountCreationHelper.swift */; };
+		8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */; };
+		8467FD3E24EAD66F005D486C /* validEd25519Keystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */; };
+		8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */; };
 		846CA43324E3C6C3004F1B14 /* PincodeSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */; };
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */; };
@@ -418,8 +423,13 @@
 		8467FD0124E5D2D9005D486C /* OnboardingMainInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMainInteractor.swift; sourceTree = "<group>"; };
 		8467FD0524E5E0A5005D486C /* invalidKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = invalidKeystore.json; sourceTree = "<group>"; };
 		8467FD0724E5E0BD005D486C /* KeystoreDefinition+Test.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "KeystoreDefinition+Test.swift"; sourceTree = "<group>"; };
-		8467FD0924E5E258005D486C /* validKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validKeystore.json; sourceTree = "<group>"; };
+		8467FD0924E5E258005D486C /* validSrKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validSrKeystore.json; sourceTree = "<group>"; };
 		8467FD0C24E5E585005D486C /* KeystoreImportTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreImportTests.swift; sourceTree = "<group>"; };
+		8467FD2924EA6C62005D486C /* SigningWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningWrapper.swift; sourceTree = "<group>"; };
+		8467FD3824EACE08005D486C /* AccountCreationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationHelper.swift; sourceTree = "<group>"; };
+		8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningWrapperTests.swift; sourceTree = "<group>"; };
+		8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEd25519Keystore.json; sourceTree = "<group>"; };
+		8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEcdsaKeystore.json; sourceTree = "<group>"; };
 		846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeSetupTests.swift; sourceTree = "<group>"; };
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredicateTests.swift; sourceTree = "<group>"; };
@@ -900,6 +910,7 @@
 		842D1E7E24D0BED200C30A7A /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8467FD2B24EAAC4B005D486C /* Crypto */,
 				8467FD0B24E5E570005D486C /* URLHandling */,
 				84893BFA24D9B0D1008F6A3F /* Extensions */,
 				842D1E7F24D0BEDE00C30A7A /* Rswift */,
@@ -992,7 +1003,9 @@
 		8467FD0424E5E085005D486C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				8467FD0924E5E258005D486C /* validKeystore.json */,
+				8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */,
+				8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */,
+				8467FD0924E5E258005D486C /* validSrKeystore.json */,
 				8467FD0524E5E0A5005D486C /* invalidKeystore.json */,
 			);
 			path = Resources;
@@ -1004,6 +1017,22 @@
 				8467FD0C24E5E585005D486C /* KeystoreImportTests.swift */,
 			);
 			path = URLHandling;
+			sourceTree = "<group>";
+		};
+		8467FD2B24EAAC4B005D486C /* Crypto */ = {
+			isa = PBXGroup;
+			children = (
+				8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */,
+			);
+			path = Crypto;
+			sourceTree = "<group>";
+		};
+		8467FD3724EACDF8005D486C /* Helper */ = {
+			isa = PBXGroup;
+			children = (
+				8467FD3824EACE08005D486C /* AccountCreationHelper.swift */,
+			);
+			path = Helper;
 			sourceTree = "<group>";
 		};
 		846CA43124E3C6AA004F1B14 /* Pincode */ = {
@@ -1083,6 +1112,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				8467FD3724EACDF8005D486C /* Helper */,
 				8467FD0324E5E07D005D486C /* KeystoreDefinition */,
 				842D1E8A24D208AF00C30A7A /* Mocks */,
 				842D1E7E24D0BED200C30A7A /* Common */,
@@ -1350,6 +1380,7 @@
 			isa = PBXGroup;
 			children = (
 				8490150424AB6D25008F705E /* WalletPrimitiveFactory.swift */,
+				8467FD2924EA6C62005D486C /* SigningWrapper.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -1873,7 +1904,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8467FD0624E5E0A5005D486C /* invalidKeystore.json in Resources */,
-				8467FD0A24E5E258005D486C /* validKeystore.json in Resources */,
+				8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */,
+				8467FD0A24E5E258005D486C /* validSrKeystore.json in Resources */,
+				8467FD3E24EAD66F005D486C /* validEd25519Keystore.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2285,6 +2318,7 @@
 				8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */,
 				8490152324ABC77E008F705E /* WalletAssetViewModel.swift in Sources */,
 				84DA3B1924C8200E00B5E27F /* ConnectionItem+Default.swift in Sources */,
+				8467FD2A24EA6C62005D486C /* SigningWrapper.swift in Sources */,
 				8490150F24AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift in Sources */,
 				DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
@@ -2320,6 +2354,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8467FD3924EACE08005D486C /* AccountCreationHelper.swift in Sources */,
 				842D1E8E24D2091A00C30A7A /* CommonMocks.swift in Sources */,
 				8467FD0824E5E0BD005D486C /* KeystoreDefinition+Test.swift in Sources */,
 				842D1E9324D20CC800C30A7A /* OnboardingMainTests.swift in Sources */,
@@ -2327,6 +2362,7 @@
 				84DA3B1024C5CA0200B5E27F /* ScaleExtrinsicTests.swift in Sources */,
 				846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */,
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
+				8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */,
 				84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */,
 				842D1E8D24D2091A00C30A7A /* ModuleMocks.swift in Sources */,
 				842D1E9024D20B1500C30A7A /* Constants.swift in Sources */,

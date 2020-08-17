@@ -3,7 +3,7 @@ import FearlessUtils
 
 extension KeystoreDefinition {
     static var validURL: URL {
-        Bundle(for: RootTests.self).url(forResource: "validKeystore", withExtension: "json")!
+        Bundle(for: RootTests.self).url(forResource: "validSrKeystore", withExtension: "json")!
     }
 
     static var invalidURL: URL {
