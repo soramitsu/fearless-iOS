@@ -52,7 +52,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let keypairFactory = self.createKeypairFactory(request.cryptoType)
 
             let chaincodes = junctionResult?.chaincodes ?? []
-            let keypair = try keypairFactory.createKeypairFromSeed(result.seed,
+            let keypair = try keypairFactory.createKeypairFromSeed(result.seed.miniSeed,
                                                                    chaincodeList: chaincodes)
 
             let addressFactory = SS58AddressFactory()
@@ -64,7 +64,22 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                                                         username: request.username,
                                                         publicKeyData: keypair.publicKey().rawData())
 
-            try self.keystore.saveSeed(result.seed, address: address)
+            let secretKey: Data
+
+            switch request.cryptoType {
+            case .sr25519:
+                secretKey = keypair.privateKey().rawData()
+            case .ed25519:
+                let derivableSeedFactory = Ed25519KeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                                                                               chaincodeList: chaincodes)
+            case .ecdsa:
+                let derivableSeedFactory = EcdsaKeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                                                                               chaincodeList: chaincodes)
+            }
+
+            try self.keystore.saveSecretKey(secretKey, address: address)
             try self.keystore.saveEntropy(result.mnemonic.entropy(), address: address)
 
             if !request.derivationPath.isEmpty {
@@ -109,7 +124,22 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                                                         username: request.username,
                                                         publicKeyData: keypair.publicKey().rawData())
 
-            try self.keystore.saveSeed(seed, address: address)
+            let secretKey: Data
+
+            switch request.cryptoType {
+            case .sr25519:
+                secretKey = keypair.privateKey().rawData()
+            case .ed25519:
+                let derivableSeedFactory = Ed25519KeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                                                                               chaincodeList: chaincodes)
+            case .ecdsa:
+                let derivableSeedFactory = EcdsaKeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                                                                               chaincodeList: chaincodes)
+            }
+
+            try self.keystore.saveSecretKey(secretKey, address: address)
 
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
@@ -158,7 +188,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                                                         username: username,
                                                         publicKeyData: keystore.publicKeyData)
 
-            try self.keystore.saveSeed(keystore.secretKeyData, address: keystore.address)
+            try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)
 
             self.settings.selectedConnection = connection
         }
