@@ -105,3 +105,5 @@ apparaitront ici";
 "account.confirmation.title" = "Confirmer la mnémonique";
 "account.confirmation.details" = "Choisissez les mots dans le bon ordre";
 "pincode.create.top.title" = "Créer un code PIN";
+"common.invalid.hard.soft.message" = "Veuillez vérifier que l'entrée est un mélange de // 'hard' et / 'soft' où 'hard' et 'soft' peuvent être n'importe quelle séquence de caractères n'incluant pas /.";
+"common.invalid.hard.message" = "Veuillez vérifier que l'entrée est un mélange de // 'hard' où 'hard' peut être n'importe quelle séquence de caractères n'incluant pas /.";

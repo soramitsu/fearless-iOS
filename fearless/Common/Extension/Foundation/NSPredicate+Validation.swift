@@ -9,12 +9,22 @@ extension NSPredicate {
         return NSPredicate(format: "SELF == ''")
     }
 
-    static var deriviationPath: NSPredicate {
+    static var deriviationPathHardSoftPassword: NSPredicate {
         let format = "(//?[^/]+)*(///[^/]+)?"
         return NSPredicate(format: "SELF MATCHES %@", format)
     }
 
-    static var deriviationPathWithoutSoft: NSPredicate {
+    static var deriviationPathHardSoft: NSPredicate {
+        let format = "(//?[^/]+)*"
+        return NSPredicate(format: "SELF MATCHES %@", format)
+    }
+
+    static var deriviationPathHard: NSPredicate {
+        let format = "(//[^/]+)*"
+        return NSPredicate(format: "SELF MATCHES %@", format)
+    }
+
+    static var deriviationPathHardPassword: NSPredicate {
         let format = "(//[^/]+)*(///[^/]+)?"
         return NSPredicate(format: "SELF MATCHES %@", format)
     }

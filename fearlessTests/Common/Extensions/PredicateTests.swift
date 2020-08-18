@@ -4,34 +4,64 @@ import XCTest
 class PredicateTests: XCTestCase {
 
     func testDerivationPathPredicate() {
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: "/1//2///3"))
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: "/привет//мир///пароль"))
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: "///пароль"))
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: "//hard"))
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: "/soft"))
-        XCTAssertTrue(NSPredicate.deriviationPath.evaluate(with: ""))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/1//2///3"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/привет//мир///пароль"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "///пароль"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "//hard"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/soft"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: ""))
 
-        XCTAssertFalse(NSPredicate.deriviationPath.evaluate(with: "soft"))
-        XCTAssertFalse(NSPredicate.deriviationPath.evaluate(with: "/soft/"))
-        XCTAssertFalse(NSPredicate.deriviationPath.evaluate(with: "/soft//"))
-        XCTAssertFalse(NSPredicate.deriviationPath.evaluate(with: "////hard"))
-        XCTAssertFalse(NSPredicate.deriviationPath.evaluate(with: "/soft//hard///"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/soft/"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/soft//"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "////hard"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoftPassword.evaluate(with: "/soft//hard///"))
     }
 
-    func testDerivationPathWithoutSoftPredicate() {
-        XCTAssertTrue(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "//2///3"))
-        XCTAssertTrue(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "//мир//привет///пароль"))
-        XCTAssertTrue(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "///пароль"))
-        XCTAssertTrue(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "//hard"))
-        XCTAssertTrue(NSPredicate.deriviationPathWithoutSoft.evaluate(with: ""))
+    func testDerivationPathHardSoftPredicate() {
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoft.evaluate(with: "/1//2"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoft.evaluate(with: "/привет//мир"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoft.evaluate(with: "//hard"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardSoft.evaluate(with: ""))
 
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "soft"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "/soft"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "//hard/soft"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "//hard/soft///password"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "/soft//"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "////hard"))
-        XCTAssertFalse(NSPredicate.deriviationPathWithoutSoft.evaluate(with: "/soft//hard///"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft/"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft//"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft///password"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "////hard"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardSoft.evaluate(with: "/soft//hard///"))
+    }
+
+    func testDerivationPathHardPredicate() {
+        XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//2"))
+        XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//мир"))
+        XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//hard"))
+        XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: "//hard//soft"))
+        XCTAssertTrue(NSPredicate.deriviationPathHard.evaluate(with: ""))
+
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "/soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "//soft//"))
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "//soft///password"))
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "///hard"))
+        XCTAssertFalse(NSPredicate.deriviationPathHard.evaluate(with: "//hard///"))
+    }
+
+    func testDerivationPathHardPasswordPredicate() {
+        XCTAssertTrue(NSPredicate.deriviationPathHardPassword.evaluate(with: "//2///3"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardPassword.evaluate(with: "//мир//привет///пароль"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardPassword.evaluate(with: "///пароль"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardPassword.evaluate(with: "//hard"))
+        XCTAssertTrue(NSPredicate.deriviationPathHardPassword.evaluate(with: ""))
+
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "/soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "//hard/soft"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "//hard/soft///password"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "/soft//"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "////hard"))
+        XCTAssertFalse(NSPredicate.deriviationPathHardPassword.evaluate(with: "/soft//hard///"))
     }
 
     func testSeedPredicate() {

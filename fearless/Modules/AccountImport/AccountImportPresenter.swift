@@ -12,6 +12,7 @@ final class AccountImportPresenter {
     static let maxMnemonicLength: Int = 250
     static let maxMnemonicSize: Int = 24
     static let maxRawSeedLength: Int = 66
+    static let maxKeystoreLength: Int = 4000
 
     weak var view: AccountImportViewProtocol?
     var wireframe: AccountImportWireframeProtocol!
@@ -67,12 +68,15 @@ final class AccountImportPresenter {
             let placeholder = R.string.localizable
                 .accountImportRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
             let inputHandler = InputHandler(value: value,
+                                            maxLength: Self.maxRawSeedLength,
                                             predicate: NSPredicate.seed)
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .keystore:
             let placeholder = R.string.localizable
                 .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(value: value, predicate: NSPredicate.notEmpty)
+            let inputHandler = InputHandler(value: value,
+                                            maxLength: Self.maxKeystoreLength,
+                                            predicate: NSPredicate.notEmpty)
             viewModel = InputViewModel(inputHandler: inputHandler,
                                        placeholder: placeholder)
             viewModel.inputHandler.addObserver(self)
@@ -153,15 +157,29 @@ final class AccountImportPresenter {
             return
         }
 
+        guard let sourceType = selectedSourceType else {
+            return
+        }
+
         let predicate: NSPredicate
         let placeholder: String
 
         if cryptoType == .sr25519 {
-            predicate = NSPredicate.deriviationPath
-            placeholder = DerivationPathConstants.fullPlaceholder
+            if sourceType == .mnemonic {
+                predicate = NSPredicate.deriviationPathHardSoftPassword
+                placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
+            } else {
+                predicate = NSPredicate.deriviationPathHardSoft
+                placeholder = DerivationPathConstants.hardSoftPlaceholder
+            }
         } else {
-            predicate = NSPredicate.deriviationPathWithoutSoft
-            placeholder = DerivationPathConstants.withoutSoftPlaceholder
+            if sourceType == .mnemonic {
+                predicate = NSPredicate.deriviationPathHardPassword
+                placeholder = DerivationPathConstants.hardPasswordPlaceholder
+            } else {
+                predicate = NSPredicate.deriviationPathHard
+                placeholder = DerivationPathConstants.hardPlaceholder
+            }
         }
 
         let inputHandling = InputHandler(required: false, predicate: predicate)
@@ -175,18 +193,32 @@ final class AccountImportPresenter {
         view?.didValidateDerivationPath(.none)
     }
 
-    private func presentDerivationPathError(_ cryptoType: CryptoType) {
+    private func presentDerivationPathError(sourceType: AccountImportSource,
+                                            cryptoType: CryptoType) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         switch cryptoType {
         case .sr25519:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPath,
-                                  from: view,
-                                  locale: locale)
+            if sourceType == .mnemonic {
+                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoftPassword,
+                                      from: view,
+                                      locale: locale)
+            } else {
+                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoft,
+                                      from: view,
+                                      locale: locale)
+            }
+
         case .ed25519, .ecdsa:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPathWithoutSoft,
-                                  from: view,
-                                  locale: locale)
+            if sourceType == .mnemonic {
+                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardPassword,
+                                      from: view,
+                                      locale: locale)
+            } else {
+                _ = wireframe.present(error: AccountCreationError.invalidDerivationHard,
+                                      from: view,
+                                      locale: locale)
+            }
         }
     }
 
@@ -270,7 +302,9 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
     func activateQrScan() {}
 
     func validateDerivationPath() {
-        guard let viewModel = derivationPathViewModel, let cryptoType = selectedCryptoType else {
+        guard let viewModel = derivationPathViewModel,
+            let cryptoType = selectedCryptoType,
+            let sourceType = selectedSourceType else {
             return
         }
 
@@ -278,7 +312,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             view?.didValidateDerivationPath(.valid)
         } else {
             view?.didValidateDerivationPath(.invalid)
-            presentDerivationPathError(cryptoType)
+            presentDerivationPathError(sourceType: sourceType, cryptoType: cryptoType)
         }
     }
 
@@ -303,7 +337,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let derivationPathViewModel = derivationPathViewModel,
             !derivationPathViewModel.inputHandler.completed {
             view?.didValidateDerivationPath(.invalid)
-            presentDerivationPathError(selectedCryptoType)
+            presentDerivationPathError(sourceType: selectedSourceType, cryptoType: selectedCryptoType)
             return
         }
 
