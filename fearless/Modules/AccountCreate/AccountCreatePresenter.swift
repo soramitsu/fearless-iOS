@@ -60,11 +60,11 @@ final class AccountCreatePresenter {
         let placeholder: String
 
         if cryptoType == .sr25519 {
-            predicate = NSPredicate.deriviationPath
-            placeholder = DerivationPathConstants.fullPlaceholder
+            predicate = NSPredicate.deriviationPathHardSoftPassword
+            placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
         } else {
-            predicate = NSPredicate.deriviationPathWithoutSoft
-            placeholder = DerivationPathConstants.withoutSoftPlaceholder
+            predicate = NSPredicate.deriviationPathHardPassword
+            placeholder = DerivationPathConstants.hardPasswordPlaceholder
         }
 
         let inputHandling = InputHandler(predicate: predicate)
@@ -81,11 +81,11 @@ final class AccountCreatePresenter {
 
         switch cryptoType {
         case .sr25519:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPath,
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoftPassword,
                                   from: view,
                                   locale: locale)
         case .ed25519, .ecdsa:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPathWithoutSoft,
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardPassword,
                                   from: view,
                                   locale: locale)
         }

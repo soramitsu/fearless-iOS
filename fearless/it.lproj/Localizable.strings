@@ -104,3 +104,5 @@ trasferimenti appariranno qui";
 "account.confirmation.title" = "Conferma mnemonico";
 "account.confirmation.details" = "Scegli le parole nell'ordine giusto";
 "pincode.create.top.title" = "Crea codice PIN";
+"common.invalid.hard.soft.message" = "Per favore, controlla che l'input sia una combinazione di // \"hard\" e / \"soft\" dove \"hard\" e \"soft\" possono essere qualsiasi sequenza di caratteri non inclusa /.";
+"common.invalid.hard.message" = "Per favore, controlla che l'input sia una combinazione di // \"hard\" dove \"hard\" può essere qualsiasi sequenza di caratteri non inclusa /.";

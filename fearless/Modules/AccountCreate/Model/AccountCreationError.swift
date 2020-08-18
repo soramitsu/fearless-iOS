@@ -2,8 +2,10 @@ import Foundation
 
 enum AccountCreationError: Error {
     case unsupportedNetwork
-    case invalidDerivationPath
-    case invalidDerivationPathWithoutSoft
+    case invalidDerivationHardSoftPassword
+    case invalidDerivationHardPassword
+    case invalidDerivationHardSoft
+    case invalidDerivationHard
 }
 
 extension AccountCreationError: ErrorContentConvertible {
@@ -17,16 +19,26 @@ extension AccountCreationError: ErrorContentConvertible {
                 .commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .commonUnsupportedNetworkMessage(preferredLanguages: locale?.rLanguages)
-        case .invalidDerivationPath:
+        case .invalidDerivationHardSoftPassword:
             title = R.string.localizable
                 .commonInvalidPathTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .commonInvalidPathWithSoftMessage(preferredLanguages: locale?.rLanguages)
-        case .invalidDerivationPathWithoutSoft:
+        case .invalidDerivationHardPassword:
             title = R.string.localizable
                 .commonInvalidPathTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .commonInvalidPathWithoutSoftMessage(preferredLanguages: locale?.rLanguages)
+        case .invalidDerivationHardSoft:
+            title = R.string.localizable
+                .commonInvalidPathTitle(preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable
+                .commonInvalidHardSoftMessage(preferredLanguages: locale?.rLanguages)
+        case .invalidDerivationHard:
+            title = R.string.localizable
+                .commonInvalidPathTitle(preferredLanguages: locale?.rLanguages)
+            message = R.string.localizable
+                .commonInvalidHardMessage(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

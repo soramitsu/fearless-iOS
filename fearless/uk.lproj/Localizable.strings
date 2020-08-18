@@ -105,3 +105,5 @@
 "account.confirmation.title" = "Підтвердіть мнемонічне";
 "account.confirmation.details" = "Вибирайте слова в потрібному порядку";
 "pincode.create.top.title" = "Створення пін-коду";
+"common.invalid.hard.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /.";
+"common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";

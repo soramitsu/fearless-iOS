@@ -1,6 +1,8 @@
 import Foundation
 
 struct DerivationPathConstants {
-    static let fullPlaceholder = "//hard/soft///password"
-    static let withoutSoftPlaceholder = "//hard///password"
+    static let hardSoftPasswordPlaceholder = "//hard/soft///password"
+    static let hardSoftPlaceholder = "//hard/soft"
+    static let hardPlaceholder = "//hard"
+    static let hardPasswordPlaceholder = "//hard///password"
 }

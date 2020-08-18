@@ -103,3 +103,5 @@ a type of password.";
 "account.confirmation.title" = "ニーモニックを確認する";
 "account.confirmation.details" = "正しい順序で単語を選択する";
 "pincode.create.top.title" = "PINコードを作成";
+"common.invalid.hard.soft.message" = "入力が// 'hard'と/ 'soft'の混合であることを確認してください。'hard 'と' soft 'は/を含まない任意の文字シーケンスにすることができます。";
+"common.invalid.hard.message" = "入力が// 'hard'の混合であることを確認してください。ここで、 'hard'は/を含まない任意の文字シーケンスです。";

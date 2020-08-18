@@ -105,3 +105,5 @@ transferencias aparecerán aquí";
 "account.confirmation.title" = "Confirmar mnemónico";
 "account.confirmation.details" = "Elija palabras en el orden correcto";
 "pincode.create.top.title" = "Crear código pin";
+"common.invalid.hard.soft.message" = "Por favor, verifique que la entrada sea una mezcla de // 'duro' y / 'suave' donde 'duro' y 'suave' pueden ser cualquier secuencia de caracteres sin incluir /.";
+"common.invalid.hard.message" = "Por favor, verifique que la entrada sea una mezcla de // 'hard' donde 'hard' puede ser cualquier secuencia de caracteres que no incluya /.";
