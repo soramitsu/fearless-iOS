@@ -2,17 +2,17 @@ import UIKit
 import SoraFoundation
 import SoraKeystore
 import IrohaCrypto
+import FearlessUtils
 
 final class ProfileViewFactory: ProfileViewFactoryProtocol {
 	static func createView() -> ProfileViewProtocol? {
         let localizationManager = LocalizationManager.shared
 
-        let profileViewModelFactory = ProfileViewModelFactory()
+        let profileViewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
         let view = ProfileViewController(nib: R.nib.profileViewController)
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
         let interactor = ProfileInteractor(settingsManager: SettingsManager.shared,
-                                           ss58AddressFactory: SS58AddressFactory(),
                                            logger: Logger.shared)
         let wireframe = ProfileWireframe()
 

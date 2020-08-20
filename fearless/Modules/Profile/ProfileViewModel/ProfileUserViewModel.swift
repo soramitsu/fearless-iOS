@@ -1,16 +1,14 @@
 import Foundation
+import FearlessUtils
 
-protocol ProfileUserViewModelProtocol: class {
+protocol ProfileUserViewModelProtocol {
     var name: String { get }
     var details: String { get }
+    var icon: DrawableIcon? { get }
 }
 
-final class ProfileUserViewModel: ProfileUserViewModelProtocol {
-    var name: String
-    var details: String
-
-    init(name: String, details: String) {
-        self.name = name
-        self.details = details
-    }
+struct ProfileUserViewModel: ProfileUserViewModelProtocol {
+    let name: String
+    let details: String
+    let icon: DrawableIcon?
 }

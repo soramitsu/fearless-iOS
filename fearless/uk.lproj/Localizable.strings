@@ -50,8 +50,6 @@
 "profile.title" = "Параметри";
 "profile.about.title" = "Про додаток";
 "profile.language.title" = "Мова";
-"profile.connection.title" = "Керування підключеннями";
-"profile.subtitle" = "Kusama мережа";
 "about.software" = "Додаток";
 "about.version" = "Версія";
 "about.source.code" = "Вихідний код";
@@ -105,5 +103,8 @@
 "account.confirmation.title" = "Підтвердіть мнемонічне";
 "account.confirmation.details" = "Вибирайте слова в потрібному порядку";
 "pincode.create.top.title" = "Створення пін-коду";
+"profile.accounts.title" = "Рахунки";
+"profile.network.title" = "Мережа";
+"profile.pincode.change.title" = "Зміна пін-коду";
 "common.invalid.hard.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /.";
 "common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";

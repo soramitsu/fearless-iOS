@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -21,92 +22,78 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconViewMnemonic" translatesAutoresizingMaskIntoConstraints="NO" id="g7b-eE-oyd">
-                        <rect key="frame" x="20" y="19.5" width="20" height="20"/>
-                        <color key="tintColor" red="0.027450980392156862" green="0.75686274509803919" blue="0.94117647058823528" alpha="1" colorSpace="calibratedRGB"/>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="d2O-Hc-WzK" customClass="BorderedContainerView" customModule="SoraUI">
+                        <rect key="frame" x="16" y="0.0" width="343" height="59"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                <color key="value" name="colorGray"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconProfileNetworks" translatesAutoresizingMaskIntoConstraints="NO" id="g7b-eE-oyd">
+                        <rect key="frame" x="20" y="17.5" width="24" height="24"/>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Passphrase" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="OG9-GY-G1z">
-                        <rect key="frame" x="54" y="20.5" width="80.5" height="18"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Passphrase" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="OG9-GY-G1z">
+                        <rect key="frame" x="58" y="21.5" width="222.5" height="16.5"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                         <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="zuZ-sB-qZp">
-                        <rect key="frame" x="349" y="24" width="6" height="11"/>
+                        <rect key="frame" x="331" y="17.5" width="24" height="24"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </imageView>
-                    <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wac-kT-CBb" customClass="RoundedButton" customModule="SoraUI">
-                        <rect key="frame" x="277.5" y="15" width="53.5" height="29"/>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        <color key="tintColor" red="0.81568627449999997" green="0.031372549020000001" blue="0.1058823529" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                        <constraints>
-                            <constraint firstAttribute="height" constant="29" id="LDN-MA-agg"/>
-                        </constraints>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="string" keyPath="_title" value="300"/>
-                            <userDefinedRuntimeAttribute type="color" keyPath="_iconTintColor">
-                                <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
-                                <real key="value" value="0.0"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
-                                <real key="value" value="0.0"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
-                                <real key="value" value="0.0"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                                <color key="value" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                                <real key="value" value="14"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_cornerRadius">
-                                <real key="value" value="14.5"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                                <real key="value" value="12"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
-                                <real key="value" value="12"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                            </userDefinedRuntimeAttribute>
-                        </userDefinedRuntimeAttributes>
-                    </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="English" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uKm-od-zaZ">
+                        <rect key="frame" x="285.5" y="21.5" width="45.5" height="16.5"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <color key="textColor" name="colorWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstItem="zuZ-sB-qZp" firstAttribute="centerY" secondItem="efe-PU-sAs" secondAttribute="centerY" id="4dP-N7-A61"/>
                     <constraint firstItem="OG9-GY-G1z" firstAttribute="centerY" secondItem="efe-PU-sAs" secondAttribute="centerY" id="9N2-UQ-yWa"/>
-                    <constraint firstItem="Wac-kT-CBb" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="OG9-GY-G1z" secondAttribute="trailing" constant="8" id="EEC-Gl-kYL"/>
+                    <constraint firstItem="uKm-od-zaZ" firstAttribute="centerY" secondItem="efe-PU-sAs" secondAttribute="centerY" id="IPE-u6-C1j"/>
                     <constraint firstItem="g7b-eE-oyd" firstAttribute="leading" secondItem="efe-PU-sAs" secondAttribute="leading" constant="20" id="MYV-xf-NZe"/>
+                    <constraint firstItem="uKm-od-zaZ" firstAttribute="leading" secondItem="OG9-GY-G1z" secondAttribute="trailing" constant="5" id="YP4-Wq-7HH"/>
                     <constraint firstAttribute="trailing" secondItem="zuZ-sB-qZp" secondAttribute="trailing" constant="20" id="aSe-Pl-Zth"/>
-                    <constraint firstItem="Wac-kT-CBb" firstAttribute="centerY" secondItem="efe-PU-sAs" secondAttribute="centerY" id="eae-PI-pet"/>
+                    <constraint firstItem="d2O-Hc-WzK" firstAttribute="leading" secondItem="efe-PU-sAs" secondAttribute="leading" constant="16" id="emo-ZX-hF7"/>
+                    <constraint firstItem="zuZ-sB-qZp" firstAttribute="leading" secondItem="uKm-od-zaZ" secondAttribute="trailing" id="hJq-Ki-fhx"/>
+                    <constraint firstAttribute="trailing" secondItem="d2O-Hc-WzK" secondAttribute="trailing" constant="16" id="hhl-0p-MnB"/>
+                    <constraint firstAttribute="bottom" secondItem="d2O-Hc-WzK" secondAttribute="bottom" id="m9E-z6-7PR"/>
                     <constraint firstItem="g7b-eE-oyd" firstAttribute="centerY" secondItem="efe-PU-sAs" secondAttribute="centerY" id="tkB-zG-uS4"/>
                     <constraint firstItem="OG9-GY-G1z" firstAttribute="leading" secondItem="g7b-eE-oyd" secondAttribute="trailing" constant="14" id="yiV-A6-TeA"/>
-                    <constraint firstItem="zuZ-sB-qZp" firstAttribute="leading" secondItem="Wac-kT-CBb" secondAttribute="trailing" constant="18" id="ymv-US-hVy"/>
+                    <constraint firstItem="d2O-Hc-WzK" firstAttribute="top" secondItem="efe-PU-sAs" secondAttribute="top" id="zRh-hX-d8u"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <inset key="separatorInset" minX="20" minY="0.0" maxX="20" maxY="0.0"/>
             <connections>
-                <outlet property="accessoryRoundView" destination="Wac-kT-CBb" id="x2D-Wn-U0q"/>
                 <outlet property="iconImageView" destination="g7b-eE-oyd" id="HQf-lk-y78"/>
+                <outlet property="subtitleLabel" destination="uKm-od-zaZ" id="CH3-Lz-En4"/>
                 <outlet property="titleLabel" destination="OG9-GY-G1z" id="DsT-KL-gmT"/>
             </connections>
             <point key="canvasLocation" x="1" y="-22"/>
         </tableViewCell>
     </objects>
     <resources>
-        <image name="iconSmallArrow" width="6" height="11"/>
-        <image name="iconViewMnemonic" width="20" height="20"/>
+        <image name="iconProfileNetworks" width="24" height="24"/>
+        <image name="iconSmallArrow" width="24" height="24"/>
+        <namedColor name="colorGray">
+            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
     </resources>
 </document>

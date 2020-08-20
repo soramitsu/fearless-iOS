@@ -2,6 +2,10 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
+    func showAccountDetails(from view: ProfileViewProtocol?) {}
+
+    func showPincodeChange(from view: ProfileViewProtocol?) {}
+
     func showPassphraseView(from view: ProfileViewProtocol?) {
         authorize(animated: true, cancellable: true) { (isAuthorized) in
             if isAuthorized {
@@ -17,7 +21,9 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
         }
     }
 
-    func showNodeSelection(from view: ProfileViewProtocol?) {
+    func showAccountSelection(from view: ProfileViewProtocol?) {}
+
+    func showConnectionSelection(from view: ProfileViewProtocol?) {
         guard let nodeSelection = NodeSelectionViewFactory.createView() else {
             return
         }

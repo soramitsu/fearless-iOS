@@ -47,8 +47,6 @@
 "profile.title" = "Көйләүҙәр";
 "profile.about.title" = "Тураһында";
 "profile.language.title" = "Тел";
-"profile.connection.title" = "Настройки подключения";
-"profile.subtitle" = "Kusama көтәбеҙ";
 "about.software" = "Ҡушымта";
 "about.version" = "Версия";
 "about.source.code" = "Сығанаҡ код";
@@ -102,5 +100,8 @@
 "account.confirmation.title" = "Подтверждение";
 "account.confirmation.details" = "Выберите слова в правильном порядке";
 "pincode.create.top.title" = "Новый пинкод";
+"profile.accounts.title" = "Аккаунты";
+"profile.network.title" = "Селтәре";
+"profile.pincode.change.title" = "Үҙгәртергә pin-код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";

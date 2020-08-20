@@ -3,21 +3,18 @@ import SoraKeystore
 import IrohaCrypto
 
 enum ProfileInteractorError: Error {
-    case invalidUserData
+    case noSelectedAccount
 }
 
 final class ProfileInteractor {
 	weak var presenter: ProfileInteractorOutputProtocol?
 
     let settingsManager: SettingsManagerProtocol
-    let ss58AddressFactory: SS58AddressFactoryProtocol
     let logger: LoggerProtocol
 
     init(settingsManager: SettingsManagerProtocol,
-         ss58AddressFactory: SS58AddressFactoryProtocol,
          logger: LoggerProtocol) {
         self.settingsManager = settingsManager
-        self.ss58AddressFactory = ss58AddressFactory
         self.logger = logger
     }
 }
@@ -25,11 +22,16 @@ final class ProfileInteractor {
 extension ProfileInteractor: ProfileInteractorInputProtocol {
     func setup() {
         do {
-            guard let address = settingsManager.selectedAccount?.address else {
-                throw ProfileInteractorError.invalidUserData
+            guard let account = settingsManager.selectedAccount else {
+                throw ProfileInteractorError.noSelectedAccount
             }
 
-            presenter?.didReceive(userData: UserData(address: address))
+            let connection = settingsManager.selectedConnection
+
+            let userSettings = UserSettings(account: account,
+                                            connection: connection)
+
+            presenter?.didReceive(userSettings: userSettings)
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
