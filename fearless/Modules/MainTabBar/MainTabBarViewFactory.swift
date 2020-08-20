@@ -179,7 +179,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabProfile()?
+            let normalIcon = R.image.iconTabSettings()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?

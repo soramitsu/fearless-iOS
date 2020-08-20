@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Bold.otf">
+            <string>sora-rc004-0417-Bold</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="none" indentationWidth="10" reuseIdentifier="profileSectionCellId" id="0Rc-5l-F7f" customClass="ProfileSectionTableViewCell" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="0Rc-5l-F7f" id="MCQ-UF-dgY">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="44"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48g-kN-GhJ">
+                        <rect key="frame" x="16" y="8" width="382" height="28"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
+                        <color key="textColor" name="colorWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="48g-kN-GhJ" firstAttribute="centerY" secondItem="MCQ-UF-dgY" secondAttribute="centerY" id="GwI-9G-UhP"/>
+                    <constraint firstItem="48g-kN-GhJ" firstAttribute="leading" secondItem="MCQ-UF-dgY" secondAttribute="leading" constant="16" id="RRd-hn-0hd"/>
+                    <constraint firstItem="48g-kN-GhJ" firstAttribute="trailing" secondItem="MCQ-UF-dgY" secondAttribute="trailing" constant="-16" id="g8A-c3-tPc"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+            <connections>
+                <outlet property="centerY" destination="GwI-9G-UhP" id="Wp4-jM-c7K"/>
+                <outlet property="leading" destination="RRd-hn-0hd" id="0ZO-J4-lp4"/>
+                <outlet property="titleLabel" destination="48g-kN-GhJ" id="KyW-K8-cfa"/>
+                <outlet property="trailing" destination="g8A-c3-tPc" id="sYJ-7a-Tp3"/>
+            </connections>
+            <point key="canvasLocation" x="49" y="36"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

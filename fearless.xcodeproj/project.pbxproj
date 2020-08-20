@@ -42,9 +42,9 @@
 		8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */; };
 		8428765C24ADDE0200D91AD8 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765024ADDE0200D91AD8 /* ProfileViewController.swift */; };
 		8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */; };
-		8428765F24ADE0BB00D91AD8 /* UserData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserData.swift */; };
-		8428766324ADE1E300D91AD8 /* ProfileButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */; };
-		8428766424ADE1E400D91AD8 /* ProfileButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766224ADE1E300D91AD8 /* ProfileButton.swift */; };
+		8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserSettings.swift */; };
+		8428766324ADE1E300D91AD8 /* ProfileView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */; };
+		8428766424ADE1E400D91AD8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766224ADE1E300D91AD8 /* ProfileView.swift */; };
 		8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */; };
 		8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */; };
 		8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */; };
@@ -118,6 +118,11 @@
 		8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */; };
 		8467FD3E24EAD66F005D486C /* validEd25519Keystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */; };
 		8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */; };
+		8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD4024ED3C72005D486C /* AlignableContentControl.swift */; };
+		8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD4224ED5F46005D486C /* ProfileSectionTableViewCell.swift */; };
+		8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD4424ED5F60005D486C /* ProfileSectionTableViewCell.xib */; };
+		8467FD4724ED6496005D486C /* ProfileDetailsTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8467FD4624ED6496005D486C /* ProfileDetailsTableViewCell.xib */; };
+		8467FD4924ED64A5005D486C /* ProfileDetailsTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD4824ED64A5005D486C /* ProfileDetailsTableViewCell.swift */; };
 		846CA43324E3C6C3004F1B14 /* PincodeSetupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */; };
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */; };
@@ -352,9 +357,9 @@
 		8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileWireframe.swift; sourceTree = "<group>"; };
 		8428765024ADDE0200D91AD8 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileInteractor.swift; sourceTree = "<group>"; };
-		8428765E24ADE0BB00D91AD8 /* UserData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserData.swift; sourceTree = "<group>"; };
-		8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ProfileButton+Inspectable.swift"; sourceTree = "<group>"; };
-		8428766224ADE1E300D91AD8 /* ProfileButton.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileButton.swift; sourceTree = "<group>"; };
+		8428765E24ADE0BB00D91AD8 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
+		8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ProfileView+Inspectable.swift"; sourceTree = "<group>"; };
+		8428766224ADE1E300D91AD8 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformAnimator+Common.swift"; sourceTree = "<group>"; };
 		8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthorizationPresentable.swift; sourceTree = "<group>"; };
 		8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Modal.swift"; sourceTree = "<group>"; };
@@ -430,6 +435,11 @@
 		8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningWrapperTests.swift; sourceTree = "<group>"; };
 		8467FD3C24EAD66F005D486C /* validEd25519Keystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEd25519Keystore.json; sourceTree = "<group>"; };
 		8467FD3D24EAD66F005D486C /* validEcdsaKeystore.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = validEcdsaKeystore.json; sourceTree = "<group>"; };
+		8467FD4024ED3C72005D486C /* AlignableContentControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlignableContentControl.swift; sourceTree = "<group>"; };
+		8467FD4224ED5F46005D486C /* ProfileSectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSectionTableViewCell.swift; sourceTree = "<group>"; };
+		8467FD4424ED5F60005D486C /* ProfileSectionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileSectionTableViewCell.xib; sourceTree = "<group>"; };
+		8467FD4624ED6496005D486C /* ProfileDetailsTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ProfileDetailsTableViewCell.xib; sourceTree = "<group>"; };
+		8467FD4824ED64A5005D486C /* ProfileDetailsTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileDetailsTableViewCell.swift; sourceTree = "<group>"; };
 		846CA43224E3C6C3004F1B14 /* PincodeSetupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PincodeSetupTests.swift; sourceTree = "<group>"; };
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredicateTests.swift; sourceTree = "<group>"; };
@@ -754,14 +764,14 @@
 		8428764224ADDE0200D91AD8 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
-				8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */,
-				8428764424ADDE0200D91AD8 /* ProfileViewController.xib */,
 				8428764624ADDE0200D91AD8 /* ProfileViewModel */,
 				8428764A24ADDE0200D91AD8 /* ProfileView */,
 				8428764D24ADDE0200D91AD8 /* ProfileProtocol.swift */,
+				8428764324ADDE0200D91AD8 /* ProfilePresenter.swift */,
 				8428764E24ADDE0200D91AD8 /* ProfileViewFactory.swift */,
 				8428764F24ADDE0200D91AD8 /* ProfileWireframe.swift */,
 				8428765024ADDE0200D91AD8 /* ProfileViewController.swift */,
+				8428764424ADDE0200D91AD8 /* ProfileViewController.xib */,
 				8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */,
 			);
 			path = Profile;
@@ -782,17 +792,21 @@
 			children = (
 				8428764B24ADDE0200D91AD8 /* ProfileTableViewCell.swift */,
 				8428764C24ADDE0200D91AD8 /* ProfileTableViewCell.xib */,
+				8467FD4224ED5F46005D486C /* ProfileSectionTableViewCell.swift */,
+				8467FD4424ED5F60005D486C /* ProfileSectionTableViewCell.xib */,
+				8467FD4624ED6496005D486C /* ProfileDetailsTableViewCell.xib */,
+				8467FD4824ED64A5005D486C /* ProfileDetailsTableViewCell.swift */,
 			);
 			path = ProfileView;
 			sourceTree = "<group>";
 		};
-		8428766024ADE1E300D91AD8 /* ProfileButton */ = {
+		8428766024ADE1E300D91AD8 /* ProfileView */ = {
 			isa = PBXGroup;
 			children = (
-				8428766124ADE1E300D91AD8 /* ProfileButton+Inspectable.swift */,
-				8428766224ADE1E300D91AD8 /* ProfileButton.swift */,
+				8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */,
+				8428766224ADE1E300D91AD8 /* ProfileView.swift */,
 			);
-			path = ProfileButton;
+			path = ProfileView;
 			sourceTree = "<group>";
 		};
 		8428766524ADF20700D91AD8 /* Animation */ = {
@@ -1211,7 +1225,7 @@
 				849013E124A9288B008F705E /* Language.swift */,
 				8490145724A9406D008F705E /* LegalData.swift */,
 				849014A524AA801B008F705E /* TextSharingSource.swift */,
-				8428765E24ADE0BB00D91AD8 /* UserData.swift */,
+				8428765E24ADE0BB00D91AD8 /* UserSettings.swift */,
 				842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */,
 				84DA3B1524C81ECE00B5E27F /* AccountItem.swift */,
 				84893BFD24DA0000008F6A3F /* FieldStatus.swift */,
@@ -1412,8 +1426,9 @@
 			children = (
 				84C6800C24D6ECC200006BF5 /* ActionView */,
 				842D1E7724D063E500C30A7A /* TriangularedView */,
-				8428766024ADE1E300D91AD8 /* ProfileButton */,
+				8428766024ADE1E300D91AD8 /* ProfileView */,
 				8490149E24AA7F9A008F705E /* AccessoryView */,
+				8467FD4024ED3C72005D486C /* AlignableContentControl.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -1864,6 +1879,7 @@
 			files = (
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
+				8467FD4724ED6496005D486C /* ProfileDetailsTableViewCell.xib in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */,
 				842876AC24AE049B00D91AD8 /* SelectionTitleTableViewCell.xib in Resources */,
@@ -1873,6 +1889,7 @@
 				8428765824ADDE0200D91AD8 /* ProfileTableViewCell.xib in Resources */,
 				849013FD24A92A05008F705E /* fearless.debug.xcconfig in Resources */,
 				84D8F16724D81CB100AF43E9 /* TitleWithSubtitleTableViewCell.xib in Resources */,
+				8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */,
 				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
@@ -2202,6 +2219,7 @@
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
 				842876B924AE295300D91AD8 /* NodeSelectionViewController.swift in Sources */,
 				842876BD24AE299600D91AD8 /* NodeSelectionProtocols.swift in Sources */,
@@ -2227,7 +2245,7 @@
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
-				8428766324ADE1E300D91AD8 /* ProfileButton+Inspectable.swift in Sources */,
+				8428766324ADE1E300D91AD8 /* ProfileView+Inspectable.swift in Sources */,
 				849014F424AA961E008F705E /* AccessRestoreWireframe.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
@@ -2239,7 +2257,7 @@
 				84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
-				8428766424ADE1E400D91AD8 /* ProfileButton.swift in Sources */,
+				8428766424ADE1E400D91AD8 /* ProfileView.swift in Sources */,
 				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
 				84C6801824D7053B00006BF5 /* BorderedSubtitleActionView.swift in Sources */,
 				84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */,
@@ -2249,6 +2267,7 @@
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				843C49D824DD98CC00B71DDA /* DerivationPathConstants.swift in Sources */,
 				849013AC24A80984008F705E /* AppDelegate.swift in Sources */,
+				8467FD4924ED64A5005D486C /* ProfileDetailsTableViewCell.swift in Sources */,
 				849014F624AA961E008F705E /* AccessRestorePresenter.swift in Sources */,
 				842876A724AE049B00D91AD8 /* SelectionListProtocols.swift in Sources */,
 				84DA3B0C24C590E700B5E27F /* Era.swift in Sources */,
@@ -2311,7 +2330,7 @@
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
-				8428765F24ADE0BB00D91AD8 /* UserData.swift in Sources */,
+				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
 				8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */,
 				849014F724AA961E008F705E /* AccessRestoreViewFactory.swift in Sources */,
 				8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */,
@@ -2325,6 +2344,7 @@
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
+				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,

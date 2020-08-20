@@ -7,7 +7,8 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
 
 protocol ProfilePresenterProtocol: class {
     func setup()
-    func activateUserDetails()
+    func activateAccountDetails()
+    func activeteAccountCopy()
     func activateOption(at index: UInt)
 }
 
@@ -16,14 +17,16 @@ protocol ProfileInteractorInputProtocol: class {
 }
 
 protocol ProfileInteractorOutputProtocol: class {
-    func didReceive(userData: UserData)
+    func didReceive(userSettings: UserSettings)
     func didReceiveUserDataProvider(error: Error)
 }
 
 protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresentable {
-    func showPassphraseView(from view: ProfileViewProtocol?)
-    func showNodeSelection(from view: ProfileViewProtocol?)
+    func showAccountDetails(from view: ProfileViewProtocol?)
+    func showAccountSelection(from view: ProfileViewProtocol?)
+    func showConnectionSelection(from view: ProfileViewProtocol?)
     func showLanguageSelection(from view: ProfileViewProtocol?)
+    func showPincodeChange(from view: ProfileViewProtocol?)
     func showAbout(from view: ProfileViewProtocol?)
 }
 
