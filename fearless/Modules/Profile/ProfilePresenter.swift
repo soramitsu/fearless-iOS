@@ -104,6 +104,12 @@ extension ProfilePresenter: ProfileInteractorOutputProtocol {
 
     func didReceiveUserDataProvider(error: Error) {
         logger?.debug("Did receive user data provider \(error)")
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+        }
     }
 }
 

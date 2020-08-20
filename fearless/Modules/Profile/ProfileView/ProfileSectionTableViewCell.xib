@@ -23,7 +23,7 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48g-kN-GhJ">
-                        <rect key="frame" x="16" y="8" width="382" height="28"/>
+                        <rect key="frame" x="16" y="9" width="382" height="26"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
