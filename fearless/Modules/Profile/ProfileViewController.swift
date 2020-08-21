@@ -95,7 +95,9 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        presenter.activateOption(at: UInt(indexPath.row) - 2)
+        if indexPath.row >= 2 {
+            presenter.activateOption(at: UInt(indexPath.row) - 2)
+        }
     }
 }
 

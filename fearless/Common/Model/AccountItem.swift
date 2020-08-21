@@ -6,7 +6,14 @@ enum CryptoType: UInt8, Codable, CaseIterable {
     case ecdsa
 }
 
-struct AccountItem: Codable {
+struct AccountItem: Codable, Equatable {
+    enum CodingKeys: String, CodingKey {
+        case address
+        case cryptoType
+        case username
+        case publicKeyData
+    }
+
     let address: String
     let cryptoType: CryptoType
     let username: String

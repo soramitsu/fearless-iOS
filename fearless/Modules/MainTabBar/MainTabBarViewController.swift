@@ -28,8 +28,7 @@ final class MainTabBarViewController: UITabBarController {
         if #available(iOS 13.0, *) {
             let appearance = UITabBarAppearance()
 
-            appearance.backgroundImage = UIImage()
-            appearance.shadowImage = UIImage.background(from: R.color.colorDarkGray()!)
+            appearance.shadowImage = UIImage()
 
             let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!]
             let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
