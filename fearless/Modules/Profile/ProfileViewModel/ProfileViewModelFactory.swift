@@ -14,8 +14,8 @@ protocol ProfileViewModelFactoryProtocol: class {
 enum ProfileOption: UInt, CaseIterable {
     case accountList
     case connectionList
-    case changePincode
     case language
+    case changePincode
     case about
 }
 
