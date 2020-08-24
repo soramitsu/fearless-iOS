@@ -36,7 +36,7 @@
                             <color key="tintColor" name="colorWhite"/>
                             <color key="textColor" name="colorWhite"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
-                            <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="next" textContentType="nickname"/>
+                            <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="done" textContentType="nickname"/>
                             <connections>
                                 <action selector="textFieldDidChange:" destination="-1" eventType="editingChanged" id="wkc-F2-Snh"/>
                                 <outlet property="delegate" destination="-1" id="rKR-6l-q2Z"/>
@@ -76,7 +76,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aza-85-hKb">
-                    <rect key="frame" x="16" y="76" width="382" height="42"/>
+                    <rect key="frame" x="16" y="76" width="382" height="45.666666666666657"/>
                     <string key="text">The name for this account and how it will appear under your addresses. With an on-chain identity, it can be made available to others.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                     <color key="textColor" name="colorWhite"/>

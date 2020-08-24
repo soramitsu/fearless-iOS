@@ -119,7 +119,11 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        -view.safeAreaInsets.bottom + 24
+        if bottomInset > 0.0 {
+            return -view.safeAreaInsets.bottom + 24
+        } else {
+            return 24
+        }
     }
 }
 
