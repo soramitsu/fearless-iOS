@@ -15,8 +15,7 @@ class AccountCreateTests: XCTestCase {
 
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
-        let operationFactory = AccountOperationFactory(keystore: keychain,
-                                                       settings: settings)
+        let operationFactory = AccountOperationFactory(keystore: keychain)
         let mnemonicCreator = IRMnemonicCreator()
         let interactor = AccountCreateInteractor(accountOperationFactory: operationFactory,
                                                  mnemonicCreator: mnemonicCreator,

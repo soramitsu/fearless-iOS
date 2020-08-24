@@ -8,8 +8,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let operationFactory = AccountOperationFactory(keystore: Keychain(),
-                                                       settings: SettingsManager.shared)
+        let operationFactory = AccountOperationFactory(keystore: Keychain())
 
         let interactor = AccountCreateInteractor(accountOperationFactory: operationFactory,
                                                  mnemonicCreator: IRMnemonicCreator(),

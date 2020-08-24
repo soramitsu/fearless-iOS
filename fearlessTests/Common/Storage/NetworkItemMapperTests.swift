@@ -11,7 +11,7 @@ class NetworkItemMapperTests: XCTestCase {
         let operationQueue = OperationQueue()
 
         let repository: CoreDataRepository<ConnectionItem, CDConnectionItem> =
-            UserDataStorageTestFacade.shared.createRepository()
+            UserDataStorageTestFacade().createRepository()
 
         // when
 

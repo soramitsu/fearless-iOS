@@ -11,18 +11,19 @@ final class AccountImportInteractor {
     private(set) lazy var mnemonicCreator = IRMnemonicCreator()
 
     let accountOperationFactory: AccountOperationFactoryProtocol
+    let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
 
     private(set) var settings: SettingsManagerProtocol
 
-    private var currentOperation: Operation?
-
     init(accountOperationFactory: AccountOperationFactoryProtocol,
+         accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
          settings: SettingsManagerProtocol,
          keystoreImportService: KeystoreImportServiceProtocol) {
         self.accountOperationFactory = accountOperationFactory
+        self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.settings = settings
         self.keystoreImportService = keystoreImportService
@@ -66,6 +67,60 @@ final class AccountImportInteractor {
 
         presenter.didReceiveAccountImport(metadata: metadata)
     }
+
+    private func updateSelectedAccountFromResult(_ result: Result<AccountItem, Error>?,
+                                                 connection: ConnectionItem) {
+        if case .success(let accountItem) = result {
+            settings.selectedAccount = accountItem
+            settings.selectedConnection = connection
+        }
+    }
+
+    private func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+        let persistentOperation = accountRepository.saveOperation({
+            let accountItem = try importOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            return [accountItem]
+        }, { [] })
+
+        persistentOperation.addDependency(importOperation)
+
+        let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
+            let accountItem = try importOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
+
+            guard let connectionItem = ConnectionItem.supportedConnections
+                .first(where: { $0.type == type.int8Value }) else {
+                throw AccountImportError.unsupportedNetwork
+            }
+
+            return (accountItem, connectionItem)
+        }
+
+        connectionOperation.addDependency(persistentOperation)
+
+        connectionOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                switch connectionOperation.result {
+                case .success(let (accountItem, connectionItem)):
+                    self?.settings.selectedAccount = accountItem
+                    self?.settings.selectedConnection = connectionItem
+
+                    self?.presenter?.didCompleAccountImport()
+                case .failure(let error):
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                case .none:
+                    let error = BaseOperationError.parentOperationCancelled
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
+                                 in: .sync)
+    }
 }
 
 extension AccountImportInteractor: AccountImportInteractorInputProtocol {
@@ -75,10 +130,6 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
     }
 
     func importAccountWithMnemonic(request: AccountImportMnemonicRequest) {
-        guard currentOperation == nil else {
-            return
-        }
-
         guard let mnemonic = try? mnemonicCreator.mnemonic(fromList: request.mnemonic) else {
             presenter.didReceiveAccountImport(error: AccountImportError.invalidMnemonicFormat)
             return
@@ -89,90 +140,20 @@ extension AccountImportInteractor: AccountImportInteractorInputProtocol {
                                                      derivationPath: request.derivationPath,
                                                      cryptoType: request.cryptoType)
 
-        let operation = accountOperationFactory.newAccountOperation(request: creationRequest,
-                                                                    mnemonic: mnemonic,
-                                                                    connection: nil)
+        let accountOperation = accountOperationFactory.newAccountOperation(request: creationRequest,
+                                                                           mnemonic: mnemonic)
 
-        currentOperation = operation
-
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.currentOperation = nil
-
-                switch operation.result {
-                case .success:
-                    self?.settings.accountConfirmed = true
-                    self?.presenter?.didCompleAccountImport()
-                case .failure(let error):
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
+        importAccountUsingOperation(accountOperation)
     }
 
     func importAccountWithSeed(request: AccountImportSeedRequest) {
-        guard currentOperation == nil else {
-            return
-        }
-
-        let operation = accountOperationFactory.newAccountOperation(request: request,
-                                                                    connection: nil)
-
-        currentOperation = operation
-
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.currentOperation = nil
-
-                switch operation.result {
-                case .success:
-                    self?.settings.accountConfirmed = true
-                    self?.presenter?.didCompleAccountImport()
-                case .failure(let error):
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
+        let operation = accountOperationFactory.newAccountOperation(request: request)
+        importAccountUsingOperation(operation)
     }
 
     func importAccountWithKeystore(request: AccountImportKeystoreRequest) {
-        guard currentOperation == nil else {
-            return
-        }
-
-        let operation = accountOperationFactory.newAccountOperation(request: request,
-                                                                    connection: nil)
-
-        currentOperation = operation
-
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.currentOperation = nil
-
-                switch operation.result {
-                case .success:
-                    self?.settings.accountConfirmed = true
-                    self?.presenter?.didCompleAccountImport()
-                case .failure(let error):
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceiveAccountImport(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
+        let operation = accountOperationFactory.newAccountOperation(request: request)
+        importAccountUsingOperation(operation)
     }
 
     func deriveUsernameFromKeystore(_ keystore: String) {

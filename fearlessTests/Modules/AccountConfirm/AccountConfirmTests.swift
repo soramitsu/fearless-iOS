@@ -22,8 +22,7 @@ class AccountConfirmTests: XCTestCase {
 
         let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
 
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain,
-                                                              settings: settings)
+        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
 
         let newAccountRequest = AccountCreationRequest(username: "myusername",
                                                        type: .kusamaMain,
@@ -31,8 +30,7 @@ class AccountConfirmTests: XCTestCase {
                                                        cryptoType: .sr25519)
 
         let operation = accountOperationFactory.newAccountOperation(request: newAccountRequest,
-                                                                    mnemonic: mnemonic,
-                                                                    connection: nil)
+                                                                    mnemonic: mnemonic)
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 

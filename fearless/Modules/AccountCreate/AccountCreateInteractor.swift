@@ -54,15 +54,8 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
             return
         }
 
-        guard let connection = ConnectionItem.supportedConnections
-            .first(where: { $0.type == request.type.rawValue}) else {
-            presenter?.didReceiveAccountCreation(error: AccountCreationError.unsupportedNetwork)
-            return
-        }
-
         let operation = accountOperationFactory.newAccountOperation(request: request,
-                                                                    mnemonic: mnemonic,
-                                                                    connection: connection)
+                                                                    mnemonic: mnemonic)
 
         self.currentOperation = operation
 
