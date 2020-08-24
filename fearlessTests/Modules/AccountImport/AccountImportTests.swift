@@ -104,6 +104,5 @@ class AccountImportTests: XCTestCase {
         XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
         XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
         XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
-        XCTAssertTrue(settings.accountConfirmed)
     }
 }

@@ -24,5 +24,6 @@ protocol AccountConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountConfirmViewFactoryProtocol: class {
-	static func createView() -> AccountConfirmViewProtocol?
+    static func createView(request: AccountCreationRequest,
+                           metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol?
 }

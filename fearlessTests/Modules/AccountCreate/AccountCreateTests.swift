@@ -13,13 +13,8 @@ class AccountCreateTests: XCTestCase {
         let view = MockAccountCreateViewProtocol()
         let wireframe = MockAccountCreateWireframeProtocol()
 
-        let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
-        let operationFactory = AccountOperationFactory(keystore: keychain)
         let mnemonicCreator = IRMnemonicCreator()
-        let interactor = AccountCreateInteractor(accountOperationFactory: operationFactory,
-                                                 mnemonicCreator: mnemonicCreator,
-                                                 operationManager: OperationManager())
+        let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator)
 
         let expectedUsername = "myname"
         let presenter = AccountCreatePresenter(username: expectedUsername)
@@ -47,8 +42,11 @@ class AccountCreateTests: XCTestCase {
 
         let expectation = XCTestExpectation()
 
+        var receivedRequest: AccountCreationRequest?
+
         stub(wireframe) { stub in
-            when(stub).proceed(from: any()).then { _ in
+            when(stub).confirm(from: any(), request: any(), metadata: any()).then { (_, request, _) in
+                receivedRequest = request
                 expectation.fulfill()
             }
         }
@@ -65,16 +63,6 @@ class AccountCreateTests: XCTestCase {
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
 
-        guard let selectedAccount = settings.selectedAccount else {
-            XCTFail("Unexpected empty account")
-            return
-        }
-
-        XCTAssertEqual(selectedAccount.username, expectedUsername)
-
-        XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
-        XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
-        XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
-        XCTAssertFalse(settings.accountConfirmed)
+        XCTAssertEqual(receivedRequest?.username, expectedUsername)
     }
 }

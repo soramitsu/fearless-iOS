@@ -9,17 +9,14 @@ class RootTests: XCTestCase {
 
         let wireframe = MockRootWireframeProtocol()
 
-        var settings = InMemorySettingsManager()
         let keystore = InMemoryKeychain()
-
-        settings.accountConfirmed = true
 
         let expectedPincode = "123456"
         try keystore.saveKey(expectedPincode.data(using: .utf8)!,
                              with: KeystoreTag.pincode.rawValue)
 
         let presenter = createPresenter(wireframe: wireframe,
-                                        settings: settings,
+                                        settings: InMemorySettingsManager(),
                                         keystore: keystore)
 
         let expectation = XCTestExpectation()
@@ -38,42 +35,7 @@ class RootTests: XCTestCase {
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
 
-        XCTAssertFalse(settings.accountConfirmed)
         XCTAssertFalse(try keystore.checkKey(for: KeystoreTag.pincode.rawValue))
-    }
-
-    func testConfirmationDecision() {
-        // given
-
-        let wireframe = MockRootWireframeProtocol()
-
-        var settings = InMemorySettingsManager()
-        let keystore = InMemoryKeychain()
-
-        settings.selectedAccount = AccountItem(address: "myaddress",
-                                               cryptoType: .sr25519,
-                                               username: "myname",
-                                               publicKeyData: Data())
-
-        let presenter = createPresenter(wireframe: wireframe,
-                                        settings: settings,
-                                        keystore: keystore)
-
-        let expectation = XCTestExpectation()
-
-        stub(wireframe) { stub in
-            when(stub).showAccountConfirmation(on: any()).then { _ in
-                expectation.fulfill()
-            }
-        }
-
-        // when
-
-        presenter.interactor.decideModuleSynchroniously()
-
-        // then
-
-        wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
     }
 
     func testPincodeSetupDecision() {
@@ -88,8 +50,6 @@ class RootTests: XCTestCase {
                                                cryptoType: .sr25519,
                                                username: "myname",
                                                publicKeyData: Data())
-
-        settings.accountConfirmed = true
 
         let presenter = createPresenter(wireframe: wireframe,
                                         settings: settings,
@@ -124,8 +84,6 @@ class RootTests: XCTestCase {
                                                cryptoType: .sr25519,
                                                username: "myname",
                                                publicKeyData: Data())
-
-        settings.accountConfirmed = true
 
         let expectedPincode = "123456"
         try keystore.saveKey(expectedPincode.data(using: .utf8)!,
@@ -166,7 +124,6 @@ class RootTests: XCTestCase {
 
         stub(wireframe) { stub in
             when(stub).showOnboarding(on: any()).thenDoNothing()
-            when(stub).showAccountConfirmation(on: any()).thenDoNothing()
             when(stub).showLocalAuthentication(on: any()).thenDoNothing()
             when(stub).showPincodeSetup(on: any()).thenDoNothing()
             when(stub).showBroken(on: any()).thenDoNothing()

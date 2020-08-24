@@ -1896,21 +1896,6 @@ import SoraFoundation
         
     }
     
-    
-    
-     func createAccount(request: AccountCreationRequest)  {
-        
-    return cuckoo_manager.call("createAccount(request: AccountCreationRequest)",
-            parameters: (request),
-            escapingParameters: (request),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.createAccount(request: request))
-        
-    }
-    
 
 	 struct __StubbingProxy_AccountCreateInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -1923,11 +1908,6 @@ import SoraFoundation
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
-	    }
-	    
-	    func createAccount<M1: Cuckoo.Matchable>(request: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreationRequest)> where M1.MatchedType == AccountCreationRequest {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreationRequest)>] = [wrap(matchable: request) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorInputProtocol.self, method: "createAccount(request: AccountCreationRequest)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -1952,12 +1932,6 @@ import SoraFoundation
 	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
-	    @discardableResult
-	    func createAccount<M1: Cuckoo.Matchable>(request: M1) -> Cuckoo.__DoNotUse<(AccountCreationRequest), Void> where M1.MatchedType == AccountCreationRequest {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreationRequest)>] = [wrap(matchable: request) { $0 }]
-	        return cuckoo_manager.verify("createAccount(request: AccountCreationRequest)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
 	}
 }
 
@@ -1968,10 +1942,6 @@ import SoraFoundation
 
     
      func setup()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func createAccount(request: AccountCreationRequest)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2032,36 +2002,6 @@ import SoraFoundation
         
     }
     
-    
-    
-     func didCompleteAccountCreation()  {
-        
-    return cuckoo_manager.call("didCompleteAccountCreation()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didCompleteAccountCreation())
-        
-    }
-    
-    
-    
-     func didReceiveAccountCreation(error: Error)  {
-        
-    return cuckoo_manager.call("didReceiveAccountCreation(error: Error)",
-            parameters: (error),
-            escapingParameters: (error),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceiveAccountCreation(error: error))
-        
-    }
-    
 
 	 struct __StubbingProxy_AccountCreateInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -2079,16 +2019,6 @@ import SoraFoundation
 	    func didReceiveMnemonicGeneration<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
 	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorOutputProtocol.self, method: "didReceiveMnemonicGeneration(error: Error)", parameterMatchers: matchers))
-	    }
-	    
-	    func didCompleteAccountCreation() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorOutputProtocol.self, method: "didCompleteAccountCreation()", parameterMatchers: matchers))
-	    }
-	    
-	    func didReceiveAccountCreation<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateInteractorOutputProtocol.self, method: "didReceiveAccountCreation(error: Error)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -2119,18 +2049,6 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceiveMnemonicGeneration(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
-	    @discardableResult
-	    func didCompleteAccountCreation() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("didCompleteAccountCreation()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didReceiveAccountCreation<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
-	        return cuckoo_manager.verify("didReceiveAccountCreation(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
 	}
 }
 
@@ -2145,14 +2063,6 @@ import SoraFoundation
     }
     
      func didReceiveMnemonicGeneration(error: Error)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didCompleteAccountCreation()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceiveAccountCreation(error: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2185,16 +2095,16 @@ import SoraFoundation
     
     
     
-     func proceed(from view: AccountCreateViewProtocol?)  {
+     func confirm(from view: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)  {
         
-    return cuckoo_manager.call("proceed(from: AccountCreateViewProtocol?)",
-            parameters: (view),
-            escapingParameters: (view),
+    return cuckoo_manager.call("confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)",
+            parameters: (view, request, metadata),
+            escapingParameters: (view, request, metadata),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.proceed(from: view))
+            defaultCall: __defaultImplStub!.confirm(from: view, request: request, metadata: metadata))
         
     }
     
@@ -2267,9 +2177,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func proceed<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?)> where M1.OptionalMatchedType == AccountCreateViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "proceed(from: AccountCreateViewProtocol?)", parameterMatchers: matchers))
+	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == AccountCreationRequest, M3.MatchedType == AccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)", parameterMatchers: matchers))
 	    }
 	    
 	    func presentCryptoTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, [CryptoType], CryptoType, ModalPickerViewControllerDelegate?, AnyObject?)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [CryptoType], M3.MatchedType == CryptoType, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
@@ -2309,9 +2219,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func proceed<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return cuckoo_manager.verify("proceed(from: AccountCreateViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func confirm<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, request: M2, metadata: M3) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == AccountCreationRequest, M3.MatchedType == AccountCreationMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, AccountCreationRequest, AccountCreationMetadata)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: request) { $0.1 }, wrap(matchable: metadata) { $0.2 }]
+	        return cuckoo_manager.verify("confirm(from: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2347,7 +2257,7 @@ import SoraFoundation
     
 
     
-     func proceed(from view: AccountCreateViewProtocol?)   {
+     func confirm(from view: AccountCreateViewProtocol?, request: AccountCreationRequest, metadata: AccountCreationMetadata)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -6359,21 +6269,6 @@ import UIKit
     
     
     
-     func showAccountConfirmation(on view: UIWindow)  {
-        
-    return cuckoo_manager.call("showAccountConfirmation(on: UIWindow)",
-            parameters: (view),
-            escapingParameters: (view),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.showAccountConfirmation(on: view))
-        
-    }
-    
-    
-    
      func showPincodeSetup(on view: UIWindow)  {
         
     return cuckoo_manager.call("showPincodeSetup(on: UIWindow)",
@@ -6421,11 +6316,6 @@ import UIKit
 	        return .init(stub: cuckoo_manager.createStub(for: MockRootWireframeProtocol.self, method: "showOnboarding(on: UIWindow)", parameterMatchers: matchers))
 	    }
 	    
-	    func showAccountConfirmation<M1: Cuckoo.Matchable>(on view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UIWindow)> where M1.MatchedType == UIWindow {
-	        let matchers: [Cuckoo.ParameterMatcher<(UIWindow)>] = [wrap(matchable: view) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockRootWireframeProtocol.self, method: "showAccountConfirmation(on: UIWindow)", parameterMatchers: matchers))
-	    }
-	    
 	    func showPincodeSetup<M1: Cuckoo.Matchable>(on view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UIWindow)> where M1.MatchedType == UIWindow {
 	        let matchers: [Cuckoo.ParameterMatcher<(UIWindow)>] = [wrap(matchable: view) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockRootWireframeProtocol.self, method: "showPincodeSetup(on: UIWindow)", parameterMatchers: matchers))
@@ -6465,12 +6355,6 @@ import UIKit
 	    }
 	    
 	    @discardableResult
-	    func showAccountConfirmation<M1: Cuckoo.Matchable>(on view: M1) -> Cuckoo.__DoNotUse<(UIWindow), Void> where M1.MatchedType == UIWindow {
-	        let matchers: [Cuckoo.ParameterMatcher<(UIWindow)>] = [wrap(matchable: view) { $0 }]
-	        return cuckoo_manager.verify("showAccountConfirmation(on: UIWindow)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func showPincodeSetup<M1: Cuckoo.Matchable>(on view: M1) -> Cuckoo.__DoNotUse<(UIWindow), Void> where M1.MatchedType == UIWindow {
 	        let matchers: [Cuckoo.ParameterMatcher<(UIWindow)>] = [wrap(matchable: view) { $0 }]
 	        return cuckoo_manager.verify("showPincodeSetup(on: UIWindow)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -6496,10 +6380,6 @@ import UIKit
     }
     
      func showOnboarding(on view: UIWindow)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func showAccountConfirmation(on view: UIWindow)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -6676,21 +6556,6 @@ import UIKit
     
     
     
-     func didDecideAccountConfirmation()  {
-        
-    return cuckoo_manager.call("didDecideAccountConfirmation()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didDecideAccountConfirmation())
-        
-    }
-    
-    
-    
      func didDecideLocalAuthentication()  {
         
     return cuckoo_manager.call("didDecideLocalAuthentication()",
@@ -6748,11 +6613,6 @@ import UIKit
 	        return .init(stub: cuckoo_manager.createStub(for: MockRootInteractorOutputProtocol.self, method: "didDecideOnboarding()", parameterMatchers: matchers))
 	    }
 	    
-	    func didDecideAccountConfirmation() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockRootInteractorOutputProtocol.self, method: "didDecideAccountConfirmation()", parameterMatchers: matchers))
-	    }
-	    
 	    func didDecideLocalAuthentication() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockRootInteractorOutputProtocol.self, method: "didDecideLocalAuthentication()", parameterMatchers: matchers))
@@ -6791,12 +6651,6 @@ import UIKit
 	    }
 	    
 	    @discardableResult
-	    func didDecideAccountConfirmation() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("didDecideAccountConfirmation()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func didDecideLocalAuthentication() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("didDecideLocalAuthentication()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -6824,10 +6678,6 @@ import UIKit
 
     
      func didDecideOnboarding()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didDecideAccountConfirmation()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

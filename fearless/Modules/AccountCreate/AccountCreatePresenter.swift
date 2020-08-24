@@ -149,7 +149,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         guard
             let addressType = selectedAddressType,
             let cryptoType = selectedCryptoType,
-            let viewModel = derivationPathViewModel else {
+            let viewModel = derivationPathViewModel,
+            let metadata = metadata else {
             return
         }
 
@@ -164,7 +165,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                                              derivationPath: viewModel.inputHandler.value,
                                              cryptoType: cryptoType)
 
-        interactor.createAccount(request: request)
+        wireframe.confirm(from: view,
+                          request: request,
+                          metadata: metadata)
     }
 }
 
@@ -183,22 +186,6 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
     }
 
     func didReceiveMnemonicGeneration(error: Error) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        guard !wireframe.present(error: error, from: view, locale: locale) else {
-            return
-        }
-
-        _ = wireframe.present(error: CommonError.undefined,
-                              from: view,
-                              locale: locale)
-    }
-
-    func didCompleteAccountCreation() {
-        wireframe.proceed(from: view)
-    }
-
-    func didReceiveAccountCreation(error: Error) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         guard !wireframe.present(error: error, from: view, locale: locale) else {

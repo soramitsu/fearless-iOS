@@ -7,7 +7,6 @@ enum SettingsKey: String {
     case selectedAccount
     case biometryEnabled
     case selectedConnection
-    case accountConfirmed
 }
 
 extension SettingsManagerProtocol {
@@ -54,16 +53,6 @@ extension SettingsManagerProtocol {
 
         set {
             set(value: newValue, for: SettingsKey.selectedConnection.rawValue)
-        }
-    }
-
-    var accountConfirmed: Bool {
-        get {
-            bool(for: SettingsKey.accountConfirmed.rawValue) ?? false
-        }
-
-        set {
-            set(value: newValue, for: SettingsKey.accountConfirmed.rawValue)
         }
     }
 }
