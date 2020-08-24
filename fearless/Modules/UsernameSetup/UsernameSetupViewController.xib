@@ -76,7 +76,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aza-85-hKb">
-                    <rect key="frame" x="16" y="76" width="382" height="45.666666666666657"/>
+                    <rect key="frame" x="16" y="76" width="382" height="42"/>
                     <string key="text">The name for this account and how it will appear under your addresses. With an on-chain identity, it can be made available to others.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                     <color key="textColor" name="colorWhite"/>
