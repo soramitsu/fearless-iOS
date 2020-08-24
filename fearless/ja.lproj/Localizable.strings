@@ -106,3 +106,5 @@ a type of password.";
 "profile.pincode.change.title" = "PINコードを変更する";
 "common.invalid.hard.soft.message" = "入力が// 'hard'と/ 'soft'の混合であることを確認してください。'hard 'と' soft 'は/を含まない任意の文字シーケンスにすることができます。";
 "common.invalid.hard.message" = "入力が// 'hard'の混合であることを確認してください。ここで、 'hard'は/を含まない任意の文字シーケンスです。";
+"confirm.mnemonic.mismatch.error.title" = "無効なニーモニック";
+"confirm.mnemonic.mismatch.error.message" = "単語の順番をもう一度確認してください。";

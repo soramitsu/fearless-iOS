@@ -108,3 +108,5 @@ apparaitront ici";
 "profile.pincode.change.title" = "Changer le code PIN";
 "common.invalid.hard.soft.message" = "Veuillez vérifier que l'entrée est un mélange de // 'hard' et / 'soft' où 'hard' et 'soft' peuvent être n'importe quelle séquence de caractères n'incluant pas /.";
 "common.invalid.hard.message" = "Veuillez vérifier que l'entrée est un mélange de // 'hard' où 'hard' peut être n'importe quelle séquence de caractères n'incluant pas /.";
+"confirm.mnemonic.mismatch.error.title" = "Mnémonique non valide";
+"confirm.mnemonic.mismatch.error.message" = "S'il vous plaît, vérifiez l'ordre des mots une fois de plus.";

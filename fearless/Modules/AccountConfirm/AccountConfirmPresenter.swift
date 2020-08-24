@@ -23,6 +23,20 @@ extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
 
 extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
     func didReceive(words: [String], afterConfirmationFail: Bool) {
+        if afterConfirmationFail {
+            let locale = localizationManager?.selectedLocale
+            let title = R.string.localizable
+                .confirmMnemonicMismatchErrorTitle(preferredLanguages: locale?.rLanguages)
+            let message = R.string.localizable
+                .confirmMnemonicMismatchErrorMessage(preferredLanguages: locale?.rLanguages)
+            let close = R.string.localizable.commonOk(preferredLanguages: locale?.rLanguages)
+
+            wireframe.present(message: message,
+                              title: title,
+                              closeAction: close,
+                              from: view)
+        }
+
         view?.didReceive(words: words, afterConfirmationFail: afterConfirmationFail)
     }
 

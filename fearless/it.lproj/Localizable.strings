@@ -107,3 +107,5 @@ trasferimenti appariranno qui";
 "profile.pincode.change.title" = "Modifica il codice PIN";
 "common.invalid.hard.soft.message" = "Per favore, controlla che l'input sia una combinazione di // \"hard\" e / \"soft\" dove \"hard\" e \"soft\" possono essere qualsiasi sequenza di caratteri non inclusa /.";
 "common.invalid.hard.message" = "Per favore, controlla che l'input sia una combinazione di // \"hard\" dove \"hard\" può essere qualsiasi sequenza di caratteri non inclusa /.";
+"confirm.mnemonic.mismatch.error.title" = "Mnemonico non valido";
+"confirm.mnemonic.mismatch.error.message" = "Per favore, controlla ancora una volta l'ordine delle parole.";
