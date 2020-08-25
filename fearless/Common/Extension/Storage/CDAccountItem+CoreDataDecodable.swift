@@ -9,11 +9,25 @@ extension CDAccountItem: CoreDataCodable {
 
         let address = try container.decode(String.self, forKey: .address)
 
+        let fetchRequest: NSFetchRequest<CDAccountItem> = CDAccountItem.fetchRequest()
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
+        var currentItem = try context.fetch(fetchRequest).first
+
+        if currentItem == nil {
+            fetchRequest.predicate = nil
+            let sortDescriptor = NSSortDescriptor(key: #keyPath(CDAccountItem.order), ascending: false)
+            fetchRequest.sortDescriptors = [sortDescriptor]
+            fetchRequest.fetchLimit = 1
+
+            currentItem = try context.fetch(fetchRequest).first
+        }
+
         identifier = address
         username = try container.decode(String.self, forKey: .username)
         publicKey = try container.decode(Data.self, forKey: .publicKeyData)
         cryptoType = try container.decode(Int16.self, forKey: .cryptoType)
         networkType = try SS58AddressFactory().type(fromAddress: address).int16Value
+        order = currentItem?.order ?? 0
     }
 
     public func encode(to encoder: Encoder) throws {

@@ -16,11 +16,15 @@ extension SNAddressType {
     var icon: UIImage? {
         switch self {
         case .polkadotMain, .polkadotSecondary:
-            return R.image.iconPolkadotSmall()
+            return R.image.iconPolkadotSmallBg()
         case .kusamaMain, .kusamaSecondary:
-            return R.image.iconKsmSmall()
+            return R.image.iconKsmSmallBg()
         default:
-            return R.image.iconWestendSmall()
+            return R.image.iconWestendSmallBg()
         }
+    }
+
+    static var supported: [SNAddressType] {
+        [.kusamaMain, .polkadotMain, .genericSubstrate]
     }
 }

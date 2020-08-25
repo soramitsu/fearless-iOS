@@ -6,12 +6,12 @@ protocol StorageFacadeProtocol: class {
     var databaseService: CoreDataServiceProtocol { get }
 
     func createRepository<T, U>(filter: NSPredicate?, mapper: AnyCoreDataMapper<T, U>) -> CoreDataRepository<T, U>
-        where T: Identifiable & Codable, U: NSManagedObject
+        where T: Identifiable, U: NSManagedObject
 }
 
 extension StorageFacadeProtocol {
     func createRepository<T, U>(mapper: AnyCoreDataMapper<T, U>) -> CoreDataRepository<T, U>
-    where T: Identifiable & Codable, U: NSManagedObject {
+    where T: Identifiable, U: NSManagedObject {
         return createRepository(filter: nil, mapper: mapper)
     }
 

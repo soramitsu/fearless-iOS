@@ -110,3 +110,5 @@ transferencias aparecerán aquí";
 "common.invalid.hard.message" = "Por favor, verifique que la entrada sea una mezcla de // 'hard' donde 'hard' puede ser cualquier secuencia de caracteres que no incluya /.";
 "confirm.mnemonic.mismatch.error.title" = "Mnemónico no válido";
 "confirm.mnemonic.mismatch.error.message" = "Por favor, revise el orden de las palabras una vez más.";
+"common.edit" = "Editar";
+"common.done" = "Hecho";

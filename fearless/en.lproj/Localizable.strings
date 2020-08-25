@@ -110,3 +110,5 @@ transfers will appear here";
 "common.invalid.hard.message" = "Please, check that input is a mix of //'hard' where 'hard' can be any sequence of characters not including /.";
 "confirm.mnemonic.mismatch.error.title" = "Invalid mnemonic";
 "confirm.mnemonic.mismatch.error.message" = "Please, check order of the words one more time.";
+"common.edit" = "Edit";
+"common.done" = "Done";

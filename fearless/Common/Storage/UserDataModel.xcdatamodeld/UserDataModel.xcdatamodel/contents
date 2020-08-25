@@ -4,6 +4,7 @@
         <attribute name="cryptoType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="networkType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="publicKey" optional="YES" attributeType="Binary"/>
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
@@ -13,7 +14,7 @@
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <elements>
-        <element name="CDAccountItem" positionX="-63" positionY="-18" width="128" height="118"/>
+        <element name="CDAccountItem" positionX="-63" positionY="-18" width="128" height="133"/>
         <element name="CDConnectionItem" positionX="-54" positionY="-9" width="128" height="88"/>
     </elements>
 </model>
