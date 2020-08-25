@@ -105,3 +105,5 @@
 "profile.pincode.change.title" = "Үҙгәртергә pin-код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";
+"confirm.mnemonic.mismatch.error.title" = "Неверная мнемоника";
+"confirm.mnemonic.mismatch.error.message" = "Пожалуйста, проверьте порядок слов еще раз.";

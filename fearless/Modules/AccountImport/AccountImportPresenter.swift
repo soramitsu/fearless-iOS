@@ -60,7 +60,7 @@ final class AccountImportPresenter {
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
             let inputHandler = InputHandler(value: value,
-                                            maxLength: AccessRestorePresenter.maxMnemonicLength,
+                                            maxLength: AccountImportPresenter.maxMnemonicLength,
                                             validCharacterSet: CharacterSet.englishMnemonic,
                                             predicate: NSPredicate.notEmpty)
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
@@ -239,7 +239,7 @@ final class AccountImportPresenter {
 
     func validateMnemonic(value: String) -> Error? {
         let mnemonicSize = value.components(separatedBy: CharacterSet.whitespaces).count
-        return mnemonicSize > AccessRestorePresenter.mnemonicSize ?
+        return mnemonicSize > AccountImportPresenter.maxMnemonicSize ?
             AccountImportError.invalidMnemonicSize : nil
     }
 

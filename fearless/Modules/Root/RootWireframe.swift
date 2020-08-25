@@ -11,16 +11,6 @@ final class RootWireframe: RootWireframeProtocol {
         view.rootViewController = navigationController
     }
 
-    func showAccountConfirmation(on view: UIWindow) {
-        let confirmationView = AccountConfirmViewFactory.createView()
-        let confirmationController = confirmationView?.controller ?? UIViewController()
-
-        let navigationController = FearlessNavigationController()
-        navigationController.viewControllers = [confirmationController]
-
-        view.rootViewController = navigationController
-    }
-
     func showLocalAuthentication(on view: UIWindow) {
         let pincodeView = PinViewFactory.createSecuredPinView()
         let pincodeController = pincodeView?.controller ?? UIViewController()

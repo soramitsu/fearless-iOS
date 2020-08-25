@@ -10,7 +10,7 @@ class AccountItemMapperTests: XCTestCase {
         let operationQueue = OperationQueue()
 
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageTestFacade.shared.createRepository()
+            UserDataStorageTestFacade().createRepository()
 
         // when
 

@@ -6,21 +6,6 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
     func showPincodeChange(from view: ProfileViewProtocol?) {}
 
-    func showPassphraseView(from view: ProfileViewProtocol?) {
-        authorize(animated: true, cancellable: true) { (isAuthorized) in
-            if isAuthorized {
-                guard let passphraseView = PassphraseViewFactory.createView() else {
-                    return
-                }
-
-                if let navigationController = view?.controller.navigationController {
-                    passphraseView.controller.hidesBottomBarWhenPushed = true
-                    navigationController.pushViewController(passphraseView.controller, animated: true)
-                }
-            }
-        }
-    }
-
     func showAccountSelection(from view: ProfileViewProtocol?) {}
 
     func showConnectionSelection(from view: ProfileViewProtocol?) {

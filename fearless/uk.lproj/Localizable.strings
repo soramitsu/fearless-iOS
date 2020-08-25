@@ -108,3 +108,5 @@
 "profile.pincode.change.title" = "Зміна пін-коду";
 "common.invalid.hard.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /.";
 "common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";
+"confirm.mnemonic.mismatch.error.title" = "Неправильне мнемонічне";
+"confirm.mnemonic.mismatch.error.message" = "Перевірте порядок слів ще раз.";

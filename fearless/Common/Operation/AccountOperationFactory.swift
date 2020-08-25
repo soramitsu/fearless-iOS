@@ -6,34 +6,23 @@ import SoraKeystore
 
 protocol AccountOperationFactoryProtocol {
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol,
-                             connection: ConnectionItem?) -> BaseOperation<Void>
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<AccountItem>
 
-    func newAccountOperation(request: AccountImportSeedRequest,
-                             connection: ConnectionItem?) -> BaseOperation<Void>
+    func newAccountOperation(request: AccountImportSeedRequest) -> BaseOperation<AccountItem>
 
-    func newAccountOperation(request: AccountImportKeystoreRequest,
-                             connection: ConnectionItem?) -> BaseOperation<Void>
+    func newAccountOperation(request: AccountImportKeystoreRequest) -> BaseOperation<AccountItem>
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
     private(set) var keystore: KeystoreProtocol
-    private(set) var settings: SettingsManagerProtocol
 
-    init(keystore: KeystoreProtocol, settings: SettingsManagerProtocol) {
+    init(keystore: KeystoreProtocol) {
         self.keystore = keystore
-        self.settings = settings
     }
 
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol,
-                             connection: ConnectionItem?) -> BaseOperation<Void> {
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<AccountItem> {
         ClosureOperation {
-            guard let connection = connection ?? ConnectionItem.supportedConnections
-                .first(where: { $0.type == request.type.rawValue}) else {
-                throw AccountOperationFactoryError.unsupportedNetwork
-            }
-
             let junctionResult: JunctionResult?
 
             if !request.derivationPath.isEmpty {
@@ -59,11 +48,6 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
                                                      type: request.type)
 
-            self.settings.selectedAccount = AccountItem(address: address,
-                                                        cryptoType: request.cryptoType,
-                                                        username: request.username,
-                                                        publicKeyData: keypair.publicKey().rawData())
-
             let secretKey: Data
 
             switch request.cryptoType {
@@ -86,19 +70,16 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
 
-            self.settings.selectedConnection = connection
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
+                               publicKeyData: keypair.publicKey().rawData())
         }
     }
 
-    func newAccountOperation(request: AccountImportSeedRequest,
-                             connection: ConnectionItem?) -> BaseOperation<Void> {
+    func newAccountOperation(request: AccountImportSeedRequest) -> BaseOperation<AccountItem> {
         ClosureOperation {
             let seed = try Data(hexString: request.seed)
-
-            guard let connection = connection ?? ConnectionItem.supportedConnections
-                .first(where: { $0.type == request.type.rawValue}) else {
-                throw AccountOperationFactoryError.unsupportedNetwork
-            }
 
             let junctionResult: JunctionResult?
 
@@ -118,11 +99,6 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
                                                      type: request.type)
-
-            self.settings.selectedAccount = AccountItem(address: address,
-                                                        cryptoType: request.cryptoType,
-                                                        username: request.username,
-                                                        publicKeyData: keypair.publicKey().rawData())
 
             let secretKey: Data
 
@@ -145,12 +121,14 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
 
-            self.settings.selectedConnection = connection
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
+                               publicKeyData: keypair.publicKey().rawData())
         }
     }
 
-    func newAccountOperation(request: AccountImportKeystoreRequest,
-                             connection: ConnectionItem?) -> BaseOperation<Void> {
+    func newAccountOperation(request: AccountImportKeystoreRequest) -> BaseOperation<AccountItem> {
         ClosureOperation {
 
             let keystoreExtractor = KeystoreExtractor()
@@ -175,22 +153,12 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 username = keystoreDefinition.meta.name
             }
 
-            let addressFactory = SS58AddressFactory()
-            let addressTypeValue = try addressFactory.type(fromAddress: keystore.address)
-
-            guard let connection = connection ?? ConnectionItem.supportedConnections
-                .first(where: { $0.type == addressTypeValue.uint8Value}) else {
-                throw AccountOperationFactoryError.unsupportedNetwork
-            }
-
-            self.settings.selectedAccount = AccountItem(address: keystore.address,
-                                                        cryptoType: CryptoType(keystore.cryptoType),
-                                                        username: username,
-                                                        publicKeyData: keystore.publicKeyData)
-
             try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)
 
-            self.settings.selectedConnection = connection
+            return AccountItem(address: keystore.address,
+                               cryptoType: CryptoType(keystore.cryptoType),
+                               username: username,
+                               publicKeyData: keystore.publicKeyData)
         }
     }
 

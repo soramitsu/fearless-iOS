@@ -4,11 +4,9 @@ import RobinHood
 import CoreData
 
 class UserDataStorageTestFacade: StorageFacadeProtocol {
-    static let shared = UserDataStorageTestFacade()
-
     let databaseService: CoreDataServiceProtocol
 
-    private init() {
+    init() {
         let modelName = "UserDataModel"
         let modelURL = Bundle.main.url(forResource: modelName, withExtension: "momd")
 

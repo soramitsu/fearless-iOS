@@ -15,6 +15,11 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         static let cornerRadius: CGFloat = 4.0
     }
 
+    private struct Position {
+        let leading: NSLayoutConstraint
+        let top: NSLayoutConstraint
+    }
+
     var presenter: AccountConfirmPresenterProtocol!
 
     @IBOutlet private var scrollView: UIScrollView!
@@ -42,6 +47,8 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
 
     private var pendingButtons: [RoundedButton] = []
     private var submittedButtons: [RoundedButton] = []
+    private var positions: [RoundedButton: Position] = [:]
+    private var originalPositions: [RoundedButton: Position] = [:]
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -117,6 +124,8 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
 
         pendingButtons = []
         submittedButtons = []
+        positions = [:]
+        originalPositions = [:]
     }
 
     private func setupNavigationItem() {
@@ -206,19 +215,22 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
             for item in row {
                 let size = item.intrinsicContentSize
 
-                let constraints = contentView.constraints
-                constraints.forEach { constraint in
-                    if constraint.firstItem === item {
-                        constraint.isActive = false
-                    }
+                if let position = positions[item] {
+                    position.leading.isActive = false
+                    position.top.isActive = false
                 }
 
-                item.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,
-                                              constant: originX).isActive = true
+                let leading = item.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,
+                                                            constant: originX)
 
                 let itemY = currentY + height / 2.0 - size.height / 2.0
-                item.topAnchor.constraint(equalTo: plane.topAnchor,
-                                          constant: itemY).isActive = true
+                let top = item.topAnchor.constraint(equalTo: plane.topAnchor,
+                                                    constant: itemY)
+
+                leading.isActive = true
+                top.isActive = true
+
+                positions[item] = Position(leading: leading, top: top)
 
                 originX += size.width + Constants.itemsSpacing
             }
@@ -244,10 +256,39 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
             pendingButtons.remove(at: index)
             submittedButtons.append(button)
 
+            originalPositions[button] = positions[button]
+
             let animationBlock = {
                 button.roundedBackgroundView?.fillColor = R.color.colorHighlightedBlue()!
                 button.roundedBackgroundView?.highlightedFillColor = R.color.colorHighlightedBlue()!
-                button.isUserInteractionEnabled = false
+                button.changesContentOpacityWhenHighlighted = true
+                self.layoutSubmittedButtons()
+
+                self.contentView.layoutIfNeeded()
+            }
+
+            wordTransitionAnimation.animate(block: animationBlock,
+                                            completionBlock: nil)
+        } else if let index = submittedButtons.firstIndex(of: button) {
+            submittedButtons.remove(at: index)
+            pendingButtons.append(button)
+
+            let currentPosition = positions[button]
+            positions[button] = originalPositions[button]
+
+            let animationBlock = {
+                button.roundedBackgroundView?.fillColor = R.color.colorDarkBlue()!
+                button.roundedBackgroundView?.highlightedFillColor = R.color.colorHighlightedBlue()!
+                button.changesContentOpacityWhenHighlighted = false
+
+                currentPosition?.leading.isActive = false
+                currentPosition?.top.isActive = false
+
+                if let originalPosition = self.originalPositions[button] {
+                    originalPosition.leading.isActive = true
+                    originalPosition.top.isActive = true
+                }
+
                 self.layoutSubmittedButtons()
 
                 self.contentView.layoutIfNeeded()

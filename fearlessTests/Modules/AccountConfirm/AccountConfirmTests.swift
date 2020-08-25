@@ -3,6 +3,7 @@ import XCTest
 import SoraKeystore
 import Cuckoo
 import IrohaCrypto
+import RobinHood
 
 class AccountConfirmTests: XCTestCase {
 
@@ -15,26 +16,26 @@ class AccountConfirmTests: XCTestCase {
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
 
-        let interactor = AccountConfirmInteractor(keychain: keychain,
-                                                  settings: settings)
-
         let mnemonicWords = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
-
-        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
-
-        let accountOperationFactory = AccountOperationFactory(keystore: keychain,
-                                                              settings: settings)
 
         let newAccountRequest = AccountCreationRequest(username: "myusername",
                                                        type: .kusamaMain,
                                                        derivationPath: "",
                                                        cryptoType: .sr25519)
 
-        let operation = accountOperationFactory.newAccountOperation(request: newAccountRequest,
-                                                                    mnemonic: mnemonic,
-                                                                    connection: nil)
+        let mnemonic = try IRMnemonicCreator().mnemonic(fromList: mnemonicWords)
 
-        OperationQueue().addOperations([operation], waitUntilFinished: true)
+        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
+
+        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+
+        let interactor = AccountConfirmInteractor(request: newAccountRequest,
+                                                  mnemonic: mnemonic,
+                                                  accountOperationFactory: accountOperationFactory,
+                                                  accountRepository: AnyDataProviderRepository(repository),
+                                                  settings: settings,
+                                                  operationManager: OperationManager())
 
         let presenter = AccountConfirmPresenter()
         presenter.view = view
@@ -70,6 +71,15 @@ class AccountConfirmTests: XCTestCase {
 
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
 
-        XCTAssertTrue(settings.accountConfirmed)
+        guard let selectedAccount = settings.selectedAccount else {
+            XCTFail("Unexpected empty account")
+            return
+        }
+
+        XCTAssertEqual(selectedAccount.username, newAccountRequest.username)
+
+        XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
+        XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
+        XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
     }
 }

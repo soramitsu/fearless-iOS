@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import RobinHood
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     static func createView() -> AccountImportViewProtocol? {
@@ -15,10 +16,13 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
         let keystore = Keychain()
         let settings = SettingsManager.shared
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore,
-                                                              settings: settings)
+        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
+            = UserDataStorageFacade.shared.createRepository()
 
         let interactor = AccountImportInteractor(accountOperationFactory: accountOperationFactory,
+                                                 accountRepository: AnyDataProviderRepository(accountRepository),
                                                  operationManager: OperationManagerFacade.sharedManager,
                                                  settings: settings,
                                                  keystoreImportService: keystoreImportService)

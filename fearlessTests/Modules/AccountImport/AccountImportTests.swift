@@ -15,12 +15,15 @@ class AccountImportTests: XCTestCase {
 
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
-        let operationFactory = AccountOperationFactory(keystore: keychain,
-                                                       settings: settings)
+        let operationFactory = AccountOperationFactory(keystore: keychain)
 
         let keystoreImportService = KeystoreImportService(logger: Logger.shared)
 
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
+            = UserDataStorageTestFacade().createRepository()
+
         let interactor = AccountImportInteractor(accountOperationFactory: operationFactory,
+                                                 accountRepository: AnyDataProviderRepository(accountRepository),
                                                  operationManager: OperationManager(),
                                                  settings: settings,
                                                  keystoreImportService: keystoreImportService)
@@ -101,6 +104,5 @@ class AccountImportTests: XCTestCase {
         XCTAssertTrue(try keychain.checkSecretKeyForAddress(selectedAccount.address))
         XCTAssertTrue(try keychain.checkEntropyForAddress(selectedAccount.address))
         XCTAssertFalse(try keychain.checkDeriviationForAddress(selectedAccount.address))
-        XCTAssertTrue(settings.accountConfirmed)
     }
 }

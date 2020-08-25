@@ -1,16 +1,33 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import IrohaCrypto
+import RobinHood
 
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
-    static func createView() -> AccountConfirmViewProtocol? {
+    static func createView(request: AccountCreationRequest,
+                           metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
+        guard let mnemonic = try? IRMnemonicCreator()
+            .mnemonic(fromList: metadata.mnemonic.joined(separator: " ")) else {
+            return nil
+        }
+
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
         let settings = SettingsManager.shared
 
-        let interactor = AccountConfirmInteractor(keychain: keychain, settings: settings)
+        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
+        let interactor = AccountConfirmInteractor(request: request,
+                                                  mnemonic: mnemonic,
+                                                  accountOperationFactory: accountOperationFactory,
+                                                  accountRepository: AnyDataProviderRepository(accountRepository),
+                                                  settings: settings,
+                                                  operationManager: OperationManagerFacade.sharedManager)
         let wireframe = AccountConfirmWireframe()
 
         view.presenter = presenter
