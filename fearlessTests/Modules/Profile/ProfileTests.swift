@@ -38,7 +38,15 @@ class ProfileTests: XCTestCase {
         let viewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
         let presenter = ProfilePresenter(viewModelFactory: viewModelFactory)
+
+        let eventCenter = MockEventCenterProtocol()
+
+        stub(eventCenter) { stub in
+            when(stub).add(observer: any(), dispatchIn: any()).thenDoNothing()
+        }
+
         let interactor = ProfileInteractor(settingsManager: settings,
+                                           eventCenter: eventCenter,
                                            logger: Logger.shared)
 
         presenter.view = view

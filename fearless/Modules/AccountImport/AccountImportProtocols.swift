@@ -66,5 +66,6 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountImportViewFactoryProtocol: class {
-	static func createView() -> AccountImportViewProtocol?
+	static func createViewForOnboarding() -> AccountImportViewProtocol?
+    static func createViewForAdding() -> AccountImportViewProtocol?
 }

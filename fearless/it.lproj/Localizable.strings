@@ -109,3 +109,7 @@ trasferimenti appariranno qui";
 "common.invalid.hard.message" = "Per favore, controlla che l'input sia una combinazione di // \"hard\" dove \"hard\" può essere qualsiasi sequenza di caratteri non inclusa /.";
 "confirm.mnemonic.mismatch.error.title" = "Mnemonico non valido";
 "confirm.mnemonic.mismatch.error.message" = "Per favore, controlla ancora una volta l'ordine delle parole.";
+"common.edit" = "Modifica";
+"common.done" = "Fatto";
+"accounts.add.account" = "Aggiungi account";
+"account.add.already.exists.message" = "L'account esiste già. Per favore, provane un altro.";

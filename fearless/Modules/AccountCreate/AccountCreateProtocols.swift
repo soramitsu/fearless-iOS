@@ -48,5 +48,6 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountCreateViewFactoryProtocol: class {
-    static func createView(username: String) -> AccountCreateViewProtocol?
+    static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol?
+    static func createViewForAdding(username: String) -> AccountCreateViewProtocol?
 }

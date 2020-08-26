@@ -494,7 +494,7 @@
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="image" keyPath="_subtitleIcon" value="iconKsmSmall"/>
+                                                <userDefinedRuntimeAttribute type="image" keyPath="_subtitleIcon" value="iconKsmSmallBg"/>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
@@ -577,7 +577,7 @@
     </objects>
     <resources>
         <image name="iconDropDown" width="24" height="24"/>
-        <image name="iconKsmSmall" width="24" height="24"/>
+        <image name="iconKsmSmallBg" width="24" height="24"/>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

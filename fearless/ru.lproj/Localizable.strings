@@ -110,3 +110,7 @@ a type of password.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";
 "confirm.mnemonic.mismatch.error.title" = "Неверная мнемоника";
 "confirm.mnemonic.mismatch.error.message" = "Пожалуйста, проверьте порядок слов еще раз.";
+"common.edit" = "Редактировать";
+"common.done" = "Готово";
+"accounts.add.account" = "Добавить аккаунт";
+"account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";

@@ -110,3 +110,7 @@
 "common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";
 "confirm.mnemonic.mismatch.error.title" = "Неправильне мнемонічне";
 "confirm.mnemonic.mismatch.error.message" = "Перевірте порядок слів ще раз.";
+"common.edit" = "Редагувати";
+"common.done" = "Завершено";
+"accounts.add.account" = "Додати обліковий запис";
+"account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";

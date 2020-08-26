@@ -108,3 +108,7 @@ a type of password.";
 "common.invalid.hard.message" = "入力が// 'hard'の混合であることを確認してください。ここで、 'hard'は/を含まない任意の文字シーケンスです。";
 "confirm.mnemonic.mismatch.error.title" = "無効なニーモニック";
 "confirm.mnemonic.mismatch.error.message" = "単語の順番をもう一度確認してください。";
+"common.edit" = "編集する";
+"common.done" = "完了";
+"accounts.add.account" = "アカウントを追加する";
+"account.add.already.exists.message" = "アカウントはすでに存在しています。別のものを試してください。";

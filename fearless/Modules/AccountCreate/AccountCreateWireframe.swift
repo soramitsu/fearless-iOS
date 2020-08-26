@@ -6,7 +6,7 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
                  request: AccountCreationRequest,
                  metadata: AccountCreationMetadata) {
         guard let accountConfirmation = AccountConfirmViewFactory
-            .createView(request: request, metadata: metadata)?.controller else {
+            .createViewForOnboarding(request: request, metadata: metadata)?.controller else {
             return
         }
 

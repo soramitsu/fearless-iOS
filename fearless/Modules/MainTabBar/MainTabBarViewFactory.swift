@@ -36,7 +36,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let presenter = MainTabBarPresenter()
 
-        let interactor = MainTabBarInteractor()
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared)
 
         let wireframe = MainTabBarWireframe()
 
@@ -48,6 +48,16 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         return view
 	}
+
+    static func reloadWalletView(on view: MainTabBarViewProtocol) {
+        let localizationManager = LocalizationManager.shared
+
+        guard let walletController = createWalletController(localizationManager: localizationManager) else {
+            return
+        }
+
+        view.didReplaceView(for: walletController, for: 0)
+    }
 
     static func createWalletController(localizationManager: LocalizationManagerProtocol) -> UIViewController? {
         do {

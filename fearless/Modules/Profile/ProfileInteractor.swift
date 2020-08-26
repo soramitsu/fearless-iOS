@@ -10,17 +10,18 @@ final class ProfileInteractor {
 	weak var presenter: ProfileInteractorOutputProtocol?
 
     let settingsManager: SettingsManagerProtocol
+    let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol
 
     init(settingsManager: SettingsManagerProtocol,
+         eventCenter: EventCenterProtocol,
          logger: LoggerProtocol) {
         self.settingsManager = settingsManager
+        self.eventCenter = eventCenter
         self.logger = logger
     }
-}
 
-extension ProfileInteractor: ProfileInteractorInputProtocol {
-    func setup() {
+    private func provideUserSettings() {
         do {
             guard let account = settingsManager.selectedAccount else {
                 throw ProfileInteractorError.noSelectedAccount
@@ -35,5 +36,18 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
         } catch {
             presenter?.didReceiveUserDataProvider(error: error)
         }
+    }
+}
+
+extension ProfileInteractor: ProfileInteractorInputProtocol {
+    func setup() {
+        eventCenter.add(observer: self, dispatchIn: .main)
+        provideUserSettings()
+    }
+}
+
+extension ProfileInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        provideUserSettings()
     }
 }

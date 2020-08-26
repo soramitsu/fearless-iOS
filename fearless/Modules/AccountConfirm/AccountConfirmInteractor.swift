@@ -3,17 +3,8 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 
-final class AccountConfirmInteractor {
-    weak var presenter: AccountConfirmInteractorOutputProtocol!
-
-    let request: AccountCreationRequest
-    let mnemonic: IRMnemonicProtocol
-    let shuffledWords: [String]
-    let accountOperationFactory: AccountOperationFactoryProtocol
-    let accountRepository: AnyDataProviderRepository<AccountItem>
-    let operationManager: OperationManagerProtocol
+class AccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
-
     private var currentOperation: Operation?
 
     init(request: AccountCreationRequest,
@@ -22,16 +13,16 @@ final class AccountConfirmInteractor {
          accountRepository: AnyDataProviderRepository<AccountItem>,
          settings: SettingsManagerProtocol,
          operationManager: OperationManagerProtocol) {
-        self.request = request
-        self.mnemonic = mnemonic
-        self.shuffledWords = mnemonic.allWords().shuffled()
-        self.accountOperationFactory = accountOperationFactory
-        self.accountRepository = accountRepository
-        self.operationManager = operationManager
         self.settings = settings
+
+        super.init(request: request,
+                   mnemonic: mnemonic,
+                   accountOperationFactory: accountOperationFactory,
+                   accountRepository: accountRepository,
+                   operationManager: operationManager)
     }
 
-    private func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+    override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
         guard currentOperation == nil else {
             return
         }
@@ -83,23 +74,5 @@ final class AccountConfirmInteractor {
 
         operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
                                  in: .sync)
-    }
-}
-
-extension AccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
-    func requestWords() {
-        presenter.didReceive(words: shuffledWords, afterConfirmationFail: false)
-    }
-
-    func confirm(words: [String]) {
-        guard words == mnemonic.allWords() else {
-            presenter.didReceive(words: shuffledWords,
-                                 afterConfirmationFail: true)
-            return
-        }
-
-        let operation = accountOperationFactory.newAccountOperation(request: request,
-                                                                    mnemonic: mnemonic)
-        createAccountUsingOperation(operation)
     }
 }

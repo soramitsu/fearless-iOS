@@ -2,7 +2,7 @@ import Foundation
 
 final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     func showSignup(from view: OnboardingMainViewProtocol?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createView() else {
+        guard let usernameSetup = UsernameSetupViewFactory.createViewForOnboarding() else {
             return
         }
 
@@ -12,7 +12,8 @@ final class OnboardingMainWireframe: OnboardingMainWireframeProtocol {
     }
 
     func showAccountRestore(from view: OnboardingMainViewProtocol?) {
-        guard let restorationController = AccountImportViewFactory.createView()?.controller else {
+        guard let restorationController = AccountImportViewFactory
+            .createViewForOnboarding()?.controller else {
             return
         }
 
