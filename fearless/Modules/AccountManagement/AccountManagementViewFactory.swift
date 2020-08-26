@@ -30,7 +30,8 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         let interactor = AccountManagementInteractor(repository: AnyDataProviderRepository(repository),
                                                      repositoryObservable: anyObserver,
                                                      settings: SettingsManager.shared,
-                                                     operationManager: OperationManagerFacade.sharedManager)
+                                                     operationManager: OperationManagerFacade.sharedManager,
+                                                     eventCenter: EventCenter.shared)
         let wireframe = AccountManagementWireframe()
 
         view.presenter = presenter

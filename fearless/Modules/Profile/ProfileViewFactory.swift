@@ -13,6 +13,7 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         let view = ProfileViewController(nib: R.nib.profileViewController)
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
         let interactor = ProfileInteractor(settingsManager: SettingsManager.shared,
+                                           eventCenter: EventCenter.shared,
                                            logger: Logger.shared)
         let wireframe = ProfileWireframe()
 

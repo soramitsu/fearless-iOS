@@ -9,15 +9,18 @@ final class AccountManagementInteractor {
     let repository: AnyDataProviderRepository<ManagedAccountItem>
     private(set) var settings: SettingsManagerProtocol
     let operationManager: OperationManagerProtocol
+    let eventCenter: EventCenterProtocol
 
     init(repository: AnyDataProviderRepository<ManagedAccountItem>,
          repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
          settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol) {
+         operationManager: OperationManagerProtocol,
+         eventCenter: EventCenterProtocol) {
         self.repository = repository
         self.repositoryObservable = repositoryObservable
         self.settings = settings
         self.operationManager = operationManager
+        self.eventCenter = eventCenter
     }
 
     private func provideInitialList() {
@@ -64,6 +67,8 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
             self?.presenter.didReceive(changes: changes)
         }
 
+        eventCenter.add(observer: self, dispatchIn: .main)
+
         if let selectedAccountItem = settings.selectedAccount {
             presenter.didReceiveSelected(item: selectedAccountItem)
         }
@@ -88,6 +93,8 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
 
         settings.selectedAccount = newSelectedAccountItem
         presenter.didReceiveSelected(item: newSelectedAccountItem)
+
+        eventCenter.notify(with: SelectedAccountChanged())
     }
 
     func save(items: [ManagedAccountItem]) {
@@ -98,5 +105,11 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     func remove(item: ManagedAccountItem) {
         let operation = repository.saveOperation({ [] }, { [item.address] })
         operationManager.enqueue(operations: [operation], in: .sync)
+    }
+}
+
+extension AccountManagementInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        provideSelectedItem()
     }
 }
