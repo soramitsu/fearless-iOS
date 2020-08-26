@@ -1,9 +1,12 @@
-//
-//  AddUsernameWireframe.swift
-//  fearless
-//
-//  Created by Ruslan Rezin on 26.08.2020.
-//  Copyright © 2020 Soramitsu. All rights reserved.
-//
-
 import Foundation
+
+final class AddUsernameWireframe: UsernameSetupWireframeProtocol {
+    func proceed(from view: UsernameSetupViewProtocol?, username: String) {
+        guard let accountCreation = AccountCreateViewFactory.createViewForAdding(username: username) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(accountCreation.controller,
+                                                                  animated: true)
+    }
+}

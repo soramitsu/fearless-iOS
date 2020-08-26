@@ -2,7 +2,7 @@ import Foundation
 
 final class AddMainWireframe: OnboardingMainWireframeProtocol {
     func showSignup(from view: OnboardingMainViewProtocol?) {
-        guard let usernameSetup = UsernameSetupViewFactory.createView() else {
+        guard let usernameSetup = UsernameSetupViewFactory.createViewForAdding() else {
             return
         }
 
