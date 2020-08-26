@@ -3679,6 +3679,981 @@ import Cuckoo
 @testable import fearless
 
 import Foundation
+import RobinHood
+
+
+ class MockAccountManagementViewProtocol: AccountManagementViewProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountManagementViewProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountManagementViewProtocol
+     typealias Verification = __VerificationProxy_AccountManagementViewProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountManagementViewProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountManagementViewProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var isSetup: Bool {
+        get {
+            return cuckoo_manager.getter("isSetup",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.isSetup)
+        }
+        
+    }
+    
+    
+    
+     var controller: UIViewController {
+        get {
+            return cuckoo_manager.getter("controller",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.controller)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountManagementViewProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAccountManagementViewProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup")
+	    }
+	    
+	    
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAccountManagementViewProtocol, UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller")
+	    }
+	    
+	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementViewProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountManagementViewProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var isSetup: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var controller: Cuckoo.VerifyReadOnlyProperty<UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountManagementViewProtocolStub: AccountManagementViewProtocol {
+    
+    
+     var isSetup: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+    
+     var controller: UIViewController {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UIViewController).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func reload()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockAccountManagementPresenterProtocol: AccountManagementPresenterProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountManagementPresenterProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountManagementPresenterProtocol
+     typealias Verification = __VerificationProxy_AccountManagementPresenterProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountManagementPresenterProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountManagementPresenterProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func numberOfSections() -> Int {
+        
+    return cuckoo_manager.call("numberOfSections() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.numberOfSections())
+        
+    }
+    
+    
+    
+     func section(at index: Int) -> ManagedAccountViewModelSection {
+        
+    return cuckoo_manager.call("section(at: Int) -> ManagedAccountViewModelSection",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.section(at: index))
+        
+    }
+    
+    
+    
+     func activateDetails(at index: Int, in section: Int)  {
+        
+    return cuckoo_manager.call("activateDetails(at: Int, in: Int)",
+            parameters: (index, section),
+            escapingParameters: (index, section),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activateDetails(at: index, in: section))
+        
+    }
+    
+    
+    
+     func activateAddAccount()  {
+        
+    return cuckoo_manager.call("activateAddAccount()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activateAddAccount())
+        
+    }
+    
+    
+    
+     func selectItem(at index: Int, in section: Int)  {
+        
+    return cuckoo_manager.call("selectItem(at: Int, in: Int)",
+            parameters: (index, section),
+            escapingParameters: (index, section),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.selectItem(at: index, in: section))
+        
+    }
+    
+    
+    
+     func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int)  {
+        
+    return cuckoo_manager.call("moveItem(at: Int, to: Int, in: Int)",
+            parameters: (startIndex, finalIndex, section),
+            escapingParameters: (startIndex, finalIndex, section),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.moveItem(at: startIndex, to: finalIndex, in: section))
+        
+    }
+    
+    
+    
+     func removeItem(at index: Int, in section: Int)  {
+        
+    return cuckoo_manager.call("removeItem(at: Int, in: Int)",
+            parameters: (index, section),
+            escapingParameters: (index, section),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.removeItem(at: index, in: section))
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountManagementPresenterProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func numberOfSections() -> Cuckoo.ProtocolStubFunction<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "numberOfSections() -> Int", parameterMatchers: matchers))
+	    }
+	    
+	    func section<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubFunction<(Int), ManagedAccountViewModelSection> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "section(at: Int) -> ManagedAccountViewModelSection", parameterMatchers: matchers))
+	    }
+	    
+	    func activateDetails<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int)> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "activateDetails(at: Int, in: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func activateAddAccount() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "activateAddAccount()", parameterMatchers: matchers))
+	    }
+	    
+	    func selectItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int)> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "selectItem(at: Int, in: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func moveItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(at startIndex: M1, to finalIndex: M2, in section: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int, Int)> where M1.MatchedType == Int, M2.MatchedType == Int, M3.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int, Int)>] = [wrap(matchable: startIndex) { $0.0 }, wrap(matchable: finalIndex) { $0.1 }, wrap(matchable: section) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "moveItem(at: Int, to: Int, in: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func removeItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int)> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementPresenterProtocol.self, method: "removeItem(at: Int, in: Int)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountManagementPresenterProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func numberOfSections() -> Cuckoo.__DoNotUse<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("numberOfSections() -> Int", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func section<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), ManagedAccountViewModelSection> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("section(at: Int) -> ManagedAccountViewModelSection", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func activateDetails<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.__DoNotUse<(Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return cuckoo_manager.verify("activateDetails(at: Int, in: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func activateAddAccount() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("activateAddAccount()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func selectItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.__DoNotUse<(Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return cuckoo_manager.verify("selectItem(at: Int, in: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func moveItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(at startIndex: M1, to finalIndex: M2, in section: M3) -> Cuckoo.__DoNotUse<(Int, Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int, M3.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int, Int)>] = [wrap(matchable: startIndex) { $0.0 }, wrap(matchable: finalIndex) { $0.1 }, wrap(matchable: section) { $0.2 }]
+	        return cuckoo_manager.verify("moveItem(at: Int, to: Int, in: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func removeItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at index: M1, in section: M2) -> Cuckoo.__DoNotUse<(Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: index) { $0.0 }, wrap(matchable: section) { $0.1 }]
+	        return cuckoo_manager.verify("removeItem(at: Int, in: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountManagementPresenterProtocolStub: AccountManagementPresenterProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func numberOfSections() -> Int  {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+     func section(at index: Int) -> ManagedAccountViewModelSection  {
+        return DefaultValueRegistry.defaultValue(for: (ManagedAccountViewModelSection).self)
+    }
+    
+     func activateDetails(at index: Int, in section: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func activateAddAccount()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func selectItem(at index: Int, in section: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func removeItem(at index: Int, in section: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockAccountManagementInteractorInputProtocol: AccountManagementInteractorInputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountManagementInteractorInputProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountManagementInteractorInputProtocol
+     typealias Verification = __VerificationProxy_AccountManagementInteractorInputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountManagementInteractorInputProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountManagementInteractorInputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func select(item: ManagedAccountItem)  {
+        
+    return cuckoo_manager.call("select(item: ManagedAccountItem)",
+            parameters: (item),
+            escapingParameters: (item),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.select(item: item))
+        
+    }
+    
+    
+    
+     func save(items: [ManagedAccountItem])  {
+        
+    return cuckoo_manager.call("save(items: [ManagedAccountItem])",
+            parameters: (items),
+            escapingParameters: (items),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.save(items: items))
+        
+    }
+    
+    
+    
+     func remove(item: ManagedAccountItem)  {
+        
+    return cuckoo_manager.call("remove(item: ManagedAccountItem)",
+            parameters: (item),
+            escapingParameters: (item),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.remove(item: item))
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountManagementInteractorInputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func select<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedAccountItem)> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorInputProtocol.self, method: "select(item: ManagedAccountItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func save<M1: Cuckoo.Matchable>(items: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ManagedAccountItem])> where M1.MatchedType == [ManagedAccountItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ManagedAccountItem])>] = [wrap(matchable: items) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorInputProtocol.self, method: "save(items: [ManagedAccountItem])", parameterMatchers: matchers))
+	    }
+	    
+	    func remove<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedAccountItem)> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorInputProtocol.self, method: "remove(item: ManagedAccountItem)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountManagementInteractorInputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func select<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.__DoNotUse<(ManagedAccountItem), Void> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return cuckoo_manager.verify("select(item: ManagedAccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func save<M1: Cuckoo.Matchable>(items: M1) -> Cuckoo.__DoNotUse<([ManagedAccountItem]), Void> where M1.MatchedType == [ManagedAccountItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ManagedAccountItem])>] = [wrap(matchable: items) { $0 }]
+	        return cuckoo_manager.verify("save(items: [ManagedAccountItem])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func remove<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.__DoNotUse<(ManagedAccountItem), Void> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return cuckoo_manager.verify("remove(item: ManagedAccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountManagementInteractorInputProtocolStub: AccountManagementInteractorInputProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func select(item: ManagedAccountItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func save(items: [ManagedAccountItem])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func remove(item: ManagedAccountItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockAccountManagementInteractorOutputProtocol: AccountManagementInteractorOutputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountManagementInteractorOutputProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountManagementInteractorOutputProtocol
+     typealias Verification = __VerificationProxy_AccountManagementInteractorOutputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountManagementInteractorOutputProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountManagementInteractorOutputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didReceiveSelected(item: AccountItem)  {
+        
+    return cuckoo_manager.call("didReceiveSelected(item: AccountItem)",
+            parameters: (item),
+            escapingParameters: (item),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveSelected(item: item))
+        
+    }
+    
+    
+    
+     func didReceive(changes: [DataProviderChange<ManagedAccountItem>])  {
+        
+    return cuckoo_manager.call("didReceive(changes: [DataProviderChange<ManagedAccountItem>])",
+            parameters: (changes),
+            escapingParameters: (changes),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(changes: changes))
+        
+    }
+    
+    
+    
+     func didReceive(error: Error)  {
+        
+    return cuckoo_manager.call("didReceive(error: Error)",
+            parameters: (error),
+            escapingParameters: (error),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(error: error))
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountManagementInteractorOutputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didReceiveSelected<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem)> where M1.MatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorOutputProtocol.self, method: "didReceiveSelected(item: AccountItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(changes: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([DataProviderChange<ManagedAccountItem>])> where M1.MatchedType == [DataProviderChange<ManagedAccountItem>] {
+	        let matchers: [Cuckoo.ParameterMatcher<([DataProviderChange<ManagedAccountItem>])>] = [wrap(matchable: changes) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorOutputProtocol.self, method: "didReceive(changes: [DataProviderChange<ManagedAccountItem>])", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementInteractorOutputProtocol.self, method: "didReceive(error: Error)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountManagementInteractorOutputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didReceiveSelected<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.__DoNotUse<(AccountItem), Void> where M1.MatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem)>] = [wrap(matchable: item) { $0 }]
+	        return cuckoo_manager.verify("didReceiveSelected(item: AccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(changes: M1) -> Cuckoo.__DoNotUse<([DataProviderChange<ManagedAccountItem>]), Void> where M1.MatchedType == [DataProviderChange<ManagedAccountItem>] {
+	        let matchers: [Cuckoo.ParameterMatcher<([DataProviderChange<ManagedAccountItem>])>] = [wrap(matchable: changes) { $0 }]
+	        return cuckoo_manager.verify("didReceive(changes: [DataProviderChange<ManagedAccountItem>])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return cuckoo_manager.verify("didReceive(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountManagementInteractorOutputProtocolStub: AccountManagementInteractorOutputProtocol {
+    
+
+    
+
+    
+     func didReceiveSelected(item: AccountItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(changes: [DataProviderChange<ManagedAccountItem>])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(error: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockAccountManagementWireframeProtocol: AccountManagementWireframeProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountManagementWireframeProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountManagementWireframeProtocol
+     typealias Verification = __VerificationProxy_AccountManagementWireframeProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountManagementWireframeProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountManagementWireframeProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?)  {
+        
+    return cuckoo_manager.call("showAccountDetails(_: ManagedAccountItem, from: AccountManagementViewProtocol?)",
+            parameters: (account, view),
+            escapingParameters: (account, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showAccountDetails(account, from: view))
+        
+    }
+    
+    
+    
+     func showAddAccount(from view: AccountManagementViewProtocol?)  {
+        
+    return cuckoo_manager.call("showAddAccount(from: AccountManagementViewProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showAddAccount(from: view))
+        
+    }
+    
+    
+    
+     func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
+            parameters: (message, title, closeAction, view),
+            escapingParameters: (message, title, closeAction, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.present(message: message, title: title, closeAction: closeAction, from: view))
+        
+    }
+    
+    
+    
+     func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)",
+            parameters: (viewModel, style, view),
+            escapingParameters: (viewModel, style, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.present(viewModel: viewModel, style: style, from: view))
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountManagementWireframeProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func showAccountDetails<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ account: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedAccountItem, AccountManagementViewProtocol?)> where M1.MatchedType == ManagedAccountItem, M2.OptionalMatchedType == AccountManagementViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem, AccountManagementViewProtocol?)>] = [wrap(matchable: account) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method: "showAccountDetails(_: ManagedAccountItem, from: AccountManagementViewProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func showAddAccount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountManagementViewProtocol?)> where M1.OptionalMatchedType == AccountManagementViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountManagementViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method: "showAddAccount(from: AccountManagementViewProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountManagementWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountManagementWireframeProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func showAccountDetails<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ account: M1, from view: M2) -> Cuckoo.__DoNotUse<(ManagedAccountItem, AccountManagementViewProtocol?), Void> where M1.MatchedType == ManagedAccountItem, M2.OptionalMatchedType == AccountManagementViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem, AccountManagementViewProtocol?)>] = [wrap(matchable: account) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return cuckoo_manager.verify("showAccountDetails(_: ManagedAccountItem, from: AccountManagementViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func showAddAccount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(AccountManagementViewProtocol?), Void> where M1.OptionalMatchedType == AccountManagementViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountManagementViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showAddAccount(from: AccountManagementViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.__DoNotUse<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?), Void> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
+	        return cuckoo_manager.verify("present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountManagementWireframeProtocolStub: AccountManagementWireframeProtocol {
+    
+
+    
+
+    
+     func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showAddAccount(from view: AccountManagementViewProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+
+import Foundation
 
 
  class MockOnboardingMainViewProtocol: OnboardingMainViewProtocol, Cuckoo.ProtocolMock {

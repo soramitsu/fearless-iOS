@@ -48,7 +48,7 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let availableAddressTypes: [SNAddressType] = [.kusamaMain, .polkadotMain, .genericSubstrate]
+        let availableAddressTypes: [SNAddressType] = SNAddressType.supported
 
         let defaultConnection = ConnectionItem.defaultConnection
 
