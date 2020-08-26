@@ -112,3 +112,5 @@ apparaitront ici";
 "confirm.mnemonic.mismatch.error.message" = "S'il vous plaît, vérifiez l'ordre des mots une fois de plus.";
 "common.edit" = "Éditer";
 "common.done" = "Terminé";
+"accounts.add.account" = "Ajouter un compte";
+"account.add.already.exists.message" = "Le compte existe déjà. Veuillez en essayer un autre.";

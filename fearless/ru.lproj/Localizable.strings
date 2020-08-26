@@ -112,3 +112,5 @@ a type of password.";
 "confirm.mnemonic.mismatch.error.message" = "Пожалуйста, проверьте порядок слов еще раз.";
 "common.edit" = "Редактировать";
 "common.done" = "Готово";
+"accounts.add.account" = "Добавить аккаунт";
+"account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";

@@ -110,3 +110,5 @@ a type of password.";
 "confirm.mnemonic.mismatch.error.message" = "単語の順番をもう一度確認してください。";
 "common.edit" = "編集する";
 "common.done" = "完了";
+"accounts.add.account" = "アカウントを追加する";
+"account.add.already.exists.message" = "アカウントはすでに存在しています。別のものを試してください。";

@@ -82,6 +82,10 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         }
     }
 
+    func activateAddAccount() {
+        wireframe.showAddAccount(from: view)
+    }
+
     func selectItem(at index: Int, in section: Int) {
         let viewModel = sections[section].items[index]
 

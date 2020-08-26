@@ -8,7 +8,7 @@ struct ManagedAccountViewModelItem: Equatable {
     let isSelected: Bool
 
     static func == (lhs: ManagedAccountViewModelItem, rhs: ManagedAccountViewModelItem) -> Bool {
-        lhs.name == rhs.name && lhs.address == rhs.address
+        lhs.name == rhs.name && lhs.address == rhs.address && lhs.isSelected == rhs.isSelected
     }
 }
 

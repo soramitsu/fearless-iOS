@@ -25,5 +25,6 @@ protocol OnboardingMainInteractorOutputProtocol: class {
 }
 
 protocol OnboardingMainViewFactoryProtocol {
-    static func createView() -> OnboardingMainViewProtocol?
+    static func createViewForOnboarding() -> OnboardingMainViewProtocol?
+    static func createViewForAdding() -> OnboardingMainViewProtocol?
 }

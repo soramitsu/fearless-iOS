@@ -112,3 +112,5 @@ transferencias aparecerán aquí";
 "confirm.mnemonic.mismatch.error.message" = "Por favor, revise el orden de las palabras una vez más.";
 "common.edit" = "Editar";
 "common.done" = "Hecho";
+"accounts.add.account" = "Añadir cuenta";
+"account.add.already.exists.message" = "La cuenta ya existe. Por favor, pruebe con otro.";

@@ -1,16 +1,22 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class AccountManagementViewController: UIViewController {
     private struct Constants {
         static let cellHeight: CGFloat = 48.0
         static let headerHeight: CGFloat = 33.0
         static let headerId = "accountHeaderId"
+        static let bottomContentHeight: CGFloat = 48
     }
 
     var presenter: AccountManagementPresenterProtocol!
 
     @IBOutlet private var tableView: UITableView!
+
+    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
+
+    @IBOutlet private var addActionControl: IconCellControlView!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -20,6 +26,12 @@ final class AccountManagementViewController: UIViewController {
         setupLocalization()
 
         presenter.setup()
+    }
+
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
     }
 
     private func setupNavigationItem() {
@@ -34,6 +46,7 @@ final class AccountManagementViewController: UIViewController {
         ]
 
         rightBarButtonItem.setTitleTextAttributes(attributes, for: .normal)
+        rightBarButtonItem.setTitleTextAttributes(attributes, for: .highlighted)
 
         navigationItem.rightBarButtonItem = rightBarButtonItem
     }
@@ -42,6 +55,9 @@ final class AccountManagementViewController: UIViewController {
         let locale = localizationManager?.selectedLocale
 
         title = R.string.localizable.profileAccountsTitle(preferredLanguages: locale?.rLanguages)
+
+        addActionControl.imageWithTitleView?.title = R.string.localizable
+            .accountsAddAccount(preferredLanguages: locale?.rLanguages)
 
         updateRightItem()
     }
@@ -64,9 +80,10 @@ final class AccountManagementViewController: UIViewController {
                            forHeaderFooterViewReuseIdentifier: Constants.headerId)
     }
 
-    @objc func actionEdit() {
-        tableView.setEditing(!tableView.isEditing, animated: true)
-        updateRightItem()
+    @objc func actionEdit() {}
+
+    @IBAction func actionAdd() {
+        presenter.activateAddAccount()
     }
 }
 
@@ -114,18 +131,6 @@ extension AccountManagementViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         presenter.selectItem(at: indexPath.row, in: indexPath.section)
-    }
-
-    func tableView(_ tableView: UITableView, canEditRowAt indexPath: IndexPath) -> Bool {
-        !presenter.section(at: indexPath.section).items[indexPath.row].isSelected
-    }
-
-    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
-        true
-    }
-
-    func tableView(_ tableView: UITableView, shouldIndentWhileEditingRowAt indexPath: IndexPath) -> Bool {
-        false
     }
 }
 

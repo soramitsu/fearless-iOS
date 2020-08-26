@@ -112,3 +112,5 @@
 "confirm.mnemonic.mismatch.error.message" = "Перевірте порядок слів ще раз.";
 "common.edit" = "Редагувати";
 "common.done" = "Завершено";
+"accounts.add.account" = "Додати обліковий запис";
+"account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";

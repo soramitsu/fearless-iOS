@@ -109,3 +109,5 @@
 "confirm.mnemonic.mismatch.error.message" = "Пожалуйста, проверьте порядок слов еще раз.";
 "common.edit" = "Шымартыу";
 "common.done" = "Эшләй";
+"accounts.add.account" = "Добавить аккаунт";
+"account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";

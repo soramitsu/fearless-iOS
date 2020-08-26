@@ -12,6 +12,8 @@ protocol AccountManagementPresenterProtocol: class {
     func section(at index: Int) -> ManagedAccountViewModelSection
 
     func activateDetails(at index: Int, in section: Int)
+    func activateAddAccount()
+
     func selectItem(at index: Int, in section: Int)
     func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int)
     func removeItem(at index: Int, in section: Int)

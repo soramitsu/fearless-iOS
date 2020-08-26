@@ -64,7 +64,6 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
             self?.presenter.didReceive(changes: changes)
         }
 
-
         if let selectedAccountItem = settings.selectedAccount {
             presenter.didReceiveSelected(item: selectedAccountItem)
         }
