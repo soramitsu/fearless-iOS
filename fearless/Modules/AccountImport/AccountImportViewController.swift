@@ -52,7 +52,6 @@ final class AccountImportViewController: UIViewController {
         super.viewDidLoad()
 
         configure()
-        setupNavigationItem()
         setupLocalization()
         updateTextViewPlaceholder()
 
@@ -98,14 +97,6 @@ final class AccountImportViewController: UIViewController {
         networkTypeView.actionControl.addTarget(self,
                                                 action: #selector(actionOpenAddressType),
                                                 for: .valueChanged)
-    }
-
-    private func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(image: R.image.iconScanQr(),
-                                       style: .plain,
-                                       target: self,
-                                       action: #selector(actionOpenScanQr))
-        navigationItem.rightBarButtonItem = infoItem
     }
 
     private func setupLocalization() {
