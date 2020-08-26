@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" launchScreen="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES" initialViewController="01J-lp-oVM">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -35,7 +35,7 @@
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" id="e3N-fi-1cm"/>
                             <constraint firstItem="eBa-Mk-uzt" firstAttribute="leading" secondItem="6Tk-OE-BBY" secondAttribute="leading" constant="40" id="jT4-bh-2Kg"/>
                             <constraint firstAttribute="bottom" secondItem="uNk-tt-Coo" secondAttribute="bottom" id="m2l-xc-ZRp"/>
-                            <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="6Tk-OE-BBY" secondAttribute="centerY" multiplier="0.64" id="oSK-Pu-J59"/>
+                            <constraint firstItem="eBa-Mk-uzt" firstAttribute="centerY" secondItem="Ze5-6b-2t3" secondAttribute="centerY" multiplier="0.64" id="oSK-Pu-J59"/>
                             <constraint firstItem="uNk-tt-Coo" firstAttribute="top" secondItem="Ze5-6b-2t3" secondAttribute="top" id="tA1-r1-8ya"/>
                             <constraint firstItem="zP0-18-4id" firstAttribute="centerX" secondItem="6Tk-OE-BBY" secondAttribute="centerX" id="v4C-CL-jhR"/>
                         </constraints>

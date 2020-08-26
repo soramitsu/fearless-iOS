@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, HiddableBarWhenPushed {
+final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: OnboardingMainPresenterProtocol!
 
     @IBOutlet private var termsLabel: UILabel!

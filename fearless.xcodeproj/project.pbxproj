@@ -186,7 +186,6 @@
 		8490142E24A935FE008F705E /* LoadableViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142924A935FE008F705E /* LoadableViewProtocol.swift */; };
 		8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */; };
 		8490143024A935FE008F705E /* AlertPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490142B24A935FE008F705E /* AlertPresentable.swift */; };
-		8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */; };
 		8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144924A93D0B008F705E /* FearlessNavigationBar.swift */; };
 		8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144A24A93D0B008F705E /* FearlessNavigationController.swift */; };
 		8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490144E24A93E2E008F705E /* UIImage+Drawing.swift */; };
@@ -530,7 +529,6 @@
 		8490142924A935FE008F705E /* LoadableViewProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LoadableViewProtocol.swift; sourceTree = "<group>"; };
 		8490142A24A935FE008F705E /* ControllerBackedProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ControllerBackedProtocol.swift; sourceTree = "<group>"; };
 		8490142B24A935FE008F705E /* AlertPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AlertPresentable.swift; sourceTree = "<group>"; };
-		8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DesignableNavigationBarProtocol.swift; sourceTree = "<group>"; };
 		8490144924A93D0B008F705E /* FearlessNavigationBar.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessNavigationBar.swift; sourceTree = "<group>"; };
 		8490144A24A93D0B008F705E /* FearlessNavigationController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FearlessNavigationController.swift; sourceTree = "<group>"; };
 		8490144E24A93E2E008F705E /* UIImage+Drawing.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "UIImage+Drawing.swift"; sourceTree = "<group>"; };
@@ -1477,7 +1475,6 @@
 			children = (
 				8490144924A93D0B008F705E /* FearlessNavigationBar.swift */,
 				8490144A24A93D0B008F705E /* FearlessNavigationController.swift */,
-				8490144524A93CDC008F705E /* DesignableNavigationBarProtocol.swift */,
 			);
 			path = NavigationController;
 			sourceTree = "<group>";
@@ -2365,7 +2362,6 @@
 				84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */,
 				8490151824AB8C6D008F705E /* WalletCommonStyleConfigurator.swift in Sources */,
 				8490141124A92F6D008F705E /* OnboardingMainViewController.swift in Sources */,
-				8490144824A93CDC008F705E /* DesignableNavigationBarProtocol.swift in Sources */,
 				842876A824AE049B00D91AD8 /* SelectionListViewController.swift in Sources */,
 				84CAF52224BDB94700F4C295 /* JSONRPCEngine.swift in Sources */,
 				84893C0724DA890F008F6A3F /* CommonError.swift in Sources */,
