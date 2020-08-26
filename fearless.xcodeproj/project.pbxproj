@@ -301,6 +301,7 @@
 		84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */; };
 		84EBC53F24F6425200459D15 /* AddAccountError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53E24F6425200459D15 /* AddAccountError.swift */; };
 		84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */; };
+		84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */; };
 		8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */; };
 		94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7306D50F278F6CC90DC88F27 /* AccountConfirmPresenter.swift */; };
 		9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBBEC474F607DD9F2A0F4FD /* AccountCreatePresenter.swift */; };
@@ -655,6 +656,7 @@
 		84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountImportInteractor.swift; sourceTree = "<group>"; };
 		84EBC53E24F6425200459D15 /* AddAccountError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountError.swift; sourceTree = "<group>"; };
 		84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountConfirmInteractor.swift; sourceTree = "<group>"; };
+		84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SortDescriptor+Storage.swift"; sourceTree = "<group>"; };
 		855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementWireframe.swift; sourceTree = "<group>"; };
 		85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportWireframe.swift; sourceTree = "<group>"; };
 		93838A49BDD7AC508A6FFB06 /* Pods_fearlessAll_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -1146,6 +1148,7 @@
 				8467FD5724EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift */,
 				8467FD5924EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift */,
 				84563CFE24EFE07E0055591D /* Storage+Identifiable.swift */,
+				84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -2470,6 +2473,7 @@
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
+				84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,

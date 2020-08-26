@@ -11,7 +11,9 @@ class ManagedAccountItemMapperTests: XCTestCase {
 
         let mapper = ManagedAccountItemMapper()
         let repository: CoreDataRepository<ManagedAccountItem, CDAccountItem> =
-            UserDataStorageTestFacade().createRepository(filter: nil, mapper: AnyCoreDataMapper(mapper))
+            UserDataStorageTestFacade().createRepository(filter: nil,
+                                                         sortDescriptors: [NSSortDescriptor.accountsByOrder],
+                                                         mapper: AnyCoreDataMapper(mapper))
 
         // when
 

@@ -14,8 +14,9 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
             CoreDataContextObservable(service: facade.databaseService,
                                                  mapper: AnyCoreDataMapper(mapper),
                                                  predicate: { _ in true })
-        let repository = CoreDataRepository(databaseService: facade.databaseService,
-                                            mapper: AnyCoreDataMapper(mapper))
+        let repository = facade.createRepository(filter: nil,
+                                                 sortDescriptors: [NSSortDescriptor.accountsByOrder],
+                                                 mapper: AnyCoreDataMapper(mapper))
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
 

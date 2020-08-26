@@ -27,7 +27,7 @@ extension CDAccountItem: CoreDataCodable {
         publicKey = try container.decode(Data.self, forKey: .publicKeyData)
         cryptoType = try container.decode(Int16.self, forKey: .cryptoType)
         networkType = try SS58AddressFactory().type(fromAddress: address).int16Value
-        order = currentItem?.order ?? 0
+        order = (currentItem?.order ?? 0) + 1
     }
 
     public func encode(to encoder: Encoder) throws {
