@@ -80,7 +80,9 @@ final class AccountManagementViewController: UIViewController {
                            forHeaderFooterViewReuseIdentifier: Constants.headerId)
     }
 
-    @objc func actionEdit() {}
+    @objc func actionEdit() {
+        // TODO: FLW-294
+    }
 
     @IBAction func actionAdd() {
         presenter.activateAddAccount()
