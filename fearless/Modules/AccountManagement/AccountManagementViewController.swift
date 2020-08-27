@@ -75,13 +75,22 @@ final class AccountManagementViewController: UIViewController {
     }
 
     private func setupTableView() {
+        tableView.tableFooterView = UIView()
+
         tableView.register(R.nib.accountTableViewCell)
         tableView.register(UINib(resource: R.nib.iconTitleHeaderView),
                            forHeaderFooterViewReuseIdentifier: Constants.headerId)
     }
 
     @objc func actionEdit() {
-        // TODO: FLW-294
+        tableView.setEditing(!tableView.isEditing, animated: true)
+        updateRightItem()
+
+        for cell in tableView.visibleCells {
+            if let accountCell = cell as? AccountTableViewCell {
+                accountCell.setReordering(tableView.isEditing, animated: true)
+            }
+        }
     }
 
     @IBAction func actionAdd() {
@@ -112,6 +121,8 @@ extension AccountManagementViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.accountCellId,
                                                  for: indexPath)!
 
+        cell.setReordering(tableView.isEditing, animated: false)
+
         let item = presenter.section(at: indexPath.section).items[indexPath.row]
         cell.bind(viewModel: item)
 
@@ -133,6 +144,42 @@ extension AccountManagementViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         presenter.selectItem(at: indexPath.row, in: indexPath.section)
+    }
+
+    func tableView(_ tableView: UITableView, canMoveRowAt indexPath: IndexPath) -> Bool {
+        return true
+    }
+
+    func tableView(_ tableView: UITableView, moveRowAt sourceIndexPath: IndexPath,
+                   to destinationIndexPath: IndexPath) {
+        presenter.moveItem(at: sourceIndexPath.row,
+                           to: destinationIndexPath.row,
+                           in: destinationIndexPath.section)
+    }
+
+    func tableView(_ tableView: UITableView,
+                   targetIndexPathForMoveFromRowAt sourceIndexPath: IndexPath,
+                   toProposedIndexPath proposedDestinationIndexPath: IndexPath) -> IndexPath {
+        if proposedDestinationIndexPath.section < sourceIndexPath.section {
+            return IndexPath(row: 0, section: sourceIndexPath.section)
+        } else if proposedDestinationIndexPath.section > sourceIndexPath.section {
+            let count = tableView.numberOfRows(inSection: sourceIndexPath.section)
+            return IndexPath(row: count - 1, section: sourceIndexPath.section)
+        } else {
+            return proposedDestinationIndexPath
+        }
+    }
+
+    func tableView(_ tableView: UITableView,
+                   editingStyleForRowAt indexPath: IndexPath) -> UITableViewCell.EditingStyle {
+        !presenter.section(at: indexPath.section).items[indexPath.row].isSelected ? .delete : .none
+    }
+
+    func tableView(_ tableView: UITableView,
+                   commit editingStyle: UITableViewCell.EditingStyle,
+                   forRowAt indexPath: IndexPath) {
+        presenter.removeItem(at: indexPath.row, in: indexPath.section)
+        tableView.deleteRows(at: [indexPath], with: .automatic)
     }
 }
 

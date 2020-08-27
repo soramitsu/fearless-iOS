@@ -9,12 +9,30 @@ final class AccountTableViewCell: UITableViewCell {
     @IBOutlet private var infoButton: RoundedButton!
     @IBOutlet private var selectionImageView: UIImageView!
 
+    func setReordering(_ reordering: Bool, animated: Bool) {
+        let closure = {
+            self.infoButton.alpha = reordering ? 0.0 : 1.0
+        }
+
+        if animated {
+            BlockViewAnimator().animate(block: closure, completionBlock: nil)
+        } else {
+            closure()
+        }
+
+        if reordering {
+            recolorReoderControl(R.color.colorWhite()!)
+        }
+    }
+
     override func awakeFromNib() {
         super.awakeFromNib()
 
         let selectedBackgroundView = UIView()
         selectedBackgroundView.backgroundColor = R.color.colorDarkBlue()!.withAlphaComponent(0.3)
         self.selectedBackgroundView = selectedBackgroundView
+
+        showsReorderControl = false
     }
 
     func bind(viewModel: ManagedAccountViewModelItem) {
@@ -26,5 +44,11 @@ final class AccountTableViewCell: UITableViewCell {
         }
 
         selectionImageView.isHidden = !viewModel.isSelected
+    }
+
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        contentView.frame = CGRect(origin: .zero, size: bounds.size)
     }
 }

@@ -82,10 +82,13 @@
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_strokeWidth">
+                                <userDefinedRuntimeAttribute type="number" keyPath="_separatorWidth">
                                     <real key="value" value="0.0"/>
                                 </userDefinedRuntimeAttribute>
-                                <userDefinedRuntimeAttribute type="number" keyPath="_separatorWidth">
+                                <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
+                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
                                     <real key="value" value="0.0"/>
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
@@ -93,13 +96,19 @@
                                 <action selector="actionAdd" destination="-1" eventType="touchUpInside" id="ZJ8-GF-7Mg"/>
                             </connections>
                         </view>
+                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="J0F-S7-8rT">
+                            <rect key="frame" x="374" y="12" width="24" height="24"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </imageView>
                     </subviews>
                     <color key="backgroundColor" name="colorAlmostBlack"/>
                     <constraints>
                         <constraint firstItem="VhF-jR-ils" firstAttribute="leading" secondItem="o0Y-ba-aQD" secondAttribute="leading" id="EGQ-UF-DyK"/>
                         <constraint firstAttribute="trailing" secondItem="VhF-jR-ils" secondAttribute="trailing" id="IMt-Z6-lBv"/>
                         <constraint firstAttribute="height" constant="48" id="OFX-Qh-4V7"/>
+                        <constraint firstItem="J0F-S7-8rT" firstAttribute="centerY" secondItem="VhF-jR-ils" secondAttribute="centerY" id="P6T-x4-SSw"/>
                         <constraint firstItem="VhF-jR-ils" firstAttribute="top" secondItem="o0Y-ba-aQD" secondAttribute="top" id="QH2-gP-cgF"/>
+                        <constraint firstAttribute="trailing" secondItem="J0F-S7-8rT" secondAttribute="trailing" constant="16" id="lW1-tg-wtd"/>
                     </constraints>
                 </view>
             </subviews>
@@ -119,6 +128,7 @@
     </objects>
     <resources>
         <image name="iconPlus" width="24" height="24"/>
+        <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorAlmostBlack">
             <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
