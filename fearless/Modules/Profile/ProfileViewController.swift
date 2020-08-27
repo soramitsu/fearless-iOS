@@ -1,12 +1,12 @@
 import UIKit
 import SoraFoundation
 
-final class ProfileViewController: UIViewController, HiddableBarWhenPushed {
+final class ProfileViewController: UIViewController {
     private struct Constants {
         static let optionCellHeight: CGFloat = 48.0
-        static let sectionCellHeight: CGFloat = 52.0
-        static let detailsCellHeight: CGFloat = 72.0
-        static let headerInsets = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 16, right: 16.0)
+        static let sectionCellHeight: CGFloat = 56.0
+        static let detailsCellHeight: CGFloat = 86.0
+        static let headerInsets = UIEdgeInsets(top: 0.0, left: 16.0, bottom: 16, right: 16.0)
     }
 
     var presenter: ProfilePresenterProtocol!
@@ -56,7 +56,6 @@ extension ProfileViewController: UITableViewDataSource {
 
             let locale = localizationManager?.selectedLocale
             cell.titleLabel.text = R.string.localizable.profileTitle(preferredLanguages: locale?.rLanguages)
-            cell.contentInsets = Constants.headerInsets
 
             return cell
         case 1:

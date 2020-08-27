@@ -23,25 +23,22 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Settings" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="48g-kN-GhJ">
-                        <rect key="frame" x="16" y="9" width="382" height="26"/>
-                        <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
+                        <rect key="frame" x="16" y="0.0" width="382" height="38"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
                 </subviews>
                 <constraints>
-                    <constraint firstItem="48g-kN-GhJ" firstAttribute="centerY" secondItem="MCQ-UF-dgY" secondAttribute="centerY" id="GwI-9G-UhP"/>
                     <constraint firstItem="48g-kN-GhJ" firstAttribute="leading" secondItem="MCQ-UF-dgY" secondAttribute="leading" constant="16" id="RRd-hn-0hd"/>
                     <constraint firstItem="48g-kN-GhJ" firstAttribute="trailing" secondItem="MCQ-UF-dgY" secondAttribute="trailing" constant="-16" id="g8A-c3-tPc"/>
+                    <constraint firstItem="48g-kN-GhJ" firstAttribute="top" secondItem="MCQ-UF-dgY" secondAttribute="top" id="i2X-iv-8vm"/>
                 </constraints>
             </tableViewCellContentView>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <inset key="separatorInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
             <connections>
-                <outlet property="centerY" destination="GwI-9G-UhP" id="Wp4-jM-c7K"/>
-                <outlet property="leading" destination="RRd-hn-0hd" id="0ZO-J4-lp4"/>
                 <outlet property="titleLabel" destination="48g-kN-GhJ" id="KyW-K8-cfa"/>
-                <outlet property="trailing" destination="g8A-c3-tPc" id="sYJ-7a-Tp3"/>
             </connections>
             <point key="canvasLocation" x="49" y="36"/>
         </tableViewCell>
