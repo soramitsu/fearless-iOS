@@ -111,3 +111,4 @@
 "common.done" = "Эшләй";
 "accounts.add.account" = "Добавить аккаунт";
 "account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
+"confirmation.skip.action" = "Пропустить";

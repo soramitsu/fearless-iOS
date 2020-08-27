@@ -114,3 +114,4 @@
 "common.done" = "Завершено";
 "accounts.add.account" = "Додати обліковий запис";
 "account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";
+"confirmation.skip.action" = "Пропустити процес";

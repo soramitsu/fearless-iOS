@@ -6,11 +6,13 @@ protocol AccountConfirmPresenterProtocol: class {
     func setup()
     func requestWords()
     func confirm(words: [String])
+    func skip()
 }
 
 protocol AccountConfirmInteractorInputProtocol: class {
     func requestWords()
     func confirm(words: [String])
+    func skipConfirmation()
 }
 
 protocol AccountConfirmInteractorOutputProtocol: class {
