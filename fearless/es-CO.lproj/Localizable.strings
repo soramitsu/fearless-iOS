@@ -114,3 +114,4 @@ transferencias aparecerán aquí";
 "common.done" = "Hecho";
 "accounts.add.account" = "Añadir cuenta";
 "account.add.already.exists.message" = "La cuenta ya existe. Por favor, pruebe con otro.";
+"confirmation.skip.action" = "Omitir proceso";

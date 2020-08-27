@@ -770,6 +770,21 @@ import Cuckoo
         
     }
     
+    
+    
+     func skip()  {
+        
+    return cuckoo_manager.call("skip()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.skip())
+        
+    }
+    
 
 	 struct __StubbingProxy_AccountConfirmPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -792,6 +807,11 @@ import Cuckoo
 	    func confirm<M1: Cuckoo.Matchable>(words: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([String])> where M1.MatchedType == [String] {
 	        let matchers: [Cuckoo.ParameterMatcher<([String])>] = [wrap(matchable: words) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmPresenterProtocol.self, method: "confirm(words: [String])", parameterMatchers: matchers))
+	    }
+	    
+	    func skip() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmPresenterProtocol.self, method: "skip()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -828,6 +848,12 @@ import Cuckoo
 	        return cuckoo_manager.verify("confirm(words: [String])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func skip() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("skip()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -846,6 +872,10 @@ import Cuckoo
     }
     
      func confirm(words: [String])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func skip()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -906,6 +936,21 @@ import Cuckoo
         
     }
     
+    
+    
+     func skipConfirmation()  {
+        
+    return cuckoo_manager.call("skipConfirmation()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.skipConfirmation())
+        
+    }
+    
 
 	 struct __StubbingProxy_AccountConfirmInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -923,6 +968,11 @@ import Cuckoo
 	    func confirm<M1: Cuckoo.Matchable>(words: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([String])> where M1.MatchedType == [String] {
 	        let matchers: [Cuckoo.ParameterMatcher<([String])>] = [wrap(matchable: words) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmInteractorInputProtocol.self, method: "confirm(words: [String])", parameterMatchers: matchers))
+	    }
+	    
+	    func skipConfirmation() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountConfirmInteractorInputProtocol.self, method: "skipConfirmation()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -953,6 +1003,12 @@ import Cuckoo
 	        return cuckoo_manager.verify("confirm(words: [String])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func skipConfirmation() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("skipConfirmation()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -967,6 +1023,10 @@ import Cuckoo
     }
     
      func confirm(words: [String])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func skipConfirmation()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

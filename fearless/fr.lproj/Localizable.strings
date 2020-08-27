@@ -114,3 +114,4 @@ apparaitront ici";
 "common.done" = "Terminé";
 "accounts.add.account" = "Ajouter un compte";
 "account.add.already.exists.message" = "Le compte existe déjà. Veuillez en essayer un autre.";
+"confirmation.skip.action" = "Ignorer le processus";

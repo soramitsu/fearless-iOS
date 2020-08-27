@@ -45,4 +45,10 @@ extension BaseAccountConfirmInteractor: AccountConfirmInteractorInputProtocol {
                                                                     mnemonic: mnemonic)
         createAccountUsingOperation(operation)
     }
+
+    func skipConfirmation() {
+        let operation = accountOperationFactory.newAccountOperation(request: request,
+                                                                    mnemonic: mnemonic)
+        createAccountUsingOperation(operation)
+    }
 }

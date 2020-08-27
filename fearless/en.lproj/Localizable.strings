@@ -114,3 +114,4 @@ transfers will appear here";
 "common.done" = "Done";
 "accounts.add.account" = "Add account";
 "account.add.already.exists.message" = "Account already exists. Please, try another one.";
+"confirmation.skip.action" = "Skip process";

@@ -19,6 +19,10 @@ extension AccountConfirmPresenter: AccountConfirmPresenterProtocol {
     func confirm(words: [String]) {
         interactor.confirm(words: words)
     }
+
+    func skip() {
+        interactor.skipConfirmation()
+    }
 }
 
 extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {

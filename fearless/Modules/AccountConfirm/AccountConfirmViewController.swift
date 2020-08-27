@@ -28,6 +28,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var bottomPlaneView: UIView!
     @IBOutlet private var topPlaneView: UIView!
     @IBOutlet private var nextButton: TriangularedButton!
+    @IBOutlet private var skipButton: RoundedButton!
 
     @IBOutlet private var topPlaneHeight: NSLayoutConstraint!
     @IBOutlet private var bottomPlaneHeight: NSLayoutConstraint!
@@ -76,6 +77,9 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
+
+        skipButton.imageWithTitleView?.title = R.string.localizable
+            .confirmationSkipAction(preferredLanguages: locale.rLanguages)
     }
 
     private func createButton() -> RoundedButton {
@@ -317,6 +321,10 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         }
 
         presenter.confirm(words: words)
+    }
+
+    @IBAction private func actionSkip() {
+        presenter.skip()
     }
 }
 
