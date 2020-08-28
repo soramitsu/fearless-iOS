@@ -178,8 +178,15 @@ extension AccountManagementViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    commit editingStyle: UITableViewCell.EditingStyle,
                    forRowAt indexPath: IndexPath) {
+        let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
+
         presenter.removeItem(at: indexPath.row, in: indexPath.section)
-        tableView.deleteRows(at: [indexPath], with: .automatic)
+
+        if numberOfRows == 1 {
+            tableView.deleteSections([indexPath.section], with: .automatic)
+        } else {
+            tableView.deleteRows(at: [indexPath], with: .automatic)
+        }
     }
 }
 
