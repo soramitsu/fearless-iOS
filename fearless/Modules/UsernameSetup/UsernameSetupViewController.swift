@@ -18,7 +18,6 @@ final class UsernameSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configure()
         setupLocalization()
 
         presenter.setup()
@@ -52,15 +51,6 @@ final class UsernameSetupViewController: UIViewController {
         }
 
         super.viewDidLayoutSubviews()
-    }
-
-    private func configure() {
-        if let placeholder = inputField.placeholder {
-            let color = R.color.colorGray() ?? .gray
-            let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                           attributes: [.foregroundColor: color])
-            inputField.attributedPlaceholder = attributedPlaceholder
-        }
     }
 
     private func updateActionButton() {
@@ -146,7 +136,14 @@ extension UsernameSetupViewController: Localizable {
         nextButton.invalidateLayout()
 
         hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: languages)
-        inputField.placeholder = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: languages)
+
+        if let placeholderColor = R.color.colorGray() {
+            let placeholder = R.string.localizable
+                .usernameSetupChooseTitle(preferredLanguages: languages)
+            let attributedPlaceholder = NSAttributedString(string: placeholder,
+                                                           attributes: [.foregroundColor: placeholderColor])
+            inputField.attributedPlaceholder = attributedPlaceholder
+        }
     }
 
     func applyLocalization() {

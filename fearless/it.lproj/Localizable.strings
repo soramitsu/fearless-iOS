@@ -114,3 +114,8 @@ trasferimenti appariranno qui";
 "accounts.add.account" = "Aggiungi account";
 "account.add.already.exists.message" = "L'account esiste già. Per favore, provane un altro.";
 "confirmation.skip.action" = "Salta processo";
+"account.info.title" = "Account";
+"account.info.name.title" = "Nome";
+"account.info.address.title" = "Indirizzo";
+"common.export" = "Esportare";
+"common.save" = "Salva";

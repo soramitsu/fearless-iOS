@@ -19,4 +19,13 @@ extension ManagedAccountItem {
                            publicKeyData: publicKeyData,
                            order: newOrder)
     }
+
+    func replacingUsername(_ newUsername: String) -> ManagedAccountItem {
+        ManagedAccountItem(address: address,
+                           cryptoType: cryptoType,
+                           networkType: networkType,
+                           username: newUsername,
+                           publicKeyData: publicKeyData,
+                           order: order)
+    }
 }

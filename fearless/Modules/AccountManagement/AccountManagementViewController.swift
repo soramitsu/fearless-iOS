@@ -121,6 +121,7 @@ extension AccountManagementViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.accountCellId,
                                                  for: indexPath)!
 
+        cell.delegate = self
         cell.setReordering(tableView.isEditing, animated: false)
 
         let item = presenter.section(at: indexPath.section).items[indexPath.row]
@@ -201,5 +202,15 @@ extension AccountManagementViewController: Localizable {
         if isViewLoaded {
             setupLocalization()
         }
+    }
+}
+
+extension AccountManagementViewController: AccountTableViewCellDelegate {
+    func didSelectInfo(_ cell: AccountTableViewCell) {
+        guard let indexPath = tableView.indexPath(for: cell) else {
+            return
+        }
+
+        presenter.activateDetails(at: indexPath.row, in: indexPath.section)
     }
 }
