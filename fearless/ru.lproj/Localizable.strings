@@ -115,3 +115,8 @@ a type of password.";
 "accounts.add.account" = "Добавить аккаунт";
 "account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
 "confirmation.skip.action" = "Пропустить";
+"account.info.title" = "Аккаунт";
+"account.info.name.title" = "Имя";
+"account.info.address.title" = "Адрес";
+"common.export" = "Экспортировать";
+"common.save" = "Сохранить";

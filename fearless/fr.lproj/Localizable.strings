@@ -115,3 +115,8 @@ apparaitront ici";
 "accounts.add.account" = "Ajouter un compte";
 "account.add.already.exists.message" = "Le compte existe déjà. Veuillez en essayer un autre.";
 "confirmation.skip.action" = "Ignorer le processus";
+"account.info.title" = "Compte";
+"account.info.name.title" = "Nom";
+"account.info.address.title" = "Adresse";
+"common.export" = "Exportation";
+"common.save" = "Sauvegarder";

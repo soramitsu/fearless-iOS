@@ -41,7 +41,7 @@
 "tabbar.wallet.title" = "Гаманець";
 "tabbar.staking.title" = "Стекiнг";
 "tabbar.governance.title" = "Управління";
-"tabbar.extrinsics.title" = "Extrinsics";
+"tabbar.extrinsics.title" = "Экстрiнсiкi";
 "tabbar.settings.title" = "Параметри";
 "wallet.empty.description" = "Вхідні й вихідні\
 транзакції з'являтимуться тут";
@@ -115,3 +115,8 @@
 "accounts.add.account" = "Додати обліковий запис";
 "account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";
 "confirmation.skip.action" = "Пропустити процес";
+"account.info.title" = "Рахунок";
+"account.info.name.title" = "Ім'я";
+"account.info.address.title" = "Адреса";
+"common.export" = "Експорт";
+"common.save" = "Зберегти";

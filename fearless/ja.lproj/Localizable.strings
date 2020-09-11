@@ -113,3 +113,8 @@ a type of password.";
 "accounts.add.account" = "アカウントを追加する";
 "account.add.already.exists.message" = "アカウントはすでに存在しています。別のものを試してください。";
 "confirmation.skip.action" = "プロセスをスキップ";
+"account.info.title" = "アカウント";
+"account.info.name.title" = "名前";
+"account.info.address.title" = "住所";
+"common.export" = "書き出す";
+"common.save" = "保存";
