@@ -58,7 +58,7 @@ transfers will appear here";
 "about.title" = "About";
 "about.privacy" = "Privacy policy";
 "about.terms" = "Terms and conditions";
-"language.title" = "Select language";
+"language.title" = "Language";
 "help.support.title" = "Fearless support";
 "no.email.bound.error.message" = "Please, make sure that the mail application is installed on the device.";
 "node.connections.title" = "Select connection";

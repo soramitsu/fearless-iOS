@@ -58,7 +58,7 @@ a type of password.";
 "about.title" = "О приложении";
 "about.privacy" = "Политика конфиденциальности";
 "about.terms" = "Условия использования";
-"language.title" = "Выберите язык";
+"language.title" = "Язык";
 "help.support.title" = "Fearless поддержка";
 "no.email.bound.error.message" = "Пожалуйста, убедитесь, что на устройстве установлено почтовое приложение.";
 "node.connections.title" = "Выберите соединение";
