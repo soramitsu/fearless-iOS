@@ -58,7 +58,7 @@
 "about.title" = "Про додаток";
 "about.privacy" = "Політика конфіденційності";
 "about.terms" = "Умови користування";
-"language.title" = "Оберіть мову";
+"language.title" = "Мова";
 "help.support.title" = "Fearless підтримка";
 "no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
 "node.connections.title" = "Виберіть з'єднання";

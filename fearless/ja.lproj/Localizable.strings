@@ -56,7 +56,7 @@ a type of password.";
 "about.title" = "情報";
 "about.privacy" = "個人情報保護方針";
 "about.terms" = "規約と条件";
-"language.title" = "言語を選択する";
+"language.title" = "言語";
 "help.support.title" = "Fearlessサポート";
 "no.email.bound.error.message" = "メールアプリケーションがデバイスにインストールされていることを確認してください。";
 "node.connections.title" = "接続を選択";

@@ -58,7 +58,7 @@ apparaitront ici";
 "about.title" = "À propos";
 "about.privacy" = "Respect de la vie privée";
 "about.terms" = "Termes et conditions";
-"language.title" = "Choisir la langue";
+"language.title" = "Langue";
 "help.support.title" = "Support Fearless";
 "no.email.bound.error.message" = "Veuillez vous assurer que l'application de messagerie est installée sur l'appareil.";
 "node.connections.title" = "Sélectionnez la connexion";

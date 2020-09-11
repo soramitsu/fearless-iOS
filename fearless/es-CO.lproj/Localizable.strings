@@ -58,7 +58,7 @@ transferencias aparecerán aquí";
 "about.title" = "Acerca de";
 "about.privacy" = "Política de privacidad";
 "about.terms" = "Términos y Condiciones";
-"language.title" = "Seleccione el idioma";
+"language.title" = "Idioma";
 "help.support.title" = "Fearless apoyo";
 "no.email.bound.error.message" = "Por favor, asegúrese de que la aplicación de correo esté instalada en el dispositivo.";
 "node.connections.title" = "Seleccionar conexión";
