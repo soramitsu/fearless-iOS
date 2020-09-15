@@ -2,7 +2,16 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
-    func showAccountDetails(from view: ProfileViewProtocol?) {}
+    func showAccountDetails(from view: ProfileViewProtocol?) {
+        guard let accountManagement = AccountManagementViewFactory.createView() else {
+            return
+        }
+
+        accountManagement.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(accountManagement.controller,
+                                                                  animated: true)
+    }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {}
 
