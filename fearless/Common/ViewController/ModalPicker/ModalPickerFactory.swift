@@ -37,7 +37,7 @@ struct ModalPickerFactory {
             }
         }
 
-        let factory = ModalInputPresentationFactory(configuration: ModalInputPresentationConfiguration.fearless)
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
@@ -82,7 +82,7 @@ struct ModalPickerFactory {
             }
         }
 
-        let factory = ModalInputPresentationFactory(configuration: ModalInputPresentationConfiguration.fearless)
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
@@ -127,7 +127,7 @@ struct ModalPickerFactory {
             }
         }
 
-        let factory = ModalInputPresentationFactory(configuration: ModalInputPresentationConfiguration.fearless)
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +

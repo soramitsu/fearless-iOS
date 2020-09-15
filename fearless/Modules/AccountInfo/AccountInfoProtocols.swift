@@ -26,7 +26,7 @@ protocol AccountInfoInteractorOutputProtocol: class {
     func didReceive(error: Error)
 }
 
-protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting {
     func close(view: AccountInfoViewProtocol?)
     func showExport(for accountId: String, from view: AccountInfoViewProtocol?)
 }

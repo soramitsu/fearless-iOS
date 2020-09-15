@@ -8,7 +8,7 @@ protocol ModalPickerViewControllerDelegate: class {
 }
 
 class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>: UIViewController,
-    ModalInputViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model {
+    ModalViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model {
 
     @IBOutlet private var headerLabel: UILabel!
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
@@ -26,7 +26,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var viewModels: [LocalizableResource<T>] = []
 
     weak var delegate: ModalPickerViewControllerDelegate?
-    weak var presenter: ModalInputViewPresenterProtocol?
+    weak var presenter: ModalPresenterProtocol?
 
     var context: AnyObject?
 
@@ -106,8 +106,8 @@ extension ModalPickerViewController: Localizable {
     }
 }
 
-extension ModalPickerViewController: ModalInputViewPresenterDelegate {
-    func presenterDidHide(_ presenter: ModalInputViewPresenterProtocol) {
+extension ModalPickerViewController: ModalPresenterDelegate {
+    func presenterDidHide(_ presenter: ModalPresenterProtocol) {
         delegate?.modalPickerDidCancel(context: context)
     }
 }

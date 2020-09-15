@@ -117,6 +117,8 @@
 "confirmation.skip.action" = "Пропустити процес";
 "account.info.title" = "Рахунок";
 "account.info.name.title" = "Ім'я";
-"account.info.address.title" = "Адреса";
-"common.export" = "Експорт";
+"account.info.address.title" = "Адреса рахунку";
+"common.export" = "Експортний рахунок";
 "common.save" = "Зберегти";
+"common.copied" = "Скопійовано в буфер обміну";
+"connections.add.connection" = "Додати підключення";
