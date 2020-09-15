@@ -114,6 +114,8 @@
 "confirmation.skip.action" = "Пропустить";
 "account.info.title" = "Аккаунт";
 "account.info.name.title" = "Имя";
-"account.info.address.title" = "Адрес";
-"common.export" = "Экспортировать";
+"account.info.address.title" = "Адрес аккаунта";
+"common.export" = "Экспортировать аккаунт";
 "common.save" = "Сохранить";
+"common.copied" = "Скопировано в буфер обмена";
+"connections.add.connection" = "Добавить соединение";

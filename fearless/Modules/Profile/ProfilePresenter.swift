@@ -54,25 +54,13 @@ extension ProfilePresenter: ProfilePresenterProtocol {
     }
 
     func activeteAccountCopy() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+        if let address = userSettings?.account.address {
+            UIPasteboard.general.string = address
 
-        let selectTitle = R.string.localizable.commonSelectOption(preferredLanguages: locale.rLanguages)
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-
-        let copyTitle = R.string.localizable.commonCopyAddress(preferredLanguages: locale.rLanguages)
-
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            UIPasteboard.general.string = self?.userSettings?.account.address
+            let locale = localizationManager?.selectedLocale
+            let title = R.string.localizable.commonCopied(preferredLanguages: locale?.rLanguages)
+            wireframe.presentSuccessNotification(title, from: view)
         }
-
-        let viewModel = AlertPresentableViewModel(title: selectTitle,
-                                                  message: nil,
-                                                  actions: [copyAction],
-                                                  closeAction: closeTitle)
-
-        wireframe.present(viewModel: viewModel,
-                          style: .actionSheet,
-                          from: view)
     }
 
     func activateOption(at index: UInt) {

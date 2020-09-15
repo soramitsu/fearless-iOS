@@ -21,7 +21,7 @@ protocol ProfileInteractorOutputProtocol: class {
     func didReceiveUserDataProvider(error: Error)
 }
 
-protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresentable {
+protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresentable, ModalAlertPresenting {
     func showAccountDetails(from view: ProfileViewProtocol?)
     func showAccountSelection(from view: ProfileViewProtocol?)
     func showConnectionSelection(from view: ProfileViewProtocol?)

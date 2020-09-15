@@ -41,25 +41,11 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func activateCopyAddress() {
+        UIPasteboard.general.string = accountId
+
         let locale = localizationManager.selectedLocale
-
-        let selectTitle = R.string.localizable.commonSelectOption(preferredLanguages: locale.rLanguages)
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-
-        let copyTitle = R.string.localizable.commonCopyAddress(preferredLanguages: locale.rLanguages)
-
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            UIPasteboard.general.string = self?.accountId
-        }
-
-        let viewModel = AlertPresentableViewModel(title: selectTitle,
-                                                  message: nil,
-                                                  actions: [copyAction],
-                                                  closeAction: closeTitle)
-
-        wireframe.present(viewModel: viewModel,
-                          style: .actionSheet,
-                          from: view)
+        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
+        wireframe.presentSuccessNotification(title, from: view)
     }
 
     func save(username: String) {
