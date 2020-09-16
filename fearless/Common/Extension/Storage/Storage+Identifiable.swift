@@ -12,3 +12,8 @@ extension ConnectionItem: Identifiable {
 extension ManagedAccountItem: Identifiable {
     var identifier: String { address }
 }
+
+extension ManagedConnectionItem: Identifiable {
+    var identifier: String { url.absoluteString }
+
+}

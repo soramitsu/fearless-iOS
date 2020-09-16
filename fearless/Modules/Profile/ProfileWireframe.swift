@@ -27,13 +27,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showConnectionSelection(from view: ProfileViewProtocol?) {
-        guard let nodeSelection = NodeSelectionViewFactory.createView() else {
+        guard let networkManagement = NetworkManagementViewFactory.createView() else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            nodeSelection.controller.hidesBottomBarWhenPushed = true
-            navigationController.pushViewController(nodeSelection.controller, animated: true)
+            networkManagement.controller.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(networkManagement.controller, animated: true)
         }
     }
 

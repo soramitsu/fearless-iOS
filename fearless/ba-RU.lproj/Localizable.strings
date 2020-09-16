@@ -58,7 +58,7 @@
 "language.title" = "Тел";
 "help.support.title" = "Fearless ярҙам";
 "no.email.bound.error.message" = "Тышҡы һылтанманы асыу мөмкин түгел. Зинһар, көйләүҙәрҙе тикшерегеҙ.";
-"node.connections.title" = "Үҙ илегеҙҙе һайлағыҙ";
+"connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
 "username.setup.choose.title" = "Выберите имя";
 "username.setup.hint" = "Имя аккаунта и его отображение рядом с адресом. Используя хранение идентификационных данных в блокчейне, имя можно сделать доступных для остальных.";
@@ -119,3 +119,5 @@
 "common.save" = "Сохранить";
 "common.copied" = "Скопировано в буфер обмена";
 "connections.add.connection" = "Добавить соединение";
+"connection.management.default.title" = "По умолчанию";
+"connection.management.custom.title" = "Добавленные";

@@ -5598,6 +5598,980 @@ import RobinHood
 import Cuckoo
 @testable import fearless
 
+import RobinHood
+
+
+ class MockNetworkManagementViewProtocol: NetworkManagementViewProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkManagementViewProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkManagementViewProtocol
+     typealias Verification = __VerificationProxy_NetworkManagementViewProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkManagementViewProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkManagementViewProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var isSetup: Bool {
+        get {
+            return cuckoo_manager.getter("isSetup",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.isSetup)
+        }
+        
+    }
+    
+    
+    
+     var controller: UIViewController {
+        get {
+            return cuckoo_manager.getter("controller",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.controller)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkManagementViewProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockNetworkManagementViewProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup")
+	    }
+	    
+	    
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockNetworkManagementViewProtocol, UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller")
+	    }
+	    
+	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementViewProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkManagementViewProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var isSetup: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var controller: Cuckoo.VerifyReadOnlyProperty<UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkManagementViewProtocolStub: NetworkManagementViewProtocol {
+    
+    
+     var isSetup: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+    
+     var controller: UIViewController {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UIViewController).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func reload()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockNetworkManagementPresenterProtocol: NetworkManagementPresenterProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkManagementPresenterProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkManagementPresenterProtocol
+     typealias Verification = __VerificationProxy_NetworkManagementPresenterProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkManagementPresenterProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkManagementPresenterProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func activateConnectionAdd()  {
+        
+    return cuckoo_manager.call("activateConnectionAdd()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activateConnectionAdd())
+        
+    }
+    
+    
+    
+     func activateDefaultConnectionDetails(at index: Int)  {
+        
+    return cuckoo_manager.call("activateDefaultConnectionDetails(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activateDefaultConnectionDetails(at: index))
+        
+    }
+    
+    
+    
+     func activateCustomConnectionDetails(at index: Int)  {
+        
+    return cuckoo_manager.call("activateCustomConnectionDetails(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activateCustomConnectionDetails(at: index))
+        
+    }
+    
+    
+    
+     func selectDefaultItem(at index: Int)  {
+        
+    return cuckoo_manager.call("selectDefaultItem(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.selectDefaultItem(at: index))
+        
+    }
+    
+    
+    
+     func selectCustomItem(at index: Int)  {
+        
+    return cuckoo_manager.call("selectCustomItem(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.selectCustomItem(at: index))
+        
+    }
+    
+    
+    
+     func moveCustomItem(at startIndex: Int, to finalIndex: Int)  {
+        
+    return cuckoo_manager.call("moveCustomItem(at: Int, to: Int)",
+            parameters: (startIndex, finalIndex),
+            escapingParameters: (startIndex, finalIndex),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.moveCustomItem(at: startIndex, to: finalIndex))
+        
+    }
+    
+    
+    
+     func removeCustomItem(at index: Int)  {
+        
+    return cuckoo_manager.call("removeCustomItem(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.removeCustomItem(at: index))
+        
+    }
+    
+    
+    
+     func numberOfDefaultConnections() -> Int {
+        
+    return cuckoo_manager.call("numberOfDefaultConnections() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.numberOfDefaultConnections())
+        
+    }
+    
+    
+    
+     func defaultConnection(at index: Int) -> ManagedConnectionViewModel {
+        
+    return cuckoo_manager.call("defaultConnection(at: Int) -> ManagedConnectionViewModel",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.defaultConnection(at: index))
+        
+    }
+    
+    
+    
+     func numberOfCustomConnections() -> Int {
+        
+    return cuckoo_manager.call("numberOfCustomConnections() -> Int",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.numberOfCustomConnections())
+        
+    }
+    
+    
+    
+     func customConnection(at index: Int) -> ManagedConnectionViewModel {
+        
+    return cuckoo_manager.call("customConnection(at: Int) -> ManagedConnectionViewModel",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.customConnection(at: index))
+        
+    }
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkManagementPresenterProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func activateConnectionAdd() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "activateConnectionAdd()", parameterMatchers: matchers))
+	    }
+	    
+	    func activateDefaultConnectionDetails<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "activateDefaultConnectionDetails(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func activateCustomConnectionDetails<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "activateCustomConnectionDetails(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func selectDefaultItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "selectDefaultItem(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func selectCustomItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "selectCustomItem(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func moveCustomItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at startIndex: M1, to finalIndex: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Int, Int)> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: startIndex) { $0.0 }, wrap(matchable: finalIndex) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "moveCustomItem(at: Int, to: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func removeCustomItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "removeCustomItem(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func numberOfDefaultConnections() -> Cuckoo.ProtocolStubFunction<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "numberOfDefaultConnections() -> Int", parameterMatchers: matchers))
+	    }
+	    
+	    func defaultConnection<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubFunction<(Int), ManagedConnectionViewModel> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "defaultConnection(at: Int) -> ManagedConnectionViewModel", parameterMatchers: matchers))
+	    }
+	    
+	    func numberOfCustomConnections() -> Cuckoo.ProtocolStubFunction<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "numberOfCustomConnections() -> Int", parameterMatchers: matchers))
+	    }
+	    
+	    func customConnection<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubFunction<(Int), ManagedConnectionViewModel> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "customConnection(at: Int) -> ManagedConnectionViewModel", parameterMatchers: matchers))
+	    }
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkManagementPresenterProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func activateConnectionAdd() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("activateConnectionAdd()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func activateDefaultConnectionDetails<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("activateDefaultConnectionDetails(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func activateCustomConnectionDetails<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("activateCustomConnectionDetails(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func selectDefaultItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("selectDefaultItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func selectCustomItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("selectCustomItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func moveCustomItem<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(at startIndex: M1, to finalIndex: M2) -> Cuckoo.__DoNotUse<(Int, Int), Void> where M1.MatchedType == Int, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int, Int)>] = [wrap(matchable: startIndex) { $0.0 }, wrap(matchable: finalIndex) { $0.1 }]
+	        return cuckoo_manager.verify("moveCustomItem(at: Int, to: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func removeCustomItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("removeCustomItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func numberOfDefaultConnections() -> Cuckoo.__DoNotUse<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("numberOfDefaultConnections() -> Int", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func defaultConnection<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), ManagedConnectionViewModel> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("defaultConnection(at: Int) -> ManagedConnectionViewModel", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func numberOfCustomConnections() -> Cuckoo.__DoNotUse<(), Int> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("numberOfCustomConnections() -> Int", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func customConnection<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), ManagedConnectionViewModel> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("customConnection(at: Int) -> ManagedConnectionViewModel", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkManagementPresenterProtocolStub: NetworkManagementPresenterProtocol {
+    
+
+    
+
+    
+     func activateConnectionAdd()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func activateDefaultConnectionDetails(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func activateCustomConnectionDetails(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func selectDefaultItem(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func selectCustomItem(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func moveCustomItem(at startIndex: Int, to finalIndex: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func removeCustomItem(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func numberOfDefaultConnections() -> Int  {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+     func defaultConnection(at index: Int) -> ManagedConnectionViewModel  {
+        return DefaultValueRegistry.defaultValue(for: (ManagedConnectionViewModel).self)
+    }
+    
+     func numberOfCustomConnections() -> Int  {
+        return DefaultValueRegistry.defaultValue(for: (Int).self)
+    }
+    
+     func customConnection(at index: Int) -> ManagedConnectionViewModel  {
+        return DefaultValueRegistry.defaultValue(for: (ManagedConnectionViewModel).self)
+    }
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockNetworkManagementInteractorInputProtocol: NetworkManagementInteractorInputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkManagementInteractorInputProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkManagementInteractorInputProtocol
+     typealias Verification = __VerificationProxy_NetworkManagementInteractorInputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkManagementInteractorInputProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkManagementInteractorInputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkManagementInteractorInputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkManagementInteractorInputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkManagementInteractorInputProtocolStub: NetworkManagementInteractorInputProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockNetworkManagementInteractorOutputProtocol: NetworkManagementInteractorOutputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkManagementInteractorOutputProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkManagementInteractorOutputProtocol
+     typealias Verification = __VerificationProxy_NetworkManagementInteractorOutputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkManagementInteractorOutputProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkManagementInteractorOutputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didReceiveSelectedConnection(_ item: ConnectionItem)  {
+        
+    return cuckoo_manager.call("didReceiveSelectedConnection(_: ConnectionItem)",
+            parameters: (item),
+            escapingParameters: (item),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveSelectedConnection(item))
+        
+    }
+    
+    
+    
+     func didReceiveDefaultConnections(_ connections: [ConnectionItem])  {
+        
+    return cuckoo_manager.call("didReceiveDefaultConnections(_: [ConnectionItem])",
+            parameters: (connections),
+            escapingParameters: (connections),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveDefaultConnections(connections))
+        
+    }
+    
+    
+    
+     func didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])  {
+        
+    return cuckoo_manager.call("didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])",
+            parameters: (changes),
+            escapingParameters: (changes),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveCustomConnection(changes: changes))
+        
+    }
+    
+    
+    
+     func didReceiveCustomConnection(error: Error)  {
+        
+    return cuckoo_manager.call("didReceiveCustomConnection(error: Error)",
+            parameters: (error),
+            escapingParameters: (error),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveCustomConnection(error: error))
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkManagementInteractorOutputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didReceiveSelectedConnection<M1: Cuckoo.Matchable>(_ item: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ConnectionItem)> where M1.MatchedType == ConnectionItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ConnectionItem)>] = [wrap(matchable: item) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorOutputProtocol.self, method: "didReceiveSelectedConnection(_: ConnectionItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveDefaultConnections<M1: Cuckoo.Matchable>(_ connections: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ConnectionItem])> where M1.MatchedType == [ConnectionItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ConnectionItem])>] = [wrap(matchable: connections) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorOutputProtocol.self, method: "didReceiveDefaultConnections(_: [ConnectionItem])", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveCustomConnection<M1: Cuckoo.Matchable>(changes: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([DataProviderChange<ManagedConnectionItem>])> where M1.MatchedType == [DataProviderChange<ManagedConnectionItem>] {
+	        let matchers: [Cuckoo.ParameterMatcher<([DataProviderChange<ManagedConnectionItem>])>] = [wrap(matchable: changes) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorOutputProtocol.self, method: "didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveCustomConnection<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorOutputProtocol.self, method: "didReceiveCustomConnection(error: Error)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkManagementInteractorOutputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didReceiveSelectedConnection<M1: Cuckoo.Matchable>(_ item: M1) -> Cuckoo.__DoNotUse<(ConnectionItem), Void> where M1.MatchedType == ConnectionItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ConnectionItem)>] = [wrap(matchable: item) { $0 }]
+	        return cuckoo_manager.verify("didReceiveSelectedConnection(_: ConnectionItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceiveDefaultConnections<M1: Cuckoo.Matchable>(_ connections: M1) -> Cuckoo.__DoNotUse<([ConnectionItem]), Void> where M1.MatchedType == [ConnectionItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ConnectionItem])>] = [wrap(matchable: connections) { $0 }]
+	        return cuckoo_manager.verify("didReceiveDefaultConnections(_: [ConnectionItem])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceiveCustomConnection<M1: Cuckoo.Matchable>(changes: M1) -> Cuckoo.__DoNotUse<([DataProviderChange<ManagedConnectionItem>]), Void> where M1.MatchedType == [DataProviderChange<ManagedConnectionItem>] {
+	        let matchers: [Cuckoo.ParameterMatcher<([DataProviderChange<ManagedConnectionItem>])>] = [wrap(matchable: changes) { $0 }]
+	        return cuckoo_manager.verify("didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceiveCustomConnection<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return cuckoo_manager.verify("didReceiveCustomConnection(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkManagementInteractorOutputProtocolStub: NetworkManagementInteractorOutputProtocol {
+    
+
+    
+
+    
+     func didReceiveSelectedConnection(_ item: ConnectionItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveDefaultConnections(_ connections: [ConnectionItem])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveCustomConnection(error: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockNetworkManagementWireframeProtocol: NetworkManagementWireframeProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkManagementWireframeProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkManagementWireframeProtocol
+     typealias Verification = __VerificationProxy_NetworkManagementWireframeProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkManagementWireframeProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkManagementWireframeProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
+            parameters: (message, title, closeAction, view),
+            escapingParameters: (message, title, closeAction, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.present(message: message, title: title, closeAction: closeAction, from: view))
+        
+    }
+    
+    
+    
+     func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)",
+            parameters: (viewModel, style, view),
+            escapingParameters: (viewModel, style, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.present(viewModel: viewModel, style: style, from: view))
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkManagementWireframeProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkManagementWireframeProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.__DoNotUse<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?), Void> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
+	        return cuckoo_manager.verify("present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkManagementWireframeProtocolStub: NetworkManagementWireframeProtocol {
+    
+
+    
+
+    
+     func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+
 import Foundation
 
 

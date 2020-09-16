@@ -10,16 +10,23 @@ class NetworkItemMapperTests: XCTestCase {
 
         let operationQueue = OperationQueue()
 
-        let repository: CoreDataRepository<ConnectionItem, CDConnectionItem> =
-            UserDataStorageTestFacade().createRepository()
+        let mapper = ManagedConnectionItemMapper()
+
+        let repository: CoreDataRepository<ManagedConnectionItem, CDConnectionItem> =
+            UserDataStorageTestFacade().createRepository(mapper: AnyCoreDataMapper(mapper))
 
         // when
 
-        let sortBlock = { (c1: ConnectionItem, c2: ConnectionItem) -> Bool in
-            c1.type < c2.type
+        let sortBlock = { (c1: ManagedConnectionItem, c2: ManagedConnectionItem) -> Bool in
+            c1.order < c2.order
         }
 
-        let connections = ConnectionItem.supportedConnections
+        let connections = ConnectionItem.supportedConnections.enumerated().map { (index, item) in
+            return ManagedConnectionItem(title: item.title,
+                                         url: URL(string: item.identifier)!,
+                                         type: SNAddressType(rawValue: item.type)!,
+                                         order: Int16(index))
+        }
 
         let saveOperation = repository.saveOperation({ connections }, { [] })
         operationQueue.addOperations([saveOperation], waitUntilFinished: true)
