@@ -27,7 +27,7 @@ extension CDAccountItem: CoreDataCodable {
             fetchRequest.fetchLimit = 1
 
             if let lastItem = try context.fetch(fetchRequest).first {
-                order = lastItem.order
+                order = lastItem.order + 1
             } else {
                 order = 0
             }
