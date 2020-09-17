@@ -15,8 +15,10 @@
 		0B3BC92678214517773B0539 /* AccountManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F12B2D844B474F810C807451 /* AccountManagementTests.swift */; };
 		153B25C7D48B571CFF0FA62C /* AccountInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9C148BF4AF36FA6D85EC59AD /* AccountInfoWireframe.swift */; };
 		1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */; };
+		1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFEB823BE0057CFB78CC033 /* NetworkManagementTests.swift */; };
 		21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */; };
 		2BAD49EF1B2C52059A5E7E9A /* AccountInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E310A67B23D53954C2BDA /* AccountInfoViewFactory.swift */; };
+		2E83FA4B0E7339A19F5012C3 /* NetworkManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5976C524A70284D8009D5197 /* NetworkManagementPresenter.swift */; };
 		3AA2B9B1E34C88EF2671358D /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78B717D63283A4A8FD62479 /* AccountImportViewController.swift */; };
 		3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 172B3E9BE51A339D7A09BDA3 /* UsernameSetupPresenter.swift */; };
 		3F312DAAA6ACF1C9DEC4C079 /* AccountImportTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18228EC4A56493660DC7DBB1 /* AccountImportTests.swift */; };
@@ -91,10 +93,6 @@
 		842876B324AE059700D91AD8 /* AboutData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B024AE059700D91AD8 /* AboutData.swift */; };
 		842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B124AE059700D91AD8 /* SocialMessage.swift */; };
 		842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B524AE05C700D91AD8 /* EmailPresentable.swift */; };
-		842876B924AE295300D91AD8 /* NodeSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */; };
-		842876BB24AE296F00D91AD8 /* NodeSelectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */; };
-		842876BD24AE299600D91AD8 /* NodeSelectionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */; };
-		842876BF24AE29A800D91AD8 /* NodeSelectionPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */; };
 		842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */; };
 		842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7824D063FD00C30A7A /* TriangularedView.swift */; };
 		842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */; };
@@ -143,7 +141,6 @@
 		8467FD5324EFD210005D486C /* UserDataStorageFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */; };
 		8467FD5524EFD254005D486C /* StorageFacadeProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5424EFD254005D486C /* StorageFacadeProtocol.swift */; };
 		8467FD5824EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5724EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift */; };
-		8467FD5A24EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5924EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift */; };
 		8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */; };
 		8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86424F59D1D00B76BC6 /* IconTitleHeaderView.swift */; };
 		8468B86724F59DA700B76BC6 /* IconTitleHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8468B86624F59DA700B76BC6 /* IconTitleHeaderView.xib */; };
@@ -158,6 +155,12 @@
 		846CA43724E3DB9C004F1B14 /* RootTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846CA43624E3DB9C004F1B14 /* RootTests.swift */; };
 		84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C842510A1A400854599 /* ModalAlertPresenting.swift */; };
 		84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C872510BAFE00854599 /* ModalAlertFactory.swift */; };
+		84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C8D2511539E00854599 /* ManagedConnectionViewModel.swift */; };
+		84754C902511557200854599 /* ConnectionTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C8F2511557200854599 /* ConnectionTableViewCell.swift */; };
+		84754C922511558200854599 /* ConnectionTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84754C912511558200854599 /* ConnectionTableViewCell.xib */; };
+		84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C932511EB2A00854599 /* ManagedConnectionItem.swift */; };
+		84754C962511EF0D00854599 /* ManagedConnectionItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C952511EF0D00854599 /* ManagedConnectionItemMapper.swift */; };
+		84754C982511FC1F00854599 /* ManagedConnectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C972511FC1F00854599 /* ManagedConnectionViewModelFactory.swift */; };
 		84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */; };
 		84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893BFD24DA0000008F6A3F /* FieldStatus.swift */; };
 		84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0024DA861C008F6A3F /* AccountCreationMetadata.swift */; };
@@ -265,7 +268,6 @@
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
 		84A2C90A24E11D390020D3B7 /* AccountConfirmError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90924E11D390020D3B7 /* AccountConfirmError.swift */; };
 		84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */; };
-		84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */; };
 		84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EDA24AF1924008FC35B /* InfoPlist.strings */; };
 		84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */; };
 		84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EE924AF303D008FC35B /* WalletActionsCell.xib */; };
@@ -316,9 +318,12 @@
 		84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */; };
 		8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */; };
 		8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */; };
+		929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */; };
 		94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7306D50F278F6CC90DC88F27 /* AccountConfirmPresenter.swift */; };
 		9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBBEC474F607DD9F2A0F4FD /* AccountCreatePresenter.swift */; };
+		9AD4EDD0646748124DC51559 /* NetworkManagementProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */; };
 		9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9636093217ABE05A7FAC9B9 /* AccountCreateViewFactory.swift */; };
+		9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */; };
 		9CC92E94373355580598CA2C /* Pods_fearlessAll_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 01195B79853ED2C88C6227A3 /* Pods_fearlessAll_fearlessTests.framework */; };
 		9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0B5072E250B7277F605855B3 /* AccountManagementProtocols.swift */; };
 		9DFB37659A6B911A4D54623E /* AccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E992CCDC1D581F7E9D3F1CA /* AccountConfirmInteractor.swift */; };
@@ -326,14 +331,17 @@
 		9EB01F8D2AEB38772BFBDCA7 /* Pods_fearlessAll_fearlessIntegrationTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 64247F0C1E5D025939E0B01F /* Pods_fearlessAll_fearlessIntegrationTests.framework */; };
 		A76B05966CE772DD4B822A3C /* AccountCreateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17717EAA891DDB5A0223718F /* AccountCreateTests.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
+		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
 		C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 25EBA536340AA12142068C2D /* AccountCreateViewController.swift */; };
 		C7E39E732B9CA6D826FF7910 /* AccountInfoPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 53BD61FE3740525F79D8A04A /* AccountInfoPresenter.swift */; };
 		C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */; };
 		CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */; };
+		CE478485DE721EBA1845B6FD /* NetworkManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7437AE4094114716F3BF175 /* NetworkManagementInteractor.swift */; };
 		DAB29F2A9C864D7FCF1AF934 /* UsernameSetupProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD098B40697FD6CC08F9A6AC /* UsernameSetupProtocols.swift */; };
 		DAD0C626F7AA97E4974486AD /* AccountConfirmViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = FFF3E2C8682E9BCCB0A6872D /* AccountConfirmViewController.xib */; };
 		DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */; };
 		E14F809C3917EFA4B5388AC8 /* AccountConfirmViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */; };
+		E3761D989C37ED1AAC9BEDA3 /* NetworkManagementViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */; };
 		F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FCA2DD3A8898D64CBC9F97 /* AccountManagementViewController.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 /* End PBXBuildFile section */
@@ -367,15 +375,19 @@
 		3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementInteractor.swift; sourceTree = "<group>"; };
 		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		3E992CCDC1D581F7E9D3F1CA /* AccountConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmInteractor.swift; sourceTree = "<group>"; };
+		3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementProtocols.swift; sourceTree = "<group>"; };
 		48C158C8D1855BCE53636934 /* AccountCreateProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateProtocols.swift; sourceTree = "<group>"; };
 		4B111BC48900A082DCC89AD3 /* AccountImportViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountImportViewController.xib; sourceTree = "<group>"; };
 		4C5EF68BE0E29D2305CB7337 /* UsernameSetupTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupTests.swift; sourceTree = "<group>"; };
 		5002B8FA2695F470587677D2 /* AccountConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmProtocols.swift; sourceTree = "<group>"; };
 		527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmTests.swift; sourceTree = "<group>"; };
 		53BD61FE3740525F79D8A04A /* AccountInfoPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoPresenter.swift; sourceTree = "<group>"; };
+		5976C524A70284D8009D5197 /* NetworkManagementPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementPresenter.swift; sourceTree = "<group>"; };
 		599FEDBD7E8B665F1A93BA70 /* AccountConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmWireframe.swift; sourceTree = "<group>"; };
+		5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementWireframe.swift; sourceTree = "<group>"; };
 		5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewController.swift; sourceTree = "<group>"; };
 		5E5E310A67B23D53954C2BDA /* AccountInfoViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoViewFactory.swift; sourceTree = "<group>"; };
+		5FFEB823BE0057CFB78CC033 /* NetworkManagementTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementTests.swift; sourceTree = "<group>"; };
 		64247F0C1E5D025939E0B01F /* Pods_fearlessAll_fearlessIntegrationTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearlessIntegrationTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupWireframe.swift; sourceTree = "<group>"; };
 		6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountCreateViewController.xib; sourceTree = "<group>"; };
@@ -439,10 +451,6 @@
 		842876B024AE059700D91AD8 /* AboutData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AboutData.swift; sourceTree = "<group>"; };
 		842876B124AE059700D91AD8 /* SocialMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocialMessage.swift; sourceTree = "<group>"; };
 		842876B524AE05C700D91AD8 /* EmailPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailPresentable.swift; sourceTree = "<group>"; };
-		842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewController.swift; sourceTree = "<group>"; };
-		842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionInteractor.swift; sourceTree = "<group>"; };
-		842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionProtocols.swift; sourceTree = "<group>"; };
-		842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionPresenter.swift; sourceTree = "<group>"; };
 		842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionItem.swift; sourceTree = "<group>"; };
 		842D1E7824D063FD00C30A7A /* TriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedView.swift; sourceTree = "<group>"; };
 		842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedButton.swift; sourceTree = "<group>"; };
@@ -493,7 +501,6 @@
 		8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataStorageFacade.swift; sourceTree = "<group>"; };
 		8467FD5424EFD254005D486C /* StorageFacadeProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageFacadeProtocol.swift; sourceTree = "<group>"; };
 		8467FD5724EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDAccountItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
-		8467FD5924EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDConnectionItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
 		8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataStorageTestFacade.swift; sourceTree = "<group>"; };
 		8468B86424F59D1D00B76BC6 /* IconTitleHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTitleHeaderView.swift; sourceTree = "<group>"; };
 		8468B86624F59DA700B76BC6 /* IconTitleHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = IconTitleHeaderView.xib; sourceTree = "<group>"; };
@@ -508,6 +515,12 @@
 		846CA43624E3DB9C004F1B14 /* RootTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootTests.swift; sourceTree = "<group>"; };
 		84754C842510A1A400854599 /* ModalAlertPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalAlertPresenting.swift; sourceTree = "<group>"; };
 		84754C872510BAFE00854599 /* ModalAlertFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalAlertFactory.swift; sourceTree = "<group>"; };
+		84754C8D2511539E00854599 /* ManagedConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionViewModel.swift; sourceTree = "<group>"; };
+		84754C8F2511557200854599 /* ConnectionTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionTableViewCell.swift; sourceTree = "<group>"; };
+		84754C912511558200854599 /* ConnectionTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ConnectionTableViewCell.xib; sourceTree = "<group>"; };
+		84754C932511EB2A00854599 /* ManagedConnectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionItem.swift; sourceTree = "<group>"; };
+		84754C952511EF0D00854599 /* ManagedConnectionItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionItemMapper.swift; sourceTree = "<group>"; };
+		84754C972511FC1F00854599 /* ManagedConnectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionViewModelFactory.swift; sourceTree = "<group>"; };
 		84893BFB24D9B0F1008F6A3F /* PredicateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PredicateTests.swift; sourceTree = "<group>"; };
 		84893BFD24DA0000008F6A3F /* FieldStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FieldStatus.swift; sourceTree = "<group>"; };
 		84893C0024DA861C008F6A3F /* AccountCreationMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationMetadata.swift; sourceTree = "<group>"; };
@@ -625,7 +638,6 @@
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
 		84A2C90924E11D390020D3B7 /* AccountConfirmError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountConfirmError.swift; sourceTree = "<group>"; };
 		84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeAnimator.swift; sourceTree = "<group>"; };
-		84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NodeSelectionViewFactory.swift; sourceTree = "<group>"; };
 		84C07ED924AE63C7008FC35B /* es-CO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-CO"; path = "es-CO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		84C07EDB24AF1924008FC35B /* ba-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ba-RU"; path = "ba-RU.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		84C07EDD24AF1935008FC35B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -684,6 +696,7 @@
 		84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+ReorderColor.swift"; sourceTree = "<group>"; };
 		855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementWireframe.swift; sourceTree = "<group>"; };
 		85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportWireframe.swift; sourceTree = "<group>"; };
+		8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewController.swift; sourceTree = "<group>"; };
 		93838A49BDD7AC508A6FFB06 /* Pods_fearlessAll_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		9C148BF4AF36FA6D85EC59AD /* AccountInfoWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoWireframe.swift; sourceTree = "<group>"; };
 		A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewFactory.swift; sourceTree = "<group>"; };
@@ -691,7 +704,9 @@
 		A9C0466677704CFA94E5015E /* Pods-fearlessAll-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
+		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
+		B7437AE4094114716F3BF175 /* NetworkManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementInteractor.swift; sourceTree = "<group>"; };
 		BC3439ACD1458063EA66AA55 /* Pods-fearlessAll-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BF87FF434F26426278E895EE /* AccountInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoInteractor.swift; sourceTree = "<group>"; };
 		C011116F48131D1700767769 /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; sourceTree = "<group>"; };
@@ -714,6 +729,7 @@
 		EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = UsernameSetupViewController.xib; sourceTree = "<group>"; };
 		F12B2D844B474F810C807451 /* AccountManagementTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementTests.swift; sourceTree = "<group>"; };
 		F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementPresenter.swift; sourceTree = "<group>"; };
+		F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewFactory.swift; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
 		FFF3E2C8682E9BCCB0A6872D /* AccountConfirmViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountConfirmViewController.xib; sourceTree = "<group>"; };
@@ -859,6 +875,7 @@
 				A295FB13D957CD217E826AEC /* AccountConfirm */,
 				2CE06DA20D3E261ED3AF2B99 /* AccountManagement */,
 				78B2BD7ABE3B10571DAB69C0 /* AccountInfo */,
+				8D1ECC1A61E3F7E33FC44649 /* NetworkManagement */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -869,6 +886,22 @@
 				AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */,
 			);
 			path = AccountInfo;
+			sourceTree = "<group>";
+		};
+		81B4F8399E320644C4CD5637 /* NetworkManagement */ = {
+			isa = PBXGroup;
+			children = (
+				84754C8B2511526E00854599 /* View */,
+				84754C8C2511527500854599 /* ViewModel */,
+				3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */,
+				5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */,
+				5976C524A70284D8009D5197 /* NetworkManagementPresenter.swift */,
+				B7437AE4094114716F3BF175 /* NetworkManagementInteractor.swift */,
+				8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */,
+				B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */,
+				F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */,
+			);
+			path = NetworkManagement;
 			sourceTree = "<group>";
 		};
 		8428764224ADDE0200D91AD8 /* Profile */ = {
@@ -999,18 +1032,6 @@
 				842876A224AE049A00D91AD8 /* SelectionSubtitleTableViewCell.swift */,
 			);
 			path = View;
-			sourceTree = "<group>";
-		};
-		842876B724AE290800D91AD8 /* NodeSelection */ = {
-			isa = PBXGroup;
-			children = (
-				842876B824AE295300D91AD8 /* NodeSelectionViewController.swift */,
-				842876BA24AE296F00D91AD8 /* NodeSelectionInteractor.swift */,
-				842876BC24AE299600D91AD8 /* NodeSelectionProtocols.swift */,
-				842876BE24AE29A800D91AD8 /* NodeSelectionPresenter.swift */,
-				84C07ED724AE560C008FC35B /* NodeSelectionViewFactory.swift */,
-			);
-			path = NodeSelection;
 			sourceTree = "<group>";
 		};
 		842D1E7724D063E500C30A7A /* TriangularedView */ = {
@@ -1185,7 +1206,6 @@
 			isa = PBXGroup;
 			children = (
 				8467FD5724EFD5C2005D486C /* CDAccountItem+CoreDataDecodable.swift */,
-				8467FD5924EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift */,
 				84563CFE24EFE07E0055591D /* Storage+Identifiable.swift */,
 				84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */,
 			);
@@ -1254,6 +1274,24 @@
 				84754C872510BAFE00854599 /* ModalAlertFactory.swift */,
 			);
 			path = ModalAlert;
+			sourceTree = "<group>";
+		};
+		84754C8B2511526E00854599 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				84754C8F2511557200854599 /* ConnectionTableViewCell.swift */,
+				84754C912511558200854599 /* ConnectionTableViewCell.xib */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		84754C8C2511527500854599 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				84754C8D2511539E00854599 /* ManagedConnectionViewModel.swift */,
+				84754C972511FC1F00854599 /* ManagedConnectionViewModelFactory.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		84893BFA24D9B0D1008F6A3F /* Extensions */ = {
@@ -1356,7 +1394,6 @@
 			isa = PBXGroup;
 			children = (
 				8468B86824F63C8400B76BC6 /* AddAccount */,
-				842876B724AE290800D91AD8 /* NodeSelection */,
 				8428767524AE046300D91AD8 /* About */,
 				8428766C24AE046200D91AD8 /* LanguageSelection */,
 				8428764224ADDE0200D91AD8 /* Profile */,
@@ -1372,6 +1409,7 @@
 				0D927CDE29F5C9F4CA537F8F /* AccountConfirm */,
 				26F53332B25039CD43301CAF /* AccountManagement */,
 				E0365BD2CD56E133B3EB6AC2 /* AccountInfo */,
+				81B4F8399E320644C4CD5637 /* NetworkManagement */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1427,6 +1465,8 @@
 				843C49DC24DF397800B71DDA /* AccountImportSource.swift */,
 				84563D0424F466470055591D /* ManagedAccountItem.swift */,
 				84563D0624F4674A0055591D /* ManagedAccountItemMapper.swift */,
+				84754C932511EB2A00854599 /* ManagedConnectionItem.swift */,
+				84754C952511EF0D00854599 /* ManagedConnectionItemMapper.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -1919,6 +1959,14 @@
 			path = Events;
 			sourceTree = "<group>";
 		};
+		8D1ECC1A61E3F7E33FC44649 /* NetworkManagement */ = {
+			isa = PBXGroup;
+			children = (
+				5FFEB823BE0057CFB78CC033 /* NetworkManagementTests.swift */,
+			);
+			path = NetworkManagement;
+			sourceTree = "<group>";
+		};
 		A295FB13D957CD217E826AEC /* AccountConfirm */ = {
 			isa = PBXGroup;
 			children = (
@@ -2123,6 +2171,7 @@
 				8467FD4524ED5F60005D486C /* ProfileSectionTableViewCell.xib in Resources */,
 				84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */,
 				8490151024AB8A3A008F705E /* WalletAccountHeaderView.xib in Resources */,
+				84754C922511558200854599 /* ConnectionTableViewCell.xib in Resources */,
 				8490142224A93027008F705E /* sora-Regular.otf in Resources */,
 				8428768E24AE046300D91AD8 /* AboutAccessoryTitleCell.xib in Resources */,
 				8490141424A92F6D008F705E /* OnbordingMain.xib in Resources */,
@@ -2146,6 +2195,7 @@
 				DAD0C626F7AA97E4974486AD /* AccountConfirmViewController.xib in Resources */,
 				4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */,
 				AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */,
+				E3761D989C37ED1AAC9BEDA3 /* NetworkManagementViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2274,7 +2324,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/ModuleMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME}\" \\\n--exclude \"RootPresenterFactoryProtocol, UsernameSetupViewFactoryProtocol, OnboardingMainViewFactoryProtocol, AccountCreateViewFactoryProtocol, AccountImportViewFactoryProtocol, AccountConfirmViewFactoryProtocol, PinViewFactoryProtocol, ProfileViewFactoryProtocol, AccountManagementViewFactoryProtocol, AccountInfoViewFactoryProtocol\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Protocols/LoadableViewProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ControllerBackedProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/WebPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AlertPresentable.swift\" \\\n\"$INPUT_DIR/Modules/Root/RootProtocol.swift\" \\\n\"$INPUT_DIR/Modules/UsernameSetup/UsernameSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/OnbordingMain/OnboardingMainProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountCreate/AccountCreateProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountImport/AccountImportProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountConfirm/AccountConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Pincode/PinSetup/PinSetupProtocol.swift\" \\\n\"$INPUT_DIR/Modules/Profile/ProfileProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountManagement/AccountManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountInfo/AccountInfoProtocols.swift\" \\\n";
+			shellScript = "#! /bin/sh\n# Define output file. Change \"$PROJECT_DIR/${PROJECT_NAME}Tests\" to your test's root source folder, if it's not the default name.\nOUTPUT_FILE=\"${PROJECT_NAME}Tests/Mocks/ModuleMocks.swift\"\necho \"Generated Mocks File = $OUTPUT_FILE\"\n\n# Define input directory. Change \"${PROJECT_DIR}/${PROJECT_NAME}\" to your project's root source folder, if it's not the default name.\nINPUT_DIR=\"${PROJECT_NAME}\"\necho \"Mocks Input Directory = $INPUT_DIR\"\n\n# Generate mock files, include as many input files as you'd like to create mocks for.\n\"Pods/Cuckoo/run\" generate --no-header --testable \"${PROJECT_NAME}\" \\\n--exclude \"RootPresenterFactoryProtocol, UsernameSetupViewFactoryProtocol, OnboardingMainViewFactoryProtocol, AccountCreateViewFactoryProtocol, AccountImportViewFactoryProtocol, AccountConfirmViewFactoryProtocol, PinViewFactoryProtocol, ProfileViewFactoryProtocol, AccountManagementViewFactoryProtocol, AccountInfoViewFactoryProtocol, NetworkManagementViewFactoryProtocol\" \\\n--output \"${OUTPUT_FILE}\" \\\n\"$INPUT_DIR/Common/Protocols/LoadableViewProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/ControllerBackedProtocol.swift\" \\\n\"$INPUT_DIR/Common/Protocols/WebPresentable.swift\" \\\n\"$INPUT_DIR/Common/Protocols/AlertPresentable.swift\" \\\n\"$INPUT_DIR/Modules/Root/RootProtocol.swift\" \\\n\"$INPUT_DIR/Modules/UsernameSetup/UsernameSetupProtocols.swift\" \\\n\"$INPUT_DIR/Modules/OnbordingMain/OnboardingMainProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountCreate/AccountCreateProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountImport/AccountImportProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountConfirm/AccountConfirmProtocols.swift\" \\\n\"$INPUT_DIR/Modules/Pincode/PinSetup/PinSetupProtocol.swift\" \\\n\"$INPUT_DIR/Modules/Profile/ProfileProtocol.swift\" \\\n\"$INPUT_DIR/Modules/AccountManagement/AccountManagementProtocols.swift\" \\\n\"$INPUT_DIR/Modules/AccountInfo/AccountInfoProtocols.swift\" \\\n\"$INPUT_DIR/Modules/NetworkManagement/NetworkManagementProtocols.swift\" \\\n";
 		};
 		842D1E8924D207D900C30A7A /* Common Mock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -2371,7 +2421,6 @@
 			files = (
 				8438E1CA24BFA4D9001BDB13 /* JSONScaleDecodable.swift in Sources */,
 				849014C324AA87E4008F705E /* LocalAuthInteractor.swift in Sources */,
-				842876BB24AE296F00D91AD8 /* NodeSelectionInteractor.swift in Sources */,
 				8490141524A92F6D008F705E /* OnboardingMainPresenter.swift in Sources */,
 				849014BD24AA87E4008F705E /* PinViewFactory.swift in Sources */,
 				8428765524ADDE0200D91AD8 /* ProfileUserViewModel.swift in Sources */,
@@ -2387,9 +2436,7 @@
 				842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */,
 				84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */,
 				8490141324A92F6D008F705E /* AttributedStringDecorator+Terms.swift in Sources */,
-				84C07ED824AE560C008FC35B /* NodeSelectionViewFactory.swift in Sources */,
 				84DA3B1224C6D29100B5E27F /* RuntimeVersion.swift in Sources */,
-				842876BF24AE29A800D91AD8 /* NodeSelectionPresenter.swift in Sources */,
 				843C49DB24DF373000B71DDA /* AccountImportRequest.swift in Sources */,
 				849014A224AA7F9A008F705E /* AccessoryViewFactory.swift in Sources */,
 				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
@@ -2397,6 +2444,7 @@
 				84DA3B0E24C5AEB600B5E27F /* TransferCall.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				8428768C24AE046300D91AD8 /* AboutPresenter.swift in Sources */,
+				84754C902511557200854599 /* ConnectionTableViewCell.swift in Sources */,
 				842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
 				842876A524AE049B00D91AD8 /* SelectableTitleListViewModel.swift in Sources */,
@@ -2414,6 +2462,7 @@
 				8428768324AE046300D91AD8 /* LanguageSelectionViewController.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
+				84754C962511EF0D00854599 /* ManagedConnectionItemMapper.swift in Sources */,
 				84563CFF24EFE07E0055591D /* Storage+Identifiable.swift in Sources */,
 				843C49E124DFFC9500B71DDA /* AccountImportSource+ViewModel.swift in Sources */,
 				8490145324A93FD1008F705E /* FearlessLoadingViewFactory.swift in Sources */,
@@ -2455,8 +2504,6 @@
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
-				842876B924AE295300D91AD8 /* NodeSelectionViewController.swift in Sources */,
-				842876BD24AE299600D91AD8 /* NodeSelectionProtocols.swift in Sources */,
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
 				84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
@@ -2466,6 +2513,7 @@
 				843C49DF24DF3CB300B71DDA /* AccountImportMetadata.swift in Sources */,
 				84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */,
 				84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */,
+				84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */,
 				849014B924AA87E3008F705E /* PinSetupViewController.swift in Sources */,
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
@@ -2547,6 +2595,7 @@
 				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
 				84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */,
 				8468B86C24F63CEF00B76BC6 /* AddCreatedInteractor.swift in Sources */,
+				84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */,
@@ -2568,7 +2617,6 @@
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
-				8467FD5A24EFD97C005D486C /* CDConnectionItem+CoreDataDecodable.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
@@ -2618,6 +2666,7 @@
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				8468B87024F63D2000B76BC6 /* AddUsernameWireframe.swift in Sources */,
+				84754C982511FC1F00854599 /* ManagedConnectionViewModelFactory.swift in Sources */,
 				06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */,
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
 				F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */,
@@ -2628,6 +2677,12 @@
 				73056D4920BE0E60FAF5073D /* AccountInfoInteractor.swift in Sources */,
 				63E857FD66F8DD99D4BB1665 /* AccountInfoViewController.swift in Sources */,
 				2BAD49EF1B2C52059A5E7E9A /* AccountInfoViewFactory.swift in Sources */,
+				9AD4EDD0646748124DC51559 /* NetworkManagementProtocols.swift in Sources */,
+				AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */,
+				2E83FA4B0E7339A19F5012C3 /* NetworkManagementPresenter.swift in Sources */,
+				CE478485DE721EBA1845B6FD /* NetworkManagementInteractor.swift in Sources */,
+				9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */,
+				929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2659,6 +2714,7 @@
 				CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */,
 				0B3BC92678214517773B0539 /* AccountManagementTests.swift in Sources */,
 				036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */,
+				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

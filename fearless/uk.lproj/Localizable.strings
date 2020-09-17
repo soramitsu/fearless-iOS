@@ -61,7 +61,7 @@
 "language.title" = "Мова";
 "help.support.title" = "Fearless підтримка";
 "no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
-"node.connections.title" = "Виберіть з'єднання";
+"connection.management.title" = "Мережі";
 "onboarding.create.account" = "Створити рахунок";
 "username.setup.choose.title" = "Виберіть ім'я";
 "username.setup.hint" = "Назва цього облікового запису та спосіб відображення під вашими адресами. Завдяки ланцюговій ідентичності він може бути доступний для інших.";
@@ -122,3 +122,5 @@
 "common.save" = "Зберегти";
 "common.copied" = "Скопійовано в буфер обміну";
 "connections.add.connection" = "Додати підключення";
+"connection.management.default.title" = "За замовчуванням";
+"connection.management.custom.title" = "На замовлення";

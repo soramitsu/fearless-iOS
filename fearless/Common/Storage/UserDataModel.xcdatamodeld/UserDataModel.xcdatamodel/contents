@@ -11,10 +11,11 @@
     <entity name="CDConnectionItem" representedClassName="CDConnectionItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="networkType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="order" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="title" optional="YES" attributeType="String"/>
     </entity>
     <elements>
         <element name="CDAccountItem" positionX="-63" positionY="-18" width="128" height="133"/>
-        <element name="CDConnectionItem" positionX="-54" positionY="-9" width="128" height="88"/>
+        <element name="CDConnectionItem" positionX="-54" positionY="-9" width="128" height="103"/>
     </elements>
 </model>

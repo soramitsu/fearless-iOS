@@ -2,7 +2,16 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
-    func showAccountDetails(from view: ProfileViewProtocol?) {}
+    func showAccountDetails(from view: ProfileViewProtocol?) {
+        guard let accountManagement = AccountManagementViewFactory.createView() else {
+            return
+        }
+
+        accountManagement.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(accountManagement.controller,
+                                                                  animated: true)
+    }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {}
 
@@ -18,13 +27,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showConnectionSelection(from view: ProfileViewProtocol?) {
-        guard let nodeSelection = NodeSelectionViewFactory.createView() else {
+        guard let networkManagement = NetworkManagementViewFactory.createView() else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            nodeSelection.controller.hidesBottomBarWhenPushed = true
-            navigationController.pushViewController(nodeSelection.controller, animated: true)
+            networkManagement.controller.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(networkManagement.controller, animated: true)
         }
     }
 
