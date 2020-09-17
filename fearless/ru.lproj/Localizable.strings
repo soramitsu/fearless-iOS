@@ -124,3 +124,6 @@ a type of password.";
 "connections.add.connection" = "Добавить соединение";
 "connection.management.default.title" = "По умолчанию";
 "connection.management.custom.title" = "Добавленные";
+"account.needed.title" = "Необходим аккаунт";
+"account.needed.message" = "У вас нет учетной записи в этой сети, вы можете создать или импортировать учетную запись.";
+"common.proceed" = "Продолжить";

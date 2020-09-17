@@ -77,9 +77,9 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     }
 
     func select(item: ManagedAccountItem) {
-        if item.networkType.rawValue != settings.selectedConnection.type {
+        if item.networkType != settings.selectedConnection.type {
             guard let newConnection = ConnectionItem
-                .supportedConnections.first(where: { $0.type == item.networkType.rawValue }) else {
+                .supportedConnections.first(where: { $0.type == item.networkType }) else {
                 return
             }
 

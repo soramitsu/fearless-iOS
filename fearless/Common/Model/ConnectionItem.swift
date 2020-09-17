@@ -1,4 +1,5 @@
 import Foundation
+import IrohaCrypto
 
 struct ConnectionItem: Codable, Equatable {
     enum CodingKeys: String, CodingKey {
@@ -9,5 +10,13 @@ struct ConnectionItem: Codable, Equatable {
 
     let title: String
     let url: URL
-    let type: UInt8
+    let type: SNAddressType
+}
+
+extension ConnectionItem {
+    init(managedConnectionItem: ManagedConnectionItem) {
+        title = managedConnectionItem.title
+        url = managedConnectionItem.url
+        type = managedConnectionItem.type
+    }
 }

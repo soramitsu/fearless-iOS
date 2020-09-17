@@ -52,12 +52,10 @@ class BaseAccountImportInteractor {
 
         let defaultConnection = ConnectionItem.defaultConnection
 
-        let networkType = SNAddressType(rawValue: defaultConnection.type) ?? .kusamaMain
-
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
                                              availableAddressTypes: availableAddressTypes,
-                                             defaultAddressType: networkType,
+                                             defaultAddressType: defaultConnection.type,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
 

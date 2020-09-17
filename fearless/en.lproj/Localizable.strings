@@ -124,3 +124,6 @@ transfers will appear here";
 "connections.add.connection" = "Add connection";
 "connection.management.default.title" = "Default";
 "connection.management.custom.title" = "Custom";
+"account.needed.title" = "Account needed";
+"account.needed.message" = "You don’t have account for this network, you can create or import account.";
+"common.proceed" = "Proceed";

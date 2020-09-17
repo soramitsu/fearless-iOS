@@ -122,3 +122,6 @@ a type of password.";
 "connections.add.connection" = "接続の追加";
 "connection.management.default.title" = "デフォルト";
 "connection.management.custom.title" = "カスタム";
+"account.needed.title" = "アカウントが必要";
+"account.needed.message" = "このネットワークのアカウントがありません。アカウントを作成またはインポートできます。";
+"common.proceed" = "続行";

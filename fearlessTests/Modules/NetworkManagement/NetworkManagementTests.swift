@@ -20,7 +20,7 @@ class NetworkManagementTests: XCTestCase {
         let managedConnections = ConnectionItem.supportedConnections.enumerated().map { (index, item) in
             return ManagedConnectionItem(title: item.title,
                                          url: URL(string: item.identifier)!,
-                                         type: SNAddressType(rawValue: item.type)!,
+                                         type: item.type,
                                          order: Int16(index))
         }
 
@@ -37,6 +37,9 @@ class NetworkManagementTests: XCTestCase {
         let repository = facade.createRepository(filter: nil,
                                                  sortDescriptors: [NSSortDescriptor.connectionsByOrder],
                                                  mapper: AnyCoreDataMapper(mapper))
+
+        let accountsMapper = ManagedAccountItemMapper()
+        let accountsRepository: CoreDataRepository<ManagedAccountItem, CDAccountItem> = facade.createRepository(filter: nil, sortDescriptors: [NSSortDescriptor.accountsByOrder], mapper: AnyCoreDataMapper(accountsMapper))
 
         let view = MockNetworkManagementViewProtocol()
         let wireframe = MockNetworkManagementWireframeProtocol()
@@ -67,8 +70,9 @@ class NetworkManagementTests: XCTestCase {
         let viewModelFactory = ManagedConnectionViewModelFactory()
         let presenter = NetworkManagementPresenter(localizationManager: LocalizationManager.shared,
                                                    viewModelFactory: viewModelFactory)
-        let interactor = NetworkManagementInteractor(repository: AnyDataProviderRepository(repository),
-                                                     repositoryObservable: AnyDataProviderRepositoryObservable(observer),
+        let interactor = NetworkManagementInteractor(connectionsRepository: AnyDataProviderRepository(repository),
+                                                     connectionsObservable: AnyDataProviderRepositoryObservable(observer),
+                                                     accountsRepository: AnyDataProviderRepository(accountsRepository),
                                                      settings: settings,
                                                      operationManager: OperationManager(),
                                                      eventCenter: eventCenter)

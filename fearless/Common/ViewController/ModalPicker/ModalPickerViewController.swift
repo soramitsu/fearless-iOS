@@ -5,16 +5,30 @@ import SoraFoundation
 protocol ModalPickerViewControllerDelegate: class {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
+    func modalPickerDidSelectAction(context: AnyObject?)
+}
+
+extension ModalPickerViewControllerDelegate {
+    func modalPickerDidCancel(context: AnyObject?) {}
+    func modalPickerDidSelectAction(context: AnyObject?) {}
+}
+
+enum ModalPickerViewAction {
+    case none
+    case add
 }
 
 class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>: UIViewController,
     ModalViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model {
 
-    @IBOutlet private var headerLabel: UILabel!
+    @IBOutlet private var headerView: ImageWithTitleView!
+    @IBOutlet private var headerBackgroundView: BorderedContainerView!
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var tableView: UITableView!
 
     var localizedTitle: LocalizableResource<String>?
+    var icon: UIImage?
+    var actionType: ModalPickerViewAction = .none
 
     var cellNib: UINib?
     var cellHeight: CGFloat = 55.0
@@ -45,11 +59,42 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         }
 
         headerHeightConstraint.constant = headerHeight
+
+        if let icon = icon {
+            headerView.iconImage = icon
+        } else {
+            headerView.spacingBetweenLabelAndIcon = 0
+        }
+
+        switch actionType {
+        case .add:
+            configureAddAction()
+        default:
+            break
+        }
     }
 
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        headerLabel.text = localizedTitle?.value(for: locale)
+        headerView.title = localizedTitle?.value(for: locale)
+    }
+
+    private func configureAddAction() {
+        let addButton = RoundedButton()
+        addButton.translatesAutoresizingMaskIntoConstraints = false
+        addButton.roundedBackgroundView?.shadowOpacity = 0.0
+        addButton.roundedBackgroundView?.fillColor = .clear
+        addButton.roundedBackgroundView?.highlightedFillColor = .clear
+        addButton.changesContentOpacityWhenHighlighted = true
+        addButton.contentInsets = UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0)
+        addButton.imageWithTitleView?.iconImage = R.image.iconSmallAdd()
+
+        headerBackgroundView.addSubview(addButton)
+
+        addButton.trailingAnchor.constraint(equalTo: headerBackgroundView.trailingAnchor).isActive = true
+        addButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
+
+        addButton.addTarget(self, action: #selector(handleAction), for: .touchUpInside)
     }
 
     // MARK: Table View Delegate
@@ -95,12 +140,18 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         return cell
     }
     //swiftlint:enable force_cast
+
+    @objc private func handleAction() {
+        delegate?.modalPickerDidSelectAction(context: context)
+        presenter?.hide(view: self, animated: true)
+    }
 }
 
 extension ModalPickerViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
+            headerView.setNeedsLayout()
             tableView.reloadData()
         }
     }

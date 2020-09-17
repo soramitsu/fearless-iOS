@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
@@ -8,16 +8,12 @@
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
-    <customFonts key="customFonts">
-        <array key="sora-Bold.otf">
-            <string>sora-rc004-0417-Bold</string>
-        </array>
-    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ModalPickerViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="headerBackgroundView" destination="ruq-rw-p1b" id="ehR-RR-xrI"/>
                 <outlet property="headerHeightConstraint" destination="Iah-rR-u2h" id="Eu5-rZ-2Dr"/>
-                <outlet property="headerLabel" destination="acm-ek-G6h" id="EZm-Em-gR5"/>
+                <outlet property="headerView" destination="XwS-f7-PDQ" id="SO3-64-Qcc"/>
                 <outlet property="tableView" destination="4YV-hB-WfP" id="VrK-2Z-vES"/>
                 <outlet property="view" destination="iN0-l3-epB" id="1Z1-ak-kJ6"/>
             </connections>
@@ -30,18 +26,29 @@
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ruq-rw-p1b" customClass="BorderedContainerView" customModule="SoraUI">
                     <rect key="frame" x="0.0" y="1" width="414" height="40"/>
                     <subviews>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose network" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="acm-ek-G6h">
-                            <rect key="frame" x="20" y="1" width="132" height="21"/>
-                            <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
-                            <color key="textColor" name="colorWhite"/>
-                            <nil key="highlightedColor"/>
-                        </label>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XwS-f7-PDQ" customClass="ImageWithTitleView" customModule="SoraUI">
+                            <rect key="frame" x="20.000000000000007" y="1" width="117.66666666666669" height="20"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="string" keyPath="title" value="Choose network"/>
+                                <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                    <real key="value" value="18"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="spacingBetweenLabelAndIcon">
+                                    <real key="value" value="8"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </view>
                     </subviews>
                     <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                     <constraints>
-                        <constraint firstItem="acm-ek-G6h" firstAttribute="leading" secondItem="ruq-rw-p1b" secondAttribute="leading" constant="20" id="0dv-u4-VAu"/>
                         <constraint firstAttribute="height" constant="40" id="Iah-rR-u2h"/>
-                        <constraint firstItem="acm-ek-G6h" firstAttribute="top" secondItem="ruq-rw-p1b" secondAttribute="top" constant="1" id="tMY-Nu-4m4"/>
+                        <constraint firstItem="XwS-f7-PDQ" firstAttribute="top" secondItem="ruq-rw-p1b" secondAttribute="top" constant="1" id="MdZ-Hx-8ep"/>
+                        <constraint firstItem="XwS-f7-PDQ" firstAttribute="leading" secondItem="ruq-rw-p1b" secondAttribute="leading" constant="20" id="grv-pV-2Ja"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
@@ -77,7 +84,7 @@
                     </connections>
                 </tableView>
             </subviews>
-            <color key="backgroundColor" name="colorBlack"/>
+            <color key="backgroundColor" name="colorAlmostBlack"/>
             <constraints>
                 <constraint firstItem="4YV-hB-WfP" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="JFJ-K5-WUg"/>
                 <constraint firstItem="ruq-rw-p1b" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="1" id="Mqd-AH-Wrk"/>
@@ -92,8 +99,8 @@
         </view>
     </objects>
     <resources>
-        <namedColor name="colorBlack">
-            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="colorAlmostBlack">
+            <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorGray">
             <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

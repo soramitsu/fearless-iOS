@@ -124,3 +124,6 @@ apparaitront ici";
 "connections.add.connection" = "Ajouter une connexion";
 "connection.management.default.title" = "Défaut";
 "connection.management.custom.title" = "Douane";
+"account.needed.title" = "Compte nécessaire";
+"account.needed.message" = "Vous n'avez pas de compte pour ce réseau, vous pouvez créer ou importer un compte.";
+"common.proceed" = "Procéder";

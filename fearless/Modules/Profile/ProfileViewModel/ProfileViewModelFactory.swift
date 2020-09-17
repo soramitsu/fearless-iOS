@@ -71,13 +71,7 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         let title = R.string.localizable
             .profileNetworkTitle(preferredLanguages: locale.rLanguages)
 
-        let subtitle: String?
-
-        if let addressType = SNAddressType(rawValue: connection.type) {
-            subtitle = addressType.titleForLocale(locale)
-        } else {
-            subtitle = nil
-        }
+        let subtitle: String = connection.type.titleForLocale(locale)
 
         let viewModel = ProfileOptionViewModel(title: title,
                                                icon: R.image.iconProfileNetworks()!,

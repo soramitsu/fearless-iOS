@@ -124,3 +124,6 @@
 "connections.add.connection" = "Додати підключення";
 "connection.management.default.title" = "За замовчуванням";
 "connection.management.custom.title" = "На замовлення";
+"account.needed.title" = "Потрібен рахунок";
+"account.needed.message" = "У вас немає облікового запису для цієї мережі, ви можете створити або імпортувати обліковий запис.";
+"common.proceed" = "Продовжуйте";

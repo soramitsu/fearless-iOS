@@ -8,21 +8,31 @@ final class NetworkManagementViewFactory: NetworkManagementViewFactoryProtocol {
         let view = NetworkManagementViewController(nib: R.nib.networkManagementViewController)
 
         let facade = UserDataStorageFacade.shared
-        let mapper = ManagedConnectionItemMapper()
+        let connectionsMapper = ManagedConnectionItemMapper()
         let observer: CoreDataContextObservable<ManagedConnectionItem, CDConnectionItem> =
             CoreDataContextObservable(service: facade.databaseService,
-                                                 mapper: AnyCoreDataMapper(mapper),
+                                                 mapper: AnyCoreDataMapper(connectionsMapper),
                                                  predicate: { _ in true })
-        let repository = facade.createRepository(filter: nil,
-                                                 sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                                                 mapper: AnyCoreDataMapper(mapper))
+        let connectionsRepository = facade.createRepository(filter: nil,
+                                                            sortDescriptors: [NSSortDescriptor.connectionsByOrder],
+                                                            mapper: AnyCoreDataMapper(connectionsMapper))
 
         let presenter = NetworkManagementPresenter(localizationManager: LocalizationManager.shared,
                                                    viewModelFactory: ManagedConnectionViewModelFactory())
 
-        let repositoryObservable = AnyDataProviderRepositoryObservable(observer)
-        let interactor = NetworkManagementInteractor(repository: AnyDataProviderRepository(repository),
-                                                     repositoryObservable: repositoryObservable,
+        let connectionsObservable = AnyDataProviderRepositoryObservable(observer)
+
+        let accountsMapper = ManagedAccountItemMapper()
+        let accountsRepository = facade.createRepository(filter: nil,
+                                                         sortDescriptors: [NSSortDescriptor.accountsByOrder],
+                                                         mapper: AnyCoreDataMapper(accountsMapper))
+
+        let anyConnectionsRepository = AnyDataProviderRepository(connectionsRepository)
+        let anyConnectionsObservable = AnyDataProviderRepositoryObservable(connectionsObservable)
+        let anyAccountRepository = AnyDataProviderRepository(accountsRepository)
+        let interactor = NetworkManagementInteractor(connectionsRepository: anyConnectionsRepository,
+                                                     connectionsObservable: anyConnectionsObservable,
+                                                     accountsRepository: anyAccountRepository,
                                                      settings: SettingsManager.shared,
                                                      operationManager: OperationManagerFacade.sharedManager,
                                                      eventCenter: EventCenter.shared)

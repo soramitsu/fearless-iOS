@@ -21,11 +21,9 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
 
             let defaultConnection = ConnectionItem.defaultConnection
 
-            let networkType = SNAddressType(rawValue: defaultConnection.type) ?? .kusamaMain
-
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
                                                    availableAddressTypes: availableAddressTypes,
-                                                   defaultAddressType: networkType,
+                                                   defaultAddressType: defaultConnection.type,
                                                    availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)

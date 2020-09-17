@@ -24,7 +24,7 @@ class NetworkItemMapperTests: XCTestCase {
         let connections = ConnectionItem.supportedConnections.enumerated().map { (index, item) in
             return ManagedConnectionItem(title: item.title,
                                          url: URL(string: item.identifier)!,
-                                         type: SNAddressType(rawValue: item.type)!,
+                                         type: item.type,
                                          order: Int16(index))
         }
 

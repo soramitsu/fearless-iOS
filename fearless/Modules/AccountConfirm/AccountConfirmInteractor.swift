@@ -42,7 +42,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type == type.int8Value }) else {
+                .first(where: { $0.type.rawValue == type.uint8Value }) else {
                 throw AccountImportError.unsupportedNetwork
             }
 

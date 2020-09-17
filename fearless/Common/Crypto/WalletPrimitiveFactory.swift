@@ -35,9 +35,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             throw WalletPrimitiveFactoryError.missingAccountId
         }
 
-        guard let selectedConnectionType = SNAddressType(rawValue: settings.selectedConnection.type) else {
-            throw WalletPrimitiveFactoryError.undefinedConnection
-        }
+        let selectedConnectionType = settings.selectedConnection.type
 
         let localizableName: LocalizableResource<String>
         let platformName: LocalizableResource<String>

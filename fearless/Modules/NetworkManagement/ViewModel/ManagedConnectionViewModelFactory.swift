@@ -21,7 +21,7 @@ final class ManagedConnectionViewModelFactory: ManagedConnectionViewModelFactory
                                            selected: Bool) -> ManagedConnectionViewModel {
         ManagedConnectionViewModel(identifier: item.identifier,
                                    name: item.title,
-                                   type: SNAddressType(rawValue: item.type) ?? .genericSubstrate,
+                                   type: item.type,
                                    isSelected: selected)
     }
 }
