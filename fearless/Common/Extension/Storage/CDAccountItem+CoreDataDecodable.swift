@@ -7,6 +7,8 @@ extension CDAccountItem: CoreDataCodable {
     public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: AccountItem.CodingKeys.self)
 
+        let isNewItem = identifier == nil
+
         let address = try container.decode(String.self, forKey: .address)
 
         identifier = address
@@ -15,13 +17,9 @@ extension CDAccountItem: CoreDataCodable {
         cryptoType = try container.decode(Int16.self, forKey: .cryptoType)
         networkType = try SS58AddressFactory().type(fromAddress: address).int16Value
 
-        let fetchRequest: NSFetchRequest<CDAccountItem> = CDAccountItem.fetchRequest()
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
-
-        if let currentItem = try context.fetch(fetchRequest).first {
-            order = currentItem.order
-        } else {
-            fetchRequest.predicate = nil
+        if isNewItem {
+            let fetchRequest: NSFetchRequest<CDAccountItem> = CDAccountItem.fetchRequest()
+            fetchRequest.predicate = NSPredicate(format: "%K > 0", #keyPath(CDAccountItem.order))
             let sortDescriptor = NSSortDescriptor(key: #keyPath(CDAccountItem.order), ascending: false)
             fetchRequest.sortDescriptors = [sortDescriptor]
             fetchRequest.fetchLimit = 1
@@ -29,7 +27,7 @@ extension CDAccountItem: CoreDataCodable {
             if let lastItem = try context.fetch(fetchRequest).first {
                 order = lastItem.order + 1
             } else {
-                order = 0
+                order = 1
             }
         }
     }
