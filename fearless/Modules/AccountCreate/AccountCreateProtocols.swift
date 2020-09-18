@@ -4,7 +4,7 @@ import SoraFoundation
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setSelectedNetwork(model: IconWithTitleViewModel)
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()

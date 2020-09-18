@@ -14,17 +14,18 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
-
-    var availableAddressTypes: [SNAddressType] { SNAddressType.supported }
+    let supportedAddressTypes: [SNAddressType]
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+         keystoreImportService: KeystoreImportServiceProtocol,
+         supportedAddressTypes: [SNAddressType]) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
+        self.supportedAddressTypes = supportedAddressTypes
     }
 
     private func setupKeystoreImportObserver() {
@@ -54,15 +55,15 @@ class BaseAccountImportInteractor {
 
         let defaultConnectionType: SNAddressType
 
-        if availableAddressTypes.contains(defaultConnection.type) {
+        if supportedAddressTypes.contains(defaultConnection.type) {
             defaultConnectionType = defaultConnection.type
         } else {
-            defaultConnectionType = availableAddressTypes.first ?? defaultConnection.type
+            defaultConnectionType = supportedAddressTypes.first ?? defaultConnection.type
         }
 
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
-                                             availableAddressTypes: availableAddressTypes,
+                                             availableAddressTypes: supportedAddressTypes,
                                              defaultAddressType: defaultConnectionType,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)

@@ -1425,9 +1425,9 @@ import SoraFoundation
     
     
     
-     func setSelectedNetwork(model: IconWithTitleViewModel)  {
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)  {
         
-    return cuckoo_manager.call("setSelectedNetwork(model: IconWithTitleViewModel)",
+    return cuckoo_manager.call("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)",
             parameters: (model),
             escapingParameters: (model),
             superclassCall:
@@ -1527,9 +1527,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setSelectedCrypto(model: TitleWithSubtitleViewModel)", parameterMatchers: matchers))
 	    }
 	    
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(IconWithTitleViewModel)> where M1.MatchedType == IconWithTitleViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(IconWithTitleViewModel)>] = [wrap(matchable: model) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setSelectedNetwork(model: IconWithTitleViewModel)", parameterMatchers: matchers))
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectableViewModel<IconWithTitleViewModel>)> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", parameterMatchers: matchers))
 	    }
 	    
 	    func setDerivationPath<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
@@ -1591,9 +1591,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(IconWithTitleViewModel), Void> where M1.MatchedType == IconWithTitleViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(IconWithTitleViewModel)>] = [wrap(matchable: model) { $0 }]
-	        return cuckoo_manager.verify("setSelectedNetwork(model: IconWithTitleViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(SelectableViewModel<IconWithTitleViewModel>), Void> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return cuckoo_manager.verify("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -1653,7 +1653,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func setSelectedNetwork(model: IconWithTitleViewModel)   {
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2475,9 +2475,9 @@ import SoraFoundation
     
     
     
-     func setSelectedNetwork(model: IconWithTitleViewModel)  {
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)  {
         
-    return cuckoo_manager.call("setSelectedNetwork(model: IconWithTitleViewModel)",
+    return cuckoo_manager.call("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)",
             parameters: (model),
             escapingParameters: (model),
             superclassCall:
@@ -2607,9 +2607,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "setSelectedCrypto(model: TitleWithSubtitleViewModel)", parameterMatchers: matchers))
 	    }
 	    
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(IconWithTitleViewModel)> where M1.MatchedType == IconWithTitleViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(IconWithTitleViewModel)>] = [wrap(matchable: model) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "setSelectedNetwork(model: IconWithTitleViewModel)", parameterMatchers: matchers))
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectableViewModel<IconWithTitleViewModel>)> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", parameterMatchers: matchers))
 	    }
 	    
 	    func setDerivationPath<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
@@ -2694,9 +2694,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(IconWithTitleViewModel), Void> where M1.MatchedType == IconWithTitleViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(IconWithTitleViewModel)>] = [wrap(matchable: model) { $0 }]
-	        return cuckoo_manager.verify("setSelectedNetwork(model: IconWithTitleViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(SelectableViewModel<IconWithTitleViewModel>), Void> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return cuckoo_manager.verify("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -2774,7 +2774,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func setSelectedNetwork(model: IconWithTitleViewModel)   {
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

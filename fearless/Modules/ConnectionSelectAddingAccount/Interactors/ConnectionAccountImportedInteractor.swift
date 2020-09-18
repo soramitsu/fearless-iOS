@@ -9,8 +9,6 @@ final class ConnectionAccountImportedInteractor: BaseAccountImportInteractor {
     let connectionItem: ConnectionItem
     let eventCenter: EventCenterProtocol
 
-    override var availableAddressTypes: [SNAddressType] { [connectionItem.type] }
-
     init(connectionItem: ConnectionItem,
          accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
@@ -25,7 +23,8 @@ final class ConnectionAccountImportedInteractor: BaseAccountImportInteractor {
         super.init(accountOperationFactory: accountOperationFactory,
                    accountRepository: accountRepository,
                    operationManager: operationManager,
-                   keystoreImportService: keystoreImportService)
+                   keystoreImportService: keystoreImportService,
+                   supportedAddressTypes: [connectionItem.type])
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {

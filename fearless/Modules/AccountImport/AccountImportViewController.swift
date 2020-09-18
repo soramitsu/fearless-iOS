@@ -313,9 +313,14 @@ extension AccountImportViewController: AccountImportViewProtocol {
         cryptoTypeView.actionControl.invalidateLayout()
     }
 
-    func setSelectedNetwork(model: IconWithTitleViewModel) {
-        networkTypeView.actionControl.contentView.subtitleImageView.image = model.icon
-        networkTypeView.actionControl.contentView.subtitleLabelView.text = model.title
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>) {
+        networkTypeView.actionControl.contentView.subtitleImageView.image = model.underlyingViewModel.icon
+        networkTypeView.actionControl.contentView.subtitleLabelView.text = model.underlyingViewModel.title
+
+        networkTypeView.actionControl.showsImageIndicator = model.selectable
+        networkTypeView.isUserInteractionEnabled = model.selectable
+        networkTypeView.fillColor = model.selectable ? .clear : R.color.colorDarkGray()!
+        networkTypeView.strokeColor = model.selectable ? R.color.colorGray()! : .clear
 
         networkTypeView.actionControl.contentView.invalidateLayout()
         networkTypeView.actionControl.invalidateLayout()

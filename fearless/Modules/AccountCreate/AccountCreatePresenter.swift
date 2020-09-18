@@ -45,8 +45,12 @@ final class AccountCreatePresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = IconWithTitleViewModel(icon: addressType.icon,
-                                               title: addressType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(icon: addressType.icon,
+                                                      title: addressType.titleForLocale(locale))
+
+        let selectable = (metadata?.availableAddressTypes.count ?? 0) > 1
+        let viewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
+                                            selectable: selectable)
 
         view?.setSelectedNetwork(model: viewModel)
     }

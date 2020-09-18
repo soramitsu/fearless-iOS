@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import RobinHood
+import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     static func createViewForOnboarding() -> AccountImportViewProtocol? {
@@ -61,7 +62,8 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let interactor = AddImportedInteractor(accountOperationFactory: accountOperationFactory,
                                                accountRepository: AnyDataProviderRepository(accountRepository),
                                                operationManager: OperationManagerFacade.sharedManager,
-                                               keystoreImportService: keystoreImportService)
+                                               keystoreImportService: keystoreImportService,
+                                               supportedAddressTypes: SNAddressType.supported)
 
         let wireframe = AddImportedWireframe()
 

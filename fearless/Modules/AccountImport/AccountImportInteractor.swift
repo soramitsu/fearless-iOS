@@ -17,7 +17,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         super.init(accountOperationFactory: accountOperationFactory,
                    accountRepository: accountRepository,
                    operationManager: operationManager,
-                   keystoreImportService: keystoreImportService)
+                   keystoreImportService: keystoreImportService,
+                   supportedAddressTypes: SNAddressType.supported)
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
