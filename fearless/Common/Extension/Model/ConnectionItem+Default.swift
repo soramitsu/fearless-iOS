@@ -10,7 +10,7 @@ extension ConnectionItem {
         #else
             return ConnectionItem(title: "Kusama, Parity node",
                                   url: URL(string: "wss://kusama-rpc.polkadot.io")!,
-                                  type: SNAddressType.kusamaMain.rawValue)
+                                  type: SNAddressType.kusamaMain)
         #endif
     }
 
