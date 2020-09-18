@@ -15,6 +15,8 @@ class BaseAccountImportInteractor {
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
 
+    var availableAddressTypes: [SNAddressType] { SNAddressType.supported }
+
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
@@ -48,14 +50,20 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let availableAddressTypes: [SNAddressType] = SNAddressType.supported
-
         let defaultConnection = ConnectionItem.defaultConnection
+
+        let defaultConnectionType: SNAddressType
+
+        if availableAddressTypes.contains(defaultConnection.type) {
+            defaultConnectionType = defaultConnection.type
+        } else {
+            defaultConnectionType = availableAddressTypes.first ?? defaultConnection.type
+        }
 
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
                                              availableAddressTypes: availableAddressTypes,
-                                             defaultAddressType: defaultConnection.type,
+                                             defaultAddressType: defaultConnectionType,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
 

@@ -78,4 +78,46 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
         return view
     }
+
+    static func createViewForConnection(item: ConnectionItem,
+                                        request: AccountCreationRequest,
+                                        metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
+        guard let mnemonic = try? IRMnemonicCreator()
+            .mnemonic(fromList: metadata.mnemonic.joined(separator: " ")) else {
+            return nil
+        }
+
+        let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        let presenter = AccountConfirmPresenter()
+
+        let keychain = Keychain()
+
+        let accountOperationFactory = AccountOperationFactory(keystore: keychain)
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
+        let operationManager = OperationManagerFacade.sharedManager
+        let anyRepository = AnyDataProviderRepository(accountRepository)
+        let interactor = ConnectionAccountConfirmInteractor(connectionItem: item,
+                                                             request: request,
+                                                             mnemonic: mnemonic,
+                                                             accountOperationFactory: accountOperationFactory,
+                                                             accountRepository: anyRepository,
+                                                             settings: SettingsManager.shared,
+                                                             operationManager: operationManager,
+                                                             eventCenter: EventCenter.shared)
+        let wireframe = ConnectionAccountConfirmationWireframe()
+
+        view.presenter = presenter
+        presenter.view = view
+        presenter.interactor = interactor
+        presenter.wireframe = wireframe
+        interactor.presenter = presenter
+
+        let localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
+        presenter.localizationManager = localizationManager
+
+        return view
+    }
 }

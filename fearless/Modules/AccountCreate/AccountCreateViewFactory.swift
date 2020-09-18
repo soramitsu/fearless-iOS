@@ -43,4 +43,27 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
 
         return view
     }
+
+    static func createViewForConnection(item: ConnectionItem,
+                                        username: String) -> AccountCreateViewProtocol? {
+        let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
+        let presenter = AccountCreatePresenter(username: username)
+
+        let interactor = ConnectionAccountCreationInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                             connection: item)
+
+        let wireframe = ConnectionAccountCreationWireframe(connectionItem: item)
+
+        view.presenter = presenter
+        presenter.view = view
+        presenter.interactor = interactor
+        presenter.wireframe = wireframe
+        interactor.presenter = presenter
+
+        let localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
+        presenter.localizationManager = localizationManager
+
+        return view
+    }
 }

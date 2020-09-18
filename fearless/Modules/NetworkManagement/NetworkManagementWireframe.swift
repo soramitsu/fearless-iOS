@@ -21,6 +21,12 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
 
     func presentAccountCreation(for connection: ConnectionItem,
                                 from view: NetworkManagementViewProtocol?) {
-        
+        guard
+            let accountView = OnboardingMainViewFactory.createViewForConnection(item: connection),
+            let navigationController = view?.controller.navigationController else {
+            return
+        }
+
+        navigationController.pushViewController(accountView.controller, animated: true)
     }
 }

@@ -30,4 +30,7 @@ protocol AccountConfirmViewFactoryProtocol: class {
                                         metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol?
     static func createViewForAdding(request: AccountCreationRequest,
                                     metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol?
+    static func createViewForConnection(item: ConnectionItem,
+                                        request: AccountCreationRequest,
+                                        metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol?
 }
