@@ -14,15 +14,18 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
+    let supportedAddressTypes: [SNAddressType]
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+         keystoreImportService: KeystoreImportServiceProtocol,
+         supportedAddressTypes: [SNAddressType]) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
+        self.supportedAddressTypes = supportedAddressTypes
     }
 
     private func setupKeystoreImportObserver() {
@@ -48,16 +51,20 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let availableAddressTypes: [SNAddressType] = SNAddressType.supported
-
         let defaultConnection = ConnectionItem.defaultConnection
 
-        let networkType = SNAddressType(rawValue: defaultConnection.type) ?? .kusamaMain
+        let defaultConnectionType: SNAddressType
+
+        if supportedAddressTypes.contains(defaultConnection.type) {
+            defaultConnectionType = defaultConnection.type
+        } else {
+            defaultConnectionType = supportedAddressTypes.first ?? defaultConnection.type
+        }
 
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
-                                             availableAddressTypes: availableAddressTypes,
-                                             defaultAddressType: networkType,
+                                             availableAddressTypes: supportedAddressTypes,
+                                             defaultAddressType: defaultConnectionType,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
 

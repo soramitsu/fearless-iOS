@@ -17,15 +17,11 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
         do {
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
-            let availableAddressTypes: [SNAddressType] = SNAddressType.supported
-
             let defaultConnection = ConnectionItem.defaultConnection
 
-            let networkType = SNAddressType(rawValue: defaultConnection.type) ?? .kusamaMain
-
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
-                                                   availableAddressTypes: availableAddressTypes,
-                                                   defaultAddressType: networkType,
+                                                   availableAddressTypes: SNAddressType.supported,
+                                                   defaultAddressType: defaultConnection.type,
                                                    availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)

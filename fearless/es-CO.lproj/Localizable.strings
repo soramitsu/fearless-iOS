@@ -124,3 +124,6 @@ transferencias aparecerán aquí";
 "connections.add.connection" = "Añadir la conexión";
 "connection.management.default.title" = "Defecto";
 "connection.management.custom.title" = "Personalizado";
+"account.needed.title" = "Cuenta necesaria";
+"account.needed.message" = "No tiene una cuenta para esta red, puede crear o importar una cuenta.";
+"common.proceed" = "Continuar";

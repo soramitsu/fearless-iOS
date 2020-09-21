@@ -1,4 +1,5 @@
 import RobinHood
+import IrohaCrypto
 
 protocol NetworkManagementViewProtocol: ControllerBackedProtocol {
     func reload()
@@ -27,6 +28,8 @@ protocol NetworkManagementPresenterProtocol: class {
 
 protocol NetworkManagementInteractorInputProtocol: class {
     func setup()
+    func select(connection: ConnectionItem)
+    func select(connection: ConnectionItem, account: AccountItem)
 }
 
 protocol NetworkManagementInteractorOutputProtocol: class {
@@ -34,9 +37,22 @@ protocol NetworkManagementInteractorOutputProtocol: class {
     func didReceiveDefaultConnections(_ connections: [ConnectionItem])
     func didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])
     func didReceiveCustomConnection(error: Error)
+
+    func didFindMultiple(accounts: [AccountItem], for connection: ConnectionItem)
+    func didFindNoAccounts(for connection: ConnectionItem)
+    func didReceiveConnection(selectionError: Error)
 }
 
-protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable {}
+protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable {
+    func presentAccountSelection(_ accounts: [AccountItem],
+                                 addressType: SNAddressType,
+                                 delegate: ModalPickerViewControllerDelegate,
+                                 from view: NetworkManagementViewProtocol?,
+                                 context: AnyObject?)
+
+    func presentAccountCreation(for connection: ConnectionItem,
+                                from view: NetworkManagementViewProtocol?)
+}
 
 protocol NetworkManagementViewFactoryProtocol: class {
 	static func createView() -> NetworkManagementViewProtocol?

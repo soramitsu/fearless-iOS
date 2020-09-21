@@ -88,7 +88,8 @@ final class AccountCreationHelper {
     static func selectAccount(_ accountItem: AccountItem, settings: SettingsManagerProtocol) throws {
         let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
-        guard let connection = ConnectionItem.supportedConnections.first(where: { $0.type == type.int8Value }) else {
+        guard let connection = ConnectionItem.supportedConnections
+            .first(where: { $0.type.rawValue == type.uint8Value }) else {
             return
         }
 

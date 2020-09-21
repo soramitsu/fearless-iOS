@@ -123,3 +123,6 @@ trasferimenti appariranno qui";
 "connections.add.connection" = "Aggiungi connessione";
 "connection.management.default.title" = "Predefinito";
 "connection.management.custom.title" = "Personalizzato";
+"account.needed.title" = "Account necessario";
+"account.needed.message" = "Non hai un account per questa rete, puoi creare o importare un account.";
+"common.proceed" = "Procedere";

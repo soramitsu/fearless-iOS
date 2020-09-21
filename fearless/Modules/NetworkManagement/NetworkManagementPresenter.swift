@@ -1,6 +1,7 @@
 import Foundation
 import RobinHood
 import SoraFoundation
+import IrohaCrypto
 
 final class NetworkManagementPresenter {
     weak var view: NetworkManagementViewProtocol?
@@ -64,11 +65,19 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func activateCustomConnectionDetails(at index: Int) {
-        // TODO: FLW-260
+        let connection = ConnectionItem(managedConnectionItem: listCalculator.allItems[index])
+
+        if connection != selectedConnectionItem {
+            interactor.select(connection: connection)
+        }
     }
 
     func selectDefaultItem(at index: Int) {
-        // TODO: FLW-261
+        let connection = defaultConnectionItems[index]
+
+        if selectedConnectionItem != connection {
+            interactor.select(connection: connection)
+        }
     }
 
     func selectCustomItem(at index: Int) {
@@ -122,5 +131,72 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
                                   from: view,
                                   locale: localizationManager.selectedLocale)
         }
+    }
+
+    func didFindMultiple(accounts: [AccountItem], for connection: ConnectionItem) {
+        let context = PrimitiveContextWrapper(value: (accounts, connection))
+
+        wireframe.presentAccountSelection(accounts,
+                                          addressType: connection.type,
+                                          delegate: self,
+                                          from: view,
+                                          context: context)
+    }
+
+    func didFindNoAccounts(for connection: ConnectionItem) {
+        let title = R.string.localizable
+            .accountNeededTitle(preferredLanguages: localizationManager.selectedLocale.rLanguages)
+        let message = R.string.localizable
+            .accountNeededMessage(preferredLanguages: localizationManager.selectedLocale.rLanguages)
+
+        let proceedTitle = R.string.localizable
+            .commonProceed(preferredLanguages: localizationManager.selectedLocale.rLanguages)
+        let proceedAction = AlertPresentableAction(title: proceedTitle) { [weak self] in
+            self?.wireframe.presentAccountCreation(for: connection, from: self?.view)
+        }
+
+        let closeTitle = R.string.localizable
+            .commonCancel(preferredLanguages: localizationManager.selectedLocale.rLanguages)
+
+        let viewModel = AlertPresentableViewModel(title: title,
+                                                  message: message,
+                                                  actions: [proceedAction],
+                                                  closeAction: closeTitle)
+
+        wireframe.present(viewModel: viewModel,
+                          style: .alert,
+                          from: view)
+    }
+
+    func didReceiveConnection(selectionError: Error) {
+        if !wireframe.present(error: selectionError,
+                              from: view,
+                              locale: localizationManager.selectedLocale) {
+            _ = wireframe.present(error: CommonError.undefined,
+                                  from: view,
+                                  locale: localizationManager.selectedLocale)
+        }
+    }
+}
+
+extension NetworkManagementPresenter: ModalPickerViewControllerDelegate {
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let (accounts, connection) =
+            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value else {
+            return
+        }
+
+        interactor.select(connection: connection, account: accounts[index])
+    }
+
+    func modalPickerDidSelectAction(context: AnyObject?) {
+        guard
+            let (_, connection) =
+            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value else {
+            return
+        }
+
+        wireframe.presentAccountCreation(for: connection, from: view)
     }
 }

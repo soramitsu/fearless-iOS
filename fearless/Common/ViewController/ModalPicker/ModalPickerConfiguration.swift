@@ -5,7 +5,7 @@ extension ModalSheetPresentationStyle {
     static var fearless: ModalSheetPresentationStyle {
         let indicatorSize = CGSize(width: 35.0, height: 2.0)
         let headerStyle = ModalSheetPresentationHeaderStyle(preferredHeight: 20.0,
-                                                            backgroundColor: R.color.colorBlack()!,
+                                                            backgroundColor: R.color.colorAlmostBlack()!,
                                                             cornerRadius: 20.0,
                                                             indicatorVerticalOffset: 2.0,
                                                             indicatorSize: indicatorSize,

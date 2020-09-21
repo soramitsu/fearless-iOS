@@ -146,10 +146,14 @@ final class AccountImportPresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = IconWithTitleViewModel(icon: addressType.icon,
-                                               title: addressType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(icon: addressType.icon,
+                                                      title: addressType.titleForLocale(locale))
 
-        view?.setSelectedNetwork(model: viewModel)
+        let selectable = (metadata?.availableAddressTypes.count ?? 0) > 1
+        let selectedViewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
+                                                    selectable: selectable)
+
+        view?.setSelectedNetwork(model: selectedViewModel)
     }
 
     private func applyDerivationPathViewModel() {

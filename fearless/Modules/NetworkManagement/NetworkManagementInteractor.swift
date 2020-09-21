@@ -1,23 +1,27 @@
 import UIKit
 import RobinHood
 import SoraKeystore
+import IrohaCrypto
 
 final class NetworkManagementInteractor {
     weak var presenter: NetworkManagementInteractorOutputProtocol!
 
-    let repositoryObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>
-    let repository: AnyDataProviderRepository<ManagedConnectionItem>
+    let connectionsObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>
+    let connectionsRepository: AnyDataProviderRepository<ManagedConnectionItem>
+    let accountsRepository: AnyDataProviderRepository<ManagedAccountItem>
     private(set) var settings: SettingsManagerProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
-    init(repository: AnyDataProviderRepository<ManagedConnectionItem>,
-         repositoryObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>,
+    init(connectionsRepository: AnyDataProviderRepository<ManagedConnectionItem>,
+         connectionsObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>,
+         accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
          settings: SettingsManagerProtocol,
          operationManager: OperationManagerProtocol,
          eventCenter: EventCenterProtocol) {
-        self.repository = repository
-        self.repositoryObservable = repositoryObservable
+        self.connectionsRepository = connectionsRepository
+        self.connectionsObservable = connectionsObservable
+        self.accountsRepository = accountsRepository
         self.settings = settings
         self.operationManager = operationManager
         self.eventCenter = eventCenter
@@ -29,7 +33,7 @@ final class NetworkManagementInteractor {
 
     private func provideCustomConnections() {
         let options = RepositoryFetchOptions()
-        let operation = repository.fetchAllOperation(with: options)
+        let operation = connectionsRepository.fetchAllOperation(with: options)
 
         operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -51,6 +55,36 @@ final class NetworkManagementInteractor {
     private func provideSelectedItem() {
         presenter.didReceiveSelectedConnection(settings.selectedConnection)
     }
+
+    private func select(connection: ConnectionItem,
+                        for accountsFetchResult: Result<[ManagedAccountItem], Error>?) {
+        guard let result = accountsFetchResult else {
+            presenter.didReceiveConnection(selectionError: BaseOperationError.parentOperationCancelled)
+            return
+        }
+
+        switch result {
+        case .success(let accounts):
+            let filteredAccounts: [AccountItem] = accounts.compactMap { managedAccount in
+                if managedAccount.networkType == connection.type {
+                    return AccountItem(managedItem: managedAccount)
+                } else {
+                    return nil
+                }
+            }
+
+            if filteredAccounts.isEmpty {
+                presenter.didFindNoAccounts(for: connection)
+            } else if filteredAccounts.count > 1 {
+                presenter.didFindMultiple(accounts: filteredAccounts, for: connection)
+            } else if let account = filteredAccounts.first {
+                select(connection: connection, account: account)
+            }
+
+        case .failure(let error):
+            presenter.didReceiveConnection(selectionError: error)
+        }
+    }
 }
 
 extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol {
@@ -58,5 +92,35 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
         provideDefaultConnections()
         provideCustomConnections()
         provideSelectedItem()
+    }
+
+    func select(connection: ConnectionItem) {
+        if settings.selectedConnection.type == connection.type {
+            settings.selectedConnection = connection
+            presenter.didReceiveSelectedConnection(connection)
+
+            eventCenter.notify(with: SelectedConnectionChanged())
+        } else {
+            let fetchOperation = accountsRepository
+                .fetchAllOperation(with: RepositoryFetchOptions())
+
+            fetchOperation.completionBlock = { [weak self] in
+                DispatchQueue.main.async {
+                    self?.select(connection: connection, for: fetchOperation.result)
+                }
+            }
+
+            operationManager.enqueue(operations: [fetchOperation], in: .sync)
+        }
+    }
+
+    func select(connection: ConnectionItem, account: AccountItem) {
+        settings.selectedAccount = account
+        settings.selectedConnection = connection
+
+        presenter.didReceiveSelectedConnection(connection)
+
+        eventCenter.notify(with: SelectedConnectionChanged())
+        eventCenter.notify(with: SelectedAccountChanged())
     }
 }

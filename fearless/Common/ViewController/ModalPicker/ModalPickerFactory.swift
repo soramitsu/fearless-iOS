@@ -2,6 +2,7 @@ import Foundation
 import SoraUI
 import SoraFoundation
 import IrohaCrypto
+import FearlessUtils
 
 struct ModalPickerFactory {
     static func createPickerForList(_ types: [CryptoType],
@@ -131,6 +132,58 @@ struct ModalPickerFactory {
         viewController.modalTransitioningFactory = factory
 
         let height = viewController.headerHeight + CGFloat(types.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
+    static func createPickerList(_ accounts: [AccountItem],
+                                 selectedAccount: AccountItem?,
+                                 addressType: SNAddressType,
+                                 delegate: ModalPickerViewControllerDelegate?,
+                                 context: AnyObject?) -> UIViewController? {
+
+        let viewController: ModalPickerViewController<AccountPickerTableViewCell, AccountPickerViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.profileAccountsTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.icon = addressType.icon
+        viewController.actionType = .add
+
+        viewController.cellNib = UINib(resource: R.nib.accountPickerTableViewCell)
+        viewController.delegate = delegate
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+
+        if let selectedAccount = selectedAccount {
+            viewController.selectedIndex = accounts.firstIndex(of: selectedAccount) ?? NSNotFound
+        } else {
+            viewController.selectedIndex = NSNotFound
+        }
+
+        let iconGenerator = PolkadotIconGenerator()
+
+        viewController.viewModels = accounts.compactMap { account in
+            let viewModel: AccountPickerViewModel
+            if let icon = try? iconGenerator.generateFromAddress(account.address) {
+                viewModel = AccountPickerViewModel(title: account.username, icon: icon)
+            } else {
+                viewModel = AccountPickerViewModel(title: account.username, icon: EmptyAccountIcon())
+            }
+
+            return LocalizableResource { _ in viewModel }
+        }
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(accounts.count) * viewController.cellHeight +
             viewController.footerHeight
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 

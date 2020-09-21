@@ -7,7 +7,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setSelectedNetwork(model: IconWithTitleViewModel)
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteSourceTypeSelection()
@@ -68,4 +68,5 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
 protocol AccountImportViewFactoryProtocol: class {
 	static func createViewForOnboarding() -> AccountImportViewProtocol?
     static func createViewForAdding() -> AccountImportViewProtocol?
+    static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol?
 }

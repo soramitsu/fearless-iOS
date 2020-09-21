@@ -17,7 +17,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         super.init(accountOperationFactory: accountOperationFactory,
                    accountRepository: accountRepository,
                    operationManager: operationManager,
-                   keystoreImportService: keystoreImportService)
+                   keystoreImportService: keystoreImportService,
+                   supportedAddressTypes: SNAddressType.supported)
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -36,7 +37,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type == type.int8Value }) else {
+                .first(where: { $0.type.rawValue == type.uint8Value }) else {
                 throw AccountImportError.unsupportedNetwork
             }
 
