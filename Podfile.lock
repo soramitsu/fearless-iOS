@@ -55,35 +55,35 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (0.8.0)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.9.0):
-    - SoraUI/AdaptiveDesign (= 1.9.0)
-    - SoraUI/Animator (= 1.9.0)
-    - SoraUI/Camera (= 1.9.0)
-    - SoraUI/Controls (= 1.9.0)
-    - SoraUI/DetailsView (= 1.9.0)
-    - SoraUI/EmptyState (= 1.9.0)
-    - SoraUI/LoadingView (= 1.9.0)
-    - SoraUI/ModalPresentation (= 1.9.0)
-    - SoraUI/PageLoader (= 1.9.0)
-    - SoraUI/PinView (= 1.9.0)
-    - SoraUI/Skrull (= 1.9.0)
-  - SoraUI/AdaptiveDesign (1.9.0)
-  - SoraUI/Animator (1.9.0)
-  - SoraUI/Camera (1.9.0)
-  - SoraUI/Controls (1.9.0)
-  - SoraUI/DetailsView (1.9.0):
+  - SoraUI (1.9.2):
+    - SoraUI/AdaptiveDesign (= 1.9.2)
+    - SoraUI/Animator (= 1.9.2)
+    - SoraUI/Camera (= 1.9.2)
+    - SoraUI/Controls (= 1.9.2)
+    - SoraUI/DetailsView (= 1.9.2)
+    - SoraUI/EmptyState (= 1.9.2)
+    - SoraUI/LoadingView (= 1.9.2)
+    - SoraUI/ModalPresentation (= 1.9.2)
+    - SoraUI/PageLoader (= 1.9.2)
+    - SoraUI/PinView (= 1.9.2)
+    - SoraUI/Skrull (= 1.9.2)
+  - SoraUI/AdaptiveDesign (1.9.2)
+  - SoraUI/Animator (1.9.2)
+  - SoraUI/Camera (1.9.2)
+  - SoraUI/Controls (1.9.2)
+  - SoraUI/DetailsView (1.9.2):
     - SoraUI/Controls
-  - SoraUI/EmptyState (1.9.0):
+  - SoraUI/EmptyState (1.9.2):
     - SoraUI/Animator
-  - SoraUI/LoadingView (1.9.0):
+  - SoraUI/LoadingView (1.9.2):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.9.0):
+  - SoraUI/ModalPresentation (1.9.2):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.9.0)
-  - SoraUI/PinView (1.9.0):
+  - SoraUI/PageLoader (1.9.2)
+  - SoraUI/PinView (1.9.2):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.9.0)
+  - SoraUI/Skrull (1.9.2)
   - Starscream (4.0.3)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
@@ -99,7 +99,7 @@ DEPENDENCIES:
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI (~> 1.9.0)
+  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `b757168752d8f4b712e7952dd29fe1eac6275609`)
   - Starscream (~> 4.0.0)
   - SwiftLint
   - SwiftyBeaver
@@ -117,7 +117,6 @@ SPEC REPOS:
     - scrypt.c
     - SoraFoundation
     - SoraKeystore
-    - SoraUI
     - Starscream
     - SwiftLint
     - SwiftyBeaver
@@ -128,11 +127,17 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 412d5f6bd0b15d2fe69e53915195c945142265fd
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: b757168752d8f4b712e7952dd29fe1eac6275609
+    :git: https://github.com/soramitsu/UIkit-iOS.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 412d5f6bd0b15d2fe69e53915195c945142265fd
     :git: https://github.com/soramitsu/Capital-iOS.git
+  SoraUI:
+    :commit: b757168752d8f4b712e7952dd29fe1eac6275609
+    :git: https://github.com/soramitsu/UIkit-iOS.git
 
 SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
@@ -147,13 +152,13 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 9dc8789ef397640bc6d1de021476e8fdce503671
+  SoraUI: b0bba88160397ef4f1543f4c1841569b7a614579
   Starscream: ef06f0961fff0880bca0604416d61141e4faca67
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: e2bfa6339d2ce5775e076ddce87c7e1eb2001a34
+PODFILE CHECKSUM: 88d741830b4630129367b0e0658de9cb47bbfbc2
 
 COCOAPODS: 1.9.3

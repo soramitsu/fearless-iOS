@@ -13,8 +13,7 @@ final class AccountInfoViewController: UIViewController {
     @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
     @IBOutlet private var addActionControl: IconCellControlView!
 
-    @IBOutlet private var usernameTitleLabel: UILabel!
-    @IBOutlet private var usernameDetailsTextField: UITextField!
+    @IBOutlet private var usernameDetailsTextField: AnimatedTextField!
 
     @IBOutlet private var addressTitleLabel: UILabel!
     @IBOutlet private var addressDetailsLabel: UILabel!
@@ -29,6 +28,7 @@ final class AccountInfoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupTextField()
         setupLocalization()
         setupNavigationItem()
         updateSaveButton()
@@ -40,6 +40,16 @@ final class AccountInfoViewController: UIViewController {
         super.viewDidLayoutSubviews()
 
         bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
+    }
+
+    private func setupTextField() {
+        usernameDetailsTextField.textField.returnKeyType = .done
+        usernameDetailsTextField.textField.textContentType = .nickname
+        usernameDetailsTextField.textField.autocapitalizationType = .none
+        usernameDetailsTextField.textField.autocorrectionType = .no
+        usernameDetailsTextField.textField.spellCheckingType = .no
+
+        usernameDetailsTextField.delegate = self
     }
 
     private func setupNavigationItem() {
@@ -79,13 +89,8 @@ final class AccountInfoViewController: UIViewController {
 
         title = R.string.localizable.accountInfoTitle(preferredLanguages: locale?.rLanguages)
 
-        if let placeholderColor = R.color.colorGray() {
-            let placeholder = R.string.localizable
-                .usernameSetupChooseTitle(preferredLanguages: locale?.rLanguages)
-            let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                           attributes: [.foregroundColor: placeholderColor])
-            usernameDetailsTextField.attributedPlaceholder = attributedPlaceholder
-        }
+        usernameDetailsTextField.title = R.string.localizable
+            .accountInfoNameTitle(preferredLanguages: locale?.rLanguages)
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .commonExport(preferredLanguages: locale?.rLanguages)
@@ -95,9 +100,6 @@ final class AccountInfoViewController: UIViewController {
 
         addressTitleLabel.text = R.string.localizable
             .accountInfoTitle(preferredLanguages: locale?.rLanguages)
-
-        usernameTitleLabel.text = R.string.localizable
-            .accountInfoNameTitle(preferredLanguages: locale?.rLanguages)
     }
 
     @objc private func actionClose() {
@@ -135,10 +137,10 @@ final class AccountInfoViewController: UIViewController {
     }
 }
 
-extension AccountInfoViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
+extension AccountInfoViewController: AnimatedTextFieldDelegate {
+    func animatedTextField(_ textField: AnimatedTextField,
+                           shouldChangeCharactersIn range: NSRange,
+                           replacementString string: String) -> Bool {
 
         guard let viewModel = usernameViewModel else {
             return true
@@ -153,7 +155,7 @@ extension AccountInfoViewController: UITextFieldDelegate {
         return shouldApply
     }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
 
         return false

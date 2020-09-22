@@ -10,11 +10,11 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var sourceTypeView: BorderedSubtitleActionView!
     @IBOutlet private var usernameView: UIView!
-    @IBOutlet private var usernameTextField: UITextField!
+    @IBOutlet private var usernameTextField: AnimatedTextField!
     @IBOutlet private var usernameFooterLabel: UILabel!
     @IBOutlet private var passwordView: TriangularedView!
     @IBOutlet private var passwordSeparatorView: UIView!
-    @IBOutlet private var passwordTextField: UITextField!
+    @IBOutlet private var passwordTextField: AnimatedTextField!
     @IBOutlet private var textPlaceholderLabel: UILabel!
     @IBOutlet private var textView: UITextView!
     @IBOutlet private var nextButton: TriangularedButton!
@@ -97,6 +97,22 @@ final class AccountImportViewController: UIViewController {
         networkTypeView.actionControl.addTarget(self,
                                                 action: #selector(actionOpenAddressType),
                                                 for: .valueChanged)
+
+        usernameTextField.textField.returnKeyType = .done
+        usernameTextField.textField.textContentType = .nickname
+        usernameTextField.textField.autocapitalizationType = .none
+        usernameTextField.textField.autocorrectionType = .no
+        usernameTextField.textField.spellCheckingType = .no
+
+        passwordTextField.textField.returnKeyType = .done
+        passwordTextField.textField.textContentType = .password
+        passwordTextField.textField.autocapitalizationType = .none
+        passwordTextField.textField.autocorrectionType = .no
+        passwordTextField.textField.spellCheckingType = .no
+        passwordTextField.textField.isSecureTextEntry = true
+
+        usernameTextField.delegate = self
+        passwordTextField.delegate = self
     }
 
     private func setupLocalization() {
@@ -135,22 +151,13 @@ final class AccountImportViewController: UIViewController {
     }
 
     private func setupUsernamePlaceholder(for locale: Locale) {
-        let color = R.color.colorGray() ?? .gray
-        let placeholder = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
-        let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                   attributes: [.foregroundColor: color])
-
-        usernameTextField.attributedPlaceholder = attributedPlaceholder
+        usernameTextField.title = R.string.localizable
+            .usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupPasswordPlaceholder(for locale: Locale) {
-        let color = R.color.colorGray() ?? .gray
-        let placeholder = R.string.localizable
-            .accountImportPasswordPlaceholder(preferredLanguages: locale.rLanguages)
-        let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                   attributes: [.foregroundColor: color])
-
-        passwordTextField.attributedPlaceholder = attributedPlaceholder
+        passwordTextField.title = R.string.localizable
+        .accountImportPasswordPlaceholder(preferredLanguages: locale.rLanguages)
     }
 
     private func updateNextButton() {
@@ -353,11 +360,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
-        textField.resignFirstResponder()
-
-        if textField === derivationPathField {
-            presenter.validateDerivationPath()
-        }
+        presenter.validateDerivationPath()
 
         return false
     }
@@ -365,14 +368,35 @@ extension AccountImportViewController: UITextFieldDelegate {
     func textField(_ textField: UITextField,
                    shouldChangeCharactersIn range: NSRange,
                    replacementString string: String) -> Bool {
+        guard let currentViewModel = derivationPathModel else {
+            return true
+        }
+
+        let shouldApply = currentViewModel.inputHandler.didReceiveReplacement(string, for: range)
+
+        if !shouldApply, textField.text != currentViewModel.inputHandler.value {
+            textField.text = currentViewModel.inputHandler.value
+        }
+
+        return shouldApply
+    }
+}
+
+extension AccountImportViewController: AnimatedTextFieldDelegate {
+    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
+        textField.resignFirstResponder()
+        return false
+    }
+
+    func animatedTextField(_ textField: AnimatedTextField,
+                           shouldChangeCharactersIn range: NSRange,
+                           replacementString string: String) -> Bool {
         let viewModel: InputViewModelProtocol?
 
         if textField === usernameTextField {
             viewModel = usernameViewModel
-        } else if textField === passwordTextField {
-            viewModel = passwordViewModel
         } else {
-            viewModel = derivationPathModel
+            viewModel = passwordViewModel
         }
 
         guard let currentViewModel = viewModel else {
