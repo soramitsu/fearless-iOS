@@ -326,8 +326,12 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         networkTypeView.actionControl.showsImageIndicator = model.selectable
         networkTypeView.isUserInteractionEnabled = model.selectable
-        networkTypeView.fillColor = model.selectable ? .clear : R.color.colorDarkGray()!
-        networkTypeView.strokeColor = model.selectable ? R.color.colorGray()! : .clear
+
+        if model.selectable {
+            networkTypeView.applyEnabledStyle()
+        } else {
+            networkTypeView.applyDisabledStyle()
+        }
 
         networkTypeView.actionControl.contentView.invalidateLayout()
         networkTypeView.actionControl.invalidateLayout()
