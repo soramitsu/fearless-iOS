@@ -61,15 +61,19 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func activateDefaultConnectionDetails(at index: Int) {
-        // TODO: FLW-260
+        let connection = defaultConnectionItems[index]
+
+        wireframe.presentConnectionInfo(connection,
+                                        readOnly: true,
+                                        from: view)
     }
 
     func activateCustomConnectionDetails(at index: Int) {
         let connection = ConnectionItem(managedConnectionItem: listCalculator.allItems[index])
 
-        if connection != selectedConnectionItem {
-            interactor.select(connection: connection)
-        }
+        wireframe.presentConnectionInfo(connection,
+                                        readOnly: false,
+                                        from: view)
     }
 
     func selectDefaultItem(at index: Int) {
@@ -81,7 +85,11 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func selectCustomItem(at index: Int) {
-        // TODO: FLW-261
+        let connection = ConnectionItem(managedConnectionItem: listCalculator.allItems[index])
+
+        if connection != selectedConnectionItem {
+            interactor.select(connection: connection)
+        }
     }
 
     func moveCustomItem(at startIndex: Int, to finalIndex: Int) {

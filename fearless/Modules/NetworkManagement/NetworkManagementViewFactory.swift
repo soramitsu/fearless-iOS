@@ -44,6 +44,8 @@ final class NetworkManagementViewFactory: NetworkManagementViewFactoryProtocol {
         presenter.wireframe = wireframe
         interactor.presenter = presenter
 
+        view.localizationManager = LocalizationManager.shared
+
         return view
     }
 }

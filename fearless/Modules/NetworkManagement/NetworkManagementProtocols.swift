@@ -52,6 +52,10 @@ protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable 
 
     func presentAccountCreation(for connection: ConnectionItem,
                                 from view: NetworkManagementViewProtocol?)
+
+    func presentConnectionInfo(_ connectionItem: ConnectionItem,
+                               readOnly: Bool,
+                               from view: NetworkManagementViewProtocol?)
 }
 
 protocol NetworkManagementViewFactoryProtocol: class {

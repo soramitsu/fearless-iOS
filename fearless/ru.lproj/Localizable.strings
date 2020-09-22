@@ -127,3 +127,6 @@ a type of password.";
 "account.needed.title" = "Необходим аккаунт";
 "account.needed.message" = "У вас нет учетной записи в этой сети, вы можете создать или импортировать учетную запись.";
 "common.proceed" = "Продолжить";
+"network.info.title" = "Информация об узле";
+"network.info.name" = "Название узла";
+"network.info.address" = "Адрес узла";

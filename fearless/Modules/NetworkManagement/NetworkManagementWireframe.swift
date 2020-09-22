@@ -29,4 +29,16 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
 
         navigationController.pushViewController(accountView.controller, animated: true)
     }
+
+    func presentConnectionInfo(_ connectionItem: ConnectionItem,
+                               readOnly: Bool,
+                               from view: NetworkManagementViewProtocol?) {
+        guard let networkInfoView = NetworkInfoViewFactory.createView(with: connectionItem,
+                                                                      readOnly: readOnly) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: networkInfoView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }

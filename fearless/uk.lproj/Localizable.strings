@@ -127,3 +127,6 @@
 "account.needed.title" = "Потрібен рахунок";
 "account.needed.message" = "У вас немає облікового запису для цієї мережі, ви можете створити або імпортувати обліковий запис.";
 "common.proceed" = "Продовжуйте";
+"network.info.title" = "Інформація про вузол";
+"network.info.name" = "Ім'я вузла";
+"network.info.address" = "Адреса вузла";

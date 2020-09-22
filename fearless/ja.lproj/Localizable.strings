@@ -125,3 +125,6 @@ a type of password.";
 "account.needed.title" = "アカウントが必要";
 "account.needed.message" = "このネットワークのアカウントがありません。アカウントを作成またはインポートできます。";
 "common.proceed" = "続行";
+"network.info.title" = "ノード情報";
+"network.info.name" = "ノード名";
+"network.info.address" = "ノードアドレス";
