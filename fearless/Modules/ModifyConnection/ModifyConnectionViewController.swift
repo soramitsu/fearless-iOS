@@ -2,13 +2,14 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class NetworkInfoViewController: UIViewController {
-    var presenter: NetworkInfoPresenterProtocol!
+final class ModifyConnectionViewController: UIViewController {
+    var presenter: ModifyConnectionPresenterProtocol!
 
     @IBOutlet private var nameBackgroundView: TriangularedView!
     @IBOutlet private var nameField: AnimatedTextField!
     @IBOutlet private var nodeBackgroundView: TriangularedView!
     @IBOutlet private var nodeField: AnimatedTextField!
+    @IBOutlet private var addButton: TriangularedButton!
 
     private var nameViewModel: InputViewModelProtocol?
     private var nodeViewModel: InputViewModelProtocol?
@@ -16,10 +17,9 @@ final class NetworkInfoViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        configureNavigationItem()
         configureFields()
-
         setupLocalization()
+        updateActionButton()
 
         presenter.setup()
     }
@@ -39,77 +39,64 @@ final class NetworkInfoViewController: UIViewController {
         nodeField.delegate = self
     }
 
-    private func configureNavigationItem() {
-        let closeBarItem = UIBarButtonItem(image: R.image.iconClose(),
-                                                style: .plain,
-                                                target: self,
-                                                action: #selector(actionClose))
+    private func updateActionButton() {
+        let isValid = (nameViewModel?.inputHandler.completed ?? false) &&
+            (nodeViewModel?.inputHandler.completed ?? false)
 
-        navigationItem.leftBarButtonItem = closeBarItem
+        addButton.isEnabled = isValid
     }
 
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale
 
-        title = R.string.localizable.networkInfoTitle(preferredLanguages: locale?.rLanguages)
+        title = R.string.localizable.connectionsAddConnection(preferredLanguages: locale?.rLanguages)
         nameField.title = R.string.localizable.networkInfoName(preferredLanguages: locale?.rLanguages)
         nodeField.title = R.string.localizable.networkInfoAddress(preferredLanguages: locale?.rLanguages)
+
+        addButton.imageWithTitleView?.title = R.string.localizable
+            .commonAdd(preferredLanguages: locale?.rLanguages)
+        addButton.invalidateLayout()
     }
 
     @IBAction private func nameFieldDidChange() {
         if nameViewModel?.inputHandler.value != nameField.text {
             nameField.text = nameViewModel?.inputHandler.value
         }
+
+        updateActionButton()
     }
 
     @IBAction private func nodeFieldDidChange() {
         if nodeViewModel?.inputHandler.value != nodeField.text {
             nodeField.text = nodeViewModel?.inputHandler.value
         }
+
+        updateActionButton()
     }
 
-    @IBAction private func actionNodeCopy() {
-        presenter.activateCopy()
-    }
+    @IBAction private func actionAdd() {
+        nameField.resignFirstResponder()
+        nodeField.resignFirstResponder()
 
-    @objc private func actionClose() {
-        presenter.activateClose()
+        presenter.add()
     }
 }
 
-extension NetworkInfoViewController: NetworkInfoViewProtocol {
+extension ModifyConnectionViewController: ModifyConnectionViewProtocol {
     func set(nameViewModel: InputViewModelProtocol) {
         self.nameViewModel = nameViewModel
 
         nameField.text = nameViewModel.inputHandler.value
-
-        let enabled = nameViewModel.inputHandler.enabled
-        nameField.isUserInteractionEnabled = enabled
-
-        if enabled {
-            nameBackgroundView.applyEnabledStyle()
-        } else {
-            nameBackgroundView.applyDisabledStyle()
-        }
     }
 
     func set(nodeViewModel: InputViewModelProtocol) {
         self.nodeViewModel = nodeViewModel
 
         nodeField.text = nodeViewModel.inputHandler.value
-
-        let enabled = nodeViewModel.inputHandler.enabled
-        nodeField.isUserInteractionEnabled = enabled
-
-        if enabled {
-            nodeBackgroundView.applyEnabledStyle()
-        } else {
-            nodeBackgroundView.applyDisabledStyle()
-        }
     }
 }
 
-extension NetworkInfoViewController: AnimatedTextFieldDelegate {
+extension ModifyConnectionViewController: AnimatedTextFieldDelegate {
     func animatedTextField(_ textField: AnimatedTextField,
                            shouldChangeCharactersIn range: NSRange,
                            replacementString string: String) -> Bool {
@@ -140,7 +127,7 @@ extension NetworkInfoViewController: AnimatedTextFieldDelegate {
     }
 }
 
-extension NetworkInfoViewController: Localizable {
+extension ModifyConnectionViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

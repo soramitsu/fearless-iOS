@@ -129,3 +129,8 @@ trasferimenti appariranno qui";
 "network.info.title" = "Informazioni sul nodo";
 "network.info.name" = "Nome nodo";
 "network.info.address" = "Indirizzo del nodo";
+"common.add" = "Inserisci";
+"common.update" = "Aggiornare";
+"connection.add.invalid.error" = "Impossibile stabilire la connessione con il nodo. Per favore, provane un altro.";
+"connection.add.unsupported.error" = "Purtroppo la rete non è supportata. Per favore, prova uno dei seguenti: %@.";
+"connection.add.already.exists.error" = "Il nodo è già stato aggiunto in precedenza. Per favore, prova un altro nodo.";

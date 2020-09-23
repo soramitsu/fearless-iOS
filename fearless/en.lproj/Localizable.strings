@@ -130,3 +130,8 @@ transfers will appear here";
 "network.info.title" = "Node Info";
 "network.info.name" = "Node name";
 "network.info.address" = "Node address";
+"common.add" = "Add";
+"common.update" = "Update";
+"connection.add.invalid.error" = "Can't establish connection with node. Please, try another one.";
+"connection.add.unsupported.error" = "Unfortunately, the network is unsupported. Please, try one of the following: %@.";
+"connection.add.already.exists.error" = "The node has already been added previously. Please, try another node.";

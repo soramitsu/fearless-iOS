@@ -89,6 +89,18 @@ final class NetworkManagementInteractor {
 
 extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol {
     func setup() {
+        connectionsObservable.start { [weak self] error in
+            if let error = error {
+                DispatchQueue.main.async {
+                    self?.presenter.didReceiveCustomConnection(error: error)
+                }
+            }
+        }
+
+        connectionsObservable.addObserver(self, deliverOn: .main) { [weak self] changes in
+            self?.presenter.didReceiveCustomConnection(changes: changes)
+        }
+
         provideDefaultConnections()
         provideCustomConnections()
         provideSelectedItem()

@@ -241,13 +241,22 @@ extension WebSocketEngine: WebSocketDelegate {
         case .viabilityChanged:
             logger.debug("viability changed")
         case .error(let error):
-            if let error = error {
-                logger.error("Did receive error: \(error)")
-            } else {
-                logger.error("Did receive unknown error")
-            }
+            handleErrorEvent(error)
         case .cancelled:
             logger.warning("Remote cancelled")
+        }
+    }
+
+    private func handleErrorEvent(_ error: Error?) {
+        if let error = error {
+            logger.error("Did receive error: \(error)")
+        } else {
+            logger.error("Did receive unknown error")
+        }
+
+        if state != .connected {
+            let completionError = error ?? JSONRPCError(message: "Uknown error", code: 0)
+            completeAllWithError(completionError)
         }
     }
 

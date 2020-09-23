@@ -41,4 +41,13 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
         let navigationController = FearlessNavigationController(rootViewController: networkInfoView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func presentConnectionAdd(from view: NetworkManagementViewProtocol?) {
+        guard let addConnectionView = ModifyConnectionViewFactory.createView() else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(addConnectionView.controller,
+                                                                  animated: true)
+    }
 }

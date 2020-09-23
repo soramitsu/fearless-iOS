@@ -57,7 +57,7 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func activateConnectionAdd() {
-        // TODO: FLW-258
+        wireframe.presentConnectionAdd(from: view)
     }
 
     func activateDefaultConnectionDetails(at index: Int) {

@@ -73,4 +73,16 @@ class PredicateTests: XCTestCase {
         XCTAssertFalse(NSPredicate.seed.evaluate(with: "2x02848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed99696123"))
         XCTAssertFalse(NSPredicate.seed.evaluate(with: ""))
     }
+
+    func testWebsocketPredicate() {
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://cc3-5.kusama.network"))
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "ws://cc3-5.kusama.network"))
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443"))
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "wss://48.1.1.2/"))
+        XCTAssertTrue(NSPredicate.websocket.evaluate(with: "ws://142.42.1.1:8080/"))
+
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://??"))
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://foo.bar?q=Spaces should be encoded"))
+        XCTAssertFalse(NSPredicate.websocket.evaluate(with: "wss://10.1.1.255"))
+    }
 }

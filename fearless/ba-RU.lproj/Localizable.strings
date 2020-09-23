@@ -127,3 +127,8 @@
 "network.info.title" = "Информация об узле";
 "network.info.name" = "Название узла";
 "network.info.address" = "Адрес узла";
+"common.add" = "Добавить";
+"common.update" = "Обновить";
+"connection.add.invalid.error" = "Не удается установить соединение с узлом. Пожалуйста, попробуйте другой узел.";
+"connection.add.unsupported.error" = "К сожалению, сеть не поддерживается. Пожалуйста, попробуйте одну из следующих: %@.";
+"connection.add.already.exists.error" = "Узел уже был добавлен ранее. Пожалуйста, попробуйте другой узел.";
