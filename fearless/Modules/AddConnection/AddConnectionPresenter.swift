@@ -1,10 +1,10 @@
 import Foundation
 import SoraFoundation
 
-final class ModifyConnectionPresenter {
-    weak var view: ModifyConnectionViewProtocol?
-    var wireframe: ModifyConnectionWireframeProtocol!
-    var interactor: ModifyConnectionInteractorInputProtocol!
+final class AddConnectionPresenter {
+    weak var view: AddConnectionViewProtocol?
+    var wireframe: AddConnectionWireframeProtocol!
+    var interactor: AddConnectionInteractorInputProtocol!
 
     private var nameViewModel: InputViewModelProtocol
     private var nodeViewModel: InputViewModelProtocol
@@ -25,7 +25,7 @@ final class ModifyConnectionPresenter {
 
 }
 
-extension ModifyConnectionPresenter: ModifyConnectionPresenterProtocol {
+extension AddConnectionPresenter: AddConnectionPresenterProtocol {
     func setup() {
         view?.set(nameViewModel: nameViewModel)
         view?.set(nodeViewModel: nodeViewModel)
@@ -43,7 +43,7 @@ extension ModifyConnectionPresenter: ModifyConnectionPresenterProtocol {
     }
 }
 
-extension ModifyConnectionPresenter: ModifyConnectionInteractorOutputProtocol {
+extension AddConnectionPresenter: AddConnectionInteractorOutputProtocol {
     func didStartAdding(url: URL) {
         view?.didStartLoading()
     }

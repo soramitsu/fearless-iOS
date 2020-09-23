@@ -5728,19 +5728,19 @@ import Foundation
 import SoraFoundation
 
 
- class MockModifyConnectionViewProtocol: ModifyConnectionViewProtocol, Cuckoo.ProtocolMock {
+ class MockAddConnectionViewProtocol: AddConnectionViewProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ModifyConnectionViewProtocol
+     typealias MocksType = AddConnectionViewProtocol
     
-     typealias Stubbing = __StubbingProxy_ModifyConnectionViewProtocol
-     typealias Verification = __VerificationProxy_ModifyConnectionViewProtocol
+     typealias Stubbing = __StubbingProxy_AddConnectionViewProtocol
+     typealias Verification = __VerificationProxy_AddConnectionViewProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ModifyConnectionViewProtocol?
+    private var __defaultImplStub: AddConnectionViewProtocol?
 
-     func enableDefaultImplementation(_ stub: ModifyConnectionViewProtocol) {
+     func enableDefaultImplementation(_ stub: AddConnectionViewProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -5868,7 +5868,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_ModifyConnectionViewProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_AddConnectionViewProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -5876,49 +5876,49 @@ import SoraFoundation
 	    }
 	    
 	    
-	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockModifyConnectionViewProtocol, Bool> {
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAddConnectionViewProtocol, Bool> {
 	        return .init(manager: cuckoo_manager, name: "isSetup")
 	    }
 	    
 	    
-	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockModifyConnectionViewProtocol, UIViewController> {
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAddConnectionViewProtocol, UIViewController> {
 	        return .init(manager: cuckoo_manager, name: "controller")
 	    }
 	    
 	    
-	    var loadableContentView: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockModifyConnectionViewProtocol, UIView?> {
+	    var loadableContentView: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAddConnectionViewProtocol, UIView?> {
 	        return .init(manager: cuckoo_manager, name: "loadableContentView")
 	    }
 	    
 	    
-	    var shouldDisableInteractionWhenLoading: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockModifyConnectionViewProtocol, Bool> {
+	    var shouldDisableInteractionWhenLoading: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAddConnectionViewProtocol, Bool> {
 	        return .init(manager: cuckoo_manager, name: "shouldDisableInteractionWhenLoading")
 	    }
 	    
 	    
 	    func set<M1: Cuckoo.Matchable>(nameViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: nameViewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionViewProtocol.self, method: "set(nameViewModel: InputViewModelProtocol)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionViewProtocol.self, method: "set(nameViewModel: InputViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
 	    func set<M1: Cuckoo.Matchable>(nodeViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: nodeViewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionViewProtocol.self, method: "set(nodeViewModel: InputViewModelProtocol)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionViewProtocol.self, method: "set(nodeViewModel: InputViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
 	    func didStartLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
 	    }
 	    
 	    func didStopLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionViewProtocol.self, method: "didStopLoading()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionViewProtocol.self, method: "didStopLoading()", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ModifyConnectionViewProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_AddConnectionViewProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -5979,7 +5979,7 @@ import SoraFoundation
 	}
 }
 
- class ModifyConnectionViewProtocolStub: ModifyConnectionViewProtocol {
+ class AddConnectionViewProtocolStub: AddConnectionViewProtocol {
     
     
      var isSetup: Bool {
@@ -6037,19 +6037,19 @@ import SoraFoundation
 
 
 
- class MockModifyConnectionPresenterProtocol: ModifyConnectionPresenterProtocol, Cuckoo.ProtocolMock {
+ class MockAddConnectionPresenterProtocol: AddConnectionPresenterProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ModifyConnectionPresenterProtocol
+     typealias MocksType = AddConnectionPresenterProtocol
     
-     typealias Stubbing = __StubbingProxy_ModifyConnectionPresenterProtocol
-     typealias Verification = __VerificationProxy_ModifyConnectionPresenterProtocol
+     typealias Stubbing = __StubbingProxy_AddConnectionPresenterProtocol
+     typealias Verification = __VerificationProxy_AddConnectionPresenterProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ModifyConnectionPresenterProtocol?
+    private var __defaultImplStub: AddConnectionPresenterProtocol?
 
-     func enableDefaultImplementation(_ stub: ModifyConnectionPresenterProtocol) {
+     func enableDefaultImplementation(_ stub: AddConnectionPresenterProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -6091,7 +6091,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_ModifyConnectionPresenterProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_AddConnectionPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -6101,17 +6101,17 @@ import SoraFoundation
 	    
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
 	    func add() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionPresenterProtocol.self, method: "add()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionPresenterProtocol.self, method: "add()", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ModifyConnectionPresenterProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_AddConnectionPresenterProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -6140,7 +6140,7 @@ import SoraFoundation
 	}
 }
 
- class ModifyConnectionPresenterProtocolStub: ModifyConnectionPresenterProtocol {
+ class AddConnectionPresenterProtocolStub: AddConnectionPresenterProtocol {
     
 
     
@@ -6158,19 +6158,19 @@ import SoraFoundation
 
 
 
- class MockModifyConnectionInteractorInputProtocol: ModifyConnectionInteractorInputProtocol, Cuckoo.ProtocolMock {
+ class MockAddConnectionInteractorInputProtocol: AddConnectionInteractorInputProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ModifyConnectionInteractorInputProtocol
+     typealias MocksType = AddConnectionInteractorInputProtocol
     
-     typealias Stubbing = __StubbingProxy_ModifyConnectionInteractorInputProtocol
-     typealias Verification = __VerificationProxy_ModifyConnectionInteractorInputProtocol
+     typealias Stubbing = __StubbingProxy_AddConnectionInteractorInputProtocol
+     typealias Verification = __VerificationProxy_AddConnectionInteractorInputProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ModifyConnectionInteractorInputProtocol?
+    private var __defaultImplStub: AddConnectionInteractorInputProtocol?
 
-     func enableDefaultImplementation(_ stub: ModifyConnectionInteractorInputProtocol) {
+     func enableDefaultImplementation(_ stub: AddConnectionInteractorInputProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -6197,7 +6197,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_ModifyConnectionInteractorInputProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_AddConnectionInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -6207,12 +6207,12 @@ import SoraFoundation
 	    
 	    func addConnection<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(url: M1, name: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(URL, String)> where M1.MatchedType == URL, M2.MatchedType == String {
 	        let matchers: [Cuckoo.ParameterMatcher<(URL, String)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: name) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionInteractorInputProtocol.self, method: "addConnection(url: URL, name: String)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionInteractorInputProtocol.self, method: "addConnection(url: URL, name: String)", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ModifyConnectionInteractorInputProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_AddConnectionInteractorInputProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -6235,7 +6235,7 @@ import SoraFoundation
 	}
 }
 
- class ModifyConnectionInteractorInputProtocolStub: ModifyConnectionInteractorInputProtocol {
+ class AddConnectionInteractorInputProtocolStub: AddConnectionInteractorInputProtocol {
     
 
     
@@ -6249,19 +6249,19 @@ import SoraFoundation
 
 
 
- class MockModifyConnectionInteractorOutputProtocol: ModifyConnectionInteractorOutputProtocol, Cuckoo.ProtocolMock {
+ class MockAddConnectionInteractorOutputProtocol: AddConnectionInteractorOutputProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ModifyConnectionInteractorOutputProtocol
+     typealias MocksType = AddConnectionInteractorOutputProtocol
     
-     typealias Stubbing = __StubbingProxy_ModifyConnectionInteractorOutputProtocol
-     typealias Verification = __VerificationProxy_ModifyConnectionInteractorOutputProtocol
+     typealias Stubbing = __StubbingProxy_AddConnectionInteractorOutputProtocol
+     typealias Verification = __VerificationProxy_AddConnectionInteractorOutputProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ModifyConnectionInteractorOutputProtocol?
+    private var __defaultImplStub: AddConnectionInteractorOutputProtocol?
 
-     func enableDefaultImplementation(_ stub: ModifyConnectionInteractorOutputProtocol) {
+     func enableDefaultImplementation(_ stub: AddConnectionInteractorOutputProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -6318,7 +6318,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_ModifyConnectionInteractorOutputProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_AddConnectionInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -6328,22 +6328,22 @@ import SoraFoundation
 	    
 	    func didStartAdding<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(URL)> where M1.MatchedType == URL {
 	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionInteractorOutputProtocol.self, method: "didStartAdding(url: URL)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionInteractorOutputProtocol.self, method: "didStartAdding(url: URL)", parameterMatchers: matchers))
 	    }
 	    
 	    func didCompleteAdding<M1: Cuckoo.Matchable>(url: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(URL)> where M1.MatchedType == URL {
 	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionInteractorOutputProtocol.self, method: "didCompleteAdding(url: URL)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionInteractorOutputProtocol.self, method: "didCompleteAdding(url: URL)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveError<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(error: M1, for url: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Error, URL)> where M1.MatchedType == Error, M2.MatchedType == URL {
 	        let matchers: [Cuckoo.ParameterMatcher<(Error, URL)>] = [wrap(matchable: error) { $0.0 }, wrap(matchable: url) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionInteractorOutputProtocol.self, method: "didReceiveError(error: Error, for: URL)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionInteractorOutputProtocol.self, method: "didReceiveError(error: Error, for: URL)", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ModifyConnectionInteractorOutputProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_AddConnectionInteractorOutputProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -6378,7 +6378,7 @@ import SoraFoundation
 	}
 }
 
- class ModifyConnectionInteractorOutputProtocolStub: ModifyConnectionInteractorOutputProtocol {
+ class AddConnectionInteractorOutputProtocolStub: AddConnectionInteractorOutputProtocol {
     
 
     
@@ -6400,19 +6400,19 @@ import SoraFoundation
 
 
 
- class MockModifyConnectionWireframeProtocol: ModifyConnectionWireframeProtocol, Cuckoo.ProtocolMock {
+ class MockAddConnectionWireframeProtocol: AddConnectionWireframeProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ModifyConnectionWireframeProtocol
+     typealias MocksType = AddConnectionWireframeProtocol
     
-     typealias Stubbing = __StubbingProxy_ModifyConnectionWireframeProtocol
-     typealias Verification = __VerificationProxy_ModifyConnectionWireframeProtocol
+     typealias Stubbing = __StubbingProxy_AddConnectionWireframeProtocol
+     typealias Verification = __VerificationProxy_AddConnectionWireframeProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ModifyConnectionWireframeProtocol?
+    private var __defaultImplStub: AddConnectionWireframeProtocol?
 
-     func enableDefaultImplementation(_ stub: ModifyConnectionWireframeProtocol) {
+     func enableDefaultImplementation(_ stub: AddConnectionWireframeProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -6425,9 +6425,9 @@ import SoraFoundation
     
     
     
-     func close(view: ModifyConnectionViewProtocol?)  {
+     func close(view: AddConnectionViewProtocol?)  {
         
-    return cuckoo_manager.call("close(view: ModifyConnectionViewProtocol?)",
+    return cuckoo_manager.call("close(view: AddConnectionViewProtocol?)",
             parameters: (view),
             escapingParameters: (view),
             superclassCall:
@@ -6469,7 +6469,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_ModifyConnectionWireframeProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_AddConnectionWireframeProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -6477,24 +6477,24 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func close<M1: Cuckoo.OptionalMatchable>(view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ModifyConnectionViewProtocol?)> where M1.OptionalMatchedType == ModifyConnectionViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(ModifyConnectionViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionWireframeProtocol.self, method: "close(view: ModifyConnectionViewProtocol?)", parameterMatchers: matchers))
+	    func close<M1: Cuckoo.OptionalMatchable>(view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AddConnectionViewProtocol?)> where M1.OptionalMatchedType == AddConnectionViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AddConnectionViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionWireframeProtocol.self, method: "close(view: AddConnectionViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModifyConnectionWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAddConnectionWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ModifyConnectionWireframeProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_AddConnectionWireframeProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -6509,9 +6509,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func close<M1: Cuckoo.OptionalMatchable>(view: M1) -> Cuckoo.__DoNotUse<(ModifyConnectionViewProtocol?), Void> where M1.OptionalMatchedType == ModifyConnectionViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(ModifyConnectionViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return cuckoo_manager.verify("close(view: ModifyConnectionViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func close<M1: Cuckoo.OptionalMatchable>(view: M1) -> Cuckoo.__DoNotUse<(AddConnectionViewProtocol?), Void> where M1.OptionalMatchedType == AddConnectionViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(AddConnectionViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("close(view: AddConnectionViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -6529,13 +6529,13 @@ import SoraFoundation
 	}
 }
 
- class ModifyConnectionWireframeProtocolStub: ModifyConnectionWireframeProtocol {
+ class AddConnectionWireframeProtocolStub: AddConnectionWireframeProtocol {
     
 
     
 
     
-     func close(view: ModifyConnectionViewProtocol?)   {
+     func close(view: AddConnectionViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

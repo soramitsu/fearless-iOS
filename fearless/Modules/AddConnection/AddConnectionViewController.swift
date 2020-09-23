@@ -2,8 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class ModifyConnectionViewController: UIViewController {
-    var presenter: ModifyConnectionPresenterProtocol!
+final class AddConnectionViewController: UIViewController {
+    var presenter: AddConnectionPresenterProtocol!
 
     @IBOutlet private var nameBackgroundView: TriangularedView!
     @IBOutlet private var nameField: AnimatedTextField!
@@ -83,7 +83,7 @@ final class ModifyConnectionViewController: UIViewController {
     }
 }
 
-extension ModifyConnectionViewController: ModifyConnectionViewProtocol {
+extension AddConnectionViewController: AddConnectionViewProtocol {
     func set(nameViewModel: InputViewModelProtocol) {
         self.nameViewModel = nameViewModel
 
@@ -97,7 +97,7 @@ extension ModifyConnectionViewController: ModifyConnectionViewProtocol {
     }
 }
 
-extension ModifyConnectionViewController: AnimatedTextFieldDelegate {
+extension AddConnectionViewController: AnimatedTextFieldDelegate {
     func animatedTextField(_ textField: AnimatedTextField,
                            shouldChangeCharactersIn range: NSRange,
                            replacementString string: String) -> Bool {
@@ -128,7 +128,7 @@ extension ModifyConnectionViewController: AnimatedTextFieldDelegate {
     }
 }
 
-extension ModifyConnectionViewController: Localizable {
+extension AddConnectionViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

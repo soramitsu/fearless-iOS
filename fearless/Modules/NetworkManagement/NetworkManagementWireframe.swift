@@ -43,7 +43,7 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
     }
 
     func presentConnectionAdd(from view: NetworkManagementViewProtocol?) {
-        guard let addConnectionView = ModifyConnectionViewFactory.createView() else {
+        guard let addConnectionView = AddConnectionViewFactory.createView() else {
             return
         }
 

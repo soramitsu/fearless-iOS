@@ -2,8 +2,8 @@ import UIKit
 import RobinHood
 import IrohaCrypto
 
-final class ModifyConnectionInteractor {
-    weak var presenter: ModifyConnectionInteractorOutputProtocol!
+final class AddConnectionInteractor {
+    weak var presenter: AddConnectionInteractorOutputProtocol!
 
     private let repository: AnyDataProviderRepository<ManagedConnectionItem>
     private let operationManager: OperationManagerProtocol
@@ -30,10 +30,10 @@ final class ModifyConnectionInteractor {
     }
 }
 
-extension ModifyConnectionInteractor: ModifyConnectionInteractorInputProtocol {
+extension AddConnectionInteractor: AddConnectionInteractorInputProtocol {
     func addConnection(url: URL, name: String) {
         guard ConnectionItem.supportedConnections.first(where: { $0.url == url }) == nil else {
-            presenter.didReceiveError(error: ModifyConnectionError.alreadyExists, for: url)
+            presenter.didReceiveError(error: AddConnectionError.alreadyExists, for: url)
             return
         }
 
@@ -50,16 +50,16 @@ extension ModifyConnectionInteractor: ModifyConnectionInteractorInputProtocol {
 
         let saveOperation = repository.saveOperation({
             guard case .success(let rawType) = fetchNetworkOperation.result else {
-                throw ModifyConnectionError.invalidConnection
+                throw AddConnectionError.invalidConnection
             }
 
             guard let chain = Chain(rawValue: rawType) else {
-                throw ModifyConnectionError.unsupportedChain(SNAddressType.supported)
+                throw AddConnectionError.unsupportedChain(SNAddressType.supported)
             }
 
             guard try searchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) == nil else {
-                throw ModifyConnectionError.alreadyExists
+                throw AddConnectionError.alreadyExists
             }
 
             let maxOrder = try maxOrderOperation

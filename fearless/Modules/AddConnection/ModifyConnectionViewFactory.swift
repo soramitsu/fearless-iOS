@@ -2,8 +2,8 @@ import Foundation
 import SoraFoundation
 import RobinHood
 
-final class ModifyConnectionViewFactory: ModifyConnectionViewFactoryProtocol {
-    static func createView() -> ModifyConnectionViewProtocol? {
+final class AddConnectionViewFactory: AddConnectionViewFactoryProtocol {
+    static func createView() -> AddConnectionViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let connectionsMapper = ManagedConnectionItemMapper()
         let connectionsRepository = facade.createRepository(filter: nil,
@@ -12,12 +12,12 @@ final class ModifyConnectionViewFactory: ModifyConnectionViewFactoryProtocol {
 
         let substrateOperationFactory = SubstrateOperationFactory(logger: Logger.shared)
 
-        let view = ModifyConnectionViewController(nib: R.nib.modifyConnectionViewController)
-        let presenter = ModifyConnectionPresenter(localizationManager: LocalizationManager.shared)
-        let interactor = ModifyConnectionInteractor(repository: AnyDataProviderRepository(connectionsRepository),
+        let view = AddConnectionViewController(nib: R.nib.addConnectionViewController)
+        let presenter = AddConnectionPresenter(localizationManager: LocalizationManager.shared)
+        let interactor = AddConnectionInteractor(repository: AnyDataProviderRepository(connectionsRepository),
                                                     operationManager: OperationManagerFacade.sharedManager,
                                                     substrateOperationFactory: substrateOperationFactory)
-        let wireframe = ModifyConnectionWireframe()
+        let wireframe = AddConnectionWireframe()
 
         view.presenter = presenter
         presenter.view = view

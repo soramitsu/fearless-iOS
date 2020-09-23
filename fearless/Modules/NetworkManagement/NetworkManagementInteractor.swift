@@ -140,7 +140,7 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
         let operation = connectionsRepository.saveOperation({ items }, { [] })
         operationManager.enqueue(operations: [operation], in: .sync)
     }
-    
+
     func remove(item: ManagedConnectionItem) {
         let operation = connectionsRepository.saveOperation({ [] }, { [item.identifier] })
         operationManager.enqueue(operations: [operation], in: .sync)
