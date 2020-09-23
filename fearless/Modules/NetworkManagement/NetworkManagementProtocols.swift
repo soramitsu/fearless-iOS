@@ -30,6 +30,8 @@ protocol NetworkManagementInteractorInputProtocol: class {
     func setup()
     func select(connection: ConnectionItem)
     func select(connection: ConnectionItem, account: AccountItem)
+    func save(items: [ManagedConnectionItem])
+    func remove(item: ManagedConnectionItem)
 }
 
 protocol NetworkManagementInteractorOutputProtocol: class {

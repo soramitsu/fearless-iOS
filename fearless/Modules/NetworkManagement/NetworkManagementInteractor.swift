@@ -135,4 +135,14 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
         eventCenter.notify(with: SelectedConnectionChanged())
         eventCenter.notify(with: SelectedAccountChanged())
     }
+
+    func save(items: [ManagedConnectionItem]) {
+        let operation = connectionsRepository.saveOperation({ items }, { [] })
+        operationManager.enqueue(operations: [operation], in: .sync)
+    }
+    
+    func remove(item: ManagedConnectionItem) {
+        let operation = connectionsRepository.saveOperation({ [] }, { [item.identifier] })
+        operationManager.enqueue(operations: [operation], in: .sync)
+    }
 }
