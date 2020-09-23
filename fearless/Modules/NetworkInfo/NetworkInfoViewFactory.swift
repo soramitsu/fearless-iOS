@@ -2,10 +2,10 @@ import Foundation
 import SoraFoundation
 
 final class NetworkInfoViewFactory: NetworkInfoViewFactoryProtocol {
-    static func createView(with connectionItem: ConnectionItem, readOnly: Bool) -> NetworkInfoViewProtocol? {
+    static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol? {
         let view = NetworkInfoViewController(nib: R.nib.networkInfoViewController)
         let presenter = NetworkInfoPresenter(connectionItem: connectionItem,
-                                             readOnly: readOnly,
+                                             mode: mode,
                                              localizationManager: LocalizationManager.shared)
         let interactor = NetworkInfoInteractor()
         let wireframe = NetworkInfoWireframe()

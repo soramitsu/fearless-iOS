@@ -31,10 +31,10 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
     }
 
     func presentConnectionInfo(_ connectionItem: ConnectionItem,
-                               readOnly: Bool,
+                               mode: NetworkInfoMode,
                                from view: NetworkManagementViewProtocol?) {
         guard let networkInfoView = NetworkInfoViewFactory.createView(with: connectionItem,
-                                                                      readOnly: readOnly) else {
+                                                                      mode: mode) else {
             return
         }
 
