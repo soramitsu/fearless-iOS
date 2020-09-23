@@ -56,6 +56,8 @@ protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable 
     func presentConnectionInfo(_ connectionItem: ConnectionItem,
                                readOnly: Bool,
                                from view: NetworkManagementViewProtocol?)
+
+    func presentConnectionAdd(from view: NetworkManagementViewProtocol?)
 }
 
 protocol NetworkManagementViewFactoryProtocol: class {

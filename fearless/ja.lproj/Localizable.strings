@@ -128,3 +128,8 @@ a type of password.";
 "network.info.title" = "ノード情報";
 "network.info.name" = "ノード名";
 "network.info.address" = "ノードアドレス";
+"common.add" = "追加";
+"common.update" = "更新";
+"connection.add.invalid.error" = "ノードとの接続を確立できません。別のものを試してください。";
+"connection.add.unsupported.error" = "残念ながら、ネットワークはサポートされていません。次のいずれかを試してください： %@ 。";
+"connection.add.already.exists.error" = "ノードはすでに以前に追加されています。別のノードを試してください。";

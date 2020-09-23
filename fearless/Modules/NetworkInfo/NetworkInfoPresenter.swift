@@ -21,7 +21,11 @@ final class NetworkInfoPresenter {
         let nameInputHandling = InputHandler(value: connectionItem.title, enabled: !readOnly)
         nameViewModel = InputViewModel(inputHandler: nameInputHandling)
 
-        let nodeInputHandling = InputHandler(value: connectionItem.identifier, enabled: !readOnly)
+        let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
+        let nodeInputHandling = InputHandler(value: connectionItem.identifier,
+                                             enabled: !readOnly,
+                                             predicate: NSPredicate.websocket,
+                                             processor: processor)
         nodeViewModel = InputViewModel(inputHandler: nodeInputHandling)
     }
 }
@@ -33,7 +37,7 @@ extension NetworkInfoPresenter: NetworkInfoPresenterProtocol {
     }
 
     func activateCopy() {
-        UIPasteboard.general.string = nodeViewModel.inputHandler.value
+        UIPasteboard.general.string = nodeViewModel.inputHandler.normalizedValue
 
         let locale = localizationManager.selectedLocale
         let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)

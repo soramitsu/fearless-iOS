@@ -1024,3 +1024,101 @@ import Cuckoo
 
 import Foundation
 import Starscream
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
+import RobinHood
+
+
+ class MockSubstrateOperationFactoryProtocol: SubstrateOperationFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = SubstrateOperationFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_SubstrateOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_SubstrateOperationFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: SubstrateOperationFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: SubstrateOperationFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func fetchChainOperation(_ url: URL) -> BaseOperation<String> {
+        
+    return cuckoo_manager.call("fetchChainOperation(_: URL) -> BaseOperation<String>",
+            parameters: (url),
+            escapingParameters: (url),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.fetchChainOperation(url))
+        
+    }
+    
+
+	 struct __StubbingProxy_SubstrateOperationFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func fetchChainOperation<M1: Cuckoo.Matchable>(_ url: M1) -> Cuckoo.ProtocolStubFunction<(URL), BaseOperation<String>> where M1.MatchedType == URL {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSubstrateOperationFactoryProtocol.self, method: "fetchChainOperation(_: URL) -> BaseOperation<String>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_SubstrateOperationFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func fetchChainOperation<M1: Cuckoo.Matchable>(_ url: M1) -> Cuckoo.__DoNotUse<(URL), BaseOperation<String>> where M1.MatchedType == URL {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL)>] = [wrap(matchable: url) { $0 }]
+	        return cuckoo_manager.verify("fetchChainOperation(_: URL) -> BaseOperation<String>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class SubstrateOperationFactoryProtocolStub: SubstrateOperationFactoryProtocol {
+    
+
+    
+
+    
+     func fetchChainOperation(_ url: URL) -> BaseOperation<String>  {
+        return DefaultValueRegistry.defaultValue(for: (BaseOperation<String>).self)
+    }
+    
+}
+

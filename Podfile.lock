@@ -84,7 +84,7 @@ PODS:
   - SoraUI/PinView (1.9.2):
     - SoraUI/Controls
   - SoraUI/Skrull (1.9.2)
-  - Starscream (4.0.3)
+  - Starscream (4.0.4)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
   - TweetNacl (1.0.2)
@@ -153,7 +153,7 @@ SPEC CHECKSUMS:
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
   SoraUI: b0bba88160397ef4f1543f4c1841569b7a614579
-  Starscream: ef06f0961fff0880bca0604416d61141e4faca67
+  Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6

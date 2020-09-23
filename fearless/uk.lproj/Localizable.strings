@@ -130,3 +130,8 @@
 "network.info.title" = "Інформація про вузол";
 "network.info.name" = "Ім'я вузла";
 "network.info.address" = "Адреса вузла";
+"common.add" = "Додати";
+"common.update" = "Оновлення";
+"connection.add.invalid.error" = "Не вдається встановити зв’язок з вузлом. Будь ласка, спробуйте інший.";
+"connection.add.unsupported.error" = "На жаль, мережа не підтримується. Спробуйте одне з наступного: %@.";
+"connection.add.already.exists.error" = "Вузол вже додано раніше. Будь ласка, спробуйте інший вузол.";

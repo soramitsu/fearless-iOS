@@ -14,7 +14,7 @@ class JSONRPCTests: XCTestCase {
     func testGetMethods() {
         // given
 
-        let url = URL(string: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443")!
+        let url = URL(string: "wss://kusama-rpc.polkadot.io")!
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
@@ -33,6 +33,33 @@ class JSONRPCTests: XCTestCase {
         do {
             let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             logger.debug("Received response: \(result.methods)")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testNetworkType() {
+        // given
+
+        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let operation = JSONRPCOperation<String>(engine: engine,
+                                                 method: "system_chain",
+                                                 parameters: [])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            logger.debug("Received response: \(result)")
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
