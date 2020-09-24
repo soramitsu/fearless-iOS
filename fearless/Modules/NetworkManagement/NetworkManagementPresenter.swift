@@ -71,15 +71,21 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let connection = defaultConnectionItems[index]
 
         wireframe.presentConnectionInfo(connection,
-                                        readOnly: true,
+                                        mode: .none,
                                         from: view)
     }
 
     func activateCustomConnectionDetails(at index: Int) {
         let connection = ConnectionItem(managedConnectionItem: listCalculator.allItems[index])
 
+        var mode: NetworkInfoMode = .name
+
+        if connection.identifier != selectedConnectionItem?.identifier {
+            mode.formUnion(.node)
+        }
+
         wireframe.presentConnectionInfo(connection,
-                                        readOnly: false,
+                                        mode: mode,
                                         from: view)
     }
 

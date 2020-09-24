@@ -45,25 +45,22 @@ final class NetworkInfoInteractor {
                                  for: newUrl)
         }
     }
-}
 
-extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
-    func updateConnection(_ oldConnection: ConnectionItem, newURL: URL, newName: String) {
-        guard oldConnection.url != newURL || oldConnection.title != newName else {
-            presenter.didCompleteConnectionUpdate(with: newURL)
-            return
-        }
-
-        presenter.didStartConnectionUpdate(with: newURL)
-
-        let fetchItemOperation = repository.fetchOperation(by: oldConnection.identifier,
-                                                           options: RepositoryFetchOptions())
-        let networkTypeOperation = substrateOperationFactory.fetchChainOperation(newURL)
-
+    private func createSaveOperationDependingOn(fetchOldItemOperation: BaseOperation<ManagedConnectionItem?>,
+                                                fetchNewItemOperation: BaseOperation<ManagedConnectionItem?>,
+                                                networkTypeOperation: BaseOperation<String>,
+                                                newName: String,
+                                                newURL: URL) -> BaseOperation<Void> {
         let saveOperation = repository.saveOperation({
-            guard let oldManagedItem = try fetchItemOperation
+            guard let oldManagedItem = try fetchOldItemOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
                 return []
+            }
+
+            if let newItem = try fetchNewItemOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
+                newItem.identifier != oldManagedItem.identifier {
+                throw AddConnectionError.alreadyExists
             }
 
             guard case .success(let rawType) = networkTypeOperation.result else {
@@ -82,17 +79,55 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
             return [newManagedItem]
         }, {
             guard
-                let oldManagedItem = try fetchItemOperation
+                let oldManagedItem = try fetchOldItemOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
                 oldManagedItem.url != newURL else {
                 return []
             }
 
+            if let newItem = try fetchNewItemOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
+                newItem.identifier != oldManagedItem.identifier {
+                throw AddConnectionError.alreadyExists
+            }
+
             return [oldManagedItem.identifier]
         })
 
-        saveOperation.addDependency(fetchItemOperation)
+        saveOperation.addDependency(fetchOldItemOperation)
+        saveOperation.addDependency(fetchNewItemOperation)
         saveOperation.addDependency(networkTypeOperation)
+
+        return saveOperation
+    }
+}
+
+extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
+    func updateConnection(_ oldConnection: ConnectionItem, newURL: URL, newName: String) {
+        guard oldConnection.url != newURL || oldConnection.title != newName else {
+            presenter.didCompleteConnectionUpdate(with: newURL)
+            return
+        }
+
+        guard ConnectionItem.supportedConnections.first(where: { $0.url == newURL }) == nil else {
+            presenter.didReceive(error: AddConnectionError.alreadyExists, for: newURL)
+            return
+        }
+
+        presenter.didStartConnectionUpdate(with: newURL)
+
+        let fetchOldItemOperation = repository.fetchOperation(by: oldConnection.identifier,
+                                                           options: RepositoryFetchOptions())
+        let networkTypeOperation = substrateOperationFactory.fetchChainOperation(newURL)
+
+        let fetchNewItemOperation = repository.fetchOperation(by: newURL.absoluteString,
+                                                              options: RepositoryFetchOptions())
+
+        let saveOperation = createSaveOperationDependingOn(fetchOldItemOperation: fetchOldItemOperation,
+                                                           fetchNewItemOperation: fetchNewItemOperation,
+                                                           networkTypeOperation: networkTypeOperation,
+                                                           newName: newName,
+                                                           newURL: newURL)
 
         saveOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -103,7 +138,7 @@ extension NetworkInfoInteractor: NetworkInfoInteractorInputProtocol {
             }
         }
 
-        let operations = [fetchItemOperation, networkTypeOperation, saveOperation]
+        let operations = [fetchOldItemOperation, fetchNewItemOperation, networkTypeOperation, saveOperation]
         operationManager.enqueue(operations: operations, in: .transient)
     }
 }

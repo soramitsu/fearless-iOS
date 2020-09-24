@@ -4,7 +4,7 @@ import RobinHood
 import SoraFoundation
 import Cuckoo
 
-class ModifyConnectionTests: XCTestCase {
+class AddConnectionTests: XCTestCase {
 
     func testConnectionAdd() throws {
         // given

@@ -30,6 +30,5 @@ protocol NetworkInfoWireframeProtocol: AlertPresentable, ErrorPresentable, Modal
 }
 
 protocol NetworkInfoViewFactoryProtocol: class {
-	static func createView(with connectionItem: ConnectionItem,
-                           mode: NetworkInfoMode) -> NetworkInfoViewProtocol?
+	static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol?
 }

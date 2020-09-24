@@ -32,7 +32,7 @@
 		4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2A0AC679F039526102165678 /* AccountManagementViewController.xib */; };
 		501347BEA67CD30FE484358E /* AccountImportViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E60EF37AC0A7646ED8FE64 /* AccountImportViewFactory.swift */; };
 		5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18B94164B49123E62FA60B7 /* AccountManagementViewFactory.swift */; };
-		58F5836B372CF673E02DB071 /* ModifyConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BB979A0040FE1AFA1E3CF /* ModifyConnectionTests.swift */; };
+		58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */; };
 		5BA47B0F2286D41E7056DA0F /* AddConnectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C97681A329ED47837745C1A /* AddConnectionInteractor.swift */; };
 		607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EDA19BC3280F1838C687EC8 /* NetworkInfoViewFactory.swift */; };
 		612FCA358D3DD9405477C445 /* AddConnectionWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F8C3A0D633E77830B588D0E /* AddConnectionWireframe.swift */; };
@@ -420,7 +420,7 @@
 		356A97EF267D4ED718D274BB /* AddConnectionViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AddConnectionViewController.xib; sourceTree = "<group>"; };
 		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		3B0E2EDF787BF82F16663215 /* NetworkInfoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoViewController.swift; sourceTree = "<group>"; };
-		3E3BB979A0040FE1AFA1E3CF /* ModifyConnectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModifyConnectionTests.swift; sourceTree = "<group>"; };
+		3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionTests.swift; sourceTree = "<group>"; };
 		3E992CCDC1D581F7E9D3F1CA /* AccountConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmInteractor.swift; sourceTree = "<group>"; };
 		3EDA19BC3280F1838C687EC8 /* NetworkInfoViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoViewFactory.swift; sourceTree = "<group>"; };
 		3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementProtocols.swift; sourceTree = "<group>"; };
@@ -980,7 +980,7 @@
 				78B2BD7ABE3B10571DAB69C0 /* AccountInfo */,
 				8D1ECC1A61E3F7E33FC44649 /* NetworkManagement */,
 				2A2F3894A7579E6350749C61 /* NetworkInfo */,
-				D5FF95FE026FFD0875E56413 /* ModifyConnection */,
+				D5FF95FE026FFD0875E56413 /* AddConnection */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -2198,12 +2198,12 @@
 			path = UsernameSetup;
 			sourceTree = "<group>";
 		};
-		D5FF95FE026FFD0875E56413 /* ModifyConnection */ = {
+		D5FF95FE026FFD0875E56413 /* AddConnection */ = {
 			isa = PBXGroup;
 			children = (
-				3E3BB979A0040FE1AFA1E3CF /* ModifyConnectionTests.swift */,
+				3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */,
 			);
-			path = ModifyConnection;
+			path = AddConnection;
 			sourceTree = "<group>";
 		};
 		E0365BD2CD56E133B3EB6AC2 /* AccountInfo */ = {
@@ -2946,7 +2946,7 @@
 				036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */,
 				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
 				91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */,
-				58F5836B372CF673E02DB071 /* ModifyConnectionTests.swift in Sources */,
+				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

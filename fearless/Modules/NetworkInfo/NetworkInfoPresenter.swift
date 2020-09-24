@@ -57,7 +57,7 @@ extension NetworkInfoPresenter: NetworkInfoPresenterProtocol {
 
         interactor.updateConnection(connectionItem,
                                     newURL: url,
-                                    newName: nodeViewModel.inputHandler.value)
+                                    newName: nameViewModel.inputHandler.value)
     }
 }
 
