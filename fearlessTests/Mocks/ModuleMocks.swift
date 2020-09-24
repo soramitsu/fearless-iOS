@@ -7845,6 +7845,36 @@ import RobinHood
         
     }
     
+    
+    
+     func save(items: [ManagedConnectionItem])  {
+        
+    return cuckoo_manager.call("save(items: [ManagedConnectionItem])",
+            parameters: (items),
+            escapingParameters: (items),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.save(items: items))
+        
+    }
+    
+    
+    
+     func remove(item: ManagedConnectionItem)  {
+        
+    return cuckoo_manager.call("remove(item: ManagedConnectionItem)",
+            parameters: (item),
+            escapingParameters: (item),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.remove(item: item))
+        
+    }
+    
 
 	 struct __StubbingProxy_NetworkManagementInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -7867,6 +7897,16 @@ import RobinHood
 	    func select<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(connection: M1, account: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ConnectionItem, AccountItem)> where M1.MatchedType == ConnectionItem, M2.MatchedType == AccountItem {
 	        let matchers: [Cuckoo.ParameterMatcher<(ConnectionItem, AccountItem)>] = [wrap(matchable: connection) { $0.0 }, wrap(matchable: account) { $0.1 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorInputProtocol.self, method: "select(connection: ConnectionItem, account: AccountItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func save<M1: Cuckoo.Matchable>(items: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([ManagedConnectionItem])> where M1.MatchedType == [ManagedConnectionItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ManagedConnectionItem])>] = [wrap(matchable: items) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorInputProtocol.self, method: "save(items: [ManagedConnectionItem])", parameterMatchers: matchers))
+	    }
+	    
+	    func remove<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedConnectionItem)> where M1.MatchedType == ManagedConnectionItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedConnectionItem)>] = [wrap(matchable: item) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkManagementInteractorInputProtocol.self, method: "remove(item: ManagedConnectionItem)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -7903,6 +7943,18 @@ import RobinHood
 	        return cuckoo_manager.verify("select(connection: ConnectionItem, account: AccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func save<M1: Cuckoo.Matchable>(items: M1) -> Cuckoo.__DoNotUse<([ManagedConnectionItem]), Void> where M1.MatchedType == [ManagedConnectionItem] {
+	        let matchers: [Cuckoo.ParameterMatcher<([ManagedConnectionItem])>] = [wrap(matchable: items) { $0 }]
+	        return cuckoo_manager.verify("save(items: [ManagedConnectionItem])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func remove<M1: Cuckoo.Matchable>(item: M1) -> Cuckoo.__DoNotUse<(ManagedConnectionItem), Void> where M1.MatchedType == ManagedConnectionItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedConnectionItem)>] = [wrap(matchable: item) { $0 }]
+	        return cuckoo_manager.verify("remove(item: ManagedConnectionItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -7921,6 +7973,14 @@ import RobinHood
     }
     
      func select(connection: ConnectionItem, account: AccountItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func save(items: [ManagedConnectionItem])   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func remove(item: ManagedConnectionItem)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

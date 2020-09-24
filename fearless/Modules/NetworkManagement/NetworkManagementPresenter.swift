@@ -33,21 +33,28 @@ final class NetworkManagementPresenter {
     }
 
     private func updateViewModels() {
-        defaultConnectionViewModels = defaultConnectionItems.map { item in
+        let newDefaultConnectionViewModels: [ManagedConnectionViewModel] = defaultConnectionItems.map { item in
             let selected: Bool = item.identifier == selectedConnectionItem?.identifier
 
             return viewModelFactory.createViewModelFromConnectionItem(item,
                                                                       selected: selected)
         }
 
-        customConnectionViewModels = listCalculator.allItems.map { item in
+        let newCustomConnectionViewModels: [ManagedConnectionViewModel] = listCalculator.allItems.map { item in
             let selected: Bool = item.identifier == selectedConnectionItem?.identifier
 
             return viewModelFactory.createViewModelFromManagedItem(item,
                                                                    selected: selected)
         }
 
-        view?.reload()
+        if
+            defaultConnectionViewModels != newDefaultConnectionViewModels ||
+                customConnectionViewModels != newCustomConnectionViewModels  {
+            defaultConnectionViewModels = newDefaultConnectionViewModels
+            customConnectionViewModels = newCustomConnectionViewModels
+
+            view?.reload()
+        }
     }
 }
 
@@ -93,11 +100,43 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func moveCustomItem(at startIndex: Int, to finalIndex: Int) {
-        // TODO: FWL-259
+        guard startIndex != finalIndex else {
+            return
+        }
+
+        var saveItems: [ManagedConnectionItem]
+
+        if startIndex > finalIndex {
+            saveItems = customConnectionViewModels[finalIndex...startIndex].map { viewModel in
+                listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
+            }
+        } else {
+            saveItems = customConnectionViewModels[startIndex...finalIndex].map { viewModel in
+                listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
+            }.reversed()
+        }
+
+        let targetViewModel = customConnectionViewModels.remove(at: startIndex)
+        customConnectionViewModels.insert(targetViewModel, at: finalIndex)
+
+        let initialOrder = saveItems[0].order
+
+        for index in (0..<saveItems.count - 1) {
+            saveItems[index] = saveItems[index].replacingOrder(saveItems[index+1].order)
+        }
+
+        let lastIndex = saveItems.count - 1
+        saveItems[lastIndex] = saveItems[lastIndex].replacingOrder(initialOrder)
+
+        interactor.save(items: saveItems)
     }
 
     func removeCustomItem(at index: Int) {
-        // TODO: FWL-259
+        let viewModel = customConnectionViewModels.remove(at: index)
+
+        if let item = listCalculator.allItems.first(where: { $0.identifier == viewModel.identifier }) {
+            interactor.remove(item: item)
+        }
     }
 
     func defaultConnection(at index: Int) -> ManagedConnectionViewModel {

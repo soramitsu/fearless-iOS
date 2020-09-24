@@ -21,7 +21,7 @@ extension ModifyConnectionError: ErrorContentConvertible {
         case .unsupportedChain(let supported):
             let supported: String = supported
                 .map { $0.titleForLocale(locale ?? Locale.current) }
-                .joined(separator: " ,")
+                .joined(separator: ", ")
 
             message = R.string.localizable.connectionAddUnsupportedError(supported,
                                                                          preferredLanguages: locale?.rLanguages)

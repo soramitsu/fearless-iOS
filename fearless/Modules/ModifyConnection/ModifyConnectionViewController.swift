@@ -33,6 +33,7 @@ final class ModifyConnectionViewController: UIViewController {
         nodeField.textField.textContentType = .URL
         nodeField.textField.autocapitalizationType = .none
         nodeField.textField.spellCheckingType = .no
+        nodeField.textField.autocorrectionType = .no
         nodeField.textField.returnKeyType = .done
         nodeField.textField.keyboardType = .URL
 
