@@ -7,8 +7,8 @@ struct WalletCommonStyleConfigurator {
                                             icon: R.image.iconWarning()!)
 
     let navigationBarStyle: WalletNavigationBarStyleProtocol = {
-        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorAlmostBlack()!,
-                                                          shadowColor: R.color.colorDarkGray()!,
+        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorBlack()!,
+                                                          shadowColor: .clear,
                                                           itemTintColor: R.color.colorWhite()!,
                                                           titleColor: R.color.colorWhite()!,
                                                           titleFont: UIFont.h3Title)
@@ -22,15 +22,15 @@ struct WalletCommonStyleConfigurator {
 extension WalletCommonStyleConfigurator {
     func configure(builder: WalletStyleBuilderProtocol) {
         builder
-        .with(background: R.color.colorAlmostBlack()!)
+        .with(background: R.color.colorBlack()!)
         .with(navigationBarStyle: navigationBarStyle)
-        .with(header1: R.font.soraRc0040417Bold(size: 30.0)!)
-        .with(header2: R.font.soraRc0040417SemiBold(size: 18.0)!)
-        .with(header3: R.font.soraRc0040417Bold(size: 16.0)!)
-        .with(header4: R.font.soraRc0040417Bold(size: 15.0)!)
-        .with(bodyBold: R.font.soraRc0040417Bold(size: 14.0)!)
-        .with(bodyRegular: R.font.soraRc0040417Regular(size: 14.0)!)
-        .with(small: R.font.soraRc0040417Regular(size: 14.0)!)
+        .with(header1: UIFont.h1Title)
+        .with(header2: UIFont.h2Title)
+        .with(header3: UIFont.h3Title)
+        .with(header4: UIFont.h4Title)
+        .with(bodyBold: UIFont.h5Title)
+        .with(bodyRegular: UIFont.p1Paragraph)
+        .with(small: UIFont.p2Paragraph)
         .with(keyboardIcon: R.image.iconKeyboardOff()!)
         .with(caretColor: R.color.colorWhite()!)
         .with(inlineErrorStyle: errorStyle)

@@ -8,10 +8,6 @@ final class StubCommandDecorator: WalletCommandDecoratorProtocol {
 }
 
 final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol {
-    func createSendCommandDecorator(with commandFactory: WalletCommandFactoryProtocol)
-        -> WalletCommandDecoratorProtocol? {
-        StubCommandDecorator()
-    }
     func createReceiveCommandDecorator(with commandFactory: WalletCommandFactoryProtocol)
         -> WalletCommandDecoratorProtocol? {
         StubCommandDecorator()

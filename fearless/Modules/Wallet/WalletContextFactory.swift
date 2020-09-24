@@ -59,6 +59,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         }
 
         let nodeUrl = SettingsManager.shared.selectedConnection.url
+        let networkType = SettingsManager.shared.selectedConnection.type
 
         let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
                                                            accountSettings: accountSettings,
@@ -76,6 +77,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
 
+        let contactsConfigurator = ContactsConfigurator(networkType: networkType)
+        contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
+
         let context = try builder.build()
 
         subscribeContextToLanguageSwitch(context,
@@ -83,6 +87,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                          logger: logger)
 
         accountListConfigurator.context = context
+        contactsConfigurator.commandFactory = context
 
         return context
     }
