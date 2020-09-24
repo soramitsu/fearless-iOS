@@ -4,13 +4,13 @@ import RobinHood
 import SoraFoundation
 import Cuckoo
 
-class ModifyConnectionTests: XCTestCase {
+class AddConnectionTests: XCTestCase {
 
     func testConnectionAdd() throws {
         // given
 
-        let view = MockModifyConnectionViewProtocol()
-        let wireframe = MockModifyConnectionWireframeProtocol()
+        let view = MockAddConnectionViewProtocol()
+        let wireframe = MockAddConnectionWireframeProtocol()
 
         let substrateFactory = MockSubstrateOperationFactoryProtocol()
 
@@ -22,11 +22,11 @@ class ModifyConnectionTests: XCTestCase {
                               sortDescriptors: [NSSortDescriptor.connectionsByOrder],
                               mapper: AnyCoreDataMapper(mapper))
 
-        let interactor = ModifyConnectionInteractor(repository: AnyDataProviderRepository(repository),
+        let interactor = AddConnectionInteractor(repository: AnyDataProviderRepository(repository),
                                                     operationManager: OperationManagerFacade.sharedManager,
                                                     substrateOperationFactory: substrateFactory)
 
-        let presenter = ModifyConnectionPresenter(localizationManager: LocalizationManager.shared)
+        let presenter = AddConnectionPresenter(localizationManager: LocalizationManager.shared)
 
         presenter.view = view
         presenter.wireframe = wireframe

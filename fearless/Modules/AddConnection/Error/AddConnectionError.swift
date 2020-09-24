@@ -1,13 +1,13 @@
 import Foundation
 import IrohaCrypto
 
-enum ModifyConnectionError: Error {
+enum AddConnectionError: Error {
     case alreadyExists
     case invalidConnection
     case unsupportedChain(_ supported: [SNAddressType])
 }
 
-extension ModifyConnectionError: ErrorContentConvertible {
+extension AddConnectionError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {
         let message: String
 

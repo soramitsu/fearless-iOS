@@ -3,12 +3,22 @@ import SoraUI
 import SoraFoundation
 
 final class NetworkInfoViewController: UIViewController {
+    private struct Constants {
+        static let margin: CGFloat = 16.0
+        static let actionHeight: CGFloat = 52.0
+    }
+
     var presenter: NetworkInfoPresenterProtocol!
 
     @IBOutlet private var nameBackgroundView: TriangularedView!
     @IBOutlet private var nameField: AnimatedTextField!
     @IBOutlet private var nodeBackgroundView: TriangularedView!
     @IBOutlet private var nodeField: AnimatedTextField!
+
+    private var nameChanged: Bool = false
+    private var nodeChanged: Bool = false
+
+    private var actionButton: TriangularedButton?
 
     private var nameViewModel: InputViewModelProtocol?
     private var nodeViewModel: InputViewModelProtocol?
@@ -54,18 +64,79 @@ final class NetworkInfoViewController: UIViewController {
         title = R.string.localizable.networkInfoTitle(preferredLanguages: locale?.rLanguages)
         nameField.title = R.string.localizable.networkInfoName(preferredLanguages: locale?.rLanguages)
         nodeField.title = R.string.localizable.networkInfoAddress(preferredLanguages: locale?.rLanguages)
+
+        actionButton?.imageWithTitleView?.title = R.string.localizable
+            .commonUpdate(preferredLanguages: locale?.rLanguages)
+        actionButton?.invalidateLayout()
+    }
+
+    private func addActionButtonIfNeeded() {
+        guard actionButton == nil else {
+            return
+        }
+
+        let button = TriangularedButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(button)
+
+        button.applyDefaultStyle()
+
+        button.imageWithTitleView?.title = R.string.localizable
+            .commonUpdate(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
+
+        button.leadingAnchor.constraint(equalTo: view.leadingAnchor,
+                                        constant: Constants.margin).isActive = true
+
+        button.rightAnchor.constraint(equalTo: view.rightAnchor,
+                                      constant: -Constants.margin).isActive = true
+
+        button.topAnchor.constraint(equalTo: nodeBackgroundView.bottomAnchor,
+                                      constant: Constants.margin).isActive = true
+
+        button.heightAnchor.constraint(equalToConstant: Constants.actionHeight).isActive = true
+
+        button.addTarget(self,
+                         action: #selector(actionUpdate),
+                         for: .touchUpInside)
+
+        actionButton = button
+    }
+
+    private func clearActionButtonIfNeeded() {
+        guard actionButton != nil else {
+            return
+        }
+
+        actionButton?.removeFromSuperview()
+        actionButton = nil
+    }
+
+    private func updateActionButton() {
+        let isEnabled = (nameViewModel?.inputHandler.completed ?? false) &&
+            (nodeViewModel?.inputHandler.completed ?? false) &&
+            (nameChanged || nodeChanged)
+
+        actionButton?.isEnabled = isEnabled
     }
 
     @IBAction private func nameFieldDidChange() {
         if nameViewModel?.inputHandler.value != nameField.text {
             nameField.text = nameViewModel?.inputHandler.value
         }
+
+        nameChanged = true
+
+        updateActionButton()
     }
 
     @IBAction private func nodeFieldDidChange() {
         if nodeViewModel?.inputHandler.value != nodeField.text {
             nodeField.text = nodeViewModel?.inputHandler.value
         }
+
+        nodeChanged = true
+
+        updateActionButton()
     }
 
     @IBAction private func actionNodeCopy() {
@@ -75,6 +146,10 @@ final class NetworkInfoViewController: UIViewController {
     @objc private func actionClose() {
         presenter.activateClose()
     }
+
+    @objc private func actionUpdate() {
+        presenter.activateUpdate()
+    }
 }
 
 extension NetworkInfoViewController: NetworkInfoViewProtocol {
@@ -82,6 +157,8 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
         self.nameViewModel = nameViewModel
 
         nameField.text = nameViewModel.inputHandler.value
+
+        nameChanged = false
 
         let enabled = nameViewModel.inputHandler.enabled
         nameField.isUserInteractionEnabled = enabled
@@ -91,12 +168,23 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
         } else {
             nameBackgroundView.applyDisabledStyle()
         }
+
+        let shouldAddAction = (nameViewModel.inputHandler.enabled) || (nodeViewModel?.inputHandler.enabled ?? false)
+
+        if shouldAddAction {
+            addActionButtonIfNeeded()
+            updateActionButton()
+        } else {
+            clearActionButtonIfNeeded()
+        }
     }
 
     func set(nodeViewModel: InputViewModelProtocol) {
         self.nodeViewModel = nodeViewModel
 
         nodeField.text = nodeViewModel.inputHandler.value
+
+        nodeChanged = false
 
         let enabled = nodeViewModel.inputHandler.enabled
         nodeField.isUserInteractionEnabled = enabled
@@ -105,6 +193,15 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
             nodeBackgroundView.applyEnabledStyle()
         } else {
             nodeBackgroundView.applyDisabledStyle()
+        }
+
+        let shouldAddAction = (nameViewModel?.inputHandler.enabled ?? false) || (nodeViewModel.inputHandler.enabled)
+
+        if shouldAddAction {
+            addActionButtonIfNeeded()
+            updateActionButton()
+        } else {
+            clearActionButtonIfNeeded()
         }
     }
 }
