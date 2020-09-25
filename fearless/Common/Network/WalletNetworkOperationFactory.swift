@@ -1,133 +1,142 @@
 import Foundation
 import CommonWallet
 import RobinHood
-import xxHash_Swift
-import FearlessUtils
 import IrohaCrypto
-import Starscream
+import BigInt
+import FearlessUtils
 
 final class WalletNetworkOperationFactory {
     let accountSettings: WalletAccountSettingsProtocol
     let url: URL
+    let accountSigner: IRSignatureCreatorProtocol
+    let dummySigner: IRSignatureCreatorProtocol
     let logger: LoggerProtocol
 
-    init(url: URL, accountSettings: WalletAccountSettingsProtocol, logger: LoggerProtocol) {
+    init(url: URL,
+         accountSettings: WalletAccountSettingsProtocol,
+         accountSigner: IRSignatureCreatorProtocol,
+         dummySigner: IRSignatureCreatorProtocol,
+         logger: LoggerProtocol) {
         self.url = url
         self.accountSettings = accountSettings
+        self.accountSigner = accountSigner
+        self.dummySigner = dummySigner
         self.logger = logger
     }
-}
 
-extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
-    func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
-        guard let asset = assets.first else {
-            let operation = BaseOperation<[BalanceData]?>()
-            operation.result = .failure(NetworkBaseError.unexpectedEmptyData)
-            return CompoundOperationWrapper(targetOperation: operation)
-        }
+    func createGenisisHashOperation(engine: JSONRPCEngine? = nil) -> BaseOperation<String> {
+        createBlockHashOperation(0)
+    }
 
+    func createBlockHashOperation(_ block: UInt32, engine: JSONRPCEngine? = nil) -> BaseOperation<String> {
+        let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
+
+        var currentBlock = block
+        let param = Data(Data(bytes: &currentBlock, count: MemoryLayout<UInt32>.size).reversed())
+            .toHex(includePrefix: true)
+
+        return JSONRPCOperation<String>(engine: currentEngine,
+                                        method: RPCMethod.getBlockHash,
+                                        parameters: [param])
+    }
+
+    func createAccountInfoFetchOperation(_ accountId: Data? = nil, engine: JSONRPCEngine? = nil)
+        -> BaseOperation<JSONScaleDecodable<AccountInfo>> {
         do {
-            let accountId = try Data(hexString: self.accountSettings.accountId)
+            let identifier = try (accountId ?? Data(hexString: accountSettings.accountId))
 
-            let key = try StorageKeyFactory().createStorageKey(moduleName: "System",
-                                                               serviceName: "Account",
-                                                               identifier: accountId).toHex(includePrefix: true)
-
-            let engine = WebSocketEngine(url: url, logger: logger)
-            let accountInfoOperation = JSONRPCOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
-                                                                                         method: "state_getStorage",
-                                                                                         parameters: [key])
-            let mappingOperation = ClosureOperation<[BalanceData]?> {
-                guard let accountInfoResult = accountInfoOperation.result else {
-                    return nil
-                }
-
-                switch accountInfoResult {
-                case .success(let info):
-                    let amount: AmountDecimal
-
-                    if
-                        let accountInfo = info.underlyingValue,
-                        let amountDecimal = Decimal.fromSubstrateAmount(accountInfo.data.free.value) {
-                        amount = AmountDecimal(value: amountDecimal)
-                    } else {
-                        amount = AmountDecimal(value: 0)
-                    }
-
-                    let balance = BalanceData(identifier: asset, balance: amount)
-
-                    return [balance]
-                case .failure(let error):
-                    throw error
-                }
-            }
-
-            mappingOperation.addDependency(accountInfoOperation)
-
-            return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                            dependencies: [accountInfoOperation])
+            return createStorageFetchOperation(moduleName: "System",
+                                               serviceName: "Account",
+                                               identifier: identifier,
+                                               engine: engine)
         } catch {
-            let operation = BaseOperation<[BalanceData]?>()
+            let operation = BaseOperation<JSONScaleDecodable<AccountInfo>>()
             operation.result = .failure(error)
-            return CompoundOperationWrapper(targetOperation: operation)
+            return operation
+        }
+
+    }
+
+    func createStorageFetchOperation<T: Decodable>(moduleName: String,
+                                                   serviceName: String,
+                                                   identifier: Data,
+                                                   engine: JSONRPCEngine? = nil) -> BaseOperation<T> {
+        do {
+            let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
+
+            let key = try StorageKeyFactory().createStorageKey(moduleName: moduleName,
+                                                               serviceName: serviceName,
+                                                               identifier: identifier).toHex(includePrefix: true)
+
+            return JSONRPCOperation<T>(engine: currentEngine,
+                                       method: RPCMethod.getStorage,
+                                       parameters: [key])
+        } catch {
+            let operation = BaseOperation<T>()
+            operation.result = .failure(error)
+            return operation
         }
     }
 
-    func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest,
-                                          pagination: Pagination)
-        -> CompoundOperationWrapper<AssetTransactionPageData?> {
-            let operation = ClosureOperation<AssetTransactionPageData?> {
-                nil
+    func createRuntimeVersionOperation(engine: JSONRPCEngine? = nil) -> BaseOperation<RuntimeVersion> {
+        let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
+        return JSONRPCOperation(engine: currentEngine, method: RPCMethod.getRuntimeVersion)
+    }
+
+    func setupTransferExtrinsic<T>(_ targetOperation: JSONRPCOperation<T>,
+                                   amount: BigUInt,
+                                   sender: String,
+                                   receiver: String,
+                                   signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
+        let accountInfoOperation = createAccountInfoFetchOperation(engine: targetOperation.engine)
+        let genesisOperation = createGenisisHashOperation(engine: targetOperation.engine)
+        let runtimeVersionOperation = createRuntimeVersionOperation(engine: targetOperation.engine)
+
+        targetOperation.configurationBlock = {
+            do {
+                let nonce = try accountInfoOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .underlyingValue?
+                    .nonce ?? 0
+
+                let genesisHashString = try genesisOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                let genesisHash = try Data(hexString: genesisHashString)
+
+                let runtimeVersion = try runtimeVersionOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+                let receiverAccountId = try Data(hexString: receiver)
+                let senderAccountId = try Data(hexString: sender)
+
+                let additionalParameters = ExtrinsicParameters(nonce: nonce,
+                                                               genesisHash: genesisHash,
+                                                               specVersion: runtimeVersion.specVersion,
+                                                               transactionVersion: runtimeVersion.transactionVersion)
+
+                let extrinsicData = try ExtrinsicFactory.transferExtrinsic(from: senderAccountId,
+                                                                           to: receiverAccountId,
+                                                                           amount: amount,
+                                                                           additionalParameters: additionalParameters,
+                                                                           signer: signer)
+
+                targetOperation.parameters = [extrinsicData.toHex(includePrefix: true)]
+            } catch {
+                targetOperation.result = .failure(error)
             }
-
-            return CompoundOperationWrapper(targetOperation: operation)
-    }
-
-    func transferMetadataOperation(_ info: TransferMetadataInfo) -> CompoundOperationWrapper<TransferMetaData?> {
-        let operation = ClosureOperation<TransferMetaData?> {
-            nil
         }
 
-        return CompoundOperationWrapper(targetOperation: operation)
-    }
-    func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {
-        let operation = ClosureOperation<Data> {
-            Data()
-        }
+        let dependencies: [Operation] = [accountInfoOperation, genesisOperation, runtimeVersionOperation]
 
-        return CompoundOperationWrapper(targetOperation: operation)
+        dependencies.forEach { targetOperation.addDependency($0)}
+
+        return CompoundOperationWrapper(targetOperation: targetOperation,
+                                        dependencies: dependencies)
     }
 
-    func searchOperation(_ searchString: String) -> CompoundOperationWrapper<[SearchData]?> {
-        let operation = ClosureOperation<[SearchData]?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
-    }
-
-    func contactsOperation() -> CompoundOperationWrapper<[SearchData]?> {
-        let operation = ClosureOperation<[SearchData]?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
-    }
-
-    func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo)
-        -> CompoundOperationWrapper<WithdrawMetaData?> {
-        let operation = ClosureOperation<WithdrawMetaData?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
-    }
-
-    func withdrawOperation(_ info: WithdrawInfo) -> CompoundOperationWrapper<Data> {
-        let operation = ClosureOperation<Data> {
-            Data()
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
+    func createCompoundOperation<T>(result: Result<T, Error>) -> CompoundOperationWrapper<T> {
+        let baseOperation: BaseOperation<T> = BaseOperation()
+        baseOperation.result = result
+        return CompoundOperationWrapper(targetOperation: baseOperation)
     }
 }

@@ -100,7 +100,7 @@ DEPENDENCIES:
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
   - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `b757168752d8f4b712e7952dd29fe1eac6275609`)
-  - Starscream (~> 4.0.0)
+  - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftLint
   - SwiftyBeaver
 
@@ -117,7 +117,6 @@ SPEC REPOS:
     - scrypt.c
     - SoraFoundation
     - SoraKeystore
-    - Starscream
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
@@ -130,6 +129,9 @@ EXTERNAL SOURCES:
   SoraUI:
     :commit: b757168752d8f4b712e7952dd29fe1eac6275609
     :git: https://github.com/soramitsu/UIkit-iOS.git
+  Starscream:
+    :branch: feature/without-origin
+    :git: https://github.com/ERussel/Starscream.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
@@ -138,6 +140,9 @@ CHECKOUT OPTIONS:
   SoraUI:
     :commit: b757168752d8f4b712e7952dd29fe1eac6275609
     :git: https://github.com/soramitsu/UIkit-iOS.git
+  Starscream:
+    :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
+    :git: https://github.com/ERussel/Starscream.git
 
 SPEC CHECKSUMS:
   BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
@@ -159,6 +164,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 88d741830b4630129367b0e0658de9cb47bbfbc2
+PODFILE CHECKSUM: 407260b0c062fcdb601c67644674d62efa6bdcca
 
 COCOAPODS: 1.9.3

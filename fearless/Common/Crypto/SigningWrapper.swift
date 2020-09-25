@@ -8,7 +8,7 @@ enum SigningWrapperError: Error {
     case missingSecretKey
 }
 
-final class SigningWrapper: IRSignatureCreatorProtocol {
+final class SigningWrapper: SigningWrapperProtocol {
     let keystore: KeystoreProtocol
     let settings: SettingsManagerProtocol
 
@@ -38,39 +38,5 @@ final class SigningWrapper: IRSignatureCreatorProtocol {
             return try signEcdsa(originalData,
                                  secretKey: secretKey)
         }
-    }
-
-    private func signSr25519(_ originalData: Data, secretKeyData: Data, publicKeyData: Data) throws
-        -> IRSignatureProtocol {
-
-        let privateKey = try SNPrivateKey(rawData: secretKeyData)
-        let publicKey = try SNPublicKey(rawData: publicKeyData)
-
-        let signer = SNSigner(keypair: SNKeypair(privateKey: privateKey, publicKey: publicKey))
-        let signature = try signer.sign(originalData)
-
-        return signature
-    }
-
-    private func signEd25519(_ originalData: Data, secretKey: Data) throws -> IRSignatureProtocol {
-        let keypairFactory = Ed25519KeypairFactory()
-        let privateKey = try keypairFactory
-            .createKeypairFromSeed(secretKey.miniSeed, chaincodeList: [])
-            .privateKey()
-
-        let signer = EDSigner(privateKey: privateKey)
-
-        return try signer.sign(originalData)
-    }
-
-    private func signEcdsa(_ originalData: Data, secretKey: Data) throws -> IRSignatureProtocol {
-        let keypairFactory = EcdsaKeypairFactory()
-        let privateKey = try keypairFactory
-            .createKeypairFromSeed(secretKey.miniSeed, chaincodeList: [])
-            .privateKey()
-
-        let signer = SECSigner(privateKey: privateKey)
-
-        return try signer.sign(originalData)
     }
 }

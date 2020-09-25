@@ -9,10 +9,10 @@ final class JSONRPCOperation<T: Decodable>: BaseOperation<T> {
     let engine: JSONRPCEngine
     private(set) var requestId: UInt16?
     let method: String
-    let parameters: [String]
+    var parameters: [String]
     let timeout: Int
 
-    init(engine: JSONRPCEngine, method: String, parameters: [String], timeout: Int = 10) {
+    init(engine: JSONRPCEngine, method: String, parameters: [String] = [], timeout: Int = 10) {
         self.engine = engine
         self.method = method
         self.parameters = parameters

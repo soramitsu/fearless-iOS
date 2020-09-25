@@ -7,6 +7,7 @@ import SoraFoundation
 
 enum WalletContextFactoryError: Error {
     case missingNode
+    case missingAccount
 }
 
 protocol WalletContextFactoryProtocol {
@@ -52,17 +53,24 @@ final class WalletContextFactory {
 
 extension WalletContextFactory: WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol {
+        guard let selectedAccount = SettingsManager.shared.selectedAccount else {
+            throw WalletContextFactoryError.missingAccount
+        }
+
         let accountSettings = try primitiveFactory.createAccountSettings()
 
-        if let selectedAccount = SettingsManager.shared.selectedAccount {
-            logger.debug("Loading wallet account: \(selectedAccount.address)")
-        }
+        logger.debug("Loading wallet account: \(selectedAccount.address)")
 
         let nodeUrl = SettingsManager.shared.selectedConnection.url
         let networkType = SettingsManager.shared.selectedConnection.type
 
+        let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
+        let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
+
         let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
                                                            accountSettings: accountSettings,
+                                                           accountSigner: accountSigner,
+                                                           dummySigner: dummySigner,
                                                            logger: logger)
 
         let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
