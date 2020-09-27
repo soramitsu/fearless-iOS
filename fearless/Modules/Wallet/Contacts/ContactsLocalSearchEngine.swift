@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import FearlessUtils
 
 private final class ContactViewModel: ContactsLocalSearchResultProtocol {
     let firstName: String
@@ -33,6 +34,8 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
 
     private let addressFactory = SS58AddressFactory()
 
+    private let iconGenerator = PolkadotIconGenerator()
+
     init(networkType: SNAddressType) {
         self.networkType = networkType
     }
@@ -55,10 +58,15 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
 
             command.presentationStyle = .push(hidesBottomBar: true)
 
+            let icon = try iconGenerator.generateFromAddress(query)
+                .imageWithFillColor(.white,
+                                    size: CGSize(width: 24.0, height: 24.0),
+                                    contentScale: UIScreen.main.scale)
+
             let result = ContactViewModel(firstName: query,
                                           lastName: "",
                                           accountId: receiver.accountId,
-                                          image: nil,
+                                          image: icon,
                                           name: query,
                                           command: command)
 

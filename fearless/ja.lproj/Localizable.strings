@@ -141,3 +141,6 @@ a type of password.";
 "wallet.send.amount.title" = "量";
 "wallet.send.confirm.title" = "転送を確認";
 "wallet.send.balance.title" = "フリーバランス";
+"wallet.contacts.empty.title" = "アセットを送信した受信者がここに表示されます";
+"wallet.search.empty.title" = "アドレスが正しいネットワークからのものであることを確認してください";
+"wallet.contacts.search.placeholder" = "アカウントのアドレスまたはアカウント名";

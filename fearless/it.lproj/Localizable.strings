@@ -142,3 +142,8 @@ trasferimenti appariranno qui";
 "wallet.send.amount.title" = "Quantità";
 "wallet.send.confirm.title" = "Conferma il trasferimento";
 "wallet.send.balance.title" = "Equilibrio libero";
+"wallet.contacts.empty.title" = "I destinatari a cui hai inviato risorse \
+vengono visualizzati qui";
+"wallet.search.empty.title" = "Assicurati che l'indirizzo \
+provenga dalla rete corretta";
+"wallet.contacts.search.placeholder" = "Indirizzo dell'account o nome dell'account";

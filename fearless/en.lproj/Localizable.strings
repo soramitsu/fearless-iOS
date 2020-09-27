@@ -143,3 +143,8 @@ transfers will appear here";
 "wallet.send.amount.title" = "Amount";
 "wallet.send.confirm.title" = "Confirm transfer";
 "wallet.send.balance.title" = "Free balance";
+"wallet.contacts.empty.title" = "Recipients whom you sent assets \
+are displayed here";
+"wallet.search.empty.title" = "Make sure that the address is \
+from the right network";
+"wallet.contacts.search.placeholder" = "Account address or account name";

@@ -143,3 +143,8 @@ a type of password.";
 "wallet.send.amount.title" = "Сумма";
 "wallet.send.confirm.title" = "Подтвердить";
 "wallet.send.balance.title" = "Свободный баланс";
+"wallet.contacts.empty.title" = "Здесь отображаются получатели, \
+которым вы переводили токены";
+"wallet.search.empty.title" = "Убедитесь, что адрес \
+из правильной сети";
+"wallet.contacts.search.placeholder" = "Адрес аккаунта или имя аккаунта";

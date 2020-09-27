@@ -16,7 +16,7 @@ extension WalletEmptyStateDataSource {
 
     static var contacts: WalletEmptyStateDataSource {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletEmptyDescription(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletContactsEmptyTitle(preferredLanguages: locale.rLanguages)
         }
 
         let image = R.image.iconEmptyHistory()
@@ -28,7 +28,7 @@ extension WalletEmptyStateDataSource {
 
     static var search: WalletEmptyStateDataSource {
         let title = LocalizableResource { locale in
-            R.string.localizable.walletEmptyDescription(preferredLanguages: locale.rLanguages)
+            R.string.localizable.walletSearchEmptyTitle(preferredLanguages: locale.rLanguages)
         }
 
         let image = R.image.iconEmptyHistory()

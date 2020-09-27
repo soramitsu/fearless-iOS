@@ -143,3 +143,8 @@
 "wallet.send.amount.title" = "Сума";
 "wallet.send.confirm.title" = "Підтвердьте передачу";
 "wallet.send.balance.title" = "Вільний баланс";
+"wallet.contacts.empty.title" = "Тут відображаються одержувачі, \
+яким ви надіслали об’єкти";
+"wallet.search.empty.title" = "Переконайтеся, що адреса надходить \
+із потрібної мережі";
+"wallet.contacts.search.placeholder" = "Адреса рахунку або назва рахунку";

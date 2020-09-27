@@ -143,3 +143,8 @@ apparaitront ici";
 "wallet.send.amount.title" = "Montant";
 "wallet.send.confirm.title" = "Confirmer le transfert";
 "wallet.send.balance.title" = "Balance libre";
+"wallet.contacts.empty.title" = "Les destinataires auxquels vous avez \
+envoyé des éléments s'affichent ici";
+"wallet.search.empty.title" = "Assurez-vous que l'adresse \
+provient du bon réseau";
+"wallet.contacts.search.placeholder" = "Adresse du compte ou nom du compte";
