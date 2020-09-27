@@ -141,3 +141,5 @@ transfers will appear here";
 "wallet.send.fee.title" = "Transfer fee";
 "common.continue" = "Continue";
 "wallet.send.amount.title" = "Amount";
+"wallet.send.confirm.title" = "Confirm transfer";
+"wallet.send.balance.title" = "Free balance";

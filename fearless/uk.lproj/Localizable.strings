@@ -141,3 +141,5 @@
 "wallet.send.fee.title" = "Плата за переказ";
 "common.continue" = "Продовжити";
 "wallet.send.amount.title" = "Сума";
+"wallet.send.confirm.title" = "Підтвердьте передачу";
+"wallet.send.balance.title" = "Вільний баланс";

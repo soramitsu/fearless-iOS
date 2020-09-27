@@ -91,6 +91,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                                         amountFormatter: amountFormatterFactory)
         transferConfigurator.configure(builder: builder.transferModuleBuilder)
 
+        let confirmConfigurator = TransferConfirmConfigurator()
+        confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)
+
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 

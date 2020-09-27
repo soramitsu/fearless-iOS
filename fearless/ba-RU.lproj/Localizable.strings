@@ -138,3 +138,5 @@
 "wallet.send.fee.title" = "Комиссия";
 "common.continue" = "Продолжить";
 "wallet.send.amount.title" = "Сумма";
+"wallet.send.confirm.title" = "Подтвердить";
+"wallet.send.balance.title" = "Свободный баланс";

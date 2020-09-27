@@ -140,3 +140,5 @@ trasferimenti appariranno qui";
 "wallet.send.fee.title" = "Tassa di trasferimento";
 "common.continue" = "Continua";
 "wallet.send.amount.title" = "Quantità";
+"wallet.send.confirm.title" = "Conferma il trasferimento";
+"wallet.send.balance.title" = "Equilibrio libero";

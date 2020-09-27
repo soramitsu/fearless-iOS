@@ -141,3 +141,5 @@ apparaitront ici";
 "wallet.send.fee.title" = "Frais de transfert";
 "common.continue" = "Continuer";
 "wallet.send.amount.title" = "Montant";
+"wallet.send.confirm.title" = "Confirmer le transfert";
+"wallet.send.balance.title" = "Balance libre";

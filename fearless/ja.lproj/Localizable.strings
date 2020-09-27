@@ -139,3 +139,5 @@ a type of password.";
 "wallet.send.fee.title" = "転送料";
 "common.continue" = "継続する";
 "wallet.send.amount.title" = "量";
+"wallet.send.confirm.title" = "転送を確認";
+"wallet.send.balance.title" = "フリーバランス";
