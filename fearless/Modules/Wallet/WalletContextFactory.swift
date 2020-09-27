@@ -58,6 +58,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         }
 
         let accountSettings = try primitiveFactory.createAccountSettings()
+        let amountFormatterFactory = AmountFormatterFactory()
 
         logger.debug("Loading wallet account: \(selectedAccount.address)")
 
@@ -73,7 +74,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                                            dummySigner: dummySigner,
                                                            logger: logger)
 
-        let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
+        let builder = CommonWalletBuilder.builder(with: accountSettings,
+                                                  networkOperationFactory: networkFactory)
 
         let localizationManager = LocalizationManager.shared
 
@@ -84,6 +86,10 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)
 
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
+
+        let transferConfigurator = TransferConfigurator(assets: accountSettings.assets,
+                                                        amountFormatter: amountFormatterFactory)
+        transferConfigurator.configure(builder: builder.transferModuleBuilder)
 
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)

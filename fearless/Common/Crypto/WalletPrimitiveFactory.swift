@@ -45,13 +45,13 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             precision = 10
         case .genericSubstrate:
             identifier = WalletAssetId.westend.rawValue
-            localizableName = LocalizableResource<String> { _ in "WND" }
+            localizableName = LocalizableResource<String> { _ in "Westend" }
             platformName = LocalizableResource<String> { _ in "Westend" }
             symbol = "WND"
             precision = 12
         default:
             identifier = WalletAssetId.kusama.rawValue
-            localizableName = LocalizableResource<String> { _ in "KSM" }
+            localizableName = LocalizableResource<String> { _ in "Kusama" }
             platformName = LocalizableResource<String> { _ in "Kusama" }
             symbol = "KSM"
             precision = 12
