@@ -57,8 +57,9 @@ final class ContactsConfigurator {
         }
     }
 
-    init(networkType: SNAddressType) {
-        localSearchEngine = ContactsLocalSearchEngine(networkType: networkType)
+    init(networkType: SNAddressType, address: String) {
+        localSearchEngine = ContactsLocalSearchEngine(networkType: networkType,
+                                                      address: address)
     }
 
     func configure(builder: ContactsModuleBuilderProtocol) {

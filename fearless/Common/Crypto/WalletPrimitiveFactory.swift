@@ -64,6 +64,9 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                                 precision: precision,
                                 modes: .all)
 
-        return WalletAccountSettings(accountId: selectedAccount.publicKeyData.toHex(), assets: [asset])
+        let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
+                                                           type: settings.selectedConnection.type)
+
+        return WalletAccountSettings(accountId: accountId.toHex(), assets: [asset])
     }
 }

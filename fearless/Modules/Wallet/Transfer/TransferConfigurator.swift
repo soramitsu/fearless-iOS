@@ -97,9 +97,9 @@ final class TransferConfigurator {
 
     let viewModelFactory: TransferViewModelFactoryOverriding
 
-    init(assets: [WalletAsset], amountFormatter: NumberFormatterFactoryProtocol) {
+    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
         viewModelFactory = TransferViewModelFactory(assets: assets,
-                                                    amountFormatter: amountFormatter)
+                                                    amountFormatterFactory: amountFormatterFactory)
     }
 
     func configure(builder: TransferModuleBuilderProtocol) {

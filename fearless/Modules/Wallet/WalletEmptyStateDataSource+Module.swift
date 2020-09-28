@@ -31,7 +31,7 @@ extension WalletEmptyStateDataSource {
             R.string.localizable.walletSearchEmptyTitle(preferredLanguages: locale.rLanguages)
         }
 
-        let image = R.image.iconEmptyHistory()
+        let image = R.image.iconEmptySearch()
         let dataSource = WalletEmptyStateDataSource(titleResource: title, image: image)
         dataSource.localizationManager = LocalizationManager.shared
 

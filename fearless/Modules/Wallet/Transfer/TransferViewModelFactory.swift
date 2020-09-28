@@ -1,14 +1,15 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import FearlessUtils
 
 final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
     let assets: [WalletAsset]
-    let amountFormatter: NumberFormatterFactoryProtocol
+    let amountFormatterFactory: NumberFormatterFactoryProtocol
 
-    init(assets: [WalletAsset], amountFormatter: NumberFormatterFactoryProtocol) {
+    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
         self.assets = assets
-        self.amountFormatter = amountFormatter
+        self.amountFormatterFactory = amountFormatterFactory
     }
 
     func createFeeViewModel(_ inputState: TransferInputState,
@@ -23,7 +24,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
 
-        let formatter = amountFormatter.createTokenFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let amount = formatter
             .string(from: fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""
@@ -53,7 +54,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
             return nil
         }
 
-        let formatter = amountFormatter.createTokenFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let amount = formatter.string(from: inputState.balance?.balance.decimalValue ?? 0.0) ?? ""
 
@@ -79,7 +80,14 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
                                  payload: TransferPayload,
                                  locale: Locale) throws
         -> MultilineTitleIconViewModelProtocol? {
-        MultilineTitleIconViewModel(text: payload.receiverName)
+
+        let iconGenerator = PolkadotIconGenerator()
+        let icon = try? iconGenerator.generateFromAddress(payload.receiverName)
+            .imageWithFillColor(R.color.colorWhite()!,
+                                size: CGSize(width: 24.0, height: 24.0),
+                                contentScale: UIScreen.main.scale)
+
+        return MultilineTitleIconViewModel(text: payload.receiverName, icon: icon)
     }
 
     func createAccessoryViewModel(_ inputState: TransferInputState,

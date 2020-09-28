@@ -11,4 +11,15 @@ extension WalletAssetId {
             return R.image.iconWestendSmallBg()
         }
     }
+
+    func titleForLocale(_ locale: Locale) -> String {
+        switch self {
+        case .dot:
+            return "Polkadot"
+        case .kusama:
+            return "Kusama"
+        case .westend:
+            return "Westend"
+        }
+    }
 }

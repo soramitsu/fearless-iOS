@@ -30,18 +30,24 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
+    let address: String
     let networkType: SNAddressType
 
     private let addressFactory = SS58AddressFactory()
 
     private let iconGenerator = PolkadotIconGenerator()
 
-    init(networkType: SNAddressType) {
+    init(networkType: SNAddressType, address: String) {
         self.networkType = networkType
+        self.address = address
     }
 
     func search(query: String, assetId: String) -> [ContactViewModelProtocol]? {
         do {
+            guard query != address else {
+                return []
+            }
+
             let accountId = try addressFactory.accountId(fromAddress: query, type: networkType)
 
             let receiver = ReceiveInfo(accountId: accountId.toHex(),
@@ -53,7 +59,7 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
                                           receiverName: query)
 
             guard let command = commandFactory?.prepareTransfer(with: payload) else {
-                return nil
+                return []
             }
 
             command.presentationStyle = .push(hidesBottomBar: true)
@@ -72,7 +78,7 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
 
             return [result]
         } catch {
-            return nil
+            return []
         }
 
     }

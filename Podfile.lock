@@ -55,35 +55,36 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (0.8.0)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.9.2):
-    - SoraUI/AdaptiveDesign (= 1.9.2)
-    - SoraUI/Animator (= 1.9.2)
-    - SoraUI/Camera (= 1.9.2)
-    - SoraUI/Controls (= 1.9.2)
-    - SoraUI/DetailsView (= 1.9.2)
-    - SoraUI/EmptyState (= 1.9.2)
-    - SoraUI/LoadingView (= 1.9.2)
-    - SoraUI/ModalPresentation (= 1.9.2)
-    - SoraUI/PageLoader (= 1.9.2)
-    - SoraUI/PinView (= 1.9.2)
-    - SoraUI/Skrull (= 1.9.2)
-  - SoraUI/AdaptiveDesign (1.9.2)
-  - SoraUI/Animator (1.9.2)
-  - SoraUI/Camera (1.9.2)
-  - SoraUI/Controls (1.9.2)
-  - SoraUI/DetailsView (1.9.2):
-    - SoraUI/Controls
-  - SoraUI/EmptyState (1.9.2):
+  - SoraUI (1.9.3):
+    - SoraUI/AdaptiveDesign (= 1.9.3)
+    - SoraUI/Animator (= 1.9.3)
+    - SoraUI/Camera (= 1.9.3)
+    - SoraUI/Controls (= 1.9.3)
+    - SoraUI/DetailsView (= 1.9.3)
+    - SoraUI/EmptyState (= 1.9.3)
+    - SoraUI/LoadingView (= 1.9.3)
+    - SoraUI/ModalPresentation (= 1.9.3)
+    - SoraUI/PageLoader (= 1.9.3)
+    - SoraUI/PinView (= 1.9.3)
+    - SoraUI/Skrull (= 1.9.3)
+  - SoraUI/AdaptiveDesign (1.9.3)
+  - SoraUI/Animator (1.9.3)
+  - SoraUI/Camera (1.9.3)
+  - SoraUI/Controls (1.9.3):
     - SoraUI/Animator
-  - SoraUI/LoadingView (1.9.2):
+  - SoraUI/DetailsView (1.9.3):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.9.2):
+  - SoraUI/EmptyState (1.9.3):
+    - SoraUI/Animator
+  - SoraUI/LoadingView (1.9.3):
+    - SoraUI/Controls
+  - SoraUI/ModalPresentation (1.9.3):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.9.2)
-  - SoraUI/PinView (1.9.2):
+  - SoraUI/PageLoader (1.9.3)
+  - SoraUI/PinView (1.9.3):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.9.2)
+  - SoraUI/Skrull (1.9.3)
   - Starscream (4.0.4)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
@@ -91,7 +92,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `ec0ec85b7fd02c925dd4c1cd1b0bdebd39865ba1`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `0e3e04c0cb959002325d5a750abd0803bcc6d1fe`)
   - Cuckoo
   - FearlessUtils (~> 0.6.0)
   - FireMock
@@ -99,7 +100,7 @@ DEPENDENCIES:
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `b757168752d8f4b712e7952dd29fe1eac6275609`)
+  - SoraUI
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftLint
   - SwiftyBeaver
@@ -117,6 +118,7 @@ SPEC REPOS:
     - scrypt.c
     - SoraFoundation
     - SoraKeystore
+    - SoraUI
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
@@ -124,22 +126,16 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: ec0ec85b7fd02c925dd4c1cd1b0bdebd39865ba1
+    :commit: 0e3e04c0cb959002325d5a750abd0803bcc6d1fe
     :git: https://github.com/soramitsu/Capital-iOS.git
-  SoraUI:
-    :commit: b757168752d8f4b712e7952dd29fe1eac6275609
-    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: ec0ec85b7fd02c925dd4c1cd1b0bdebd39865ba1
+    :commit: 0e3e04c0cb959002325d5a750abd0803bcc6d1fe
     :git: https://github.com/soramitsu/Capital-iOS.git
-  SoraUI:
-    :commit: b757168752d8f4b712e7952dd29fe1eac6275609
-    :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -157,13 +153,13 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: b0bba88160397ef4f1543f4c1841569b7a614579
+  SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 7e0dfe87a7ba4dbbbd7cb1ca8f063292df55dc2f
+PODFILE CHECKSUM: f75e4c74e349037c4647860373b1d1eaefdef6eb
 
 COCOAPODS: 1.9.3
