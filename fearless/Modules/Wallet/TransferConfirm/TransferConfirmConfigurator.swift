@@ -23,5 +23,6 @@ final class TransferConfirmConfigurator {
             .with(itemViewFactory: WalletFormItemViewFactory())
             .with(viewBinder: TransferConfirmBinder())
             .with(definitionFactory: TransferConfirmDefinitionFactory())
+            .with(accessoryViewFactory: TransferConfirmAccessoryViewFactory.self)
     }
 }

@@ -36,26 +36,26 @@ final class TransferConfirmViewModelFactory {
     func populateFee(in viewModelList: inout [WalletFormViewBindingProtocol],
                      payload: ConfirmationPayload,
                      locale: Locale) {
-        guard
-            let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }),
-            let fee = payload.transferInfo.fees.first else {
+        guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
             return
         }
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        let decimalAmount = fee.value.decimalValue
+        for fee in payload.transferInfo.fees {
+            let decimalAmount = fee.value.decimalValue
 
-        guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
-            return
+            guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+                return
+            }
+
+            let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
+            let viewModel = WalletNewFormDetailsViewModel(title: title,
+                                                          titleIcon: nil,
+                                                          details: amount,
+                                                          detailsIcon: nil)
+            viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
         }
-
-        let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = WalletNewFormDetailsViewModel(title: title,
-                                                      titleIcon: nil,
-                                                      details: amount,
-                                                      detailsIcon: nil)
-        viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
     }
 
     func populateSendingAmount(in viewModelList: inout [WalletFormViewBindingProtocol],
@@ -113,7 +113,23 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
 
     func createAccessoryViewModelFromPayload(_ payload: ConfirmationPayload,
                                              locale: Locale) -> AccessoryViewModelProtocol? {
+        guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
+            return nil
+        }
+
+        var decimalAmount = payload.transferInfo.amount.decimalValue
+
+        for fee in payload.transferInfo.fees {
+            decimalAmount += fee.value.decimalValue
+        }
+
+        let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
+
+        guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+            return nil
+        }
+
         let actionTitle = R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
-        return AccessoryViewModel(title: "", action: actionTitle)
+        return AccessoryViewModel(title: amount, action: actionTitle)
     }
 }

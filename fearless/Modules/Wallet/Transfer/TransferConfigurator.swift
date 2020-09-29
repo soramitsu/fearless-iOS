@@ -120,5 +120,6 @@ final class TransferConfigurator {
             .with(separatorsDistribution: TransferSeparatorDistribution())
             .with(headerFactory: TransferHeaderViewModelFactory())
             .with(transferViewModelFactory: viewModelFactory)
+            .with(accessoryViewFactory: WalletSingleActionAccessoryFactory.self)
     }
 }
