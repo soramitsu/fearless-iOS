@@ -17,5 +17,6 @@ struct WalletCommonConfigurator {
             .with(language: language)
             .with(commandDecoratorFactory: WalletCommandDecoratorFactory())
             .with(logger: Logger.shared)
+            .with(amountFormatterFactory: AmountFormatterFactory())
     }
 }

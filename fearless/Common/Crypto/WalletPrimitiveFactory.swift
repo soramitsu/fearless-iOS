@@ -4,13 +4,6 @@ import SoraKeystore
 import SoraFoundation
 import IrohaCrypto
 
-enum WalletAssetIds: String {
-    case kusama
-    case westend
-    case dot
-    case generic
-}
-
 protocol WalletPrimitiveFactoryProtocol {
     func createAccountSettings() throws -> WalletAccountSettingsProtocol
 }
@@ -41,37 +34,39 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         let platformName: LocalizableResource<String>
         let symbol: String
         let identifier: String
+        let precision: Int16
 
         switch selectedConnectionType {
         case .polkadotMain:
-            identifier = WalletAssetIds.dot.rawValue
+            identifier = WalletAssetId.dot.rawValue
             localizableName = LocalizableResource<String> { _ in "DOT" }
             platformName = LocalizableResource<String> { _ in "Polkadot" }
             symbol = "DOT"
-        case .kusamaMain:
-            identifier = WalletAssetIds.kusama.rawValue
-            localizableName = LocalizableResource<String> { _ in "KSM" }
-            platformName = LocalizableResource<String> { _ in "Kusama" }
-            symbol = "KSM"
+            precision = 10
         case .genericSubstrate:
-            identifier = WalletAssetIds.westend.rawValue
-            localizableName = LocalizableResource<String> { _ in "WND" }
+            identifier = WalletAssetId.westend.rawValue
+            localizableName = LocalizableResource<String> { _ in "Westend" }
             platformName = LocalizableResource<String> { _ in "Westend" }
             symbol = "WND"
+            precision = 12
         default:
-            identifier = WalletAssetIds.generic.rawValue
-            localizableName = LocalizableResource<String> { _ in "DOT" }
-            platformName = LocalizableResource<String> { _ in "Substrate Generic" }
-            symbol = "DOT"
+            identifier = WalletAssetId.kusama.rawValue
+            localizableName = LocalizableResource<String> { _ in "Kusama" }
+            platformName = LocalizableResource<String> { _ in "Kusama" }
+            symbol = "KSM"
+            precision = 12
         }
 
         let asset = WalletAsset(identifier: identifier,
                                 name: localizableName,
                                 platform: platformName,
                                 symbol: symbol,
-                                precision: 12,
+                                precision: precision,
                                 modes: .all)
 
-        return WalletAccountSettings(accountId: selectedAccount.publicKeyData.toHex(), assets: [asset])
+        let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
+                                                           type: settings.selectedConnection.type)
+
+        return WalletAccountSettings(accountId: accountId.toHex(), assets: [asset])
     }
 }

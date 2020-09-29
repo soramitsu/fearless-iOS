@@ -8,12 +8,12 @@ abstract_target 'fearlessAll' do
   pod 'R.swift', :inhibit_warnings => true
   pod 'FireMock', :inhibit_warnings => true
   pod 'SoraKeystore'
-  pod 'SoraUI', :git => 'https://github.com/soramitsu/UIkit-iOS.git', :commit => 'b757168752d8f4b712e7952dd29fe1eac6275609'
+  pod 'SoraUI'
   pod 'RobinHood'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '412d5f6bd0b15d2fe69e53915195c945142265fd'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '766ec38dc1e0d8d6018354237914ad6ee3bc14bd'
   pod 'SoraFoundation', '~> 0.8.0'
   pod 'SwiftyBeaver'
-  pod 'Starscream', '~> 4.0.0'
+  pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
 
   target 'fearlessTests' do
     pod 'Cuckoo'

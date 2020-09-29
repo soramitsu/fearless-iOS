@@ -134,3 +134,16 @@ trasferimenti appariranno qui";
 "connection.add.invalid.error" = "Impossibile stabilire la connessione con il nodo. Per favore, provane un altro.";
 "connection.add.unsupported.error" = "Purtroppo la rete non è supportata. Per favore, prova uno dei seguenti: %@.";
 "connection.add.already.exists.error" = "Il nodo è già stato aggiunto in precedenza. Per favore, prova un altro nodo.";
+"wallet.send.title" = "Spedire";
+"wallet.send.asset.title" = "Risorsa";
+"wallet.send.receiver.title" = "Per";
+"wallet.send.fee.title" = "Tassa di trasferimento";
+"common.continue" = "Continua";
+"wallet.send.amount.title" = "Quantità";
+"wallet.send.confirm.title" = "Conferma il trasferimento";
+"wallet.send.balance.title" = "Equilibrio libero";
+"wallet.contacts.empty.title" = "I destinatari a cui hai inviato risorse \
+vengono visualizzati qui";
+"wallet.search.empty.title" = "Assicurati che l'indirizzo \
+provenga dalla rete corretta";
+"wallet.contacts.search.placeholder" = "Indirizzo dell'account o nome dell'account";

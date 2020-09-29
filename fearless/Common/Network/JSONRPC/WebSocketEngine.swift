@@ -45,7 +45,7 @@ final class WebSocketEngine {
         self.logger = logger
 
         let request = URLRequest(url: url)
-        connection = WebSocket(request: request)
+        connection = WebSocket(request: request, useCustomEngine: true)
         connection.callbackQueue = completionQueue ?? Self.sharedCompletionQueue
         connection.delegate = self
 

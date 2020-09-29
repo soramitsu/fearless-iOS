@@ -2,37 +2,49 @@ import Foundation
 import CommonWallet
 
 struct WalletCommonStyleConfigurator {
-    let errorStyle = WalletInlineErrorStyle(titleColor: UIColor(red: 0.942, green: 0, blue: 0.044, alpha: 1),
-                                            titleFont: R.font.soraRc0040417Regular(size: 12)!,
-                                            icon: R.image.iconWarning()!)
-
     let navigationBarStyle: WalletNavigationBarStyleProtocol = {
-        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorAlmostBlack()!,
-                                                          shadowColor: R.color.colorDarkGray()!,
+        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorBlack()!,
+                                                          shadowColor: .clear,
                                                           itemTintColor: R.color.colorWhite()!,
                                                           titleColor: R.color.colorWhite()!,
                                                           titleFont: UIFont.h3Title)
-        navigationBarStyle.titleFont = .h3Title
-        navigationBarStyle.titleColor = R.color.colorWhite()!
-
         return navigationBarStyle
+    }()
+
+    let accessoryStyle: WalletAccessoryStyleProtocol = {
+        let title = WalletTextStyle(font: UIFont.p1Paragraph,
+                                    color: R.color.colorWhite()!)
+
+        let buttonTitle = WalletTextStyle(font: UIFont.h5Title,
+                                          color: R.color.colorWhite()!)
+
+        let buttonStyle = WalletRoundedButtonStyle(background: R.color.colorDarkBlue()!,
+                                                   title: buttonTitle)
+
+        let separator = WalletStrokeStyle(color: .clear, lineWidth: 0.0)
+
+        return WalletAccessoryStyle(title: title,
+                                    action: buttonStyle,
+                                    separator: separator,
+                                    background: R.color.colorBlack()!)
     }()
 }
 
 extension WalletCommonStyleConfigurator {
     func configure(builder: WalletStyleBuilderProtocol) {
         builder
-        .with(background: R.color.colorAlmostBlack()!)
-        .with(navigationBarStyle: navigationBarStyle)
-        .with(header1: R.font.soraRc0040417Bold(size: 30.0)!)
-        .with(header2: R.font.soraRc0040417SemiBold(size: 18.0)!)
-        .with(header3: R.font.soraRc0040417Bold(size: 16.0)!)
-        .with(header4: R.font.soraRc0040417Bold(size: 15.0)!)
-        .with(bodyBold: R.font.soraRc0040417Bold(size: 14.0)!)
-        .with(bodyRegular: R.font.soraRc0040417Regular(size: 14.0)!)
-        .with(small: R.font.soraRc0040417Regular(size: 14.0)!)
-        .with(keyboardIcon: R.image.iconKeyboardOff()!)
-        .with(caretColor: R.color.colorWhite()!)
-        .with(inlineErrorStyle: errorStyle)
+            .with(background: R.color.colorBlack()!)
+            .with(navigationBarStyle: navigationBarStyle)
+            .with(header1: UIFont.h1Title)
+            .with(header2: UIFont.h2Title)
+            .with(header3: UIFont.h3Title)
+            .with(header4: UIFont.h4Title)
+            .with(bodyBold: UIFont.h5Title)
+            .with(bodyRegular: UIFont.p1Paragraph)
+            .with(small: UIFont.p2Paragraph)
+            .with(keyboardIcon: R.image.iconKeyboardOff()!)
+            .with(caretColor: R.color.colorWhite()!)
+            .with(closeIcon: R.image.iconClose())
+            .with(accessoryStyle: accessoryStyle)
     }
 }

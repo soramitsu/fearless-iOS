@@ -38,6 +38,36 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testGetBlockHash() throws {
+        // given
+
+        var block: UInt32 = 10000
+
+        let url = URL(string: "wss://kusama-rpc.polkadot.io")!
+        let logger = Logger.shared
+
+        let data = Data(Data(bytes: &block, count: MemoryLayout<UInt32>.size).reversed())
+
+        // when
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        let operation = JSONRPCOperation<String?>(engine: engine,
+                                                 method: RPCMethod.getBlockHash,
+                                                 parameters: [data.toHex(includePrefix: true)])
+
+        OperationQueue().addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            logger.debug("Received response: \(result!)")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testNetworkType() {
         // given
 
@@ -95,7 +125,7 @@ class JSONRPCTests: XCTestCase {
     func testGetPendingTransactions() {
         // given
 
-        let url = URL(string: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443")!
+        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
@@ -113,7 +143,21 @@ class JSONRPCTests: XCTestCase {
 
         do {
             let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            logger.debug("Received response: \(result)")
+
+            for extrinsicHex in result {
+                guard let extrisicData = try? Data(hexString: extrinsicHex) else {
+                    continue
+                }
+
+                guard
+                    let decoder = try? ScaleDecoder(data: extrisicData),
+                    let extrinsic = try? Extrinsic(scaleDecoder: decoder) else {
+                    continue
+                }
+
+                logger.debug("Did receive: \(extrinsic)")
+            }
+
         } catch {
             XCTFail("Unexpected error: \(error)")
         }

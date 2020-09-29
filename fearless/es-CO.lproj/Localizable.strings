@@ -135,3 +135,16 @@ transferencias aparecerán aquí";
 "connection.add.invalid.error" = "No se puede establecer conexión con el nodo. Por favor, pruebe con otro.";
 "connection.add.unsupported.error" = "Desafortunadamente, la red no es compatible. Por favor, pruebe una de las siguientes %@.";
 "connection.add.already.exists.error" = "El nodo ya se agregó anteriormente. Por favor, pruebe con otro nodo.";
+"wallet.send.title" = "Enviar";
+"wallet.send.asset.title" = "Activo";
+"wallet.send.receiver.title" = "A";
+"wallet.send.fee.title" = "Tarifa de transferencia";
+"common.continue" = "Seguir";
+"wallet.send.amount.title" = "Cantidad";
+"wallet.send.confirm.title" = "Confirmar transferencia";
+"wallet.send.balance.title" = "Saldo libre";
+"wallet.contacts.empty.title" = "Los destinatarios a los que \
+envió activos se muestran aquí";
+"wallet.search.empty.title" = "Asegúrese de que la dirección \
+sea de la red correcta";
+"wallet.contacts.search.placeholder" = "Dirección de cuenta o nombre de cuenta";

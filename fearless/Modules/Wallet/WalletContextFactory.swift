@@ -7,6 +7,7 @@ import SoraFoundation
 
 enum WalletContextFactoryError: Error {
     case missingNode
+    case missingAccount
 }
 
 protocol WalletContextFactoryProtocol {
@@ -52,19 +53,29 @@ final class WalletContextFactory {
 
 extension WalletContextFactory: WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol {
-        let accountSettings = try primitiveFactory.createAccountSettings()
-
-        if let selectedAccount = SettingsManager.shared.selectedAccount {
-            logger.debug("Loading wallet account: \(selectedAccount.address)")
+        guard let selectedAccount = SettingsManager.shared.selectedAccount else {
+            throw WalletContextFactoryError.missingAccount
         }
 
+        let accountSettings = try primitiveFactory.createAccountSettings()
+        let amountFormatterFactory = AmountFormatterFactory()
+
+        logger.debug("Loading wallet account: \(selectedAccount.address)")
+
         let nodeUrl = SettingsManager.shared.selectedConnection.url
+        let networkType = SettingsManager.shared.selectedConnection.type
+
+        let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
+        let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
         let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
                                                            accountSettings: accountSettings,
+                                                           accountSigner: accountSigner,
+                                                           dummySigner: dummySigner,
                                                            logger: logger)
 
-        let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
+        let builder = CommonWalletBuilder.builder(with: accountSettings,
+                                                  networkOperationFactory: networkFactory)
 
         let localizationManager = LocalizationManager.shared
 
@@ -76,6 +87,18 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
 
+        let transferConfigurator = TransferConfigurator(assets: accountSettings.assets,
+                                                        amountFormatterFactory: amountFormatterFactory)
+        transferConfigurator.configure(builder: builder.transferModuleBuilder)
+
+        let confirmConfigurator = TransferConfirmConfigurator(assets: accountSettings.assets,
+                                                              amountFormatterFactory: amountFormatterFactory)
+        confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)
+
+        let contactsConfigurator = ContactsConfigurator(networkType: networkType,
+                                                        address: selectedAccount.address)
+        contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
+
         let context = try builder.build()
 
         subscribeContextToLanguageSwitch(context,
@@ -83,6 +106,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                          logger: logger)
 
         accountListConfigurator.context = context
+        contactsConfigurator.commandFactory = context
 
         return context
     }

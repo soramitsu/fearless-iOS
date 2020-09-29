@@ -33,13 +33,12 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
             amount = balance.balance.stringValue
         }
 
-        let name = asset.name.value(for: locale)
         let details: String
 
         if let platform = asset.platform?.value(for: locale) {
-            details = "\(platform) \(name)"
+            details = "\(platform) \(asset.symbol)"
         } else {
-            details = name
+            details = asset.name.value(for: locale)
         }
 
         let symbolViewModel: WalletImageViewModelProtocol?
