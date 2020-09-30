@@ -75,6 +75,7 @@ final class ContactsConfigurator {
             .with(scanPosition: .barButton)
             .with(actionFactoryWrapper: actionFactory)
             .with(canFindItself: false)
+            .with(supportsLiveSearch: true)
             .with(searchEmptyStateDataSource: WalletEmptyStateDataSource.search)
             .with(contactsEmptyStateDataSource: WalletEmptyStateDataSource.contacts)
             .with(viewStyle: contactsViewStyle)
