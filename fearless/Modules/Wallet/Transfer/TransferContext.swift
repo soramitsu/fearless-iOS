@@ -2,7 +2,7 @@ import Foundation
 
 struct TransferContext {
     static let balanceKey = "transfer.balance.key"
-    static let existentialDepositKey = "transfer.existensial.key"
+    static let existentialDepositKey = "transfer.existential.key"
 
     let balance: Decimal
     let existentialDeposit: Decimal

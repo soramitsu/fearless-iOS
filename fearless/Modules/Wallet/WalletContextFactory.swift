@@ -68,10 +68,12 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
         let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
+        let genesisHashData = try Data(hexString: networkType.genesisHash)
         let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
                                                            accountSettings: accountSettings,
                                                            accountSigner: accountSigner,
                                                            dummySigner: dummySigner,
+                                                           genesisHash: genesisHashData,
                                                            logger: logger)
 
         let builder = CommonWalletBuilder.builder(with: accountSettings,

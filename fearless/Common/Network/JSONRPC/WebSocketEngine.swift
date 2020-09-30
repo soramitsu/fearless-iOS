@@ -82,6 +82,7 @@ final class WebSocketEngine {
         pendingRequests = []
 
         for pending in currentPendings {
+            logger.debug("Sending request with id: \(pending.requestId)")
             send(request: pending)
         }
 

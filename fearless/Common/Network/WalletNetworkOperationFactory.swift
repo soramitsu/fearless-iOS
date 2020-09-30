@@ -10,17 +10,20 @@ final class WalletNetworkOperationFactory {
     let url: URL
     let accountSigner: IRSignatureCreatorProtocol
     let dummySigner: IRSignatureCreatorProtocol
+    let genesisHash: Data
     let logger: LoggerProtocol
 
     init(url: URL,
          accountSettings: WalletAccountSettingsProtocol,
          accountSigner: IRSignatureCreatorProtocol,
          dummySigner: IRSignatureCreatorProtocol,
+         genesisHash: Data,
          logger: LoggerProtocol) {
         self.url = url
         self.accountSettings = accountSettings
         self.accountSigner = accountSigner
         self.dummySigner = dummySigner
+        self.genesisHash = genesisHash
         self.logger = logger
     }
 
@@ -89,8 +92,9 @@ final class WalletNetworkOperationFactory {
                                    receiver: String,
                                    signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
         let accountInfoOperation = createAccountInfoFetchOperation(engine: targetOperation.engine)
-        let genesisOperation = createGenisisHashOperation(engine: targetOperation.engine)
         let runtimeVersionOperation = createRuntimeVersionOperation(engine: targetOperation.engine)
+
+        let currentGenesisHash = genesisHash
 
         targetOperation.configurationBlock = {
             do {
@@ -99,10 +103,6 @@ final class WalletNetworkOperationFactory {
                     .underlyingValue?
                     .nonce ?? 0
 
-                let genesisHashString = try genesisOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                let genesisHash = try Data(hexString: genesisHashString)
-
                 let runtimeVersion = try runtimeVersionOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
@@ -110,7 +110,7 @@ final class WalletNetworkOperationFactory {
                 let senderAccountId = try Data(hexString: sender)
 
                 let additionalParameters = ExtrinsicParameters(nonce: nonce,
-                                                               genesisHash: genesisHash,
+                                                               genesisHash: currentGenesisHash,
                                                                specVersion: runtimeVersion.specVersion,
                                                                transactionVersion: runtimeVersion.transactionVersion)
 
@@ -126,7 +126,7 @@ final class WalletNetworkOperationFactory {
             }
         }
 
-        let dependencies: [Operation] = [accountInfoOperation, genesisOperation, runtimeVersionOperation]
+        let dependencies: [Operation] = [accountInfoOperation, runtimeVersionOperation]
 
         dependencies.forEach { targetOperation.addDependency($0)}
 
