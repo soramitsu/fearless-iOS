@@ -3,6 +3,8 @@ import CommonWallet
 import FearlessUtils
 
 final class TransferConfirmViewModelFactory {
+    weak var commandFactory: WalletCommandFactoryProtocol?
+
     let assets: [WalletAsset]
     let amountFormatterFactory: NumberFormatterFactoryProtocol
 
@@ -25,11 +27,16 @@ final class TransferConfirmViewModelFactory {
         let headerViewModel = WalletFormDetailsHeaderModel(title: headerTitle)
         viewModelList.append(headerViewModel)
 
-        let subtitle: String = ""
+        let subtitle: String = R.string.localizable
+            .walletSendBalanceTitle(preferredLanguages: locale.rLanguages)
 
-        let tokenViewModel = WalletFormTokenViewModel(title: assetId.titleForLocale(locale),
-                                                      subtitle: subtitle,
-                                                      icon: assetId.icon)
+        let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
+        let tokenViewModel = WalletTokenViewModel(title: assetId.titleForLocale(locale),
+                                                  subtitle: subtitle,
+                                                  details: "",
+                                                  icon: assetId.icon,
+                                                  state: selectedState,
+                                                  detailsCommand: nil)
         viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.bottom]))
     }
 
@@ -92,8 +99,15 @@ final class TransferConfirmViewModelFactory {
                                 size: CGSize(width: 24.0, height: 24.0),
                                 contentScale: UIScreen.main.scale)
 
-        let viewModel = MultilineTitleIconViewModel(text: payload.receiverName,
-                                                    icon: icon)
+        let alertTitle = R.string.localizable
+            .commonCopied(preferredLanguages: locale.rLanguages)
+        let copyCommand = WalletCopyCommand(copyingString: payload.receiverName,
+                                            alertTitle: alertTitle)
+        copyCommand.commandFactory = commandFactory
+
+        let viewModel = WalletAccountViewModel(text: payload.receiverName,
+                                               icon: icon,
+                                               copyCommand: copyCommand)
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
     }
 }

@@ -6,7 +6,7 @@ final class TransferConfigurator {
     lazy private var headerStyle: WalletContainingHeaderStyle = {
         let text = WalletTextStyle(font: UIFont.p1Paragraph,
                                    color: R.color.colorWhite()!)
-        let contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        let contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
 
         return WalletContainingHeaderStyle(titleStyle: text,
                                            horizontalSpacing: 6.0,
@@ -27,26 +27,6 @@ final class TransferConfigurator {
         WalletStrokeStyle(color: R.color.colorDarkGray()!, lineWidth: 1.0)
     }()
 
-    lazy private var assetStyle: WalletContainingAssetStyle = {
-        let title = WalletTextStyle(font: UIFont.p1Paragraph,
-                                    color: R.color.colorLightGray()!)
-        let details = WalletTextStyle(font: UIFont.capsTitle,
-                                      color: R.color.colorGreen()!)
-        let contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16, right: 0.0)
-
-        return WalletContainingAssetStyle(containingHeaderStyle: headerStyle,
-                                          titleStyle: title,
-                                          subtitleStyle: title,
-                                          detailsStyle: details,
-                                          switchIcon: R.image.iconDropDown(),
-                                          contentInsets: contentInsets,
-                                          titleHorizontalSpacing: 8.0,
-                                          detailsHorizontalSpacing: 8.0,
-                                          displayStyle: .separatedDetails,
-                                          separatorStyle: separatorStyle,
-                                          containingErrorStyle: errorStyle)
-    }()
-
     lazy private var receiverStyle: WalletContainingReceiverStyle = {
         let textStyle = WalletTextStyle(font: UIFont.p1Paragraph,
                                         color: R.color.colorWhite()!)
@@ -58,23 +38,6 @@ final class TransferConfigurator {
                                              contentInsets: contentInsets,
                                              separatorStyle: separatorStyle,
                                              containingErrorStyle: errorStyle)
-    }()
-
-    lazy private var amountStyle: WalletContainingAmountStyle = {
-        let textStyle = WalletTextStyle(font: UIFont.h3Title,
-                                        color: R.color.colorWhite()!)
-        let contentInsets = UIEdgeInsets(top: 8.0, left: 0.0, bottom: 15, right: 0.0)
-
-        return WalletContainingAmountStyle(containingHeaderStyle: headerStyle,
-                                           assetStyle: textStyle,
-                                           inputStyle: textStyle,
-                                           keyboardIndicatorMode: .never,
-                                           keyboardIcon: nil,
-                                           caretColor: nil,
-                                           horizontalSpacing: 5.0,
-                                           contentInsets: contentInsets,
-                                           separatorStyle: separatorStyle,
-                                           containingErrorStyle: errorStyle)
     }()
 
     lazy private var feeStyle: WalletContainingFeeStyle = {
@@ -95,7 +58,17 @@ final class TransferConfigurator {
                                         containingErrorStyle: errorStyle)
     }()
 
-    let viewModelFactory: TransferViewModelFactoryOverriding
+    var commandFactory: WalletCommandFactoryProtocol? {
+        get {
+            viewModelFactory.commandFactory
+        }
+
+        set {
+            viewModelFactory.commandFactory = newValue
+        }
+    }
+
+    let viewModelFactory: TransferViewModelFactory
 
     init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
         viewModelFactory = TransferViewModelFactory(assets: assets,
@@ -110,9 +83,7 @@ final class TransferConfigurator {
         builder
             .with(localizableTitle: title)
             .with(containingHeaderStyle: headerStyle)
-            .with(selectedAssetStyle: assetStyle)
             .with(receiverStyle: receiverStyle)
-            .with(amountStyle: amountStyle)
             .with(feeStyle: feeStyle)
             .with(feeDisplayStyle: .separatedDetails)
             .with(receiverPosition: .form)
@@ -121,5 +92,6 @@ final class TransferConfigurator {
             .with(headerFactory: TransferHeaderViewModelFactory())
             .with(transferViewModelFactory: viewModelFactory)
             .with(accessoryViewFactory: WalletSingleActionAccessoryFactory.self)
+            .with(operationDefinitionFactory: TransferDefinitionFactory())
     }
 }

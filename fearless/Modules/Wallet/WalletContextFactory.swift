@@ -107,6 +107,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         accountListConfigurator.context = context
         contactsConfigurator.commandFactory = context
+        transferConfigurator.commandFactory = context
+        confirmConfigurator.commandFactory = context
 
         return context
     }

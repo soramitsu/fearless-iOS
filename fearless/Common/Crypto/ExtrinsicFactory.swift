@@ -4,10 +4,10 @@ import BigInt
 import FearlessUtils
 
 protocol ExtrinsicFactoryProtocol {
-    static func transferExtrinsic(_ address: String,
+    static func transferExtrinsic(from senderAccountId: Data,
+                                  to receiverAccountId: Data,
                                   amount: BigUInt,
-                                  nonce: UInt32,
-                                  genesisHash: Data,
+                                  additionalParameters: ExtrinsicParameters,
                                   signer: IRSignatureCreatorProtocol) throws -> Data
 }
 
@@ -18,7 +18,7 @@ struct ExtrinsicParameters {
     let transactionVersion: UInt32
 }
 
-struct ExtrinsicFactory {
+struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
     static let signatureVersion: UInt8 = 1
     static let extrinsicVersion: UInt8 = 132
 

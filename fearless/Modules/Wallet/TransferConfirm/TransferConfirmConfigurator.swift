@@ -3,7 +3,17 @@ import CommonWallet
 import SoraFoundation
 
 final class TransferConfirmConfigurator {
-    let viewModelFactory: TransferConfirmationViewModelFactoryOverriding
+    var commandFactory: WalletCommandFactoryProtocol? {
+        get {
+            viewModelFactory.commandFactory
+        }
+
+        set {
+            viewModelFactory.commandFactory = newValue
+        }
+    }
+
+    let viewModelFactory: TransferConfirmViewModelFactory
 
     init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
         viewModelFactory = TransferConfirmViewModelFactory(assets: assets,
@@ -20,7 +30,6 @@ final class TransferConfirmConfigurator {
             .with(accessoryViewType: .onlyActionBar)
             .with(completion: .hide)
             .with(viewModelFactoryOverriding: viewModelFactory)
-            .with(itemViewFactory: WalletFormItemViewFactory())
             .with(viewBinder: TransferConfirmBinder())
             .with(definitionFactory: TransferConfirmDefinitionFactory())
             .with(accessoryViewFactory: TransferConfirmAccessoryViewFactory.self)
