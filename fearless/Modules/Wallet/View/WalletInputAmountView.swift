@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraUI
+import SoraFoundation
 
 final class WalletInputAmountView: WalletBaseAmountView {
     var contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0) {
@@ -49,7 +50,6 @@ extension WalletInputAmountView: AmountInputViewProtocol {
 
         self.inputViewModel?.observable.add(observer: self)
 
-        animatedTextField.title = R.string.localizable.walletSendAmountTitle()
         animatedTextField.text = inputViewModel.displayAmount
 
         fieldBackgroundView.applyEnabledStyle()
@@ -75,5 +75,13 @@ extension WalletInputAmountView: AnimatedTextFieldDelegate {
 
     func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
         return true
+    }
+}
+
+extension WalletInputAmountView: Localizable {
+    func applyLocalization() {
+        let locale = localizationManager?.selectedLocale
+        animatedTextField.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: locale?.rLanguages)
     }
 }

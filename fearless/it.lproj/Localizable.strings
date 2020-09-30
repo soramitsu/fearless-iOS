@@ -147,3 +147,4 @@ vengono visualizzati qui";
 "wallet.search.empty.title" = "Assicurati che l'indirizzo \
 provenga dalla rete corretta";
 "wallet.contacts.search.placeholder" = "Indirizzo dell'account o nome dell'account";
+"wallet.transfer.total.title" = "Totale";

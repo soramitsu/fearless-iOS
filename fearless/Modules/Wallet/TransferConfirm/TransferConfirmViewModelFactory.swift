@@ -30,10 +30,15 @@ final class TransferConfirmViewModelFactory {
         let subtitle: String = R.string.localizable
             .walletSendBalanceTitle(preferredLanguages: locale.rLanguages)
 
+        let context = TransferContext(context: payload.transferInfo.context ?? [:])
+
+        let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
+        let details = amountFormatter.value(for: locale).string(from: context.balance) ?? ""
+
         let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
         let tokenViewModel = WalletTokenViewModel(title: assetId.titleForLocale(locale),
                                                   subtitle: subtitle,
-                                                  details: "",
+                                                  details: details,
                                                   icon: assetId.icon,
                                                   state: selectedState,
                                                   detailsCommand: nil)
@@ -144,6 +149,12 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
         }
 
         let actionTitle = R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
-        return AccessoryViewModel(title: amount, action: actionTitle)
+        let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+
+        return TransferConfirmAccessoryViewModel(title: title,
+                                                 icon: nil,
+                                                 action: actionTitle,
+                                                 numberOfLines: 1,
+                                                 amount: amount)
     }
 }

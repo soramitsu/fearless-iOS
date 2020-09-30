@@ -68,17 +68,24 @@ final class TransferConfigurator {
         }
     }
 
+    let localizationManager: LocalizationManagerProtocol
+
     let viewModelFactory: TransferViewModelFactory
 
-    init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
+    init(assets: [WalletAsset],
+         amountFormatterFactory: NumberFormatterFactoryProtocol,
+         localizationManager: LocalizationManagerProtocol) {
         viewModelFactory = TransferViewModelFactory(assets: assets,
                                                     amountFormatterFactory: amountFormatterFactory)
+        self.localizationManager = localizationManager
     }
 
     func configure(builder: TransferModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
             R.string.localizable.walletSendTitle(preferredLanguages: locale.rLanguages)
         }
+
+        let definitionFactory = TransferDefinitionFactory(localizationManager: localizationManager)
 
         builder
             .with(localizableTitle: title)
@@ -92,6 +99,7 @@ final class TransferConfigurator {
             .with(headerFactory: TransferHeaderViewModelFactory())
             .with(transferViewModelFactory: viewModelFactory)
             .with(accessoryViewFactory: WalletSingleActionAccessoryFactory.self)
-            .with(operationDefinitionFactory: TransferDefinitionFactory())
+            .with(operationDefinitionFactory: definitionFactory)
+            .with(resultValidator: TransferValidator())
     }
 }

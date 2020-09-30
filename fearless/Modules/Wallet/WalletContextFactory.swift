@@ -88,7 +88,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
 
         let transferConfigurator = TransferConfigurator(assets: accountSettings.assets,
-                                                        amountFormatterFactory: amountFormatterFactory)
+                                                        amountFormatterFactory: amountFormatterFactory,
+                                                        localizationManager: localizationManager)
         transferConfigurator.configure(builder: builder.transferModuleBuilder)
 
         let confirmConfigurator = TransferConfirmConfigurator(assets: accountSettings.assets,
