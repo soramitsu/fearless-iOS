@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SoraFoundation
 
 final class TransferConfirmAccessoryView: UIView {
     @IBOutlet private var titleLabel: UILabel!
@@ -25,7 +26,11 @@ extension TransferConfirmAccessoryView: CommonWallet.AccessoryViewProtocol {
 
     func bind(viewModel: AccessoryViewModelProtocol) {
         actionButton.imageWithTitleView?.title = viewModel.action
-        detailsLabel.text = viewModel.title
+        titleLabel.text = viewModel.title
         actionButton.invalidateLayout()
+
+        if let amountViewModel = viewModel as? TransferConfirmAccessoryViewModel {
+            detailsLabel.text = amountViewModel.amount
+        }
     }
 }

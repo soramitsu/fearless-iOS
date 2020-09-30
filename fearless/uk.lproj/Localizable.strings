@@ -148,3 +148,4 @@
 "wallet.search.empty.title" = "Переконайтеся, що адреса надходить \
 із потрібної мережі";
 "wallet.contacts.search.placeholder" = "Адреса рахунку або назва рахунку";
+"wallet.transfer.total.title" = "Разом";

@@ -148,3 +148,4 @@ envoyé des éléments s'affichent ici";
 "wallet.search.empty.title" = "Assurez-vous que l'adresse \
 provient du bon réseau";
 "wallet.contacts.search.placeholder" = "Adresse du compte ou nom du compte";
+"wallet.transfer.total.title" = "Total";

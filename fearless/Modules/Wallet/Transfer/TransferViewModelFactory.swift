@@ -4,6 +4,8 @@ import IrohaCrypto
 import FearlessUtils
 
 final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
+    weak var commandFactory: WalletCommandFactoryProtocol?
+
     let assets: [WalletAsset]
     let amountFormatterFactory: NumberFormatterFactoryProtocol
 
@@ -39,8 +41,8 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
                                     details: String?,
                                     payload: TransferPayload,
                                     locale: Locale) throws
-        -> DescriptionInputViewModelProtocol? {
-        return nil
+        -> WalletOverridingResult<DescriptionInputViewModelProtocol?>? {
+        return WalletOverridingResult(item: nil)
     }
 
     func createSelectedAssetViewModel(_ inputState: TransferInputState,
@@ -58,8 +60,11 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let amount = formatter.string(from: inputState.balance?.balance.decimalValue ?? 0.0) ?? ""
 
+        let subtitle = R.string.localizable
+            .walletSendBalanceTitle(preferredLanguages: locale.rLanguages)
+
         return AssetSelectionViewModel(title: asset.name.value(for: locale),
-                                       subtitle: "",
+                                       subtitle: subtitle,
                                        details: amount,
                                        icon: assetId.icon,
                                        state: selectedAssetState)
@@ -87,7 +92,15 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
                                 size: CGSize(width: 24.0, height: 24.0),
                                 contentScale: UIScreen.main.scale)
 
-        return MultilineTitleIconViewModel(text: payload.receiverName, icon: icon)
+        let alertTitle = R.string.localizable
+            .commonCopied(preferredLanguages: locale.rLanguages)
+        let copyCommand = WalletCopyCommand(copyingString: payload.receiverName,
+                                            alertTitle: alertTitle)
+        copyCommand.commandFactory = commandFactory
+
+        return WalletAccountViewModel(text: payload.receiverName,
+                                      icon: icon,
+                                      copyCommand: copyCommand)
     }
 
     func createAccessoryViewModel(_ inputState: TransferInputState,

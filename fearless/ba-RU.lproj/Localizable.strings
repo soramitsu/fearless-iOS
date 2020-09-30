@@ -145,3 +145,4 @@
 "wallet.search.empty.title" = "Убедитесь, что адрес \
 из правильной сети";
 "wallet.contacts.search.placeholder" = "Адрес аккаунта или имя аккаунта";
+"wallet.transfer.total.title" = "Всего";

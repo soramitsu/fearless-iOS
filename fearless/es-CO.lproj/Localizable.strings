@@ -148,3 +148,4 @@ envió activos se muestran aquí";
 "wallet.search.empty.title" = "Asegúrese de que la dirección \
 sea de la red correcta";
 "wallet.contacts.search.placeholder" = "Dirección de cuenta o nombre de cuenta";
+"wallet.transfer.total.title" = "Total";

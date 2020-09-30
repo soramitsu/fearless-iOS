@@ -148,3 +148,4 @@ are displayed here";
 "wallet.search.empty.title" = "Make sure that the address is \
 from the right network";
 "wallet.contacts.search.placeholder" = "Account address or account name";
+"wallet.transfer.total.title" = "Total";

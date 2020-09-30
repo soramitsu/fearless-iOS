@@ -5,8 +5,7 @@ final class TransferHeaderViewModelFactory: OperationDefinitionHeaderModelFactor
     func createAmountTitle(assetId: String,
                            receiverId: String?,
                            locale: Locale) -> MultilineTitleIconViewModelProtocol? {
-        let text = R.string.localizable.walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        return MultilineTitleIconViewModel(text: text)
+        nil
     }
 
     func createAssetTitle(assetId: String,
