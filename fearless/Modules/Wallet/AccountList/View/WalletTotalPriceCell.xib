@@ -67,6 +67,9 @@
                                 <real key="value" value="16"/>
                             </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
+                        <connections>
+                            <action selector="actionAccount" destination="SLg-LF-5gz" eventType="touchUpInside" id="abE-xY-Jdj"/>
+                        </connections>
                     </view>
                 </subviews>
                 <constraints>
@@ -81,6 +84,11 @@
                     <constraint firstItem="FOw-EL-VT5" firstAttribute="leading" secondItem="csr-gn-hXe" secondAttribute="leading" constant="16" id="xR5-fA-X8z"/>
                 </constraints>
             </collectionViewCellContentView>
+            <connections>
+                <outlet property="accountButton" destination="sAM-KP-e9Z" id="fW0-uX-K0E"/>
+                <outlet property="priceLabel" destination="33J-Tg-BMc" id="feP-qV-1UK"/>
+                <outlet property="titleLabel" destination="FOw-EL-VT5" id="1C0-he-O9e"/>
+            </connections>
             <point key="canvasLocation" x="139" y="153"/>
         </collectionViewCell>
     </objects>
