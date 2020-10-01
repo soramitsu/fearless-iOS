@@ -10,7 +10,7 @@ enum DummySigningType {
 final class DummySigner: SigningWrapperProtocol {
     let type: DummySigningType
 
-    init(cryptoType: CryptoType, seed: Data = Data(repeating: 0, count: 32)) throws {
+    init(cryptoType: CryptoType, seed: Data = Data(repeating: 1, count: 32)) throws {
         switch cryptoType {
         case .sr25519:
             let keypair = try SNKeyFactory().createKeypair(fromSeed: seed)
@@ -33,7 +33,7 @@ final class DummySigner: SigningWrapperProtocol {
         case .ed25519(let seed):
             return try signEd25519(originalData, secretKey: seed)
         case .ecdsa(let seed):
-            return try signEd25519(originalData, secretKey: seed)
+            return try signEcdsa(originalData, secretKey: seed)
         }
     }
 }

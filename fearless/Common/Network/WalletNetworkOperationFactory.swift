@@ -11,16 +11,19 @@ final class WalletNetworkOperationFactory {
     let accountSigner: IRSignatureCreatorProtocol
     let dummySigner: IRSignatureCreatorProtocol
     let genesisHash: Data
+    let cryptoType: CryptoType
     let logger: LoggerProtocol
 
     init(url: URL,
          accountSettings: WalletAccountSettingsProtocol,
+         cryptoType: CryptoType,
          accountSigner: IRSignatureCreatorProtocol,
          dummySigner: IRSignatureCreatorProtocol,
          genesisHash: Data,
          logger: LoggerProtocol) {
         self.url = url
         self.accountSettings = accountSettings
+        self.cryptoType = cryptoType
         self.accountSigner = accountSigner
         self.dummySigner = dummySigner
         self.genesisHash = genesisHash
@@ -95,6 +98,7 @@ final class WalletNetworkOperationFactory {
         let runtimeVersionOperation = createRuntimeVersionOperation(engine: targetOperation.engine)
 
         let currentGenesisHash = genesisHash
+        let currentCryptoType = cryptoType
 
         targetOperation.configurationBlock = {
             do {
@@ -112,7 +116,8 @@ final class WalletNetworkOperationFactory {
                 let additionalParameters = ExtrinsicParameters(nonce: nonce,
                                                                genesisHash: currentGenesisHash,
                                                                specVersion: runtimeVersion.specVersion,
-                                                               transactionVersion: runtimeVersion.transactionVersion)
+                                                               transactionVersion: runtimeVersion.transactionVersion,
+                                                               signatureVersion: currentCryptoType.version)
 
                 let extrinsicData = try ExtrinsicFactory.transferExtrinsic(from: senderAccountId,
                                                                            to: receiverAccountId,

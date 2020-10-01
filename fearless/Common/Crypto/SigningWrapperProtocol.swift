@@ -36,6 +36,7 @@ extension SigningWrapperProtocol {
 
         let signer = SECSigner(privateKey: privateKey)
 
-        return try signer.sign(originalData)
+        let hashedData = try originalData.blake2b32()
+        return try signer.sign(hashedData)
     }
 }

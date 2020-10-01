@@ -16,10 +16,10 @@ struct ExtrinsicParameters {
     let genesisHash: Data
     let specVersion: UInt32
     let transactionVersion: UInt32
+    let signatureVersion: UInt8
 }
 
 struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
-    static let signatureVersion: UInt8 = 1
     static let extrinsicVersion: UInt8 = 132
 
     static func transferExtrinsic(from senderAccountId: Data,
@@ -51,10 +51,12 @@ struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
         let payloadEncoder = ScaleEncoder()
         try payload.encode(scaleEncoder: payloadEncoder)
 
-        let signature = try signer.sign(payloadEncoder.encode())
+        let payloadData = payloadEncoder.encode()
+
+        let signature = try signer.sign(payloadData)
 
         let transaction = Transaction(accountId: senderAccountId,
-                                      signatureVersion: Self.signatureVersion,
+                                      signatureVersion: additionalParameters.signatureVersion,
                                       signature: signature.rawData(),
                                       era: era,
                                       nonce: additionalParameters.nonce,
