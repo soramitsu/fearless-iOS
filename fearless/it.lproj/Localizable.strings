@@ -126,6 +126,7 @@ trasferimenti appariranno qui";
 "account.needed.title" = "Account necessario";
 "account.needed.message" = "Non hai un account per questa rete, puoi creare o importare un account.";
 "common.proceed" = "Procedere";
+"wallet.assets.total.title" = "Valore delle attività";
 "network.info.title" = "Informazioni sul nodo";
 "network.info.name" = "Nome nodo";
 "network.info.address" = "Indirizzo del nodo";

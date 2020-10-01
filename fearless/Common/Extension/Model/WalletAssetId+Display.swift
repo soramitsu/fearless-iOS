@@ -14,6 +14,19 @@ extension WalletAssetId {
         }
     }
 
+    var assetIcon: UIImage? {
+        switch self {
+        case .dot:
+            return R.image.iconPolkadotAsset()
+        case .kusama:
+            return R.image.iconKsmAsset()
+        case .westend:
+            return R.image.iconWestendAsset()
+        case .usd:
+            return nil
+        }
+    }
+
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
         case .dot:

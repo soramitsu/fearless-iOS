@@ -71,7 +71,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         let totalPriceAsset = WalletAsset(identifier: WalletAssetId.usd.rawValue,
                                           name: LocalizableResource { _ in "" },
                                           platform: LocalizableResource { _ in "" },
-                                          symbol: "",
+                                          symbol: "$",
                                           precision: 2,
                                           modes: .view)
 

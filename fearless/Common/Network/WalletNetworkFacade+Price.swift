@@ -50,12 +50,12 @@ extension WalletNetworkFacade {
             // if prev price was zero then change is 100%
 
             guard prevPriceValue > .zero else {
-                return Price(assetId: asset, lastValue: currentPriceValue, change: 100)
+                return Price(assetId: asset, lastValue: currentPriceValue, change: 1.0)
             }
 
             // calculating change in price in percentage
 
-            let change = ((currentPriceValue - prevPriceValue) / prevPriceValue) * 100.0
+            let change = ((currentPriceValue - prevPriceValue) / prevPriceValue)
 
             return Price(assetId: asset, lastValue: currentPriceValue, change: change)
         }

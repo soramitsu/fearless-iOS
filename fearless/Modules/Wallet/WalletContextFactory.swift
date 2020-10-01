@@ -8,6 +8,7 @@ import SoraFoundation
 enum WalletContextFactoryError: Error {
     case missingNode
     case missingAccount
+    case missingPriceAsset
 }
 
 protocol WalletContextFactoryProtocol {
@@ -58,6 +59,12 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         }
 
         let accountSettings = try primitiveFactory.createAccountSettings()
+
+        guard let priceAsset = accountSettings.assets
+            .first(where: { $0.identifier == WalletAssetId.usd.rawValue }) else {
+            throw WalletContextFactoryError.missingPriceAsset
+        }
+
         let amountFormatterFactory = AmountFormatterFactory()
 
         logger.debug("Loading wallet account: \(selectedAccount.address)")
@@ -89,10 +96,14 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        WalletCommonConfigurator(localizationManager: localizationManager).configure(builder: builder)
+        WalletCommonConfigurator(localizationManager: localizationManager,
+                                 networkType: networkType).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
-        let accountListConfigurator = WalletAccountListConfigurator(logger: logger)
+        let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
+                                                                    priceAsset: priceAsset,
+                                                                    logger: logger)
+
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)
 
         TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
@@ -116,7 +127,6 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                          localizationManager: localizationManager,
                                          logger: logger)
 
-        accountListConfigurator.context = context
         contactsConfigurator.commandFactory = context
         transferConfigurator.commandFactory = context
         confirmConfigurator.commandFactory = context

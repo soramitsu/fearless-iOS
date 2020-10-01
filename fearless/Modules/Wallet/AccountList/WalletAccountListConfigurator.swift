@@ -2,13 +2,21 @@ import Foundation
 import CommonWallet
 
 final class WalletAccountListConfigurator {
-
-    var context: CommonWalletContextProtocol? = nil
-
     let logger: LoggerProtocol
 
-    init(logger: LoggerProtocol) {
+    let viewModelFactory: WalletAssetViewModelFactory
+    let assetStyleFactory: AssetStyleFactory
+
+    init(address: String, priceAsset: WalletAsset, logger: LoggerProtocol) {
         self.logger = logger
+
+        assetStyleFactory = AssetStyleFactory()
+
+        let amountFormatterFactory = AmountFormatterFactory()
+        viewModelFactory = WalletAssetViewModelFactory(address: address,
+                                                       assetCellStyleFactory: assetStyleFactory,
+                                                       amountFormatterFactory: amountFormatterFactory,
+                                                       priceAsset: priceAsset)
     }
 
     func configure(builder: AccountListModuleBuilderProtocol) {
@@ -17,14 +25,12 @@ final class WalletAccountListConfigurator {
             var viewStyle = AccountListViewStyle(refreshIndicatorStyle: R.color.colorWhite()!)
             viewStyle.backgroundImage = R.image.backgroundImage()
 
-            let assetStyleFactory = AssetStyleFactory()
-            let amountFormatterFactory = AmountFormatterFactory()
-            let viewModelFactory = WalletAssetViewModelFactory(cellIdentifier: builder.assetCellIdentifier,
-                                                               assetCellStyleFactory: assetStyleFactory,
-                                                               amountFormatterFactory: amountFormatterFactory)
-
             try builder
             .withActions(cellNib: UINib(resource: R.nib.walletActionsCell))
+            .with(cellNib: UINib(resource: R.nib.walletTotalPriceCell),
+                  for: WalletAccountListConstants.totalPriceCellId)
+            .with(cellNib: UINib(resource: R.nib.walletAssetCell),
+                  for: WalletAccountListConstants.assetCellId)
             .with(listViewModelFactory: viewModelFactory)
             .with(assetCellStyleFactory: assetStyleFactory)
             .with(viewStyle: viewStyle)

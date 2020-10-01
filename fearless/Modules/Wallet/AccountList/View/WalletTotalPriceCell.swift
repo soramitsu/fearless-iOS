@@ -9,6 +9,12 @@ final class WalletTotalPriceCell: UICollectionViewCell {
 
     var viewModel: WalletViewModelProtocol?
 
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        (viewModel as? WalletTotalPriceViewModel)?.imageViewModel?.cancel()
+    }
+
     @IBAction private func actionAccount() {
         try? (viewModel as? WalletTotalPriceViewModel)?.accountCommand?.execute()
     }
@@ -19,8 +25,14 @@ extension WalletTotalPriceCell: WalletViewProtocol {
         if let totalPriceViewModel = viewModel as? WalletTotalPriceViewModel {
             self.viewModel = totalPriceViewModel
 
-            titleLabel.text = totalPriceViewModel.title
-            priceLabel.text = totalPriceViewModel.price
+            titleLabel.text = totalPriceViewModel.details
+            priceLabel.text = totalPriceViewModel.amount
+
+            accountButton.imageWithTitleView?.iconImage = nil
+
+            totalPriceViewModel.imageViewModel?.loadImage { [weak self] (image, _)  in
+                self?.accountButton.imageWithTitleView?.iconImage = image
+            }
         }
     }
 }

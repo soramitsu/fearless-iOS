@@ -127,6 +127,7 @@ transfers will appear here";
 "account.needed.title" = "Account needed";
 "account.needed.message" = "You don’t have account for this network, you can create or import account.";
 "common.proceed" = "Proceed";
+"wallet.assets.total.title" = "Assets value";
 "network.info.title" = "Node Info";
 "network.info.name" = "Node name";
 "network.info.address" = "Node address";
