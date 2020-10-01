@@ -9,6 +9,8 @@ extension WalletAssetId {
             return R.image.iconKsmSmallBg()
         case .westend:
             return R.image.iconWestendSmallBg()
+        case .usd:
+            return nil
         }
     }
 
@@ -20,6 +22,8 @@ extension WalletAssetId {
             return "Kusama"
         case .westend:
             return "Westend"
+        case .usd:
+            return "Usd"
         }
     }
 }

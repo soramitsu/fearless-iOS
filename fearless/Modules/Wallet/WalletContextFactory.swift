@@ -69,15 +69,22 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
         let genesisHashData = try Data(hexString: networkType.genesisHash)
-        let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
-                                                           accountSettings: accountSettings,
-                                                           accountSigner: accountSigner,
-                                                           dummySigner: dummySigner,
-                                                           genesisHash: genesisHashData,
-                                                           logger: logger)
+        let nodeOperationFactory = WalletNetworkOperationFactory(url: nodeUrl,
+                                                                 accountSettings: accountSettings,
+                                                                 accountSigner: accountSigner,
+                                                                 dummySigner: dummySigner,
+                                                                 genesisHash: genesisHashData,
+                                                                 logger: logger)
+
+        let subscanOperationFactory = SubscanOperationFactory()
+        let networkFacade = WalletNetworkFacade(nodeOperationFactory: nodeOperationFactory,
+                                                subscanOperationFactory: subscanOperationFactory,
+                                                address: selectedAccount.address,
+                                                networkType: networkType,
+                                                totalPriceAssetId: .usd)
 
         let builder = CommonWalletBuilder.builder(with: accountSettings,
-                                                  networkOperationFactory: networkFactory)
+                                                  networkOperationFactory: networkFacade)
 
         let localizationManager = LocalizationManager.shared
 

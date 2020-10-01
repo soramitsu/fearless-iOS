@@ -64,9 +64,16 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                                 precision: precision,
                                 modes: .all)
 
+        let totalPriceAsset = WalletAsset(identifier: WalletAssetId.usd.rawValue,
+                                          name: LocalizableResource { _ in "" },
+                                          platform: LocalizableResource { _ in "" },
+                                          symbol: "",
+                                          precision: 2,
+                                          modes: .view)
+
         let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
                                                            type: settings.selectedConnection.type)
 
-        return WalletAccountSettings(accountId: accountId.toHex(), assets: [asset])
+        return WalletAccountSettings(accountId: accountId.toHex(), assets: [totalPriceAsset, asset])
     }
 }
