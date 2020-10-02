@@ -160,7 +160,7 @@ class SigningWrapperTests: XCTestCase {
 
     private func performEcdsaSigningTest(keychain: KeystoreProtocol,
                                            settings: SettingsManagerProtocol) throws {
-        let originalData = try Self.message.data(using: .utf8)!.blake2b32()
+        let originalData = Self.message.data(using: .utf8)!
 
         let signer = SigningWrapper(keystore: keychain, settings: settings)
 
@@ -174,8 +174,9 @@ class SigningWrapperTests: XCTestCase {
 
         let publicKey = try SECPublicKey(rawData: publicKeyData)
 
+        let verificationData = try originalData.blake2b32()
         XCTAssertTrue(verifier.verify(signature,
-                                      forOriginalData: originalData,
+                                      forOriginalData: verificationData,
                                       usingPublicKey: publicKey))
     }
 }

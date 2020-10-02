@@ -14,10 +14,17 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenAmountFormatter> {
         let numberFormatter = createNumberFormatter(for: asset)
 
-        return TokenAmountFormatter(numberFormatter: numberFormatter,
-                                    tokenSymbol: asset?.symbol ?? "",
-                                    separator: " ",
-                                    position: .suffix).localizableResource()
+        if asset?.identifier == WalletAssetId.usd.rawValue {
+            return TokenAmountFormatter(numberFormatter: numberFormatter,
+                                        tokenSymbol: asset?.symbol ?? "",
+                                        separator: "",
+                                        position: .prefix).localizableResource()
+        } else {
+            return TokenAmountFormatter(numberFormatter: numberFormatter,
+                                        tokenSymbol: asset?.symbol ?? "",
+                                        separator: " ",
+                                        position: .suffix).localizableResource()
+        }
     }
 
     private func createFormatter(for asset: WalletAsset?) -> LocalizableResource<NumberFormatter> {

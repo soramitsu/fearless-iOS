@@ -127,6 +127,7 @@ apparaitront ici";
 "account.needed.title" = "Compte nécessaire";
 "account.needed.message" = "Vous n'avez pas de compte pour ce réseau, vous pouvez créer ou importer un compte.";
 "common.proceed" = "Procéder";
+"wallet.assets.total.title" = "Valeur des actifs";
 "network.info.title" = "Informations sur le nœud";
 "network.info.name" = "Nom du nœud";
 "network.info.address" = "Adresse de nœud";

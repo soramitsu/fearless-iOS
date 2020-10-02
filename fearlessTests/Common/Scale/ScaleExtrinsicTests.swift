@@ -4,8 +4,8 @@ import IrohaCrypto
 import FearlessUtils
 
 class ScaleExtrinsicTestsTests: XCTestCase {
-    func testImmortal() throws {
-        let expectedData = try Data(hexString: "0x3502848ad2a3fba73321961cd5d1b8272aa95a21e75dd5b098fb36ed996961ac7b2931015604975bd1ce5ac5d00210216db0944278db674146a08f69257ef45cd1f9f1680800c437195b6181bd3161bdd23fb6bb856ed7427787edef125a692bd512b5880014000400dd0072af4b3b66a01be502555d4ddafb55e8e7df3fb04c836d83255547a8a2ff0700e40b5402")
+    func testEcdsaExtrinsic() throws {
+        let expectedData = try Data(hexString: "0x3902848a6da7dc6a1d69fcd96b00272053e3885aedb26a8bd461b5093621b7b2dba42a02bcf07bae88dfc74a786fa0f8922a85bbba805ed32fd2cb7b5315c5a11c3ca0b5aed916e5dffb215927f89e46a1e03a778ddebcf74ac10e2ab466d84182c8ca15010000000400d44468311136089496167577614e28b934710d799583177a86af6352d09f6f6b070010a5d4e8")
 
         let decoder = try ScaleDecoder(data: expectedData)
         let extrinsic = try Extrinsic(scaleDecoder: decoder)

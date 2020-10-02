@@ -9,6 +9,21 @@ extension WalletAssetId {
             return R.image.iconKsmSmallBg()
         case .westend:
             return R.image.iconWestendSmallBg()
+        case .usd:
+            return nil
+        }
+    }
+
+    var assetIcon: UIImage? {
+        switch self {
+        case .dot:
+            return R.image.iconPolkadotAsset()
+        case .kusama:
+            return R.image.iconKsmAsset()
+        case .westend:
+            return R.image.iconWestendAsset()
+        case .usd:
+            return nil
         }
     }
 
@@ -20,6 +35,8 @@ extension WalletAssetId {
             return "Kusama"
         case .westend:
             return "Westend"
+        case .usd:
+            return "Usd"
         }
     }
 }

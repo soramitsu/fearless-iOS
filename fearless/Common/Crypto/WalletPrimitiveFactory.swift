@@ -23,20 +23,14 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         self.settings = settings
     }
 
-    func createAccountSettings() throws -> WalletAccountSettingsProtocol {
-        guard let selectedAccount = settings.selectedAccount else {
-            throw WalletPrimitiveFactoryError.missingAccountId
-        }
-
-        let selectedConnectionType = settings.selectedConnection.type
-
+    private func createAssetForAddressType(_ addressType: SNAddressType) -> WalletAsset {
         let localizableName: LocalizableResource<String>
         let platformName: LocalizableResource<String>
         let symbol: String
         let identifier: String
         let precision: Int16
 
-        switch selectedConnectionType {
+        switch addressType {
         case .polkadotMain:
             identifier = WalletAssetId.dot.rawValue
             localizableName = LocalizableResource<String> { _ in "DOT" }
@@ -57,16 +51,34 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             precision = 12
         }
 
-        let asset = WalletAsset(identifier: identifier,
-                                name: localizableName,
-                                platform: platformName,
-                                symbol: symbol,
-                                precision: precision,
-                                modes: .all)
+        return WalletAsset(identifier: identifier,
+                           name: localizableName,
+                           platform: platformName,
+                           symbol: symbol,
+                           precision: precision,
+                           modes: .all)
+    }
+
+    func createAccountSettings() throws -> WalletAccountSettingsProtocol {
+        guard let selectedAccount = settings.selectedAccount else {
+            throw WalletPrimitiveFactoryError.missingAccountId
+        }
+
+        let selectedConnectionType = settings.selectedConnection.type
+
+        let networkAsset = createAssetForAddressType(selectedConnectionType)
+
+        let totalPriceAsset = WalletAsset(identifier: WalletAssetId.usd.rawValue,
+                                          name: LocalizableResource { _ in "" },
+                                          platform: LocalizableResource { _ in "" },
+                                          symbol: "$",
+                                          precision: 4,
+                                          modes: .view)
 
         let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
                                                            type: settings.selectedConnection.type)
 
-        return WalletAccountSettings(accountId: accountId.toHex(), assets: [asset])
+        return WalletAccountSettings(accountId: accountId.toHex(),
+                                     assets: [totalPriceAsset, networkAsset])
     }
 }

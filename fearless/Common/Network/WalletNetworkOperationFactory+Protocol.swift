@@ -14,7 +14,9 @@ enum WalletNetworkOperationFactoryError: Error {
 
 extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
-        guard let asset = assets.first else {
+        guard
+            let assetId = assets.first,
+            let asset = accountSettings.assets.first(where: { $0.identifier == assetId }) else {
             let operation = BaseOperation<[BalanceData]?>()
             operation.result = .failure(NetworkBaseError.unexpectedEmptyData)
             return CompoundOperationWrapper(targetOperation: operation)
@@ -33,13 +35,14 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
                 if
                     let accountInfo = info.underlyingValue,
-                    let amountDecimal = Decimal.fromSubstrateAmount(accountInfo.data.free.value) {
+                    let amountDecimal = Decimal
+                        .fromSubstrateAmount(accountInfo.data.free.value, precision: asset.precision) {
                     amount = AmountDecimal(value: amountDecimal)
                 } else {
                     amount = AmountDecimal(value: 0)
                 }
 
-                let balance = BalanceData(identifier: asset, balance: amount)
+                let balance = BalanceData(identifier: asset.identifier, balance: amount)
 
                 return [balance]
             case .failure(let error):

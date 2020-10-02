@@ -9,4 +9,15 @@ extension NumberFormatter {
         numberFormatter.alwaysShowsDecimalSeparator = false
         return numberFormatter
     }
+
+    static var percent: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .percent
+        numberFormatter.minimumIntegerDigits = 1
+        numberFormatter.maximumFractionDigits = 2
+        numberFormatter.usesGroupingSeparator = true
+        numberFormatter.alwaysShowsDecimalSeparator = false
+        numberFormatter.positivePrefix = numberFormatter.plusSign
+        return numberFormatter
+    }
 }
