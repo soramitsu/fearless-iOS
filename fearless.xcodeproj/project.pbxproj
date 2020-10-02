@@ -418,6 +418,11 @@
 		84FB1F672526920B00E0242B /* HistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F662526920B00E0242B /* HistoryData.swift */; };
 		84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F68252694B600E0242B /* HistoryInfo.swift */; };
 		84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F6C2526987D00E0242B /* TransactionHistoryContext.swift */; };
+		84FB1F6F2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F6E2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift */; };
+		84FB1F73252700A200E0242B /* HistoryItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */; };
+		84FB1F75252700B400E0242B /* HistoryItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */; };
+		84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */; };
+		84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F782527065A00E0242B /* HistoryConstants.swift */; };
 		8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */; };
 		8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */; };
 		91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */; };
@@ -906,6 +911,11 @@
 		84FB1F662526920B00E0242B /* HistoryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryData.swift; sourceTree = "<group>"; };
 		84FB1F68252694B600E0242B /* HistoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryInfo.swift; sourceTree = "<group>"; };
 		84FB1F6C2526987D00E0242B /* TransactionHistoryContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryContext.swift; sourceTree = "<group>"; };
+		84FB1F6E2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryViewModelFactory.swift; sourceTree = "<group>"; };
+		84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemTableViewCell.swift; sourceTree = "<group>"; };
+		84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HistoryItemTableViewCell.xib; sourceTree = "<group>"; };
+		84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemViewModel.swift; sourceTree = "<group>"; };
+		84FB1F782527065A00E0242B /* HistoryConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryConstants.swift; sourceTree = "<group>"; };
 		855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementWireframe.swift; sourceTree = "<group>"; };
 		85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportWireframe.swift; sourceTree = "<group>"; };
 		8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewController.swift; sourceTree = "<group>"; };
@@ -2105,6 +2115,7 @@
 				84CD357125264F510081BC0B /* ViewModel */,
 				8490150A24AB8A3A008F705E /* View */,
 				8490151524AB8C45008F705E /* WalletAccountListConfigurator.swift */,
+				84CD357425264FA30081BC0B /* WalletAccountListConstants.swift */,
 				846AF8452525C93A00868F37 /* BalanceContext.swift */,
 			);
 			path = AccountList;
@@ -2118,7 +2129,6 @@
 				84C07EEB24AF30F2008FC35B /* WalletActionsCell.swift */,
 				846AF8472525E23C00868F37 /* WalletTotalPriceCell.swift */,
 				846AF8492525E24C00868F37 /* WalletTotalPriceCell.xib */,
-				84CD357425264FA30081BC0B /* WalletAccountListConstants.swift */,
 				84CD3576252654EA0081BC0B /* WalletAssetCell.swift */,
 				84CD35782526554A0081BC0B /* WalletAssetCell.xib */,
 			);
@@ -2128,9 +2138,13 @@
 		8490151924ABC343008F705E /* History */ = {
 			isa = PBXGroup;
 			children = (
+				84FB1F712526AB1700E0242B /* ViewModel */,
+				84FB1F702526AB1200E0242B /* View */,
 				8490151A24ABC44E008F705E /* TransactionHistoryConfigurator.swift */,
 				84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */,
 				84FB1F6C2526987D00E0242B /* TransactionHistoryContext.swift */,
+				84FB1F6E2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift */,
+				84FB1F782527065A00E0242B /* HistoryConstants.swift */,
 			);
 			path = History;
 			sourceTree = "<group>";
@@ -2420,6 +2434,23 @@
 			path = Events;
 			sourceTree = "<group>";
 		};
+		84FB1F702526AB1200E0242B /* View */ = {
+			isa = PBXGroup;
+			children = (
+				84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */,
+				84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		84FB1F712526AB1700E0242B /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
 		8D1ECC1A61E3F7E33FC44649 /* NetworkManagement */ = {
 			isa = PBXGroup;
 			children = (
@@ -2640,6 +2671,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84FB1F75252700B400E0242B /* HistoryItemTableViewCell.xib in Resources */,
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */,
 				8409C26E25225D6A0049B5C8 /* WalletReceiverView.xib in Resources */,
@@ -2961,6 +2993,7 @@
 				84D97ECF2521CA2F00F07405 /* WalletBaseTokenView.swift in Sources */,
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
+				84FB1F73252700A200E0242B /* HistoryItemTableViewCell.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
 				842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */,
 				84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */,
@@ -3120,10 +3153,12 @@
 				842876AA24AE049B00D91AD8 /* SelectionTitleTableViewCell.swift in Sources */,
 				84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */,
 				8467FCFC24E5C3BD005D486C /* URLHandlingService.swift in Sources */,
+				84FB1F6F2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift in Sources */,
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
 				84C6800E24D6ECE800006BF5 /* ExpandableActionControl.swift in Sources */,
 				84A2C90024E040D00020D3B7 /* AccountImportError.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
+				84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */,
 				842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */,
 				8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
@@ -3198,6 +3233,7 @@
 				9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */,
 				846AF8482525E23C00868F37 /* WalletTotalPriceCell.swift in Sources */,
 				84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */,
+				84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */,
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
 				84C7435D251DD205009576C6 /* ExtrinsicFactory.swift in Sources */,
