@@ -3,8 +3,8 @@ import SoraUI
 import CommonWallet
 
 final class WalletActionsCell: UICollectionViewCell {
-    @IBOutlet private var sendButton: RoundedButton!
-    @IBOutlet private var receiveButton: RoundedButton!
+    @IBOutlet private var sendButton: TriangularedButton!
+    @IBOutlet private var receiveButton: TriangularedButton!
 
     private(set) var actionsViewModel: ActionsViewModelProtocol?
 

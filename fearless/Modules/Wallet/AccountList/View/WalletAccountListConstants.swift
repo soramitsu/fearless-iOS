@@ -6,6 +6,4 @@ struct WalletAccountListConstants {
 
     static let assetCellId: String = "fearlessAssetCellId"
     static let assetCellHeight: CGFloat = 96.0
-
-    static let assetListCacheId = "assetListCacheId"
 }
