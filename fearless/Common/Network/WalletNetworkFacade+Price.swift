@@ -3,7 +3,9 @@ import RobinHood
 
 extension WalletNetworkFacade {
     func fetchPriceOperation(_ asset: WalletAssetId) -> CompoundOperationWrapper<Price?> {
-        guard let url = asset.subscanUrl?.appendingPathComponent(SubscanApi.price) else {
+        guard
+            asset.hasPrice,
+            let url = asset.subscanUrl?.appendingPathComponent(SubscanApi.price) else {
             let operation = BaseOperation<Price?>()
             operation.result = .success(nil)
             return CompoundOperationWrapper(targetOperation: operation)

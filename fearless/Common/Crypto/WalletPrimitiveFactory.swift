@@ -72,7 +72,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                                           name: LocalizableResource { _ in "" },
                                           platform: LocalizableResource { _ in "" },
                                           symbol: "$",
-                                          precision: 2,
+                                          precision: 4,
                                           modes: .view)
 
         let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,

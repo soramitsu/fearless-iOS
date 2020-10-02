@@ -85,7 +85,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                                                  logger: logger)
 
         let subscanOperationFactory = SubscanOperationFactory()
-        let networkFacade = WalletNetworkFacade(nodeOperationFactory: nodeOperationFactory,
+        let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
+                                                nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,
                                                 address: selectedAccount.address,
                                                 networkType: networkType,
