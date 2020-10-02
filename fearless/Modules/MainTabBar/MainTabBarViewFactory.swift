@@ -17,7 +17,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let extrinsicsController = createExtrinsicsController(for: localizationManager) else {
+        guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
             return nil
         }
 
@@ -28,7 +28,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let view = MainTabBarViewController()
         view.viewControllers = [
             walletController,
-            extrinsicsController,
+            polkaswapController,
             stakingController,
             governanceController,
             settingsController
@@ -148,17 +148,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
+    static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
         viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
+        let localizableTitle = LocalizableResource { _ in
+            // TODO: fix translation in corresponding task
+            "Polkaswap"
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabExtrinsics()?
+        let normalIcon = R.image.iconTabPolkaswap()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?

@@ -30,11 +30,22 @@ final class TransactionHistoryConfigurator {
                                       upppercased: true)
     }()
 
+    let viewModelFactory: TransactionHistoryViewModelFactory
+
+    init(amountFormatterFactory: NumberFormatterFactoryProtocol, assets: [WalletAsset]) {
+        viewModelFactory = TransactionHistoryViewModelFactory(amountFormatterFactory: amountFormatterFactory,
+                                                              dateFormatter: DateFormatter.history,
+                                                              assets: assets)
+    }
+
     func configure(builder: HistoryModuleBuilderProtocol) {
         builder
+            .with(itemViewModelFactory: viewModelFactory)
             .with(emptyStateDataSource: WalletEmptyStateDataSource.history)
             .with(historyViewStyle: HistoryViewStyle.fearless)
             .with(transactionCellStyle: transactionCellStyle)
+            .with(cellNib: UINib(resource: R.nib.historyItemTableViewCell),
+                  for: HistoryConstants.historyCellId)
             .with(transactionHeaderStyle: headerStyle)
             .with(supportsFilter: false)
             .with(includesFeeInAmount: false)
