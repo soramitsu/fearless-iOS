@@ -37,5 +37,6 @@ final class TransactionHistoryConfigurator {
             .with(transactionCellStyle: transactionCellStyle)
             .with(transactionHeaderStyle: headerStyle)
             .with(supportsFilter: false)
+            .with(includesFeeInAmount: false)
     }
 }
