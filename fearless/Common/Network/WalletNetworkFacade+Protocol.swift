@@ -136,8 +136,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                                               amount: AmountDecimal(value: feeDecimal),
                                               context: nil)
 
-                let type = item.sender == info.address ? WalletTransactionType.outgoing :
-                    WalletTransactionType.incoming
+                let type = item.sender == info.address ? TransactionType.outgoing :
+                    TransactionType.incoming
 
                 return AssetTransactionData(transactionId: item.hash,
                                             status: status,
@@ -150,7 +150,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                                             amount: amount,
                                             fees: [fee],
                                             timestamp: item.timestamp,
-                                            type: type.backendName,
+                                            type: type.rawValue,
                                             reason: nil,
                                             context: nil)
             }

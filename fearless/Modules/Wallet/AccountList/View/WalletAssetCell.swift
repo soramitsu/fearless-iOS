@@ -32,10 +32,10 @@ extension WalletAssetCell: WalletViewProtocol {
             totalPriceLabel.text = assetViewModel.accessoryDetails
 
             switch assetViewModel.priceChangeViewModel {
-            case .up(let displayString):
+            case .goingUp(let displayString):
                 changeLabel.text = displayString
                 changeLabel.textColor = R.color.colorGreen()!
-            case .down(let displayString):
+            case .goingDown(let displayString):
                 changeLabel.text = displayString
                 changeLabel.textColor = R.color.colorRed()!
             }

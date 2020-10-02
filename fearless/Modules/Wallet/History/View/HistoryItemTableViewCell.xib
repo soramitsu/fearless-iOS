@@ -22,15 +22,15 @@
                 <rect key="frame" x="0.0" y="0.0" width="414" height="55"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cUW-sL-rTw">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="cUW-sL-rTw">
                         <rect key="frame" x="16" y="11.5" width="32" height="32"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="32" id="EiJ-m1-wgd"/>
                             <constraint firstAttribute="width" constant="32" id="snG-8k-IXg"/>
                         </constraints>
                     </imageView>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="My Name" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Twp-s5-09q">
-                        <rect key="frame" x="58" y="10" width="230" height="16.5"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="My Name" textAlignment="natural" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Twp-s5-09q">
+                        <rect key="frame" x="58" y="10" width="174" height="16.5"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
@@ -64,7 +64,7 @@
                     <constraint firstItem="Twp-s5-09q" firstAttribute="top" secondItem="eN9-NB-8aS" secondAttribute="top" constant="10" id="Nl0-Wy-PQn"/>
                     <constraint firstItem="bwS-Lk-vEF" firstAttribute="leading" secondItem="Twp-s5-09q" secondAttribute="leading" id="NnB-E1-3as"/>
                     <constraint firstItem="cUW-sL-rTw" firstAttribute="centerY" secondItem="eN9-NB-8aS" secondAttribute="centerY" id="WEM-pS-2Jg"/>
-                    <constraint firstItem="kPC-5M-BHq" firstAttribute="leading" secondItem="Twp-s5-09q" secondAttribute="trailing" constant="8" id="bg1-8V-lhk"/>
+                    <constraint firstItem="kPC-5M-BHq" firstAttribute="leading" secondItem="Twp-s5-09q" secondAttribute="trailing" constant="64" id="bg1-8V-lhk"/>
                     <constraint firstItem="9HV-Zt-KnD" firstAttribute="centerY" secondItem="eN9-NB-8aS" secondAttribute="centerY" id="luI-oI-0FI"/>
                     <constraint firstAttribute="trailing" secondItem="kPC-5M-BHq" secondAttribute="trailing" constant="36" id="mfJ-ez-gVE"/>
                     <constraint firstItem="Twp-s5-09q" firstAttribute="leading" secondItem="cUW-sL-rTw" secondAttribute="trailing" constant="10" id="nE1-cY-O9d"/>
@@ -77,6 +77,7 @@
                 <outlet property="iconImageView" destination="cUW-sL-rTw" id="Qfu-du-shW"/>
                 <outlet property="statusImageView" destination="9HV-Zt-KnD" id="EAe-tu-QbT"/>
                 <outlet property="titleLabel" destination="Twp-s5-09q" id="apK-BI-VlA"/>
+                <outlet property="trailingConstraint" destination="mfJ-ez-gVE" id="Vhu-Gv-uns"/>
             </connections>
             <point key="canvasLocation" x="188" y="139"/>
         </tableViewCell>

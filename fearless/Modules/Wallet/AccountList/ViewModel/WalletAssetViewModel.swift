@@ -2,8 +2,8 @@ import Foundation
 import CommonWallet
 
 enum WalletPriceChangeViewModel {
-    case up(displayValue: String)
-    case down(displayValue: String)
+    case goingUp(displayValue: String)
+    case goingDown(displayValue: String)
 }
 
 final class WalletAssetViewModel: AssetViewModelProtocol {

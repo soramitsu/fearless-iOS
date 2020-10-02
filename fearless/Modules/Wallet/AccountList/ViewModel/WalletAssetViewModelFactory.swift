@@ -54,8 +54,8 @@ final class WalletAssetViewModelFactory {
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
 
         let priceChangeViewModel = balanceContext.priceChange >= 0.0 ?
-            WalletPriceChangeViewModel.up(displayValue: priceChangeString) :
-            WalletPriceChangeViewModel.down(displayValue: priceChangeString)
+            WalletPriceChangeViewModel.goingUp(displayValue: priceChangeString) :
+            WalletPriceChangeViewModel.goingDown(displayValue: priceChangeString)
 
         let imageViewModel: WalletImageViewModelProtocol?
 
