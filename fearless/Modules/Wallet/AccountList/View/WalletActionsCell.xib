@@ -18,10 +18,10 @@
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dh3-9s-ecf">
-                        <rect key="frame" x="20" y="0.0" width="295" height="56"/>
+                        <rect key="frame" x="16" y="0.0" width="303" height="56"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XZf-yH-CMf" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="141.5" height="56"/>
+                                <rect key="frame" x="0.0" y="0.0" width="145.5" height="56"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
@@ -53,7 +53,7 @@
                                 </connections>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zh-ex-7Mv" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="153.5" y="0.0" width="141.5" height="56"/>
+                                <rect key="frame" x="157.5" y="0.0" width="145.5" height="56"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
@@ -101,10 +101,10 @@
             </view>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
-                <constraint firstItem="Dh3-9s-ecf" firstAttribute="leading" secondItem="EAl-XV-dse" secondAttribute="leading" constant="20" id="By8-lR-xVw"/>
+                <constraint firstItem="Dh3-9s-ecf" firstAttribute="leading" secondItem="EAl-XV-dse" secondAttribute="leading" constant="16" id="By8-lR-xVw"/>
                 <constraint firstItem="Dh3-9s-ecf" firstAttribute="top" secondItem="EAl-XV-dse" secondAttribute="top" id="Py7-9v-MJk"/>
                 <constraint firstItem="Dh3-9s-ecf" firstAttribute="bottom" secondItem="EAl-XV-dse" secondAttribute="bottom" constant="-16" id="Yte-ZM-Zay"/>
-                <constraint firstAttribute="trailing" secondItem="Dh3-9s-ecf" secondAttribute="trailing" constant="20" id="kaZ-cL-oPy"/>
+                <constraint firstAttribute="trailing" secondItem="Dh3-9s-ecf" secondAttribute="trailing" constant="16" id="kaZ-cL-oPy"/>
             </constraints>
             <connections>
                 <outlet property="receiveButton" destination="0zh-ex-7Mv" id="4kd-rH-NmC"/>
