@@ -9,15 +9,18 @@ final class WalletAssetViewModelFactory {
     let assetCellStyleFactory: AssetCellStyleFactoryProtocol
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let priceAsset: WalletAsset
+    let accountCommandFactory: WalletSelectAccountCommandFactoryProtocol
 
     init(address: String,
          assetCellStyleFactory: AssetCellStyleFactoryProtocol,
          amountFormatterFactory: NumberFormatterFactoryProtocol,
-         priceAsset: WalletAsset) {
+         priceAsset: WalletAsset,
+         accountCommandFactory: WalletSelectAccountCommandFactoryProtocol) {
         self.address = address
         self.assetCellStyleFactory = assetCellStyleFactory
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
+        self.accountCommandFactory = accountCommandFactory
     }
 
     private func creatRegularViewModel(for asset: WalletAsset,
@@ -112,13 +115,15 @@ final class WalletAssetViewModelFactory {
         let details = R.string.localizable
             .walletAssetsTotalTitle(preferredLanguages: locale.rLanguages)
 
+        let accountCommand = accountCommandFactory.createCommand(commandFactory)
+
         return WalletTotalPriceViewModel(assetId: asset.identifier,
                                          details: details,
                                          amount: amount,
                                          imageViewModel: imageViewModel,
                                          style: style,
                                          command: nil,
-                                         accountCommand: nil)
+                                         accountCommand: accountCommand)
     }
 }
 

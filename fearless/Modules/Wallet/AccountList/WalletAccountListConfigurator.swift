@@ -13,10 +13,12 @@ final class WalletAccountListConfigurator {
         assetStyleFactory = AssetStyleFactory()
 
         let amountFormatterFactory = AmountFormatterFactory()
+        let accountCommandFactory = WalletSelectAccountCommandFactory()
         viewModelFactory = WalletAssetViewModelFactory(address: address,
                                                        assetCellStyleFactory: assetStyleFactory,
                                                        amountFormatterFactory: amountFormatterFactory,
-                                                       priceAsset: priceAsset)
+                                                       priceAsset: priceAsset,
+                                                       accountCommandFactory: accountCommandFactory)
     }
 
     func configure(builder: AccountListModuleBuilderProtocol) {

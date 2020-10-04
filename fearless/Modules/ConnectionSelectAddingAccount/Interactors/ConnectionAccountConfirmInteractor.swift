@@ -68,11 +68,19 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
                 switch connectionOperation.result {
                 case .success(let (accountItem, connectionItem)):
                     self?.settings.selectedAccount = accountItem
-                    self?.settings.selectedConnection = connectionItem
+
+                    let connectionChanged = self?.settings.selectedConnection != connectionItem
+
+                    if connectionChanged {
+                        self?.settings.selectedConnection = connectionItem
+                    }
 
                     self?.presenter?.didCompleteConfirmation()
 
-                    self?.eventCenter.notify(with: SelectedConnectionChanged())
+                    if connectionChanged {
+                        self?.eventCenter.notify(with: SelectedConnectionChanged())
+                    }
+
                     self?.eventCenter.notify(with: SelectedAccountChanged())
                 case .failure(let error):
                     self?.presenter?.didReceive(error: error)
