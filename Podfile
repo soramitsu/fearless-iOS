@@ -16,10 +16,16 @@ abstract_target 'fearlessAll' do
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
 
   target 'fearlessTests' do
+    inherit! :search_paths
+
     pod 'Cuckoo'
+    pod 'FearlessUtils', '~> 0.6.0'
+    pod 'SoraFoundation', '~> 0.8.0'
     pod 'FireMock'
     pod 'SoraKeystore'
     pod 'RobinHood'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'f5792463d3e2d04c4cff8b74877fd575702dd652'
+
   end
 
   target 'fearlessIntegrationTests'

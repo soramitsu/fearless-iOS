@@ -770,6 +770,137 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+import IrohaCrypto
+import RobinHood
+
+
+ class MockAccountRepositoryFactoryProtocol: AccountRepositoryFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = AccountRepositoryFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_AccountRepositoryFactoryProtocol
+     typealias Verification = __VerificationProxy_AccountRepositoryFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: AccountRepositoryFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: AccountRepositoryFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var operationManager: OperationManagerProtocol {
+        get {
+            return cuckoo_manager.getter("operationManager",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.operationManager)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func createAccountRepsitory(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem> {
+        
+    return cuckoo_manager.call("createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>",
+            parameters: (networkType),
+            escapingParameters: (networkType),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createAccountRepsitory(for: networkType))
+        
+    }
+    
+
+	 struct __StubbingProxy_AccountRepositoryFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var operationManager: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockAccountRepositoryFactoryProtocol, OperationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "operationManager")
+	    }
+	    
+	    
+	    func createAccountRepsitory<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.ProtocolStubFunction<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
+	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method: "createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_AccountRepositoryFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var operationManager: Cuckoo.VerifyReadOnlyProperty<OperationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "operationManager", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func createAccountRepsitory<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.__DoNotUse<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
+	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
+	        return cuckoo_manager.verify("createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class AccountRepositoryFactoryProtocolStub: AccountRepositoryFactoryProtocol {
+    
+    
+     var operationManager: OperationManagerProtocol {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (OperationManagerProtocol).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func createAccountRepsitory(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>  {
+        return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<AccountItem>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
 import LocalAuthentication
 
 
