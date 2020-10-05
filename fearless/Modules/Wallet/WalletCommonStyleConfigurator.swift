@@ -3,7 +3,7 @@ import CommonWallet
 
 struct WalletCommonStyleConfigurator {
     let navigationBarStyle: WalletNavigationBarStyleProtocol = {
-        var navigationBarStyle = WalletNavigationBarStyle(barColor: R.color.colorBlack()!,
+        var navigationBarStyle = WalletNavigationBarStyle(barColor: .clear,
                                                           shadowColor: .clear,
                                                           itemTintColor: R.color.colorWhite()!,
                                                           titleColor: R.color.colorWhite()!,
