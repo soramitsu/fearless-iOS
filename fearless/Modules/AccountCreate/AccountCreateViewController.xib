@@ -165,13 +165,13 @@
                                             <rect key="frame" x="1" y="80" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i8u-Ig-8Iw">
-                                                    <rect key="frame" x="16" y="8" width="319" height="14"/>
+                                                    <rect key="frame" x="16" y="8" width="319" height="15.333333333333336"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                     <color key="textColor" name="colorLightGray"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="//hard/soft///password" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="rzy-lG-JEs">
-                                                    <rect key="frame" x="16" y="26" width="319" height="18"/>
+                                                    <rect key="frame" x="16" y="24.666666666666657" width="319" height="19.333333333333329"/>
                                                     <color key="tintColor" name="colorWhite"/>
                                                     <color key="textColor" name="colorWhite"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
@@ -226,18 +226,6 @@
                                             <rect key="frame" x="1" y="148" width="380" height="56.333333333333343"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
                                             <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
-                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
-                                                    <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
-                                                    <color key="value" name="colorGray"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
-                                                    <color key="value" name="colorGray"/>
-                                                </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
                                                     <real key="value" value="1"/>
                                                 </userDefinedRuntimeAttribute>

@@ -81,11 +81,11 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
 
         let historyContext = TransactionHistoryContext(context: pagination.context ?? [:])
 
-            guard !historyContext.isComplete,
-                let asset = accountSettings.assets
-                    .first(where: { $0.identifier != totalPriceAssetId.rawValue }),
-                let assetId = WalletAssetId(rawValue: asset.identifier),
-                let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.history) else {
+        guard !historyContext.isComplete,
+            let asset = accountSettings.assets
+                .first(where: { $0.identifier != totalPriceAssetId.rawValue }),
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.history) else {
             let pageData = AssetTransactionPageData(transactions: [],
                                                     context: historyContext.toContext())
             let operation = BaseOperation<AssetTransactionPageData?>()
@@ -112,47 +112,11 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                                                               isComplete: isComplete)
 
             let transactions: [AssetTransactionData] = (pageData.transactions ?? []).map { item in
-                let status: AssetTransactionStatus
-
-                if let state = item.success {
-                    status = state ? .commited : .rejected
-                } else {
-                    status = .pending
-                }
-
-                let peerAddress = item.sender == info.address ? item.receiver : item.sender
-
-                let accountId = try? addressFactory.accountId(fromAddress: peerAddress,
-                                                              type: currentNetworkType)
-
-                let peerId = accountId?.toHex() ?? peerAddress
-
-                let amount = AmountDecimal(string: item.amount) ?? AmountDecimal(value: 0)
-                let feeValue = BigUInt(item.fee) ?? BigUInt(0)
-                let feeDecimal = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) ?? .zero
-
-                let fee = AssetTransactionFee(identifier: assetId.rawValue,
-                                              assetId: assetId.rawValue,
-                                              amount: AmountDecimal(value: feeDecimal),
-                                              context: nil)
-
-                let type = item.sender == info.address ? TransactionType.outgoing :
-                    TransactionType.incoming
-
-                return AssetTransactionData(transactionId: item.hash,
-                                            status: status,
-                                            assetId: assetId.rawValue,
-                                            peerId: peerId,
-                                            peerFirstName: nil,
-                                            peerLastName: nil,
-                                            peerName: peerAddress,
-                                            details: "",
-                                            amount: amount,
-                                            fees: [fee],
-                                            timestamp: item.timestamp,
-                                            type: type.rawValue,
-                                            reason: nil,
-                                            context: nil)
+                AssetTransactionData.createTransaction(from: item,
+                                                       address: info.address,
+                                                       networkType: currentNetworkType,
+                                                       asset: asset,
+                                                       addressFactory: addressFactory)
             }
 
             return AssetTransactionPageData(transactions: transactions,
