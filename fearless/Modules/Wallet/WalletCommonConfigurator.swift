@@ -18,7 +18,6 @@ struct WalletCommonConfigurator {
             ?? WalletLanguage.defaultLanguage
 
         let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
-        
         builder
             .with(language: language)
             .with(commandDecoratorFactory: WalletCommandDecoratorFactory())

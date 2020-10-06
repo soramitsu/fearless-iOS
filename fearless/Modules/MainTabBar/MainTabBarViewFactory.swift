@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
@@ -36,7 +37,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let presenter = MainTabBarPresenter()
 
-        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared)
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
+                                              settings: SettingsManager.shared)
 
         let wireframe = MainTabBarWireframe()
 

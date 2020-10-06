@@ -15,6 +15,7 @@ protocol MainTabBarInteractorInputProtocol: class {
 
 protocol MainTabBarInteractorOutputProtocol: class {
     func didReloadSelectedAccount()
+    func didReloadSelectedNetwork()
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable {
