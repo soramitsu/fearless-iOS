@@ -18,7 +18,7 @@ final class TransferValidator: TransferValidating {
         }
 
         let totalAmount = info.amount.decimalValue + totalFee
-        let availableBalance = balanceData.balance.decimalValue
+        let availableBalance = BalanceContext(context: balanceData.context ?? [:]).available
 
         guard totalAmount < availableBalance else {
             throw TransferValidatingError.unsufficientFunds(assetId: info.asset,

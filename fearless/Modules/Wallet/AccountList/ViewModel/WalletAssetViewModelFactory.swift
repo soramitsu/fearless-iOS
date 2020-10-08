@@ -68,6 +68,9 @@ final class WalletAssetViewModelFactory {
             imageViewModel = nil
         }
 
+        let assetDetailsCommand = commandFactory.prepareAssetDetailsCommand(for: asset.identifier)
+        assetDetailsCommand.presentationStyle = .push(hidesBottomBar: true)
+
         return WalletAssetViewModel(assetId: asset.identifier,
                                     amount: amount,
                                     symbol: asset.symbol,
@@ -77,7 +80,7 @@ final class WalletAssetViewModelFactory {
                                     platform: platform,
                                     details: priceString,
                                     priceChangeViewModel: priceChangeViewModel,
-                                    command: nil)
+                                    command: assetDetailsCommand)
     }
 
     private func createTotalPriceViewModel(for asset: WalletAsset,

@@ -80,7 +80,6 @@
 		84265E002523C410005EEE2D /* TransferDefinitionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84265DFF2523C410005EEE2D /* TransferDefinitionFactory.swift */; };
 		84265E042523D20A005EEE2D /* WalletBaseAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84265E032523D20A005EEE2D /* WalletBaseAmountView.swift */; };
 		84265E062523D7BE005EEE2D /* WalletInputAmountView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84265E052523D7BE005EEE2D /* WalletInputAmountView.swift */; };
-		8427B57F24BF94A100186BD0 /* StorageKeyFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */; };
 		8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763724AD67E300D91AD8 /* JSONRPCData.swift */; };
 		8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */; };
 		8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428763D24AD917300D91AD8 /* AccountInfo.swift */; };
@@ -563,7 +562,6 @@
 		84265DFF2523C410005EEE2D /* TransferDefinitionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferDefinitionFactory.swift; sourceTree = "<group>"; };
 		84265E032523D20A005EEE2D /* WalletBaseAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletBaseAmountView.swift; sourceTree = "<group>"; };
 		84265E052523D7BE005EEE2D /* WalletInputAmountView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletInputAmountView.swift; sourceTree = "<group>"; };
-		8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageKeyFactory.swift; sourceTree = "<group>"; };
 		8428763724AD67E300D91AD8 /* JSONRPCData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCData.swift; sourceTree = "<group>"; };
 		8428763924AD6AF000D91AD8 /* JSONRPCInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONRPCInfo.swift; sourceTree = "<group>"; };
 		8428763D24AD917300D91AD8 /* AccountInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfo.swift; sourceTree = "<group>"; };
@@ -1929,7 +1927,6 @@
 			children = (
 				8490145524A9404E008F705E /* AttributedStringDecorator.swift */,
 				8490152424ABCBF3008F705E /* AmountFormatterFactory.swift */,
-				8427B57E24BF94A100186BD0 /* StorageKeyFactory.swift */,
 				843C49D724DD98CC00B71DDA /* DerivationPathConstants.swift */,
 				84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */,
 				846A2C4A2529F99400731018 /* AccountRepositoryFactory.swift */,
@@ -3093,7 +3090,6 @@
 				849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
-				8427B57F24BF94A100186BD0 /* StorageKeyFactory.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,

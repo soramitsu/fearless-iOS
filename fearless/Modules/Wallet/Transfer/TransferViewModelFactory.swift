@@ -58,7 +58,8 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
-        let amount = formatter.string(from: inputState.balance?.balance.decimalValue ?? 0.0) ?? ""
+        let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
+        let amount = formatter.string(from: balanceContext.available) ?? ""
 
         let subtitle = R.string.localizable
             .walletSendBalanceTitle(preferredLanguages: locale.rLanguages)
