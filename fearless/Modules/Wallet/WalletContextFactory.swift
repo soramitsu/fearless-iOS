@@ -107,6 +107,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)
 
+        let assetDetailsConfigurator = AssetDetailsConfigurator()
+        assetDetailsConfigurator.configure(builder: builder.accountDetailsModuleBuilder)
+
         TransactionHistoryConfigurator(amountFormatterFactory: amountFormatterFactory,
                                        assets: accountSettings.assets)
             .configure(builder: builder.historyModuleBuilder)

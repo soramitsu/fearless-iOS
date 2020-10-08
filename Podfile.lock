@@ -36,7 +36,7 @@ PODS:
   - R.swift (5.2.2):
     - R.swift.Library (~> 5.2.0)
   - R.swift.Library (5.2.0)
-  - RobinHood (2.5.0)
+  - RobinHood (2.5.1)
   - scrypt.c (0.1.1)
   - SoraFoundation (0.8.0):
     - SoraFoundation/DateProcessing (= 0.8.0)
@@ -92,7 +92,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `f5792463d3e2d04c4cff8b74877fd575702dd652`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `25b4b508be76eff5eb06a7b7438c03ef650d0026`)
   - Cuckoo
   - FearlessUtils (~> 0.6.0)
   - FireMock
@@ -126,7 +126,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: f5792463d3e2d04c4cff8b74877fd575702dd652
+    :commit: 25b4b508be76eff5eb06a7b7438c03ef650d0026
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -134,7 +134,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: f5792463d3e2d04c4cff8b74877fd575702dd652
+    :commit: 25b4b508be76eff5eb06a7b7438c03ef650d0026
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -149,7 +149,7 @@ SPEC CHECKSUMS:
   IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
-  RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6
+  RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
@@ -160,6 +160,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1d1f83c9d2c378a371781e47b15213671a4b0f5f
+PODFILE CHECKSUM: 6996bfd9770f6ed4003bb05203cfa94aff13fec6
 
 COCOAPODS: 1.9.3
