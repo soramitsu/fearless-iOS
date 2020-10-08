@@ -4,7 +4,7 @@ struct BalanceContext {
     static let freeKey = "account.balance.free.key"
     static let reservedKey = "account.balance.reserved.key"
     static let miscFrozenKey = "account.balance.misc.frozen.key"
-    static let feeFrozenKey = "account.balance.misc.fee.key"
+    static let feeFrozenKey = "account.balance.fee.frozen.key"
     static let priceKey = "account.balance.price.key"
     static let priceChangeKey = "account.balance.price.change.key"
 
