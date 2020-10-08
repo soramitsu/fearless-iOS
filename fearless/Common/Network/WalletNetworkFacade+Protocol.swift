@@ -39,8 +39,9 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                         return balanceData
                     }
 
-                    let context = BalanceContext(price: price.lastValue,
-                                                 priceChange: price.change).toContext()
+                    let context = BalanceContext(context: balanceData.context ?? [:] )
+                        .byChangingPrice(price.lastValue, newPriceChange: price.change)
+                        .toContext()
 
                     return BalanceData(identifier: balanceData.identifier,
                                        balance: balanceData.balance,

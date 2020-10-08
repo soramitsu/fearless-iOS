@@ -95,6 +95,96 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testBlockExtraction() throws {
+        // given
+
+        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let blockHash = "0xd843c9d2b49489653a4310aa9f2e5593ced253ad7fdc325e00fb6f28e7fc0ce8"
+
+        let operation = JSONRPCOperation<[String: String]>(engine: engine,
+                                                 method: "chain_getBlock",
+                                                 parameters: [blockHash])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            logger.debug("Received response: \(result)")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testAccountInfoWestend() throws {
+        try performAccountInfoTest(url: URL(string: "wss://westend-rpc.polkadot.io/")!,
+                                   address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
+                                   type: .genericSubstrate)
+    }
+
+    func testAccountInfoKusama() throws {
+        try performAccountInfoTest(url: URL(string: "wss://kusama-rpc.polkadot.io")!,
+                                   address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
+                                   type: .kusamaMain)
+    }
+
+    func testAccountInfoPolkadot() throws {
+        try performAccountInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
+                                   address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
+                                   type: .polkadotMain)
+    }
+
+    func performAccountInfoTest(url: URL, address: String, type: SNAddressType) throws {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let identifier = try SS58AddressFactory().accountId(fromAddress: address,
+                                                            type: type)
+
+        let key = try StorageKeyFactory().createStorageKey(moduleName: "System",
+                                                           serviceName: "Account",
+                                                           identifier: identifier).toHex(includePrefix: true)
+
+        let operation = JSONRPCOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
+                                                                          method: RPCMethod.getStorage,
+                                                                          parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let accountData = result.underlyingValue?.data else {
+                XCTFail("Empty account id")
+                return
+            }
+
+            Logger.shared.debug("Free: \(Decimal.fromSubstrateAmount(accountData.free.value)!)")
+            Logger.shared.debug("Reserved: \(Decimal.fromSubstrateAmount(accountData.reserved.value)!)")
+            Logger.shared.debug("Misc Frozen: \(Decimal.fromSubstrateAmount(accountData.miscFrozen.value)!)")
+            Logger.shared.debug("Fee Frozen: \(Decimal.fromSubstrateAmount(accountData.feeFrozen.value)!)")
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testGetRuntimeVersion() {
         // given
 
@@ -215,9 +305,14 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
+        guard let amount = Decimal(string: "1.01")?.toSubstrateAmount() else {
+            XCTFail("Unexpected nil amount")
+            return
+        }
+
         let extrinsicData = try generateExtrinsicToAccount("5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-                                                           amount: Decimal(0.01).toSubstrateAmount()!,
-                                                           nonce: 0,
+                                                           amount: amount,
+                                                           nonce: 6,
                                                            keypair: keypair)
 
         Logger.shared.debug("Extrinsic: \(extrinsicData.toHex())")

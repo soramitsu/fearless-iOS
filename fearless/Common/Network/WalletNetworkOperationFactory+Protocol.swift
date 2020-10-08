@@ -31,18 +31,31 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
             switch accountInfoResult {
             case .success(let info):
-                let amount: AmountDecimal
+                let context: BalanceContext
 
-                if
-                    let accountInfo = info.underlyingValue,
-                    let amountDecimal = Decimal
-                        .fromSubstrateAmount(accountInfo.data.free.value, precision: asset.precision) {
-                    amount = AmountDecimal(value: amountDecimal)
+                if let accountData = info.underlyingValue?.data {
+                    let free = Decimal
+                        .fromSubstrateAmount(accountData.free.value, precision: asset.precision) ?? 0
+                    let reserved = Decimal
+                        .fromSubstrateAmount(accountData.reserved.value, precision: asset.precision) ?? 0
+                    let miscFrozen = Decimal
+                        .fromSubstrateAmount(accountData.miscFrozen.value, precision: asset.precision) ?? 0
+                    let feeFrozen = Decimal
+                        .fromSubstrateAmount(accountData.feeFrozen.value, precision: asset.precision) ?? 0
+
+                    context = BalanceContext(free: free,
+                                             reserved: reserved,
+                                             miscFrozen: miscFrozen,
+                                             feeFrozen: feeFrozen,
+                                             price: 0,
+                                             priceChange: 0)
                 } else {
-                    amount = AmountDecimal(value: 0)
+                    context = BalanceContext(context: [:])
                 }
 
-                let balance = BalanceData(identifier: asset.identifier, balance: amount)
+                let balance = BalanceData(identifier: asset.identifier,
+                                          balance: AmountDecimal(value: context.total),
+                                          context: context.toContext())
 
                 return [balance]
             case .failure(let error):
