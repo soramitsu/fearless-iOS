@@ -142,10 +142,11 @@ trasferimenti appariranno qui";
 "common.continue" = "Continua";
 "wallet.send.amount.title" = "Quantità";
 "wallet.send.confirm.title" = "Conferma il trasferimento";
-"wallet.send.balance.title" = "Equilibrio libero";
-"wallet.contacts.empty.title" = "I destinatari a cui hai inviato risorse \
-vengono visualizzati qui";
+"wallet.send.balance.title" = "Saldo gratuito:";
+"wallet.contacts.empty.title" = "I tuoi account e contatti a cui stavi inviando i trasferimenti verranno visualizzati qui";
 "wallet.search.empty.title" = "Assicurati che l'indirizzo \
 provenga dalla rete corretta";
 "wallet.contacts.search.placeholder" = "Indirizzo dell'account o nome dell'account";
+"wallet.balance.available" = "A disposizione";
 "wallet.transfer.total.title" = "Totale";
+"wallet.balance.frozen" = "Congelato";

@@ -134,7 +134,7 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
     func createAssetViewModel(for asset: WalletAsset,
                               balance: BalanceData,
                               commandFactory: WalletCommandFactoryProtocol,
-                              locale: Locale) -> AssetViewModelProtocol? {
+                              locale: Locale) -> WalletViewModelProtocol? {
         if asset.identifier == priceAsset.identifier {
             return createTotalPriceViewModel(for: asset,
                                              balance: balance,

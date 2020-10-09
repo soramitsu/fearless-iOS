@@ -143,10 +143,11 @@ transfers will appear here";
 "common.continue" = "Continue";
 "wallet.send.amount.title" = "Amount";
 "wallet.send.confirm.title" = "Confirm transfer";
-"wallet.send.balance.title" = "Free balance";
-"wallet.contacts.empty.title" = "Recipients whom you sent assets \
-are displayed here";
+"wallet.send.balance.title" = "Free balance:";
+"wallet.contacts.empty.title" = "Your accounts and contacts to who you were sending transfers will appear here";
 "wallet.search.empty.title" = "Make sure that the address is \
 from the right network";
 "wallet.contacts.search.placeholder" = "Account address or account name";
+"wallet.balance.available" = "Available";
 "wallet.transfer.total.title" = "Total";
+"wallet.balance.frozen" = "Frozen";

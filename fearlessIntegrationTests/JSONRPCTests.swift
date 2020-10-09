@@ -127,22 +127,25 @@ class JSONRPCTests: XCTestCase {
     func testAccountInfoWestend() throws {
         try performAccountInfoTest(url: URL(string: "wss://westend-rpc.polkadot.io/")!,
                                    address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
-                                   type: .genericSubstrate)
+                                   type: .genericSubstrate,
+                                   precision: 12)
     }
 
     func testAccountInfoKusama() throws {
         try performAccountInfoTest(url: URL(string: "wss://kusama-rpc.polkadot.io")!,
                                    address: "DayVh23V32nFhvm2WojKx2bYZF1CirRgW2Jti9TXN9zaiH5",
-                                   type: .kusamaMain)
+                                   type: .kusamaMain,
+                                   precision: 12)
     }
 
     func testAccountInfoPolkadot() throws {
         try performAccountInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
                                    address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
-                                   type: .polkadotMain)
+                                   type: .polkadotMain,
+                                   precision: 10)
     }
 
-    func performAccountInfoTest(url: URL, address: String, type: SNAddressType) throws {
+    func performAccountInfoTest(url: URL, address: String, type: SNAddressType, precision: Int16) throws {
         // given
 
         let logger = Logger.shared
@@ -175,10 +178,10 @@ class JSONRPCTests: XCTestCase {
                 return
             }
 
-            Logger.shared.debug("Free: \(Decimal.fromSubstrateAmount(accountData.free.value)!)")
-            Logger.shared.debug("Reserved: \(Decimal.fromSubstrateAmount(accountData.reserved.value)!)")
-            Logger.shared.debug("Misc Frozen: \(Decimal.fromSubstrateAmount(accountData.miscFrozen.value)!)")
-            Logger.shared.debug("Fee Frozen: \(Decimal.fromSubstrateAmount(accountData.feeFrozen.value)!)")
+            Logger.shared.debug("Free: \(Decimal.fromSubstrateAmount(accountData.free.value, precision: precision)!)")
+            Logger.shared.debug("Reserved: \(Decimal.fromSubstrateAmount(accountData.reserved.value, precision: precision)!)")
+            Logger.shared.debug("Misc Frozen: \(Decimal.fromSubstrateAmount(accountData.miscFrozen.value, precision: precision)!)")
+            Logger.shared.debug("Fee Frozen: \(Decimal.fromSubstrateAmount(accountData.feeFrozen.value, precision: precision)!)")
 
         } catch {
             XCTFail("Unexpected error: \(error)")

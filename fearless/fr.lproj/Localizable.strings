@@ -143,10 +143,11 @@ apparaitront ici";
 "common.continue" = "Continuer";
 "wallet.send.amount.title" = "Montant";
 "wallet.send.confirm.title" = "Confirmer le transfert";
-"wallet.send.balance.title" = "Balance libre";
-"wallet.contacts.empty.title" = "Les destinataires auxquels vous avez \
-envoyé des éléments s'affichent ici";
+"wallet.send.balance.title" = "Solde libre:";
+"wallet.contacts.empty.title" = "Vos comptes et contacts auxquels vous envoyiez des transferts apparaîtront ici";
 "wallet.search.empty.title" = "Assurez-vous que l'adresse \
 provient du bon réseau";
 "wallet.contacts.search.placeholder" = "Adresse du compte ou nom du compte";
+"wallet.balance.available" = "Disponible";
 "wallet.transfer.total.title" = "Total";
+"wallet.balance.frozen" = "Congelé";
