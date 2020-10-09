@@ -143,10 +143,11 @@
 "common.continue" = "Продовжити";
 "wallet.send.amount.title" = "Сума";
 "wallet.send.confirm.title" = "Підтвердьте передачу";
-"wallet.send.balance.title" = "Вільний баланс";
-"wallet.contacts.empty.title" = "Тут відображаються одержувачі, \
-яким ви надіслали об’єкти";
+"wallet.send.balance.title" = "Вільний баланс:";
+"wallet.contacts.empty.title" = "Тут з’являться ваші облікові записи та контакти, кому ви надсилали перекази";
 "wallet.search.empty.title" = "Переконайтеся, що адреса надходить \
 із потрібної мережі";
 "wallet.contacts.search.placeholder" = "Адреса рахунку або назва рахунку";
+"wallet.balance.available" = "Доступні";
 "wallet.transfer.total.title" = "Разом";
+"wallet.balance.frozen" = "Заморожений";

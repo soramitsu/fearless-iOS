@@ -4,8 +4,10 @@ import CommonWallet
 final class AssetDetailsView: BaseAccountDetailsContainingView {
     var contentInsets: UIEdgeInsets = .zero
 
-    var preferredContentHeight: CGFloat { safeAreaInsets.top + 205.0 }
+    var preferredContentHeight: CGFloat { 205.0 }
 
+    @IBOutlet private var titleLabel: UILabel!
+    @IBOutlet private var iconView: UIImageView!
     @IBOutlet private var balanceLabel: UILabel!
     @IBOutlet private var priceLabel: UILabel!
     @IBOutlet private var priceChangeLabel: UILabel!
@@ -39,16 +41,34 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
     }
 
     private func bind(assetViewModel: AssetDetailsViewModel) {
+        self.assetViewModel?.imageViewModel?.cancel()
+
         self.assetViewModel = assetViewModel
+
+        titleLabel.text = assetViewModel.title
+
+        iconView.image = nil
+
+        assetViewModel.imageViewModel?.loadImage { [weak self] (image, _) in
+            self?.iconView.image = image
+        }
 
         balanceLabel.text = assetViewModel.amount
         priceLabel.text = assetViewModel.price
-        priceChangeLabel.text = assetViewModel.priceChange
         totalVolumeLabel.text = assetViewModel.totalVolume
         leftTitleLabel.text = assetViewModel.leftTitle
         leftDetailsLabel.text = assetViewModel.leftDetails
         rightTitleLabel.text = assetViewModel.rightTitle
         rightDetailsLabel.text = assetViewModel.rightDetails
+
+        switch assetViewModel.priceChangeViewModel {
+        case .goingUp(let displayString):
+            priceChangeLabel.text = displayString
+            priceChangeLabel.textColor = R.color.colorGreen()!
+        case .goingDown(let displayString):
+            priceChangeLabel.text = displayString
+            priceChangeLabel.textColor = R.color.colorRed()!
+        }
     }
 
     private func bind(actionsViewModel: ActionsViewModelProtocol) {
