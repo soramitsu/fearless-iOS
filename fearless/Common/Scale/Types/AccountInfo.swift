@@ -4,12 +4,12 @@ import BigInt
 
 struct AccountInfo: ScaleDecodable {
     let nonce: UInt32
-    let refcount: UInt8
+    let refcount: UInt32
     let data: AccountData
 
     init(scaleDecoder: ScaleDecoding) throws {
         nonce = try UInt32(scaleDecoder: scaleDecoder)
-        refcount = try UInt8(scaleDecoder: scaleDecoder)
+        refcount = try UInt32(scaleDecoder: scaleDecoder)
         data = try AccountData(scaleDecoder: scaleDecoder)
     }
 }
