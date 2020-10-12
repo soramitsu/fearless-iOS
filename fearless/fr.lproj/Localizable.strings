@@ -151,3 +151,8 @@ provient du bon réseau";
 "wallet.balance.available" = "Disponible";
 "wallet.transfer.total.title" = "Total";
 "wallet.balance.frozen" = "Congelé";
+"wallet.balance.locked" = "Fermé à clé";
+"wallet.balance.bonded" = "Collé";
+"wallet.balance.reserved" = "Réservé";
+"wallet.balance.redeemable" = "Rachetable";
+"wallet.balance.unbonding" = "Délier";

@@ -25,21 +25,21 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
 
     func createDisplayFormatter(for asset: WalletAsset?) -> LocalizableResource<NumberFormatter> {
         if asset?.identifier == WalletAssetId.usd.rawValue {
-            return createFormatter(for: usdPrecision)
+            return createUsdNumberFormatter(for: usdPrecision).localizableResource()
         } else {
-            return createFormatter(for: assetPrecision)
+            return createTokenNumberFormatter(for: assetPrecision).localizableResource()
         }
     }
 
     func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenAmountFormatter> {
         if asset?.identifier == WalletAssetId.usd.rawValue {
-            let numberFormatter = createNumberFormatter(for: usdPrecision)
+            let numberFormatter = createUsdNumberFormatter(for: usdPrecision)
             return TokenAmountFormatter(numberFormatter: numberFormatter,
                                         tokenSymbol: asset?.symbol ?? "",
                                         separator: "",
                                         position: .prefix).localizableResource()
         } else {
-            let numberFormatter = createNumberFormatter(for: assetPrecision)
+            let numberFormatter = createTokenNumberFormatter(for: assetPrecision)
             return TokenAmountFormatter(numberFormatter: numberFormatter,
                                         tokenSymbol: asset?.symbol ?? "",
                                         separator: " ",
@@ -47,14 +47,20 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         }
     }
 
-    private func createFormatter(for precision: Int) -> LocalizableResource<NumberFormatter> {
-        createNumberFormatter(for: precision).localizableResource()
-    }
-
-    private func createNumberFormatter(for precision: Int) -> NumberFormatter {
+    private func createUsdNumberFormatter(for precision: Int) -> NumberFormatter {
         let formatter = NumberFormatter.amount
         formatter.roundingMode = .floor
 
+        formatter.maximumFractionDigits = precision
+
+        return formatter
+    }
+
+    private func createTokenNumberFormatter(for precision: Int) -> NumberFormatter {
+        let formatter = NumberFormatter.amount
+        formatter.roundingMode = .floor
+
+        formatter.minimumFractionDigits = 1
         formatter.maximumFractionDigits = precision
 
         return formatter

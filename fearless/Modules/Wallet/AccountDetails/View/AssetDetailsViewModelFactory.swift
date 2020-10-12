@@ -71,6 +71,10 @@ final class AssetDetailsViewModelFactory: AccountListViewModelFactoryProtocol {
 
         let title = asset.platform?.value(for: locale) ?? ""
 
+        let infoDetailsCommand = WalletAccountInfoCommand(balanceContext: balanceContext,
+                                                          amountFormatter: numberFormatter,
+                                                          commandFactory: commandFactory)
+
         return AssetDetailsViewModel(title: title,
                                      imageViewModel: imageViewModel,
                                      amount: amount,
@@ -80,6 +84,7 @@ final class AssetDetailsViewModelFactory: AccountListViewModelFactoryProtocol {
                                      leftTitle: leftTitle,
                                      leftDetails: leftDetails,
                                      rightTitle: rightTitle,
-                                     rightDetails: rightDetails)
+                                     rightDetails: rightDetails,
+                                     infoDetailsCommand: infoDetailsCommand)
     }
 }

@@ -88,4 +88,8 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
     @IBAction private func actionReceive() {
         try? actionsViewModel?.receive.command.execute()
     }
+
+    @IBAction private func actionFrozen() {
+        try? assetViewModel?.infoDetailsCommand.execute()
+    }
 }

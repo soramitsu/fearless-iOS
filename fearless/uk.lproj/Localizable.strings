@@ -151,3 +151,8 @@
 "wallet.balance.available" = "Доступні";
 "wallet.transfer.total.title" = "Разом";
 "wallet.balance.frozen" = "Заморожений";
+"wallet.balance.locked" = "Заблоковано";
+"wallet.balance.bonded" = "Кабальний";
+"wallet.balance.reserved" = "Зарезервований";
+"wallet.balance.redeemable" = "Викупний";
+"wallet.balance.unbonding" = "Розв’язування";

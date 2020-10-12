@@ -19,6 +19,8 @@ final class AssetDetailsViewModel: WalletViewModelProtocol {
     let rightTitle: String
     let rightDetails: String
 
+    let infoDetailsCommand: WalletCommandProtocol
+
     init(title: String,
          imageViewModel: WalletImageViewModelProtocol?,
          amount: String,
@@ -28,7 +30,8 @@ final class AssetDetailsViewModel: WalletViewModelProtocol {
          leftTitle: String,
          leftDetails: String,
          rightTitle: String,
-         rightDetails: String) {
+         rightDetails: String,
+         infoDetailsCommand: WalletCommandProtocol) {
         self.title = title
         self.imageViewModel = imageViewModel
         self.amount = amount
@@ -39,5 +42,6 @@ final class AssetDetailsViewModel: WalletViewModelProtocol {
         self.leftDetails = leftDetails
         self.rightTitle = rightTitle
         self.rightDetails = rightDetails
+        self.infoDetailsCommand = infoDetailsCommand
     }
 }

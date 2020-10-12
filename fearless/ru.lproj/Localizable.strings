@@ -151,3 +151,8 @@ a type of password.";
 "wallet.balance.available" = "Доступно";
 "wallet.transfer.total.title" = "Всего";
 "wallet.balance.frozen" = "Замороженный";
+"wallet.balance.locked" = "Заблокировано";
+"wallet.balance.bonded" = "Закреплено";
+"wallet.balance.reserved" = "Резерв";
+"wallet.balance.redeemable" = "Погашаемый";
+"wallet.balance.unbonding" = "Несвязанность";

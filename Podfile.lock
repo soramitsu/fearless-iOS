@@ -1,5 +1,5 @@
 PODS:
-  - BigInt (5.0.0)
+  - BigInt (5.2.0)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.5.0)
     - SoraFoundation/DateProcessing (~> 0.8.0)
@@ -9,7 +9,7 @@ PODS:
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
-  - FearlessUtils (0.6.0):
+  - FearlessUtils (0.7.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.7.0)
     - IrohaCrypto/Scrypt (~> 0.7.0)
@@ -94,7 +94,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `b3b5efb1cfc455a5ece75a1b722bf1783345e764`)
   - Cuckoo
-  - FearlessUtils (~> 0.6.0)
+  - FearlessUtils (~> 0.7.0)
   - FireMock
   - R.swift
   - RobinHood
@@ -141,10 +141,10 @@ CHECKOUT OPTIONS:
     :git: https://github.com/ERussel/Starscream.git
 
 SPEC CHECKSUMS:
-  BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
+  BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: aff931b1371471e6bd06e5c43028b67d5ab60d5a
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: e870fa9c30f3b0f89d608ede26560caf0aaf8ddd
+  FearlessUtils: c5ff1bfef02d7f0ceb02cae3e6a266bb4e0063cf
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
@@ -160,6 +160,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 3bf1e552402b8181b7cd2cbe1d740686b52c9ad0
+PODFILE CHECKSUM: 47bae44e7edd06245ee276915ab1e64364b0ee8e
 
 COCOAPODS: 1.9.3

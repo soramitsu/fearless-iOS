@@ -4,6 +4,7 @@ import FearlessUtils
 import RobinHood
 import IrohaCrypto
 import BigInt
+import xxHash_Swift
 
 class JSONRPCTests: XCTestCase {
     struct RpcInterface: Decodable {
@@ -182,6 +183,107 @@ class JSONRPCTests: XCTestCase {
             Logger.shared.debug("Reserved: \(Decimal.fromSubstrateAmount(accountData.reserved.value, precision: precision)!)")
             Logger.shared.debug("Misc Frozen: \(Decimal.fromSubstrateAmount(accountData.miscFrozen.value, precision: precision)!)")
             Logger.shared.debug("Fee Frozen: \(Decimal.fromSubstrateAmount(accountData.feeFrozen.value, precision: precision)!)")
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testStakingLedgerPolkadot() throws {
+        try performStakingInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
+                                   address: "13mAjFVjFDpfa42k2dLdSnUyrSzK8vAySsoudnxX2EKVtfaq",
+                                   type: .polkadotMain,
+                                   precision: 10)
+    }
+
+    func testStakingLedgerWestend() throws {
+        try performStakingInfoTest(url: URL(string: "wss://rpc.polkadot.io/")!,
+                                   address: "5D5MT5A7256hM48Y2cMDQy5v1wPHowxgriANQmv376d9Hw2T",
+                                   type: .genericSubstrate,
+                                   precision: 12)
+    }
+
+    func performStakingInfoTest(url: URL, address: String, type: SNAddressType, precision: Int16) throws {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let identifier = try SS58AddressFactory().accountId(fromAddress: address,
+                                                            type: type)
+
+        let key = try StorageKeyFactory().createStorageKey(moduleName: "Staking",
+                                                           serviceName: "Ledger",
+                                                           identifier: identifier).toHex(includePrefix: true)
+
+        let operation = JSONRPCOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
+                                                                            method: RPCMethod.getStorage,
+                                                                            parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let stakingLedger = result.underlyingValue else {
+                XCTFail("Empty account id")
+                return
+            }
+
+            Logger.shared.debug("Total: \(Decimal.fromSubstrateAmount(stakingLedger.total, precision: precision)!)")
+            Logger.shared.debug("Active: \(Decimal.fromSubstrateAmount(stakingLedger.active, precision: precision)!)")
+
+            for unlocking in stakingLedger.unlocking {
+                Logger.shared.debug("Unlocking: \(Decimal.fromSubstrateAmount(unlocking.value, precision: precision)!) at: \(unlocking.era)")
+            }
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testPolkadotActiveEra() {
+        performGetActiveEra(url: URL(string: "wss://rpc.polkadot.io/")!)
+    }
+
+    func performGetActiveEra(url: URL) {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let moduleKeyHash = "Staking".data(using: .utf8)!.xxh128()
+        let serviceKeyHash = "ActiveEra".data(using: .utf8)!.xxh128()
+
+        let key = (moduleKeyHash + serviceKeyHash).toHex(includePrefix: true)
+
+        let operation = JSONRPCOperation<JSONScaleDecodable<UInt32>>(engine: engine,
+                                                                     method: RPCMethod.getStorage,
+                                                                     parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let activeEra = result.underlyingValue else {
+                XCTFail("Empty account id")
+                return
+            }
+
+            Logger.shared.debug("Active Era: \(activeEra)")
 
         } catch {
             XCTFail("Unexpected error: \(error)")

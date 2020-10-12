@@ -22,7 +22,11 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let accountInfoOperation = createAccountInfoFetchOperation()
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        let accountInfoOperation = createAccountInfoFetchOperation(engine: engine)
+        let stakingLedgerOperation = createStakingLedgerFetchOperation(engine: engine)
+        let activeEraOperation = createActiveEraFetchOperation(engine: engine)
 
         let mappingOperation = ClosureOperation<[BalanceData]?> {
             guard let accountInfoResult = accountInfoOperation.result else {
@@ -31,26 +35,24 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
             switch accountInfoResult {
             case .success(let info):
-                let context: BalanceContext
+                var context: BalanceContext = BalanceContext(context: [:])
 
                 if let accountData = info.underlyingValue?.data {
-                    let free = Decimal
-                        .fromSubstrateAmount(accountData.free.value, precision: asset.precision) ?? 0
-                    let reserved = Decimal
-                        .fromSubstrateAmount(accountData.reserved.value, precision: asset.precision) ?? 0
-                    let miscFrozen = Decimal
-                        .fromSubstrateAmount(accountData.miscFrozen.value, precision: asset.precision) ?? 0
-                    let feeFrozen = Decimal
-                        .fromSubstrateAmount(accountData.feeFrozen.value, precision: asset.precision) ?? 0
+                    context = context.byChangingAccountInfo(accountData, precision: asset.precision)
 
-                    context = BalanceContext(free: free,
-                                             reserved: reserved,
-                                             miscFrozen: miscFrozen,
-                                             feeFrozen: feeFrozen,
-                                             price: 0,
-                                             priceChange: 0)
-                } else {
-                    context = BalanceContext(context: [:])
+                    if
+                        let activeEra = try? activeEraOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                            .underlyingValue,
+                        let stakingLedger = try? stakingLedgerOperation.targetOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                            .underlyingValue {
+
+                        context = context.byChangingStakingInfo(stakingLedger,
+                                                                activeEra: activeEra,
+                                                                precision: asset.precision)
+                    }
+
                 }
 
                 let balance = BalanceData(identifier: asset.identifier,
@@ -63,10 +65,12 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             }
         }
 
-        mappingOperation.addDependency(accountInfoOperation)
+        let dependencies = [accountInfoOperation, activeEraOperation] + stakingLedgerOperation.allOperations
+
+        dependencies.forEach { mappingOperation.addDependency($0) }
 
         return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: [accountInfoOperation])
+                                        dependencies: dependencies)
     }
 
     func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest,

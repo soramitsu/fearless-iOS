@@ -148,3 +148,8 @@ a type of password.";
 "wallet.balance.available" = "利用可能";
 "wallet.transfer.total.title" = "合計";
 "wallet.balance.frozen" = "フローズン";
+"wallet.balance.locked" = "ロック済み";
+"wallet.balance.bonded" = "保税";
+"wallet.balance.reserved" = "予約済み";
+"wallet.balance.redeemable" = "償還可能";
+"wallet.balance.unbonding" = "接着解除";
