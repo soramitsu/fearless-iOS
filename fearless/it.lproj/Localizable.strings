@@ -150,3 +150,8 @@ provenga dalla rete corretta";
 "wallet.balance.available" = "A disposizione";
 "wallet.transfer.total.title" = "Totale";
 "wallet.balance.frozen" = "Congelato";
+"wallet.balance.locked" = "Bloccato";
+"wallet.balance.bonded" = "Legato";
+"wallet.balance.reserved" = "Riservato";
+"wallet.balance.redeemable" = "Riscattabile";
+"wallet.balance.unbonding" = "Unbonding";

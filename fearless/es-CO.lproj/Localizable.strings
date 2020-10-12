@@ -151,3 +151,8 @@ sea de la red correcta";
 "wallet.balance.available" = "Disponible";
 "wallet.transfer.total.title" = "Total";
 "wallet.balance.frozen" = "Congelado";
+"wallet.balance.locked" = "Bloqueado";
+"wallet.balance.bonded" = "Garantizado";
+"wallet.balance.reserved" = "Reservado";
+"wallet.balance.redeemable" = "Redimible";
+"wallet.balance.unbonding" = "Desunir";

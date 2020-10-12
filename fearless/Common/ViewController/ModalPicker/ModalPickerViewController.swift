@@ -37,6 +37,9 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var cellIdentifier: String = "modalPickerCellId"
     var selectedIndex: Int = 0
 
+    var hasCloseItem: Bool = false
+    var allowsSelection: Bool = true
+
     var viewModels: [LocalizableResource<T>] = []
 
     weak var delegate: ModalPickerViewControllerDelegate?
@@ -58,6 +61,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
             tableView.register(C.self, forCellReuseIdentifier: cellIdentifier)
         }
 
+        tableView.allowsSelection = allowsSelection
+
         headerHeightConstraint.constant = headerHeight
 
         if let icon = icon {
@@ -71,6 +76,11 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
             configureAddAction()
         default:
             break
+        }
+
+        if hasCloseItem {
+            centerHeader()
+            configureCloseItem()
         }
     }
 
@@ -86,6 +96,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         addButton.roundedBackgroundView?.fillColor = .clear
         addButton.roundedBackgroundView?.highlightedFillColor = .clear
         addButton.changesContentOpacityWhenHighlighted = true
+        addButton.imageWithTitleView?.spacingBetweenLabelAndIcon = 0.0
         addButton.contentInsets = UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0)
         addButton.imageWithTitleView?.iconImage = R.image.iconSmallAdd()
 
@@ -95,6 +106,30 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         addButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
 
         addButton.addTarget(self, action: #selector(handleAction), for: .touchUpInside)
+    }
+
+    private func centerHeader() {
+        headerView.trailingAnchor.constraint(equalTo: headerBackgroundView.trailingAnchor,
+                                             constant: -20.0).isActive = true
+    }
+
+    private func configureCloseItem() {
+        let closeButton = RoundedButton()
+        closeButton.translatesAutoresizingMaskIntoConstraints = false
+        closeButton.roundedBackgroundView?.shadowOpacity = 0.0
+        closeButton.roundedBackgroundView?.fillColor = .clear
+        closeButton.roundedBackgroundView?.highlightedFillColor = .clear
+        closeButton.changesContentOpacityWhenHighlighted = true
+        closeButton.imageWithTitleView?.spacingBetweenLabelAndIcon = 0.0
+        closeButton.contentInsets = UIEdgeInsets(top: 20.0, left: 20.0, bottom: 20.0, right: 20.0)
+        closeButton.imageWithTitleView?.iconImage = R.image.iconClose()
+
+        headerBackgroundView.addSubview(closeButton)
+
+        closeButton.leadingAnchor.constraint(equalTo: headerBackgroundView.leadingAnchor).isActive = true
+        closeButton.centerYAnchor.constraint(equalTo: headerView.centerYAnchor).isActive = true
+
+        closeButton.addTarget(self, action: #selector(handleClose), for: .touchUpInside)
     }
 
     // MARK: Table View Delegate
@@ -143,6 +178,10 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
     @objc private func handleAction() {
         delegate?.modalPickerDidSelectAction(context: context)
+        presenter?.hide(view: self, animated: true)
+    }
+
+    @objc private func handleClose() {
         presenter?.hide(view: self, animated: true)
     }
 }

@@ -151,3 +151,8 @@ from the right network";
 "wallet.balance.available" = "Available";
 "wallet.transfer.total.title" = "Total";
 "wallet.balance.frozen" = "Frozen";
+"wallet.balance.locked" = "Locked";
+"wallet.balance.bonded" = "Bonded";
+"wallet.balance.reserved" = "Reserved";
+"wallet.balance.redeemable" = "Redeemable";
+"wallet.balance.unbonding" = "Unbonding";
