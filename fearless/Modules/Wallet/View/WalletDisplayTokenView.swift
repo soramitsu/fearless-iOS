@@ -14,10 +14,12 @@ final class WalletDisplayTokenView: WalletBaseTokenView {
 
 extension WalletDisplayTokenView {
     func bind(viewModel: WalletTokenViewModel) {
+        self.viewModel = viewModel
+
         iconImageView.image = viewModel.icon
 
         actionControl.titleLabel.text = viewModel.title
-        balanceTitle.text = viewModel.subtitle.uppercased()
+        balanceTitle.text = viewModel.subtitle.uppercased() + ":"
         balanceDetails.text = viewModel.details
 
         actionControl.isUserInteractionEnabled = false

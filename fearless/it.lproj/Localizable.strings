@@ -142,7 +142,7 @@ trasferimenti appariranno qui";
 "common.continue" = "Continua";
 "wallet.send.amount.title" = "Quantità";
 "wallet.send.confirm.title" = "Conferma il trasferimento";
-"wallet.send.balance.title" = "Saldo gratuito:";
+"wallet.send.available.balance" = "Saldo gratuito";
 "wallet.contacts.empty.title" = "I tuoi account e contatti a cui stavi inviando i trasferimenti verranno visualizzati qui";
 "wallet.search.empty.title" = "Assicurati che l'indirizzo \
 provenga dalla rete corretta";
@@ -155,3 +155,9 @@ provenga dalla rete corretta";
 "wallet.balance.reserved" = "Riservato";
 "wallet.balance.redeemable" = "Riscattabile";
 "wallet.balance.unbonding" = "Unbonding";
+"wallet.send.balance.details" = "Dettagli dell'equilibrio";
+"wallet.send.balance.total" = "Saldo totale";
+"wallet.send.balance.total.after.transfer" = "Totale dopo il trasferimento";
+"wallet.send.balance.existential" = "Deposito esistenziale";
+"wallet.send.existential.warning" = "Il tuo trasferimento rimuoverà l'account dal blockstore poiché renderà il saldo totale inferiore al deposito esistenziale";
+"common.warning" = "avvertimento";

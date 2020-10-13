@@ -143,7 +143,7 @@
 "common.continue" = "Продовжити";
 "wallet.send.amount.title" = "Сума";
 "wallet.send.confirm.title" = "Підтвердьте передачу";
-"wallet.send.balance.title" = "Вільний баланс:";
+"wallet.send.available.balance" = "Вільний баланс";
 "wallet.contacts.empty.title" = "Тут з’являться ваші облікові записи та контакти, кому ви надсилали перекази";
 "wallet.search.empty.title" = "Переконайтеся, що адреса надходить \
 із потрібної мережі";
@@ -156,3 +156,9 @@
 "wallet.balance.reserved" = "Зарезервований";
 "wallet.balance.redeemable" = "Викупний";
 "wallet.balance.unbonding" = "Розв’язування";
+"wallet.send.balance.details" = "Деталі балансу";
+"wallet.send.balance.total" = "Загальний залишок";
+"wallet.send.balance.total.after.transfer" = "Разом після передачі";
+"wallet.send.balance.existential" = "Екзистенційний депозит";
+"wallet.send.existential.warning" = "Ваш переказ видалить рахунок із магазину, оскільки загальний залишок буде нижчим за екзистенційний депозит";
+"common.warning" = "Увага";

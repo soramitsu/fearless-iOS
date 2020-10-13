@@ -10,7 +10,6 @@ final class WalletNetworkOperationFactory {
     let url: URL
     let accountSigner: IRSignatureCreatorProtocol
     let dummySigner: IRSignatureCreatorProtocol
-    let genesisHash: Data
     let cryptoType: CryptoType
     let logger: LoggerProtocol
 
@@ -19,14 +18,12 @@ final class WalletNetworkOperationFactory {
          cryptoType: CryptoType,
          accountSigner: IRSignatureCreatorProtocol,
          dummySigner: IRSignatureCreatorProtocol,
-         genesisHash: Data,
          logger: LoggerProtocol) {
         self.url = url
         self.accountSettings = accountSettings
         self.cryptoType = cryptoType
         self.accountSigner = accountSigner
         self.dummySigner = dummySigner
-        self.genesisHash = genesisHash
         self.logger = logger
     }
 
@@ -157,13 +154,13 @@ final class WalletNetworkOperationFactory {
 
     func setupTransferExtrinsic<T>(_ targetOperation: JSONRPCOperation<T>,
                                    amount: BigUInt,
-                                   sender: String,
                                    receiver: String,
+                                   chain: Chain,
                                    signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
         let accountInfoOperation = createAccountInfoFetchOperation(engine: targetOperation.engine)
         let runtimeVersionOperation = createRuntimeVersionOperation(engine: targetOperation.engine)
 
-        let currentGenesisHash = genesisHash
+        let sender = accountSettings.accountId
         let currentCryptoType = cryptoType
 
         targetOperation.configurationBlock = {
@@ -178,9 +175,10 @@ final class WalletNetworkOperationFactory {
 
                 let receiverAccountId = try Data(hexString: receiver)
                 let senderAccountId = try Data(hexString: sender)
+                let genesisHashData = try Data(hexString: chain.genesisHash)
 
                 let additionalParameters = ExtrinsicParameters(nonce: nonce,
-                                                               genesisHash: currentGenesisHash,
+                                                               genesisHash: genesisHashData,
                                                                specVersion: runtimeVersion.specVersion,
                                                                transactionVersion: runtimeVersion.transactionVersion,
                                                                signatureVersion: currentCryptoType.version)

@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import IrohaCrypto
 
 final class TransferConfigurator {
     lazy private var headerStyle: WalletContainingHeaderStyle = {

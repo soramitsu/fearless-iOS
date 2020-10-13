@@ -10,6 +10,7 @@ import BigInt
 enum WalletNetworkOperationFactoryError: Error {
     case invalidAmount
     case invalidAsset
+    case invalidChain
 }
 
 extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
@@ -84,8 +85,15 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     }
 
     func transferMetadataOperation(_ info: TransferMetadataInfo) -> CompoundOperationWrapper<TransferMetaData?> {
-        guard let asset = accountSettings.assets.first(where: { $0.identifier == info.assetId }) else {
+        guard
+            let asset = accountSettings.assets.first(where: { $0.identifier == info.assetId }),
+            let assetId = WalletAssetId(rawValue: asset.identifier) else {
             let error = WalletNetworkOperationFactoryError.invalidAsset
+            return createCompoundOperation(result: .failure(error))
+        }
+
+        guard let chain = assetId.chain else {
+            let error = WalletNetworkOperationFactoryError.invalidChain
             return createCompoundOperation(result: .failure(error))
         }
 
@@ -101,8 +109,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
         let compoundInfo = setupTransferExtrinsic(infoOperation,
                                                   amount: amount,
-                                                  sender: info.sender,
                                                   receiver: info.receiver,
+                                                  chain: chain,
                                                   signer: dummySigner)
 
         let mapOperation: ClosureOperation<TransferMetaData?> = ClosureOperation {
@@ -131,13 +139,20 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     }
 
     func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {
-        guard let asset = accountSettings.assets.first(where: { $0.identifier == info.asset }) else {
+        guard
+            let asset = accountSettings.assets.first(where: { $0.identifier == info.asset }),
+            let assetId = WalletAssetId(rawValue: asset.identifier) else {
             let error = WalletNetworkOperationFactoryError.invalidAsset
             return createCompoundOperation(result: .failure(error))
         }
 
         guard let amount = info.amount.decimalValue.toSubstrateAmount(precision: asset.precision) else {
             let error = WalletNetworkOperationFactoryError.invalidAmount
+            return createCompoundOperation(result: .failure(error))
+        }
+
+        guard let chain = assetId.chain else {
+            let error = WalletNetworkOperationFactoryError.invalidChain
             return createCompoundOperation(result: .failure(error))
         }
 
@@ -148,8 +163,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
         let compoundTransfer = setupTransferExtrinsic(transferOperation,
                                                       amount: amount,
-                                                      sender: info.source,
                                                       receiver: info.destination,
+                                                      chain: chain,
                                                       signer: accountSigner)
 
         let mapOperation: ClosureOperation<Data> = ClosureOperation {
