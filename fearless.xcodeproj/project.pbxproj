@@ -343,7 +343,6 @@
 		8494D8632524753400614D8F /* WalletCopyCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D8622524753400614D8F /* WalletCopyCommand.swift */; };
 		8494D8652524766D00614D8F /* WalletAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D8642524766D00614D8F /* WalletAccountViewModel.swift */; };
 		8494D86725247CFC00614D8F /* TransferValidator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D86625247CFC00614D8F /* TransferValidator.swift */; };
-		8494D86925247DFB00614D8F /* TransferContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D86825247DFB00614D8F /* TransferContext.swift */; };
 		8494D86B25247F9600614D8F /* Decimal+String.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D86A25247F9600614D8F /* Decimal+String.swift */; };
 		8494D86D252489B700614D8F /* TransferConfirmAccessoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D86C252489B700614D8F /* TransferConfirmAccessoryViewModel.swift */; };
 		8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D86F2525321700614D8F /* SubscanDefinitions.swift */; };
@@ -404,7 +403,7 @@
 		84D8F16B24D8263300AF43E9 /* ModalPickerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16A24D8263300AF43E9 /* ModalPickerFactory.swift */; };
 		84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16C24D82C7E00AF43E9 /* ModalPickerConfiguration.swift */; };
 		84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */; };
-		84D8F17124D856D300AF43E9 /* NetworkType+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */; };
+		84D8F17124D856D300AF43E9 /* SNAddressType+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F17024D856D300AF43E9 /* SNAddressType+ViewModel.swift */; };
 		84D97EB5251FC58100F07405 /* TransferConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D97EB4251FC58100F07405 /* TransferConfigurator.swift */; };
 		84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D97EB8251FD6B500F07405 /* TransferSeparatorDistribution.swift */; };
 		84D97EBB251FE5B500F07405 /* TransferViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D97EBA251FE5B500F07405 /* TransferViewModelFactory.swift */; };
@@ -427,6 +426,11 @@
 		84DF21A325347042005454AE /* DetailsDisplayTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84DF21A225347042005454AE /* DetailsDisplayTableViewCell.xib */; };
 		84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21A4253473B0005454AE /* ModalInfoFactory.swift */; };
 		84DF21A72534D031005454AE /* AccountId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21A62534D031005454AE /* AccountId.swift */; };
+		84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */; };
+		84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21AA25363C9F005454AE /* Chain+Info.swift */; };
+		84DF21AD25363D28005454AE /* WalletAssetId+Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21AC25363D28005454AE /* WalletAssetId+Chain.swift */; };
+		84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */; };
+		84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B22536E666005454AE /* TransferChangeHandling.swift */; };
 		84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */; };
 		84EBC53F24F6425200459D15 /* AddAccountError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53E24F6425200459D15 /* AddAccountError.swift */; };
 		84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */; };
@@ -850,7 +854,6 @@
 		8494D8622524753400614D8F /* WalletCopyCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCopyCommand.swift; sourceTree = "<group>"; };
 		8494D8642524766D00614D8F /* WalletAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAccountViewModel.swift; sourceTree = "<group>"; };
 		8494D86625247CFC00614D8F /* TransferValidator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferValidator.swift; sourceTree = "<group>"; };
-		8494D86825247DFB00614D8F /* TransferContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferContext.swift; sourceTree = "<group>"; };
 		8494D86A25247F9600614D8F /* Decimal+String.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+String.swift"; sourceTree = "<group>"; };
 		8494D86C252489B700614D8F /* TransferConfirmAccessoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryViewModel.swift; sourceTree = "<group>"; };
 		8494D86F2525321700614D8F /* SubscanDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanDefinitions.swift; sourceTree = "<group>"; };
@@ -919,7 +922,7 @@
 		84D8F16A24D8263300AF43E9 /* ModalPickerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerFactory.swift; sourceTree = "<group>"; };
 		84D8F16C24D82C7E00AF43E9 /* ModalPickerConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerConfiguration.swift; sourceTree = "<group>"; };
 		84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+ViewModel.swift"; sourceTree = "<group>"; };
-		84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NetworkType+ViewModel.swift"; sourceTree = "<group>"; };
+		84D8F17024D856D300AF43E9 /* SNAddressType+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SNAddressType+ViewModel.swift"; sourceTree = "<group>"; };
 		84D97EB4251FC58100F07405 /* TransferConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfigurator.swift; sourceTree = "<group>"; };
 		84D97EB8251FD6B500F07405 /* TransferSeparatorDistribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSeparatorDistribution.swift; sourceTree = "<group>"; };
 		84D97EBA251FE5B500F07405 /* TransferViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferViewModelFactory.swift; sourceTree = "<group>"; };
@@ -942,6 +945,11 @@
 		84DF21A225347042005454AE /* DetailsDisplayTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = DetailsDisplayTableViewCell.xib; sourceTree = "<group>"; };
 		84DF21A4253473B0005454AE /* ModalInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalInfoFactory.swift; sourceTree = "<group>"; };
 		84DF21A62534D031005454AE /* AccountId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountId.swift; sourceTree = "<group>"; };
+		84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistentialDepositInfoCommand.swift; sourceTree = "<group>"; };
+		84DF21AA25363C9F005454AE /* Chain+Info.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chain+Info.swift"; sourceTree = "<group>"; };
+		84DF21AC25363D28005454AE /* WalletAssetId+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletAssetId+Chain.swift"; sourceTree = "<group>"; };
+		84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmCommand.swift; sourceTree = "<group>"; };
+		84DF21B22536E666005454AE /* TransferChangeHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferChangeHandling.swift; sourceTree = "<group>"; };
 		84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountImportInteractor.swift; sourceTree = "<group>"; };
 		84EBC53E24F6425200459D15 /* AddAccountError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountError.swift; sourceTree = "<group>"; };
 		84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -2288,6 +2296,8 @@
 				846A2C482527490700731018 /* WalletSelectAccountCommand.swift */,
 				846A2C4F252A063800731018 /* WalletSelectAccountCommandFactory.swift */,
 				84DF219E25346696005454AE /* WalletAccountInfoCommand.swift */,
+				84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */,
+				84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -2446,7 +2456,7 @@
 				84D97EBC251FE5EC00F07405 /* TransferHeaderViewModelFactory.swift */,
 				84265DFF2523C410005EEE2D /* TransferDefinitionFactory.swift */,
 				8494D86625247CFC00614D8F /* TransferValidator.swift */,
-				8494D86825247DFB00614D8F /* TransferContext.swift */,
+				84DF21B22536E666005454AE /* TransferChangeHandling.swift */,
 			);
 			path = Transfer;
 			sourceTree = "<group>";
@@ -2492,13 +2502,15 @@
 			children = (
 				84DA3B1824C8200E00B5E27F /* ConnectionItem+Default.swift */,
 				84D8F16E24D8451F00AF43E9 /* CryptoType+ViewModel.swift */,
-				84D8F17024D856D300AF43E9 /* NetworkType+ViewModel.swift */,
+				84D8F17024D856D300AF43E9 /* SNAddressType+ViewModel.swift */,
 				843C49E024DFFC9500B71DDA /* AccountImportSource+ViewModel.swift */,
 				84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */,
 				84754C992513871300854599 /* CodableExtensions.swift */,
 				8423B0E3251A774700B8687C /* SNAddressType+Chain.swift */,
 				84D97EC0251FEE1E00F07405 /* WalletAssetId+Display.swift */,
 				84CD356F252620FB0081BC0B /* CryptoType+Extrinsic.swift */,
+				84DF21AA25363C9F005454AE /* Chain+Info.swift */,
+				84DF21AC25363D28005454AE /* WalletAssetId+Chain.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -3115,7 +3127,7 @@
 				8409C26C252221140049B5C8 /* WalletBaseReceiverView.swift in Sources */,
 				84D97EBD251FE5EC00F07405 /* TransferHeaderViewModelFactory.swift in Sources */,
 				84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */,
-				84D8F17124D856D300AF43E9 /* NetworkType+ViewModel.swift in Sources */,
+				84D8F17124D856D300AF43E9 /* SNAddressType+ViewModel.swift in Sources */,
 				842876B324AE059700D91AD8 /* AboutData.swift in Sources */,
 				84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */,
 				8490151824AB8C6D008F705E /* WalletCommonStyleConfigurator.swift in Sources */,
@@ -3156,6 +3168,7 @@
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
@@ -3182,6 +3195,7 @@
 				84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */,
 				8494D86D252489B700614D8F /* TransferConfirmAccessoryViewModel.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
+				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
@@ -3260,6 +3274,7 @@
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				8492448F2514CB9E00477C1B /* ConnectionAccountCreationInteractor.swift in Sources */,
 				842876AA24AE049B00D91AD8 /* SelectionTitleTableViewCell.swift in Sources */,
+				84DF21AD25363D28005454AE /* WalletAssetId+Chain.swift in Sources */,
 				84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */,
 				8467FCFC24E5C3BD005D486C /* URLHandlingService.swift in Sources */,
 				84FB1F6F2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift in Sources */,
@@ -3306,7 +3321,6 @@
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
 				8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */,
-				8494D86925247DFB00614D8F /* TransferContext.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
 				84D97EC42520787500F07405 /* TransferConfirmConfigurator.swift in Sources */,
 				84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */,
@@ -3348,6 +3362,7 @@
 				84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */,
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
+				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
 				84C7435D251DD205009576C6 /* ExtrinsicFactory.swift in Sources */,
 				9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
@@ -3372,6 +3387,7 @@
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				42B79A8D0D9540C1D97D991C /* AccountConfirmWireframe.swift in Sources */,
+				84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */,
 				846A2C492527490700731018 /* WalletSelectAccountCommand.swift in Sources */,
 				94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */,
 				8468B87224F63D3A00B76BC6 /* AddCreationWireframe.swift in Sources */,

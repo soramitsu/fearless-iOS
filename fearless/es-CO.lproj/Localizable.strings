@@ -143,7 +143,7 @@ transferencias aparecerán aquí";
 "common.continue" = "Seguir";
 "wallet.send.amount.title" = "Cantidad";
 "wallet.send.confirm.title" = "Confirmar transferencia";
-"wallet.send.balance.title" = "Saldo libre:";
+"wallet.send.available.balance" = "Saldo libre";
 "wallet.contacts.empty.title" = "Sus cuentas y contactos a los que estaba enviando transferencias aparecerán aquí.";
 "wallet.search.empty.title" = "Asegúrese de que la dirección \
 sea de la red correcta";
@@ -156,3 +156,9 @@ sea de la red correcta";
 "wallet.balance.reserved" = "Reservado";
 "wallet.balance.redeemable" = "Redimible";
 "wallet.balance.unbonding" = "Desunir";
+"wallet.send.balance.details" = "Detalles del saldo";
+"wallet.send.balance.total" = "Balance total";
+"wallet.send.balance.total.after.transfer" = "Total después de la transferencia";
+"wallet.send.balance.existential" = "Depósito existencial";
+"wallet.send.existential.warning" = "Su transferencia eliminará la cuenta de la tienda de bloques, ya que hará que el saldo total sea menor que el depósito existencial";
+"common.warning" = "Advertencia";

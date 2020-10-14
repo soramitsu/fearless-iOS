@@ -25,14 +25,12 @@ final class TransferValidator: TransferValidating {
                                                             available: availableBalance)
         }
 
-        let context = TransferContext(balance: availableBalance, existentialDeposit: 0).toContext()
-
         return TransferInfo(source: info.source,
                             destination: info.destination,
                             amount: info.amount,
                             asset: info.asset,
                             details: info.details,
                             fees: info.fees,
-                            context: context)
+                            context: balanceData.context)
     }
 }

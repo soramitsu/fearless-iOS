@@ -140,7 +140,7 @@
 "common.continue" = "Продолжить";
 "wallet.send.amount.title" = "Сумма";
 "wallet.send.confirm.title" = "Подтвердить";
-"wallet.send.balance.title" = "Свободный баланс:";
+"wallet.send.available.balance" = "Свободный баланс";
 "wallet.contacts.empty.title" = "Здесь появятся ваши аккаунты и контакты, которым вы отправляли переводы";
 "wallet.search.empty.title" = "Убедитесь, что адрес \
 из правильной сети";
@@ -153,3 +153,9 @@
 "wallet.balance.reserved" = "Резерв";
 "wallet.balance.redeemable" = "Погашаемый";
 "wallet.balance.unbonding" = "Несвязанность";
+"wallet.send.balance.details" = "Детали баланса";
+"wallet.send.balance.total" = "Общий баланс";
+"wallet.send.balance.total.after.transfer" = "Общий после перевода";
+"wallet.send.balance.existential" = "Экзистенциальный депозит";
+"wallet.send.existential.warning" = "Ваш перевод удалит учетную запись, так как общий баланс будет ниже, чем существующий депозит.";
+"common.warning" = "Предупреждение";

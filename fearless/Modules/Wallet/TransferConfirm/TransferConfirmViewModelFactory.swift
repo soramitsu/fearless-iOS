@@ -28,12 +28,34 @@ final class TransferConfirmViewModelFactory {
         viewModelList.append(headerViewModel)
 
         let subtitle: String = R.string.localizable
-            .walletSendBalanceTitle(preferredLanguages: locale.rLanguages)
+            .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
 
-        let context = TransferContext(context: payload.transferInfo.context ?? [:])
+        let context = BalanceContext(context: payload.transferInfo.context ?? [:])
 
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
-        let details = amountFormatter.value(for: locale).string(from: context.balance) ?? ""
+        let details = amountFormatter.value(for: locale).string(from: context.available) ?? ""
+
+        let detailsCommand: WalletCommandProtocol?
+
+        let existentialDeposit = assetId.chain?.existentialDeposit ?? .zero
+
+        if let commandFactory = commandFactory {
+            let transferring = payload.transferInfo.amount.decimalValue
+            let fee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
+            let remaining = context.total - (transferring + fee)
+            let transferState = TransferExistentialState(totalAmount: context.total,
+                                                         availableAmount: context.available,
+                                                         totalAfterTransfer: remaining,
+                                                         existentialDeposit: existentialDeposit)
+
+            let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
+
+            detailsCommand = ExistentialDepositInfoCommand(transferState: transferState,
+                                                           amountFormatter: amountFormatter,
+                                                           commandFactory: commandFactory)
+        } else {
+            detailsCommand = nil
+        }
 
         let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
         let tokenViewModel = WalletTokenViewModel(title: assetId.titleForLocale(locale),
@@ -41,7 +63,8 @@ final class TransferConfirmViewModelFactory {
                                                   details: details,
                                                   icon: assetId.icon,
                                                   state: selectedState,
-                                                  detailsCommand: nil)
+                                                  detailsCommand: detailsCommand)
+
         viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.bottom]))
     }
 

@@ -125,6 +125,38 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testWestendExistentialDeposit() throws {
+        let balanceData = try Data(hexString: "0x00e40b54020000000000000000000000")
+
+        let scaleDecoder = try ScaleDecoder(data: balanceData)
+        let balance = try Balance(scaleDecoder: scaleDecoder)
+
+        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 12)!
+        Logger.shared.debug("Existential deposit on westend: \(decimalBalance.stringWithPointSeparator)")
+    }
+
+    func testKusamaExistentialDeposit() throws {
+        let balanceData = try Data(hexString: "0xaa505763000000000000000000000000")
+
+        let scaleDecoder = try ScaleDecoder(data: balanceData)
+        let balance = try Balance(scaleDecoder: scaleDecoder)
+
+        Logger.shared.debug("Kusama balance: \(balance)")
+
+        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 12)!
+        Logger.shared.debug("Existential deposit on kusama: \(decimalBalance.stringWithPointSeparator)")
+    }
+
+    func testPolkadotExistentialDeposit() throws {
+        let balanceData = try Data(hexString: "0x00e40b54020000000000000000000000")
+
+        let scaleDecoder = try ScaleDecoder(data: balanceData)
+        let balance = try Balance(scaleDecoder: scaleDecoder)
+
+        let decimalBalance = Decimal.fromSubstrateAmount(balance.value, precision: 10)!
+        Logger.shared.debug("Existential deposit on polkadot: \(decimalBalance.stringWithPointSeparator)")
+    }
+
     func testAccountInfoWestend() throws {
         try performAccountInfoTest(url: URL(string: "wss://westend-rpc.polkadot.io/")!,
                                    address: "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",

@@ -143,7 +143,7 @@ transfers will appear here";
 "common.continue" = "Continue";
 "wallet.send.amount.title" = "Amount";
 "wallet.send.confirm.title" = "Confirm transfer";
-"wallet.send.balance.title" = "Free balance:";
+"wallet.send.available.balance" = "Available balance";
 "wallet.contacts.empty.title" = "Your accounts and contacts to who you were sending transfers will appear here";
 "wallet.search.empty.title" = "Make sure that the address is \
 from the right network";
@@ -156,3 +156,9 @@ from the right network";
 "wallet.balance.reserved" = "Reserved";
 "wallet.balance.redeemable" = "Redeemable";
 "wallet.balance.unbonding" = "Unbonding";
+"wallet.send.balance.details" = "Balance details";
+"wallet.send.balance.total" = "Total balance";
+"wallet.send.balance.total.after.transfer" = "Total after transfer";
+"wallet.send.balance.existential" = "Existential deposit";
+"wallet.send.existential.warning" = "Your transfer will remove account from blockstore since it will make total balance lower than existential deposit";
+"common.warning" = "Warning";
