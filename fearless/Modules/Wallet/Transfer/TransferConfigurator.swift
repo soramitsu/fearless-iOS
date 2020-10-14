@@ -97,6 +97,7 @@ final class TransferConfigurator {
             .with(receiverPosition: .form)
             .with(accessoryViewType: .onlyActionBar)
             .with(separatorsDistribution: TransferSeparatorDistribution())
+            .with(changeHandler: TransferChangeHandling())
             .with(headerFactory: TransferHeaderViewModelFactory())
             .with(transferViewModelFactory: viewModelFactory)
             .with(accessoryViewFactory: WalletSingleActionAccessoryFactory.self)

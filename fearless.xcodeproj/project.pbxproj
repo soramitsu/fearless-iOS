@@ -429,6 +429,8 @@
 		84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */; };
 		84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21AA25363C9F005454AE /* Chain+Info.swift */; };
 		84DF21AD25363D28005454AE /* WalletAssetId+Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21AC25363D28005454AE /* WalletAssetId+Chain.swift */; };
+		84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */; };
+		84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B22536E666005454AE /* TransferChangeHandling.swift */; };
 		84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */; };
 		84EBC53F24F6425200459D15 /* AddAccountError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53E24F6425200459D15 /* AddAccountError.swift */; };
 		84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */; };
@@ -946,6 +948,8 @@
 		84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExistentialDepositInfoCommand.swift; sourceTree = "<group>"; };
 		84DF21AA25363C9F005454AE /* Chain+Info.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chain+Info.swift"; sourceTree = "<group>"; };
 		84DF21AC25363D28005454AE /* WalletAssetId+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletAssetId+Chain.swift"; sourceTree = "<group>"; };
+		84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmCommand.swift; sourceTree = "<group>"; };
+		84DF21B22536E666005454AE /* TransferChangeHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferChangeHandling.swift; sourceTree = "<group>"; };
 		84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountImportInteractor.swift; sourceTree = "<group>"; };
 		84EBC53E24F6425200459D15 /* AddAccountError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountError.swift; sourceTree = "<group>"; };
 		84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -2293,6 +2297,7 @@
 				846A2C4F252A063800731018 /* WalletSelectAccountCommandFactory.swift */,
 				84DF219E25346696005454AE /* WalletAccountInfoCommand.swift */,
 				84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */,
+				84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -2451,6 +2456,7 @@
 				84D97EBC251FE5EC00F07405 /* TransferHeaderViewModelFactory.swift */,
 				84265DFF2523C410005EEE2D /* TransferDefinitionFactory.swift */,
 				8494D86625247CFC00614D8F /* TransferValidator.swift */,
+				84DF21B22536E666005454AE /* TransferChangeHandling.swift */,
 			);
 			path = Transfer;
 			sourceTree = "<group>";
@@ -3162,6 +3168,7 @@
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
+				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
@@ -3380,6 +3387,7 @@
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				42B79A8D0D9540C1D97D991C /* AccountConfirmWireframe.swift in Sources */,
+				84DF21B12536DDC1005454AE /* TransferConfirmCommand.swift in Sources */,
 				846A2C492527490700731018 /* WalletSelectAccountCommand.swift in Sources */,
 				94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */,
 				8468B87224F63D3A00B76BC6 /* AddCreationWireframe.swift in Sources */,

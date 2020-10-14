@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SoraFoundation
 
 final class StubCommandDecorator: WalletCommandDecoratorProtocol {
     var undelyingCommand: WalletCommandProtocol?
@@ -8,14 +9,17 @@ final class StubCommandDecorator: WalletCommandDecoratorProtocol {
 }
 
 final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol {
-    func createReceiveCommandDecorator(with commandFactory: WalletCommandFactoryProtocol)
-        -> WalletCommandDecoratorProtocol? {
-        StubCommandDecorator()
+    let localizationManager: LocalizationManagerProtocol
+
+    init(localizationManager: LocalizationManagerProtocol) {
+        self.localizationManager = localizationManager
     }
 
-    func createAssetDetailsDecorator(with commandFactory: WalletCommandFactoryProtocol,
-                                     asset: WalletAsset,
-                                     balanceData: BalanceData?) -> WalletCommandDecoratorProtocol? {
-        StubCommandDecorator()
+    func createTransferConfirmationDecorator(with commandFactory: WalletCommandFactoryProtocol,
+                                             payload: ConfirmationPayload)
+        -> WalletCommandDecoratorProtocol? {
+        TransferConfirmCommand(payload: payload,
+                               localizationManager: localizationManager,
+                               commandFactory: commandFactory)
     }
 }
