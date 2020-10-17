@@ -4,6 +4,10 @@ import SoraKeystore
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
+                                              settings: SettingsManager.shared,
+                                              webSocketService: WebSocketService.shared)
+
         let localizationManager = LocalizationManager.shared
 
         guard let walletController = createWalletController(localizationManager: localizationManager) else {
@@ -36,9 +40,6 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         ]
 
         let presenter = MainTabBarPresenter()
-
-        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
-                                              settings: SettingsManager.shared)
 
         let wireframe = MainTabBarWireframe()
 

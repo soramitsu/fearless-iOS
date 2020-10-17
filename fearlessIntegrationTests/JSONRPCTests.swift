@@ -23,9 +23,8 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCOperation<RpcInterface>(engine: engine,
-                                                       method: "rpc_methods",
-                                                       parameters: [])
+        let operation = JSONRPCListOperation<RpcInterface>(engine: engine,
+                                                           method: "rpc_methods")
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -53,9 +52,9 @@ class JSONRPCTests: XCTestCase {
 
         let engine = WebSocketEngine(url: url, logger: logger)
 
-        let operation = JSONRPCOperation<String?>(engine: engine,
-                                                 method: RPCMethod.getBlockHash,
-                                                 parameters: [data.toHex(includePrefix: true)])
+        let operation = JSONRPCListOperation<String?>(engine: engine,
+                                                      method: RPCMethod.getBlockHash,
+                                                      parameters: [data.toHex(includePrefix: true)])
 
         OperationQueue().addOperations([operation], waitUntilFinished: true)
 
@@ -80,9 +79,8 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCOperation<String>(engine: engine,
-                                                 method: "system_chain",
-                                                 parameters: [])
+        let operation = JSONRPCListOperation<String>(engine: engine,
+                                                     method: "system_chain")
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -109,9 +107,9 @@ class JSONRPCTests: XCTestCase {
 
         let blockHash = "0xd843c9d2b49489653a4310aa9f2e5593ced253ad7fdc325e00fb6f28e7fc0ce8"
 
-        let operation = JSONRPCOperation<[String: String]>(engine: engine,
-                                                 method: "chain_getBlock",
-                                                 parameters: [blockHash])
+        let operation = JSONRPCListOperation<[String: String]>(engine: engine,
+                                                               method: "chain_getBlock",
+                                                               parameters: [blockHash])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -195,9 +193,9 @@ class JSONRPCTests: XCTestCase {
                                                            serviceName: "Account",
                                                            identifier: identifier).toHex(includePrefix: true)
 
-        let operation = JSONRPCOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
-                                                                          method: RPCMethod.getStorage,
-                                                                          parameters: [key])
+        let operation = JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
+                                                                              method: RPCMethod.getStorage,
+                                                                              parameters: [key])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -252,9 +250,9 @@ class JSONRPCTests: XCTestCase {
                                                            serviceName: "Ledger",
                                                            identifier: identifier).toHex(includePrefix: true)
 
-        let operation = JSONRPCOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
-                                                                            method: RPCMethod.getStorage,
-                                                                            parameters: [key])
+        let operation = JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
+                                                                                method: RPCMethod.getStorage,
+                                                                                parameters: [key])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -299,9 +297,9 @@ class JSONRPCTests: XCTestCase {
 
         let key = (moduleKeyHash + serviceKeyHash).toHex(includePrefix: true)
 
-        let operation = JSONRPCOperation<JSONScaleDecodable<UInt32>>(engine: engine,
-                                                                     method: RPCMethod.getStorage,
-                                                                     parameters: [key])
+        let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
+                                                                         method: RPCMethod.getStorage,
+                                                                         parameters: [key])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -333,9 +331,9 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCOperation<RuntimeVersion>(engine: engine,
-                                                         method: "chain_getRuntimeVersion",
-                                                         parameters: [])
+        let operation = JSONRPCListOperation<RuntimeVersion>(engine: engine,
+                                                             method: "chain_getRuntimeVersion",
+                                                             parameters: [])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -360,9 +358,9 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let operation = JSONRPCOperation<[String]>(engine: engine,
-                                                             method: "author_pendingExtrinsics",
-                                                             parameters: [])
+        let operation = JSONRPCListOperation<[String]>(engine: engine,
+                                                       method: "author_pendingExtrinsics",
+                                                       parameters: [])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -408,9 +406,9 @@ class JSONRPCTests: XCTestCase {
                                                                amount: Decimal(0.21).toSubstrateAmount()!,
                                                                nonce: 0,
                                                                privateKey: privateKey)
-            let operation = JSONRPCOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                  method: "author_submitExtrinsic",
-                                                                  parameters: [extrinsicData.toHex(includePrefix: true)])
+            let operation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
+                                                                      method: "author_submitExtrinsic",
+                                                                      parameters: [extrinsicData.toHex(includePrefix: true)])
 
             operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -454,9 +452,9 @@ class JSONRPCTests: XCTestCase {
 
         Logger.shared.debug("Extrinsic: \(extrinsicData.toHex())")
 
-        let operation = JSONRPCOperation<RuntimeDispatchInfo>(engine: engine,
-                                                              method: "payment_queryInfo",
-                                                              parameters: [extrinsicData.toHex(includePrefix: true)])
+        let operation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
+                                                                  method: "payment_queryInfo",
+                                                                  parameters: [extrinsicData.toHex(includePrefix: true)])
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 

@@ -23,11 +23,9 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        let accountInfoOperation = createAccountInfoFetchOperation(engine: engine)
-        let stakingLedgerOperation = createStakingLedgerFetchOperation(engine: engine)
-        let activeEraOperation = createActiveEraFetchOperation(engine: engine)
+        let accountInfoOperation = createAccountInfoFetchOperation()
+        let stakingLedgerOperation = createStakingLedgerFetchOperation()
+        let activeEraOperation = createActiveEraFetchOperation()
 
         let mappingOperation = ClosureOperation<[BalanceData]?> {
             guard let accountInfoResult = accountInfoOperation.result else {
@@ -102,10 +100,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return createCompoundOperation(result: .failure(error))
         }
 
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        let infoOperation = JSONRPCOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                  method: RPCMethod.paymentInfo)
+        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
+                                                                      method: RPCMethod.paymentInfo)
 
         let compoundInfo = setupTransferExtrinsic(infoOperation,
                                                   amount: amount,
@@ -156,10 +152,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return createCompoundOperation(result: .failure(error))
         }
 
-        let engine = WebSocketEngine(url: url, logger: logger)
-
-        let transferOperation = JSONRPCOperation<String>(engine: engine,
-                                                         method: RPCMethod.submitExtrinsic)
+        let transferOperation = JSONRPCListOperation<String>(engine: engine,
+                                                             method: RPCMethod.submitExtrinsic)
 
         let compoundTransfer = setupTransferExtrinsic(transferOperation,
                                                       amount: amount,

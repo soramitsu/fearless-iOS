@@ -901,6 +901,224 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+
+
+ class MockSchedulerProtocol: SchedulerProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = SchedulerProtocol
+    
+     typealias Stubbing = __StubbingProxy_SchedulerProtocol
+     typealias Verification = __VerificationProxy_SchedulerProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: SchedulerProtocol?
+
+     func enableDefaultImplementation(_ stub: SchedulerProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func notifyAfter(_ seconds: TimeInterval)  {
+        
+    return cuckoo_manager.call("notifyAfter(_: TimeInterval)",
+            parameters: (seconds),
+            escapingParameters: (seconds),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.notifyAfter(seconds))
+        
+    }
+    
+    
+    
+     func cancel()  {
+        
+    return cuckoo_manager.call("cancel()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.cancel())
+        
+    }
+    
+
+	 struct __StubbingProxy_SchedulerProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func notifyAfter<M1: Cuckoo.Matchable>(_ seconds: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(TimeInterval)> where M1.MatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(TimeInterval)>] = [wrap(matchable: seconds) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSchedulerProtocol.self, method: "notifyAfter(_: TimeInterval)", parameterMatchers: matchers))
+	    }
+	    
+	    func cancel() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockSchedulerProtocol.self, method: "cancel()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_SchedulerProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func notifyAfter<M1: Cuckoo.Matchable>(_ seconds: M1) -> Cuckoo.__DoNotUse<(TimeInterval), Void> where M1.MatchedType == TimeInterval {
+	        let matchers: [Cuckoo.ParameterMatcher<(TimeInterval)>] = [wrap(matchable: seconds) { $0 }]
+	        return cuckoo_manager.verify("notifyAfter(_: TimeInterval)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func cancel() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("cancel()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class SchedulerProtocolStub: SchedulerProtocol {
+    
+
+    
+
+    
+     func notifyAfter(_ seconds: TimeInterval)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func cancel()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockSchedulerDelegate: SchedulerDelegate, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = SchedulerDelegate
+    
+     typealias Stubbing = __StubbingProxy_SchedulerDelegate
+     typealias Verification = __VerificationProxy_SchedulerDelegate
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: SchedulerDelegate?
+
+     func enableDefaultImplementation(_ stub: SchedulerDelegate) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didTrigger(scheduler: SchedulerProtocol)  {
+        
+    return cuckoo_manager.call("didTrigger(scheduler: SchedulerProtocol)",
+            parameters: (scheduler),
+            escapingParameters: (scheduler),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didTrigger(scheduler: scheduler))
+        
+    }
+    
+
+	 struct __StubbingProxy_SchedulerDelegate: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didTrigger<M1: Cuckoo.Matchable>(scheduler: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SchedulerProtocol)> where M1.MatchedType == SchedulerProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(SchedulerProtocol)>] = [wrap(matchable: scheduler) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSchedulerDelegate.self, method: "didTrigger(scheduler: SchedulerProtocol)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_SchedulerDelegate: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didTrigger<M1: Cuckoo.Matchable>(scheduler: M1) -> Cuckoo.__DoNotUse<(SchedulerProtocol), Void> where M1.MatchedType == SchedulerProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(SchedulerProtocol)>] = [wrap(matchable: scheduler) { $0 }]
+	        return cuckoo_manager.verify("didTrigger(scheduler: SchedulerProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class SchedulerDelegateStub: SchedulerDelegate {
+    
+
+    
+
+    
+     func didTrigger(scheduler: SchedulerProtocol)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
 import LocalAuthentication
 
 
@@ -1148,13 +1366,6 @@ public class BiometryAuthStub: BiometryAuth {
     
 }
 
-
-import Cuckoo
-@testable import fearless
-@testable import SoraKeystore
-
-import Foundation
-import Starscream
 
 import Cuckoo
 @testable import fearless

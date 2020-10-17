@@ -36,6 +36,7 @@ PODS:
   - R.swift (5.2.2):
     - R.swift.Library (~> 5.2.0)
   - R.swift.Library (5.2.0)
+  - ReachabilitySwift (5.0.0)
   - RobinHood (2.5.1)
   - scrypt.c (0.1.1)
   - SoraFoundation (0.8.0):
@@ -97,6 +98,7 @@ DEPENDENCIES:
   - FearlessUtils (~> 0.7.0)
   - FireMock
   - R.swift
+  - ReachabilitySwift
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
@@ -114,6 +116,7 @@ SPEC REPOS:
     - IrohaCrypto
     - R.swift
     - R.swift.Library
+    - ReachabilitySwift
     - RobinHood
     - scrypt.c
     - SoraFoundation
@@ -149,6 +152,7 @@ SPEC CHECKSUMS:
   IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
@@ -160,6 +164,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1158c4755012f16c878ee82b7b443d270d8b9584
+PODFILE CHECKSUM: 111f5c985987fd6616e37300fffd9a33a9e56a1f
 
 COCOAPODS: 1.9.3

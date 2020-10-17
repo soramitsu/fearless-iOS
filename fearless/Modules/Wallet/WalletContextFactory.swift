@@ -6,9 +6,9 @@ import IrohaCrypto
 import SoraFoundation
 
 enum WalletContextFactoryError: Error {
-    case missingNode
     case missingAccount
     case missingPriceAsset
+    case missingConnection
 }
 
 protocol WalletContextFactoryProtocol {
@@ -58,6 +58,10 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             throw WalletContextFactoryError.missingAccount
         }
 
+        guard let connection = WebSocketService.shared.connection else {
+            throw WalletContextFactoryError.missingConnection
+        }
+
         let accountSettings = try primitiveFactory.createAccountSettings()
 
         guard let priceAsset = accountSettings.assets
@@ -69,18 +73,16 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         logger.debug("Loading wallet account: \(selectedAccount.address)")
 
-        let nodeUrl = SettingsManager.shared.selectedConnection.url
         let networkType = SettingsManager.shared.selectedConnection.type
 
         let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
         let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
-        let nodeOperationFactory = WalletNetworkOperationFactory(url: nodeUrl,
+        let nodeOperationFactory = WalletNetworkOperationFactory(engine: connection,
                                                                  accountSettings: accountSettings,
                                                                  cryptoType: selectedAccount.cryptoType,
                                                                  accountSigner: accountSigner,
-                                                                 dummySigner: dummySigner,
-                                                                 logger: logger)
+                                                                 dummySigner: dummySigner)
 
         let subscanOperationFactory = SubscanOperationFactory()
         let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,

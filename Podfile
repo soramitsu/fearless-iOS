@@ -14,6 +14,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraFoundation', '~> 0.8.0'
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
+  pod 'ReachabilitySwift'
 
   target 'fearlessTests' do
     inherit! :search_paths

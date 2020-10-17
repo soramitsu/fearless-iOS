@@ -32,9 +32,29 @@ struct ResponseHandler<T: Decodable>: ResponseHandling {
     }
 }
 
+struct JSONRPCOptions {
+    let resendOnReconnect: Bool
+
+    init(resendOnReconnect: Bool = true) {
+        self.resendOnReconnect = resendOnReconnect
+    }
+}
+
 protocol JSONRPCEngine: class {
-    func callMethod<T: Decodable>(_ method: String,
-                                  params: [String],
-                                  completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16
+    func callMethod<P: Encodable, T: Decodable>(_ method: String,
+                                                params: P?,
+                                                options: JSONRPCOptions,
+                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16
     func cancelForIdentifier(_ identifier: UInt16)
+}
+
+extension JSONRPCEngine {
+    func callMethod<P: Encodable, T: Decodable>(_ method: String,
+                                                params: P?,
+                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
+        try callMethod(method,
+                       params: params,
+                       options: JSONRPCOptions(),
+                       completion: closure)
+    }
 }
