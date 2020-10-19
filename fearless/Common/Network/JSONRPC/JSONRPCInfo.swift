@@ -1,6 +1,6 @@
 import Foundation
 
-struct JSONRPCInfo: Encodable {
+struct JSONRPCInfo<P: Encodable>: Encodable {
     enum CodingKeys: String, CodingKey {
         case identifier = "id"
         case jsonrpc
@@ -11,5 +11,5 @@ struct JSONRPCInfo: Encodable {
     let identifier: UInt16
     let jsonrpc: String
     let method: String
-    let params: [String]
+    let params: P
 }

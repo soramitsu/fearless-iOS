@@ -5,14 +5,14 @@ enum JSONRPCOperationError: Error {
     case timeout
 }
 
-final class JSONRPCOperation<T: Decodable>: BaseOperation<T> {
+class JSONRPCOperation<P: Encodable, T: Decodable>: BaseOperation<T> {
     let engine: JSONRPCEngine
     private(set) var requestId: UInt16?
     let method: String
-    var parameters: [String]
+    var parameters: P?
     let timeout: Int
 
-    init(engine: JSONRPCEngine, method: String, parameters: [String] = [], timeout: Int = 10) {
+    init(engine: JSONRPCEngine, method: String, parameters: P? = nil, timeout: Int = 10) {
         self.engine = engine
         self.method = method
         self.parameters = parameters
@@ -81,3 +81,5 @@ final class JSONRPCOperation<T: Decodable>: BaseOperation<T> {
         super.cancel()
     }
 }
+
+final class JSONRPCListOperation<T: Decodable>: JSONRPCOperation<[String], T> {}

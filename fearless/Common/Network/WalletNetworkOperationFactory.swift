@@ -7,62 +7,53 @@ import FearlessUtils
 
 final class WalletNetworkOperationFactory {
     let accountSettings: WalletAccountSettingsProtocol
-    let url: URL
+    let engine: JSONRPCEngine
     let accountSigner: IRSignatureCreatorProtocol
     let dummySigner: IRSignatureCreatorProtocol
     let cryptoType: CryptoType
-    let logger: LoggerProtocol
 
-    init(url: URL,
+    init(engine: JSONRPCEngine,
          accountSettings: WalletAccountSettingsProtocol,
          cryptoType: CryptoType,
          accountSigner: IRSignatureCreatorProtocol,
-         dummySigner: IRSignatureCreatorProtocol,
-         logger: LoggerProtocol) {
-        self.url = url
+         dummySigner: IRSignatureCreatorProtocol) {
+        self.engine = engine
         self.accountSettings = accountSettings
         self.cryptoType = cryptoType
         self.accountSigner = accountSigner
         self.dummySigner = dummySigner
-        self.logger = logger
     }
 
-    func createGenisisHashOperation(engine: JSONRPCEngine? = nil) -> BaseOperation<String> {
+    func createGenisisHashOperation() -> BaseOperation<String> {
         createBlockHashOperation(0)
     }
 
-    func createBlockHashOperation(_ block: UInt32, engine: JSONRPCEngine? = nil) -> BaseOperation<String> {
-        let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
-
+    func createBlockHashOperation(_ block: UInt32) -> BaseOperation<String> {
         var currentBlock = block
         let param = Data(Data(bytes: &currentBlock, count: MemoryLayout<UInt32>.size).reversed())
             .toHex(includePrefix: true)
 
-        return JSONRPCOperation<String>(engine: currentEngine,
-                                        method: RPCMethod.getBlockHash,
-                                        parameters: [param])
+        return JSONRPCListOperation<String>(engine: engine,
+                                            method: RPCMethod.getBlockHash,
+                                            parameters: [param])
     }
 
-    func createAccountInfoFetchOperation(_ accountId: Data? = nil, engine: JSONRPCEngine? = nil)
+    func createAccountInfoFetchOperation(_ accountId: Data? = nil)
         -> BaseOperation<JSONScaleDecodable<AccountInfo>> {
         do {
             let identifier = try (accountId ?? Data(hexString: accountSettings.accountId))
 
             return createStorageFetchOperation(moduleName: "System",
                                                serviceName: "Account",
-                                               identifier: identifier,
-                                               engine: engine)
+                                               identifier: identifier)
         } catch {
             return createBaseOperation(result: .failure(error))
         }
     }
 
-    func createStakingLedgerFetchOperation(_ accountId: Data? = nil,
-                                           engine: JSONRPCEngine? = nil)
+    func createStakingLedgerFetchOperation(_ accountId: Data? = nil)
         -> CompoundOperationWrapper<JSONScaleDecodable<StakingLedger>> {
         do {
-            let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
-
             let storageKeyFactory = StorageKeyFactory()
             let stashId = try (accountId ?? Data(hexString: accountSettings.accountId))
 
@@ -72,13 +63,14 @@ final class WalletNetworkOperationFactory {
             let stashKey = (serviceKey + stashId.twox64Concat()).toHex(includePrefix: true)
 
             let controllerOperation =
-                JSONRPCOperation<JSONScaleDecodable<AccountId>>(engine: currentEngine,
-                                                                method: RPCMethod.getStorage,
-                                                                parameters: [stashKey])
+                JSONRPCListOperation<JSONScaleDecodable<AccountId>>(engine: engine,
+                                                                    method: RPCMethod.getStorage,
+                                                                    parameters: [stashKey])
 
             let infoOperation =
-                JSONRPCOperation<JSONScaleDecodable<StakingLedger>>(engine: currentEngine,
-                                                                    method: RPCMethod.getStorage)
+                JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
+                                                                        method: RPCMethod.getStorage,
+                                                                        parameters: [])
 
             infoOperation.configurationBlock = {
                 do {
@@ -113,11 +105,8 @@ final class WalletNetworkOperationFactory {
 
     func createStorageFetchOperation<T: Decodable>(moduleName: String,
                                                    serviceName: String,
-                                                   identifier: Data? = nil,
-                                                   engine: JSONRPCEngine? = nil) -> BaseOperation<T> {
+                                                   identifier: Data? = nil) -> BaseOperation<T> {
         do {
-            let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
-
             let key: String
             let storageKeyFactory = StorageKeyFactory()
 
@@ -132,33 +121,31 @@ final class WalletNetworkOperationFactory {
                     .toHex(includePrefix: true)
             }
 
-            return JSONRPCOperation<T>(engine: currentEngine,
-                                       method: RPCMethod.getStorage,
-                                       parameters: [key])
+            return JSONRPCListOperation<T>(engine: engine,
+                                           method: RPCMethod.getStorage,
+                                           parameters: [key])
         } catch {
             return createBaseOperation(result: .failure(error))
         }
     }
 
-    func createActiveEraFetchOperation(engine: JSONRPCEngine? = nil)
+    func createActiveEraFetchOperation()
         -> BaseOperation<JSONScaleDecodable<UInt32>> {
         return createStorageFetchOperation(moduleName: "Staking",
-                                           serviceName: "ActiveEra",
-                                           engine: engine)
+                                           serviceName: "ActiveEra")
     }
 
-    func createRuntimeVersionOperation(engine: JSONRPCEngine? = nil) -> BaseOperation<RuntimeVersion> {
-        let currentEngine = engine ?? WebSocketEngine(url: url, logger: logger)
-        return JSONRPCOperation(engine: currentEngine, method: RPCMethod.getRuntimeVersion)
+    func createRuntimeVersionOperation() -> BaseOperation<RuntimeVersion> {
+        return JSONRPCListOperation(engine: engine, method: RPCMethod.getRuntimeVersion)
     }
 
-    func setupTransferExtrinsic<T>(_ targetOperation: JSONRPCOperation<T>,
+    func setupTransferExtrinsic<T>(_ targetOperation: JSONRPCListOperation<T>,
                                    amount: BigUInt,
                                    receiver: String,
                                    chain: Chain,
                                    signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
-        let accountInfoOperation = createAccountInfoFetchOperation(engine: targetOperation.engine)
-        let runtimeVersionOperation = createRuntimeVersionOperation(engine: targetOperation.engine)
+        let accountInfoOperation = createAccountInfoFetchOperation()
+        let runtimeVersionOperation = createRuntimeVersionOperation()
 
         let sender = accountSettings.accountId
         let currentCryptoType = cryptoType
