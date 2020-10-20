@@ -15,7 +15,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                                     accountId: accountId,
                                                                     storageKeyFactory: keyFactory)
 
+        let stakingSubscription = StakingInfoSubscription(engine: engine,
+                                                          logger: Logger.shared)
+
         let bondedSubscription = try createBondedSubscription(accountId: accountId,
+                                                              stakingSubscription: stakingSubscription,
                                                               storageKeyFactory: keyFactory)
 
         let children: [StorageChildSubscribing] = [accountSubscription, bondedSubscription]
@@ -23,7 +27,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                      children: children,
                                                      logger: Logger.shared)
 
-        return [container]
+        return [container, stakingSubscription]
     }
 
     private func createAccountInfoSubscription(_ address: String,
@@ -41,6 +45,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     }
 
     private func createBondedSubscription(accountId: Data,
+                                          stakingSubscription: StakingInfoSubscription,
                                           storageKeyFactory: StorageKeyFactoryProtocol)
         throws -> BondedSubscription {
         let serviceKey = try storageKeyFactory.createStorageKey(moduleName: "Staking",
@@ -49,6 +54,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let storageKey = serviceKey + accountId.twox64Concat()
 
         return BondedSubscription(storageKey: storageKey,
+                                  stakingSubscription: stakingSubscription,
                                   logger: Logger.shared)
     }
 }

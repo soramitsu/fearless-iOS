@@ -3,10 +3,13 @@ import Foundation
 final class BondedSubscription: StorageChildSubscribing {
     let storageKey: Data
     let logger: LoggerProtocol
+    let stakingSubscription: StakingInfoSubscription
 
     init(storageKey: Data,
+         stakingSubscription: StakingInfoSubscription,
          logger: LoggerProtocol) {
         self.storageKey = storageKey
+        self.stakingSubscription = stakingSubscription
         self.logger = logger
     }
 
@@ -16,5 +19,7 @@ final class BondedSubscription: StorageChildSubscribing {
         } else {
             logger.debug("No controller account found")
         }
+
+        stakingSubscription.controllerId = data
     }
 }
