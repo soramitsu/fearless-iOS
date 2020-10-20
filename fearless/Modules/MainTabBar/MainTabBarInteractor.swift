@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import CommonWallet
 
 final class MainTabBarInteractor {
 	weak var presenter: MainTabBarInteractorOutputProtocol?
@@ -72,5 +73,13 @@ extension MainTabBarInteractor: EventVisitorProtocol {
             updateSelectedItems()
             presenter?.didReloadSelectedNetwork()
         }
+    }
+
+    func processBalanceChanged(event: WalletBalanceChanged) {
+        presenter?.didUpdateWalletInfo()
+    }
+
+    func processStakingChanged(event: WalletStakingInfoChanged) {
+        presenter?.didUpdateWalletInfo()
     }
 }

@@ -1,9 +1,14 @@
 import Foundation
 import FearlessUtils
+import RobinHood
 
 final class StakingInfoSubscription: WebSocketSubscribing {
     let engine: JSONRPCEngine
     let logger: LoggerProtocol
+    let stashId: Data
+    let storage: AnyDataProviderRepository<ChainStorageItem>
+    let operationManager: OperationManagerProtocol
+    let eventCenter: EventCenterProtocol
 
     var controllerId: Data? {
         didSet {
@@ -16,8 +21,17 @@ final class StakingInfoSubscription: WebSocketSubscribing {
 
     private var subscriptionId: UInt16?
 
-    init(engine: JSONRPCEngine, logger: LoggerProtocol) {
+    init(engine: JSONRPCEngine,
+         stashId: Data,
+         storage: AnyDataProviderRepository<ChainStorageItem>,
+         operationManager: OperationManagerProtocol,
+         eventCenter: EventCenterProtocol,
+         logger: LoggerProtocol) {
         self.engine = engine
+        self.stashId = stashId
+        self.storage = storage
+        self.operationManager = operationManager
+        self.eventCenter = eventCenter
         self.logger = logger
 
         subscribe()
@@ -33,9 +47,8 @@ final class StakingInfoSubscription: WebSocketSubscribing {
                 return
             }
 
-            let storageKey = try StorageKeyFactory().createStorageKey(moduleName: "Staking",
-                                                                      serviceName: "Ledger",
-                                                                      identifier: controllerId)
+            let storageKey = try StorageKeyFactory()
+                .stakingInfoForControllerId(controllerId)
                 .toHex(includePrefix: true)
 
             let updateClosure: (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void = {
@@ -64,33 +77,87 @@ final class StakingInfoSubscription: WebSocketSubscribing {
 
     private func handleUpdate(_ update: StorageUpdate) {
         do {
-            guard let changes = update.changes else {
+            let updateData = StorageUpdateData(update: update)
+
+            guard let change = updateData.changes.first else {
+                logger.warning("No updates found for staking")
                 return
             }
 
-            let blockHash: Data?
+            // save by stash id to avoid intermediate call to controller
+            let identifier = try StorageKeyFactory()
+                .stakingInfoForControllerId(stashId)
+                .toHex(includePrefix: true)
 
-            if let blockHashString = update.blockHash {
-                blockHash = try Data(hexString: blockHashString)
-            } else {
-                blockHash = nil
+            let fetchOperation = storage.fetchOperation(by: identifier,
+                                                        options: RepositoryFetchOptions())
+
+            let processingOperation: BaseOperation<DataProviderChange<ChainStorageItem>?> =
+                ClosureOperation {
+                let newItem: ChainStorageItem?
+
+                if let newData = change.value {
+                    newItem = ChainStorageItem(identifier: identifier, data: newData)
+                } else {
+                    newItem = nil
+                }
+
+                let currentItem = try fetchOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+                return DataProviderChange<ChainStorageItem>
+                    .change(value1: currentItem, value2: newItem)
             }
 
-            guard let change = changes.first, change.count == 2 else {
-                return
+            let saveOperation = storage.saveOperation({
+                guard let update = try processingOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                    return []
+                }
+
+                if let item = update.item {
+                    return [item]
+                } else {
+                    return []
+                }
+            }, {
+                guard let update = try processingOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                    return []
+                }
+
+                if case .delete(let identifier) = update {
+                    return [identifier]
+                } else {
+                    return []
+                }
+            })
+
+            processingOperation.addDependency(fetchOperation)
+            saveOperation.addDependency(processingOperation)
+
+            saveOperation.completionBlock = { [weak self] in
+                guard let changeResult = processingOperation.result else {
+                    return
+                }
+
+                self?.handle(result: changeResult)
             }
 
-            let updatedData: Data?
-
-            if let updatedDataString = change[1] {
-                updatedData = try Data(hexString: updatedDataString)
-            } else {
-                updatedData = nil
-            }
+            operationManager.enqueue(operations: [fetchOperation, processingOperation, saveOperation],
+                                     in: .sync)
 
             logger.debug("Did receive staking ledger update")
         } catch {
-            logger.warning("Can't handle update: \(error)")
+            logger.error("Did receive staking updates error: \(error)")
+        }
+    }
+
+    private func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>) {
+        if case .success(let optionalChange) = result, optionalChange != nil {
+            DispatchQueue.main.async {
+                self.eventCenter.notify(with: WalletStakingInfoChanged())
+            }
         }
     }
 }

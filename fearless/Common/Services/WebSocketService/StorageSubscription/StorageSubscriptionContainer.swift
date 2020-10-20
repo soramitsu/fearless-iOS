@@ -1,4 +1,5 @@
 import Foundation
+import RobinHood
 
 final class StorageSubscriptionContainer: WebSocketSubscribing {
     let children: [StorageChildSubscribing]
@@ -7,7 +8,9 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
 
     private var subscriptionId: UInt16?
 
-    init(engine: JSONRPCEngine, children: [StorageChildSubscribing], logger: LoggerProtocol) {
+    init(engine: JSONRPCEngine,
+         children: [StorageChildSubscribing],
+         logger: LoggerProtocol) {
         self.children = children
         self.engine = engine
         self.logger = logger
@@ -48,44 +51,14 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
     }
 
     private func handleUpdate(_ update: StorageUpdate) {
-        do {
-            guard let changes = update.changes else {
-                return
+        let updateData = StorageUpdateData(update: update)
+
+        for change in updateData.changes {
+            let childrenToNotify = children.filter { $0.storageKey == change.key }
+
+            childrenToNotify.forEach {
+                $0.processUpdate(change.value, blockHash: updateData.blockHash)
             }
-
-            let blockHash: Data?
-
-            if let blockHashString = update.blockHash {
-                blockHash = try Data(hexString: blockHashString)
-            } else {
-                blockHash = nil
-            }
-
-            for change in changes where change.count == 2 {
-                guard let storageKeyString = change[0] else {
-                    continue
-                }
-
-                let storageKeyData = try Data(hexString: storageKeyString)
-
-                let childrenToNotify = children.filter { $0.storageKey == storageKeyData }
-
-                guard !childrenToNotify.isEmpty else {
-                    continue
-                }
-
-                let updateData: Data?
-
-                if let updateDataString = change[1] {
-                    updateData = try Data(hexString: updateDataString)
-                } else {
-                    updateData = nil
-                }
-
-                childrenToNotify.forEach { $0.processUpdate(updateData, blockHash: blockHash) }
-            }
-        } catch {
-            logger.warning("Can't handle update: \(error)")
         }
     }
 }

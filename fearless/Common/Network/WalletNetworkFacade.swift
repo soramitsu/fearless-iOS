@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import RobinHood
 
 final class WalletNetworkFacade {
     let accountSettings: WalletAccountSettingsProtocol
@@ -9,10 +10,12 @@ final class WalletNetworkFacade {
     let address: String
     let networkType: SNAddressType
     let totalPriceAssetId: WalletAssetId
+    let storage: AnyDataProviderRepository<ChainStorageItem>
 
     init(accountSettings: WalletAccountSettingsProtocol,
          nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
          subscanOperationFactory: SubscanOperationFactoryProtocol,
+         storage: AnyDataProviderRepository<ChainStorageItem>,
          address: String,
          networkType: SNAddressType,
          totalPriceAssetId: WalletAssetId) {
@@ -22,5 +25,6 @@ final class WalletNetworkFacade {
         self.address = address
         self.networkType = networkType
         self.totalPriceAssetId = totalPriceAssetId
+        self.storage = storage
     }
 }

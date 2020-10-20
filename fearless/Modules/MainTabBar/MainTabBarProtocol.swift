@@ -1,4 +1,5 @@
 import UIKit
+import CommonWallet
 
 protocol MainTabBarViewProtocol: ControllerBackedProtocol {
     func didReplaceView(for newView: UIViewController, for index: Int)
@@ -16,10 +17,14 @@ protocol MainTabBarInteractorInputProtocol: class {
 protocol MainTabBarInteractorOutputProtocol: class {
     func didReloadSelectedAccount()
     func didReloadSelectedNetwork()
+    func didUpdateWalletInfo()
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable {
+    var walletContext: CommonWalletContextProtocol { get set }
+
     func showNewWalletView(on view: MainTabBarViewProtocol?)
+    func reloadWalletContent()
 }
 
 protocol MainTabBarViewFactoryProtocol: class {

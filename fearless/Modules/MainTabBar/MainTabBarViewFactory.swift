@@ -1,6 +1,7 @@
 import UIKit
 import SoraFoundation
 import SoraKeystore
+import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
@@ -10,7 +11,11 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
-        guard let walletController = createWalletController(localizationManager: localizationManager) else {
+        guard
+            let walletContext = try? WalletContextFactory().createContext(),
+            let walletController = createWalletController(walletContext: walletContext,
+                                                          localizationManager: localizationManager)
+            else {
             return nil
         }
 
@@ -41,7 +46,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let presenter = MainTabBarPresenter()
 
-        let wireframe = MainTabBarWireframe()
+        let wireframe = MainTabBarWireframe(walletContext: walletContext)
 
         view.presenter = presenter
         presenter.view = view
@@ -55,16 +60,21 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func reloadWalletView(on view: MainTabBarViewProtocol) {
         let localizationManager = LocalizationManager.shared
 
-        guard let walletController = createWalletController(localizationManager: localizationManager) else {
+        guard
+            let walletContext = try? WalletContextFactory().createContext(),
+            let walletController = createWalletController(walletContext: walletContext,
+                                                          localizationManager: localizationManager)
+            else {
             return
         }
 
         view.didReplaceView(for: walletController, for: 0)
     }
 
-    static func createWalletController(localizationManager: LocalizationManagerProtocol) -> UIViewController? {
+    static func createWalletController(walletContext: CommonWalletContextProtocol,
+                                       localizationManager: LocalizationManagerProtocol)
+        -> UIViewController? {
         do {
-            let walletContext = try WalletContextFactory().createContext()
             let viewController = try walletContext.createRootController()
 
             let localizableTitle = LocalizableResource { locale in
