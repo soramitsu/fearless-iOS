@@ -162,3 +162,5 @@ sea de la red correcta";
 "wallet.send.balance.existential" = "Depósito existencial";
 "wallet.send.existential.warning" = "Su transferencia eliminará la cuenta de la tienda de bloques, ya que hará que el saldo total sea menor que el depósito existencial";
 "common.warning" = "Advertencia";
+"network.status.connecting" = "Conectando ...";
+"network.status.connected" = "Conectado";

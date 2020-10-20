@@ -11,6 +11,8 @@ extension UIFont {
 
     static var h5Title: UIFont { R.font.soraRc0040417Bold(size: 14)! }
 
+    static var h6Title: UIFont { R.font.soraRc0040417Bold(size: 12)! }
+
     static var capsTitle: UIFont { R.font.soraRc0040417Bold(size: 10)! }
 
     static var p0Paragraph: UIFont { R.font.soraRc0040417Regular(size: 16)! }

@@ -159,3 +159,5 @@ a type of password.";
 "wallet.send.balance.existential" = "実存的預金";
 "wallet.send.existential.warning" = "送金により、合計残高が既存の預金よりも少なくなるため、ブロックストアからアカウントが削除されます";
 "common.warning" = "警告";
+"network.status.connecting" = "接続しています...";
+"network.status.connected" = "接続済み";

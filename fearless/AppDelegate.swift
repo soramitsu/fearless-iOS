@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if !isUnitTesting {
-            let rootWindow = UIWindow()
+            let rootWindow = FearlessWindow()
             window = rootWindow
 
             let presenter = RootPresenterFactory.createPresenter(with: rootWindow)

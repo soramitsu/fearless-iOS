@@ -162,3 +162,5 @@
 "wallet.send.balance.existential" = "Екзистенційний депозит";
 "wallet.send.existential.warning" = "Ваш переказ видалить рахунок із магазину, оскільки загальний залишок буде нижчим за екзистенційний депозит";
 "common.warning" = "Увага";
+"network.status.connecting" = "Підключення ...";
+"network.status.connected" = "Підключено";

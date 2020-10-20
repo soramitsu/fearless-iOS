@@ -37,6 +37,8 @@ final class WebSocketService: WebSocketServiceProtocol {
     private(set) var isThrottled: Bool = true
     private(set) var isActive: Bool = true
 
+    var networkStatusPresenter: NetworkAvailabilityLayerInteractorOutputProtocol?
+
     init(settings: WebSocketServiceSettings,
          connectionFactory: WebSocketEngineFactoryProtocol,
          subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
@@ -83,6 +85,7 @@ final class WebSocketService: WebSocketServiceProtocol {
     }
 
     private func clearConnection() {
+        engine?.delegate = nil
         engine?.disconnectIfNeeded()
         engine = nil
 
@@ -91,6 +94,7 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     private func setupConnection() {
         let engine = connectionFactory.createEngine(for: settings.url, autoconnect: isActive)
+        engine.delegate = self
         self.engine = engine
 
         if let address = settings.address, let type = settings.addressType {
@@ -118,6 +122,34 @@ extension WebSocketService: ApplicationHandlerDelegate {
             isActive = false
 
             engine?.disconnectIfNeeded()
+        }
+    }
+}
+
+extension WebSocketService: WebSocketEngineDelegate {
+    func webSocketDidChangeState(from oldState: WebSocketEngine.State,
+                                 to newState: WebSocketEngine.State) {
+        switch newState {
+        case .connecting(let attempt):
+            if attempt > 0 {
+                scheduleNetworkUnreachable()
+            }
+        case .connected:
+            scheduleNetworkReachable()
+        default:
+            break
+        }
+    }
+
+    private func scheduleNetworkReachable() {
+        DispatchQueue.main.async {
+            self.networkStatusPresenter?.didDecideReachableStatusPresentation()
+        }
+    }
+
+    private func scheduleNetworkUnreachable() {
+        DispatchQueue.main.async {
+            self.networkStatusPresenter?.didDecideUnreachableStatusPresentation()
         }
     }
 }

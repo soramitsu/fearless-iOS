@@ -5,11 +5,15 @@ import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
-        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
-                                              settings: SettingsManager.shared,
-                                              webSocketService: WebSocketService.shared)
 
         let localizationManager = LocalizationManager.shared
+        let webSocketService = WebSocketService.shared
+        webSocketService.networkStatusPresenter =
+            createNetworkStatusPresenter(localizationManager: localizationManager)
+
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
+                                              settings: SettingsManager.shared,
+                                              webSocketService: webSocketService)
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),
@@ -245,5 +249,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)
 
         return tabBarItem
+    }
+
+    static func createNetworkStatusPresenter(localizationManager: LocalizationManagerProtocol)
+        -> NetworkAvailabilityLayerInteractorOutputProtocol? {
+        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
+            return nil
+        }
+
+        let prenseter = NetworkAvailabilityLayerPresenter()
+        prenseter.localizationManager = localizationManager
+        prenseter.view = window
+
+        return prenseter
     }
 }

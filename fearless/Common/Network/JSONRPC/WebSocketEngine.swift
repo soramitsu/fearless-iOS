@@ -8,6 +8,11 @@ protocol WebSocketConnectionProtocol: WebSocketClient {
 
 extension WebSocket: WebSocketConnectionProtocol {}
 
+protocol WebSocketEngineDelegate: class {
+    func webSocketDidChangeState(from oldState: WebSocketEngine.State,
+                                 to newState: WebSocketEngine.State)
+}
+
 final class WebSocketEngine {
     static let sharedProcessingQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.ws.processing")
 
@@ -24,7 +29,18 @@ final class WebSocketEngine {
     let reachabilityManager: ReachabilityManagerProtocol?
     let completionQueue: DispatchQueue
 
-    private(set) var state: State = .notConnected
+    private(set) var state: State = .notConnected {
+        didSet {
+            if let delegate = delegate {
+                let oldState = oldValue
+                let newState = state
+
+                completionQueue.async {
+                    delegate.webSocketDidChangeState(from: oldState, to: newState)
+                }
+            }
+        }
+    }
 
     private(set) var mutex: NSLock = NSLock()
     private(set) var jsonEncoder = JSONEncoder()
@@ -39,6 +55,8 @@ final class WebSocketEngine {
     private(set) var pendingRequests: [JSONRPCRequest] = []
     private(set) var inProgressRequests: [UInt16: JSONRPCRequest] = [:]
     private(set) var subscriptions: [UInt16: JSONRPCSubscribing] = [:]
+
+    weak var delegate: WebSocketEngineDelegate?
 
     public init(url: URL,
                 reachabilityManager: ReachabilityManagerProtocol? = nil,
