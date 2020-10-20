@@ -43,7 +43,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let accountStorageKey = try storageKeyFactory.accountInfoKeyForId(accountId)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            UserDataStorageFacade.shared.createRepository()
+            SubstrateDataStorageFacade.shared.createRepository()
 
         return AccountInfoSubscription(storageKey: accountStorageKey,
                                        storage: AnyDataProviderRepository(storage),
@@ -57,7 +57,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let storageKey = try storageKeyFactory.activeEra()
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            UserDataStorageFacade.shared.createRepository()
+            SubstrateDataStorageFacade.shared.createRepository()
 
         return ActiveEraSubscription(storageKey: storageKey,
                                      storage: AnyDataProviderRepository(storage),
@@ -70,7 +70,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                            accountId: Data) throws -> StakingInfoSubscription {
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            UserDataStorageFacade.shared.createRepository()
+            SubstrateDataStorageFacade.shared.createRepository()
 
         return StakingInfoSubscription(engine: engine,
                                        stashId: accountId,

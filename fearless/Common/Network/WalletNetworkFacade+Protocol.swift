@@ -64,7 +64,6 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let totalPriceBalance = BalanceData(identifier: currentTotalPriceId,
                                                 balance: AmountDecimal(value: totalPrice))
 
-            Logger.shared.debug("Returning balance info: \(balances ?? [])")
             return [totalPriceBalance] + (balances ?? [])
         }
 

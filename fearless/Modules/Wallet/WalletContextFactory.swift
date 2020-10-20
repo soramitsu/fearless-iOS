@@ -87,7 +87,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let subscanOperationFactory = SubscanOperationFactory()
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            UserDataStorageFacade.shared.createRepository()
+            SubstrateDataStorageFacade.shared.createRepository()
         let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
                                                 nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,

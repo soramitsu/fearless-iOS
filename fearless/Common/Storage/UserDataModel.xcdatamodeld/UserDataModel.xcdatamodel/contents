@@ -8,10 +8,6 @@
         <attribute name="publicKey" optional="YES" attributeType="Binary"/>
         <attribute name="username" optional="YES" attributeType="String"/>
     </entity>
-    <entity name="CDChainStorageItem" representedClassName="CDChainStorageItem" syncable="YES" codeGenerationType="class">
-        <attribute name="data" optional="YES" attributeType="Binary"/>
-        <attribute name="identifier" optional="YES" attributeType="String"/>
-    </entity>
     <entity name="CDConnectionItem" representedClassName="CDConnectionItem" syncable="YES" codeGenerationType="class">
         <attribute name="identifier" optional="YES" attributeType="String"/>
         <attribute name="networkType" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -21,6 +17,5 @@
     <elements>
         <element name="CDAccountItem" positionX="-63" positionY="-18" width="128" height="133"/>
         <element name="CDConnectionItem" positionX="-54" positionY="-9" width="128" height="103"/>
-        <element name="CDChainStorageItem" positionX="-54" positionY="27" width="128" height="73"/>
     </elements>
 </model>
