@@ -9,9 +9,6 @@ protocol WebSocketConnectionProtocol: WebSocketClient {
 extension WebSocket: WebSocketConnectionProtocol {}
 
 final class WebSocketEngine {
-    static let sharedCompletionQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.ws.completion",
-                                                     attributes: .concurrent)
-
     static let sharedProcessingQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.ws.processing")
 
     enum State {
@@ -48,7 +45,6 @@ final class WebSocketEngine {
                 reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
                 version: String = "2.0",
                 processingQueue: DispatchQueue? = nil,
-                completionQueue: DispatchQueue? = nil,
                 autoconnect: Bool = true,
                 connectionTimeout: TimeInterval = 10.0,
                 logger: LoggerProtocol) {
@@ -56,7 +52,7 @@ final class WebSocketEngine {
         self.logger = logger
         self.reconnectionStrategy = reconnectionStrategy
         self.reachabilityManager = reachabilityManager
-        self.completionQueue = completionQueue ?? Self.sharedCompletionQueue
+        self.completionQueue = processingQueue ?? Self.sharedProcessingQueue
 
         let request = URLRequest(url: url, timeoutInterval: connectionTimeout)
 
@@ -82,7 +78,6 @@ final class WebSocketEngine {
     init(connection: WebSocketConnectionProtocol,
          reachabilityManager: ReachabilityManagerProtocol? = nil,
          reconnectionStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
-         completionQueue: DispatchQueue? = nil,
          version: String = "2.0",
          autoconnect: Bool = true,
          logger: LoggerProtocol) {
@@ -91,7 +86,7 @@ final class WebSocketEngine {
         self.reconnectionStrategy = reconnectionStrategy
         self.version = version
         self.logger = logger
-        self.completionQueue = completionQueue ?? Self.sharedCompletionQueue
+        self.completionQueue = Self.sharedProcessingQueue
 
         connection.delegate = self
 

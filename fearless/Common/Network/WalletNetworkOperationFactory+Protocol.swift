@@ -15,61 +15,7 @@ enum WalletNetworkOperationFactoryError: Error {
 
 extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
-        guard
-            let assetId = assets.first,
-            let asset = accountSettings.assets.first(where: { $0.identifier == assetId }) else {
-            let operation = BaseOperation<[BalanceData]?>()
-            operation.result = .failure(NetworkBaseError.unexpectedEmptyData)
-            return CompoundOperationWrapper(targetOperation: operation)
-        }
-
-        let accountInfoOperation = createAccountInfoFetchOperation()
-        let stakingLedgerOperation = createStakingLedgerFetchOperation()
-        let activeEraOperation = createActiveEraFetchOperation()
-
-        let mappingOperation = ClosureOperation<[BalanceData]?> {
-            guard let accountInfoResult = accountInfoOperation.result else {
-                return nil
-            }
-
-            switch accountInfoResult {
-            case .success(let info):
-                var context: BalanceContext = BalanceContext(context: [:])
-
-                if let accountData = info.underlyingValue?.data {
-                    context = context.byChangingAccountInfo(accountData, precision: asset.precision)
-
-                    if
-                        let activeEra = try? activeEraOperation
-                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                            .underlyingValue,
-                        let stakingLedger = try? stakingLedgerOperation.targetOperation
-                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                            .underlyingValue {
-
-                        context = context.byChangingStakingInfo(stakingLedger,
-                                                                activeEra: activeEra,
-                                                                precision: asset.precision)
-                    }
-
-                }
-
-                let balance = BalanceData(identifier: asset.identifier,
-                                          balance: AmountDecimal(value: context.total),
-                                          context: context.toContext())
-
-                return [balance]
-            case .failure(let error):
-                throw error
-            }
-        }
-
-        let dependencies = [accountInfoOperation, activeEraOperation] + stakingLedgerOperation.allOperations
-
-        dependencies.forEach { mappingOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper<[BalanceData]?>.createWithResult(nil)
     }
 
     func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest,
@@ -175,35 +121,19 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     }
 
     func searchOperation(_ searchString: String) -> CompoundOperationWrapper<[SearchData]?> {
-        let operation = ClosureOperation<[SearchData]?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
+        return CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
     }
 
     func contactsOperation() -> CompoundOperationWrapper<[SearchData]?> {
-        let operation = ClosureOperation<[SearchData]?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
+        return CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
     }
 
     func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo)
         -> CompoundOperationWrapper<WithdrawMetaData?> {
-        let operation = ClosureOperation<WithdrawMetaData?> {
-            nil
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
+        return CompoundOperationWrapper<WithdrawMetaData?>.createWithResult(nil)
     }
 
     func withdrawOperation(_ info: WithdrawInfo) -> CompoundOperationWrapper<Data> {
-        let operation = ClosureOperation<Data> {
-            Data()
-        }
-
-        return CompoundOperationWrapper(targetOperation: operation)
+        return CompoundOperationWrapper<Data>.createWithResult(Data())
     }
 }

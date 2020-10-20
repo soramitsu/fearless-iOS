@@ -84,8 +84,6 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
 
         operationManager.enqueue(operations: [fetchOperation, processingOperation, saveOperation],
                                  in: .sync)
-
-        logger.debug("Did account info update")
     }
 
 }

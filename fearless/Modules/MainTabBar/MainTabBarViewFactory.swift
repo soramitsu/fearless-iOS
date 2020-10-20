@@ -57,7 +57,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return view
 	}
 
-    static func reloadWalletView(on view: MainTabBarViewProtocol) {
+    static func reloadWalletView(on view: MainTabBarViewProtocol,
+                                 wireframe: MainTabBarWireframeProtocol) {
         let localizationManager = LocalizationManager.shared
 
         guard
@@ -68,6 +69,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return
         }
 
+        wireframe.walletContext = walletContext
         view.didReplaceView(for: walletController, for: 0)
     }
 

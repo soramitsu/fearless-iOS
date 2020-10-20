@@ -6,18 +6,22 @@ import BigInt
 
 extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
-        let assetIds: [WalletAssetId] = assets.compactMap { identifier in
-            if
-                identifier != totalPriceAssetId.rawValue,
-                let assetId = WalletAssetId(rawValue: identifier) {
-                return assetId
+        let userAssets: [WalletAsset] = assets.compactMap { identifier in
+            guard identifier != totalPriceAssetId.rawValue else {
+                return nil
+            }
+
+            return accountSettings.assets.first { $0.identifier == identifier }
+        }
+
+        let balanceOperation = fetchBalanceInfoForAsset(userAssets)
+        let priceOperations: [CompoundOperationWrapper<Price?>] = userAssets.compactMap {
+            if let assetId = WalletAssetId(rawValue: $0.identifier) {
+                return fetchPriceOperation(assetId)
             } else {
                 return nil
             }
         }
-
-        let balanceOperation = nodeOperationFactory.fetchBalanceOperation(assetIds.map { $0.rawValue })
-        let priceOperations = assetIds.map { fetchPriceOperation($0) }
 
         let currentTotalPriceId = totalPriceAssetId.rawValue
 
@@ -60,6 +64,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let totalPriceBalance = BalanceData(identifier: currentTotalPriceId,
                                                 balance: AmountDecimal(value: totalPrice))
 
+            Logger.shared.debug("Returning balance info: \(balances ?? [])")
             return [totalPriceBalance] + (balances ?? [])
         }
 

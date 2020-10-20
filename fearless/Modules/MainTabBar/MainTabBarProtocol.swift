@@ -29,5 +29,6 @@ protocol MainTabBarWireframeProtocol: AlertPresentable {
 
 protocol MainTabBarViewFactoryProtocol: class {
     static func createView() -> MainTabBarViewProtocol?
-    static func reloadWalletView(on view: MainTabBarViewProtocol)
+    static func reloadWalletView(on view: MainTabBarViewProtocol,
+                                 wireframe: MainTabBarWireframeProtocol)
 }
