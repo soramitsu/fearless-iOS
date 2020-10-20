@@ -1,0 +1,24 @@
+import Foundation
+import IrohaCrypto
+
+struct AccountImportMnemonicRequest {
+    let mnemonic: String
+    let username: String
+    let type: SNAddressType
+    let derivationPath: String
+    let cryptoType: CryptoType
+}
+
+struct AccountImportSeedRequest {
+    let seed: String
+    let username: String
+    let type: SNAddressType
+    let derivationPath: String
+    let cryptoType: CryptoType
+}
+
+struct AccountImportKeystoreRequest {
+    let keystore: String
+    let password: String
+    let username: String?
+}

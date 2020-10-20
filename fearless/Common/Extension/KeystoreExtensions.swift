@@ -4,7 +4,7 @@ import SoraKeystore
 enum KeystoreTag: String, CaseIterable {
     case pincode
 
-    static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
+    static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
     static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy"}
     static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv"}
 }
@@ -18,20 +18,20 @@ extension KeystoreProtocol {
         return try fetchKey(for: tag)
     }
 
-    func saveSeed(_ seed: Data, address: String) throws {
-        let tag = KeystoreTag.seedTagForAddress(address)
+    func saveSecretKey(_ secretKey: Data, address: String) throws {
+        let tag = KeystoreTag.secretKeyTagForAddress(address)
 
-        try saveKey(seed, with: tag)
+        try saveKey(secretKey, with: tag)
     }
 
-    func fetchSeedForAddress(_ address: String) throws -> Data? {
-        let tag = KeystoreTag.seedTagForAddress(address)
+    func fetchSecretKeyForAddress(_ address: String) throws -> Data? {
+        let tag = KeystoreTag.secretKeyTagForAddress(address)
 
         return try loadIfKeyExists(tag)
     }
 
-    func checkSeedForAddress(_ address: String) throws -> Bool {
-        let tag = KeystoreTag.seedTagForAddress(address)
+    func checkSecretKeyForAddress(_ address: String) throws -> Bool {
+        let tag = KeystoreTag.secretKeyTagForAddress(address)
         return try checkKey(for: tag)
     }
 

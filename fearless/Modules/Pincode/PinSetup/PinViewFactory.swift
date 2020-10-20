@@ -8,6 +8,10 @@ class PinViewFactory: PinViewFactoryProtocol {
 
         pinSetupView.mode = .create
 
+        pinSetupView.localizableTopTitle = LocalizableResource { locale in
+            R.string.localizable.pincodeCreateTopTitle(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = PinSetupPresenter()
         let interactor = PinSetupInteractor(secretManager: KeychainManager.shared,
                                             settingsManager: SettingsManager.shared,

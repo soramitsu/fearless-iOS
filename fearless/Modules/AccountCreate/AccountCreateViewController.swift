@@ -21,6 +21,8 @@ final class AccountCreateViewController: UIViewController {
     @IBOutlet var advancedContainerView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
 
+    @IBOutlet var nextButton: TriangularedButton!
+
     private var derivationPathModel: InputViewModelProtocol?
 
     var keyboardHandler: KeyboardHandler?
@@ -65,13 +67,6 @@ final class AccountCreateViewController: UIViewController {
         stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
 
         advancedContainerView.isHidden = !expadableControl.isActivated
-
-        if let placeholder = derivationPathField.placeholder {
-            let color = R.color.colorGray() ?? .gray
-            let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                           attributes: [.foregroundColor: color])
-            derivationPathField.attributedPlaceholder = attributedPlaceholder
-        }
 
         cryptoTypeView.actionControl.addTarget(self,
                                                action: #selector(actionOpenCryptoType),
@@ -125,14 +120,19 @@ final class AccountCreateViewController: UIViewController {
         advancedControl.invalidateLayout()
 
         cryptoTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
-            .commonEncryptionType(preferredLanguages: locale.rLanguages)
+            .commonCryptoType(preferredLanguages: locale.rLanguages)
         cryptoTypeView.actionControl.invalidateLayout()
 
         derivationPathLabel.text = R.string.localizable
             .commonSecretDerivationPath(preferredLanguages: locale.rLanguages)
 
-        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable.commonChooseNetwork()
+        networkTypeView.actionControl.contentView.titleLabel.text = R.string.localizable
+            .commonChooseNetwork(preferredLanguages: locale.rLanguages)
         networkTypeView.invalidateLayout()
+
+        nextButton.imageWithTitleView?.title = R.string.localizable
+            .commonNext(preferredLanguages: locale.rLanguages)
+        nextButton.invalidateLayout()
     }
 
     private func updateDerivationPath(status: FieldStatus) {
@@ -196,9 +196,14 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         cryptoTypeView.actionControl.invalidateLayout()
     }
 
-    func setSelectedNetwork(model: IconWithTitleViewModel) {
-        networkTypeView.actionControl.contentView.subtitleImageView.image = model.icon
-        networkTypeView.actionControl.contentView.subtitleLabelView.text = model.title
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>) {
+        networkTypeView.actionControl.contentView.subtitleImageView.image = model.underlyingViewModel.icon
+        networkTypeView.actionControl.contentView.subtitleLabelView.text = model.underlyingViewModel.title
+
+        networkTypeView.actionControl.showsImageIndicator = model.selectable
+        networkTypeView.isUserInteractionEnabled = model.selectable
+        networkTypeView.fillColor = model.selectable ? .clear : R.color.colorDarkGray()!
+        networkTypeView.strokeColor = model.selectable ? R.color.colorGray()! : .clear
 
         networkTypeView.actionControl.contentView.invalidateLayout()
         networkTypeView.actionControl.invalidateLayout()
@@ -208,6 +213,10 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
         derivationPathModel = viewModel
 
         derivationPathField.text = viewModel.inputHandler.value
+
+        let attributedPlaceholder = NSAttributedString(string: viewModel.placeholder,
+                                                       attributes: [.foregroundColor: R.color.colorGray()!])
+        derivationPathField.attributedPlaceholder = attributedPlaceholder
     }
 
     func didCompleteCryptoTypeSelection() {

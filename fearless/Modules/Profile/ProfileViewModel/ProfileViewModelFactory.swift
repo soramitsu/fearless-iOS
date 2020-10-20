@@ -1,38 +1,51 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
+import IrohaCrypto
 
 protocol ProfileViewModelFactoryProtocol: class {
-    func createUserViewModel(from userData: UserData?, locale: Locale) -> ProfileUserViewModelProtocol
-    func createOptionViewModels(language: Language?,
+    func createUserViewModel(from settings: UserSettings, locale: Locale) -> ProfileUserViewModelProtocol
+
+    func createOptionViewModels(from settings: UserSettings,
+                                language: Language,
                                 locale: Locale) -> [ProfileOptionViewModelProtocol]
 }
 
 enum ProfileOption: UInt, CaseIterable {
-    case passphrase
-    case connection
+    case accountList
+    case connectionList
     case language
+    case changePincode
     case about
 }
 
 final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
-    func createUserViewModel(from userData: UserData?, locale: Locale) -> ProfileUserViewModelProtocol {
-        if let userData = userData {
-            let details = R.string.localizable.profileSubtitle(preferredLanguages: locale.rLanguages)
-            return ProfileUserViewModel(name: userData.address, details: details)
-        } else {
-            return ProfileUserViewModel(name: "", details: "")
-        }
+    let iconGenerator: IconGenerating
+
+    init(iconGenerator: IconGenerating) {
+        self.iconGenerator = iconGenerator
     }
 
-    func createOptionViewModels(language: Language?,
+    func createUserViewModel(from settings: UserSettings, locale: Locale) -> ProfileUserViewModelProtocol {
+        let icon = try? iconGenerator.generateFromAddress(settings.account.address)
+
+        return ProfileUserViewModel(name: settings.account.username,
+                                    details: settings.account.address,
+                                    icon: icon)
+    }
+
+    func createOptionViewModels(from settings: UserSettings,
+                                language: Language,
                                 locale: Locale) -> [ProfileOptionViewModelProtocol] {
 
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
-            case .connection:
-                return createConnectionViewModel(locale: locale)
-            case .passphrase:
-                return createPassphraseViewModel(for: locale)
+            case .accountList:
+                return createAccountListViewModel(for: locale)
+            case .connectionList:
+                return createConnectionListViewModel(from: settings.connection, locale: locale)
+            case .changePincode:
+                return createChangePincode(for: locale)
             case .language:
                 return createLanguageViewModel(from: language, locale: locale)
             case .about:
@@ -43,18 +56,45 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         return optionViewModels
     }
 
-    private func createPassphraseViewModel(for locale: Locale) -> ProfileOptionViewModel {
+    private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
-            .profilePassphraseTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title, icon: R.image.iconViewMnemonic()!)
+            .profileAccountsTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = ProfileOptionViewModel(title: title,
+                                               icon: R.image.iconProfileAccounts()!,
+                                               accessoryTitle: nil)
+        return viewModel
+    }
+
+    private func createConnectionListViewModel(from connection: ConnectionItem,
+                                               locale: Locale) -> ProfileOptionViewModel {
+
+        let title = R.string.localizable
+            .profileNetworkTitle(preferredLanguages: locale.rLanguages)
+
+        let subtitle: String = connection.type.titleForLocale(locale)
+
+        let viewModel = ProfileOptionViewModel(title: title,
+                                               icon: R.image.iconProfileNetworks()!,
+                                               accessoryTitle: subtitle)
+
+        return viewModel
+    }
+
+    private func createChangePincode(for locale: Locale) -> ProfileOptionViewModel {
+        let title = R.string.localizable
+            .profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
+        return ProfileOptionViewModel(title: title,
+                                      icon: R.image.iconProfilePin()!,
+                                      accessoryTitle: nil)
     }
 
     private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileLanguageTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconLanguage()!)
-
-        viewModel.accessoryTitle = language?.title(in: locale)?.capitalized
+        let subtitle = language?.title(in: locale)?.capitalized
+        let viewModel = ProfileOptionViewModel(title: title,
+                                               icon: R.image.iconProfileLanguage()!,
+                                               accessoryTitle: subtitle)
 
         return viewModel
     }
@@ -62,14 +102,8 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title, icon: R.image.iconAbout()!)
-    }
-
-    private func createConnectionViewModel(locale: Locale) -> ProfileOptionViewModel {
-        let title = R.string.localizable
-            .profileConnectionTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(title: title, icon: R.image.iconConnections()!)
-
-        return viewModel
+        return ProfileOptionViewModel(title: title,
+                                      icon: R.image.iconProfileAbout()!,
+                                      accessoryTitle: nil)
     }
 }

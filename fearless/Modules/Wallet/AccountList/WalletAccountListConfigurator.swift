@@ -2,44 +2,37 @@ import Foundation
 import CommonWallet
 
 final class WalletAccountListConfigurator {
-    private let headerViewModel = WalletHeaderViewModel()
-
-    var context: CommonWalletContextProtocol? {
-        get {
-            headerViewModel.walletContext
-        }
-
-        set {
-            headerViewModel.walletContext = newValue
-        }
-    }
-
     let logger: LoggerProtocol
 
-    init(logger: LoggerProtocol) {
+    let viewModelFactory: WalletAssetViewModelFactory
+    let assetStyleFactory: AssetStyleFactory
+
+    init(address: String, priceAsset: WalletAsset, logger: LoggerProtocol) {
         self.logger = logger
+
+        assetStyleFactory = AssetStyleFactory()
+
+        let amountFormatterFactory = AmountFormatterFactory()
+        let accountCommandFactory = WalletSelectAccountCommandFactory()
+        viewModelFactory = WalletAssetViewModelFactory(address: address,
+                                                       assetCellStyleFactory: assetStyleFactory,
+                                                       amountFormatterFactory: amountFormatterFactory,
+                                                       priceAsset: priceAsset,
+                                                       accountCommandFactory: accountCommandFactory)
     }
 
     func configure(builder: AccountListModuleBuilderProtocol) {
         do {
 
-            let localHeaderViewModel = headerViewModel
-
             var viewStyle = AccountListViewStyle(refreshIndicatorStyle: R.color.colorWhite()!)
             viewStyle.backgroundImage = R.image.backgroundImage()
 
-            let assetStyleFactory = AssetStyleFactory()
-            let amountFormatterFactory = AmountFormatterFactory()
-            let viewModelFactory = WalletAssetViewModelFactory(cellIdentifier: builder.assetCellIdentifier,
-                                                               assetCellStyleFactory: assetStyleFactory,
-                                                               amountFormatterFactory: amountFormatterFactory)
-
             try builder
-            .with(minimumContentHeight: localHeaderViewModel.itemHeight)
-                .inserting(viewModelFactory: { localHeaderViewModel }, at: 0)
-            .with(cellNib: UINib(resource: R.nib.walletAccountHeaderView),
-                  for: localHeaderViewModel.cellReuseIdentifier)
             .withActions(cellNib: UINib(resource: R.nib.walletActionsCell))
+            .with(cellNib: UINib(resource: R.nib.walletTotalPriceCell),
+                  for: WalletAccountListConstants.totalPriceCellId)
+            .with(cellNib: UINib(resource: R.nib.walletAssetCell),
+                  for: WalletAccountListConstants.assetCellId)
             .with(listViewModelFactory: viewModelFactory)
             .with(assetCellStyleFactory: assetStyleFactory)
             .with(viewStyle: viewStyle)

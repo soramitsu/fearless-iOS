@@ -3,6 +3,7 @@ import Foundation
 final class OnboardingMainPresenter {
     weak var view: OnboardingMainViewProtocol?
     var wireframe: OnboardingMainWireframeProtocol!
+    var interactor: OnboardingMainInteractorInputProtocol!
 
     let legalData: LegalData
 
@@ -15,6 +16,10 @@ final class OnboardingMainPresenter {
 }
 
 extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
+    func setup() {
+        interactor.setup()
+    }
+
     func activateTerms() {
         if let view = view {
             wireframe.showWeb(url: legalData.termsUrl,
@@ -37,5 +42,11 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
 
     func activateAccountRestore() {
         wireframe.showAccountRestore(from: view)
+    }
+}
+
+extension OnboardingMainPresenter: OnboardingMainInteractorOutputProtocol {
+    func didSuggestKeystoreImport() {
+        wireframe.showKeystoreImport(from: view)
     }
 }

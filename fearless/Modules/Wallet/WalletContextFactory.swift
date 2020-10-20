@@ -6,7 +6,9 @@ import IrohaCrypto
 import SoraFoundation
 
 enum WalletContextFactoryError: Error {
-    case missingNode
+    case missingAccount
+    case missingPriceAsset
+    case missingConnection
 }
 
 protocol WalletContextFactoryProtocol {
@@ -52,29 +54,78 @@ final class WalletContextFactory {
 
 extension WalletContextFactory: WalletContextFactoryProtocol {
     func createContext() throws -> CommonWalletContextProtocol {
-        let accountSettings = try primitiveFactory.createAccountSettings()
-
-        if let selectedAccount = SettingsManager.shared.selectedAccount {
-            logger.debug("Loading wallet account: \(selectedAccount.address)")
+        guard let selectedAccount = SettingsManager.shared.selectedAccount else {
+            throw WalletContextFactoryError.missingAccount
         }
 
-        let nodeUrl = SettingsManager.shared.selectedConnection.url
+        guard let connection = WebSocketService.shared.connection else {
+            throw WalletContextFactoryError.missingConnection
+        }
 
-        let networkFactory = WalletNetworkOperationFactory(url: nodeUrl,
-                                                           accountSettings: accountSettings,
-                                                           logger: logger)
+        let accountSettings = try primitiveFactory.createAccountSettings()
 
-        let builder = CommonWalletBuilder.builder(with: accountSettings, networkOperationFactory: networkFactory)
+        guard let priceAsset = accountSettings.assets
+            .first(where: { $0.identifier == WalletAssetId.usd.rawValue }) else {
+            throw WalletContextFactoryError.missingPriceAsset
+        }
+
+        let amountFormatterFactory = AmountFormatterFactory()
+
+        logger.debug("Loading wallet account: \(selectedAccount.address)")
+
+        let networkType = SettingsManager.shared.selectedConnection.type
+
+        let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
+        let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
+
+        let nodeOperationFactory = WalletNetworkOperationFactory(engine: connection,
+                                                                 accountSettings: accountSettings,
+                                                                 cryptoType: selectedAccount.cryptoType,
+                                                                 accountSigner: accountSigner,
+                                                                 dummySigner: dummySigner)
+
+        let subscanOperationFactory = SubscanOperationFactory()
+        let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
+                                                nodeOperationFactory: nodeOperationFactory,
+                                                subscanOperationFactory: subscanOperationFactory,
+                                                address: selectedAccount.address,
+                                                networkType: networkType,
+                                                totalPriceAssetId: .usd)
+
+        let builder = CommonWalletBuilder.builder(with: accountSettings,
+                                                  networkOperationFactory: networkFacade)
 
         let localizationManager = LocalizationManager.shared
 
-        WalletCommonConfigurator(localizationManager: localizationManager).configure(builder: builder)
+        WalletCommonConfigurator(localizationManager: localizationManager,
+                                 networkType: networkType).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
-        let accountListConfigurator = WalletAccountListConfigurator(logger: logger)
+        let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
+                                                                    priceAsset: priceAsset,
+                                                                    logger: logger)
+
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)
 
-        TransactionHistoryConfigurator().configure(builder: builder.historyModuleBuilder)
+        let assetDetailsConfigurator = AssetDetailsConfigurator(priceAsset: priceAsset)
+        assetDetailsConfigurator.configure(builder: builder.accountDetailsModuleBuilder)
+
+        TransactionHistoryConfigurator(amountFormatterFactory: amountFormatterFactory,
+                                       assets: accountSettings.assets)
+            .configure(builder: builder.historyModuleBuilder)
+
+        let transferConfigurator = TransferConfigurator(assets: accountSettings.assets,
+                                                        amountFormatterFactory: amountFormatterFactory,
+                                                        localizationManager: localizationManager)
+        transferConfigurator.configure(builder: builder.transferModuleBuilder)
+
+        let confirmConfigurator = TransferConfirmConfigurator(assets: accountSettings.assets,
+                                                              amountFormatterFactory: amountFormatterFactory)
+        confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)
+
+        let contactsConfigurator = ContactsConfigurator(networkType: networkType,
+                                                        address: selectedAccount.address)
+        contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
         let context = try builder.build()
 
@@ -82,7 +133,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                          localizationManager: localizationManager,
                                          logger: logger)
 
-        accountListConfigurator.context = context
+        contactsConfigurator.commandFactory = context
+        transferConfigurator.commandFactory = context
+        confirmConfigurator.commandFactory = context
 
         return context
     }

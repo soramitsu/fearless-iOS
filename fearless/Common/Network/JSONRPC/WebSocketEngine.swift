@@ -1,34 +1,37 @@
 import Foundation
 import Starscream
 
+protocol WebSocketConnectionProtocol: WebSocketClient {
+    var callbackQueue: DispatchQueue { get set }
+    var delegate: WebSocketDelegate? { get set }
+}
+
+extension WebSocket: WebSocketConnectionProtocol {}
+
 final class WebSocketEngine {
     static let sharedCompletionQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.websocket.shared",
                                                      attributes: .concurrent)
 
-    struct PendingRequest: Equatable {
+    struct Request: Equatable {
         let requestId: UInt16
         let data: Data
+        let options: JSONRPCOptions
         let responseHandler: ResponseHandling?
-
-        static func == (lhs: Self, rhs: Self) -> Bool { lhs.requestId == rhs.requestId }
-    }
-
-    struct InProgressRequest: Equatable {
-        let requestId: UInt16
-        let responseHandler: ResponseHandling
 
         static func == (lhs: Self, rhs: Self) -> Bool { lhs.requestId == rhs.requestId }
     }
 
     enum State {
         case notConnected
-        case connecting
+        case connecting(attempt: Int)
+        case waitingReconnection(attempt: Int)
         case connected
     }
 
-    let connection: WebSocket
+    let connection: WebSocketConnectionProtocol
     let version: String
     let logger: LoggerProtocol
+    let reachabilityManager: ReachabilityManagerProtocol?
 
     private(set) var state: State = .notConnected
 
@@ -36,76 +39,200 @@ final class WebSocketEngine {
     private var mutex: NSLock = NSLock()
     private var jsonEncoder = JSONEncoder()
     private var jsonDecoder = JSONDecoder()
+    private var reconnectionStrategy: ReconnectionStrategyProtocol?
 
-    private var pendingRequests: [PendingRequest] = []
-    private var inProgressRequests: [UInt16: InProgressRequest] = [:]
+    private lazy var reconnectionScheduler: SchedulerProtocol = {
+        let scheduler = Scheduler(with: self, callbackQueue: connection.callbackQueue)
+        return scheduler
+    }()
 
-    init(url: URL, version: String = "2.0", completionQueue: DispatchQueue? = nil, logger: LoggerProtocol) {
+    private var pendingRequests: [Request] = []
+    private var inProgressRequests: [UInt16: Request] = [:]
+
+    init(url: URL,
+         reachabilityManager: ReachabilityManagerProtocol? = nil,
+         reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
+         version: String = "2.0",
+         completionQueue: DispatchQueue? = nil,
+         autoconnect: Bool = true,
+         connectionTimeout: TimeInterval = 10.0,
+         logger: LoggerProtocol) {
+        self.version = version
+        self.logger = logger
+        self.reconnectionStrategy = reconnectionStrategy
+        self.reachabilityManager = reachabilityManager
+
+        let request = URLRequest(url: url, timeoutInterval: connectionTimeout)
+
+        let callbackQueue = completionQueue ?? Self.sharedCompletionQueue
+
+        let engine = WSEngine(transport: FoundationTransport(),
+                              certPinner: FoundationSecurity(),
+                              compressionHandler: nil)
+
+        let connection = WebSocket(request: request, engine: engine)
+        connection.forceDisconnect()
+        self.connection = connection
+
+        connection.delegate = self
+
+        connection.callbackQueue = callbackQueue
+
+        subscribeToReachabilityStatus()
+
+        if autoconnect {
+            connectIfNeeded()
+        }
+    }
+
+    init(connection: WebSocketConnectionProtocol,
+         reachabilityManager: ReachabilityManagerProtocol? = nil,
+         reconnectionStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
+         version: String = "2.0",
+         autoconnect: Bool = true,
+         logger: LoggerProtocol) {
+        self.connection = connection
+        self.reachabilityManager = reachabilityManager
+        self.reconnectionStrategy = reconnectionStrategy
         self.version = version
         self.logger = logger
 
-        let request = URLRequest(url: url)
-        connection = WebSocket(request: request)
-        connection.callbackQueue = completionQueue ?? Self.sharedCompletionQueue
         connection.delegate = self
 
-        connect()
+        subscribeToReachabilityStatus()
+
+        if autoconnect {
+            connectIfNeeded()
+        }
     }
 
     deinit {
-        connection.forceDisconnect()
+        clearReachabilitySubscription()
+
+        disconnectIfNeeded()
     }
 
-    private func connect() {
+    func connectIfNeeded() {
         mutex.lock()
 
-        state = .connecting
+        switch state {
+        case .notConnected:
+            startConnecting(0)
+
+            logger.debug("Did start connecting to socket")
+        case .waitingReconnection:
+            reconnectionScheduler.cancel()
+
+            startConnecting(0)
+
+            logger.debug("Waiting for connection but decided to connect anyway")
+        default:
+            logger.debug("Already connecting to socket")
+        }
+
+        mutex.unlock()
+    }
+
+    func disconnectIfNeeded() {
+        mutex.lock()
+
+        let cancelledRequests: [Request]?
+
+        switch state {
+        case .connected:
+            state = .notConnected
+
+            cancelledRequests = resetInProgress()
+
+            connection.disconnect(closeCode: CloseCode.goingAway.rawValue)
+
+            logger.debug("Did start disconnect from socket")
+        case .connecting:
+            state = .notConnected
+
+            cancelledRequests = nil
+
+            connection.disconnect()
+
+            logger.debug("Cancel socket connection")
+
+        case .waitingReconnection:
+            cancelledRequests = nil
+
+            logger.debug("Cancel reconnection scheduler due to disconnection")
+            reconnectionScheduler.cancel()
+        default:
+            cancelledRequests = nil
+
+            logger.debug("Already disconnected from socket")
+        }
 
         mutex.unlock()
 
-        connection.connect()
+        cancelledRequests?
+            .forEach { $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)}
     }
 
-    private func send(request: PendingRequest) {
-        if let handler = request.responseHandler {
-            inProgressRequests[request.requestId] = InProgressRequest(requestId: request.requestId,
-                                                                      responseHandler: handler)
+    private func subscribeToReachabilityStatus() {
+        do {
+            try reachabilityManager?.add(listener: self)
+        } catch {
+            logger.warning("Failed to subscribe to reachability changes")
         }
+    }
+
+    private func clearReachabilitySubscription() {
+        reachabilityManager?.remove(listener: self)
+    }
+
+    private func updateConnectionForRequest(_ request: Request) {
+        switch state {
+        case .connected:
+            send(request: request)
+        case .connecting:
+            pendingRequests.append(request)
+        case .notConnected:
+            pendingRequests.append(request)
+
+            startConnecting(0)
+        case .waitingReconnection:
+            logger.debug("Don't wait for reconnection for incoming request")
+
+            pendingRequests.append(request)
+
+            reconnectionScheduler.cancel()
+
+            startConnecting(0)
+        }
+    }
+
+    private func send(request: Request) {
+        inProgressRequests[request.requestId] = request
 
         connection.write(data: request.data, completion: nil)
     }
 
     private func sendAllPendingRequests() {
-        mutex.lock()
-
         let currentPendings = pendingRequests
         pendingRequests = []
 
         for pending in currentPendings {
+            logger.debug("Sending request with id: \(pending.requestId)")
             send(request: pending)
         }
-
-        mutex.unlock()
     }
 
-    private func completeAllWithError(_ error: Error) {
-        mutex.lock()
+    private func resetInProgress() -> [Request] {
+        let idempotentRequests = inProgressRequests.compactMap { $1.options.resendOnReconnect ? $1 : nil }
 
-        let currentInProgress = inProgressRequests
+        let notifiableRequests = inProgressRequests.compactMap {
+            !$1.options.resendOnReconnect && $1.responseHandler != nil ? $1 : nil
+        }
+
+        pendingRequests.append(contentsOf: idempotentRequests)
         inProgressRequests = [:]
 
-        let currentPendings = pendingRequests
-        pendingRequests = []
-
-        mutex.unlock()
-
-        currentInProgress.forEach { _, value in
-            value.responseHandler.handle(error: error)
-        }
-
-        currentPendings.forEach { value in
-            value.responseHandler?.handle(error: error)
-        }
+        return notifiableRequests
     }
 
     private func process(data: Data) {
@@ -133,7 +260,7 @@ final class WebSocketEngine {
 
         mutex.unlock()
 
-        request?.responseHandler.handle(data: data)
+        request?.responseHandler?.handle(data: data)
     }
 
     private func completeRequestForId(_ identifier: UInt16, error: Error) {
@@ -143,26 +270,68 @@ final class WebSocketEngine {
 
         mutex.unlock()
 
-        request?.responseHandler.handle(error: error)
+        request?.responseHandler?.handle(error: error)
+    }
+
+    private func scheduleReconnectionOrDisconnect(_ attempt: Int, after error: Error? = nil) {
+        if let reconnectionStrategy = reconnectionStrategy,
+            let nextDelay = reconnectionStrategy.reconnectAfter(attempt: attempt - 1) {
+            state = .waitingReconnection(attempt: attempt)
+
+            logger.debug("Schedule reconnection with attempt \(attempt) and delay \(nextDelay)")
+
+            reconnectionScheduler.notifyAfter(nextDelay)
+        } else {
+            state = .notConnected
+
+            // notify pendings about error because there is no chance to reconnect
+
+            let requests = pendingRequests
+            pendingRequests = []
+
+            let requestError = error ?? JSONRPCEngineError.unknownError
+            requests.forEach { $0.responseHandler?.handle(error: requestError) }
+        }
+    }
+
+    private func startConnecting(_ attempt: Int) {
+        logger.debug("Start connecting with attempt: \(attempt)")
+
+        state = .connecting(attempt: attempt)
+
+        connection.connect()
     }
 }
 
 extension WebSocketEngine: JSONRPCEngine {
-    func callMethod<T: Decodable>(_ method: String,
-                                  params: [String],
-                                  completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
+
+    func callMethod<P: Encodable, T: Decodable>(_ method: String,
+                                                params: P?,
+                                                options: JSONRPCOptions,
+                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
         mutex.lock()
 
         defer {
             mutex.unlock()
         }
 
-        let info = JSONRPCInfo(identifier: requestId,
-                               jsonrpc: version,
-                               method: method,
-                               params: params)
+        let data: Data
 
-        let data = try jsonEncoder.encode(info)
+        if let params = params {
+            let info = JSONRPCInfo(identifier: requestId,
+                                   jsonrpc: version,
+                                   method: method,
+                                   params: params)
+
+            data = try jsonEncoder.encode(info)
+        } else {
+            let info = JSONRPCInfo(identifier: requestId,
+                                   jsonrpc: version,
+                                   method: method,
+                                   params: [String]())
+
+            data = try jsonEncoder.encode(info)
+        }
 
         let currentRequestId = requestId
 
@@ -174,7 +343,10 @@ extension WebSocketEngine: JSONRPCEngine {
             handler = nil
         }
 
-        let request = PendingRequest(requestId: currentRequestId, data: data, responseHandler: handler)
+        let request = Request(requestId: currentRequestId,
+                              data: data,
+                              options: options,
+                              responseHandler: handler)
 
         requestId += 1
 
@@ -182,18 +354,7 @@ extension WebSocketEngine: JSONRPCEngine {
             requestId = 1
         }
 
-        switch state {
-        case .connected:
-            send(request: request)
-        case .connecting:
-            pendingRequests.append(request)
-        case .notConnected:
-            pendingRequests.append(request)
-
-            state = .connecting
-
-            connection.connect()
-        }
+        updateConnectionForRequest(request)
 
         return currentRequestId
     }
@@ -217,7 +378,7 @@ extension WebSocketEngine: JSONRPCEngine {
 
         if let request = inProgressRequests.removeValue(forKey: identifier) {
             connection.callbackQueue.async {
-                request.responseHandler.handle(error: JSONRPCEngineError.clientCancelled)
+                request.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
             }
         }
     }
@@ -230,24 +391,75 @@ extension WebSocketEngine: WebSocketDelegate {
             handleBinaryEvent(data: data)
         case .text(let string):
             handleTextEvent(string: string)
-        case .ping, .pong:
-            break
         case .connected:
             handleConnectedEvent()
         case .disconnected(let reason, let code):
             handleDisconnectedEvent(reason: reason, code: code)
-        case .reconnectSuggested:
-            logger.debug("reconnect suggested")
-        case .viabilityChanged:
-            logger.debug("viability changed")
         case .error(let error):
-            if let error = error {
-                logger.error("Did receive error: \(error)")
-            } else {
-                logger.error("Did receive unknown error")
-            }
+            handleErrorEvent(error)
         case .cancelled:
-            logger.warning("Remote cancelled")
+            handleCancelled()
+        default:
+            logger.warning("Unhandled event \(event)")
+        }
+    }
+
+    private func handleCancelled() {
+        logger.warning("Remote cancelled")
+
+        var cancelledRequests: [Request]?
+
+        mutex.lock()
+
+        switch state {
+        case .connecting(let attempt):
+            connection.disconnect()
+            scheduleReconnectionOrDisconnect(attempt + 1)
+        case .connected:
+            cancelledRequests = resetInProgress()
+
+            connection.disconnect()
+            scheduleReconnectionOrDisconnect(1)
+        default:
+            break
+        }
+
+        mutex.unlock()
+
+        cancelledRequests?.forEach {
+            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
+        }
+    }
+
+    private func handleErrorEvent(_ error: Error?) {
+        if let error = error {
+            logger.error("Did receive error: \(error)")
+        } else {
+            logger.error("Did receive unknown error")
+        }
+
+        var cancelledRequests: [Request]?
+
+        mutex.lock()
+
+        switch state {
+        case .connected:
+            cancelledRequests = resetInProgress()
+
+            connection.disconnect()
+            startConnecting(0)
+        case .connecting(let attempt):
+            connection.disconnect()
+
+            scheduleReconnectionOrDisconnect(attempt + 1)
+        default:
+            break
+        }
+
+        mutex.unlock()
+
+        cancelledRequests?.forEach {
+            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
         }
     }
 
@@ -275,20 +487,58 @@ extension WebSocketEngine: WebSocketDelegate {
 
         state = .connected
 
-        mutex.unlock()
-
         sendAllPendingRequests()
+
+        mutex.unlock()
     }
 
     private func handleDisconnectedEvent(reason: String, code: UInt16) {
         logger.warning("Disconnected with code \(code): \(reason)")
 
+        var cancelledRequests: [Request]?
+
         mutex.lock()
 
-        state = .notConnected
+        switch state {
+        case .connecting(let attempt):
+            scheduleReconnectionOrDisconnect(attempt + 1)
+        case .connected:
+            cancelledRequests = resetInProgress()
+
+            scheduleReconnectionOrDisconnect(1)
+        default:
+            break
+        }
 
         mutex.unlock()
 
-        completeAllWithError(JSONRPCError(message: reason, code: Int(code)))
+        cancelledRequests?.forEach {
+            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
+        }
+    }
+}
+
+extension WebSocketEngine: SchedulerDelegate {
+    func didTrigger(scheduler: SchedulerProtocol) {
+        logger.debug("Did trigger reconnection scheduler")
+
+        mutex.lock()
+
+        if case .waitingReconnection(let attempt) = state {
+            startConnecting(attempt)
+        }
+
+        mutex.unlock()
+    }
+}
+
+extension WebSocketEngine: ReachabilityListenerDelegate {
+    func didChangeReachability(by manager: ReachabilityManagerProtocol) {
+        if manager.isReachable, case .waitingReconnection = state {
+            logger.debug("Network became reachable, retrying connection")
+
+            reconnectionScheduler.cancel()
+            startConnecting(0)
+        }
     }
 }

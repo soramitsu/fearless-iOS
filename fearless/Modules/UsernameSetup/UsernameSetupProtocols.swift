@@ -14,5 +14,7 @@ protocol UsernameSetupWireframeProtocol: AlertPresentable {
 }
 
 protocol UsernameSetupViewFactoryProtocol: class {
-	static func createView() -> UsernameSetupViewProtocol?
+	static func createViewForOnboarding() -> UsernameSetupViewProtocol?
+    static func createViewForAdding() -> UsernameSetupViewProtocol?
+    static func createViewForConnection(item: ConnectionItem) -> UsernameSetupViewProtocol?
 }

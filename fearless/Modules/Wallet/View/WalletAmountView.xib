@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="WalletBaseAmountView" customModule="fearless" customModuleProvider="target">
+            <connections>
+                <outlet property="animatedTextField" destination="Da6-qJ-5bo" id="U2y-p6-XW4"/>
+                <outlet property="borderView" destination="UAl-FZ-pd1" id="4Sa-Cm-Hhs"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="hpj-dq-wPw"/>
+                <outlet property="fieldBackgroundView" destination="frw-fd-iMq" id="gLT-y7-Acv"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="84"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UAl-FZ-pd1" customClass="BorderedContainerView" customModule="SoraUI">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="84"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                            <color key="value" name="colorDarkGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                            <color key="value" name="colorDarkGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="frw-fd-iMq" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="16" width="375" height="52"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Da6-qJ-5bo" customClass="AnimatedTextField" customModule="SoraUI">
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="52"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
+                                    <real key="value" value="8"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
+                                    <real key="value" value="16"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
+                                    <real key="value" value="6"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
+                                    <real key="value" value="16"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                    <real key="value" value="12"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_placeholderFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_placeholderFontSize">
+                                    <real key="value" value="14"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="title" value="Choose name"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_textFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_textFontSize">
+                                    <real key="value" value="14"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="placeholderColor">
+                                    <color key="value" name="colorLightGray"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                                    <color key="value" name="colorLightGray"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="textColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="cursorColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <constraints>
+                        <constraint firstItem="Da6-qJ-5bo" firstAttribute="top" secondItem="frw-fd-iMq" secondAttribute="top" id="8QJ-hO-OqS"/>
+                        <constraint firstAttribute="trailing" secondItem="Da6-qJ-5bo" secondAttribute="trailing" id="B8a-GB-JaG"/>
+                        <constraint firstAttribute="bottom" secondItem="Da6-qJ-5bo" secondAttribute="bottom" id="JUw-ak-wl9"/>
+                        <constraint firstItem="Da6-qJ-5bo" firstAttribute="leading" secondItem="frw-fd-iMq" secondAttribute="leading" id="VSo-J4-5yO"/>
+                        <constraint firstAttribute="height" constant="52" id="vEE-ag-HGN"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="sideLength">
+                            <real key="value" value="10"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                            <color key="value" name="colorGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                            <color key="value" name="colorGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="leading" secondItem="frw-fd-iMq" secondAttribute="leading" id="1p1-gS-6BR"/>
+                <constraint firstItem="frw-fd-iMq" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="3Dh-UG-ujH"/>
+                <constraint firstItem="UAl-FZ-pd1" firstAttribute="bottom" secondItem="vUN-kp-3ea" secondAttribute="bottom" id="AEs-5U-PKp"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="top" secondItem="UAl-FZ-pd1" secondAttribute="top" id="Pja-GS-CYg"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="UAl-FZ-pd1" secondAttribute="trailing" id="Qxg-q8-zpH"/>
+                <constraint firstItem="UAl-FZ-pd1" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="VCZ-9H-Kg2"/>
+                <constraint firstItem="frw-fd-iMq" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="q5W-lJ-QI2"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <point key="canvasLocation" x="139" y="133"/>
+        </view>
+    </objects>
+    <resources>
+        <namedColor name="colorDarkGray">
+            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorGray">
+            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorLightGray">
+            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

@@ -2,7 +2,7 @@ import UIKit
 
 struct FearlessNavigationBarStyle {
     static let background: UIImage? = {
-        return UIImage.background(from: R.color.colorAlmostBlack()!)
+        return UIImage.background(from: R.color.colorBlack()!)
     }()
 
     static let darkShadow: UIImage? = {

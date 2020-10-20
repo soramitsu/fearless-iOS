@@ -9,12 +9,20 @@ protocol MainTabBarPresenterProtocol: class {
     func viewDidAppear()
 }
 
-protocol MainTabBarInteractorInputProtocol: class {}
+protocol MainTabBarInteractorInputProtocol: class {
+    func setup()
+}
 
-protocol MainTabBarInteractorOutputProtocol: class {}
+protocol MainTabBarInteractorOutputProtocol: class {
+    func didReloadSelectedAccount()
+    func didReloadSelectedNetwork()
+}
 
-protocol MainTabBarWireframeProtocol: AlertPresentable {}
+protocol MainTabBarWireframeProtocol: AlertPresentable {
+    func showNewWalletView(on view: MainTabBarViewProtocol?)
+}
 
 protocol MainTabBarViewFactoryProtocol: class {
     static func createView() -> MainTabBarViewProtocol?
+    static func reloadWalletView(on view: MainTabBarViewProtocol)
 }

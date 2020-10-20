@@ -2,7 +2,7 @@ import UIKit
 
 final class RootWireframe: RootWireframeProtocol {
     func showOnboarding(on view: UIWindow) {
-        let onboardingView = OnboardingMainViewFactory.createView()
+        let onboardingView = OnboardingMainViewFactory.createViewForOnboarding()
         let onboardingController = onboardingView?.controller ?? UIViewController()
 
         let navigationController = FearlessNavigationController()

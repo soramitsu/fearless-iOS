@@ -1,12 +1,12 @@
 import UIKit
 import SoraUI
 
-final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, HiddableBarWhenPushed {
+final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: OnboardingMainPresenterProtocol!
 
     @IBOutlet private var termsLabel: UILabel!
-    @IBOutlet private var signUpButton: RoundedButton!
-    @IBOutlet private var restoreButton: RoundedButton!
+    @IBOutlet private var signUpButton: TriangularedButton!
+    @IBOutlet private var restoreButton: TriangularedButton!
     @IBOutlet private var logoView: UIImageView!
 
     @IBOutlet private var restoreBottomConstraint: NSLayoutConstraint!
@@ -19,8 +19,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
 
     var termDecorator: AttributedStringDecoratorProtocol?
 
-    override var preferredStatusBarStyle: UIStatusBarStyle { .lightContent }
-
     // MARK: Appearance
 
     override func viewDidLoad() {
@@ -30,6 +28,8 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable, 
         configureLogoView()
         configureTermsLabel()
         adjustLayout()
+
+        presenter.setup()
     }
 
     private func configureTermsLabel() {

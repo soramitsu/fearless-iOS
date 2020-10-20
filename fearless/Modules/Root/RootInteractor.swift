@@ -14,16 +14,23 @@ final class RootInteractor {
         self.settings = settings
         self.keystore = keystore
     }
+
+    private func setupURLHandlingService() {
+        let keystoreImportService = KeystoreImportService(logger: Logger.shared)
+        URLHandlingService.shared.setup(children: [keystoreImportService])
+    }
 }
 
 extension RootInteractor: RootInteractorInputProtocol {
     func decideModuleSynchroniously() {
-        if !settings.hasSelectedAccount {
-            presenter?.didDecideOnboarding()
-            return
-        }
-
         do {
+            if !settings.hasSelectedAccount {
+                try keystore.deleteKeyIfExists(for: KeystoreTag.pincode.rawValue)
+
+                presenter?.didDecideOnboarding()
+                return
+            }
+
             let pincodeExists = try keystore.checkKey(for: KeystoreTag.pincode.rawValue)
 
             if pincodeExists {
@@ -37,5 +44,7 @@ extension RootInteractor: RootInteractorInputProtocol {
         }
     }
 
-    func setup() {}
+    func setup() {
+        setupURLHandlingService()
+    }
 }

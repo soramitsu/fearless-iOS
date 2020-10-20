@@ -28,8 +28,7 @@ final class MainTabBarViewController: UITabBarController {
         if #available(iOS 13.0, *) {
             let appearance = UITabBarAppearance()
 
-            appearance.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
-            appearance.shadowImage = UIImage.background(from: R.color.colorDarkGray()!)
+            appearance.shadowImage = UIImage()
 
             let normalAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorLightGray()!]
             let selectedAttributes = [NSAttributedString.Key.foregroundColor: R.color.colorWhite()!]
@@ -40,7 +39,7 @@ final class MainTabBarViewController: UITabBarController {
             tabBar.standardAppearance = appearance
         } else {
             tabBar.backgroundImage = UIImage.background(from: R.color.colorAlmostBlack()!)
-            tabBar.shadowImage = UIImage.background(from: R.color.colorDarkGray()!)
+            tabBar.shadowImage = UIImage()
         }
     }
 }

@@ -1,8 +1,13 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
+                                              settings: SettingsManager.shared,
+                                              webSocketService: WebSocketService.shared)
+
         let localizationManager = LocalizationManager.shared
 
         guard let walletController = createWalletController(localizationManager: localizationManager) else {
@@ -17,7 +22,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let extrinsicsController = createExtrinsicsController(for: localizationManager) else {
+        guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
             return nil
         }
 
@@ -28,15 +33,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let view = MainTabBarViewController()
         view.viewControllers = [
             walletController,
-            extrinsicsController,
+            polkaswapController,
             stakingController,
             governanceController,
             settingsController
         ]
 
         let presenter = MainTabBarPresenter()
-
-        let interactor = MainTabBarInteractor()
 
         let wireframe = MainTabBarWireframe()
 
@@ -48,6 +51,16 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         return view
 	}
+
+    static func reloadWalletView(on view: MainTabBarViewProtocol) {
+        let localizationManager = LocalizationManager.shared
+
+        guard let walletController = createWalletController(localizationManager: localizationManager) else {
+            return
+        }
+
+        view.didReplaceView(for: walletController, for: 0)
+    }
 
     static func createWalletController(localizationManager: LocalizationManagerProtocol) -> UIViewController? {
         do {
@@ -138,17 +151,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
+    static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
         let viewController = UIViewController()
         viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
+        let localizableTitle = LocalizableResource { _ in
+            // TODO: fix translation in corresponding task
+            "Polkaswap"
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabExtrinsics()?
+        let normalIcon = R.image.iconTabPolkaswap()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
@@ -179,7 +193,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabProfile()?
+            let normalIcon = R.image.iconTabSettings()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?

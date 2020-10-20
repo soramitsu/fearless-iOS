@@ -3,8 +3,8 @@ import IrohaCrypto
 
 struct AccountCreationMetadata {
     let mnemonic: [String]
-    let availableAccountTypes: [SNAddressType]
-    let defaultAccountType: SNAddressType
+    let availableAddressTypes: [SNAddressType]
+    let defaultAddressType: SNAddressType
     let availableCryptoTypes: [CryptoType]
     let defaultCryptoType: CryptoType
 }

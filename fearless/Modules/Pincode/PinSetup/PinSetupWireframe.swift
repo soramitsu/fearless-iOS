@@ -12,7 +12,7 @@ class PinSetupWireframe: PinSetupWireframeProtocol {
     }
 
     public func showSignup(from view: PinSetupViewProtocol?) {
-        guard let signupViewController = OnboardingMainViewFactory.createView()?.controller else {
+        guard let signupViewController = OnboardingMainViewFactory.createViewForOnboarding()?.controller else {
             return
         }
 

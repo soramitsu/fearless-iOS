@@ -4,7 +4,7 @@ import SoraFoundation
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setSelectedNetwork(model: IconWithTitleViewModel)
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
@@ -23,20 +23,18 @@ protocol AccountCreatePresenterProtocol: class {
 
 protocol AccountCreateInteractorInputProtocol: class {
     func setup()
-
-    func createAccount(request: AccountCreationRequest)
 }
 
 protocol AccountCreateInteractorOutputProtocol: class {
     func didReceive(metadata: AccountCreationMetadata)
     func didReceiveMnemonicGeneration(error: Error)
-
-    func didCompleteAccountCreation()
-    func didReceiveAccountCreation(error: Error)
 }
 
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(from view: AccountCreateViewProtocol?)
+    func confirm(from view: AccountCreateViewProtocol?,
+                 request: AccountCreationRequest,
+                 metadata: AccountCreationMetadata)
+
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
                                     availableTypes: [CryptoType],
                                     selectedType: CryptoType,
@@ -50,5 +48,7 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
 }
 
 protocol AccountCreateViewFactoryProtocol: class {
-    static func createView(username: String) -> AccountCreateViewProtocol?
+    static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol?
+    static func createViewForAdding(username: String) -> AccountCreateViewProtocol?
+    static func createViewForConnection(item: ConnectionItem, username: String) -> AccountCreateViewProtocol?
 }
