@@ -19,6 +19,27 @@ struct JSONRPCData<T: Decodable>: Decodable {
     let identifier: UInt16
 }
 
+struct JSONRPCSubscriptionUpdate<T: Decodable>: Decodable {
+    struct Result: Decodable {
+        let result: T
+        let subscription: String
+    }
+
+    let jsonrpc: String
+    let method: String
+    let params: Result
+}
+
+struct JSONRPCSubscriptionBasicUpdate: Decodable {
+    struct Result: Decodable {
+        let subscription: String
+    }
+
+    let jsonrpc: String
+    let method: String
+    let params: Result
+}
+
 struct JSONRPCBasicData: Decodable {
     enum CodingKeys: String, CodingKey {
         case jsonrpc
@@ -28,5 +49,5 @@ struct JSONRPCBasicData: Decodable {
 
     let jsonrpc: String
     let error: JSONRPCError?
-    let identifier: UInt16
+    let identifier: UInt16?
 }

@@ -64,6 +64,12 @@ final class Scheduler: NSObject, SchedulerProtocol {
     }
 
     @objc private func handleTrigger() {
+        lock.lock()
+
+        defer {
+            lock.unlock()
+        }
+
         timer = nil
 
         if let callbackQueue = callbackQueue {

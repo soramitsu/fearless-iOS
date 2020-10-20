@@ -1,13 +1,20 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import IrohaCrypto
 
 final class WebSocketService: WebSocketServiceProtocol {
     static let shared: WebSocketService = {
-        let url = SettingsManager.shared.selectedConnection.url
 
-        return WebSocketService(url: url,
+        let connectionItem = SettingsManager.shared.selectedConnection
+        let address = SettingsManager.shared.selectedAccount?.address
+
+        let settings = WebSocketServiceSettings(url: connectionItem.url,
+                                                addressType: connectionItem.type,
+                                                address: address)
+        return WebSocketService(settings: settings,
                                 connectionFactory: WebSocketEngineFactory(),
+                                subscriptionsFactory: WebSocketSubscriptionFactory(),
                                 applicationHandler: ApplicationHandler())
     }()
 
@@ -21,19 +28,23 @@ final class WebSocketService: WebSocketServiceProtocol {
 
     let applicationHandler: ApplicationHandlerProtocol
     let connectionFactory: WebSocketEngineFactoryProtocol
+    let subscriptionsFactory: WebSocketSubscriptionFactoryProtocol
 
-    private(set) var url: URL
+    private(set) var settings: WebSocketServiceSettings
     private(set) var engine: WebSocketEngine?
+    private(set) var subscriptions: [WebSocketSubscribing]?
 
     private(set) var isThrottled: Bool = true
     private(set) var isActive: Bool = true
 
-    init(url: URL,
+    init(settings: WebSocketServiceSettings,
          connectionFactory: WebSocketEngineFactoryProtocol,
+         subscriptionsFactory: WebSocketSubscriptionFactoryProtocol,
          applicationHandler: ApplicationHandlerProtocol) {
+        self.settings = settings
         self.applicationHandler = applicationHandler
-        self.url = url
         self.connectionFactory = connectionFactory
+        self.subscriptionsFactory = subscriptionsFactory
     }
 
     func setup() {
@@ -58,12 +69,12 @@ final class WebSocketService: WebSocketServiceProtocol {
         clearConnection()
     }
 
-    func update(url: URL) {
-        guard self.url != url else {
+    func update(settings: WebSocketServiceSettings) {
+        guard self.settings != settings else {
             return
         }
 
-        self.url = url
+        self.settings = settings
 
         if !isThrottled {
             clearConnection()
@@ -74,10 +85,22 @@ final class WebSocketService: WebSocketServiceProtocol {
     private func clearConnection() {
         engine?.disconnectIfNeeded()
         engine = nil
+
+        subscriptions = nil
     }
 
     private func setupConnection() {
-        engine = connectionFactory.createEngine(for: url, autoconnect: isActive)
+        let engine = connectionFactory.createEngine(for: settings.url, autoconnect: isActive)
+        self.engine = engine
+
+        if let address = settings.address, let type = settings.addressType {
+            subscriptions = try? subscriptionsFactory.createSubscriptions(address: address,
+                                                                          type: type,
+                                                                          engine: engine)
+        } else {
+            subscriptions = nil
+        }
+
     }
 }
 
