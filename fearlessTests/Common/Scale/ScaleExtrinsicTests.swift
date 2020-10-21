@@ -51,29 +51,11 @@ class ScaleExtrinsicTestsTests: XCTestCase {
         XCTAssertEqual(resultData, expectedData)
     }
 
-    func testOneMoreEd25519Extrinsic() throws {
-        let expectedData = try Data(hexString: "0x35028406c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d5000823ae47acdaca4b8fc1b4c2ebab3f90c6e154d2ece08ca8b7c048b86f1b0577aa4ae13c988f77d61518f503651811a79c331cb01cbf389623c989515307ca884001800040006c60aeddcff7ecdf122d0299e915f63815cdc06a5fbabaa639588b4b9283d500700f4b028eb")
+    func testMortalExtrinsicDecoding() throws {
+        let expectedData = try Data(hexString: "0x310284fdc41550fb5186d71cae699c31731b3e1baa10680c7bd6b3831a6d222cf4d168003a8eb7f3be70d98d86a9ba66f29d8aae0fea70a820a66f38272044811b21f2e7d5e16c73375a3ac775b98177ff0e125a109f0c58f7d7dc1a507b37879250060ec50238000403340a806419d5e278172e45cb0e50da1b031795366c99ddfe0a680bd53b142c6302286bee")
 
         let decoder = try ScaleDecoder(data: expectedData)
-        let extrinsic = try Extrinsic(scaleDecoder: decoder)
-
-        if let transferData = extrinsic.call.arguments {
-            let decoder = try ScaleDecoder(data: transferData)
-            let transfer = try TransferCall(scaleDecoder: decoder)
-
-            Logger.shared.debug("Receiver: \(transfer.receiver.toHex())")
-            Logger.shared.debug("Amount: \(transfer.amount)")
-        }
-
-        Logger.shared.debug("Signature: \(extrinsic.transaction!.signature.toHex())")
-
-        Logger.shared.debug("Extrinsic: \(extrinsic)")
-
-        let encoder = ScaleEncoder()
-        try extrinsic.encode(scaleEncoder: encoder)
-
-        let resultData = encoder.encode()
-
-        XCTAssertEqual(resultData, expectedData)
+        XCTAssertNoThrow(try Extrinsic(scaleDecoder: decoder))
+        XCTAssertTrue(decoder.remained == 0)
     }
 }

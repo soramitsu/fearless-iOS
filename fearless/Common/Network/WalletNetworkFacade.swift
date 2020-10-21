@@ -10,12 +10,14 @@ final class WalletNetworkFacade {
     let address: String
     let networkType: SNAddressType
     let totalPriceAssetId: WalletAssetId
-    let storage: AnyDataProviderRepository<ChainStorageItem>
+    let chainStorage: AnyDataProviderRepository<ChainStorageItem>
+    let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
 
     init(accountSettings: WalletAccountSettingsProtocol,
          nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
          subscanOperationFactory: SubscanOperationFactoryProtocol,
-         storage: AnyDataProviderRepository<ChainStorageItem>,
+         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
          address: String,
          networkType: SNAddressType,
          totalPriceAssetId: WalletAssetId) {
@@ -25,6 +27,7 @@ final class WalletNetworkFacade {
         self.address = address
         self.networkType = networkType
         self.totalPriceAssetId = totalPriceAssetId
-        self.storage = storage
+        self.chainStorage = chainStorage
+        self.txStorage = txStorage
     }
 }

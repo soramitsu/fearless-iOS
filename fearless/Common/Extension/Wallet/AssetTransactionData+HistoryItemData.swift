@@ -4,7 +4,7 @@ import BigInt
 import IrohaCrypto
 
 extension AssetTransactionData {
-    static func createTransaction(from item: HistoryItemData,
+    static func createTransaction(from item: SubscanHistoryItemData,
                                   address: String,
                                   networkType: SNAddressType,
                                   asset: WalletAsset,

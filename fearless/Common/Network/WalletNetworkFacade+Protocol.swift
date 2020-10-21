@@ -134,7 +134,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                                         dependencies: [fetchOperation])
     }
 
-    func transferMetadataOperation(_ info: TransferMetadataInfo) -> CompoundOperationWrapper<TransferMetaData?> {
+    func transferMetadataOperation(_ info: TransferMetadataInfo)
+        -> CompoundOperationWrapper<TransferMetaData?> {
         nodeOperationFactory.transferMetadataOperation(info)
     }
 
@@ -150,7 +151,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         nodeOperationFactory.contactsOperation()
     }
 
-    func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo) -> CompoundOperationWrapper<WithdrawMetaData?> {
+    func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo)
+        -> CompoundOperationWrapper<WithdrawMetaData?> {
         nodeOperationFactory.withdrawalMetadataOperation(info)
     }
 
