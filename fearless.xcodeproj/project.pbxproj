@@ -158,6 +158,7 @@
 		8434C9E425401EF3009E4191 /* TransactionHistoryItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */; };
 		8434C9E625403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */; };
 		8434C9EA2540AE51009E4191 /* ExtrinsicEraTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9E92540AE51009E4191 /* ExtrinsicEraTests.swift */; };
+		8434C9F02540B845009E4191 /* SubstrateAccountId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8434C9EF2540B845009E4191 /* SubstrateAccountId.swift */; };
 		84364D55252FAD7100281F9A /* AssetDetailsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84364D54252FAD7100281F9A /* AssetDetailsConfigurator.swift */; };
 		84364D58252FAE0A00281F9A /* AssetDetailsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84364D57252FAE0A00281F9A /* AssetDetailsView.swift */; };
 		84364D5A252FAF1700281F9A /* AssetDetailsView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84364D59252FAF1700281F9A /* AssetDetailsView.xib */; };
@@ -489,6 +490,8 @@
 		84FB1F75252700B400E0242B /* HistoryItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */; };
 		84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */; };
 		84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F782527065A00E0242B /* HistoryConstants.swift */; };
+		84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */; };
+		84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */; };
 		8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */; };
 		8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */; };
 		91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */; };
@@ -697,6 +700,7 @@
 		8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryItem.swift; sourceTree = "<group>"; };
 		8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDTransactionHistoryItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
 		8434C9E92540AE51009E4191 /* ExtrinsicEraTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicEraTests.swift; sourceTree = "<group>"; };
+		8434C9EF2540B845009E4191 /* SubstrateAccountId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateAccountId.swift; sourceTree = "<group>"; };
 		84364D54252FAD7100281F9A /* AssetDetailsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDetailsConfigurator.swift; sourceTree = "<group>"; };
 		84364D57252FAE0A00281F9A /* AssetDetailsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetDetailsView.swift; sourceTree = "<group>"; };
 		84364D59252FAF1700281F9A /* AssetDetailsView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AssetDetailsView.xib; sourceTree = "<group>"; };
@@ -1048,6 +1052,8 @@
 		84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HistoryItemTableViewCell.xib; sourceTree = "<group>"; };
 		84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemViewModel.swift; sourceTree = "<group>"; };
 		84FB1F782527065A00E0242B /* HistoryConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryConstants.swift; sourceTree = "<group>"; };
+		84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionHistoryItem+Wallet.swift"; sourceTree = "<group>"; };
+		84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryMergeManager.swift; sourceTree = "<group>"; };
 		855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementWireframe.swift; sourceTree = "<group>"; };
 		85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportWireframe.swift; sourceTree = "<group>"; };
 		8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewController.swift; sourceTree = "<group>"; };
@@ -2031,6 +2037,7 @@
 				846A2C4225271CDE00731018 /* TransactionType.swift */,
 				843910AF253ED36C00E3C217 /* ChainStorageItem.swift */,
 				8434C9E325401EF3009E4191 /* TransactionHistoryItem.swift */,
+				8434C9EF2540B845009E4191 /* SubstrateAccountId.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2152,6 +2159,7 @@
 				84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */,
 				846A2C4A2529F99400731018 /* AccountRepositoryFactory.swift */,
 				84DF21B425388B35005454AE /* Scheduler.swift */,
+				84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -2403,6 +2411,7 @@
 			children = (
 				8490152D24ABD0F5008F705E /* Logger+Wallet.swift */,
 				8400F0BC252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift */,
+				84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -3356,6 +3365,7 @@
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
+				8434C9F02540B845009E4191 /* SubstrateAccountId.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
@@ -3434,6 +3444,7 @@
 				84DA3B0C24C590E700B5E27F /* Era.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */,
+				84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */,
 				84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
 				8468B86A24F63CBA00B76BC6 /* AddImportedInteractor.swift in Sources */,
@@ -3650,6 +3661,7 @@
 				84265E062523D7BE005EEE2D /* WalletInputAmountView.swift in Sources */,
 				612FCA358D3DD9405477C445 /* AddConnectionWireframe.swift in Sources */,
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
+				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
 				5BA47B0F2286D41E7056DA0F /* AddConnectionInteractor.swift in Sources */,
 				48641BF5A7B1B9F53246F376 /* AddConnectionViewController.swift in Sources */,
 				846A2C4B2529F99400731018 /* AccountRepositoryFactory.swift in Sources */,

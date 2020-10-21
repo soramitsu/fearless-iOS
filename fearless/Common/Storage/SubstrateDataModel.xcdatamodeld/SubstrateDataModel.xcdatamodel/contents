@@ -13,7 +13,7 @@
         <attribute name="sender" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="txIndex" attributeType="Integer 16" usesScalarValueType="NO"/>
+        <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
     </entity>
     <elements>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
