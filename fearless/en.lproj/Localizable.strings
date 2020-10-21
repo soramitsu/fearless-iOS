@@ -162,3 +162,5 @@ from the right network";
 "wallet.send.balance.existential" = "Existential deposit";
 "wallet.send.existential.warning" = "Your transfer will remove account from blockstore since it will make total balance lower than existential deposit";
 "common.warning" = "Warning";
+"network.status.connecting" = "Connecting...";
+"network.status.connected" = "Connected";

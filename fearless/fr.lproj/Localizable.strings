@@ -162,3 +162,5 @@ provient du bon réseau";
 "wallet.send.balance.existential" = "Dépôt existentiel";
 "wallet.send.existential.warning" = "Votre transfert supprimera le compte du blockstore car il rendra le solde total inférieur au dépôt existentiel";
 "common.warning" = "avertissement";
+"network.status.connecting" = "De liaison...";
+"network.status.connected" = "Connecté";

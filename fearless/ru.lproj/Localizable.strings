@@ -162,3 +162,5 @@ a type of password.";
 "wallet.send.balance.existential" = "Экзистенциальный депозит";
 "wallet.send.existential.warning" = "Ваш перевод удалит учетную запись, так как общий баланс будет ниже, чем существующий депозит.";
 "common.warning" = "Предупреждение";
+"network.status.connecting" = "Подключение ...";
+"network.status.connected" = "Подключено";
