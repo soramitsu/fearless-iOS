@@ -80,15 +80,13 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                                         dependencies: dependencies)
     }
 
-    func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest,
-                                          pagination: Pagination)
+    func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest, pagination: Pagination)
         -> CompoundOperationWrapper<AssetTransactionPageData?> {
 
         let historyContext = TransactionHistoryContext(context: pagination.context ?? [:])
 
         guard !historyContext.isComplete,
-            let asset = accountSettings.assets
-                .first(where: { $0.identifier != totalPriceAssetId.rawValue }),
+            let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
             let assetId = WalletAssetId(rawValue: asset.identifier),
             let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.history) else {
             let pageData = AssetTransactionPageData(transactions: [],
@@ -98,11 +96,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let currentNetworkType = networkType
-
-        let info = HistoryInfo(address: address,
-                               row: pagination.count,
-                               page: historyContext.page)
+        let info = HistoryInfo(address: address, row: pagination.count, page: historyContext.page)
 
         let fetchOperation = subscanOperationFactory.fetchHistoryOperation(url, info: info)
 
@@ -119,34 +113,10 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             localFetchOperation = nil
         }
 
-        let addressFactory = SS58AddressFactory()
-
-        let mergeOperation: BaseOperation<TransactionHistoryMergeResult> = ClosureOperation {
-            let pageData = try fetchOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            if let localTransactions = try localFetchOperation?
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
-                !localTransactions.isEmpty {
-                let manager = TransactionHistoryMergeManager(address: info.address,
-                                                             networkType: currentNetworkType,
-                                                             asset: asset,
-                                                             addressFactory: addressFactory)
-                return manager.merge(subscanItems: pageData.transactions ?? [],
-                                     localItems: localTransactions)
-            } else {
-                let transactions: [AssetTransactionData] = (pageData.transactions ?? []).map { item in
-                    AssetTransactionData.createTransaction(from: item,
-                                                           address: info.address,
-                                                           networkType: currentNetworkType,
-                                                           asset: asset,
-                                                           addressFactory: addressFactory)
-                }
-
-                return TransactionHistoryMergeResult(historyItems: transactions,
-                                                     identifiersToRemove: [])
-            }
-        }
+        let mergeOperation = createHistoryMergeOperation(dependingOn: fetchOperation,
+                                                         localOperation: localFetchOperation,
+                                                         asset: asset,
+                                                         info: info)
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
@@ -163,19 +133,9 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             clearOperation.addDependency(mergeOperation)
         }
 
-        let mapOperation: BaseOperation<AssetTransactionPageData?> = ClosureOperation {
-            let pageData = try fetchOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let mergeResult = try mergeOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            let isComplete = pageData.count < pagination.count
-            let newHistoryContext = TransactionHistoryContext(page: info.page + 1,
-                                                              isComplete: isComplete)
-
-            return AssetTransactionPageData(transactions: mergeResult.historyItems,
-                                            context: newHistoryContext.toContext())
-        }
+        let mapOperation = createHistoryMapOperation(dependingOn: mergeOperation,
+                                                     subscanOperation: fetchOperation,
+                                                     info: info)
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
