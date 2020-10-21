@@ -9,17 +9,7 @@ protocol WebSocketConnectionProtocol: WebSocketClient {
 extension WebSocket: WebSocketConnectionProtocol {}
 
 final class WebSocketEngine {
-    static let sharedCompletionQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.websocket.shared",
-                                                     attributes: .concurrent)
-
-    struct Request: Equatable {
-        let requestId: UInt16
-        let data: Data
-        let options: JSONRPCOptions
-        let responseHandler: ResponseHandling?
-
-        static func == (lhs: Self, rhs: Self) -> Bool { lhs.requestId == rhs.requestId }
-    }
+    static let sharedProcessingQueue = DispatchQueue(label: "jp.co.soramitsu.fearless.ws.processing")
 
     enum State {
         case notConnected
@@ -32,39 +22,39 @@ final class WebSocketEngine {
     let version: String
     let logger: LoggerProtocol
     let reachabilityManager: ReachabilityManagerProtocol?
+    let completionQueue: DispatchQueue
 
     private(set) var state: State = .notConnected
 
-    private var requestId: UInt16 = 1
-    private var mutex: NSLock = NSLock()
-    private var jsonEncoder = JSONEncoder()
-    private var jsonDecoder = JSONDecoder()
-    private var reconnectionStrategy: ReconnectionStrategyProtocol?
+    private(set) var mutex: NSLock = NSLock()
+    private(set) var jsonEncoder = JSONEncoder()
+    private(set) var jsonDecoder = JSONDecoder()
+    private(set) var reconnectionStrategy: ReconnectionStrategyProtocol?
 
-    private lazy var reconnectionScheduler: SchedulerProtocol = {
+    private(set) lazy var reconnectionScheduler: SchedulerProtocol = {
         let scheduler = Scheduler(with: self, callbackQueue: connection.callbackQueue)
         return scheduler
     }()
 
-    private var pendingRequests: [Request] = []
-    private var inProgressRequests: [UInt16: Request] = [:]
+    private(set) var pendingRequests: [JSONRPCRequest] = []
+    private(set) var inProgressRequests: [UInt16: JSONRPCRequest] = [:]
+    private(set) var subscriptions: [UInt16: JSONRPCSubscribing] = [:]
 
-    init(url: URL,
-         reachabilityManager: ReachabilityManagerProtocol? = nil,
-         reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
-         version: String = "2.0",
-         completionQueue: DispatchQueue? = nil,
-         autoconnect: Bool = true,
-         connectionTimeout: TimeInterval = 10.0,
-         logger: LoggerProtocol) {
+    public init(url: URL,
+                reachabilityManager: ReachabilityManagerProtocol? = nil,
+                reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
+                version: String = "2.0",
+                processingQueue: DispatchQueue? = nil,
+                autoconnect: Bool = true,
+                connectionTimeout: TimeInterval = 10.0,
+                logger: LoggerProtocol) {
         self.version = version
         self.logger = logger
         self.reconnectionStrategy = reconnectionStrategy
         self.reachabilityManager = reachabilityManager
+        self.completionQueue = processingQueue ?? Self.sharedProcessingQueue
 
         let request = URLRequest(url: url, timeoutInterval: connectionTimeout)
-
-        let callbackQueue = completionQueue ?? Self.sharedCompletionQueue
 
         let engine = WSEngine(transport: FoundationTransport(),
                               certPinner: FoundationSecurity(),
@@ -76,7 +66,7 @@ final class WebSocketEngine {
 
         connection.delegate = self
 
-        connection.callbackQueue = callbackQueue
+        connection.callbackQueue = processingQueue ?? Self.sharedProcessingQueue
 
         subscribeToReachabilityStatus()
 
@@ -96,6 +86,7 @@ final class WebSocketEngine {
         self.reconnectionStrategy = reconnectionStrategy
         self.version = version
         self.logger = logger
+        self.completionQueue = Self.sharedProcessingQueue
 
         connection.delegate = self
 
@@ -112,7 +103,7 @@ final class WebSocketEngine {
         disconnectIfNeeded()
     }
 
-    func connectIfNeeded() {
+    public func connectIfNeeded() {
         mutex.lock()
 
         switch state {
@@ -133,47 +124,47 @@ final class WebSocketEngine {
         mutex.unlock()
     }
 
-    func disconnectIfNeeded() {
+    public func disconnectIfNeeded() {
         mutex.lock()
-
-        let cancelledRequests: [Request]?
 
         switch state {
         case .connected:
             state = .notConnected
 
-            cancelledRequests = resetInProgress()
+            let cancelledRequests = resetInProgress()
 
             connection.disconnect(closeCode: CloseCode.goingAway.rawValue)
+
+            notify(requests: cancelledRequests,
+                   error: JSONRPCEngineError.clientCancelled)
 
             logger.debug("Did start disconnect from socket")
         case .connecting:
             state = .notConnected
-
-            cancelledRequests = nil
 
             connection.disconnect()
 
             logger.debug("Cancel socket connection")
 
         case .waitingReconnection:
-            cancelledRequests = nil
-
             logger.debug("Cancel reconnection scheduler due to disconnection")
             reconnectionScheduler.cancel()
         default:
-            cancelledRequests = nil
-
             logger.debug("Already disconnected from socket")
         }
 
         mutex.unlock()
+    }
+}
 
-        cancelledRequests?
-            .forEach { $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)}
+// MARK: Internal
+
+extension WebSocketEngine {
+    func changeState(_ newState: State) {
+        state = newState
     }
 
-    private func subscribeToReachabilityStatus() {
+    func subscribeToReachabilityStatus() {
         do {
             try reachabilityManager?.add(listener: self)
         } catch {
@@ -181,11 +172,11 @@ final class WebSocketEngine {
         }
     }
 
-    private func clearReachabilitySubscription() {
+    func clearReachabilitySubscription() {
         reachabilityManager?.remove(listener: self)
     }
 
-    private func updateConnectionForRequest(_ request: Request) {
+    func updateConnectionForRequest(_ request: JSONRPCRequest) {
         switch state {
         case .connected:
             send(request: request)
@@ -206,24 +197,27 @@ final class WebSocketEngine {
         }
     }
 
-    private func send(request: Request) {
+    func send(request: JSONRPCRequest) {
         inProgressRequests[request.requestId] = request
 
         connection.write(data: request.data, completion: nil)
     }
 
-    private func sendAllPendingRequests() {
+    func sendAllPendingRequests() {
         let currentPendings = pendingRequests
         pendingRequests = []
 
         for pending in currentPendings {
             logger.debug("Sending request with id: \(pending.requestId)")
+            logger.debug("\(String(data: pending.data, encoding: .utf8)!)")
             send(request: pending)
         }
     }
 
-    private func resetInProgress() -> [Request] {
-        let idempotentRequests = inProgressRequests.compactMap { $1.options.resendOnReconnect ? $1 : nil }
+    func resetInProgress() -> [JSONRPCRequest] {
+        let idempotentRequests: [JSONRPCRequest] = inProgressRequests.compactMap {
+            $1.options.resendOnReconnect ? $1 : nil
+        }
 
         let notifiableRequests = inProgressRequests.compactMap {
             !$1.options.resendOnReconnect && $1.responseHandler != nil ? $1 : nil
@@ -232,17 +226,44 @@ final class WebSocketEngine {
         pendingRequests.append(contentsOf: idempotentRequests)
         inProgressRequests = [:]
 
+        rescheduleActiveSubscriptions()
+
         return notifiableRequests
     }
 
-    private func process(data: Data) {
+    func rescheduleActiveSubscriptions() {
+        let activeSubscriptions = subscriptions.compactMap {
+            $1.remoteId != nil ? $1 : nil
+        }
+
+        for subscription in activeSubscriptions {
+            subscription.remoteId = nil
+        }
+
+        let subscriptionRequests: [JSONRPCRequest] = activeSubscriptions.enumerated().map {
+            return JSONRPCRequest(requestId: $1.requestId,
+                                  data: $1.requestData,
+                                  options: $1.requestOptions,
+                                  responseHandler: nil)
+        }
+
+        pendingRequests.append(contentsOf: subscriptionRequests)
+    }
+
+    func process(data: Data) {
         do {
             let response = try jsonDecoder.decode(JSONRPCBasicData.self, from: data)
 
-            if let error = response.error {
-                completeRequestForId(response.identifier, error: error)
+            if let identifier = response.identifier {
+                if let error = response.error {
+                    completeRequestForRemoteId(identifier,
+                                               error: error)
+                } else {
+                    completeRequestForRemoteId(identifier,
+                                               data: data)
+                }
             } else {
-                completeRequestForId(response.identifier, data: data)
+                try processSubscriptionUpdate(data)
             }
         } catch {
             if let stringData = String(data: data, encoding: .utf8) {
@@ -253,27 +274,162 @@ final class WebSocketEngine {
         }
     }
 
-    private func completeRequestForId(_ identifier: UInt16, data: Data) {
-        mutex.lock()
-
-        let request = inProgressRequests.removeValue(forKey: identifier)
-
-        mutex.unlock()
-
-        request?.responseHandler?.handle(data: data)
+    func addSubscription(_ subscription: JSONRPCSubscribing) {
+        subscriptions[subscription.requestId] = subscription
     }
 
-    private func completeRequestForId(_ identifier: UInt16, error: Error) {
-        mutex.lock()
+    func prepareRequest<P: Encodable, T: Decodable>(method: String,
+                                                    params: P?,
+                                                    options: JSONRPCOptions,
+                                                    completion closure: ((Result<T, Error>) -> Void)?)
+        throws -> JSONRPCRequest {
+        let data: Data
 
-        let request = inProgressRequests.removeValue(forKey: identifier)
+        let requestId = generateRequestId()
 
-        mutex.unlock()
+        if let params = params {
+            let info = JSONRPCInfo(identifier: requestId,
+                                   jsonrpc: version,
+                                   method: method,
+                                   params: params)
 
-        request?.responseHandler?.handle(error: error)
+            data = try jsonEncoder.encode(info)
+        } else {
+            let info = JSONRPCInfo(identifier: requestId,
+                                   jsonrpc: version,
+                                   method: method,
+                                   params: [String]())
+
+            data = try jsonEncoder.encode(info)
+        }
+
+        let handler: JSONRPCResponseHandling?
+
+        if let completionClosure = closure {
+            handler = JSONRPCResponseHandler(completionClosure: completionClosure)
+        } else {
+            handler = nil
+        }
+
+        let request = JSONRPCRequest(requestId: requestId,
+                                     data: data,
+                                     options: options,
+                                     responseHandler: handler)
+
+        return request
     }
 
-    private func scheduleReconnectionOrDisconnect(_ attempt: Int, after error: Error? = nil) {
+    func generateRequestId() -> UInt16 {
+        let items = pendingRequests.map { $0.requestId } + inProgressRequests.map { $0.key }
+        let existingIds: Set<UInt16> = Set(items)
+
+        var targetId = (1...UInt16.max).randomElement() ?? 1
+
+        while existingIds.contains(targetId) {
+            targetId += 1
+        }
+
+        return targetId
+    }
+
+    func cancelRequestForLocalId(_ identifier: UInt16) {
+        if let index = pendingRequests.firstIndex(where: { $0.requestId == identifier }) {
+            let request = pendingRequests.remove(at: index)
+
+            notify(requests: [request],
+                   error: JSONRPCEngineError.clientCancelled)
+        } else if let request = inProgressRequests.removeValue(forKey: identifier) {
+            notify(requests: [request],
+                   error: JSONRPCEngineError.clientCancelled)
+        }
+    }
+
+    func completeRequestForRemoteId(_ identifier: UInt16, data: Data) {
+        if let request = inProgressRequests.removeValue(forKey: identifier) {
+            notify(request: request, data: data)
+        }
+
+        if subscriptions[identifier] != nil {
+            processSubscriptionResponse(identifier, data: data)
+        }
+    }
+
+    func processSubscriptionResponse(_ identifier: UInt16, data: Data) {
+        do {
+            let response = try jsonDecoder.decode(JSONRPCData<String>.self, from: data)
+            subscriptions[identifier]?.remoteId = response.result
+
+            logger.debug("Did receive subscription id: \(response.result)")
+        } catch {
+            processSubscriptionError(identifier, error: error, shouldUnsubscribe: true)
+
+            if let responseString = String(data: data, encoding: .utf8) {
+                logger.error("Did fail to parse subscription data: \(responseString)")
+            } else {
+                logger.error("Did fail to parse subscription data")
+            }
+        }
+    }
+
+    func processSubscriptionUpdate(_ data: Data) throws {
+        let basicResponse = try jsonDecoder.decode(JSONRPCSubscriptionBasicUpdate.self,
+                                                   from: data)
+        let remoteId = basicResponse.params.subscription
+
+        if let (_, subscription) = subscriptions
+            .first(where: { $1.remoteId == remoteId }) {
+
+            logger.debug("Did receive update for subscription: \(remoteId)")
+
+            completionQueue.async {
+                try? subscription.handle(data: data)
+            }
+        } else {
+            logger.warning("No handler for subscription: \(remoteId)")
+        }
+    }
+
+    func completeRequestForRemoteId(_ identifier: UInt16, error: Error) {
+        if let request = inProgressRequests.removeValue(forKey: identifier) {
+            notify(requests: [request], error: error)
+        }
+
+        if subscriptions[identifier] != nil {
+            processSubscriptionError(identifier, error: error, shouldUnsubscribe: true)
+        }
+    }
+
+    func processSubscriptionError(_ identifier: UInt16, error: Error, shouldUnsubscribe: Bool) {
+        if let subscription = subscriptions[identifier] {
+            if shouldUnsubscribe {
+                subscriptions.removeValue(forKey: identifier)
+            }
+
+            connection.callbackQueue.async {
+                subscription.handle(error: error, unsubscribed: shouldUnsubscribe)
+            }
+        }
+    }
+
+    func notify(request: JSONRPCRequest, data: Data) {
+        completionQueue.async {
+            request.responseHandler?.handle(data: data)
+        }
+    }
+
+    func notify(requests: [JSONRPCRequest], error: Error) {
+        guard !requests.isEmpty else {
+            return
+        }
+
+        completionQueue.async {
+            requests.forEach {
+                $0.responseHandler?.handle(error: error)
+            }
+        }
+    }
+
+    func scheduleReconnectionOrDisconnect(_ attempt: Int, after error: Error? = nil) {
         if let reconnectionStrategy = reconnectionStrategy,
             let nextDelay = reconnectionStrategy.reconnectAfter(attempt: attempt - 1) {
             state = .waitingReconnection(attempt: attempt)
@@ -294,251 +450,12 @@ final class WebSocketEngine {
         }
     }
 
-    private func startConnecting(_ attempt: Int) {
+    func startConnecting(_ attempt: Int) {
         logger.debug("Start connecting with attempt: \(attempt)")
 
         state = .connecting(attempt: attempt)
 
         connection.connect()
     }
-}
 
-extension WebSocketEngine: JSONRPCEngine {
-
-    func callMethod<P: Encodable, T: Decodable>(_ method: String,
-                                                params: P?,
-                                                options: JSONRPCOptions,
-                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        let data: Data
-
-        if let params = params {
-            let info = JSONRPCInfo(identifier: requestId,
-                                   jsonrpc: version,
-                                   method: method,
-                                   params: params)
-
-            data = try jsonEncoder.encode(info)
-        } else {
-            let info = JSONRPCInfo(identifier: requestId,
-                                   jsonrpc: version,
-                                   method: method,
-                                   params: [String]())
-
-            data = try jsonEncoder.encode(info)
-        }
-
-        let currentRequestId = requestId
-
-        let handler: ResponseHandling?
-
-        if let completionClosure = closure {
-            handler = ResponseHandler(completionClosure: completionClosure)
-        } else {
-            handler = nil
-        }
-
-        let request = Request(requestId: currentRequestId,
-                              data: data,
-                              options: options,
-                              responseHandler: handler)
-
-        requestId += 1
-
-        if requestId == UInt16.max {
-            requestId = 1
-        }
-
-        updateConnectionForRequest(request)
-
-        return currentRequestId
-    }
-
-    func cancelForIdentifier(_ identifier: UInt16) {
-        mutex.lock()
-
-        defer {
-            mutex.unlock()
-        }
-
-        if let index = pendingRequests.firstIndex(where: { $0.requestId == identifier }) {
-            let request = pendingRequests.remove(at: index)
-
-            connection.callbackQueue.async {
-                request.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
-            }
-
-            return
-        }
-
-        if let request = inProgressRequests.removeValue(forKey: identifier) {
-            connection.callbackQueue.async {
-                request.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
-            }
-        }
-    }
-}
-
-extension WebSocketEngine: WebSocketDelegate {
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
-        switch event {
-        case .binary(let data):
-            handleBinaryEvent(data: data)
-        case .text(let string):
-            handleTextEvent(string: string)
-        case .connected:
-            handleConnectedEvent()
-        case .disconnected(let reason, let code):
-            handleDisconnectedEvent(reason: reason, code: code)
-        case .error(let error):
-            handleErrorEvent(error)
-        case .cancelled:
-            handleCancelled()
-        default:
-            logger.warning("Unhandled event \(event)")
-        }
-    }
-
-    private func handleCancelled() {
-        logger.warning("Remote cancelled")
-
-        var cancelledRequests: [Request]?
-
-        mutex.lock()
-
-        switch state {
-        case .connecting(let attempt):
-            connection.disconnect()
-            scheduleReconnectionOrDisconnect(attempt + 1)
-        case .connected:
-            cancelledRequests = resetInProgress()
-
-            connection.disconnect()
-            scheduleReconnectionOrDisconnect(1)
-        default:
-            break
-        }
-
-        mutex.unlock()
-
-        cancelledRequests?.forEach {
-            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
-        }
-    }
-
-    private func handleErrorEvent(_ error: Error?) {
-        if let error = error {
-            logger.error("Did receive error: \(error)")
-        } else {
-            logger.error("Did receive unknown error")
-        }
-
-        var cancelledRequests: [Request]?
-
-        mutex.lock()
-
-        switch state {
-        case .connected:
-            cancelledRequests = resetInProgress()
-
-            connection.disconnect()
-            startConnecting(0)
-        case .connecting(let attempt):
-            connection.disconnect()
-
-            scheduleReconnectionOrDisconnect(attempt + 1)
-        default:
-            break
-        }
-
-        mutex.unlock()
-
-        cancelledRequests?.forEach {
-            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
-        }
-    }
-
-    private func handleBinaryEvent(data: Data) {
-        if let decodedString = String(data: data, encoding: .utf8) {
-            logger.debug("Did receive data: \(decodedString)")
-        }
-
-        process(data: data)
-    }
-
-    private func handleTextEvent(string: String) {
-        logger.debug("Did receive text: \(string)")
-        if let data = string.data(using: .utf8) {
-            process(data: data)
-        } else {
-            logger.warning("Unsupported text event: \(string)")
-        }
-    }
-
-    private func handleConnectedEvent() {
-        logger.debug("connection established")
-
-        mutex.lock()
-
-        state = .connected
-
-        sendAllPendingRequests()
-
-        mutex.unlock()
-    }
-
-    private func handleDisconnectedEvent(reason: String, code: UInt16) {
-        logger.warning("Disconnected with code \(code): \(reason)")
-
-        var cancelledRequests: [Request]?
-
-        mutex.lock()
-
-        switch state {
-        case .connecting(let attempt):
-            scheduleReconnectionOrDisconnect(attempt + 1)
-        case .connected:
-            cancelledRequests = resetInProgress()
-
-            scheduleReconnectionOrDisconnect(1)
-        default:
-            break
-        }
-
-        mutex.unlock()
-
-        cancelledRequests?.forEach {
-            $0.responseHandler?.handle(error: JSONRPCEngineError.clientCancelled)
-        }
-    }
-}
-
-extension WebSocketEngine: SchedulerDelegate {
-    func didTrigger(scheduler: SchedulerProtocol) {
-        logger.debug("Did trigger reconnection scheduler")
-
-        mutex.lock()
-
-        if case .waitingReconnection(let attempt) = state {
-            startConnecting(attempt)
-        }
-
-        mutex.unlock()
-    }
-}
-
-extension WebSocketEngine: ReachabilityListenerDelegate {
-    func didChangeReachability(by manager: ReachabilityManagerProtocol) {
-        if manager.isReachable, case .waitingReconnection = state {
-            logger.debug("Network became reachable, retrying connection")
-
-            reconnectionScheduler.cancel()
-            startConnecting(0)
-        }
-    }
 }

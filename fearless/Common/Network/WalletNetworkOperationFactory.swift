@@ -51,58 +51,6 @@ final class WalletNetworkOperationFactory {
         }
     }
 
-    func createStakingLedgerFetchOperation(_ accountId: Data? = nil)
-        -> CompoundOperationWrapper<JSONScaleDecodable<StakingLedger>> {
-        do {
-            let storageKeyFactory = StorageKeyFactory()
-            let stashId = try (accountId ?? Data(hexString: accountSettings.accountId))
-
-            let serviceKey = try storageKeyFactory.createStorageKey(moduleName: "Staking",
-                                                                    serviceName: "Bonded")
-
-            let stashKey = (serviceKey + stashId.twox64Concat()).toHex(includePrefix: true)
-
-            let controllerOperation =
-                JSONRPCListOperation<JSONScaleDecodable<AccountId>>(engine: engine,
-                                                                    method: RPCMethod.getStorage,
-                                                                    parameters: [stashKey])
-
-            let infoOperation =
-                JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
-                                                                        method: RPCMethod.getStorage,
-                                                                        parameters: [])
-
-            infoOperation.configurationBlock = {
-                do {
-                    let accountIdWrapper = try controllerOperation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                    if let controllerId = accountIdWrapper.underlyingValue?.value {
-                        let infoKey = try storageKeyFactory.createStorageKey(moduleName: "Staking",
-                                                                               serviceName: "Ledger",
-                                                                               identifier: controllerId)
-                            .toHex(includePrefix: true)
-
-                        infoOperation.parameters = [infoKey]
-                    } else {
-                        let info = JSONScaleDecodable<StakingLedger>(value: nil)
-                        infoOperation.result = .success(info)
-                    }
-                } catch {
-                    infoOperation.result = .failure(error)
-                }
-            }
-
-            infoOperation.addDependency(controllerOperation)
-
-            return CompoundOperationWrapper(targetOperation: infoOperation,
-                                            dependencies: [controllerOperation])
-
-        } catch {
-            return createCompoundOperation(result: .failure(error))
-        }
-    }
-
     func createStorageFetchOperation<T: Decodable>(moduleName: String,
                                                    serviceName: String,
                                                    identifier: Data? = nil) -> BaseOperation<T> {
@@ -127,12 +75,6 @@ final class WalletNetworkOperationFactory {
         } catch {
             return createBaseOperation(result: .failure(error))
         }
-    }
-
-    func createActiveEraFetchOperation()
-        -> BaseOperation<JSONScaleDecodable<UInt32>> {
-        return createStorageFetchOperation(moduleName: "Staking",
-                                           serviceName: "ActiveEra")
     }
 
     func createRuntimeVersionOperation() -> BaseOperation<RuntimeVersion> {

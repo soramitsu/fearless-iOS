@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import CommonWallet
 
 final class MainTabBarInteractor {
 	weak var presenter: MainTabBarInteractorOutputProtocol?
@@ -40,10 +41,14 @@ final class MainTabBarInteractor {
         webSocketService.throttle()
     }
 
-    private func updateWebSocketURL() {
-        let newUrl = settings.selectedConnection.url
+    private func updateWebSocketSettings() {
+        let connectionItem = settings.selectedConnection
+        let account = settings.selectedAccount
 
-        webSocketService.update(url: newUrl)
+        let settings = WebSocketServiceSettings(url: connectionItem.url,
+                                                addressType: connectionItem.type,
+                                                address: account?.address)
+        webSocketService.update(settings: settings)
     }
 }
 
@@ -56,7 +61,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         if currentAccount != settings.selectedAccount {
-            updateWebSocketURL()
+            updateWebSocketSettings()
             updateSelectedItems()
             presenter?.didReloadSelectedAccount()
         }
@@ -64,9 +69,17 @@ extension MainTabBarInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
         if currentConnection != settings.selectedConnection {
-            updateWebSocketURL()
+            updateWebSocketSettings()
             updateSelectedItems()
             presenter?.didReloadSelectedNetwork()
         }
+    }
+
+    func processBalanceChanged(event: WalletBalanceChanged) {
+        presenter?.didUpdateWalletInfo()
+    }
+
+    func processStakingChanged(event: WalletStakingInfoChanged) {
+        presenter?.didUpdateWalletInfo()
     }
 }
