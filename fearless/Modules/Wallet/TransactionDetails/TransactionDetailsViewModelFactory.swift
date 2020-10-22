@@ -1,41 +1,55 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import FearlessUtils
 
 final class TransactionDetailsViewModelFactory {
+    let address: String
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
 
-    init(assets: [WalletAsset],
+    let iconGenerator: PolkadotIconGenerator = PolkadotIconGenerator()
+
+    init(address: String,
+         assets: [WalletAsset],
          dateFormatter: LocalizableResource<DateFormatter>,
          amountFormatterFactory: NumberFormatterFactoryProtocol) {
+        self.address = address
         self.assets = assets
         self.dateFormatter = dateFormatter
         self.amountFormatterFactory = amountFormatterFactory
     }
 
     private func populateStatus(into viewModelList: inout [WalletFormViewBindingProtocol],
-                                data: AssetTransactionData) {
+                                data: AssetTransactionData,
+                                locale: Locale) {
         let viewModel: WalletNewFormDetailsViewModel
 
-        let title = "Status"
+        let title = R.string.localizable
+            .transactionDetailStatus(preferredLanguages: locale.rLanguages)
 
         switch data.status {
         case .commited:
+            let details = R.string.localizable
+                .transactionStatusCompleted(preferredLanguages: locale.rLanguages)
             viewModel = WalletNewFormDetailsViewModel(title: title,
                                                       titleIcon: nil,
-                                                      details: "Completed",
+                                                      details: details,
                                                       detailsIcon: R.image.iconValid())
         case .pending:
+            let details = R.string.localizable
+                .transactionStatusPending(preferredLanguages: locale.rLanguages)
             viewModel = WalletNewFormDetailsViewModel(title: title,
                                                       titleIcon: nil,
-                                                      details: "Pengin",
+                                                      details: details,
                                                       detailsIcon: R.image.iconTxPending())
         case .rejected:
+            let details = R.string.localizable
+                .transactionStatusFailed(preferredLanguages: locale.rLanguages)
             viewModel = WalletNewFormDetailsViewModel(title: title,
                                                       titleIcon: nil,
-                                                      details: "Failed",
+                                                      details: details,
                                                       detailsIcon: R.image.iconInvalid())
         }
 
@@ -50,7 +64,9 @@ final class TransactionDetailsViewModelFactory {
 
         let timeDetails = dateFormatter.value(for: locale).string(from: transactionDate)
 
-        let viewModel = WalletNewFormDetailsViewModel(title: "Date",
+        let title = R.string.localizable
+            .transactionDetailDate(preferredLanguages: locale.rLanguages)
+        let viewModel = WalletNewFormDetailsViewModel(title: title,
                                                       titleIcon: nil,
                                                       details: timeDetails,
                                                       detailsIcon: nil)
@@ -74,7 +90,9 @@ final class TransactionDetailsViewModelFactory {
             return
         }
 
-        let viewModel = WalletNewFormDetailsViewModel(title: "Amount",
+        let title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+        let viewModel = WalletNewFormDetailsViewModel(title: title,
                                                       titleIcon: nil,
                                                       details: displayAmount,
                                                       detailsIcon: nil)
@@ -107,6 +125,75 @@ final class TransactionDetailsViewModelFactory {
             viewModelList.append(separator)
         }
     }
+
+    private func populateTransactionId(in viewModelList: inout [WalletFormViewBindingProtocol],
+                                       data: AssetTransactionData,
+                                       commandFactory: WalletCommandFactoryProtocol,
+                                       locale: Locale) {
+        let title = R.string.localizable
+            .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
+
+        let actionIcon = R.image.iconMore()
+
+        let command = WalletExtrinsicOpenCommand(extrinsicHash: data.transactionId)
+
+        let viewModel = WalletCompoundDetailsViewModel(title: title,
+                                                       details: data.transactionId,
+                                                       mainIcon: nil,
+                                                       actionIcon: actionIcon,
+                                                       command: command)
+        viewModelList.append(viewModel)
+    }
+
+    private func populateSender(in viewModelList: inout [WalletFormViewBindingProtocol],
+                                address: String,
+                                commandFactory: WalletCommandFactoryProtocol,
+                                locale: Locale) {
+        let title = R.string.localizable
+            .transactionDetailsFrom(preferredLanguages: locale.rLanguages)
+        return populatePeer(viewModelList: &viewModelList,
+                            title: title,
+                            address: address,
+                            commandFactory: commandFactory,
+                            locale: locale)
+    }
+
+    private func populateReceiver(in viewModelList: inout [WalletFormViewBindingProtocol],
+                                  address: String,
+                                  commandFactory: WalletCommandFactoryProtocol,
+                                  locale: Locale) {
+        let title = R.string.localizable
+            .walletSendReceiverTitle(preferredLanguages: locale.rLanguages)
+        return populatePeer(viewModelList: &viewModelList,
+                            title: title,
+                            address: address,
+                            commandFactory: commandFactory,
+                            locale: locale)
+    }
+
+    private func populatePeer(viewModelList: inout [WalletFormViewBindingProtocol],
+                              title: String,
+                              address: String,
+                              commandFactory: WalletCommandFactoryProtocol,
+                              locale: Locale) {
+        let icon: UIImage? = try? iconGenerator.generateFromAddress(address)
+            .imageWithFillColor(R.color.colorWhite()!,
+                                size: CGSize(width: 18.0, height: 18.0),
+                                contentScale: UIScreen.main.scale)
+
+        let actionIcon = R.image.iconCopy()
+
+        let alertTitle = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
+        let command = WalletCopyCommand(copyingString: address, alertTitle: alertTitle)
+        command.commandFactory = commandFactory
+
+        let viewModel = WalletCompoundDetailsViewModel(title: title,
+                                                       details: address,
+                                                       mainIcon: icon,
+                                                       actionIcon: actionIcon,
+                                                       command: command)
+        viewModelList.append(viewModel)
+    }
 }
 
 extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOverriding {
@@ -115,10 +202,38 @@ extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOve
                                          locale: Locale) -> [WalletFormViewBindingProtocol]? {
         var viewModels: [WalletFormViewBindingProtocol] = []
 
-        populateStatus(into: &viewModels, data: data)
+        populateStatus(into: &viewModels, data: data, locale: locale)
         populateTime(into: &viewModels, data: data, locale: locale)
         populateAmount(into: &viewModels, data: data, locale: locale)
         populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        populateTransactionId(in: &viewModels,
+                              data: data,
+                              commandFactory: commandFactory,
+                              locale: locale)
+
+        guard let type = TransactionType(rawValue: data.type), let peerAddress = data.peerName else {
+            return viewModels
+        }
+
+        if type == .incoming {
+            populateSender(in: &viewModels,
+                           address: peerAddress,
+                           commandFactory: commandFactory,
+                           locale: locale)
+            populateReceiver(in: &viewModels,
+                             address: address,
+                             commandFactory: commandFactory,
+                             locale: locale)
+        } else {
+            populateSender(in: &viewModels,
+                           address: address,
+                           commandFactory: commandFactory,
+                           locale: locale)
+            populateReceiver(in: &viewModels,
+                             address: peerAddress,
+                             commandFactory: commandFactory,
+                             locale: locale)
+        }
 
         return viewModels
     }
@@ -126,6 +241,49 @@ extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOve
     func createAccessoryViewModelFromTransaction(data: AssetTransactionData,
                                                  commandFactory: WalletCommandFactoryProtocol,
                                                  locale: Locale) -> AccessoryViewModelProtocol? {
-        nil
+        guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
+            return nil
+        }
+
+        let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+
+        var decimalAmount = data.amount.decimalValue
+
+        for fee in data.fees {
+            decimalAmount += fee.amount.decimalValue
+        }
+
+        let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
+
+        guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+            return nil
+        }
+
+        let icon: UIImage?
+
+        if let address = data.peerName {
+            icon = try? iconGenerator.generateFromAddress(address)
+                .imageWithFillColor(R.color.colorWhite()!,
+                                    size: CGSize(width: 32.0, height: 32.0),
+                                    contentScale: UIScreen.main.scale)
+        } else {
+            icon = nil
+        }
+
+        let receiverInfo = ReceiveInfo(accountId: data.peerId,
+                                       assetId: asset.identifier,
+                                       amount: nil,
+                                       details: nil)
+
+        let transferPayload = TransferPayload(receiveInfo: receiverInfo,
+                                              receiverName: data.peerName ?? "")
+        let command = commandFactory.prepareTransfer(with: transferPayload)
+        command.presentationStyle = .push(hidesBottomBar: true)
+
+        return TransactionDetailsAccessoryViewModel(title: title,
+                                                    amount: amount,
+                                                    action: data.peerName ?? "",
+                                                    icon: icon,
+                                                    command: command)
     }
 }

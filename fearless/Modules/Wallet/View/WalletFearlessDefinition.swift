@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 
-final class TransferConfirmDefinition: WalletFearlessFormDefining {
+final class WalletFearlessDefinition: WalletFearlessFormDefining {
     let binder: WalletFormViewModelBinderProtocol
     let itemViewFactory: WalletFormItemViewFactoryProtocol
 
@@ -26,5 +26,11 @@ final class TransferConfirmDefinition: WalletFearlessFormDefining {
         let receiverView = WalletDisplayReceiverView()
         receiverView.bind(viewModel: model)
         return receiverView
+    }
+
+    func defineViewForCompoundDetails(_ viewModel: WalletCompoundDetailsViewModel) -> WalletFormItemView? {
+        let detailsView = R.nib.walletCompoundDetailsView(owner: nil)!
+        detailsView.bind(viewModel: viewModel)
+        return detailsView
     }
 }
