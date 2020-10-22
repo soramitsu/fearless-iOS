@@ -112,9 +112,7 @@ final class TransactionHistoryMergeManager {
                 return nil
             }
 
-            if
-                let localNumber = item.blockNumber,
-                let remoteNumber = subscanItem.blockNumber, localNumber <= remoteNumber {
+            if item.timestamp < subscanItem.timestamp {
                 return item.txHash
             }
 
@@ -141,7 +139,9 @@ final class TransactionHistoryMergeManager {
                                       addressFactory: addressFactory)
         }
 
-        return TransactionHistoryMergeResult(historyItems: transactionsItems,
-                                             identifiersToRemove: hashesToRemove)
+        let results = TransactionHistoryMergeResult(historyItems: transactionsItems,
+                                                    identifiersToRemove: hashesToRemove)
+
+        return results
     }
 }
