@@ -77,8 +77,9 @@ extension WalletNetworkFacade {
     }
 
     func queryStorageByKey<T: ScaleDecodable>(_ storageKey: Data) -> CompoundOperationWrapper<T?> {
-        let fetchOperation = storage.fetchOperation(by: storageKey.toHex(includePrefix: true),
-                                                    options: RepositoryFetchOptions())
+        let fetchOperation = chainStorage
+            .fetchOperation(by: storageKey.toHex(includePrefix: true),
+                            options: RepositoryFetchOptions())
 
         let decoderOperation = ScaleDecoderOperation<T>()
         decoderOperation.configurationBlock = {

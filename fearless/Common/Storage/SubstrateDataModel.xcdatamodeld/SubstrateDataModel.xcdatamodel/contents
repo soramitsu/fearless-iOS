@@ -4,7 +4,19 @@
         <attribute name="data" optional="YES" attributeType="Binary"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="String"/>
+        <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
+        <attribute name="fee" optional="YES" attributeType="String"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="receiver" optional="YES" attributeType="String"/>
+        <attribute name="sender" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
+    </entity>
     <elements>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
+        <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="178"/>
     </elements>
 </model>

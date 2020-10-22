@@ -82,4 +82,8 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processStakingChanged(event: WalletStakingInfoChanged) {
         presenter?.didUpdateWalletInfo()
     }
+
+    func processNewTransaction(event: WalletNewTransactionInserted) {
+        presenter?.didUpdateWalletInfo()
+    }
 }

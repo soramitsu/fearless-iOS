@@ -28,7 +28,6 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         let platformName: LocalizableResource<String>
         let symbol: String
         let identifier: String
-        let precision: Int16
 
         switch addressType {
         case .polkadotMain:
@@ -36,26 +35,23 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             localizableName = LocalizableResource<String> { _ in "DOT" }
             platformName = LocalizableResource<String> { _ in "Polkadot" }
             symbol = "DOT"
-            precision = 10
         case .genericSubstrate:
             identifier = WalletAssetId.westend.rawValue
             localizableName = LocalizableResource<String> { _ in "Westend" }
             platformName = LocalizableResource<String> { _ in "Westend" }
             symbol = "WND"
-            precision = 12
         default:
             identifier = WalletAssetId.kusama.rawValue
             localizableName = LocalizableResource<String> { _ in "Kusama" }
             platformName = LocalizableResource<String> { _ in "Kusama" }
             symbol = "KSM"
-            precision = 12
         }
 
         return WalletAsset(identifier: identifier,
                            name: localizableName,
                            platform: platformName,
                            symbol: symbol,
-                           precision: precision,
+                           precision: addressType.precision,
                            modes: .all)
     }
 

@@ -20,7 +20,7 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
         self.eventCenter = eventCenter
     }
 
-    func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>) {
+    func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash: Data?) {
         logger.warning("Must be overriden after inheritance")
     }
 
@@ -79,7 +79,7 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
                 return
             }
 
-            self?.handle(result: changeResult)
+            self?.handle(result: changeResult, blockHash: blockHash)
         }
 
         operationManager.enqueue(operations: [fetchOperation, processingOperation, saveOperation],

@@ -8,4 +8,5 @@ enum RPCMethod {
     static let submitExtrinsic = "author_submitExtrinsic"
     static let paymentInfo = "payment_queryInfo"
     static let getRuntimeVersion = "chain_getRuntimeVersion"
+    static let getChainBlock = "chain_getBlock"
 }

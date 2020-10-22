@@ -1,16 +1,16 @@
 import Foundation
 
-struct HistoryData: Codable {
+struct SubscanHistoryData: Codable {
     enum CodingKeys: String, CodingKey {
         case count
         case transactions = "transfers"
     }
 
     let count: Int
-    let transactions: [HistoryItemData]?
+    let transactions: [SubscanHistoryItemData]?
 }
 
-struct HistoryItemData: Codable {
+struct SubscanHistoryItemData: Codable {
     enum CodingKeys: String, CodingKey {
         case sender = "from"
         case receiver = "to"
@@ -19,13 +19,17 @@ struct HistoryItemData: Codable {
         case timestamp = "block_timestamp"
         case amount
         case fee
+        case blockNumber = "block_num"
+        case finalized
     }
 
     let sender: String
     let receiver: String
     let success: Bool?
+    let finalized: Bool?
     let hash: String
     let timestamp: Int64
     let amount: String
     let fee: String
+    let blockNumber: Int64?
 }

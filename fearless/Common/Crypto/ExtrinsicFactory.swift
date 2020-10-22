@@ -34,7 +34,9 @@ struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
         try transferCall.encode(scaleEncoder: callEncoder)
         let callArguments = callEncoder.encode()
 
-        let call = Call(moduleIndex: 4, callIndex: 0, arguments: callArguments)
+        let call = Call(moduleIndex: ExtrinsicConstants.balanceModuleIndex,
+                        callIndex: ExtrinsicConstants.transferCallIndex,
+                        arguments: callArguments)
 
         let era = Era.immortal
         let tip = BigUInt(0)

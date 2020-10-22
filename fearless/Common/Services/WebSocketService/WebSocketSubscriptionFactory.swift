@@ -7,12 +7,18 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     func createSubscriptions(address: String,
                              type: SNAddressType,
                              engine: JSONRPCEngine) throws -> [WebSocketSubscribing] {
-        let accountId = try SS58AddressFactory().accountId(fromAddress: address,
-                                                           type: type)
+        let addressFactory = SS58AddressFactory()
+        let accountId = try addressFactory.accountId(fromAddress: address, type: type)
 
         let keyFactory = StorageKeyFactory()
 
-        let accountSubscription = try createAccountInfoSubscription(accountId: accountId,
+        let transferSubscription = createTransferSubscription(address: address,
+                                                              engine: engine,
+                                                              addressType: type,
+                                                              addressFactory: addressFactory)
+
+        let accountSubscription = try createAccountInfoSubscription(transferSubscription: transferSubscription,
+                                                                    accountId: accountId,
                                                                     storageKeyFactory: keyFactory)
 
         let activeEraSubscription = try createActiveEraSubscription(storageKeyFactory: keyFactory)
@@ -37,7 +43,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return [container, stakingSubscription]
     }
 
-    private func createAccountInfoSubscription(accountId: Data,
+    private func createAccountInfoSubscription(transferSubscription: TransferSubscription,
+                                               accountId: Data,
                                                storageKeyFactory: StorageKeyFactoryProtocol)
         throws -> AccountInfoSubscription {
         let accountStorageKey = try storageKeyFactory.accountInfoKeyForId(accountId)
@@ -45,7 +52,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
-        return AccountInfoSubscription(storageKey: accountStorageKey,
+        return AccountInfoSubscription(transferSubscription: transferSubscription,
+                                       storageKey: accountStorageKey,
                                        storage: AnyDataProviderRepository(storage),
                                        operationManager: OperationManagerFacade.sharedManager,
                                        logger: Logger.shared,
@@ -89,5 +97,24 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return BondedSubscription(storageKey: storageKey,
                                   stakingSubscription: stakingSubscription,
                                   logger: Logger.shared)
+    }
+
+    private func createTransferSubscription(address: String,
+                                            engine: JSONRPCEngine,
+                                            addressType: SNAddressType,
+                                            addressFactory: SS58AddressFactoryProtocol)
+        -> TransferSubscription {
+        let filter = NSPredicate.filterTransactionsBy(address: address)
+        let storage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+                SubstrateDataStorageFacade.shared.createRepository(filter: filter)
+
+        return TransferSubscription(engine: engine,
+                                    address: address,
+                                    addressType: addressType,
+                                    addressFactory: addressFactory,
+                                    storage: AnyDataProviderRepository(storage),
+                                    operationManager: OperationManagerFacade.sharedManager,
+                                    eventCenter: EventCenter.shared,
+                                    logger: Logger.shared)
     }
 }

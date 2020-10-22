@@ -86,12 +86,17 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let subscanOperationFactory = SubscanOperationFactory()
 
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+        let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
+
+        let txFilter = NSPredicate.filterTransactionsBy(address: selectedAccount.address)
+        let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
+            SubstrateDataStorageFacade.shared.createRepository(filter: txFilter)
         let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
                                                 nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,
-                                                storage: AnyDataProviderRepository(storage),
+                                                chainStorage: AnyDataProviderRepository(chainStorage),
+                                                txStorage: AnyDataProviderRepository(txStorage),
                                                 address: selectedAccount.address,
                                                 networkType: networkType,
                                                 totalPriceAssetId: .usd)

@@ -5,6 +5,11 @@ import BigInt
 struct ExtrinsicConstants {
     static let signedExtrinsicInitialVersion: UInt8 = 128
     static let accountIdLength: UInt8 = 32
+
+    static let balanceModuleIndex: UInt8 = 4
+
+    static let transferCallIndex: UInt8 = 0
+    static let keepAliveTransferIndex: UInt8 = 3
 }
 
 struct Call {
