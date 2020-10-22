@@ -21,6 +21,14 @@ final class HistoryItemTableViewCell: UITableViewCell {
 
         (viewModel as? HistoryItemViewModel)?.imageViewModel?.cancel()
     }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        let selectedBackgroundView = UIView()
+        selectedBackgroundView.backgroundColor = R.color.colorDarkBlue()!.withAlphaComponent(0.3)
+        self.selectedBackgroundView = selectedBackgroundView
+    }
 }
 
 extension HistoryItemTableViewCell: WalletViewProtocol {

@@ -136,6 +136,7 @@ transfers will appear here";
 "connection.add.invalid.error" = "Can't establish connection with node. Please, try another one.";
 "connection.add.unsupported.error" = "Unfortunately, the network is unsupported. Please, try one of the following: %@.";
 "connection.add.already.exists.error" = "The node has already been added previously. Please, try another node.";
+"wallet.history.title" = "Transfers";
 "wallet.send.title" = "Send";
 "wallet.send.asset.title" = "Asset";
 "wallet.send.receiver.title" = "To";

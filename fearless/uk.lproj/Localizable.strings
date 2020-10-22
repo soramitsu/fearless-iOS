@@ -136,6 +136,7 @@
 "connection.add.invalid.error" = "Не вдається встановити зв’язок з вузлом. Будь ласка, спробуйте інший.";
 "connection.add.unsupported.error" = "На жаль, мережа не підтримується. Спробуйте одне з наступного: %@.";
 "connection.add.already.exists.error" = "Вузол вже додано раніше. Будь ласка, спробуйте інший вузол.";
+"wallet.history.title" = "Трансфери";
 "wallet.send.title" = "Надіслати";
 "wallet.send.asset.title" = "Актив";
 "wallet.send.receiver.title" = "До";

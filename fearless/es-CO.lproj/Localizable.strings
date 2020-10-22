@@ -136,6 +136,7 @@ transferencias aparecerán aquí";
 "connection.add.invalid.error" = "No se puede establecer conexión con el nodo. Por favor, pruebe con otro.";
 "connection.add.unsupported.error" = "Desafortunadamente, la red no es compatible. Por favor, pruebe una de las siguientes %@.";
 "connection.add.already.exists.error" = "El nodo ya se agregó anteriormente. Por favor, pruebe con otro nodo.";
+"wallet.history.title" = "Traslados";
 "wallet.send.title" = "Enviar";
 "wallet.send.asset.title" = "Activo";
 "wallet.send.receiver.title" = "A";
