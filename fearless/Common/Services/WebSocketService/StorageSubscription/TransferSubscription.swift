@@ -155,7 +155,7 @@ final class TransferSubscription {
 
             let blockNumberData = try Data(hexString: block.header.number)
 
-            let blockNumber = try UInt32(BigUInt(scaleDecoder: ScaleDecoder(data: blockNumberData)))
+            let blockNumber = UInt32(BigUInt(blockNumberData))
 
             return block.extrinsics.enumerated().compactMap { (index, hexExtrinsic) in
                 do {
