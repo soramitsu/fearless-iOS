@@ -493,6 +493,10 @@
 		84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */; };
 		84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */; };
 		84FD3DB32540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB22540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift */; };
+		84FD3DB52540ED0900A234E3 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB42540ED0900A234E3 /* Block.swift */; };
+		84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */; };
+		84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB82540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift */; };
+		84FD3DBB254104B600A234E3 /* WalletNewTransactionEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DBA254104B600A234E3 /* WalletNewTransactionEvent.swift */; };
 		8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */; };
 		8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */; };
 		91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */; };
@@ -1056,6 +1060,10 @@
 		84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionHistoryItem+Wallet.swift"; sourceTree = "<group>"; };
 		84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryMergeManager.swift; sourceTree = "<group>"; };
 		84FD3DB22540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+TxHistory.swift"; sourceTree = "<group>"; };
+		84FD3DB42540ED0900A234E3 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
+		84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSubscription.swift; sourceTree = "<group>"; };
+		84FD3DB82540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionHistoryItem+Extrinsic.swift"; sourceTree = "<group>"; };
+		84FD3DBA254104B600A234E3 /* WalletNewTransactionEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletNewTransactionEvent.swift; sourceTree = "<group>"; };
 		855FB8DD761E110A42435A02 /* AccountManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementWireframe.swift; sourceTree = "<group>"; };
 		85F45A5C6145F863760F4409 /* AccountImportWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportWireframe.swift; sourceTree = "<group>"; };
 		8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewController.swift; sourceTree = "<group>"; };
@@ -1818,6 +1826,7 @@
 				8470D6D3253E35F0009E9A5D /* StorageUpdate.swift */,
 				843910BE253F354900E3C217 /* ActiveEraSubscription.swift */,
 				843910C0253F36F300E3C217 /* BaseStorageChildSubscription.swift */,
+				84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */,
 			);
 			path = StorageSubscription;
 			sourceTree = "<group>";
@@ -2415,6 +2424,7 @@
 				8490152D24ABD0F5008F705E /* Logger+Wallet.swift */,
 				8400F0BC252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift */,
 				84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */,
+				84FD3DB82540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -2579,6 +2589,7 @@
 				84DA3B1324C6D7C700B5E27F /* RuntimeDispatchInfo.swift */,
 				8423B0E1251A769300B8687C /* RPCMethod.swift */,
 				84DF21B62539039B005454AE /* ReconnectionStrategy.swift */,
+				84FD3DB42540ED0900A234E3 /* Block.swift */,
 			);
 			path = JSONRPC;
 			sourceTree = "<group>";
@@ -2727,6 +2738,7 @@
 				840882AF2514024800177E20 /* SelectedConnectionChanged.swift */,
 				843910B3253EE52100E3C217 /* WalletBalanceChanged.swift */,
 				843910BA253F021E00E3C217 /* WalletStakingChanged.swift */,
+				84FD3DBA254104B600A234E3 /* WalletNewTransactionEvent.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -3278,6 +3290,7 @@
 				840882B62514A5ED00177E20 /* ConnectionUsernameWireframe.swift in Sources */,
 				84C74361251E4B5E009576C6 /* FeeType.swift in Sources */,
 				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
+				84FD3DB52540ED0900A234E3 /* Block.swift in Sources */,
 				843C49DD24DF397800B71DDA /* AccountImportSource.swift in Sources */,
 				84DA3B0E24C5AEB600B5E27F /* TransferCall.swift in Sources */,
 				8494D86B25247F9600614D8F /* Decimal+String.swift in Sources */,
@@ -3368,6 +3381,7 @@
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
+				84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */,
 				8434C9F02540B845009E4191 /* SubstrateAccountId.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
@@ -3390,6 +3404,7 @@
 				8490147824A94A37008F705E /* RootPresenterFactory.swift in Sources */,
 				849014C224AA87E4008F705E /* LocalAuthPresenter.swift in Sources */,
 				842876AB24AE049B00D91AD8 /* SelectionItemViewProtocol.swift in Sources */,
+				84FD3DBB254104B600A234E3 /* WalletNewTransactionEvent.swift in Sources */,
 				8428765C24ADDE0200D91AD8 /* ProfileViewController.swift in Sources */,
 				84DF21B525388B35005454AE /* Scheduler.swift in Sources */,
 				8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */,
@@ -3419,6 +3434,7 @@
 				846A2C4325271CDE00731018 /* TransactionType.swift in Sources */,
 				84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
+				84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				843910AE253EC73D00E3C217 /* StakingInfoSubscription.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,

@@ -31,7 +31,6 @@ extension TransactionHistoryItem {
                                       blockNumber: nil,
                                       txIndex: nil)
     }
-
 }
 
 extension TransactionHistoryItem.Status {

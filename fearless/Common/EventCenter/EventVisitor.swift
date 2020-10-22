@@ -5,6 +5,7 @@ protocol EventVisitorProtocol: class {
     func processSelectedConnectionChanged(event: SelectedConnectionChanged)
     func processBalanceChanged(event: WalletBalanceChanged)
     func processStakingChanged(event: WalletStakingInfoChanged)
+    func processNewTransaction(event: WalletNewTransactionInserted)
 }
 
 extension EventVisitorProtocol {
@@ -12,4 +13,5 @@ extension EventVisitorProtocol {
     func processSelectedConnectionChanged(event: SelectedConnectionChanged) {}
     func processBalanceChanged(event: WalletBalanceChanged) {}
     func processStakingChanged(event: WalletStakingInfoChanged) {}
+    func processNewTransaction(event: WalletNewTransactionInserted) {}
 }
