@@ -1,5 +1,10 @@
 import Foundation
 
+struct SignedBlock: Decodable {
+    let block: Block
+    let justification: Data?
+}
+
 struct Block: Decodable {
     struct Digest: Decodable {
         let logs: [String]
@@ -7,7 +12,7 @@ struct Block: Decodable {
 
     struct Header: Decodable {
         let digest: Digest
-        let extrinsicRoot: String
+        let extrinsicsRoot: String
         let number: String
         let stateRoot: String
         let parentHash: String

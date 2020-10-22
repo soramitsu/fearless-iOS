@@ -3,13 +3,11 @@ import IrohaCrypto
 import FearlessUtils
 
 extension TransactionHistoryItem {
-    static func createFromExtrinsic(_ extrinsic: Extrinsic,
-                                    fee: Decimal,
-                                    address: String,
-                                    txHash: Data,
-                                    blockNumber: UInt32,
-                                    txIndex: Int16,
-                                    addressFactory: SS58AddressFactoryProtocol) -> TransactionHistoryItem? {
+    static func createFromSubscriptionResult(_ result: TransferSubscriptionResult,
+                                             fee: Decimal,
+                                             address: String,
+                                             addressFactory: SS58AddressFactoryProtocol)
+        -> TransactionHistoryItem? {
         do {
             let typeRawValue = try addressFactory.type(fromAddress: address)
 
@@ -17,48 +15,29 @@ extension TransactionHistoryItem {
                 return nil
             }
 
-            guard let txOrigin = extrinsic.transaction?.accountId else {
+            guard let txOrigin = result.extrinsic.transaction?.accountId else {
                 return nil
             }
-
-            guard extrinsic.call.moduleIndex == ExtrinsicConstants.balanceModuleIndex else {
-                return nil
-            }
-
-            let isValidCallIndex = [
-                ExtrinsicConstants.transferCallIndex,
-                ExtrinsicConstants.keepAliveTransferIndex
-            ].contains(extrinsic.call.callIndex)
-
-            guard isValidCallIndex else {
-                return nil
-            }
-
-            guard let argData = extrinsic.call.arguments else {
-                return nil
-            }
-
-            let transferData = try TransferCall(scaleDecoder: ScaleDecoder(data: argData))
 
             let sender = try addressFactory.address(fromPublicKey: AccountIdWrapper(rawData: txOrigin),
                                                     type: addressType)
             let receiver = try addressFactory
-                .address(fromPublicKey: AccountIdWrapper(rawData: transferData.receiver),
+                .address(fromPublicKey: AccountIdWrapper(rawData: result.call.receiver),
                          type: addressType)
 
             let timestamp = Int64(Date().timeIntervalSince1970)
-            let amount = Decimal.fromSubstrateAmount(transferData.amount,
+            let amount = Decimal.fromSubstrateAmount(result.call.amount,
                                                      precision: addressType.precision) ?? .zero
 
             return TransactionHistoryItem(sender: sender,
                                           receiver: receiver,
                                           status: .success,
-                                          txHash: txHash.toHex(includePrefix: true),
+                                          txHash: result.extrinsicHash.toHex(includePrefix: true),
                                           timestamp: timestamp,
                                           amount: amount.stringWithPointSeparator,
                                           fee: fee.stringWithPointSeparator,
-                                          blockNumber: Int64(blockNumber),
-                                          txIndex: txIndex)
+                                          blockNumber: result.blockNumber,
+                                          txIndex: result.txIndex)
 
         } catch {
             return nil

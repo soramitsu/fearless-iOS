@@ -108,6 +108,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let operation = txStorage.fetchAllOperation(with: RepositoryFetchOptions())
             dependencies.append(operation)
 
+            operation.addDependency(fetchOperation)
+
             localFetchOperation = operation
         } else {
             localFetchOperation = nil
