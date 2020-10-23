@@ -499,6 +499,8 @@
 		84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0682542EBDE00319F74 /* SearchData+Contacts.swift */; };
 		84FAB06B2542F2C700319F74 /* ContactsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB06A2542F2C700319F74 /* ContactsViewModelFactory.swift */; };
 		84FAB06D254303DA00319F74 /* ContactViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB06C254303DA00319F74 /* ContactViewModel.swift */; };
+		84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB071254366ED00319F74 /* ContactTableViewCell.swift */; };
+		84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB07325436D6300319F74 /* ContactsConstants.swift */; };
 		84FB1F652526879200E0242B /* WalletSingleProviderIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */; };
 		84FB1F672526920B00E0242B /* SubscanHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F662526920B00E0242B /* SubscanHistoryData.swift */; };
 		84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F68252694B600E0242B /* HistoryInfo.swift */; };
@@ -1086,6 +1088,8 @@
 		84FAB0682542EBDE00319F74 /* SearchData+Contacts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SearchData+Contacts.swift"; sourceTree = "<group>"; };
 		84FAB06A2542F2C700319F74 /* ContactsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModelFactory.swift; sourceTree = "<group>"; };
 		84FAB06C254303DA00319F74 /* ContactViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactViewModel.swift; sourceTree = "<group>"; };
+		84FAB071254366ED00319F74 /* ContactTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactTableViewCell.swift; sourceTree = "<group>"; };
+		84FAB07325436D6300319F74 /* ContactsConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConstants.swift; sourceTree = "<group>"; };
 		84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSingleProviderIdFactory.swift; sourceTree = "<group>"; };
 		84FB1F662526920B00E0242B /* SubscanHistoryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanHistoryData.swift; sourceTree = "<group>"; };
 		84FB1F68252694B600E0242B /* HistoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryInfo.swift; sourceTree = "<group>"; };
@@ -1704,6 +1708,7 @@
 		84585A32251CE1BF00390F7A /* Contacts */ = {
 			isa = PBXGroup;
 			children = (
+				84FAB070254366D100319F74 /* View */,
 				84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */,
 				84969733251CE9CD00C39524 /* ContactsConfigurator.swift */,
 				84969735251CEC3F00C39524 /* ContactsActionFactory.swift */,
@@ -2816,6 +2821,15 @@
 			path = Events;
 			sourceTree = "<group>";
 		};
+		84FAB070254366D100319F74 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				84FAB071254366ED00319F74 /* ContactTableViewCell.swift */,
+				84FAB07325436D6300319F74 /* ContactsConstants.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		84FB1F702526AB1200E0242B /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -3529,6 +3543,7 @@
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
 				84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
+				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				843910AE253EC73D00E3C217 /* StakingInfoSubscription.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
 				8428766424ADE1E400D91AD8 /* ProfileView.swift in Sources */,
@@ -3594,6 +3609,7 @@
 				8460E12925422C5A00826F55 /* WalletCompoundDetailsViewModel.swift in Sources */,
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
 				84364D60252FD6B100281F9A /* AssetDetailsViewModelFactory.swift in Sources */,
+				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,

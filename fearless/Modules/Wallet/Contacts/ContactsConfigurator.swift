@@ -62,6 +62,7 @@ final class ContactsConfigurator {
         }
 
         builder
+            .with(cellClass: ContactTableViewCell.self, for: ContactsConstants.contactCellIdentifier)
             .with(localSearchEngine: localSearchEngine)
             .with(actionFactoryWrapper: actionFactory)
             .with(canFindItself: false)

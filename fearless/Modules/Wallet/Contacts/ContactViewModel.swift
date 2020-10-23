@@ -2,6 +2,9 @@ import Foundation
 import CommonWallet
 
 final class ContactViewModel: ContactsLocalSearchResultProtocol {
+    var cellReuseIdentifier: String { ContactsConstants.contactCellIdentifier }
+    var itemHeight: CGFloat { ContactsConstants.contactCellHeight }
+
     let firstName: String
     let lastName: String
     let accountId: String
