@@ -2,12 +2,12 @@ import Foundation
 import CommonWallet
 
 struct ContactsActionFactory: ContactsActionFactoryWrapperProtocol {
-    func createBarActionForAccountId(_ accountId: String, assetId: String) -> WalletBarActionViewModelProtocol? {
-        guard let qrIcon = R.image.iconScanQr() else {
-            return nil
-        }
+    func createOptionListForAccountId(_ accountId: String, assetId: String, locale: Locale?)
+        -> [SendOptionViewModelProtocol]? {
+        []
+    }
 
-        return WalletBarActionViewModel(displayType: .icon(qrIcon),
-                                        command: StubCommandDecorator())
+    func createBarActionForAccountId(_ accountId: String, assetId: String) -> WalletBarActionViewModelProtocol? {
+        nil
     }
 }
