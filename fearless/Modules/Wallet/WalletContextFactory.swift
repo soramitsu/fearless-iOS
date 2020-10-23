@@ -123,6 +123,11 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                        assets: accountSettings.assets)
             .configure(builder: builder.historyModuleBuilder)
 
+        TransactionDetailsConfigurator(address: selectedAccount.address,
+                                       amountFormatterFactory: amountFormatterFactory,
+                                       assets: accountSettings.assets)
+            .configure(builder: builder.transactionDetailsModuleBuilder)
+
         let transferConfigurator = TransferConfigurator(assets: accountSettings.assets,
                                                         amountFormatterFactory: amountFormatterFactory,
                                                         localizationManager: localizationManager)

@@ -1,10 +1,9 @@
 import Foundation
 import CommonWallet
 
-struct TransferConfirmDefinitionFactory: WalletFormDefinitionFactoryProtocol {
+struct WalletFearlessDefinitionFactory: WalletFormDefinitionFactoryProtocol {
     func createDefinitionWithBinder(_ binder: WalletFormViewModelBinderProtocol,
                                     itemFactory: WalletFormItemViewFactoryProtocol) -> WalletFormDefining {
-        TransferConfirmDefinition(binder: binder,
-                                  itemViewFactory: itemFactory)
+        WalletFearlessDefinition(binder: binder, itemViewFactory: itemFactory)
     }
 }

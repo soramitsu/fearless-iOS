@@ -31,7 +31,7 @@ final class TransferConfirmConfigurator {
             .with(completion: .hide)
             .with(viewModelFactoryOverriding: viewModelFactory)
             .with(viewBinder: TransferConfirmBinder())
-            .with(definitionFactory: TransferConfirmDefinitionFactory())
+            .with(definitionFactory: WalletFearlessDefinitionFactory())
             .with(accessoryViewFactory: TransferConfirmAccessoryViewFactory.self)
     }
 }

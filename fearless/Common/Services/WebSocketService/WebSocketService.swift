@@ -131,7 +131,7 @@ extension WebSocketService: WebSocketEngineDelegate {
                                  to newState: WebSocketEngine.State) {
         switch newState {
         case .connecting(let attempt):
-            if attempt > 0 {
+            if attempt > 1 {
                 scheduleNetworkUnreachable()
             }
         case .connected:

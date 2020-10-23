@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import SoraFoundation
 
 final class TransactionHistoryConfigurator {
     private lazy var transactionCellStyle: TransactionCellStyleProtocol = {
@@ -39,6 +40,11 @@ final class TransactionHistoryConfigurator {
     }
 
     func configure(builder: HistoryModuleBuilderProtocol) {
+        let title = LocalizableResource { locale in
+            return R.string.localizable
+                .walletHistoryTitle(preferredLanguages: locale.rLanguages)
+        }
+
         builder
             .with(itemViewModelFactory: viewModelFactory)
             .with(emptyStateDataSource: WalletEmptyStateDataSource.history)
@@ -49,5 +55,6 @@ final class TransactionHistoryConfigurator {
             .with(transactionHeaderStyle: headerStyle)
             .with(supportsFilter: false)
             .with(includesFeeInAmount: false)
+            .with(localizableTitle: title)
     }
 }

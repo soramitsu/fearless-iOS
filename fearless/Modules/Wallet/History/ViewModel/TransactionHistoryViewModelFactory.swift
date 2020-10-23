@@ -24,6 +24,7 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
     }
 
     func createItemFromData(_ data: AssetTransactionData,
+                            commandFactory: WalletCommandFactoryProtocol,
                             locale: Locale) throws -> WalletViewModelProtocol {
         guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
             throw TransactionHistoryViewModelFactoryError.missingAsset
@@ -59,12 +60,14 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
             throw TransactionHistoryViewModelFactoryError.unsupportedType
         }
 
+        let command = commandFactory.prepareTransactionDetailsCommand(with: data)
+
         return HistoryItemViewModel(title: data.peerName ?? "",
                                     details: details,
                                     amount: amount,
                                     direction: transactionType,
                                     status: data.status,
                                     imageViewModel: imageViewModel,
-                                    command: nil)
+                                    command: command)
     }
 }

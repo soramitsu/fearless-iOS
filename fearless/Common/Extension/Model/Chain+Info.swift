@@ -22,4 +22,26 @@ extension Chain {
             return Decimal(string: "0.01")!
         }
     }
+
+    func polkascanExtrinsicURL(_ hash: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkascan.io/polkadot/extrinsic/\(hash)")
+        case .kusama:
+            return URL(string: "https://polkascan.io/kusama/extrinsic/\(hash)")
+        case .westend:
+            return nil
+        }
+    }
+
+    func subscanExtrinsicURL(_ hash: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkadot.subscan.io/extrinsic/\(hash)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
+        case .westend:
+            return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
+        }
+    }
 }
