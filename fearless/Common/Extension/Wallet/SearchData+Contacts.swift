@@ -9,9 +9,12 @@ extension SearchData {
         let accountId = try addressFactory.accountId(fromAddress: contactItem.peerAddress,
                                                      type: networkType)
 
+        let contactContext = ContactContext(destination: .remote)
+
         return SearchData(accountId: accountId.toHex(),
                           firstName: contactItem.peerAddress,
-                          lastName: contactItem.peerName ?? "")
+                          lastName: contactItem.peerName ?? "",
+                          context: contactContext.toContext())
     }
 
     static func createFromAccountItem(_ accountItem: ManagedAccountItem,
@@ -19,8 +22,11 @@ extension SearchData {
         let accountId = try addressFactory.accountId(fromAddress: accountItem.address,
                                                      type: accountItem.networkType)
 
+        let contactContext = ContactContext(destination: .local)
+
         return SearchData(accountId: accountId.toHex(),
                           firstName: accountItem.address,
-                          lastName: accountItem.username)
+                          lastName: accountItem.username,
+                          context: contactContext.toContext())
     }
 }
