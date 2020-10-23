@@ -151,6 +151,7 @@
 "wallet.contacts.search.placeholder" = "Адреса рахунку або назва рахунку";
 "wallet.balance.available" = "Доступні";
 "wallet.transfer.total.title" = "Разом";
+"wallet.search.contacts" = "Контакти";
 "wallet.balance.frozen" = "Заморожений";
 "transaction.status.completed" = "Завершено";
 "transaction.status.failed" = "Помилка";
@@ -175,3 +176,4 @@
 "common.warning" = "Увага";
 "network.status.connecting" = "Підключення ...";
 "network.status.connected" = "Підключено";
+"wallet.search.accounts" = "мої рахунки";

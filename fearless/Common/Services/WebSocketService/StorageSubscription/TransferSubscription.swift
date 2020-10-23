@@ -13,28 +13,34 @@ struct TransferSubscriptionResult {
     let txIndex: Int16
 }
 
+private typealias ResultAndFeeOperationWrapper =
+    CompoundOperationWrapper<(TransferSubscriptionResult, Decimal)>
+
 final class TransferSubscription {
     let engine: JSONRPCEngine
     let address: String
-    let addressType: SNAddressType
+    let networkType: SNAddressType
     let addressFactory: SS58AddressFactoryProtocol
     let storage: AnyDataProviderRepository<TransactionHistoryItem>
+    let contactOperationFactory: WalletContactOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol
 
     init(engine: JSONRPCEngine,
          address: String,
-         addressType: SNAddressType,
+         networkType: SNAddressType,
          addressFactory: SS58AddressFactoryProtocol,
          storage: AnyDataProviderRepository<TransactionHistoryItem>,
+         contactOperationFactory: WalletContactOperationFactoryProtocol,
          operationManager: OperationManagerProtocol,
          eventCenter: EventCenterProtocol,
          logger: LoggerProtocol) {
         self.engine = engine
         self.address = address
-        self.addressType = addressType
+        self.networkType = networkType
         self.addressFactory = addressFactory
+        self.contactOperationFactory = contactOperationFactory
         self.storage = storage
         self.operationManager = operationManager
         self.eventCenter = eventCenter
@@ -74,59 +80,21 @@ final class TransferSubscription {
             return
         }
 
-        var wrappers: [CompoundOperationWrapper<(TransferSubscriptionResult, Decimal)>] = []
+        let feeWrappers = createFeeWrappersFromResults(results)
 
-        for result in results {
-            let feeOperation: BaseOperation<RuntimeDispatchInfo> =
-                JSONRPCOperation(engine: engine,
-                                 method: RPCMethod.paymentInfo,
-                                 parameters: [result.encodedExtrinsic])
+        let contactWrappers = createContactSaveForResults(results)
 
-            let mapOperation: BaseOperation<(TransferSubscriptionResult, Decimal)> = ClosureOperation {
-                do {
-                    let feeString = try feeOperation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                        .fee
-
-                    let fee = Decimal.fromSubstrateAmount(BigUInt(feeString) ?? BigUInt(0),
-                                                          precision: self.addressType.precision) ?? .zero
-
-                    self.logger.debug("Did receive fee: \(result.extrinsicHash) \(fee)")
-                    return (result, fee)
-                } catch {
-                    self.logger.warning("Failed to receive fee: \(result.extrinsicHash) \(error)")
-                    return (result, .zero)
-                }
-            }
-
-            mapOperation.addDependency(feeOperation)
-
-            wrappers.append(CompoundOperationWrapper(targetOperation: mapOperation,
-                                                     dependencies: [feeOperation]))
-        }
-
-        let saveOperation = storage.saveOperation({
-            wrappers.compactMap { wrapper in
-                do {
-                    let feeResult = try wrapper.targetOperation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                    return TransactionHistoryItem.createFromSubscriptionResult(feeResult.0,
-                                                                               fee: feeResult.1,
-                                                                               address: self.address,
-                                                                               addressFactory: self.addressFactory)
-                } catch {
-                    self.logger.error("Failed to save received extrinsic")
-                    return nil
-                }
-            }
-        }, { [] })
-
-        let dependencies: [Operation] = wrappers.reduce([]) { (result, wrapper) in
+        let contactDependencies = contactWrappers.reduce([]) { (result, wrapper) in
             result + wrapper.allOperations
         }
 
-        dependencies.forEach { saveOperation.addDependency($0) }
+        let saveOperation = createTxSaveDependingOnFee(wrappers: feeWrappers)
+
+        let txDependencies: [Operation] = feeWrappers.reduce([]) { (result, wrapper) in
+            result + wrapper.allOperations
+        }
+
+        txDependencies.forEach { saveOperation.addDependency($0) }
 
         saveOperation.completionBlock = {
             switch saveOperation.result {
@@ -142,7 +110,91 @@ final class TransferSubscription {
             }
         }
 
-        operationManager.enqueue(operations: dependencies + [saveOperation], in: .sync)
+        let allOperations = contactDependencies + txDependencies + [saveOperation]
+
+        operationManager.enqueue(operations: allOperations, in: .sync)
+    }
+}
+
+extension TransferSubscription {
+    private func createFeeWrappersFromResults(_ results: [TransferSubscriptionResult])
+        -> [ResultAndFeeOperationWrapper] {
+        results.map { result in
+            let feeOperation: BaseOperation<RuntimeDispatchInfo> =
+                JSONRPCOperation(engine: engine,
+                                 method: RPCMethod.paymentInfo,
+                                 parameters: [result.encodedExtrinsic])
+
+            let mapOperation: BaseOperation<(TransferSubscriptionResult, Decimal)> = ClosureOperation {
+                do {
+                    let feeString = try feeOperation
+                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                        .fee
+
+                    let fee = Decimal.fromSubstrateAmount(BigUInt(feeString) ?? BigUInt(0),
+                                                          precision: self.networkType.precision) ?? .zero
+
+                    self.logger.debug("Did receive fee: \(result.extrinsicHash) \(fee)")
+                    return (result, fee)
+                } catch {
+                    self.logger.warning("Failed to receive fee: \(result.extrinsicHash) \(error)")
+                    return (result, .zero)
+                }
+            }
+
+            mapOperation.addDependency(feeOperation)
+
+            return CompoundOperationWrapper(targetOperation: mapOperation,
+                                            dependencies: [feeOperation])
+        }
+    }
+
+    private func createTxSaveDependingOnFee(wrappers: [ResultAndFeeOperationWrapper])
+        -> BaseOperation<Void> {
+        storage.saveOperation({
+            wrappers.compactMap { wrapper in
+                do {
+                    let feeResult = try wrapper.targetOperation
+                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+                    return TransactionHistoryItem.createFromSubscriptionResult(feeResult.0,
+                                                                               fee: feeResult.1,
+                                                                               address: self.address,
+                                                                               addressFactory: self.addressFactory)
+                } catch {
+                    self.logger.error("Failed to save received extrinsic")
+                    return nil
+                }
+            }
+        }, { [] })
+    }
+
+    private func createContactSaveForResults(_ results: [TransferSubscriptionResult])
+        -> [CompoundOperationWrapper<Void>] {
+        do {
+            let accountId = try addressFactory.accountId(fromAddress: address,
+                                                         type: networkType)
+
+            let contacts: Set<Data> = Set(
+                results.compactMap { result in
+                    if let origin = result.extrinsic.transaction?.accountId, origin != accountId {
+                        return origin
+                    } else {
+                        return result.call.receiver
+                    }
+                }
+            )
+
+            return try contacts.map { accountId in
+                let address = try addressFactory
+                    .address(fromPublicKey: AccountIdWrapper(rawData: accountId),
+                             type: networkType)
+
+                return contactOperationFactory.saveByAddressOperation(address)
+            }
+        } catch {
+            return [CompoundOperationWrapper<Void>.createWithError(error)]
+        }
     }
 
     private func createParseOperation(dependingOn fetchOperation: BaseOperation<SignedBlock>)

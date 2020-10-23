@@ -44,26 +44,20 @@ final class ContactsConfigurator {
     private lazy var sectionHeaderStyle: ContactsSectionStyleProtocol = {
         let title = WalletTextStyle(font: UIFont.capsTitle,
                                     color: R.color.colorLightGray()!)
-        return ContactsSectionStyle(title: title, uppercased: true)
+        return ContactsSectionStyle(title: title,
+                                    uppercased: true,
+                                    height: 30.0,
+                                    displaysSeparatorForLastCell: false)
     }()
 
-    weak var commandFactory: WalletCommandFactoryProtocol? {
-        get {
-            localSearchEngine.commandFactory
-        }
-
-        set {
-            localSearchEngine.commandFactory = newValue
-        }
-    }
-
-    init(networkType: SNAddressType, address: String) {
+    init(networkType: SNAddressType) {
+        let viewModelFactory = ContactsViewModelFactory()
         localSearchEngine = ContactsLocalSearchEngine(networkType: networkType,
-                                                      address: address)
+                                                      contactViewModelFactory: viewModelFactory)
     }
 
     func configure(builder: ContactsModuleBuilderProtocol) {
-        let actionFactory = ContactsActionFactory()
+        let listViewModelFactory = ContactsListViewModelFactory()
 
         let searchPlaceholder = LocalizableResource { locale in
             R.string.localizable
@@ -71,9 +65,9 @@ final class ContactsConfigurator {
         }
 
         builder
+            .with(cellClass: ContactTableViewCell.self, for: ContactsConstants.contactCellIdentifier)
             .with(localSearchEngine: localSearchEngine)
-            .with(scanPosition: .barButton)
-            .with(actionFactoryWrapper: actionFactory)
+            .with(listViewModelFactory: listViewModelFactory)
             .with(canFindItself: false)
             .with(supportsLiveSearch: true)
             .with(searchEmptyStateDataSource: WalletEmptyStateDataSource.search)
@@ -82,5 +76,6 @@ final class ContactsConfigurator {
             .with(contactCellStyle: contactCellStyle)
             .with(sectionHeaderStyle: sectionHeaderStyle)
             .with(searchPlaceholder: searchPlaceholder)
+            .with(viewModelFactoryWrapper: localSearchEngine.contactViewModelFactory)
     }
 }

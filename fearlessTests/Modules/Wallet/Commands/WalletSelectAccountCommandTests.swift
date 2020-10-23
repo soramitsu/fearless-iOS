@@ -39,7 +39,7 @@ class WalletSelectAccountCommandTests: XCTestCase {
         let repositoryFactory = MockAccountRepositoryFactoryProtocol()
 
         stub(repositoryFactory) { stub in
-            when(stub).createAccountRepsitory(for: any())
+            when(stub).createAccountRepository(for: any())
                 .thenReturn(AnyDataProviderRepository(accountsRepository))
             when(stub).operationManager.get.thenReturn(OperationManager())
         }

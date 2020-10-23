@@ -4,6 +4,13 @@
         <attribute name="data" optional="YES" attributeType="Binary"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
     </entity>
+    <entity name="CDContactItem" representedClassName="CDContactItem" syncable="YES" codeGenerationType="class">
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="peerAddress" optional="YES" attributeType="String"/>
+        <attribute name="peerName" optional="YES" attributeType="String"/>
+        <attribute name="targetAddress" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
     <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="String"/>
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
@@ -18,5 +25,6 @@
     <elements>
         <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="178"/>
+        <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
     </elements>
 </model>

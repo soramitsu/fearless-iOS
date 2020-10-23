@@ -3,82 +3,44 @@ import CommonWallet
 import IrohaCrypto
 import FearlessUtils
 
-private final class ContactViewModel: ContactsLocalSearchResultProtocol {
-    let firstName: String
-    let lastName: String
-    let accountId: String
-    let image: UIImage?
-    let name: String
-    let command: WalletCommandProtocol?
-
-    init(firstName: String,
-         lastName: String,
-         accountId: String,
-         image: UIImage?,
-         name: String,
-         command: WalletCommandProtocol?) {
-        self.firstName = firstName
-        self.lastName = lastName
-        self.accountId = accountId
-        self.image = image
-        self.name = name
-        self.command = command
-    }
-}
-
 final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
-
-    weak var commandFactory: WalletCommandFactoryProtocol?
-
-    let address: String
+    let contactViewModelFactory: ContactsFactoryWrapperProtocol
     let networkType: SNAddressType
 
-    private let addressFactory = SS58AddressFactory()
+    private lazy var addressFactory = SS58AddressFactory()
 
-    private let iconGenerator = PolkadotIconGenerator()
-
-    init(networkType: SNAddressType, address: String) {
+    init(networkType: SNAddressType, contactViewModelFactory: ContactsFactoryWrapperProtocol) {
+        self.contactViewModelFactory = contactViewModelFactory
         self.networkType = networkType
-        self.address = address
     }
 
-    func search(query: String, assetId: String) -> [ContactViewModelProtocol]? {
+    func search(query: String,
+                accountId: String,
+                assetId: String,
+                delegate: ContactViewModelDelegate?) -> [ContactViewModelProtocol]? {
         do {
-            guard query != address else {
+            let peerId = try addressFactory.accountId(fromAddress: query, type: networkType)
+            let accountIdData = try Data(hexString: accountId)
+
+            guard peerId != accountIdData  else {
                 return []
             }
 
-            let accountId = try addressFactory.accountId(fromAddress: query, type: networkType)
+            let searchData = SearchData(accountId: peerId.toHex(),
+                                        firstName: query,
+                                        lastName: "")
 
-            let receiver = ReceiveInfo(accountId: accountId.toHex(),
-                                       assetId: assetId,
-                                       amount: nil,
-                                       details: nil)
-
-            let payload = TransferPayload(receiveInfo: receiver,
-                                          receiverName: query)
-
-            guard let command = commandFactory?.prepareTransfer(with: payload) else {
-                return []
+            guard let viewModel = contactViewModelFactory
+                .createContactViewModelFromContact(searchData,
+                                                   accountId: accountId,
+                                                   assetId: assetId,
+                                                   delegate: delegate) else {
+                return nil
             }
 
-            command.presentationStyle = .push(hidesBottomBar: true)
-
-            let icon = try iconGenerator.generateFromAddress(query)
-                .imageWithFillColor(.white,
-                                    size: CGSize(width: 24.0, height: 24.0),
-                                    contentScale: UIScreen.main.scale)
-
-            let result = ContactViewModel(firstName: query,
-                                          lastName: "",
-                                          accountId: receiver.accountId,
-                                          image: icon,
-                                          name: query,
-                                          command: command)
-
-            return [result]
+            return [viewModel]
         } catch {
-            return []
+            return nil
         }
 
     }
