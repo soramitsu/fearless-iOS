@@ -220,8 +220,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             return result?.filter {
-                $0.firstName.lowercased().starts(with: normalizedSearch) ||
-                $0.lastName.starts(with: normalizedSearch)
+                ($0.firstName.lowercased().range(of: normalizedSearch) != nil) ||
+                ($0.lastName.lowercased().range(of: normalizedSearch) != nil)
             }
         }
 
