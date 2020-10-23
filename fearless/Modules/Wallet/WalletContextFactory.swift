@@ -86,17 +86,30 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let subscanOperationFactory = SubscanOperationFactory()
 
+        let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            substrateStorageFacade.createRepository()
 
         let txFilter = NSPredicate.filterTransactionsBy(address: selectedAccount.address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             SubstrateDataStorageFacade.shared.createRepository(filter: txFilter)
+
+        let contactOperationFactory = WalletContactOperationFactory(storageFacade: substrateStorageFacade,
+                                                                    targetAddress: selectedAccount.address)
+
+        let accountStorage: CoreDataRepository<ManagedAccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared
+            .createRepository(filter: NSPredicate.filterAccountBy(networkType: networkType),
+                              sortDescriptors: [NSSortDescriptor.accountsByOrder],
+                              mapper: AnyCoreDataMapper(ManagedAccountItemMapper()))
+
         let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
                                                 nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,
                                                 chainStorage: AnyDataProviderRepository(chainStorage),
                                                 txStorage: AnyDataProviderRepository(txStorage),
+                                                contactsOperationFactory: contactOperationFactory,
+                                                accountsRepository: AnyDataProviderRepository(accountStorage),
                                                 address: selectedAccount.address,
                                                 networkType: networkType,
                                                 totalPriceAssetId: .usd)
@@ -137,8 +150,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                                               amountFormatterFactory: amountFormatterFactory)
         confirmConfigurator.configure(builder: builder.transferConfirmationBuilder)
 
-        let contactsConfigurator = ContactsConfigurator(networkType: networkType,
-                                                        address: selectedAccount.address)
+        let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
         let context = try builder.build()
@@ -147,7 +159,6 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                          localizationManager: localizationManager,
                                          logger: logger)
 
-        contactsConfigurator.commandFactory = context
         transferConfigurator.commandFactory = context
         confirmConfigurator.commandFactory = context
 

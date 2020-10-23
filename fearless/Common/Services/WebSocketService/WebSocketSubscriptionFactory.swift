@@ -14,7 +14,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let transferSubscription = createTransferSubscription(address: address,
                                                               engine: engine,
-                                                              addressType: type,
+                                                              networkType: type,
                                                               addressFactory: addressFactory)
 
         let accountSubscription = try createAccountInfoSubscription(transferSubscription: transferSubscription,
@@ -101,18 +101,24 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
     private func createTransferSubscription(address: String,
                                             engine: JSONRPCEngine,
-                                            addressType: SNAddressType,
+                                            networkType: SNAddressType,
                                             addressFactory: SS58AddressFactoryProtocol)
         -> TransferSubscription {
+        let storageFacade = SubstrateDataStorageFacade.shared
+
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let storage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
-                SubstrateDataStorageFacade.shared.createRepository(filter: filter)
+                storageFacade.createRepository(filter: filter)
+
+        let contactOperationFactory = WalletContactOperationFactory(storageFacade: storageFacade,
+                                                                    targetAddress: address)
 
         return TransferSubscription(engine: engine,
                                     address: address,
-                                    addressType: addressType,
+                                    networkType: networkType,
                                     addressFactory: addressFactory,
                                     storage: AnyDataProviderRepository(storage),
+                                    contactOperationFactory: contactOperationFactory,
                                     operationManager: OperationManagerFacade.sharedManager,
                                     eventCenter: EventCenter.shared,
                                     logger: Logger.shared)

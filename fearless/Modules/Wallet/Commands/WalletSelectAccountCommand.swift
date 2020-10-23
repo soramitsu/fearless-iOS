@@ -85,7 +85,7 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
         }
 
         let networkType = settings.selectedConnection.type
-        let repository = repositoryFactory.createAccountRepsitory(for: networkType)
+        let repository = repositoryFactory.createAccountRepository(for: networkType)
         let fetchAllOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         self.repository = repository

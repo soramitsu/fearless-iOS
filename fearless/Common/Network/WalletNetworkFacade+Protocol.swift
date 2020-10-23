@@ -151,50 +151,127 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     }
 
     func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {
-        let currentNetworkType = networkType
+        do {
+            let currentNetworkType = networkType
 
-        let transferWrapper = nodeOperationFactory.transferOperation(info)
+            let transferWrapper = nodeOperationFactory.transferOperation(info)
 
-        let saveOperation = txStorage.saveOperation({
-            switch transferWrapper.targetOperation.result {
-            case .success(let txHash):
-                let addressFactory = SS58AddressFactory()
-                let item = try TransactionHistoryItem
-                    .createFromTransferInfo(info,
-                                            transactionHash: txHash,
-                                            networkType: currentNetworkType,
-                                            addressFactory: addressFactory)
-                return [item]
-            case .failure(let error):
-                throw error
-            case .none:
-                throw BaseOperationError.parentOperationCancelled
+            let addressFactory = SS58AddressFactory()
+
+            let destinationId = try Data(hexString: info.destination)
+            let destinationAddress = try addressFactory
+                .address(fromPublicKey: AccountIdWrapper(rawData: destinationId),
+                         type: currentNetworkType)
+            let contactSaveWrapper = contactsOperationFactory.saveByAddressOperation(destinationAddress)
+
+            let txSaveOperation = txStorage.saveOperation({
+                switch transferWrapper.targetOperation.result {
+                case .success(let txHash):
+                    let item = try TransactionHistoryItem
+                        .createFromTransferInfo(info,
+                                                transactionHash: txHash,
+                                                networkType: currentNetworkType,
+                                                addressFactory: addressFactory)
+                    return [item]
+                case .failure(let error):
+                    throw error
+                case .none:
+                    throw BaseOperationError.parentOperationCancelled
+                }
+            }, { [] })
+
+            transferWrapper.allOperations.forEach { transaferOperation in
+                txSaveOperation.addDependency(transaferOperation)
+
+                contactSaveWrapper.allOperations.forEach { $0.addDependency(transaferOperation) }
             }
-        }, { [] })
 
-        transferWrapper.allOperations.forEach { saveOperation.addDependency($0) }
+            let completionOperation: BaseOperation<Data> = ClosureOperation {
+                try txSaveOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-        let completionOperation: BaseOperation<Data> = ClosureOperation {
-            try saveOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                try contactSaveWrapper.targetOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-            return try transferWrapper.targetOperation
-                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                return try transferWrapper.targetOperation
+                            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            }
+
+            let dependencies = [txSaveOperation] + contactSaveWrapper.allOperations +
+                transferWrapper.allOperations
+
+            completionOperation.addDependency(txSaveOperation)
+            completionOperation.addDependency(contactSaveWrapper.targetOperation)
+
+            return CompoundOperationWrapper(targetOperation: completionOperation,
+                                            dependencies: dependencies)
+        } catch {
+            return CompoundOperationWrapper.createWithError(error)
         }
-
-        let dependencies = [saveOperation] + transferWrapper.allOperations
-
-        completionOperation.addDependency(saveOperation)
-
-        return CompoundOperationWrapper(targetOperation: completionOperation,
-                                        dependencies: dependencies)
     }
 
     func searchOperation(_ searchString: String) -> CompoundOperationWrapper<[SearchData]?> {
-        nodeOperationFactory.searchOperation(searchString)
+        let fetchOperation = contactsOperation()
+
+        let normalizedSearch = searchString.lowercased()
+
+        let filterOperation: BaseOperation<[SearchData]?> = ClosureOperation {
+            let result = try fetchOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            return result?.filter {
+                $0.firstName.lowercased().starts(with: normalizedSearch) ||
+                $0.lastName.starts(with: normalizedSearch)
+            }
+        }
+
+        let dependencies = fetchOperation.allOperations
+        dependencies.forEach { filterOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: filterOperation,
+                                        dependencies: dependencies)
     }
 
     func contactsOperation() -> CompoundOperationWrapper<[SearchData]?> {
-        nodeOperationFactory.contactsOperation()
+        let currentNetworkType = networkType
+
+        let accountsOperation = accountsRepository.fetchAllOperation(with: RepositoryFetchOptions())
+        let contactsOperation = contactsOperationFactory.fetchContactsOperation()
+        let mapOperation: BaseOperation<[SearchData]?> = ClosureOperation {
+            let accounts = try accountsOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            let existingAddresses = Set<String>(
+                accounts.map { $0.address }
+            )
+
+            let addressFactory = SS58AddressFactory()
+
+            let accountsResult = try accounts.map {
+                try SearchData.createFromAccountItem($0,
+                                                     addressFactory: addressFactory)
+            }
+
+            let contacts = try contactsOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                .filter({ !existingAddresses.contains($0.peerAddress) })
+
+            let contactsResult = try contacts.map { contact in
+                try SearchData.createFromContactItem(contact,
+                                                     networkType: currentNetworkType,
+                                                     addressFactory: addressFactory)
+            }
+
+            return accountsResult + contactsResult
+        }
+
+        mapOperation.addDependency(contactsOperation.targetOperation)
+        mapOperation.addDependency(accountsOperation)
+
+        let dependencies = contactsOperation.allOperations + [accountsOperation]
+
+        return CompoundOperationWrapper(targetOperation: mapOperation,
+                                        dependencies: dependencies)
     }
 
     func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo)

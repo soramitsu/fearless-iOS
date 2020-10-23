@@ -813,16 +813,16 @@ import RobinHood
     
     
     
-     func createAccountRepsitory(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem> {
+     func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem> {
         
-    return cuckoo_manager.call("createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>",
+    return cuckoo_manager.call("createAccountRepository(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>",
             parameters: (networkType),
             escapingParameters: (networkType),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.createAccountRepsitory(for: networkType))
+            defaultCall: __defaultImplStub!.createAccountRepository(for: networkType))
         
     }
     
@@ -840,9 +840,9 @@ import RobinHood
 	    }
 	    
 	    
-	    func createAccountRepsitory<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.ProtocolStubFunction<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
+	    func createAccountRepository<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.ProtocolStubFunction<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
 	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method: "createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method: "createAccountRepository(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -867,9 +867,9 @@ import RobinHood
 	
 	    
 	    @discardableResult
-	    func createAccountRepsitory<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.__DoNotUse<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
+	    func createAccountRepository<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.__DoNotUse<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
 	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
-	        return cuckoo_manager.verify("createAccountRepsitory(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("createAccountRepository(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -889,7 +889,7 @@ import RobinHood
     
 
     
-     func createAccountRepsitory(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>  {
+     func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>  {
         return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<AccountItem>).self)
     }
     

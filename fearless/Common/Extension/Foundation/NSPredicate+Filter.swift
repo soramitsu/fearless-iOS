@@ -2,7 +2,7 @@ import Foundation
 import IrohaCrypto
 
 extension NSPredicate {
-    static func filterBy(networkType: SNAddressType) -> NSPredicate {
+    static func filterAccountBy(networkType: SNAddressType) -> NSPredicate {
         let rawValue = Int16(networkType.rawValue)
         return NSPredicate(format: "%K == %d", #keyPath(CDAccountItem.networkType), rawValue)
     }
@@ -21,5 +21,9 @@ extension NSPredicate {
 
     static func filterTransactionsByReceiver(address: String) -> NSPredicate {
         return NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.receiver), address)
+    }
+
+    static func filterContactsByTarget(address: String) -> NSPredicate {
+        return NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
     }
 }

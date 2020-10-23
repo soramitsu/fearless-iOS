@@ -5,8 +5,8 @@ import IrohaCrypto
 class FilterTests: XCTestCase {
 
     func testAccountFilterTest() {
-        XCTAssertNoThrow(NSPredicate.filterBy(networkType: .kusamaMain))
-        XCTAssertNoThrow(NSPredicate.filterBy(networkType: .polkadotMain))
-        XCTAssertNoThrow(NSPredicate.filterBy(networkType: .genericSubstrate))
+        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: .kusamaMain))
+        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: .polkadotMain))
+        XCTAssertNoThrow(NSPredicate.filterAccountBy(networkType: .genericSubstrate))
     }
 }

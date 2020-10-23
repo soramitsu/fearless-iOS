@@ -47,19 +47,10 @@ final class ContactsConfigurator {
         return ContactsSectionStyle(title: title, uppercased: true)
     }()
 
-    weak var commandFactory: WalletCommandFactoryProtocol? {
-        get {
-            localSearchEngine.commandFactory
-        }
-
-        set {
-            localSearchEngine.commandFactory = newValue
-        }
-    }
-
-    init(networkType: SNAddressType, address: String) {
+    init(networkType: SNAddressType) {
+        let viewModelFactory = ContactsViewModelFactory()
         localSearchEngine = ContactsLocalSearchEngine(networkType: networkType,
-                                                      address: address)
+                                                      contactViewModelFactory: viewModelFactory)
     }
 
     func configure(builder: ContactsModuleBuilderProtocol) {
@@ -82,5 +73,6 @@ final class ContactsConfigurator {
             .with(contactCellStyle: contactCellStyle)
             .with(sectionHeaderStyle: sectionHeaderStyle)
             .with(searchPlaceholder: searchPlaceholder)
+            .with(viewModelFactoryWrapper: localSearchEngine.contactViewModelFactory)
     }
 }
