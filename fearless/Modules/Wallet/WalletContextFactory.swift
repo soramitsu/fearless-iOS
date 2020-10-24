@@ -120,7 +120,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let localizationManager = LocalizationManager.shared
 
         WalletCommonConfigurator(localizationManager: localizationManager,
-                                 networkType: networkType).configure(builder: builder)
+                                 networkType: networkType,
+                                 account: selectedAccount).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
         let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
@@ -153,6 +154,12 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
+        let tokenAssets = accountSettings.assets.filter { $0.identifier != priceAsset.identifier }
+        let receiveConfigurator = ReceiveConfigurator(account: selectedAccount,
+                                                      assets: tokenAssets,
+                                                      localizationManager: localizationManager)
+        receiveConfigurator.configure(builder: builder.receiveModuleBuilder)
+
         let context = try builder.build()
 
         subscribeContextToLanguageSwitch(context,
@@ -161,6 +168,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         transferConfigurator.commandFactory = context
         confirmConfigurator.commandFactory = context
+        receiveConfigurator.commandFactory = context
 
         return context
     }

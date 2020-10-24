@@ -45,6 +45,7 @@ extension WalletCommonStyleConfigurator {
             .with(keyboardIcon: R.image.iconKeyboardOff()!)
             .with(caretColor: R.color.colorWhite()!)
             .with(closeIcon: R.image.iconClose())
+            .with(shareIcon: R.image.iconShare())
             .with(accessoryStyle: accessoryStyle)
             .with(formCellStyle: WalletFormCellStyle.fearless)
     }
