@@ -154,7 +154,9 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
+        let tokenAssets = accountSettings.assets.filter { $0.identifier != priceAsset.identifier }
         let receiveConfigurator = ReceiveConfigurator(account: selectedAccount,
+                                                      assets: tokenAssets,
                                                       localizationManager: localizationManager)
         receiveConfigurator.configure(builder: builder.receiveModuleBuilder)
 

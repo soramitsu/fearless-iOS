@@ -16,9 +16,14 @@ final class ReceiveConfigurator: AdaptiveDesignable {
         }
     }
 
-    init(account: AccountItem, localizationManager: LocalizationManagerProtocol) {
+    let shareFactory: AccountShareFactoryProtocol
+
+    init(account: AccountItem, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
         receiveFactory = ReceiveViewFactory(account: account,
                                             localizationManager: localizationManager)
+        shareFactory = AccountShareFactory(address: account.address,
+                                           assets: assets,
+                                           localizationManager: localizationManager)
     }
 
     func configure(builder: ReceiveAmountModuleBuilderProtocol) {
@@ -38,5 +43,6 @@ final class ReceiveConfigurator: AdaptiveDesignable {
             .with(fieldsInclusion: [])
             .with(title: title)
             .with(viewFactory: receiveFactory)
+            .with(accountShareFactory: shareFactory)
     }
 }

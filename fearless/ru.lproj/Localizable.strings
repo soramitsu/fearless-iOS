@@ -179,3 +179,4 @@ a type of password.";
 "network.status.connected" = "Подключено";
 "wallet.receive.description" = "Поделиться этим QR-кодом с отправителем";
 "wallet.search.accounts" = "мои аккаунты";
+"wallet.receive.share.message" = "Мой %@ адрес для получения %@:";

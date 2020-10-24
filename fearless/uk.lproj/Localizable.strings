@@ -179,3 +179,4 @@
 "network.status.connected" = "Підключено";
 "wallet.receive.description" = "Поділіться цим QR-кодом відправника";
 "wallet.search.accounts" = "мої рахунки";
+"wallet.receive.share.message" = "Мою %@ адресу для отримання %@:";

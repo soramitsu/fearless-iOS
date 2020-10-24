@@ -176,3 +176,4 @@ a type of password.";
 "network.status.connected" = "接続済み";
 "wallet.receive.description" = "このQRを送信者に共有する";
 "wallet.search.accounts" = "私のアカウント";
+"wallet.receive.share.message" = "マイ%@受信するためのアドレス%@:";

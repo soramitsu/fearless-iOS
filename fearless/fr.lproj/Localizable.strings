@@ -179,3 +179,4 @@ provient du bon réseau";
 "network.status.connected" = "Connecté";
 "wallet.receive.description" = "Partagez ce QR avec l'expéditeur";
 "wallet.search.accounts" = "Mes comptes";
+"wallet.receive.share.message" = "Mon adresse %@ pour recevoir %@:";

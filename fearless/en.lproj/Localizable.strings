@@ -179,3 +179,4 @@ from the right network";
 "network.status.connected" = "Connected";
 "wallet.receive.description" = "Share this QR to sender";
 "wallet.search.accounts" = "my accounts";
+"wallet.receive.share.message" = "My %@ address to receive %@:";
