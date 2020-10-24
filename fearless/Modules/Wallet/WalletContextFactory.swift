@@ -120,7 +120,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let localizationManager = LocalizationManager.shared
 
         WalletCommonConfigurator(localizationManager: localizationManager,
-                                 networkType: networkType).configure(builder: builder)
+                                 networkType: networkType,
+                                 account: selectedAccount).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
         let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
