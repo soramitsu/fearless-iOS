@@ -179,4 +179,7 @@
 "network.status.connected" = "Підключено";
 "wallet.receive.description" = "Поділіться цим QR-кодом відправника";
 "wallet.search.accounts" = "мої рахунки";
+"coming.soon" = "Незабаром…";
 "wallet.receive.share.message" = "Мою %@ адресу для отримання %@:";
+"coming.soon.dev.status" = "Перевірте статус розробника";
+"comming.soon.roadmap" = "Перевірте дорожню карту";

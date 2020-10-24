@@ -176,4 +176,7 @@
 "network.status.connected" = "Подключено";
 "wallet.receive.description" = "Поделиться этим QR-кодом c отправителем";
 "wallet.search.accounts" = "мои аккаунты";
+"coming.soon" = "Скоро будет…";
 "wallet.receive.share.message" = "Мой %@ адрес для получения %@:";
+"coming.soon.dev.status" = "Статус разработки";
+"comming.soon.roadmap" = "План разработки";

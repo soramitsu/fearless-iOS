@@ -178,4 +178,7 @@ provenga dalla rete corretta";
 "network.status.connected" = "Collegato";
 "wallet.receive.description" = "Condividi questo QR con il mittente";
 "wallet.search.accounts" = "i miei conti";
+"coming.soon" = "Prossimamente…";
 "wallet.receive.share.message" = "Il mio %@ indirizzo per ricevere %@:";
+"coming.soon.dev.status" = "Controlla lo stato dello sviluppatore";
+"comming.soon.roadmap" = "Controlla la roadmap";

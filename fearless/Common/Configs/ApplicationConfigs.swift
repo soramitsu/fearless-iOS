@@ -4,6 +4,8 @@ import os
 protocol ApplicationConfigProtocol {
     var termsURL: URL { get }
     var privacyPolicyURL: URL { get }
+    var devStatusURL: URL { get }
+    var roadmapURL: URL { get }
     var supportEmail: String { get }
     var version: String { get }
     var opensourceURL: URL { get }
@@ -16,12 +18,20 @@ final class ApplicationConfig {
 extension ApplicationConfig: ApplicationConfigProtocol {
     var termsURL: URL {
         // TODO: Replace terms URL
-        URL(string: "https://google.com")!
+        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
     }
 
     var privacyPolicyURL: URL {
         // TODO: Replace privacy URL
-        URL(string: "https://google.com")!
+        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+    }
+
+    var devStatusURL: URL {
+        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+    }
+
+    var roadmapURL: URL {
+        URL(string: "https://soramitsucoltd.aha.io/shared/97bc3006ee3c1baa0598863615cf8d14")!
     }
 
     var supportEmail: String {
@@ -40,6 +50,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     //swiftlint:enable force_cast
 
     var opensourceURL: URL {
-        URL(string: "https://github.com/soramitsu/fearless-iOS/tree/develop")!
+        URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
 }
