@@ -127,6 +127,7 @@
 "account.needed.title" = "Потрібен рахунок";
 "account.needed.message" = "У вас немає облікового запису для цієї мережі, ви можете створити або імпортувати обліковий запис.";
 "common.proceed" = "Продовжуйте";
+"wallet.asset.receive" = "Отримати";
 "wallet.assets.total.title" = "Вартість активів";
 "network.info.title" = "Інформація про вузол";
 "network.info.name" = "Ім'я вузла";
@@ -176,4 +177,5 @@
 "common.warning" = "Увага";
 "network.status.connecting" = "Підключення ...";
 "network.status.connected" = "Підключено";
+"wallet.receive.description" = "Поділіться цим QR-кодом відправника";
 "wallet.search.accounts" = "мої рахунки";

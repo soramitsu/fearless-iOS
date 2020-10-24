@@ -124,6 +124,7 @@
 "account.needed.title" = "Необходим аккаунт";
 "account.needed.message" = "У вас нет учетной записи в этой сети, вы можете создать или импортировать учетную запись.";
 "common.proceed" = "Продолжить";
+"wallet.asset.receive" = "Получить";
 "wallet.assets.total.title" = "Стоимость активов";
 "network.info.title" = "Информация об узле";
 "network.info.name" = "Название узла";
@@ -173,4 +174,5 @@
 "common.warning" = "Предупреждение";
 "network.status.connecting" = "Подключение";
 "network.status.connected" = "Подключено";
+"wallet.receive.description" = "Поделиться этим QR-кодом c отправителем";
 "wallet.search.accounts" = "мои аккаунты";

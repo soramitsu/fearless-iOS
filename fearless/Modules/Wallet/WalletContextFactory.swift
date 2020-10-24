@@ -153,6 +153,10 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
+        let receiveConfigurator = ReceiveConfigurator(account: selectedAccount,
+                                                      localizationManager: localizationManager)
+        receiveConfigurator.configure(builder: builder.receiveModuleBuilder)
+
         let context = try builder.build()
 
         subscribeContextToLanguageSwitch(context,
@@ -161,6 +165,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         transferConfigurator.commandFactory = context
         confirmConfigurator.commandFactory = context
+        receiveConfigurator.commandFactory = context
 
         return context
     }
