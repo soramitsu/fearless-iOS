@@ -87,6 +87,7 @@ PODS:
     - SoraUI/Controls
   - SoraUI/Skrull (1.9.3)
   - Starscream (4.0.4)
+  - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
   - TweetNacl (1.0.2)
@@ -104,6 +105,7 @@ DEPENDENCIES:
   - SoraKeystore
   - SoraUI
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
+  - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
   - SwiftyBeaver
 
@@ -122,6 +124,7 @@ SPEC REPOS:
     - SoraFoundation
     - SoraKeystore
     - SoraUI
+    - SwiftGifOrigin
     - SwiftLint
     - SwiftyBeaver
     - TweetNacl
@@ -159,11 +162,12 @@ SPEC CHECKSUMS:
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
   SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
+  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 19e96346fa37cf7f6c6e0d57feb69da26c1f7e58
+PODFILE CHECKSUM: 1b15a5c1b03cb34c3abeaca62ed922578cba3f9b
 
 COCOAPODS: 1.9.3

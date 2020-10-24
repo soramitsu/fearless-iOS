@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SwiftGifOrigin
 
 final class CommingSoonViewController: UIViewController {
     var presenter: CommingSoonPresenterProtocol!
@@ -13,8 +14,13 @@ final class CommingSoonViewController: UIViewController {
         super.viewDidLoad()
 
         setupLocalization()
+        loadBackground()
 
         presenter.setup()
+    }
+
+    func loadBackground() {
+        backgroundImageView.image = UIImage.gif(name: R.file.animatedBgGif.name)
     }
 
     func setupLocalization() {
