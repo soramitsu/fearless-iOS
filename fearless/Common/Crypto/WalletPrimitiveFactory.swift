@@ -4,13 +4,6 @@ import SoraKeystore
 import SoraFoundation
 import IrohaCrypto
 
-enum WalletAssetIds: String {
-    case kusama
-    case westend
-    case dot
-    case generic
-}
-
 protocol WalletPrimitiveFactoryProtocol {
     func createAccountSettings() throws -> WalletAccountSettingsProtocol
 }
@@ -30,50 +23,58 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         self.settings = settings
     }
 
-    func createAccountSettings() throws -> WalletAccountSettingsProtocol {
-        guard let selectedAccount = settings.selectedAccount else {
-            throw WalletPrimitiveFactoryError.missingAccountId
-        }
-
-        guard let selectedConnectionType = SNAddressType(rawValue: settings.selectedConnection.type) else {
-            throw WalletPrimitiveFactoryError.undefinedConnection
-        }
-
+    private func createAssetForAddressType(_ addressType: SNAddressType) -> WalletAsset {
         let localizableName: LocalizableResource<String>
         let platformName: LocalizableResource<String>
         let symbol: String
         let identifier: String
 
-        switch selectedConnectionType {
+        switch addressType {
         case .polkadotMain:
-            identifier = WalletAssetIds.dot.rawValue
+            identifier = WalletAssetId.dot.rawValue
             localizableName = LocalizableResource<String> { _ in "DOT" }
             platformName = LocalizableResource<String> { _ in "Polkadot" }
             symbol = "DOT"
-        case .kusamaMain:
-            identifier = WalletAssetIds.kusama.rawValue
-            localizableName = LocalizableResource<String> { _ in "KSM" }
-            platformName = LocalizableResource<String> { _ in "Kusama" }
-            symbol = "KSM"
         case .genericSubstrate:
-            identifier = WalletAssetIds.westend.rawValue
-            localizableName = LocalizableResource<String> { _ in "WND" }
+            identifier = WalletAssetId.westend.rawValue
+            localizableName = LocalizableResource<String> { _ in "Westend" }
             platformName = LocalizableResource<String> { _ in "Westend" }
             symbol = "WND"
         default:
-            identifier = WalletAssetIds.generic.rawValue
-            localizableName = LocalizableResource<String> { _ in "DOT" }
-            platformName = LocalizableResource<String> { _ in "Substrate Generic" }
-            symbol = "DOT"
+            identifier = WalletAssetId.kusama.rawValue
+            localizableName = LocalizableResource<String> { _ in "Kusama" }
+            platformName = LocalizableResource<String> { _ in "Kusama" }
+            symbol = "KSM"
         }
 
-        let asset = WalletAsset(identifier: identifier,
-                                name: localizableName,
-                                platform: platformName,
-                                symbol: symbol,
-                                precision: 12,
-                                modes: .all)
+        return WalletAsset(identifier: identifier,
+                           name: localizableName,
+                           platform: platformName,
+                           symbol: symbol,
+                           precision: addressType.precision,
+                           modes: .all)
+    }
 
-        return WalletAccountSettings(accountId: selectedAccount.publicKeyData.toHex(), assets: [asset])
+    func createAccountSettings() throws -> WalletAccountSettingsProtocol {
+        guard let selectedAccount = settings.selectedAccount else {
+            throw WalletPrimitiveFactoryError.missingAccountId
+        }
+
+        let selectedConnectionType = settings.selectedConnection.type
+
+        let networkAsset = createAssetForAddressType(selectedConnectionType)
+
+        let totalPriceAsset = WalletAsset(identifier: WalletAssetId.usd.rawValue,
+                                          name: LocalizableResource { _ in "" },
+                                          platform: LocalizableResource { _ in "" },
+                                          symbol: "$",
+                                          precision: 2,
+                                          modes: .view)
+
+        let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
+                                                           type: settings.selectedConnection.type)
+
+        return WalletAccountSettings(accountId: accountId.toHex(),
+                                     assets: [totalPriceAsset, networkAsset])
     }
 }

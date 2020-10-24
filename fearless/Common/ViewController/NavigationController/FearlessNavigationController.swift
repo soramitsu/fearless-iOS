@@ -16,13 +16,12 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
     private func setup() {
         delegate = self
 
-        view.backgroundColor = .white
+        view.backgroundColor = R.color.colorBlack()
 
         navigationBar.tintColor = FearlessNavigationBarStyle.tintColor
 
-        navigationBar.setBackgroundImage(FearlessNavigationBarStyle.background,
-                                         for: UIBarMetrics.default)
-        navigationBar.shadowImage = FearlessNavigationBarStyle.darkShadow
+        navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
+        navigationBar.shadowImage = UIImage()
 
         navigationBar.titleTextAttributes = FearlessNavigationBarStyle.titleAttributes
     }
@@ -31,34 +30,15 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
 
     public func navigationController(_ navigationController: UINavigationController,
                                      willShow viewController: UIViewController, animated: Bool) {
-        handleDesignableNavigationIfNeeded(viewController: viewController)
-    }
-
-    // MARK: Private
-
-    private func handleDesignableNavigationIfNeeded(viewController: UIViewController) {
         updateNavigationBarState(in: viewController)
         setupBackButtonItem(for: viewController)
     }
 
+    // MARK: Private
+
     private func updateNavigationBarState(in viewController: UIViewController) {
         let isHidden = viewController as? HiddableBarWhenPushed != nil
         setNavigationBarHidden(isHidden, animated: true)
-
-        var navigationShadowStyle = NavigationBarSeparatorStyle.dark
-
-        if let navigationBarDesignable = viewController as? DesignableNavigationBarProtocol {
-            navigationShadowStyle = navigationBarDesignable.separatorStyle
-        }
-
-        switch navigationShadowStyle {
-        case .dark:
-            navigationBar.shadowImage = FearlessNavigationBarStyle.darkShadow
-        case .light:
-            navigationBar.shadowImage = FearlessNavigationBarStyle.lightShadow
-        case .empty:
-            navigationBar.shadowImage = UIImage()
-        }
     }
 
     private func setupBackButtonItem(for viewController: UIViewController) {

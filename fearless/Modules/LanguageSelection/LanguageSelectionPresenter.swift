@@ -18,10 +18,19 @@ final class LanguageSelectionPresenter {
         viewModels = languages.map {
             let isSelected: Bool = $0.code == selectedLanguage?.code
             let title: String
-            let subtitle: String = $0.title(in: Locale(identifier: $0.code))?.capitalized ?? ""
+
+            let targetLocale = Locale(identifier: $0.code)
+            let subtitle: String = $0.title(in: targetLocale)?.capitalized ?? ""
 
             if let localizationManager = localizationManager {
-                title = $0.title(in: localizationManager.selectedLocale)?.capitalized ?? ""
+                let language = $0.title(in: localizationManager.selectedLocale)?.capitalized ?? ""
+
+                if let regionTitle = $0.region(in: localizationManager.selectedLocale) {
+                    title = "\(language) (\(regionTitle))"
+                } else {
+                    title = language
+                }
+
             } else {
                 title = ""
             }

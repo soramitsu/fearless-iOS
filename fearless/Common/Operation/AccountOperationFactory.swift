@@ -6,22 +6,22 @@ import SoraKeystore
 
 protocol AccountOperationFactoryProtocol {
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol,
-                             connection: ConnectionItem) -> BaseOperation<Void>
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<AccountItem>
+
+    func newAccountOperation(request: AccountImportSeedRequest) -> BaseOperation<AccountItem>
+
+    func newAccountOperation(request: AccountImportKeystoreRequest) -> BaseOperation<AccountItem>
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
     private(set) var keystore: KeystoreProtocol
-    private(set) var settings: SettingsManagerProtocol
 
-    init(keystore: KeystoreProtocol, settings: SettingsManagerProtocol) {
+    init(keystore: KeystoreProtocol) {
         self.keystore = keystore
-        self.settings = settings
     }
 
     func newAccountOperation(request: AccountCreationRequest,
-                             mnemonic: IRMnemonicProtocol,
-                             connection: ConnectionItem) -> BaseOperation<Void> {
+                             mnemonic: IRMnemonicProtocol) -> BaseOperation<AccountItem> {
         ClosureOperation {
             let junctionResult: JunctionResult?
 
@@ -41,26 +41,124 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             let keypairFactory = self.createKeypairFactory(request.cryptoType)
 
             let chaincodes = junctionResult?.chaincodes ?? []
-            let keypair = try keypairFactory.createKeypairFromSeed(result.seed,
+            let keypair = try keypairFactory.createKeypairFromSeed(result.seed.miniSeed,
                                                                    chaincodeList: chaincodes)
 
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
                                                      type: request.type)
 
-            self.settings.selectedAccount = AccountItem(address: address,
-                                                        cryptoType: request.cryptoType,
-                                                        username: request.username,
-                                                        publicKeyData: keypair.publicKey().rawData())
+            let secretKey: Data
 
-            try self.keystore.saveSeed(result.seed, address: address)
+            switch request.cryptoType {
+            case .sr25519:
+                secretKey = keypair.privateKey().rawData()
+            case .ed25519:
+                let derivableSeedFactory = Ed25519KeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                                                                               chaincodeList: chaincodes)
+            case .ecdsa:
+                let derivableSeedFactory = EcdsaKeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                                                                               chaincodeList: chaincodes)
+            }
+
+            try self.keystore.saveSecretKey(secretKey, address: address)
             try self.keystore.saveEntropy(result.mnemonic.entropy(), address: address)
 
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
 
-            self.settings.selectedConnection = connection
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
+                               publicKeyData: keypair.publicKey().rawData())
+        }
+    }
+
+    func newAccountOperation(request: AccountImportSeedRequest) -> BaseOperation<AccountItem> {
+        ClosureOperation {
+            let seed = try Data(hexString: request.seed)
+
+            let junctionResult: JunctionResult?
+
+            if !request.derivationPath.isEmpty {
+                let junctionFactory = JunctionFactory()
+                junctionResult = try junctionFactory.parse(path: request.derivationPath)
+            } else {
+                junctionResult = nil
+            }
+
+            let keypairFactory = self.createKeypairFactory(request.cryptoType)
+
+            let chaincodes = junctionResult?.chaincodes ?? []
+            let keypair = try keypairFactory.createKeypairFromSeed(seed,
+                                                                   chaincodeList: chaincodes)
+
+            let addressFactory = SS58AddressFactory()
+            let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
+                                                     type: request.type)
+
+            let secretKey: Data
+
+            switch request.cryptoType {
+            case .sr25519:
+                secretKey = keypair.privateKey().rawData()
+            case .ed25519:
+                let derivableSeedFactory = Ed25519KeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                                                                               chaincodeList: chaincodes)
+            case .ecdsa:
+                let derivableSeedFactory = EcdsaKeypairFactory()
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                                                                               chaincodeList: chaincodes)
+            }
+
+            try self.keystore.saveSecretKey(secretKey, address: address)
+
+            if !request.derivationPath.isEmpty {
+                try self.keystore.saveDeriviation(request.derivationPath, address: address)
+            }
+
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
+                               publicKeyData: keypair.publicKey().rawData())
+        }
+    }
+
+    func newAccountOperation(request: AccountImportKeystoreRequest) -> BaseOperation<AccountItem> {
+        ClosureOperation {
+
+            let keystoreExtractor = KeystoreExtractor()
+
+            guard let data = request.keystore.data(using: .utf8) else {
+                throw AccountOperationFactoryError.invalidKeystore
+            }
+
+            let keystoreDefinition = try JSONDecoder().decode(KeystoreDefinition.self,
+                                                              from: data)
+
+            guard let keystore = try? keystoreExtractor
+                .extractFromDefinition(keystoreDefinition, password: request.password) else {
+                throw AccountOperationFactoryError.decryption
+            }
+
+            let username: String
+
+            if let requestName = request.username, !requestName.isEmpty {
+                username = requestName
+            } else {
+                username = keystoreDefinition.meta.name
+            }
+
+            try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)
+
+            return AccountItem(address: keystore.address,
+                               cryptoType: CryptoType(keystore.cryptoType),
+                               username: username,
+                               publicKeyData: keystore.publicKeyData)
         }
     }
 

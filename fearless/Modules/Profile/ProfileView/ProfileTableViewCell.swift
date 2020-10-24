@@ -5,9 +5,17 @@ final class ProfileTableViewCell: UITableViewCell {
 
     @IBOutlet private var iconImageView: UIImageView!
     @IBOutlet private var titleLabel: UILabel!
-    @IBOutlet private var accessoryRoundView: RoundedButton!
+    @IBOutlet private var subtitleLabel: UILabel!
 
     private(set) var viewModel: ProfileOptionViewModelProtocol?
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        let selectedBackgroundView = UIView()
+        selectedBackgroundView.backgroundColor = R.color.colorDarkBlue()!.withAlphaComponent(0.3)
+        self.selectedBackgroundView = selectedBackgroundView
+    }
 
     func bind(viewModel: ProfileOptionViewModelProtocol) {
         self.viewModel = viewModel
@@ -15,13 +23,6 @@ final class ProfileTableViewCell: UITableViewCell {
         iconImageView.image = viewModel.icon
         titleLabel.text = viewModel.title
 
-        accessoryRoundView.imageWithTitleView?.title = viewModel.accessoryTitle
-        accessoryRoundView.imageWithTitleView?.iconImage = viewModel.accessoryIcon
-
-        let spacing: CGFloat = (viewModel.accessoryTitle != nil && viewModel.accessoryIcon != nil) ? 6.0 : 0.0
-        accessoryRoundView.imageWithTitleView?.spacingBetweenLabelAndIcon = spacing
-
-        accessoryRoundView.isHidden = (viewModel.accessoryTitle == nil && viewModel.accessoryIcon == nil)
-        accessoryRoundView.invalidateLayout()
+        subtitleLabel.text = viewModel.accessoryTitle
     }
 }

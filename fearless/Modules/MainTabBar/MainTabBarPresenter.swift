@@ -7,9 +7,23 @@ final class MainTabBarPresenter {
 }
 
 extension MainTabBarPresenter: MainTabBarPresenterProtocol {
-    func setup() {}
+    func setup() {
+        interactor.setup()
+    }
 
     func viewDidAppear() {}
 }
 
-extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {}
+extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
+    func didReloadSelectedAccount() {
+        wireframe.showNewWalletView(on: view)
+    }
+
+    func didReloadSelectedNetwork() {
+        wireframe.showNewWalletView(on: view)
+    }
+
+    func didUpdateWalletInfo() {
+        wireframe.reloadWalletContent()
+    }
+}

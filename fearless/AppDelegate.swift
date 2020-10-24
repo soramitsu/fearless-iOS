@@ -12,7 +12,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         if !isUnitTesting {
-            let rootWindow = UIWindow()
+            let rootWindow = FearlessWindow()
             window = rootWindow
 
             let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
@@ -20,6 +20,13 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
             rootWindow.makeKeyAndVisible()
         }
+
         return true
+    }
+
+    func application(_ app: UIApplication,
+                     open url: URL,
+                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
+        return URLHandlingService.shared.handle(url: url)
     }
 }

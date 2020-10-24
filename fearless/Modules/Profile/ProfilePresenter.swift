@@ -10,26 +10,33 @@ final class ProfilePresenter {
 
     private(set) var viewModelFactory: ProfileViewModelFactoryProtocol
 
-    private(set) var userData: UserData?
-    private(set) var language: Language?
+    private(set) var userSettings: UserSettings?
 
     init(viewModelFactory: ProfileViewModelFactoryProtocol) {
         self.viewModelFactory = viewModelFactory
     }
 
-    private func updateUserDetailsViewModel() {
+    private func updateAccountViewModel() {
+        guard let userSettings = userSettings else {
+            return
+        }
+
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userData,
-                                                                        locale: locale)
+        let userDetailsViewModel = viewModelFactory.createUserViewModel(from: userSettings, locale: locale)
         view?.didLoad(userViewModel: userDetailsViewModel)
     }
 
     private func updateOptionsViewModel() {
-        let language = localizationManager?.selectedLanguage
+        guard
+            let userSettings = userSettings,
+            let language = localizationManager?.selectedLanguage else {
+            return
+        }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let optionViewModels = viewModelFactory.createOptionViewModels(language: language,
+        let optionViewModels = viewModelFactory.createOptionViewModels(from: userSettings,
+                                                                       language: language,
                                                                        locale: locale)
         view?.didLoad(optionViewModels: optionViewModels)
     }
@@ -37,30 +44,23 @@ final class ProfilePresenter {
 
 extension ProfilePresenter: ProfilePresenterProtocol {
     func setup() {
-        updateUserDetailsViewModel()
         updateOptionsViewModel()
 
         interactor.setup()
     }
 
-    func activateUserDetails() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+    func activateAccountDetails() {
+        wireframe.showAccountDetails(from: view)
+    }
 
-        let copyTitle = R.string.localizable.commonCopyAddress(preferredLanguages: locale.rLanguages)
-        let copyAction = AlertPresentableAction(title: copyTitle) { [weak self] in
-            UIPasteboard.general.string = self?.userData?.address
+    func activeteAccountCopy() {
+        if let address = userSettings?.account.address {
+            UIPasteboard.general.string = address
+
+            let locale = localizationManager?.selectedLocale
+            let title = R.string.localizable.commonCopied(preferredLanguages: locale?.rLanguages)
+            wireframe.presentSuccessNotification(title, from: view)
         }
-
-        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let selectTitle = R.string.localizable.commonSelectOption(preferredLanguages: locale.rLanguages)
-        let viewModel = AlertPresentableViewModel(title: selectTitle,
-                                                  message: nil,
-                                                  actions: [copyAction],
-                                                  closeAction: closeTitle)
-
-        wireframe.present(viewModel: viewModel,
-                          style: .actionSheet,
-                          from: view)
     }
 
     func activateOption(at index: UInt) {
@@ -69,10 +69,12 @@ extension ProfilePresenter: ProfilePresenterProtocol {
         }
 
         switch option {
-        case .connection:
-            wireframe.showNodeSelection(from: view)
-        case .passphrase:
-            wireframe.showPassphraseView(from: view)
+        case .accountList:
+            wireframe.showAccountSelection(from: view)
+        case .connectionList:
+            wireframe.showConnectionSelection(from: view)
+        case .changePincode:
+            wireframe.showPincodeChange(from: view)
         case .language:
             wireframe.showLanguageSelection(from: view)
         case .about:
@@ -82,20 +84,27 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 }
 
 extension ProfilePresenter: ProfileInteractorOutputProtocol {
-    func didReceive(userData: UserData) {
-        self.userData = userData
-        updateUserDetailsViewModel()
+    func didReceive(userSettings: UserSettings) {
+        self.userSettings = userSettings
+        updateAccountViewModel()
+        updateOptionsViewModel()
     }
 
     func didReceiveUserDataProvider(error: Error) {
         logger?.debug("Did receive user data provider \(error)")
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            _ = wireframe.present(error: CommonError.undefined, from: view, locale: locale)
+        }
     }
 }
 
 extension ProfilePresenter: Localizable {
     func applyLocalization() {
         if view?.isSetup == true {
-            updateUserDetailsViewModel()
+            updateAccountViewModel()
             updateOptionsViewModel()
         }
     }

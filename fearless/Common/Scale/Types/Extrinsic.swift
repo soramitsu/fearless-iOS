@@ -5,13 +5,21 @@ import BigInt
 struct ExtrinsicConstants {
     static let signedExtrinsicInitialVersion: UInt8 = 128
     static let accountIdLength: UInt8 = 32
-    static let signatureLength: UInt8 = 64
+
+    static let balanceModuleIndex: UInt8 = 4
+
+    static let transferCallIndex: UInt8 = 0
+    static let keepAliveTransferIndex: UInt8 = 3
 }
 
 struct Call {
     let moduleIndex: UInt8
     let callIndex: UInt8
     let arguments: Data?
+}
+
+enum ExtrinsicCodingError: Error {
+    case unsupportedSignatureVersion
 }
 
 struct Extrinsic: ScaleCodable {
@@ -101,7 +109,11 @@ struct Transaction: ScaleCodable {
         accountId = try scaleDecoder.readAndConfirm(count: Int(ExtrinsicConstants.accountIdLength))
         signatureVersion = try UInt8(scaleDecoder: scaleDecoder)
 
-        signature = try scaleDecoder.readAndConfirm(count: Int(ExtrinsicConstants.signatureLength))
+        guard let cryptoType = CryptoType(version: signatureVersion) else {
+            throw ExtrinsicCodingError.unsupportedSignatureVersion
+        }
+
+        signature = try scaleDecoder.readAndConfirm(count: cryptoType.signatureLength)
 
         era = try Era(scaleDecoder: scaleDecoder)
 

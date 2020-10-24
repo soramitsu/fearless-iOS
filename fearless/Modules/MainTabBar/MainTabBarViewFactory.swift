@@ -1,11 +1,25 @@
 import UIKit
 import SoraFoundation
+import SoraKeystore
+import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
-        let localizationManager = LocalizationManager.shared
 
-        guard let walletController = createWalletController(localizationManager: localizationManager) else {
+        let localizationManager = LocalizationManager.shared
+        let webSocketService = WebSocketService.shared
+        webSocketService.networkStatusPresenter =
+            createNetworkStatusPresenter(localizationManager: localizationManager)
+
+        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
+                                              settings: SettingsManager.shared,
+                                              webSocketService: webSocketService)
+
+        guard
+            let walletContext = try? WalletContextFactory().createContext(),
+            let walletController = createWalletController(walletContext: walletContext,
+                                                          localizationManager: localizationManager)
+            else {
             return nil
         }
 
@@ -17,7 +31,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let extrinsicsController = createExtrinsicsController(for: localizationManager) else {
+        guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
             return nil
         }
 
@@ -28,7 +42,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let view = MainTabBarViewController()
         view.viewControllers = [
             walletController,
-            extrinsicsController,
+            polkaswapController,
             stakingController,
             governanceController,
             settingsController
@@ -36,9 +50,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let presenter = MainTabBarPresenter()
 
-        let interactor = MainTabBarInteractor()
-
-        let wireframe = MainTabBarWireframe()
+        let wireframe = MainTabBarWireframe(walletContext: walletContext)
 
         view.presenter = presenter
         presenter.view = view
@@ -49,9 +61,26 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return view
 	}
 
-    static func createWalletController(localizationManager: LocalizationManagerProtocol) -> UIViewController? {
+    static func reloadWalletView(on view: MainTabBarViewProtocol,
+                                 wireframe: MainTabBarWireframeProtocol) {
+        let localizationManager = LocalizationManager.shared
+
+        guard
+            let walletContext = try? WalletContextFactory().createContext(),
+            let walletController = createWalletController(walletContext: walletContext,
+                                                          localizationManager: localizationManager)
+            else {
+            return
+        }
+
+        wireframe.walletContext = walletContext
+        view.didReplaceView(for: walletController, for: 0)
+    }
+
+    static func createWalletController(walletContext: CommonWalletContextProtocol,
+                                       localizationManager: LocalizationManagerProtocol)
+        -> UIViewController? {
         do {
-            let walletContext = try WalletContextFactory().createContext()
             let viewController = try walletContext.createRootController()
 
             let localizableTitle = LocalizableResource { locale in
@@ -84,8 +113,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -112,8 +142,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
@@ -138,17 +169,20 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createExtrinsicsController(for localizationManager: LocalizationManagerProtocol)
+    static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
 
-        let localizableTitle = LocalizableResource { locale in
-            R.string.localizable.tabbarExtrinsicsTitle(preferredLanguages: locale.rLanguages)
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
+
+        let localizableTitle = LocalizableResource { _ in
+            // TODO: fix translation in corresponding task
+            "Polkaswap"
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabExtrinsics()?
+        let normalIcon = R.image.iconTabPolkaswap()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
@@ -179,7 +213,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
-        let normalIcon = R.image.iconTabProfile()?
+            let normalIcon = R.image.iconTabSettings()?
             .tinted(with: R.color.colorLightGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorDarkBlue()!)?
@@ -219,5 +253,18 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)
 
         return tabBarItem
+    }
+
+    static func createNetworkStatusPresenter(localizationManager: LocalizationManagerProtocol)
+        -> NetworkAvailabilityLayerInteractorOutputProtocol? {
+        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
+            return nil
+        }
+
+        let prenseter = NetworkAvailabilityLayerPresenter()
+        prenseter.localizationManager = localizationManager
+        prenseter.view = window
+
+        return prenseter
     }
 }

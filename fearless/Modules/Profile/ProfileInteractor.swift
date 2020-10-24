@@ -3,35 +3,51 @@ import SoraKeystore
 import IrohaCrypto
 
 enum ProfileInteractorError: Error {
-    case invalidUserData
+    case noSelectedAccount
 }
 
 final class ProfileInteractor {
 	weak var presenter: ProfileInteractorOutputProtocol?
 
     let settingsManager: SettingsManagerProtocol
-    let ss58AddressFactory: SS58AddressFactoryProtocol
+    let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol
 
     init(settingsManager: SettingsManagerProtocol,
-         ss58AddressFactory: SS58AddressFactoryProtocol,
+         eventCenter: EventCenterProtocol,
          logger: LoggerProtocol) {
         self.settingsManager = settingsManager
-        self.ss58AddressFactory = ss58AddressFactory
+        self.eventCenter = eventCenter
         self.logger = logger
+    }
+
+    private func provideUserSettings() {
+        do {
+            guard let account = settingsManager.selectedAccount else {
+                throw ProfileInteractorError.noSelectedAccount
+            }
+
+            let connection = settingsManager.selectedConnection
+
+            let userSettings = UserSettings(account: account,
+                                            connection: connection)
+
+            presenter?.didReceive(userSettings: userSettings)
+        } catch {
+            presenter?.didReceiveUserDataProvider(error: error)
+        }
     }
 }
 
 extension ProfileInteractor: ProfileInteractorInputProtocol {
     func setup() {
-        do {
-            guard let address = settingsManager.selectedAccount?.address else {
-                throw ProfileInteractorError.invalidUserData
-            }
+        eventCenter.add(observer: self, dispatchIn: .main)
+        provideUserSettings()
+    }
+}
 
-            presenter?.didReceive(userData: UserData(address: address))
-        } catch {
-            presenter?.didReceiveUserDataProvider(error: error)
-        }
+extension ProfileInteractor: EventVisitorProtocol {
+    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+        provideUserSettings()
     }
 }

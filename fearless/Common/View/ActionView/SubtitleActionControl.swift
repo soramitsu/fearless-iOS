@@ -5,6 +5,16 @@ final class SubtitleActionControl: BaseActionControl {
         indicator as? ImageActionIndicator
     }
 
+    var showsImageIndicator: Bool {
+        get {
+            !imageIndicator.isHidden
+        }
+
+        set {
+            imageIndicator.isHidden = !newValue
+        }
+    }
+
     var contentView: SubtitleContentView! {
         title as? SubtitleContentView
     }
@@ -27,6 +37,7 @@ final class SubtitleActionControl: BaseActionControl {
         if indicator == nil {
             indicator = ImageActionIndicator()
             indicator?.backgroundColor = .clear
+            indicator?.isUserInteractionEnabled = false
         }
 
         if title == nil {

@@ -2,29 +2,38 @@ import Foundation
 import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
-    func showPassphraseView(from view: ProfileViewProtocol?) {
-        authorize(animated: true, cancellable: true) { (isAuthorized) in
-            if isAuthorized {
-                guard let passphraseView = PassphraseViewFactory.createView() else {
-                    return
-                }
-
-                if let navigationController = view?.controller.navigationController {
-                    passphraseView.controller.hidesBottomBarWhenPushed = true
-                    navigationController.pushViewController(passphraseView.controller, animated: true)
-                }
-            }
+    func showAccountDetails(from view: ProfileViewProtocol?) {
+        guard let accountManagement = AccountManagementViewFactory.createView() else {
+            return
         }
+
+        accountManagement.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(accountManagement.controller,
+                                                                  animated: true)
     }
 
-    func showNodeSelection(from view: ProfileViewProtocol?) {
-        guard let nodeSelection = NodeSelectionViewFactory.createView() else {
+    func showPincodeChange(from view: ProfileViewProtocol?) {}
+
+    func showAccountSelection(from view: ProfileViewProtocol?) {
+        guard let accountManagement = AccountManagementViewFactory.createView() else {
+            return
+        }
+
+        accountManagement.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(accountManagement.controller,
+                                                                  animated: true)
+    }
+
+    func showConnectionSelection(from view: ProfileViewProtocol?) {
+        guard let networkManagement = NetworkManagementViewFactory.createView() else {
             return
         }
 
         if let navigationController = view?.controller.navigationController {
-            nodeSelection.controller.hidesBottomBarWhenPushed = true
-            navigationController.pushViewController(nodeSelection.controller, animated: true)
+            networkManagement.controller.hidesBottomBarWhenPushed = true
+            navigationController.pushViewController(networkManagement.controller, animated: true)
         }
     }
 

@@ -1,37 +1,44 @@
 PODS:
-  - BigInt (5.0.0)
+  - BigInt (5.2.0)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.5.0)
     - SoraFoundation/DateProcessing (~> 0.8.0)
     - SoraFoundation/Localization (~> 0.8.0)
     - SoraFoundation/NotificationHandlers (~> 0.8.0)
-    - SoraUI (~> 1.8.7)
+    - SoraUI (~> 1.9.3)
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
-  - FearlessUtils (0.3.0):
+  - FearlessUtils (0.7.0):
     - BigInt (~> 5.0)
-    - IrohaCrypto/ed25519 (~> 0.6.0)
-    - IrohaCrypto/secp256k1 (~> 0.6.0)
-    - IrohaCrypto/sr25519 (~> 0.6.0)
+    - IrohaCrypto/ed25519 (~> 0.7.0)
+    - IrohaCrypto/Scrypt (~> 0.7.0)
+    - IrohaCrypto/secp256k1 (~> 0.7.0)
+    - IrohaCrypto/sr25519 (~> 0.7.0)
+    - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.6.0):
+  - IrohaCrypto/BIP39 (0.7.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.6.0)
-  - IrohaCrypto/Common (0.6.0)
-  - IrohaCrypto/ed25519 (0.6.0):
+  - IrohaCrypto/blake2 (0.7.2)
+  - IrohaCrypto/Common (0.7.2)
+  - IrohaCrypto/ed25519 (0.7.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/secp256k1 (0.6.0):
+  - IrohaCrypto/Scrypt (0.7.2):
     - IrohaCrypto/Common
-  - IrohaCrypto/sr25519 (0.6.0):
+    - scrypt.c (~> 0.1)
+  - IrohaCrypto/secp256k1 (0.7.2):
+    - IrohaCrypto/Common
+  - IrohaCrypto/sr25519 (0.7.2):
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
   - R.swift (5.2.2):
     - R.swift.Library (~> 5.2.0)
   - R.swift.Library (5.2.0)
-  - RobinHood (2.5.0)
+  - ReachabilitySwift (5.0.0)
+  - RobinHood (2.5.1)
+  - scrypt.c (0.1.1)
   - SoraFoundation (0.8.0):
     - SoraFoundation/DateProcessing (= 0.8.0)
     - SoraFoundation/Localization (= 0.8.0)
@@ -49,51 +56,56 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (0.8.0)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.8.10):
-    - SoraUI/AdaptiveDesign (= 1.8.10)
-    - SoraUI/Animator (= 1.8.10)
-    - SoraUI/Camera (= 1.8.10)
-    - SoraUI/Controls (= 1.8.10)
-    - SoraUI/DetailsView (= 1.8.10)
-    - SoraUI/EmptyState (= 1.8.10)
-    - SoraUI/LoadingView (= 1.8.10)
-    - SoraUI/ModalInputPresentation (= 1.8.10)
-    - SoraUI/PageLoader (= 1.8.10)
-    - SoraUI/PinView (= 1.8.10)
-    - SoraUI/Skrull (= 1.8.10)
-  - SoraUI/AdaptiveDesign (1.8.10)
-  - SoraUI/Animator (1.8.10)
-  - SoraUI/Camera (1.8.10)
-  - SoraUI/Controls (1.8.10)
-  - SoraUI/DetailsView (1.8.10):
-    - SoraUI/Controls
-  - SoraUI/EmptyState (1.8.10):
+  - SoraUI (1.9.3):
+    - SoraUI/AdaptiveDesign (= 1.9.3)
+    - SoraUI/Animator (= 1.9.3)
+    - SoraUI/Camera (= 1.9.3)
+    - SoraUI/Controls (= 1.9.3)
+    - SoraUI/DetailsView (= 1.9.3)
+    - SoraUI/EmptyState (= 1.9.3)
+    - SoraUI/LoadingView (= 1.9.3)
+    - SoraUI/ModalPresentation (= 1.9.3)
+    - SoraUI/PageLoader (= 1.9.3)
+    - SoraUI/PinView (= 1.9.3)
+    - SoraUI/Skrull (= 1.9.3)
+  - SoraUI/AdaptiveDesign (1.9.3)
+  - SoraUI/Animator (1.9.3)
+  - SoraUI/Camera (1.9.3)
+  - SoraUI/Controls (1.9.3):
     - SoraUI/Animator
-  - SoraUI/LoadingView (1.8.10):
+  - SoraUI/DetailsView (1.9.3):
     - SoraUI/Controls
-  - SoraUI/ModalInputPresentation (1.8.10):
+  - SoraUI/EmptyState (1.9.3):
+    - SoraUI/Animator
+  - SoraUI/LoadingView (1.9.3):
+    - SoraUI/Controls
+  - SoraUI/ModalPresentation (1.9.3):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.8.10)
-  - SoraUI/PinView (1.8.10):
+  - SoraUI/PageLoader (1.9.3)
+  - SoraUI/PinView (1.9.3):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.8.10)
-  - Starscream (4.0.3)
+  - SoraUI/Skrull (1.9.3)
+  - Starscream (4.0.4)
+  - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.39.2)
   - SwiftyBeaver (1.9.1)
+  - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `272969f1311f7c9d23621c1e9fa1a05545ad21f9`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `2e79d218d2f00c60af4a345f8e4c08b28c0c87a0`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `c697f6386691a86c46620fd33c58cd4dd56d8a8d`)
+  - FearlessUtils (~> 0.7.0)
   - FireMock
   - R.swift
+  - ReachabilitySwift
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `2fc8f504e0f9a0b4f9a6d54b8fc0d570ab9b60b7`)
-  - Starscream (~> 4.0.0)
+  - SoraUI
+  - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
+  - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
   - SwiftyBeaver
 
@@ -101,58 +113,61 @@ SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
     - R.swift.Library
+    - ReachabilitySwift
     - RobinHood
+    - scrypt.c
     - SoraFoundation
     - SoraKeystore
-    - Starscream
+    - SoraUI
+    - SwiftGifOrigin
     - SwiftLint
     - SwiftyBeaver
+    - TweetNacl
     - xxHash-Swift
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
+    :commit: 2e79d218d2f00c60af4a345f8e4c08b28c0c87a0
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: c697f6386691a86c46620fd33c58cd4dd56d8a8d
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  SoraUI:
-    :commit: 2fc8f504e0f9a0b4f9a6d54b8fc0d570ab9b60b7
-    :git: https://github.com/soramitsu/UIkit-iOS.git
+  Starscream:
+    :branch: feature/without-origin
+    :git: https://github.com/ERussel/Starscream.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 272969f1311f7c9d23621c1e9fa1a05545ad21f9
+    :commit: 2e79d218d2f00c60af4a345f8e4c08b28c0c87a0
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: c697f6386691a86c46620fd33c58cd4dd56d8a8d
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
-  SoraUI:
-    :commit: 2fc8f504e0f9a0b4f9a6d54b8fc0d570ab9b60b7
-    :git: https://github.com/soramitsu/UIkit-iOS.git
+  Starscream:
+    :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
+    :git: https://github.com/ERussel/Starscream.git
 
 SPEC CHECKSUMS:
-  BigInt: 74b4d88367b0e819d9f77393549226d36faeb0d8
-  CommonWallet: cdfe1cf798e942df6c93cf579650169e698dfb2e
+  BigInt: f668a80089607f521586bbe29513d708491ef2f7
+  CommonWallet: aff931b1371471e6bd06e5c43028b67d5ab60d5a
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: cc0a97f19360257c06a7f204cb90c01c244e1fd3
+  FearlessUtils: c5ff1bfef02d7f0ceb02cae3e6a266bb4e0063cf
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: 334de61f89668e5cf9ab43b469860a44f0b61720
+  IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
-  RobinHood: 67b02df481d03c460396df6e78e9156a97deffc6
+  ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
+  RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
+  scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 40cf33f0e7c7c2ffe7eaf16ba217eb7339a7ea68
-  Starscream: ef06f0961fff0880bca0604416d61141e4faca67
+  SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
+  Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
+  SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
   SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
+  TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 8f152ab48efa892c166eab02e3a123c990e35295
+PODFILE CHECKSUM: 1b15a5c1b03cb34c3abeaca62ed922578cba3f9b
 
 COCOAPODS: 1.9.3

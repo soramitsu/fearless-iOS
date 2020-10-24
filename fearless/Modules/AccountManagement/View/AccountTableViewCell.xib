@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="accountCellId" rowHeight="48" id="O09-rG-pmb" customClass="AccountTableViewCell" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="48"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="O09-rG-pmb" id="n0Q-Qn-c6Q">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="48"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Jse-BE-a0i" customClass="BorderedContainerView" customModule="SoraUI">
+                        <rect key="frame" x="16" y="0.0" width="382" height="48"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                <color key="value" name="colorDarkGray"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="listCheckmarkIcon" translatesAutoresizingMaskIntoConstraints="NO" id="rXE-2x-dd9">
+                        <rect key="frame" x="14" y="12" width="24" height="24"/>
+                        <color key="tintColor" name="colorWhite"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="24" id="HWW-9Z-Eha"/>
+                            <constraint firstAttribute="width" constant="24" id="Zyk-9q-6pS"/>
+                        </constraints>
+                    </imageView>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="V4E-kb-Nab" customClass="PolkadotIconView" customModule="FearlessUtils">
+                        <rect key="frame" x="50" y="12" width="24" height="24"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="24" id="AMy-aH-ykz"/>
+                            <constraint firstAttribute="height" constant="24" id="Sef-ho-LRE"/>
+                        </constraints>
+                    </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Russel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QPI-de-wQ6">
+                        <rect key="frame" x="86" y="9" width="268" height="16.5"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <color key="textColor" name="colorWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="GybH55zsi5nAGybH55zsi5nA" textAlignment="natural" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="18j-pV-YOn">
+                        <rect key="frame" x="86" y="27" width="268" height="14"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                        <color key="textColor" name="colorLightGray"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tC2-y9-sqp" customClass="RoundedButton" customModule="SoraUI">
+                        <rect key="frame" x="366" y="0.0" width="48" height="48"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="48" id="1YJ-bu-IIL"/>
+                            <constraint firstAttribute="height" constant="48" id="OE2-5W-7F4"/>
+                        </constraints>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="image" keyPath="_iconImage" value="iconInfo"/>
+                            <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
+                                <real key="value" value="8"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
+                                <real key="value" value="0.0"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
+                            <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                                <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                        <connections>
+                            <action selector="actionInfo" destination="O09-rG-pmb" eventType="touchUpInside" id="MHZ-9d-wo3"/>
+                        </connections>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="Jse-BE-a0i" firstAttribute="top" secondItem="n0Q-Qn-c6Q" secondAttribute="top" id="77d-cb-jTc"/>
+                    <constraint firstItem="18j-pV-YOn" firstAttribute="leading" secondItem="V4E-kb-Nab" secondAttribute="trailing" constant="12" id="C4D-IY-dOz"/>
+                    <constraint firstItem="tC2-y9-sqp" firstAttribute="leading" secondItem="18j-pV-YOn" secondAttribute="trailing" constant="12" id="DAl-dN-7Uv"/>
+                    <constraint firstAttribute="bottom" secondItem="Jse-BE-a0i" secondAttribute="bottom" id="ITQ-oI-5Hd"/>
+                    <constraint firstAttribute="trailing" secondItem="Jse-BE-a0i" secondAttribute="trailing" constant="16" id="JQ3-v6-QrC"/>
+                    <constraint firstItem="tC2-y9-sqp" firstAttribute="leading" secondItem="QPI-de-wQ6" secondAttribute="trailing" constant="12" id="OK5-KX-ob5"/>
+                    <constraint firstItem="Jse-BE-a0i" firstAttribute="leading" secondItem="n0Q-Qn-c6Q" secondAttribute="leading" constant="16" id="Tgh-DP-UBX"/>
+                    <constraint firstItem="tC2-y9-sqp" firstAttribute="centerY" secondItem="n0Q-Qn-c6Q" secondAttribute="centerY" id="Tjb-QV-aCR"/>
+                    <constraint firstAttribute="trailing" secondItem="tC2-y9-sqp" secondAttribute="trailing" id="VHk-3Y-ZEa"/>
+                    <constraint firstItem="V4E-kb-Nab" firstAttribute="centerY" secondItem="n0Q-Qn-c6Q" secondAttribute="centerY" id="WNg-Md-kh3"/>
+                    <constraint firstItem="rXE-2x-dd9" firstAttribute="centerY" secondItem="n0Q-Qn-c6Q" secondAttribute="centerY" id="XFf-98-Tno"/>
+                    <constraint firstItem="QPI-de-wQ6" firstAttribute="leading" secondItem="V4E-kb-Nab" secondAttribute="trailing" constant="12" id="eAw-8N-a81"/>
+                    <constraint firstItem="QPI-de-wQ6" firstAttribute="top" secondItem="n0Q-Qn-c6Q" secondAttribute="top" constant="9" id="hTj-Nd-L11"/>
+                    <constraint firstItem="V4E-kb-Nab" firstAttribute="leading" secondItem="rXE-2x-dd9" secondAttribute="trailing" constant="12" id="heR-i8-I88"/>
+                    <constraint firstItem="rXE-2x-dd9" firstAttribute="leading" secondItem="n0Q-Qn-c6Q" secondAttribute="leading" constant="14" id="kdD-KD-iBS"/>
+                    <constraint firstAttribute="bottom" secondItem="18j-pV-YOn" secondAttribute="bottom" constant="7" id="ttI-BB-097"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <inset key="separatorInset" minX="16" minY="0.0" maxX="16" maxY="0.0"/>
+            <connections>
+                <outlet property="detailsLabel" destination="18j-pV-YOn" id="0D7-WQ-Hrr"/>
+                <outlet property="iconView" destination="V4E-kb-Nab" id="zeq-pV-LHS"/>
+                <outlet property="infoButton" destination="tC2-y9-sqp" id="TzN-ai-te6"/>
+                <outlet property="selectionImageView" destination="rXE-2x-dd9" id="RPx-I5-5BL"/>
+                <outlet property="titleLabel" destination="QPI-de-wQ6" id="9kw-IK-6lz"/>
+            </connections>
+            <point key="canvasLocation" x="139" y="133"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="iconInfo" width="22" height="22"/>
+        <image name="listCheckmarkIcon" width="25" height="25"/>
+        <namedColor name="colorDarkGray">
+            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorLightGray">
+            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

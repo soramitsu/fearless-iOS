@@ -2,7 +2,7 @@ import UIKit
 import IrohaCrypto
 import SoraFoundation
 
-enum AdvancedSelectionContext: String {
+enum AccountCreateContext: String {
     case cryptoType
     case networkType
 }
@@ -45,8 +45,12 @@ final class AccountCreatePresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = IconWithTitleViewModel(icon: addressType.icon,
-                                               title: addressType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(icon: addressType.icon,
+                                                      title: addressType.titleForLocale(locale))
+
+        let selectable = (metadata?.availableAddressTypes.count ?? 0) > 1
+        let viewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
+                                            selectable: selectable)
 
         view?.setSelectedNetwork(model: viewModel)
     }
@@ -57,15 +61,18 @@ final class AccountCreatePresenter {
         }
 
         let predicate: NSPredicate
+        let placeholder: String
 
         if cryptoType == .sr25519 {
-            predicate = NSPredicate.deriviationPath
+            predicate = NSPredicate.deriviationPathHardSoftPassword
+            placeholder = DerivationPathConstants.hardSoftPasswordPlaceholder
         } else {
-            predicate = NSPredicate.deriviationPathWithoutSoft
+            predicate = NSPredicate.deriviationPathHardPassword
+            placeholder = DerivationPathConstants.hardPasswordPlaceholder
         }
 
         let inputHandling = InputHandler(predicate: predicate)
-        let viewModel = InputViewModel(inputHandler: inputHandling)
+        let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
 
         self.derivationPathViewModel = viewModel
 
@@ -78,11 +85,11 @@ final class AccountCreatePresenter {
 
         switch cryptoType {
         case .sr25519:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPath,
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoftPassword,
                                   from: view,
                                   locale: locale)
         case .ed25519, .ecdsa:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationPathWithoutSoft,
+            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardPassword,
                                   from: view,
                                   locale: locale)
         }
@@ -120,7 +127,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func selectCryptoType() {
         if let metadata = metadata {
-            let context = AdvancedSelectionContext.cryptoType.rawValue as NSString
+            let context = AccountCreateContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
             wireframe.presentCryptoTypeSelection(from: view,
                                                  availableTypes: metadata.availableCryptoTypes,
@@ -132,10 +139,10 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func selectNetworkType() {
         if let metadata = metadata {
-            let context = AdvancedSelectionContext.networkType.rawValue as NSString
-            let selectedType = selectedAddressType ?? metadata.defaultAccountType
+            let context = AccountCreateContext.networkType.rawValue as NSString
+            let selectedType = selectedAddressType ?? metadata.defaultAddressType
             wireframe.presentNetworkTypeSelection(from: view,
-                                                  availableTypes: metadata.availableAccountTypes,
+                                                  availableTypes: metadata.availableAddressTypes,
                                                   selectedType: selectedType,
                                                   delegate: self,
                                                   context: context)
@@ -146,7 +153,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         guard
             let addressType = selectedAddressType,
             let cryptoType = selectedCryptoType,
-            let viewModel = derivationPathViewModel else {
+            let viewModel = derivationPathViewModel,
+            let metadata = metadata else {
             return
         }
 
@@ -161,7 +169,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
                                              derivationPath: viewModel.inputHandler.value,
                                              cryptoType: cryptoType)
 
-        interactor.createAccount(request: request)
+        wireframe.confirm(from: view,
+                          request: request,
+                          metadata: metadata)
     }
 }
 
@@ -170,7 +180,7 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
         self.metadata = metadata
 
         selectedCryptoType = metadata.defaultCryptoType
-        selectedAddressType = metadata.defaultAccountType
+        selectedAddressType = metadata.defaultAddressType
 
         view?.set(mnemonic: metadata.mnemonic)
 
@@ -190,29 +200,13 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
                               from: view,
                               locale: locale)
     }
-
-    func didCompleteAccountCreation() {
-        wireframe.proceed(from: view)
-    }
-
-    func didReceiveAccountCreation(error: Error) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        guard !wireframe.present(error: error, from: view, locale: locale) else {
-            return
-        }
-
-        _ = wireframe.present(error: CommonError.undefined,
-                              from: view,
-                              locale: locale)
-    }
 }
 
 extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         if
             let context = context as? NSString,
-            let selectionContext = AdvancedSelectionContext(rawValue: context as String) {
+            let selectionContext = AccountCreateContext(rawValue: context as String) {
             switch selectionContext {
             case .cryptoType:
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
@@ -222,7 +216,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
 
                 view?.didCompleteCryptoTypeSelection()
             case .networkType:
-                selectedAddressType = metadata?.availableAccountTypes[index]
+                selectedAddressType = metadata?.availableAddressTypes[index]
 
                 applyAddressTypeViewModel()
                 view?.didCompleteNetworkTypeSelection()
@@ -233,7 +227,7 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidCancel(context: AnyObject?) {
         if
             let context = context as? NSString,
-            let selectionContext = AdvancedSelectionContext(rawValue: context as String) {
+            let selectionContext = AccountCreateContext(rawValue: context as String) {
             switch selectionContext {
             case .cryptoType:
                 view?.didCompleteCryptoTypeSelection()

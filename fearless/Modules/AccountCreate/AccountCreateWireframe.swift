@@ -2,14 +2,17 @@ import Foundation
 import IrohaCrypto
 
 final class AccountCreateWireframe: AccountCreateWireframeProtocol {
-    lazy var rootAnimator: RootControllerAnimationCoordinatorProtocol = RootControllerAnimationCoordinator()
-
-    func proceed(from view: AccountCreateViewProtocol?) {
-        guard let pincodeViewController = PinViewFactory.createPinSetupView()?.controller else {
+    func confirm(from view: AccountCreateViewProtocol?,
+                 request: AccountCreationRequest,
+                 metadata: AccountCreationMetadata) {
+        guard let accountConfirmation = AccountConfirmViewFactory
+            .createViewForOnboarding(request: request, metadata: metadata)?.controller else {
             return
         }
 
-        rootAnimator.animateTransition(to: pincodeViewController)
+        if let navigationController = view?.controller.navigationController {
+            navigationController.pushViewController(accountConfirmation, animated: true)
+        }
     }
 
     func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,

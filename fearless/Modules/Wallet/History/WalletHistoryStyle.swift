@@ -8,12 +8,12 @@ extension HistoryViewStyle {
         let titleStyle = WalletTextStyle(font: R.font.soraRc0040417SemiBold(size: 15.0)!,
                                          color: .white)
 
-        return HistoryViewStyle(fillColor: UIColor.black.withAlphaComponent(0.4),
+        return HistoryViewStyle(fillColor: UIColor.black.withAlphaComponent(0.7),
                                 borderStyle: borderStyle,
                                 cornerRadius: cornerRadius,
                                 titleStyle: titleStyle,
                                 filterIcon: nil,
-                                closeIcon: nil,
+                                closeIcon: R.image.iconClose(),
                                 panIndicatorStyle: UIColor.white)
     }
 }

@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G2021" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="CDChainStorageItem" representedClassName="CDChainStorageItem" syncable="YES" codeGenerationType="class">
+        <attribute name="data" optional="YES" attributeType="Binary"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="CDContactItem" representedClassName="CDContactItem" syncable="YES" codeGenerationType="class">
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="peerAddress" optional="YES" attributeType="String"/>
+        <attribute name="peerName" optional="YES" attributeType="String"/>
+        <attribute name="targetAddress" optional="YES" attributeType="String"/>
+        <attribute name="updatedAt" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
+        <attribute name="amount" optional="YES" attributeType="String"/>
+        <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
+        <attribute name="fee" optional="YES" attributeType="String"/>
+        <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="receiver" optional="YES" attributeType="String"/>
+        <attribute name="sender" optional="YES" attributeType="String"/>
+        <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="timestamp" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="txIndex" optional="YES" attributeType="Integer 16" usesScalarValueType="NO"/>
+    </entity>
+    <elements>
+        <element name="CDChainStorageItem" positionX="-54" positionY="-9" width="128" height="73"/>
+        <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="178"/>
+        <element name="CDContactItem" positionX="-45" positionY="81" width="128" height="118"/>
+    </elements>
+</model>

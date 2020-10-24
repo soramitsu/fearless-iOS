@@ -1,23 +1,23 @@
 import Foundation
 import SoraUI
 
-extension ModalInputPresentationStyle {
-    static var fearless: ModalInputPresentationStyle {
+extension ModalSheetPresentationStyle {
+    static var fearless: ModalSheetPresentationStyle {
         let indicatorSize = CGSize(width: 35.0, height: 2.0)
-        let headerStyle = ModalInputPresentationHeaderStyle(preferredHeight: 20.0,
-                                                            backgroundColor: R.color.colorBlack()!,
+        let headerStyle = ModalSheetPresentationHeaderStyle(preferredHeight: 20.0,
+                                                            backgroundColor: R.color.colorAlmostBlack()!,
                                                             cornerRadius: 20.0,
                                                             indicatorVerticalOffset: 2.0,
                                                             indicatorSize: indicatorSize,
                                                             indicatorColor: R.color.colorLightGray()!)
-        let style = ModalInputPresentationStyle(backdropColor: R.color.colorScrim()!,
+        let style = ModalSheetPresentationStyle(backdropColor: R.color.colorScrim()!,
                                                 headerStyle: headerStyle)
         return style
     }
 }
 
-extension ModalInputPresentationConfiguration {
-    static var fearless: ModalInputPresentationConfiguration {
+extension ModalSheetPresentationConfiguration {
+    static var fearless: ModalSheetPresentationConfiguration {
         let appearanceAnimator = BlockViewAnimator(duration: 0.25,
                                                    delay: 0.0,
                                                    options: [.curveEaseOut])
@@ -25,9 +25,9 @@ extension ModalInputPresentationConfiguration {
                                                   delay: 0.0,
                                                   options: [.curveLinear])
 
-        let configuration = ModalInputPresentationConfiguration(contentAppearanceAnimator: appearanceAnimator,
+        let configuration = ModalSheetPresentationConfiguration(contentAppearanceAnimator: appearanceAnimator,
                                                                 contentDissmisalAnimator: dismissalAnimator,
-                                                                style: ModalInputPresentationStyle.fearless,
+                                                                style: ModalSheetPresentationStyle.fearless,
                                                                 extendUnderSafeArea: true,
                                                                 dismissFinishSpeedFactor: 0.6,
                                                                 dismissCancelSpeedFactor: 0.6)

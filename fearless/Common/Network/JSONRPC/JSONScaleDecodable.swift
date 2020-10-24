@@ -4,6 +4,10 @@ import FearlessUtils
 struct JSONScaleDecodable<T: ScaleDecodable>: Decodable {
     let underlyingValue: T?
 
+    init(value: T?) {
+        self.underlyingValue = value
+    }
+
     init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
 

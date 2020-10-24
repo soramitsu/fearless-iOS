@@ -5,7 +5,7 @@ import SoraUI
 final class UsernameSetupViewController: UIViewController {
     var presenter: UsernameSetupPresenterProtocol!
 
-    @IBOutlet private var inputField: UITextField!
+    @IBOutlet private var inputField: AnimatedTextField!
     @IBOutlet private var hintLabel: UILabel!
     @IBOutlet private var nextButton: TriangularedButton!
 
@@ -18,6 +18,7 @@ final class UsernameSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureTextField()
         setupLocalization()
 
         presenter.setup()
@@ -53,6 +54,16 @@ final class UsernameSetupViewController: UIViewController {
         super.viewDidLayoutSubviews()
     }
 
+    private func configureTextField() {
+        inputField.textField.returnKeyType = .done
+        inputField.textField.textContentType = .nickname
+        inputField.textField.autocapitalizationType = .none
+        inputField.textField.autocorrectionType = .no
+        inputField.textField.spellCheckingType = .no
+
+        inputField.delegate = self
+    }
+
     private func updateActionButton() {
         guard let viewModel = viewModel else {
             return
@@ -78,11 +89,10 @@ final class UsernameSetupViewController: UIViewController {
     }
 }
 
-extension UsernameSetupViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
-
+extension UsernameSetupViewController: AnimatedTextFieldDelegate {
+    func animatedTextField(_ textField: AnimatedTextField,
+                           shouldChangeCharactersIn range: NSRange,
+                           replacementString string: String) -> Bool {
         guard let viewModel = viewModel else {
             return true
         }
@@ -96,7 +106,7 @@ extension UsernameSetupViewController: UITextFieldDelegate {
         return shouldApply
     }
 
-    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+    func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
         textField.resignFirstResponder()
 
         return false
@@ -109,7 +119,11 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
     var shouldApplyKeyboardFrame: Bool { isFirstLayoutCompleted }
 
     func offsetFromKeyboardWithInset(_ bottomInset: CGFloat) -> CGFloat {
-        -view.safeAreaInsets.bottom + 24
+        if bottomInset > 0.0 {
+            return -view.safeAreaInsets.bottom + 24
+        } else {
+            return 24
+        }
     }
 }
 
@@ -132,7 +146,8 @@ extension UsernameSetupViewController: Localizable {
         nextButton.invalidateLayout()
 
         hintLabel.text = R.string.localizable.usernameSetupHint(preferredLanguages: languages)
-        inputField.placeholder = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: languages)
+
+        inputField.title = R.string.localizable.usernameSetupChooseTitle(preferredLanguages: languages)
     }
 
     func applyLocalization() {
