@@ -113,8 +113,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarStakingTitle(preferredLanguages: locale.rLanguages)
@@ -141,8 +142,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
 
         let localizableTitle = LocalizableResource { locale in
             R.string.localizable.tabbarGovernanceTitle(preferredLanguages: locale.rLanguages)
@@ -169,8 +171,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        let viewController = UIViewController()
-        viewController.view.backgroundColor = R.color.colorAlmostBlack()
+
+        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+            return nil
+        }
 
         let localizableTitle = LocalizableResource { _ in
             // TODO: fix translation in corresponding task

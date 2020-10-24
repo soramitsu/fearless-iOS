@@ -132,11 +132,13 @@ final class TransactionHistoryMergeManager {
             TransactionHistoryMergeItem.remote(remote: $0)
         }
 
-        let transactionsItems = (localMergeItems + remoteMergeItems).map { item in
-            item.buildTransactionData(address: address,
-                                      networkType: networkType,
-                                      asset: asset,
-                                      addressFactory: addressFactory)
+        let transactionsItems = (localMergeItems + remoteMergeItems)
+            .sorted { $0.compareWithItem($1) }
+            .map { item in
+                item.buildTransactionData(address: address,
+                                          networkType: networkType,
+                                          asset: asset,
+                                          addressFactory: addressFactory)
         }
 
         let results = TransactionHistoryMergeResult(historyItems: transactionsItems,
