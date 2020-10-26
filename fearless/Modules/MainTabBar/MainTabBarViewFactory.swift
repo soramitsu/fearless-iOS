@@ -6,6 +6,12 @@ import CommonWallet
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 	static func createView() -> MainTabBarViewProtocol? {
 
+        guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
+                .findService() else {
+            Logger.shared.error("Can't find required keystore import service")
+            return nil
+        }
+
         let localizationManager = LocalizationManager.shared
         let webSocketService = WebSocketService.shared
         webSocketService.networkStatusPresenter =
@@ -13,7 +19,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
-                                              webSocketService: webSocketService)
+                                              webSocketService: webSocketService,
+                                              keystoreImportService: keystoreImportService)
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),

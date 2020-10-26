@@ -26,4 +26,8 @@ extension MainTabBarPresenter: MainTabBarInteractorOutputProtocol {
     func didUpdateWalletInfo() {
         wireframe.reloadWalletContent()
     }
+
+    func didRequestImportAccount() {
+        wireframe.presentAccountImport(on: view)
+    }
 }
