@@ -176,9 +176,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        let localizableTitle = LocalizableResource { _ in
-            // TODO: fix translation in corresponding task
-            "Polkaswap"
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarPolkaswapTitle(preferredLanguages: locale.rLanguages)
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
