@@ -7,6 +7,11 @@ final class AddImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
+        if let presentingController = navigationController.presentingViewController {
+            presentingController.dismiss(animated: true, completion: nil)
+            return
+        }
+
         if let managementController = navigationController.viewControllers
             .first(where: { $0 is AccountManagementViewController }) {
             navigationController.popToViewController(managementController, animated: true)

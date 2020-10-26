@@ -183,3 +183,4 @@ provient du bon réseau";
 "wallet.receive.share.message" = "Mon adresse %@ pour recevoir %@:";
 "coming.soon.dev.status" = "Vérifier l'état du développeur";
 "comming.soon.roadmap" = "Vérifier la feuille de route";
+"tabbar.polkaswap.title" = "Polkaswap";

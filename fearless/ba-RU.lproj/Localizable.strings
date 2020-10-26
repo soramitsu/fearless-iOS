@@ -180,3 +180,4 @@
 "wallet.receive.share.message" = "Мой %@ адрес для получения %@:";
 "coming.soon.dev.status" = "Статус разработки";
 "comming.soon.roadmap" = "План разработки";
+"tabbar.polkaswap.title" = "Polkaswap";

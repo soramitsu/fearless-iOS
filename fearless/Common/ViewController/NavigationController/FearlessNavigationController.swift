@@ -26,6 +26,12 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
         navigationBar.titleTextAttributes = FearlessNavigationBarStyle.titleAttributes
     }
 
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        insertCloseButtonToRootIfNeeded()
+    }
+
     // MARK: UINavigationControllerDelegate
 
     public func navigationController(_ navigationController: UINavigationController,
@@ -45,5 +51,22 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
         let backButtonItem = viewController.navigationItem.backBarButtonItem ?? UIBarButtonItem()
         backButtonItem.title = " "
         viewController.navigationItem.backBarButtonItem = backButtonItem
+    }
+
+    private func insertCloseButtonToRootIfNeeded() {
+        if
+            presentingViewController != nil,
+            let rootViewController = viewControllers.first,
+            rootViewController.navigationItem.leftBarButtonItem == nil {
+            let closeItem = UIBarButtonItem(image: R.image.iconClose(),
+                                            style: .plain,
+                                            target: self,
+                                            action: #selector(actionClose))
+            rootViewController.navigationItem.leftBarButtonItem = closeItem
+        }
+    }
+
+    @objc private func actionClose() {
+        presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }
