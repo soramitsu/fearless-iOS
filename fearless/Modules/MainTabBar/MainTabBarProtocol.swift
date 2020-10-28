@@ -18,6 +18,7 @@ protocol MainTabBarInteractorOutputProtocol: class {
     func didReloadSelectedAccount()
     func didReloadSelectedNetwork()
     func didUpdateWalletInfo()
+    func didRequestImportAccount()
 }
 
 protocol MainTabBarWireframeProtocol: AlertPresentable {
@@ -25,6 +26,8 @@ protocol MainTabBarWireframeProtocol: AlertPresentable {
 
     func showNewWalletView(on view: MainTabBarViewProtocol?)
     func reloadWalletContent()
+
+    func presentAccountImport(on view: MainTabBarViewProtocol?)
 }
 
 protocol MainTabBarViewFactoryProtocol: class {

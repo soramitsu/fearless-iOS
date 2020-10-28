@@ -180,3 +180,4 @@ a type of password.";
 "wallet.receive.share.message" = "マイ%@受信するためのアドレス%@:";
 "coming.soon.dev.status" = "開発ステータスを確認する";
 "comming.soon.roadmap" = "ロードマップを確認する";
+"tabbar.polkaswap.title" = "Polkaswap";

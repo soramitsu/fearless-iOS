@@ -54,7 +54,7 @@ final class WalletQREncoder: WalletQREncoderProtocol {
         var fields: [String] = [
             prefix,
             address,
-            publicKey.toHex(includePrefix: true),
+            publicKey.toHex(includePrefix: true)
         ]
 
         if let username = username {
@@ -130,13 +130,13 @@ final class WalletQRCoderFactory: WalletQRCoderFactoryProtocol {
         WalletQREncoder(networkType: networkType,
                         publicKey: publicKey,
                         username: username,
-                        prefix:  WalletQRCoderConstants.prefix,
+                        prefix: WalletQRCoderConstants.prefix,
                         separator: WalletQRCoderConstants.fieldsSeparator)
     }
 
     func createDecoder() -> WalletQRDecoderProtocol {
         WalletQRDecoder(networkType: networkType,
-                        prefix:  WalletQRCoderConstants.prefix,
+                        prefix: WalletQRCoderConstants.prefix,
                         separator: WalletQRCoderConstants.fieldsSeparator)
     }
 }

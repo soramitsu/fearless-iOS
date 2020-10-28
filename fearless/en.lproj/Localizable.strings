@@ -183,3 +183,4 @@ from the right network";
 "wallet.receive.share.message" = "My %@ address to receive %@:";
 "coming.soon.dev.status" = "Check Dev Status";
 "comming.soon.roadmap" = "Check Roadmap";
+"tabbar.polkaswap.title" = "Polkaswap";
