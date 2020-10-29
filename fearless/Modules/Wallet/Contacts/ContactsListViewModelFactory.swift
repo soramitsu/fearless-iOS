@@ -5,10 +5,11 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     private var itemViewModelFactory = ContactsViewModelFactory()
 
     func createContactViewModelListFromItems(_ items: [SearchData],
-                                             accountId: String,
-                                             assetId: String,
+                                             parameters: ContactModuleParameters,
                                              locale: Locale,
-                                             delegate: ContactViewModelDelegate?) -> [ContactSectionViewModelProtocol] {
+                                             delegate: ContactViewModelDelegate?,
+                                             commandFactory: WalletCommandFactoryProtocol)
+    -> [ContactSectionViewModelProtocol] {
         let (localItems, remoteItems) = items.reduce(([SearchData](), [SearchData]())) { (result, item) in
             let context = ContactContext(context: item.context ?? [:])
 
@@ -24,10 +25,10 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
 
         if !localItems.isEmpty {
             let viewModels = createSearchViewModelListFromItems(localItems,
-                                                                accountId: accountId,
-                                                                assetId: assetId,
+                                                                parameters: parameters,
                                                                 locale: locale,
-                                                                delegate: delegate)
+                                                                delegate: delegate,
+                                                                commandFactory: commandFactory)
 
             let sectionTitle = R.string.localizable
                 .walletSearchAccounts(preferredLanguages: locale.rLanguages)
@@ -38,10 +39,10 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
 
         if !remoteItems.isEmpty {
             let viewModels = createSearchViewModelListFromItems(remoteItems,
-                                                                accountId: accountId,
-                                                                assetId: assetId,
+                                                                parameters: parameters,
                                                                 locale: locale,
-                                                                delegate: delegate)
+                                                                delegate: delegate,
+                                                                commandFactory: commandFactory)
             let sectionTitle = R.string.localizable
                 .walletSearchContacts(preferredLanguages: locale.rLanguages)
             let section = ContactSectionViewModel(title: sectionTitle,
@@ -53,19 +54,29 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     }
 
     func createSearchViewModelListFromItems(_ items: [SearchData],
-                                            accountId: String,
-                                            assetId: String,
+                                            parameters: ContactModuleParameters,
                                             locale: Locale,
-                                            delegate: ContactViewModelDelegate?) -> [WalletViewModelProtocol] {
+                                            delegate: ContactViewModelDelegate?,
+                                            commandFactory: WalletCommandFactoryProtocol)
+    -> [WalletViewModelProtocol] {
         items.compactMap {
             itemViewModelFactory.createContactViewModelFromContact($0,
-                                                                   accountId: accountId,
-                                                                   assetId: assetId,
+                                                                   accountId: parameters.accountId,
+                                                                   assetId: parameters.assetId,
                                                                    delegate: delegate)
         }
     }
 
-    func createBarActionForAccountId(_ accountId: String, assetId: String) -> WalletBarActionViewModelProtocol? {
-        nil
+    func createBarActionForAccountId(_ parameters: ContactModuleParameters,
+                                     commandFactory: WalletCommandFactoryProtocol)
+    -> WalletBarActionViewModelProtocol? {
+        guard let icon = R.image.iconScanQr() else {
+            return nil
+        }
+
+        let command = commandFactory.prepareScanReceiverCommand()
+        let viewModel = WalletBarActionViewModel(displayType: .icon(icon),
+                                                 command: command)
+        return viewModel
     }
 }
