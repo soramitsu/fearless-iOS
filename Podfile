@@ -10,7 +10,7 @@ abstract_target 'fearlessAll' do
   pod 'SoraKeystore'
   pod 'SoraUI'
   pod 'RobinHood'
-  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'fda551a2340437132c5e5d93770de9768785baab'
+  pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'da4acf47439155a3a41ce705e7f8b3340d49aa20'
   pod 'SoraFoundation', '~> 0.8.0'
   pod 'SwiftyBeaver'
   pod 'Starscream', :git => 'https://github.com/ERussel/Starscream.git', :branch => 'feature/without-origin'
@@ -26,7 +26,7 @@ abstract_target 'fearlessAll' do
     pod 'FireMock'
     pod 'SoraKeystore'
     pod 'RobinHood'
-    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'fda551a2340437132c5e5d93770de9768785baab'
+    pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => 'da4acf47439155a3a41ce705e7f8b3340d49aa20'
 
   end
 
