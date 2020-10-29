@@ -110,7 +110,9 @@ final class WalletNetworkOperationFactory {
                                                                genesisHash: genesisHashData,
                                                                specVersion: runtimeVersion.specVersion,
                                                                transactionVersion: runtimeVersion.transactionVersion,
-                                                               signatureVersion: currentCryptoType.version)
+                                                               signatureVersion: currentCryptoType.version,
+                                                               moduleIndex: chain.balanceModuleIndex,
+                                                               callIndex: chain.transferCallIndex)
 
                 let extrinsicData = try ExtrinsicFactory.transferExtrinsic(from: senderAccountId,
                                                                            to: receiverAccountId,

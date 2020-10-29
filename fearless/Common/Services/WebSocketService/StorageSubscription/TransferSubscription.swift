@@ -19,7 +19,7 @@ private typealias ResultAndFeeOperationWrapper =
 final class TransferSubscription {
     let engine: JSONRPCEngine
     let address: String
-    let networkType: SNAddressType
+    let chain: Chain
     let addressFactory: SS58AddressFactoryProtocol
     let storage: AnyDataProviderRepository<TransactionHistoryItem>
     let contactOperationFactory: WalletContactOperationFactoryProtocol
@@ -29,7 +29,7 @@ final class TransferSubscription {
 
     init(engine: JSONRPCEngine,
          address: String,
-         networkType: SNAddressType,
+         chain: Chain,
          addressFactory: SS58AddressFactoryProtocol,
          storage: AnyDataProviderRepository<TransactionHistoryItem>,
          contactOperationFactory: WalletContactOperationFactoryProtocol,
@@ -38,7 +38,7 @@ final class TransferSubscription {
          logger: LoggerProtocol) {
         self.engine = engine
         self.address = address
-        self.networkType = networkType
+        self.chain = chain
         self.addressFactory = addressFactory
         self.contactOperationFactory = contactOperationFactory
         self.storage = storage
@@ -119,7 +119,10 @@ final class TransferSubscription {
 extension TransferSubscription {
     private func createFeeWrappersFromResults(_ results: [TransferSubscriptionResult])
         -> [ResultAndFeeOperationWrapper] {
-        results.map { result in
+
+        let networkType = SNAddressType(chain: chain)
+
+        return results.map { result in
             let feeOperation: BaseOperation<RuntimeDispatchInfo> =
                 JSONRPCOperation(engine: engine,
                                  method: RPCMethod.paymentInfo,
@@ -132,7 +135,7 @@ extension TransferSubscription {
                         .fee
 
                     let fee = Decimal.fromSubstrateAmount(BigUInt(feeString) ?? BigUInt(0),
-                                                          precision: self.networkType.precision) ?? .zero
+                                                          precision: networkType.precision) ?? .zero
 
                     self.logger.debug("Did receive fee: \(result.extrinsicHash) \(fee)")
                     return (result, fee)
@@ -172,6 +175,7 @@ extension TransferSubscription {
     private func createContactSaveForResults(_ results: [TransferSubscriptionResult])
         -> [CompoundOperationWrapper<Void>] {
         do {
+            let networkType = SNAddressType(chain: chain)
             let accountId = try addressFactory.accountId(fromAddress: address,
                                                          type: networkType)
 
@@ -200,7 +204,9 @@ extension TransferSubscription {
     private func createParseOperation(dependingOn fetchOperation: BaseOperation<SignedBlock>)
         -> BaseOperation<[TransferSubscriptionResult]> {
 
-        ClosureOperation {
+        let currentChain = chain
+
+        return ClosureOperation {
             let block = try fetchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 .block
@@ -215,13 +221,13 @@ extension TransferSubscription {
                     let extrinsicHash = try data.blake2b32()
                     let extrinsic = try Extrinsic(scaleDecoder: ScaleDecoder(data: data))
 
-                    guard extrinsic.call.moduleIndex == ExtrinsicConstants.balanceModuleIndex else {
+                    guard extrinsic.call.moduleIndex == currentChain.balanceModuleIndex else {
                         return nil
                     }
 
                     let isValidTransfer = [
-                        ExtrinsicConstants.transferCallIndex,
-                        ExtrinsicConstants.keepAliveTransferIndex
+                        currentChain.transferCallIndex,
+                        currentChain.keepAliveTransferCallIndex
                     ].contains(extrinsic.call.callIndex)
 
                     guard isValidTransfer, let callData = extrinsic.call.arguments else {
