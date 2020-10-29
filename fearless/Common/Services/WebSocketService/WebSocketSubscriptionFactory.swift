@@ -115,7 +115,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         return TransferSubscription(engine: engine,
                                     address: address,
-                                    networkType: networkType,
+                                    chain: networkType.chain,
                                     addressFactory: addressFactory,
                                     storage: AnyDataProviderRepository(storage),
                                     contactOperationFactory: contactOperationFactory,
