@@ -41,7 +41,7 @@ class BaseAccountImportInteractor {
                 let jsonData = try JSONEncoder().encode(definition)
 
                 if let text = String(data: jsonData, encoding: .utf8) {
-                    presenter.didSuggestKeystore(text: text, username: definition.meta.name)
+                    presenter.didSuggestKeystore(text: text, username: definition.meta?.name)
                 }
 
             } catch {
@@ -110,8 +110,8 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
     func deriveUsernameFromKeystore(_ keystore: String) {
         if
             let data = keystore.data(using: .utf8),
-            let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data) {
-            presenter.didDeriveKeystore(username: definition.meta.name)
+            let username = try? jsonDecoder.decode(KeystoreDefinition.self, from: data).meta?.name {
+            presenter.didDeriveKeystore(username: username)
         }
     }
 }

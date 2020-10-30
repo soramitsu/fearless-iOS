@@ -96,7 +96,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `da4acf47439155a3a41ce705e7f8b3340d49aa20`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `07fd4c799f63a5e9f400f8cfeb94b7a002eaf1b5`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `56265efa33ee0e7f0186a5873801147f2a19659a`)
   - FireMock
   - R.swift
   - ReachabilitySwift
@@ -134,7 +134,7 @@ EXTERNAL SOURCES:
     :commit: da4acf47439155a3a41ce705e7f8b3340d49aa20
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 07fd4c799f63a5e9f400f8cfeb94b7a002eaf1b5
+    :commit: 56265efa33ee0e7f0186a5873801147f2a19659a
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -145,7 +145,7 @@ CHECKOUT OPTIONS:
     :commit: da4acf47439155a3a41ce705e7f8b3340d49aa20
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 07fd4c799f63a5e9f400f8cfeb94b7a002eaf1b5
+    :commit: 56265efa33ee0e7f0186a5873801147f2a19659a
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -173,6 +173,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: f2b7daa283ec1f944b851ef8ce2a28473a73ce14
+PODFILE CHECKSUM: a608d3936e1df49d6acacc3e35c8943796d48446
 
 COCOAPODS: 1.10.0

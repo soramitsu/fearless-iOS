@@ -189,9 +189,7 @@ class JSONRPCTests: XCTestCase {
         let identifier = try SS58AddressFactory().accountId(fromAddress: address,
                                                             type: type)
 
-        let key = try StorageKeyFactory().createStorageKey(moduleName: "System",
-                                                           serviceName: "Account",
-                                                           identifier: identifier).toHex(includePrefix: true)
+        let key = try StorageKeyFactory().accountInfoKeyForId(identifier).toHex(includePrefix: true)
 
         let operation = JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
                                                                               method: RPCMethod.getStorage,
@@ -246,9 +244,7 @@ class JSONRPCTests: XCTestCase {
         let identifier = try SS58AddressFactory().accountId(fromAddress: address,
                                                             type: type)
 
-        let key = try StorageKeyFactory().createStorageKey(moduleName: "Staking",
-                                                           serviceName: "Ledger",
-                                                           identifier: identifier).toHex(includePrefix: true)
+        let key = try StorageKeyFactory().stakingInfoForControllerId(identifier).toHex(includePrefix: true)
 
         let operation = JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
                                                                                 method: RPCMethod.getStorage,
