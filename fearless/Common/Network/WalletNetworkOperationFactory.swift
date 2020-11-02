@@ -43,35 +43,15 @@ final class WalletNetworkOperationFactory {
         do {
             let identifier = try (accountId ?? Data(hexString: accountSettings.accountId))
 
-            return createStorageFetchOperation(moduleName: "System",
-                                               serviceName: "Account",
-                                               identifier: identifier)
-        } catch {
-            return createBaseOperation(result: .failure(error))
-        }
-    }
+            let key = try StorageKeyFactory()
+                .createStorageKey(moduleName: "System",
+                                  serviceName: "Account",
+                                  identifier: identifier,
+                                  hasher: Blake128Concat()).toHex(includePrefix: true)
 
-    func createStorageFetchOperation<T: Decodable>(moduleName: String,
-                                                   serviceName: String,
-                                                   identifier: Data? = nil) -> BaseOperation<T> {
-        do {
-            let key: String
-            let storageKeyFactory = StorageKeyFactory()
-
-            if let identifier = identifier {
-                key = try storageKeyFactory.createStorageKey(moduleName: moduleName,
-                                                             serviceName: serviceName,
-                                                             identifier: identifier)
-                    .toHex(includePrefix: true)
-            } else {
-                key = try storageKeyFactory.createStorageKey(moduleName: moduleName,
-                                                             serviceName: serviceName)
-                    .toHex(includePrefix: true)
-            }
-
-            return JSONRPCListOperation<T>(engine: engine,
-                                           method: RPCMethod.getStorage,
-                                           parameters: [key])
+            return JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
+                                                                         method: RPCMethod.getStorage,
+                                                                         parameters: [key])
         } catch {
             return createBaseOperation(result: .failure(error))
         }
@@ -110,7 +90,9 @@ final class WalletNetworkOperationFactory {
                                                                genesisHash: genesisHashData,
                                                                specVersion: runtimeVersion.specVersion,
                                                                transactionVersion: runtimeVersion.transactionVersion,
-                                                               signatureVersion: currentCryptoType.version)
+                                                               signatureVersion: currentCryptoType.version,
+                                                               moduleIndex: chain.balanceModuleIndex,
+                                                               callIndex: chain.transferCallIndex)
 
                 let extrinsicData = try ExtrinsicFactory.transferExtrinsic(from: senderAccountId,
                                                                            to: receiverAccountId,

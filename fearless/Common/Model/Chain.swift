@@ -18,4 +18,17 @@ extension Chain {
             return .genericSubstrate
         }
     }
+
+    var balanceModuleIndex: UInt8 {
+        switch self {
+        case .polkadot:
+            return 5
+        default:
+            return 4
+        }
+    }
+
+    var transferCallIndex: UInt8 { 0 }
+
+    var keepAliveTransferCallIndex: UInt8 { 3 }
 }

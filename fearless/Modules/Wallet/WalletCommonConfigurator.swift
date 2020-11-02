@@ -8,11 +8,16 @@ struct WalletCommonConfigurator {
     let localizationManager: LocalizationManagerProtocol
     let networkType: SNAddressType
     let account: AccountItem
+    let assets: [WalletAsset]
 
-    init(localizationManager: LocalizationManagerProtocol, networkType: SNAddressType, account: AccountItem) {
+    init(localizationManager: LocalizationManagerProtocol,
+         networkType: SNAddressType,
+         account: AccountItem,
+         assets: [WalletAsset]) {
         self.localizationManager = localizationManager
         self.networkType = networkType
         self.account = account
+        self.assets = assets
     }
 
     func configure(builder: CommonWalletBuilderProtocol) {
@@ -23,7 +28,8 @@ struct WalletCommonConfigurator {
 
         let qrCoderFactory = WalletQRCoderFactory(networkType: networkType,
                                                   publicKey: account.publicKeyData,
-                                                  username: account.username)
+                                                  username: account.username,
+                                                  assets: assets)
 
         let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
         builder

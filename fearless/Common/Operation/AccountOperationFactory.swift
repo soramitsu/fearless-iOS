@@ -149,8 +149,10 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
 
             if let requestName = request.username, !requestName.isEmpty {
                 username = requestName
+            } else if let definitionName = keystoreDefinition.meta?.name {
+                username = definitionName
             } else {
-                username = keystoreDefinition.meta.name
+                throw AccountOperationFactoryError.missingUsername
             }
 
             try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)

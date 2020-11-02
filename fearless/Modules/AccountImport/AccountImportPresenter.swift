@@ -411,11 +411,14 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         applyUsernameViewModel(username)
     }
 
-    func didSuggestKeystore(text: String, username: String) {
+    func didSuggestKeystore(text: String, username: String?) {
         selectedSourceType = .keystore
 
         applySourceType(text)
-        applyUsernameViewModel(username)
+
+        if let username = username {
+            applyUsernameViewModel(username)
+        }
     }
 }
 

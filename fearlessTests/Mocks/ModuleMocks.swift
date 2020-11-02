@@ -3465,9 +3465,9 @@ import SoraFoundation
     
     
     
-     func didSuggestKeystore(text: String, username: String)  {
+     func didSuggestKeystore(text: String, username: String?)  {
         
-    return cuckoo_manager.call("didSuggestKeystore(text: String, username: String)",
+    return cuckoo_manager.call("didSuggestKeystore(text: String, username: String?)",
             parameters: (text, username),
             escapingParameters: (text, username),
             superclassCall:
@@ -3507,9 +3507,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didDeriveKeystore(username: String)", parameterMatchers: matchers))
 	    }
 	    
-	    func didSuggestKeystore<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(text: M1, username: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String)> where M1.MatchedType == String, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: text) { $0.0 }, wrap(matchable: username) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didSuggestKeystore(text: String, username: String)", parameterMatchers: matchers))
+	    func didSuggestKeystore<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(text: M1, username: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String?)> where M1.MatchedType == String, M2.OptionalMatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, String?)>] = [wrap(matchable: text) { $0.0 }, wrap(matchable: username) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didSuggestKeystore(text: String, username: String?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -3553,9 +3553,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didSuggestKeystore<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(text: M1, username: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: text) { $0.0 }, wrap(matchable: username) { $0.1 }]
-	        return cuckoo_manager.verify("didSuggestKeystore(text: String, username: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didSuggestKeystore<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(text: M1, username: M2) -> Cuckoo.__DoNotUse<(String, String?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, String?)>] = [wrap(matchable: text) { $0.0 }, wrap(matchable: username) { $0.1 }]
+	        return cuckoo_manager.verify("didSuggestKeystore(text: String, username: String?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -3583,7 +3583,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didSuggestKeystore(text: String, username: String)   {
+     func didSuggestKeystore(text: String, username: String?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

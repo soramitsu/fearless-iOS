@@ -68,7 +68,21 @@ final class AccountCreationHelper {
             return
         }
 
-        let keystoreString = try String(contentsOf: url)
+        let data = try Data(contentsOf: url)
+
+        return try createAccountFromKeystoreData(data,
+                                                 password: password,
+                                                 keychain: keychain,
+                                                 settings: settings)
+    }
+
+    static func createAccountFromKeystoreData(_ data: Data,
+                                              password: String,
+                                              keychain: KeystoreProtocol,
+                                              settings: SettingsManagerProtocol) throws {
+        guard let keystoreString = String(data: data, encoding: .utf8) else {
+            return
+        }
 
         let request = AccountImportKeystoreRequest(keystore: keystoreString,
                                                    password: password,

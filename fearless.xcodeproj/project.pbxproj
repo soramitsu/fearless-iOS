@@ -416,6 +416,8 @@
 		8494D87C252537E500614D8F /* SubscanError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D87B252537E500614D8F /* SubscanError.swift */; };
 		84969732251CE71500C39524 /* WalletAssetId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969731251CE71500C39524 /* WalletAssetId.swift */; };
 		84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969733251CE9CD00C39524 /* ContactsConfigurator.swift */; };
+		849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */; };
+		849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */; };
 		84A2C90024E040D00020D3B7 /* AccountImportError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C8FF24E040D00020D3B7 /* AccountImportError.swift */; };
 		84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */; };
 		84A2C90424E07F400020D3B7 /* AccountOperationFactoryError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90324E07F400020D3B7 /* AccountOperationFactoryError.swift */; };
@@ -504,6 +506,8 @@
 		84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54724F660A700459D15 /* EventProtocols.swift */; };
 		84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC55A24F660F500459D15 /* SelectedAccountChanged.swift */; };
 		84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */; };
+		84F4A90A254CC863000CF0A3 /* KeystoreExportWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */; };
+		84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */; };
 		84FAB0632542C8D600319F74 /* ContactItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0622542C8D600319F74 /* ContactItem.swift */; };
 		84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */; };
 		84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0662542D06B00319F74 /* WalletContactOperationFactory.swift */; };
@@ -1009,6 +1013,8 @@
 		8494D87B252537E500614D8F /* SubscanError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanError.swift; sourceTree = "<group>"; };
 		84969731251CE71500C39524 /* WalletAssetId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetId.swift; sourceTree = "<group>"; };
 		84969733251CE9CD00C39524 /* ContactsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConfigurator.swift; sourceTree = "<group>"; };
+		849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanConfigurator.swift; sourceTree = "<group>"; };
+		849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanLocalSearchEngine.swift; sourceTree = "<group>"; };
 		84A2C8FF24E040D00020D3B7 /* AccountImportError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportError.swift; sourceTree = "<group>"; };
 		84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Utils.swift"; sourceTree = "<group>"; };
 		84A2C90324E07F400020D3B7 /* AccountOperationFactoryError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountOperationFactoryError.swift; sourceTree = "<group>"; };
@@ -1105,6 +1111,8 @@
 		84EBC54724F660A700459D15 /* EventProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventProtocols.swift; sourceTree = "<group>"; };
 		84EBC55A24F660F500459D15 /* SelectedAccountChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAccountChanged.swift; sourceTree = "<group>"; };
 		84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+ReorderColor.swift"; sourceTree = "<group>"; };
+		84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapper.swift; sourceTree = "<group>"; };
+		84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapperTests.swift; sourceTree = "<group>"; };
 		84FAB0622542C8D600319F74 /* ContactItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactItem.swift; sourceTree = "<group>"; };
 		84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDContactItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
 		84FAB0662542D06B00319F74 /* WalletContactOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletContactOperationFactory.swift; sourceTree = "<group>"; };
@@ -1611,6 +1619,7 @@
 		842D1E7E24D0BED200C30A7A /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				84F4A90E25500119000CF0A3 /* Helpers */,
 				8432E54F24EFDF4A00B05B58 /* Storage */,
 				8467FD2B24EAAC4B005D486C /* Crypto */,
 				8467FD0B24E5E570005D486C /* URLHandling */,
@@ -1820,6 +1829,7 @@
 			isa = PBXGroup;
 			children = (
 				8467FD3A24EAD236005D486C /* SigningWrapperTests.swift */,
+				84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -1829,7 +1839,6 @@
 			children = (
 				8467FD3824EACE08005D486C /* AccountCreationHelper.swift */,
 				8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */,
-				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -2342,6 +2351,7 @@
 				8467FD2924EA6C62005D486C /* SigningWrapper.swift */,
 				84C7435C251DD205009576C6 /* ExtrinsicFactory.swift */,
 				84C74362251E4C2F009576C6 /* DummySigner.swift */,
+				84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */,
 			);
 			path = Crypto;
 			sourceTree = "<group>";
@@ -2457,6 +2467,7 @@
 			isa = PBXGroup;
 			children = (
 				8460E1142541E01B00826F55 /* Style */,
+				849E2330254AEF9F00B1F6D4 /* InvoiceScan */,
 				84FAB07F2543A7D700319F74 /* Receive */,
 				84FD3DBC25419FC200A234E3 /* TransactionDetails */,
 				84364D53252FAD5C00281F9A /* AccountDetails */,
@@ -2642,6 +2653,15 @@
 				84FB1F662526920B00E0242B /* SubscanHistoryData.swift */,
 			);
 			path = Data;
+			sourceTree = "<group>";
+		};
+		849E2330254AEF9F00B1F6D4 /* InvoiceScan */ = {
+			isa = PBXGroup;
+			children = (
+				849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */,
+				849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */,
+			);
+			path = InvoiceScan;
 			sourceTree = "<group>";
 		};
 		84A2C90524E09DA60020D3B7 /* Operation */ = {
@@ -2864,6 +2884,14 @@
 				84FD3DBA254104B600A234E3 /* WalletNewTransactionEvent.swift */,
 			);
 			path = Events;
+			sourceTree = "<group>";
+		};
+		84F4A90E25500119000CF0A3 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		84FAB070254366D100319F74 /* View */ = {
@@ -3564,6 +3592,7 @@
 				84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */,
 				8467FD4324ED5F46005D486C /* ProfileSectionTableViewCell.swift in Sources */,
 				84DA3B1624C81ECE00B5E27F /* AccountItem.swift in Sources */,
+				84F4A90A254CC863000CF0A3 /* KeystoreExportWrapper.swift in Sources */,
 				8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */,
 				84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
@@ -3785,6 +3814,7 @@
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,
+				849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */,
 				84155DEF2539832C00A27058 /* WebSocketEngineFactory.swift in Sources */,
 				9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */,
 				846AF8482525E23C00868F37 /* WalletTotalPriceCell.swift in Sources */,
@@ -3826,6 +3856,7 @@
 				8468B87224F63D3A00B76BC6 /* AddCreationWireframe.swift in Sources */,
 				9DFB37659A6B911A4D54623E /* AccountConfirmInteractor.swift in Sources */,
 				84155DEB253980F900A27058 /* WebSocketService.swift in Sources */,
+				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */,
 				E14F809C3917EFA4B5388AC8 /* AccountConfirmViewFactory.swift in Sources */,
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
@@ -3931,6 +3962,7 @@
 				91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */,
 				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
 				8400F0BA252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift in Sources */,
+				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
