@@ -33,7 +33,9 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
 
         let navigationController = FearlessNavigationController(rootViewController: importController)
-        tabBarController.present(navigationController, animated: true, completion: nil)
+
+        let presentingController = tabBarController.topModalViewController
+        presentingController.present(navigationController, animated: true, completion: nil)
     }
 
     // MARK: Private
