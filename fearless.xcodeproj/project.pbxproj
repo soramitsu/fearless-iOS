@@ -1617,6 +1617,7 @@
 		842D1E7E24D0BED200C30A7A /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				84F4A90E25500119000CF0A3 /* Helpers */,
 				8432E54F24EFDF4A00B05B58 /* Storage */,
 				8467FD2B24EAAC4B005D486C /* Crypto */,
 				8467FD0B24E5E570005D486C /* URLHandling */,
@@ -1835,7 +1836,6 @@
 			children = (
 				8467FD3824EACE08005D486C /* AccountCreationHelper.swift */,
 				8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */,
-				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -2881,6 +2881,14 @@
 				84FD3DBA254104B600A234E3 /* WalletNewTransactionEvent.swift */,
 			);
 			path = Events;
+			sourceTree = "<group>";
+		};
+		84F4A90E25500119000CF0A3 /* Helpers */ = {
+			isa = PBXGroup;
+			children = (
+				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
+			);
+			path = Helpers;
 			sourceTree = "<group>";
 		};
 		84FAB070254366D100319F74 /* View */ = {
