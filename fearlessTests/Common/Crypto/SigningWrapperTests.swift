@@ -35,7 +35,7 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = InMemorySettingsManager()
 
-        try AccountCreationHelper.createAccountFromKeystore("validSrKeystore",
+        try AccountCreationHelper.createAccountFromKeystore(Constants.validSrKeystoreName,
                                                             password: Constants.validSrKeystorePassword,
                                                             keychain: keychain,
                                                             settings: settings)
@@ -70,7 +70,7 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = InMemorySettingsManager()
 
-        try AccountCreationHelper.createAccountFromKeystore("validEd25519Keystore",
+        try AccountCreationHelper.createAccountFromKeystore(Constants.validEd25519KeystoreName,
                                                             password: Constants.validEd25519KeystorePassword,
                                                             keychain: keychain,
                                                             settings: settings)
@@ -105,7 +105,7 @@ class SigningWrapperTests: XCTestCase {
         let keychain = InMemoryKeychain()
         let settings = InMemorySettingsManager()
 
-        try AccountCreationHelper.createAccountFromKeystore("validEcdsaKeystore",
+        try AccountCreationHelper.createAccountFromKeystore(Constants.validEcdsaKeystoreName,
                                                             password: Constants.validEcdsaKeystorePassword,
                                                             keychain: keychain,
                                                             settings: settings)
