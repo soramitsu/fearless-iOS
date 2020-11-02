@@ -14,6 +14,7 @@ final class AccountInfoViewFactory: AccountInfoViewFactoryProtocol {
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: SettingsManager.shared,
+                                               keystore: Keychain(),
                                                eventCenter: EventCenter.shared,
                                                operationManager: OperationManagerFacade.sharedManager)
         let wireframe = AccountInfoWireframe()

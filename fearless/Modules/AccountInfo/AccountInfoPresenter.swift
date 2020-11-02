@@ -37,7 +37,7 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func activateExport() {
-        wireframe.showExport(for: accountId, from: view)
+        interactor.requestExportOptions(accountId: accountId)
     }
 
     func activateCopyAddress() {
@@ -54,6 +54,13 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
 }
 
 extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
+    func didReceive(exportOptions: [ExportOption]) {
+        wireframe.showExport(for: accountId,
+                             options: exportOptions,
+                             locale: localizationManager.selectedLocale,
+                             from: view)
+    }
+
     func didReceive(accountItem: ManagedAccountItem) {
         updateView(accountItem: accountItem)
     }

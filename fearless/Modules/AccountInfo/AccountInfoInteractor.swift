@@ -12,14 +12,17 @@ final class AccountInfoInteractor {
     let repository: AnyDataProviderRepository<ManagedAccountItem>
     private(set) var settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
+    let keystore: KeystoreProtocol
     let operationManager: OperationManagerProtocol
 
     init(repository: AnyDataProviderRepository<ManagedAccountItem>,
          settings: SettingsManagerProtocol,
+         keystore: KeystoreProtocol,
          eventCenter: EventCenterProtocol,
          operationManager: OperationManagerProtocol) {
         self.repository = repository
         self.settings = settings
+        self.keystore = keystore
         self.eventCenter = eventCenter
         self.operationManager = operationManager
     }
@@ -107,5 +110,19 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
         }
 
         operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
+    }
+
+    func requestExportOptions(accountId: String) {
+        do {
+            var options: [ExportOption] = [.keystore]
+
+            if try keystore.checkEntropyForAddress(accountId) {
+                options.insert(.mnemonic, at: 0)
+            }
+
+            presenter.didReceive(exportOptions: options)
+        } catch {
+            presenter.didReceive(error: error)
+        }
     }
 }
