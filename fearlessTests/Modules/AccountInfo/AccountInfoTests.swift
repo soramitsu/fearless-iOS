@@ -67,7 +67,7 @@ class AccountInfoTests: XCTestCase {
             when(stub).close(view: any()).thenDoNothing()
         }
 
-        let presenter = AccountInfoPresenter(accountId: givenAccount.identifier,
+        let presenter = AccountInfoPresenter(address: givenAccount.address,
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: settings,

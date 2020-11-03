@@ -4289,46 +4289,46 @@ import SoraFoundation
     
     
     
-     func setup(accountId: String)  {
+     func setup(address: String)  {
         
-    return cuckoo_manager.call("setup(accountId: String)",
-            parameters: (accountId),
-            escapingParameters: (accountId),
+    return cuckoo_manager.call("setup(address: String)",
+            parameters: (address),
+            escapingParameters: (address),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.setup(accountId: accountId))
+            defaultCall: __defaultImplStub!.setup(address: address))
         
     }
     
     
     
-     func save(username: String, accountId: String)  {
+     func save(username: String, address: String)  {
         
-    return cuckoo_manager.call("save(username: String, accountId: String)",
-            parameters: (username, accountId),
-            escapingParameters: (username, accountId),
+    return cuckoo_manager.call("save(username: String, address: String)",
+            parameters: (username, address),
+            escapingParameters: (username, address),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.save(username: username, accountId: accountId))
+            defaultCall: __defaultImplStub!.save(username: username, address: address))
         
     }
     
     
     
-     func requestExportOptions(accountId: String)  {
+     func requestExportOptions(address: String)  {
         
-    return cuckoo_manager.call("requestExportOptions(accountId: String)",
-            parameters: (accountId),
-            escapingParameters: (accountId),
+    return cuckoo_manager.call("requestExportOptions(address: String)",
+            parameters: (address),
+            escapingParameters: (address),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.requestExportOptions(accountId: accountId))
+            defaultCall: __defaultImplStub!.requestExportOptions(address: address))
         
     }
     
@@ -4341,19 +4341,19 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func setup<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: accountId) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "setup(accountId: String)", parameterMatchers: matchers))
+	    func setup<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "setup(address: String)", parameterMatchers: matchers))
 	    }
 	    
-	    func save<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(username: M1, accountId: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String)> where M1.MatchedType == String, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: username) { $0.0 }, wrap(matchable: accountId) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "save(username: String, accountId: String)", parameterMatchers: matchers))
+	    func save<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(username: M1, address: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, String)> where M1.MatchedType == String, M2.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: username) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "save(username: String, address: String)", parameterMatchers: matchers))
 	    }
 	    
-	    func requestExportOptions<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: accountId) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "requestExportOptions(accountId: String)", parameterMatchers: matchers))
+	    func requestExportOptions<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "requestExportOptions(address: String)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4373,21 +4373,21 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func setup<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: accountId) { $0 }]
-	        return cuckoo_manager.verify("setup(accountId: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func setup<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
+	        return cuckoo_manager.verify("setup(address: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func save<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(username: M1, accountId: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: username) { $0.0 }, wrap(matchable: accountId) { $0.1 }]
-	        return cuckoo_manager.verify("save(username: String, accountId: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func save<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(username: M1, address: M2) -> Cuckoo.__DoNotUse<(String, String), Void> where M1.MatchedType == String, M2.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, String)>] = [wrap(matchable: username) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return cuckoo_manager.verify("save(username: String, address: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func requestExportOptions<M1: Cuckoo.Matchable>(accountId: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: accountId) { $0 }]
-	        return cuckoo_manager.verify("requestExportOptions(accountId: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func requestExportOptions<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
+	        return cuckoo_manager.verify("requestExportOptions(address: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -4399,15 +4399,15 @@ import SoraFoundation
     
 
     
-     func setup(accountId: String)   {
+     func setup(address: String)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func save(username: String, accountId: String)   {
+     func save(username: String, address: String)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func requestExportOptions(accountId: String)   {
+     func requestExportOptions(address: String)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4636,16 +4636,16 @@ import SoraFoundation
     
     
     
-     func showExport(for accountId: String, options: [ExportOption], locale: Locale?, from view: AccountInfoViewProtocol?)  {
+     func showExport(for address: String, options: [ExportOption], locale: Locale?, from view: AccountInfoViewProtocol?)  {
         
     return cuckoo_manager.call("showExport(for: String, options: [ExportOption], locale: Locale?, from: AccountInfoViewProtocol?)",
-            parameters: (accountId, options, locale, view),
-            escapingParameters: (accountId, options, locale, view),
+            parameters: (address, options, locale, view),
+            escapingParameters: (address, options, locale, view),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showExport(for: accountId, options: options, locale: locale, from: view))
+            defaultCall: __defaultImplStub!.showExport(for: address, options: options, locale: locale, from: view))
         
     }
     
@@ -4708,8 +4708,8 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoWireframeProtocol.self, method: "close(view: AccountInfoViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func showExport<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for accountId: M1, options: M2, locale: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)> where M1.MatchedType == String, M2.MatchedType == [ExportOption], M3.OptionalMatchedType == Locale, M4.OptionalMatchedType == AccountInfoViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: options) { $0.1 }, wrap(matchable: locale) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	    func showExport<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for address: M1, options: M2, locale: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)> where M1.MatchedType == String, M2.MatchedType == [ExportOption], M3.OptionalMatchedType == Locale, M4.OptionalMatchedType == AccountInfoViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: options) { $0.1 }, wrap(matchable: locale) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoWireframeProtocol.self, method: "showExport(for: String, options: [ExportOption], locale: Locale?, from: AccountInfoViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
@@ -4751,8 +4751,8 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func showExport<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for accountId: M1, options: M2, locale: M3, from view: M4) -> Cuckoo.__DoNotUse<(String, [ExportOption], Locale?, AccountInfoViewProtocol?), Void> where M1.MatchedType == String, M2.MatchedType == [ExportOption], M3.OptionalMatchedType == Locale, M4.OptionalMatchedType == AccountInfoViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)>] = [wrap(matchable: accountId) { $0.0 }, wrap(matchable: options) { $0.1 }, wrap(matchable: locale) { $0.2 }, wrap(matchable: view) { $0.3 }]
+	    func showExport<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(for address: M1, options: M2, locale: M3, from view: M4) -> Cuckoo.__DoNotUse<(String, [ExportOption], Locale?, AccountInfoViewProtocol?), Void> where M1.MatchedType == String, M2.MatchedType == [ExportOption], M3.OptionalMatchedType == Locale, M4.OptionalMatchedType == AccountInfoViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, [ExportOption], Locale?, AccountInfoViewProtocol?)>] = [wrap(matchable: address) { $0.0 }, wrap(matchable: options) { $0.1 }, wrap(matchable: locale) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return cuckoo_manager.verify("showExport(for: String, options: [ExportOption], locale: Locale?, from: AccountInfoViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
@@ -4787,7 +4787,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func showExport(for accountId: String, options: [ExportOption], locale: Locale?, from view: AccountInfoViewProtocol?)   {
+     func showExport(for address: String, options: [ExportOption], locale: Locale?, from view: AccountInfoViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -1,9 +1,10 @@
 import Foundation
+import SoraFoundation
 
 final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryProtocol {
-    static func createView() -> AccountExportPasswordViewProtocol? {
+    static func createView(with address: String) -> AccountExportPasswordViewProtocol? {
         let view = AccountExportPasswordViewController(nib: R.nib.accountExportPasswordViewController)
-        let presenter = AccountExportPasswordPresenter()
+        let presenter = AccountExportPasswordPresenter(address: address)
         let interactor = AccountExportPasswordInteractor()
         let wireframe = AccountExportPasswordWireframe()
 
@@ -12,6 +13,8 @@ final class AccountExportPasswordViewFactory: AccountExportPasswordViewFactoryPr
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter
+
+        view.localizationManager = LocalizationManager.shared
 
         return view
     }

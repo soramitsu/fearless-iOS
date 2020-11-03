@@ -27,7 +27,7 @@ class AccountInfoExportTests: XCTestCase {
         performTestWithFacade(facade,
                               keystore: keychain,
                               settings: settings,
-                              expectedAccountId: givenAccount.address,
+                              expectedAddress: givenAccount.address,
                               expectedOptions: [.mnemonic, .keystore])
     }
 
@@ -52,7 +52,7 @@ class AccountInfoExportTests: XCTestCase {
         performTestWithFacade(facade,
                               keystore: keychain,
                               settings: settings,
-                              expectedAccountId: givenAccount.address,
+                              expectedAddress: givenAccount.address,
                               expectedOptions: [.keystore])
     }
 
@@ -77,14 +77,14 @@ class AccountInfoExportTests: XCTestCase {
         performTestWithFacade(facade,
                               keystore: keychain,
                               settings: settings,
-                              expectedAccountId: givenAccount.address,
+                              expectedAddress: givenAccount.address,
                               expectedOptions: [.keystore])
     }
 
     private func performTestWithFacade(_ facade: UserDataStorageTestFacade,
                                        keystore: KeystoreProtocol,
                                        settings: SettingsManagerProtocol,
-                                       expectedAccountId: String,
+                                       expectedAddress: String,
                                        expectedOptions: [ExportOption]) {
         // given
 
@@ -113,7 +113,7 @@ class AccountInfoExportTests: XCTestCase {
             }
         }
 
-        let presenter = AccountInfoPresenter(accountId: expectedAccountId,
+        let presenter = AccountInfoPresenter(address: expectedAddress,
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: settings,
@@ -138,7 +138,7 @@ class AccountInfoExportTests: XCTestCase {
         stub(wireframe) { stub in
             when(stub)
                 .showExport(for: any(), options: any(), locale: any(), from: any()).then { (accountId, options, _, _) in
-                XCTAssertEqual(accountId, expectedAccountId)
+                XCTAssertEqual(accountId, expectedAddress)
                 XCTAssertEqual(options, expectedOptions)
                 completionExpectation.fulfill()
             }
