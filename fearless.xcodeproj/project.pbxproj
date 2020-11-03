@@ -19,7 +19,9 @@
 		15A4328BC2309959C6E9FE85 /* AddConnectionViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 356A97EF267D4ED718D274BB /* AddConnectionViewController.xib */; };
 		1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */; };
 		1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFEB823BE0057CFB78CC033 /* NetworkManagementTests.swift */; };
+		1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93A1BA7DFEE1D7728B84949 /* AccountExportPasswordTests.swift */; };
 		21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */; };
+		2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */; };
 		2BAD49EF1B2C52059A5E7E9A /* AccountInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E310A67B23D53954C2BDA /* AccountInfoViewFactory.swift */; };
 		2E83FA4B0E7339A19F5012C3 /* NetworkManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5976C524A70284D8009D5197 /* NetworkManagementPresenter.swift */; };
 		3AA2B9B1E34C88EF2671358D /* AccountImportViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = E78B717D63283A4A8FD62479 /* AccountImportViewController.swift */; };
@@ -39,9 +41,12 @@
 		58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */; };
 		596365A03768C86B620820A1 /* CommingSoonWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B8FAE3F2BFFA4EF3C1521EF /* CommingSoonWireframe.swift */; };
 		5BA47B0F2286D41E7056DA0F /* AddConnectionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2C97681A329ED47837745C1A /* AddConnectionInteractor.swift */; };
+		5DDD2206DF795CF205610455 /* AccountExportPasswordPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31226053044986BC828AA912 /* AccountExportPasswordPresenter.swift */; };
 		607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3EDA19BC3280F1838C687EC8 /* NetworkInfoViewFactory.swift */; };
 		612FCA358D3DD9405477C445 /* AddConnectionWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F8C3A0D633E77830B588D0E /* AddConnectionWireframe.swift */; };
+		61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */; };
 		63E857FD66F8DD99D4BB1665 /* AccountInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6EB15D213A91267F3034D9E4 /* AccountInfoViewController.swift */; };
+		64B508A1A3D820AA8DBCFAA3 /* AccountExportPasswordWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F47E5832513985B89D06155 /* AccountExportPasswordWireframe.swift */; };
 		668141E18654C64F5023815A /* ModifyConnectionViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48B426F4F2C616164A00FAD5 /* ModifyConnectionViewFactory.swift */; };
 		68FC03E9D94736F7B87EA008 /* AddConnectionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = C96F6CB06F5F49DB7E73F1CE /* AddConnectionProtocols.swift */; };
 		6A8A060B9EB9ABAF6EC066FF /* NetworkInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7ED5BEE4CC908012820FE89F /* NetworkInfoProtocols.swift */; };
@@ -52,7 +57,9 @@
 		731EF71ACA427AC4E9D5F634 /* CommingSoonPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E7553DCA314FAB787497EF /* CommingSoonPresenter.swift */; };
 		7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */; };
 		773EC9764FC9DCD26E9E6424 /* AccountImportViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4B111BC48900A082DCC89AD3 /* AccountImportViewController.xib */; };
+		7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */; };
 		7D281FEA78E2E5F44990C184 /* AccountImportPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8605FD90D8C3553A9897B4 /* AccountImportPresenter.swift */; };
+		800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 194C9BFEE9BA8C9E448D79AA /* AccountExportPasswordInteractor.swift */; };
 		8400F0B8252BBCFA00E6B4CB /* WalletSelectAccountCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400F0B7252BBCFA00E6B4CB /* WalletSelectAccountCommandTests.swift */; };
 		8400F0BA252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400F0B9252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift */; };
 		8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8400F0BC252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift */; };
@@ -546,6 +553,7 @@
 		929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */; };
 		94B0F0C84AF74B3CD7223C3A /* AccountConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7306D50F278F6CC90DC88F27 /* AccountConfirmPresenter.swift */; };
 		9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBBEC474F607DD9F2A0F4FD /* AccountCreatePresenter.swift */; };
+		99A4B2A357ADEA45EFF515A5 /* AccountExportPasswordProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */; };
 		9AD4EDD0646748124DC51559 /* NetworkManagementProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */; };
 		9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E9636093217ABE05A7FAC9B9 /* AccountCreateViewFactory.swift */; };
 		9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A2AB0E2270A85E1E0D60813 /* NetworkManagementViewController.swift */; };
@@ -601,11 +609,14 @@
 		172B3E9BE51A339D7A09BDA3 /* UsernameSetupPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupPresenter.swift; sourceTree = "<group>"; };
 		17717EAA891DDB5A0223718F /* AccountCreateTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateTests.swift; sourceTree = "<group>"; };
 		18228EC4A56493660DC7DBB1 /* AccountImportTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportTests.swift; sourceTree = "<group>"; };
+		194C9BFEE9BA8C9E448D79AA /* AccountExportPasswordInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordInteractor.swift; sourceTree = "<group>"; };
 		1A7B39A61DB0D2F0F1B1DBA1 /* AccountCreateInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateInteractor.swift; sourceTree = "<group>"; };
 		25EBA536340AA12142068C2D /* AccountCreateViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateViewController.swift; sourceTree = "<group>"; };
 		26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoTests.swift; sourceTree = "<group>"; };
+		27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewController.swift; sourceTree = "<group>"; };
 		2A0AC679F039526102165678 /* AccountManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountManagementViewController.xib; sourceTree = "<group>"; };
 		2C97681A329ED47837745C1A /* AddConnectionInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionInteractor.swift; sourceTree = "<group>"; };
+		31226053044986BC828AA912 /* AccountExportPasswordPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordPresenter.swift; sourceTree = "<group>"; };
 		3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementInteractor.swift; sourceTree = "<group>"; };
 		356A97EF267D4ED718D274BB /* AddConnectionViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AddConnectionViewController.xib; sourceTree = "<group>"; };
 		3582AEA4788815116E25D63B /* Pods-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessTests/Pods-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
@@ -614,6 +625,7 @@
 		3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionTests.swift; sourceTree = "<group>"; };
 		3E992CCDC1D581F7E9D3F1CA /* AccountConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmInteractor.swift; sourceTree = "<group>"; };
 		3EDA19BC3280F1838C687EC8 /* NetworkInfoViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoViewFactory.swift; sourceTree = "<group>"; };
+		3F47E5832513985B89D06155 /* AccountExportPasswordWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordWireframe.swift; sourceTree = "<group>"; };
 		3F9742D79B231656E00F7F7C /* NetworkManagementProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementProtocols.swift; sourceTree = "<group>"; };
 		48B426F4F2C616164A00FAD5 /* ModifyConnectionViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ModifyConnectionViewFactory.swift; sourceTree = "<group>"; };
 		48C158C8D1855BCE53636934 /* AccountCreateProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateProtocols.swift; sourceTree = "<group>"; };
@@ -634,6 +646,7 @@
 		65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupWireframe.swift; sourceTree = "<group>"; };
 		6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountCreateViewController.xib; sourceTree = "<group>"; };
 		6B6FA3628C9FA252473A9689 /* Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.release.xcconfig"; sourceTree = "<group>"; };
+		6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountExportPasswordViewController.xib; sourceTree = "<group>"; };
 		6EB15D213A91267F3034D9E4 /* AccountInfoViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoViewController.swift; sourceTree = "<group>"; };
 		7306D50F278F6CC90DC88F27 /* AccountConfirmPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmPresenter.swift; sourceTree = "<group>"; };
 		7489CD9D642511C22F509490 /* AddConnectionViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionViewController.swift; sourceTree = "<group>"; };
@@ -1155,12 +1168,14 @@
 		A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewFactory.swift; sourceTree = "<group>"; };
 		A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewController.swift; sourceTree = "<group>"; };
 		A9C0466677704CFA94E5015E /* Pods-fearlessAll-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
+		AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordProtocols.swift; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
 		B5934BA68F375F5F8237967D /* NetworkInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkInfoViewController.xib; sourceTree = "<group>"; };
 		B7437AE4094114716F3BF175 /* NetworkManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementInteractor.swift; sourceTree = "<group>"; };
+		B93A1BA7DFEE1D7728B84949 /* AccountExportPasswordTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordTests.swift; sourceTree = "<group>"; };
 		BC3439ACD1458063EA66AA55 /* Pods-fearlessAll-fearlessTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BF87FF434F26426278E895EE /* AccountInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoInteractor.swift; sourceTree = "<group>"; };
 		C011116F48131D1700767769 /* Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessIntegrationTests/Pods-fearlessAll-fearlessIntegrationTests.dev.xcconfig"; sourceTree = "<group>"; };
@@ -1177,6 +1192,7 @@
 		DCA8F503A90EFA93C1118E8E /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
 		E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoProtocols.swift; sourceTree = "<group>"; };
 		E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountInfoViewController.xib; sourceTree = "<group>"; };
+		E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewFactory.swift; sourceTree = "<group>"; };
 		E18B94164B49123E62FA60B7 /* AccountManagementViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementViewFactory.swift; sourceTree = "<group>"; };
 		E1E60EF37AC0A7646ED8FE64 /* AccountImportViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportViewFactory.swift; sourceTree = "<group>"; };
 		E3C26E116D345304C5C92122 /* CommingSoonViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommingSoonViewController.swift; sourceTree = "<group>"; };
@@ -1260,6 +1276,21 @@
 				17717EAA891DDB5A0223718F /* AccountCreateTests.swift */,
 			);
 			path = AccountCreate;
+			sourceTree = "<group>";
+		};
+		249BACDEE5CB2B1ECDF470D9 /* AccountExportPassword */ = {
+			isa = PBXGroup;
+			children = (
+				AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */,
+				3F47E5832513985B89D06155 /* AccountExportPasswordWireframe.swift */,
+				31226053044986BC828AA912 /* AccountExportPasswordPresenter.swift */,
+				194C9BFEE9BA8C9E448D79AA /* AccountExportPasswordInteractor.swift */,
+				27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */,
+				6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */,
+				E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */,
+			);
+			name = AccountExportPassword;
+			path = AccountExportPassword;
 			sourceTree = "<group>";
 		};
 		2698CD398B0412EB85D620AB /* Pods */ = {
@@ -1362,6 +1393,7 @@
 				8D1ECC1A61E3F7E33FC44649 /* NetworkManagement */,
 				2A2F3894A7579E6350749C61 /* NetworkInfo */,
 				D5FF95FE026FFD0875E56413 /* AddConnection */,
+				842113004E02999B03AB4199 /* AccountExportPassword */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1471,6 +1503,15 @@
 				8419377E25441D5E00CFA50C /* ReceiveHeaderView.swift */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		842113004E02999B03AB4199 /* AccountExportPassword */ = {
+			isa = PBXGroup;
+			children = (
+				B93A1BA7DFEE1D7728B84949 /* AccountExportPasswordTests.swift */,
+			);
+			name = AccountExportPassword;
+			path = AccountExportPassword;
 			sourceTree = "<group>";
 		};
 		8423B0DC251A437E00B8687C /* Error */ = {
@@ -2106,6 +2147,7 @@
 				0D3E297DAEAAF14373239578 /* NetworkInfo */,
 				C0B57C186CACF856E5AF65AC /* AddConnection */,
 				F2AA2B660A3092CF54C55742 /* CommingSoon */,
+				249BACDEE5CB2B1ECDF470D9 /* AccountExportPassword */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -3239,6 +3281,7 @@
 				84364D5A252FAF1700281F9A /* AssetDetailsView.xib in Resources */,
 				15A4328BC2309959C6E9FE85 /* AddConnectionViewController.xib in Resources */,
 				51FFF192C62958E4214CD10F /* CommingSoonViewController.xib in Resources */,
+				2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3419,7 +3462,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				$PROJECT_DIR/R.generated.swift,
+				"$PROJECT_DIR/R.generated.swift",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -3930,6 +3973,12 @@
 				0C37E80C780DEBFA40F06911 /* CommingSoonInteractor.swift in Sources */,
 				8EA7A6E46E87886C2F0524C7 /* CommingSoonViewController.swift in Sources */,
 				4C74355397068A023BBEDDB5 /* CommingSoonViewFactory.swift in Sources */,
+				99A4B2A357ADEA45EFF515A5 /* AccountExportPasswordProtocols.swift in Sources */,
+				64B508A1A3D820AA8DBCFAA3 /* AccountExportPasswordWireframe.swift in Sources */,
+				5DDD2206DF795CF205610455 /* AccountExportPasswordPresenter.swift in Sources */,
+				800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */,
+				7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */,
+				61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3971,6 +4020,7 @@
 				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
 				8400F0BA252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift in Sources */,
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
+				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

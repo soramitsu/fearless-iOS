@@ -42,6 +42,8 @@ class KeystoreExportWrapperTests: XCTestCase {
                 .export(account: expectedAccountItem,
                         password: password)
 
+            Logger.shared.debug("\(exportData.toUTF8String()!)")
+
             let resultKeystore = InMemoryKeychain()
             let resultSettings = InMemorySettingsManager()
 
