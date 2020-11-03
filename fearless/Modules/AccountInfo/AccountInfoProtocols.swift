@@ -18,9 +18,11 @@ protocol AccountInfoPresenterProtocol: class {
 protocol AccountInfoInteractorInputProtocol: class {
     func setup(accountId: String)
     func save(username: String, accountId: String)
+    func requestExportOptions(accountId: String)
 }
 
 protocol AccountInfoInteractorOutputProtocol: class {
+    func didReceive(exportOptions: [ExportOption])
     func didReceive(accountItem: ManagedAccountItem)
     func didSave(username: String)
     func didReceive(error: Error)
@@ -28,7 +30,10 @@ protocol AccountInfoInteractorOutputProtocol: class {
 
 protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting {
     func close(view: AccountInfoViewProtocol?)
-    func showExport(for accountId: String, from view: AccountInfoViewProtocol?)
+    func showExport(for accountId: String,
+                    options: [ExportOption],
+                    locale: Locale?,
+                    from view: AccountInfoViewProtocol?)
 }
 
 protocol AccountInfoViewFactoryProtocol: class {

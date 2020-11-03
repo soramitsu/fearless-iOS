@@ -71,6 +71,7 @@ class AccountInfoTests: XCTestCase {
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: settings,
+                                               keystore: keychain,
                                                eventCenter: eventCenter,
                                                operationManager: OperationManager())
 
