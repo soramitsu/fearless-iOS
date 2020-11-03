@@ -55,11 +55,11 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 secretKey = keypair.privateKey().rawData()
             case .ed25519:
                 let derivableSeedFactory = Ed25519KeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             case .ecdsa:
                 let derivableSeedFactory = EcdsaKeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             }
 
@@ -107,11 +107,11 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 secretKey = keypair.privateKey().rawData()
             case .ed25519:
                 let derivableSeedFactory = Ed25519KeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             case .ecdsa:
                 let derivableSeedFactory = EcdsaKeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             }
 
