@@ -69,7 +69,7 @@ final class AccountExportPasswordViewController: UIViewController {
             .importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
 
         typeView.actionControl.contentView.subtitleLabelView.text = R.string.localizable
-            .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale?.rLanguages)
+            .importRecoveryJson(preferredLanguages: locale?.rLanguages)
 
         passwordInputField.title = R.string.localizable
             .commonSetPassword(preferredLanguages: locale?.rLanguages)
