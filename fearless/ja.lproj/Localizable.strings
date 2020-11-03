@@ -181,3 +181,7 @@ a type of password.";
 "coming.soon.dev.status" = "開発ステータスを確認する";
 "comming.soon.roadmap" = "ロードマップを確認する";
 "tabbar.polkaswap.title" = "Polkaswap";
+"account.export.json.hint" = "アカウントを暗号化してリカバリJSONとして保存するには、パスワードが必要です。操作を続行するには、パスワードを作成してください。";
+"common.set.password" = "パスワードを設定してください";
+"common.confirm.password" = "パスワードを認証する";
+"common.error.password.mismatch" = "パスワードが一致しません";

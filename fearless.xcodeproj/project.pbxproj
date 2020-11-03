@@ -2148,7 +2148,7 @@
 				0D3E297DAEAAF14373239578 /* NetworkInfo */,
 				C0B57C186CACF856E5AF65AC /* AddConnection */,
 				F2AA2B660A3092CF54C55742 /* CommingSoon */,
-				249BACDEE5CB2B1ECDF470D9 /* AccountExportPassword */,
+				84F4A9DC2551EC7D000CF0A3 /* Export */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -2941,6 +2941,14 @@
 				84155DF2253A1DBA00A27058 /* SchedulerTests.swift */,
 			);
 			path = Helpers;
+			sourceTree = "<group>";
+		};
+		84F4A9DC2551EC7D000CF0A3 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				249BACDEE5CB2B1ECDF470D9 /* AccountExportPassword */,
+			);
+			path = Export;
 			sourceTree = "<group>";
 		};
 		84FAB070254366D100319F74 /* View */ = {

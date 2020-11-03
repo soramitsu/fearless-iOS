@@ -184,3 +184,7 @@ sea de la red correcta";
 "coming.soon.dev.status" = "Verificar el estado de los desarrolladores";
 "comming.soon.roadmap" = "Ver hoja de ruta";
 "tabbar.polkaswap.title" = "Polkaswap";
+"account.export.json.hint" = "Se requiere contraseña para cifrar su cuenta y almacenarla como Recovery JSON. Por favor, cree una contraseña para continuar con la operación.";
+"common.set.password" = "Configurar la clave";
+"common.confirm.password" = "Confirmar contraseña";
+"common.error.password.mismatch" = "Contraseña no coincidente";

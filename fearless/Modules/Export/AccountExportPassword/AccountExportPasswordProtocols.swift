@@ -12,11 +12,18 @@ protocol AccountExportPasswordPresenterProtocol: class {
     func proceed()
 }
 
-protocol AccountExportPasswordInteractorInputProtocol: class {}
+protocol AccountExportPasswordInteractorInputProtocol: class {
+    func exportAccount(address: String, password: String)
+}
 
-protocol AccountExportPasswordInteractorOutputProtocol: class {}
+protocol AccountExportPasswordInteractorOutputProtocol: class {
+    func didExport(json: String)
+    func didReceive(error: Error)
+}
 
-protocol AccountExportPasswordWireframeProtocol: class {}
+protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresentable {
+    func showJSONExport(_ json: String, from view: AccountExportPasswordViewProtocol?)
+}
 
 protocol AccountExportPasswordViewFactoryProtocol: class {
     static func createView(with address: String) -> AccountExportPasswordViewProtocol?

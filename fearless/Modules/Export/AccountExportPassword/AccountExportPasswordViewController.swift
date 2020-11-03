@@ -15,6 +15,8 @@ final class AccountExportPasswordViewController: UIViewController {
     @IBOutlet private var passwordConfirmField: AnimatedTextField!
     @IBOutlet private var actionButton: TriangularedButton!
     @IBOutlet private var contentBottom: NSLayoutConstraint!
+    @IBOutlet private var passwordInputEye: RoundedButton!
+    @IBOutlet private var passwordConfirmEye: RoundedButton!
     private var errorView: ImageWithTitleView?
 
     var presenter: AccountExportPasswordPresenterProtocol!
@@ -24,10 +26,20 @@ final class AccountExportPasswordViewController: UIViewController {
     private var passwordInputViewModel: InputViewModelProtocol?
     private var passwordConfirmViewModel: InputViewModelProtocol?
 
+    var inputCompleted: Bool {
+        let passwordCompleted = passwordInputViewModel?.inputHandler.completed ?? false
+        let confirmationCompleted = passwordConfirmViewModel?.inputHandler.completed ?? false
+
+        return passwordCompleted && confirmationCompleted
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
         setupLocalization()
+        setupTextFields()
+
+        updateNextButton()
 
         presenter.setup()
     }
@@ -49,18 +61,45 @@ final class AccountExportPasswordViewController: UIViewController {
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale
 
+        title = R.string.localizable.commonExport(preferredLanguages: locale?.rLanguages)
+
+        hintLabel.text = R.string.localizable.accountExportJsonHint(preferredLanguages: locale?.rLanguages)
+
         typeView.actionControl.contentView.titleLabel.text = R.string.localizable
             .importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
 
         typeView.actionControl.contentView.subtitleLabelView.text = R.string.localizable
             .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale?.rLanguages)
 
+        passwordInputField.title = R.string.localizable
+            .commonSetPassword(preferredLanguages: locale?.rLanguages)
+
+        passwordConfirmField.title = R.string.localizable
+            .commonConfirmPassword(preferredLanguages: locale?.rLanguages)
+
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonCancel(preferredLanguages: locale?.rLanguages)
+            .commonContinue(preferredLanguages: locale?.rLanguages)
+    }
+
+    private func setupTextFields() {
+        passwordInputField.textField.isSecureTextEntry = true
+        passwordInputField.textField.returnKeyType = .done
+        passwordInputField.delegate = self
+        passwordInputField.addTarget(self,
+                                     action: #selector(actionPasswordInputChange),
+                                     for: .editingChanged)
+
+        passwordConfirmField.textField.isSecureTextEntry = true
+        passwordConfirmField.textField.returnKeyType = .done
+        passwordConfirmField.delegate = self
+        passwordConfirmField.addTarget(self,
+                                       action: #selector(actionConfirmationInputChange),
+                                       for: .editingChanged)
     }
 
     private func setupErrorView() {
         let view = ImageWithTitleView()
+        view.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(view)
 
         view.iconImage = R.image.iconError()
@@ -68,9 +107,12 @@ final class AccountExportPasswordViewController: UIViewController {
         view.titleFont = UIFont.p2Paragraph
 
         view.leadingAnchor.constraint(equalTo: contentView.leadingAnchor).isActive = true
-        view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor).isActive = true
+        view.bottomAnchor.constraint(equalTo: contentView.bottomAnchor,
+                                  constant: -Constants.bottomOffset).isActive = true
 
         errorView = view
+
+        updateBottomConstraint()
     }
 
     private func clearErrorView() {
@@ -92,10 +134,19 @@ final class AccountExportPasswordViewController: UIViewController {
     }
 
     private func updateNextButton() {
-        let passwordCompleted = passwordInputViewModel?.inputHandler.completed ?? false
-        let confirmationCompleted = passwordConfirmViewModel?.inputHandler.completed ?? false
+        actionButton.isEnabled = inputCompleted
+    }
 
-        actionButton.isEnabled = passwordCompleted && confirmationCompleted
+    private func toggleSecurity(_ textField: UITextField, eyeButton: RoundedButton) {
+        let isSecure = !textField.isSecureTextEntry
+
+        if isSecure {
+            eyeButton.imageWithTitleView?.iconImage = R.image.iconEye()
+        } else {
+            eyeButton.imageWithTitleView?.iconImage = R.image.iconEye()?.tinted(with: R.color.colorCoral()!)
+        }
+
+        textField.isSecureTextEntry = isSecure
     }
 
     @objc private func actionPasswordInputChange() {
@@ -120,6 +171,14 @@ final class AccountExportPasswordViewController: UIViewController {
         if errorView != nil {
             clearErrorView()
         }
+    }
+
+    @IBAction private func actionPasswordInputEyeToggle() {
+        toggleSecurity(passwordInputField.textField, eyeButton: passwordInputEye)
+    }
+
+    @IBAction private func actionPasswordConfirmEyeToggle() {
+        toggleSecurity(passwordConfirmField.textField, eyeButton: passwordConfirmEye)
     }
 
     @IBAction private func actionNext() {
@@ -150,7 +209,16 @@ extension AccountExportPasswordViewController: AccountExportPasswordViewProtocol
 
 extension AccountExportPasswordViewController: AnimatedTextFieldDelegate {
     func animatedTextFieldShouldReturn(_ textField: AnimatedTextField) -> Bool {
-        textField.resignFirstResponder()
+        if textField === passwordInputField, passwordConfirmViewModel?.inputHandler.value.isEmpty == true {
+            passwordConfirmField.becomeFirstResponder()
+        } else if textField === passwordConfirmField, inputCompleted {
+            textField.resignFirstResponder()
+
+            presenter.proceed()
+        } else {
+            textField.resignFirstResponder()
+        }
+
         return false
     }
 

@@ -184,3 +184,7 @@ from the right network";
 "coming.soon.dev.status" = "Check Dev Status";
 "comming.soon.roadmap" = "Check Roadmap";
 "tabbar.polkaswap.title" = "Polkaswap";
+"account.export.json.hint" = "Password is required to encrypt your account and store as Recovery JSON. Please, create password to continue operation.";
+"common.set.password" = "Set password";
+"common.confirm.password" = "Confirm password";
+"common.error.password.mismatch" = "Password mismatched";

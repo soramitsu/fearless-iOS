@@ -10,7 +10,8 @@ extension AccountExportPasswordError: ErrorContentConvertible {
 
         switch self {
         case .passwordMismatch:
-            message = "Password mistmatch"
+            message = R.string.localizable
+                .commonErrorPasswordMismatch(preferredLanguages: locale?.rLanguages)
         }
 
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
