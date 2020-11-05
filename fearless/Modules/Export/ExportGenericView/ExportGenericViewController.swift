@@ -338,7 +338,8 @@ extension ExportGenericViewController {
 
         cryptoView.title = R.string.localizable
             .commonCryptoType(preferredLanguages: locale.rLanguages)
-        cryptoView.subtitle = cryptoType.titleForLocale(locale)
+
+        cryptoView.subtitle = cryptoType.titleForLocale(locale) + " | " + cryptoType.subtitleForLocale(locale)
 
         return cryptoView
     }

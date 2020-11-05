@@ -22,7 +22,9 @@ extension ExportRestoreJsonPresenter: ExportGenericPresenterProtocol {
     }
 
     func activateExport() {
-
+        wireframe.share(source: TextSharingSource(message: model.data),
+                        from: view,
+                        with: nil)
     }
 
     func activateAccessoryOption() {

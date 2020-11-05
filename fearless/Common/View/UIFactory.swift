@@ -9,6 +9,8 @@ struct UIConstants {
     static let triangularedViewHeight: CGFloat = 52.0
     static let expandableViewHeight: CGFloat = 50.0
     static let formSeparatorWidth: CGFloat = 0.5
+    static let triangularedIconLargeRadius: CGFloat = 12.0
+    static let triangularedIconSmallRadius: CGFloat = 9.0
 }
 
 protocol UIFactoryProtocol {
@@ -50,6 +52,13 @@ final class UIFactory: UIFactoryProtocol {
             view.strokeColor = .clear
             view.highlightedStrokeColor = .clear
             view.borderWidth = 0.0
+        }
+
+        switch layout {
+        case .largeIconTitleSubtitle, .singleTitle:
+            view.iconRadius = UIConstants.triangularedIconLargeRadius
+        case .smallIconTitleSubtitle:
+            view.iconRadius = UIConstants.triangularedIconSmallRadius
         }
 
         view.titleLabel.textColor = R.color.colorLightGray()!
