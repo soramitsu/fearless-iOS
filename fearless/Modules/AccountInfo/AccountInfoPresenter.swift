@@ -8,11 +8,11 @@ final class AccountInfoPresenter {
 
     let localizationManager: LocalizationManagerProtocol
 
-    private let accountId: String
+    private let address: String
 
-    init(accountId: String,
+    init(address: String,
          localizationManager: LocalizationManagerProtocol) {
-        self.accountId = accountId
+        self.address = address
         self.localizationManager = localizationManager
     }
 
@@ -29,7 +29,7 @@ final class AccountInfoPresenter {
 
 extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     func setup() {
-        interactor.setup(accountId: accountId)
+        interactor.setup(address: address)
     }
 
     func activateClose() {
@@ -37,11 +37,11 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func activateExport() {
-        interactor.requestExportOptions(accountId: accountId)
+        interactor.requestExportOptions(address: address)
     }
 
     func activateCopyAddress() {
-        UIPasteboard.general.string = accountId
+        UIPasteboard.general.string = address
 
         let locale = localizationManager.selectedLocale
         let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
@@ -49,13 +49,13 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func save(username: String) {
-        interactor.save(username: username, accountId: accountId)
+        interactor.save(username: username, address: address)
     }
 }
 
 extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
     func didReceive(exportOptions: [ExportOption]) {
-        wireframe.showExport(for: accountId,
+        wireframe.showExport(for: address,
                              options: exportOptions,
                              locale: localizationManager.selectedLocale,
                              from: view)

@@ -5,13 +5,13 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
-    func showExport(for accountId: String,
+    func showExport(for address: String,
                     options: [ExportOption],
                     locale: Locale?,
                     from view: AccountInfoViewProtocol?) {
         authorize(animated: true, cancellable: true) { [weak self] (success) in
             if success {
-                self?.performExportPresentation(for: accountId,
+                self?.performExportPresentation(for: address,
                                                 options: options,
                                                 locale: locale,
                                                 from: view)
@@ -21,7 +21,7 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
 
     // MARK: Private
 
-    private func performExportPresentation(for accountId: String,
+    private func performExportPresentation(for address: String,
                                            options: [ExportOption],
                                            locale: Locale?,
                                            from view: AccountInfoViewProtocol?) {
@@ -33,12 +33,12 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
             case .mnemonic:
                 let title = R.string.localizable.importMnemonic(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showMnemonicExport(for: accountId, from: view)
+                    self?.showMnemonicExport(for: address, from: view)
                 }
             case .keystore:
                 let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
                 return AlertPresentableAction(title: title) { [weak self] in
-                    self?.showKeystoreExport(for: accountId, from: view)
+                    self?.showKeystoreExport(for: address, from: view)
                 }
             }
         }
@@ -54,11 +54,16 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
                 from: view)
     }
 
-    private func showMnemonicExport(for accountId: String, from view: AccountInfoViewProtocol?) {
+    private func showMnemonicExport(for address: String, from view: AccountInfoViewProtocol?) {
 
     }
 
-    private func showKeystoreExport(for accountId: String, from view: AccountInfoViewProtocol?) {
+    private func showKeystoreExport(for address: String, from view: AccountInfoViewProtocol?) {
+        guard let passwordView = AccountExportPasswordViewFactory.createView(with: address) else {
+            return
+        }
 
+        view?.controller.navigationController?.pushViewController(passwordView.controller,
+                                                                  animated: true)
     }
 }
