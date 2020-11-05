@@ -29,7 +29,7 @@ final class AccountInfoInteractor {
 
     private func handleUsernameSave(result: Result<Void, Error>?,
                                     username: String,
-                                    accountId: String) {
+                                    address: String) {
         guard let result = result else {
             presenter.didReceive(error: BaseOperationError.parentOperationCancelled)
             return
@@ -38,7 +38,7 @@ final class AccountInfoInteractor {
         switch result {
         case .success:
             if
-                let selectedAccount = settings.selectedAccount, selectedAccount.identifier == accountId {
+                let selectedAccount = settings.selectedAccount, selectedAccount.address == address {
                 let newSelectedAccount = selectedAccount.replacingUsername(username)
                 settings.selectedAccount = newSelectedAccount
                 eventCenter.notify(with: SelectedAccountChanged())
@@ -70,8 +70,8 @@ final class AccountInfoInteractor {
 }
 
 extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
-    func setup(accountId: String) {
-        let operation = repository.fetchOperation(by: accountId, options: RepositoryFetchOptions())
+    func setup(address: String) {
+        let operation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
 
         operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -82,8 +82,8 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
         operationManager.enqueue(operations: [operation], in: .sync)
     }
 
-    func save(username: String, accountId: String) {
-        let fetchOperation = repository.fetchOperation(by: accountId, options: RepositoryFetchOptions())
+    func save(username: String, address: String) {
+        let fetchOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
         let saveOperation = repository.saveOperation({
             guard let changingAccountItem = try fetchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
@@ -105,18 +105,18 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
             DispatchQueue.main.async {
                 self?.handleUsernameSave(result: saveOperation.result,
                                          username: username,
-                                         accountId: accountId)
+                                         address: address)
             }
         }
 
         operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
     }
 
-    func requestExportOptions(accountId: String) {
+    func requestExportOptions(address: String) {
         do {
             var options: [ExportOption] = [.keystore]
 
-            if try keystore.checkEntropyForAddress(accountId) {
+            if try keystore.checkEntropyForAddress(address) {
                 options.insert(.mnemonic, at: 0)
             }
 

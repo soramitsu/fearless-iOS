@@ -4,13 +4,13 @@ import SoraKeystore
 import SoraFoundation
 
 final class AccountInfoViewFactory: AccountInfoViewFactoryProtocol {
-    static func createView(accountId: String) -> AccountInfoViewProtocol? {
+    static func createView(address: String) -> AccountInfoViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedAccountItemMapper()
         let repository = facade.createRepository(mapper: AnyCoreDataMapper(mapper))
 
         let view = AccountInfoViewController(nib: R.nib.accountInfoViewController)
-        let presenter = AccountInfoPresenter(accountId: accountId,
+        let presenter = AccountInfoPresenter(address: address,
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: SettingsManager.shared,
