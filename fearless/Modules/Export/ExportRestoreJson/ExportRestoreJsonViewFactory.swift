@@ -4,7 +4,7 @@ import SoraFoundation
 final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
     static func createView(with model: RestoreJson) -> ExportGenericViewProtocol? {
         let accessoryActionTitle = LocalizableResource { locale in
-            "Change password"
+            R.string.localizable.commonChangePassword(preferredLanguages: locale.rLanguages)
         }
 
         let uiFactory = UIFactory()

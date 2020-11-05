@@ -83,7 +83,8 @@ final class ExportGenericViewController: UIViewController {
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
-        mainActionButton.imageWithTitleView?.title = "Export"
+        mainActionButton.imageWithTitleView?.title = R.string.localizable
+            .commonExport(preferredLanguages: locale.rLanguages)
         accessoryActionButton?.imageWithTitleView?.title = accessoryOptionTitle?.value(for: locale)
 
         updateFromViewModel(locale)
@@ -366,7 +367,7 @@ extension ExportGenericViewController {
         advancedContainerView.addSubview(networkView)
 
         networkView.title = R.string.localizable
-            .commonChooseNetwork(preferredLanguages: locale.rLanguages)
+            .commonNetwork(preferredLanguages: locale.rLanguages)
         networkView.subtitle = chain.titleForLocale(locale)
         networkView.iconImage = chain.icon
 

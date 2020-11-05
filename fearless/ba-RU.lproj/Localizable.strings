@@ -181,7 +181,10 @@
 "coming.soon.dev.status" = "Статус разработки";
 "comming.soon.roadmap" = "План разработки";
 "tabbar.polkaswap.title" = "Polkaswap";
+"account.export.action" = "Экспортировать";
 "account.export.json.hint" = "Пароль необходим для шифрования вашей учетной записи и сохранения как Recovery JSON. Пожалуйста, придумайте пароль для продолжения работы.";
 "common.set.password" = "Новый пароль";
 "common.confirm.password" = "Подтверждение пароля";
 "common.error.password.mismatch" = "Неверный пароль";
+"common.network" = "";
+"common.change.password" = "Сменить пароль";
