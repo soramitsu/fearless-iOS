@@ -50,10 +50,10 @@
                     <rect key="frame" x="0.0" y="44" width="414" height="718"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AwS-kl-7JJ">
-                            <rect key="frame" x="16" y="16" width="382" height="672"/>
+                            <rect key="frame" x="16" y="16" width="382" height="668"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cVj-lI-0D8" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="382" height="52.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="382" height="48.5"/>
                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -97,14 +97,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yre-zF-CNo">
-                                    <rect key="frame" x="0.0" y="52.5" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="48.5" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="abg-p8-jtD"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gfP-C9-Y1O">
-                                    <rect key="frame" x="0.0" y="68.5" width="382" height="121.5"/>
+                                    <rect key="frame" x="0.0" y="64.5" width="382" height="121.5"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="n9V-BL-dV6" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -208,7 +208,7 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WIx-3s-1tq" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="190" width="382" height="122"/>
+                                    <rect key="frame" x="0.0" y="186" width="382" height="122"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mnemonic" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y5W-Vv-VcJ">
                                             <rect key="frame" x="16" y="18" width="350" height="16.5"/>
@@ -272,14 +272,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JSo-Au-P1P">
-                                    <rect key="frame" x="0.0" y="312" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="308" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="sfT-5T-PTg"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GW5-f0-uHW" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="328" width="382" height="52"/>
+                                    <rect key="frame" x="0.0" y="324" width="382" height="52"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wwH-SE-Zsz" customClass="AnimatedTextField" customModule="SoraUI">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -361,14 +361,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fkc-Hl-rio">
-                                    <rect key="frame" x="0.0" y="380" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="376" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="3dB-9o-Oy7"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Htd-FP-vae" customClass="BorderedContainerView" customModule="SoraUI">
-                                    <rect key="frame" x="0.0" y="396" width="382" height="50"/>
+                                    <rect key="frame" x="0.0" y="392" width="382" height="50"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yiw-bM-wfH" customClass="ExpandableActionControl" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="50"/>
@@ -416,10 +416,10 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qTb-7f-Lmc">
-                                    <rect key="frame" x="0.0" y="446" width="382" height="226"/>
+                                    <rect key="frame" x="0.0" y="442" width="382" height="226"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4i7-A0-UyV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="52.5"/>
+                                            <rect key="frame" x="1" y="16" width="380" height="48.5"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -463,7 +463,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t6l-pL-2Y0" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="84.5" width="380" height="52"/>
+                                            <rect key="frame" x="1" y="80.5" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3bj-3p-BUu">
                                                     <rect key="frame" x="16" y="8" width="319" height="14"/>
@@ -524,7 +524,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KZt-OG-egc" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="152.5" width="380" height="58.5"/>
+                                            <rect key="frame" x="1" y="148.5" width="380" height="56.5"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
@@ -635,19 +635,19 @@
     </objects>
     <designables>
         <designable name="1zX-7F-5Jj">
-            <size key="intrinsicContentSize" width="51.5" height="34"/>
+            <size key="intrinsicContentSize" width="43.5" height="32"/>
         </designable>
         <designable name="4i7-A0-UyV">
-            <size key="intrinsicContentSize" width="326" height="52.5"/>
+            <size key="intrinsicContentSize" width="272.5" height="48.5"/>
         </designable>
         <designable name="KZt-OG-egc">
-            <size key="intrinsicContentSize" width="239" height="58.5"/>
+            <size key="intrinsicContentSize" width="213.5" height="56.5"/>
         </designable>
         <designable name="cVj-lI-0D8">
-            <size key="intrinsicContentSize" width="176" height="52.5"/>
+            <size key="intrinsicContentSize" width="155" height="48.5"/>
         </designable>
         <designable name="yiw-bM-wfH">
-            <size key="intrinsicContentSize" width="100" height="20"/>
+            <size key="intrinsicContentSize" width="85" height="20"/>
         </designable>
     </designables>
     <resources>
