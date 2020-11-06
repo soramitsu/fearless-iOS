@@ -211,7 +211,7 @@
                                     <rect key="frame" x="0.0" y="190" width="382" height="122"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mnemonic" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y5W-Vv-VcJ">
-                                            <rect key="frame" x="16" y="18" width="350" height="16.5"/>
+                                            <rect key="frame" x="16" y="18" width="350" height="18"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
                                             <nil key="highlightedColor"/>
@@ -466,13 +466,13 @@
                                             <rect key="frame" x="1" y="84.5" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3bj-3p-BUu">
-                                                    <rect key="frame" x="16" y="8" width="319" height="14"/>
+                                                    <rect key="frame" x="16" y="8" width="319" height="15.5"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                     <color key="textColor" name="colorLightGray"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="//hard/soft///password" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="2sF-Ds-MqJ">
-                                                    <rect key="frame" x="16" y="26" width="319" height="18"/>
+                                                    <rect key="frame" x="16" y="24.5" width="319" height="19.5"/>
                                                     <color key="tintColor" name="colorWhite"/>
                                                     <color key="textColor" name="colorWhite"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>

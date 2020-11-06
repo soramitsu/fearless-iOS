@@ -43,7 +43,7 @@ extension AccountExportPasswordPresenter: AccountExportPasswordPresenterProtocol
 }
 
 extension AccountExportPasswordPresenter: AccountExportPasswordInteractorOutputProtocol {
-    func didExport(json: String) {
+    func didExport(json: RestoreJson) {
         wireframe.showJSONExport(json, from: view)
     }
 

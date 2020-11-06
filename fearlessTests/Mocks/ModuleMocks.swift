@@ -7069,9 +7069,9 @@ import SoraFoundation
     
     
     
-     func didExport(json: String)  {
+     func didExport(json: RestoreJson)  {
         
-    return cuckoo_manager.call("didExport(json: String)",
+    return cuckoo_manager.call("didExport(json: RestoreJson)",
             parameters: (json),
             escapingParameters: (json),
             superclassCall:
@@ -7106,9 +7106,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func didExport<M1: Cuckoo.Matchable>(json: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: json) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordInteractorOutputProtocol.self, method: "didExport(json: String)", parameterMatchers: matchers))
+	    func didExport<M1: Cuckoo.Matchable>(json: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(RestoreJson)> where M1.MatchedType == RestoreJson {
+	        let matchers: [Cuckoo.ParameterMatcher<(RestoreJson)>] = [wrap(matchable: json) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordInteractorOutputProtocol.self, method: "didExport(json: RestoreJson)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
@@ -7133,9 +7133,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func didExport<M1: Cuckoo.Matchable>(json: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: json) { $0 }]
-	        return cuckoo_manager.verify("didExport(json: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didExport<M1: Cuckoo.Matchable>(json: M1) -> Cuckoo.__DoNotUse<(RestoreJson), Void> where M1.MatchedType == RestoreJson {
+	        let matchers: [Cuckoo.ParameterMatcher<(RestoreJson)>] = [wrap(matchable: json) { $0 }]
+	        return cuckoo_manager.verify("didExport(json: RestoreJson)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -7153,7 +7153,7 @@ import SoraFoundation
     
 
     
-     func didExport(json: String)   {
+     func didExport(json: RestoreJson)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -7190,9 +7190,9 @@ import SoraFoundation
     
     
     
-     func showJSONExport(_ json: String, from view: AccountExportPasswordViewProtocol?)  {
+     func showJSONExport(_ json: RestoreJson, from view: AccountExportPasswordViewProtocol?)  {
         
-    return cuckoo_manager.call("showJSONExport(_: String, from: AccountExportPasswordViewProtocol?)",
+    return cuckoo_manager.call("showJSONExport(_: RestoreJson, from: AccountExportPasswordViewProtocol?)",
             parameters: (json, view),
             escapingParameters: (json, view),
             superclassCall:
@@ -7242,9 +7242,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func showJSONExport<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ json: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, AccountExportPasswordViewProtocol?)> where M1.MatchedType == String, M2.OptionalMatchedType == AccountExportPasswordViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, AccountExportPasswordViewProtocol?)>] = [wrap(matchable: json) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordWireframeProtocol.self, method: "showJSONExport(_: String, from: AccountExportPasswordViewProtocol?)", parameterMatchers: matchers))
+	    func showJSONExport<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ json: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(RestoreJson, AccountExportPasswordViewProtocol?)> where M1.MatchedType == RestoreJson, M2.OptionalMatchedType == AccountExportPasswordViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(RestoreJson, AccountExportPasswordViewProtocol?)>] = [wrap(matchable: json) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountExportPasswordWireframeProtocol.self, method: "showJSONExport(_: RestoreJson, from: AccountExportPasswordViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -7274,9 +7274,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func showJSONExport<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ json: M1, from view: M2) -> Cuckoo.__DoNotUse<(String, AccountExportPasswordViewProtocol?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == AccountExportPasswordViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, AccountExportPasswordViewProtocol?)>] = [wrap(matchable: json) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return cuckoo_manager.verify("showJSONExport(_: String, from: AccountExportPasswordViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showJSONExport<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ json: M1, from view: M2) -> Cuckoo.__DoNotUse<(RestoreJson, AccountExportPasswordViewProtocol?), Void> where M1.MatchedType == RestoreJson, M2.OptionalMatchedType == AccountExportPasswordViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(RestoreJson, AccountExportPasswordViewProtocol?)>] = [wrap(matchable: json) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return cuckoo_manager.verify("showJSONExport(_: RestoreJson, from: AccountExportPasswordViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -7300,7 +7300,7 @@ import SoraFoundation
     
 
     
-     func showJSONExport(_ json: String, from view: AccountExportPasswordViewProtocol?)   {
+     func showJSONExport(_ json: RestoreJson, from view: AccountExportPasswordViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

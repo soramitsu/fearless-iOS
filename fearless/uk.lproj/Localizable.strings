@@ -184,7 +184,10 @@
 "coming.soon.dev.status" = "Перевірте статус розробника";
 "comming.soon.roadmap" = "Перевірте дорожню карту";
 "tabbar.polkaswap.title" = "Polkaswap";
+"account.export.action" = "Експорт";
 "account.export.json.hint" = "Пароль потрібен для шифрування вашого облікового запису та зберігання як Recovery JSON. Будь ласка, створіть пароль для продовження роботи.";
 "common.set.password" = "Встановити пароль";
 "common.confirm.password" = "Підтвердьте пароль";
 "common.error.password.mismatch" = "Пароль не відповідає";
+"common.network" = "Мережа";
+"common.change.password" = "Змінити пароль";
