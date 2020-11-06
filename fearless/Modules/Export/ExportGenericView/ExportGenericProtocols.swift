@@ -11,6 +11,10 @@ protocol ExportGenericPresenterProtocol {
     func activateAccessoryOption()
 }
 
+extension ExportGenericPresenterProtocol {
+    func activateAccessoryOption() {}
+}
+
 protocol ExportGenericWireframeProtocol: ErrorPresentable, AlertPresentable, SharingPresentable {
     func close(view: ExportGenericViewProtocol?)
 }

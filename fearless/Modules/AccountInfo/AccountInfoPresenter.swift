@@ -10,6 +10,8 @@ final class AccountInfoPresenter {
 
     private let address: String
 
+    private var accountItem: ManagedAccountItem?
+
     init(address: String,
          localizationManager: LocalizationManagerProtocol) {
         self.address = address
@@ -37,7 +39,11 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func activateExport() {
-        interactor.requestExportOptions(address: address)
+        guard let accountItem = accountItem else {
+            return
+        }
+
+        interactor.requestExportOptions(accountItem: accountItem)
     }
 
     func activateCopyAddress() {
@@ -62,6 +68,8 @@ extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
     }
 
     func didReceive(accountItem: ManagedAccountItem) {
+        self.accountItem = accountItem
+
         updateView(accountItem: accountItem)
     }
 

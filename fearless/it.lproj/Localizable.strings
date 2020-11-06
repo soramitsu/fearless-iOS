@@ -200,3 +200,8 @@ Mnemonico: %@";
 "export.mnemonic.hint" = "Utilizzare un metodo non digitale per il backup, come scrivere la sequenza di parole mnemoniche e il percorso di derivazione (se impostato) su carta.";
 "common.confirm" = "Confermare";
 "common.confirmed" = "Confermato";
+"export.seed.without.dp.template" = "Rete: %@\
+Seme: %@";
+"export.seed.with.dp.template" = "Rete: %@\
+Seme: %@\
+Percorso di derivazione: %@";

@@ -40,6 +40,11 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
                 return AlertPresentableAction(title: title) { [weak self] in
                     self?.showKeystoreExport(for: address, from: view)
                 }
+            case .seed:
+                let title = R.string.localizable.importRawSeed(preferredLanguages: locale?.rLanguages)
+                return AlertPresentableAction(title: title) { [weak self] in
+                    self?.showSeedExport(for: address, from: view)
+                }
             }
         }
 
@@ -69,6 +74,15 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
         }
 
         view?.controller.navigationController?.pushViewController(passwordView.controller,
+                                                                  animated: true)
+    }
+
+    private func showSeedExport(for address: String, from view: AccountInfoViewProtocol?) {
+        guard let seedView = ExportSeedViewFactory.createViewForAddress(address) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(seedView.controller,
                                                                   animated: true)
     }
 }

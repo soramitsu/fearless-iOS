@@ -18,7 +18,7 @@ protocol AccountInfoPresenterProtocol: class {
 protocol AccountInfoInteractorInputProtocol: class {
     func setup(address: String)
     func save(username: String, address: String)
-    func requestExportOptions(address: String)
+    func requestExportOptions(accountItem: ManagedAccountItem)
 }
 
 protocol AccountInfoInteractorOutputProtocol: class {
