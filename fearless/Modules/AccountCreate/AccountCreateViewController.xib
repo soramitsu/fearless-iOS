@@ -47,10 +47,10 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
                                     <rect key="frame" x="0.0" y="0.0" width="382" height="100"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
                                             <rect key="frame" x="0.0" y="38" width="24" height="24"/>
                                         </imageView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" ambiguous="YES" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
                                             <rect key="frame" x="40" y="16" width="342" height="68"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
@@ -119,7 +119,7 @@
                                     <rect key="frame" x="0.0" y="150" width="382" height="226"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="52"/>
+                                            <rect key="frame" x="1" y="16" width="380" height="48"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -163,7 +163,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="84" width="380" height="52"/>
+                                            <rect key="frame" x="1" y="80" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i8u-Ig-8Iw">
                                                     <rect key="frame" x="16" y="8" width="319" height="14"/>
@@ -224,7 +224,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="152" width="380" height="58.333333333333343"/>
+                                            <rect key="frame" x="1" y="148" width="380" height="56.333333333333343"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
@@ -340,16 +340,16 @@
     </objects>
     <designables>
         <designable name="Mz8-da-wtW">
-            <size key="intrinsicContentSize" width="326" height="52"/>
+            <size key="intrinsicContentSize" width="272.66666666666663" height="48"/>
         </designable>
         <designable name="YBP-AM-Ejm">
-            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
+            <size key="intrinsicContentSize" width="43.333333333333329" height="31.666666666666664"/>
         </designable>
         <designable name="eM4-fP-HgV">
-            <size key="intrinsicContentSize" width="238.66666666666666" height="58.333333333333336"/>
+            <size key="intrinsicContentSize" width="213.33333333333331" height="56.333333333333336"/>
         </designable>
         <designable name="oE5-fi-Ix8">
-            <size key="intrinsicContentSize" width="99.666666666666671" height="20"/>
+            <size key="intrinsicContentSize" width="85" height="20"/>
         </designable>
     </designables>
     <resources>

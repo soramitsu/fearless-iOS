@@ -185,9 +185,17 @@ a type of password.";
 "comming.soon.roadmap" = "План разработки";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "Экспортировать";
+"account.export.warning.message" = "Передача или копирование вашего секрета - операция с высоким риском, не отправляйте ее никому. Хотите продолжить процесс обмена / копирования?";
+"account.export.warning.title" = "Будьте осторожны";
 "account.export.json.hint" = "Пароль необходим для шифрования вашей учетной записи и сохранения как Recovery JSON. Пожалуйста, придумайте пароль для продолжения работы.";
 "common.set.password" = "Новый пароль";
 "common.confirm.password" = "Подтверждение пароля";
 "common.error.password.mismatch" = "Неверный пароль";
 "common.network" = "Сеть";
 "common.change.password" = "Сменить пароль";
+"export.mnemonic.with.dp.template" = "Сеть: %@\
+Мнемоника: %@\
+Путь деривации: %@";
+"export.mnemonic.without.dp.template" = "Сеть: %@\
+Мнемоника: %@";
+"export.mnemonic.hint" = "Используйте нецифровой способ резервного копирования, например, записав последовательность мнемонических слов и путь их образования (если он установлен) на бумаге.";

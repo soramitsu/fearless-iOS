@@ -7,7 +7,9 @@ protocol ExportMnemonicInteractorOutputProtocol: class {
     func didReceive(error: Error)
 }
 
-protocol ExportMnemonicWireframeProtocol: ErrorPresentable, AlertPresentable {}
+protocol ExportMnemonicWireframeProtocol: ExportGenericWireframeProtocol {
+    func close(view: ExportGenericViewProtocol?)
+}
 
 protocol ExportMnemonicViewFactoryProtocol: class {
     static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol?

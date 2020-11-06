@@ -185,9 +185,17 @@ provient du bon réseau";
 "comming.soon.roadmap" = "Vérifier la feuille de route";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "Exportation";
+"account.export.warning.message" = "Partager ou copier votre secret est une opération à haut risque, ne l'envoyez à personne. Souhaitez-vous poursuivre le processus de partage / copie?";
+"account.export.warning.title" = "Faites attention";
 "account.export.json.hint" = "Le mot de passe est requis pour crypter votre compte et le stocker en tant que Recovery JSON. Veuillez créer un mot de passe pour continuer l'opération.";
 "common.set.password" = "Définir le mot de passe";
 "common.confirm.password" = "Confirmez le mot de passe";
 "common.error.password.mismatch" = "Mot de passe incompatible";
 "common.network" = "Réseau";
 "common.change.password" = "Changer le mot de passe";
+"export.mnemonic.with.dp.template" = "Réseau: %@\
+Mnémonique: %@\
+Chemin de dérivation: %@";
+"export.mnemonic.without.dp.template" = "Réseau: %@\
+Mnémonique: %@";
+"export.mnemonic.hint" = "Utilisez un moyen non numérique pour sauvegarder, comme écrire la séquence de mots mnémotechniques et le chemin de dérivation (si défini) sur papier.";

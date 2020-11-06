@@ -49,7 +49,7 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
             }
 
             return ExportMnemonicData(account: account,
-                                      mnemonic: mnemonic.allWords(),
+                                      mnemonic: mnemonic,
                                       derivationPath: derivationPath,
                                       networkType: chain)
         }

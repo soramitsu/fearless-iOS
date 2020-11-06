@@ -184,9 +184,17 @@ provenga dalla rete corretta";
 "comming.soon.roadmap" = "Controlla la roadmap";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "Esportare";
+"account.export.warning.message" = "Condividere o copiare il tuo segreto è un'operazione ad alto rischio, non inviarlo a nessuno. Desideri procedere con il processo di condivisione / copia?";
+"account.export.warning.title" = "Stai attento";
 "account.export.json.hint" = "La password è necessaria per crittografare il tuo account e archiviarlo come JSON di ripristino. Per favore, crea una password per continuare l'operazione.";
 "common.set.password" = "Impostare la password";
 "common.confirm.password" = "Conferma password";
 "common.error.password.mismatch" = "Password non corrispondente";
 "common.network" = "Rete";
 "common.change.password" = "Cambia la password";
+"export.mnemonic.with.dp.template" = "Rete: %@\
+Mnemonico: %@\
+Percorso di derivazione: %@";
+"export.mnemonic.without.dp.template" = "Rete: %@\
+Mnemonico: %@";
+"export.mnemonic.hint" = "Utilizzare un metodo non digitale per il backup, come scrivere la sequenza di parole mnemoniche e il percorso di derivazione (se impostato) su carta.";

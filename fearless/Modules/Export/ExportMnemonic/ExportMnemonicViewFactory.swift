@@ -6,7 +6,7 @@ import RobinHood
 final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
     static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol? {
         let accessoryActionTitle = LocalizableResource { locale in
-            "Confirm mnemonic"
+            R.string.localizable.accountConfirmationTitle(preferredLanguages: locale.rLanguages)
         }
 
         let uiFactory = UIFactory()

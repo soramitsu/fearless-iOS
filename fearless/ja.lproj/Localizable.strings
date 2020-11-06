@@ -182,9 +182,17 @@ a type of password.";
 "comming.soon.roadmap" = "ロードマップを確認する";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "書き出す";
+"account.export.warning.message" = "シークレットを共有またはコピーすることはリスクの高い操作です。誰にも送信しないでください。共有/コピープロセスを続行しますか？";
+"account.export.warning.title" = "注意してください";
 "account.export.json.hint" = "アカウントを暗号化してリカバリJSONとして保存するには、パスワードが必要です。操作を続行するには、パスワードを作成してください。";
 "common.set.password" = "パスワードを設定してください";
 "common.confirm.password" = "パスワードを認証する";
 "common.error.password.mismatch" = "パスワードが一致しません";
 "common.network" = "通信網";
 "common.change.password" = "パスワードを変更する";
+"export.mnemonic.with.dp.template" = "ネットワーク： %@\
+ニーモニック： %@\
+派生パス： %@";
+"export.mnemonic.without.dp.template" = "ネットワーク： %@\
+ニーモニック： %@";
+"export.mnemonic.hint" = "ニーモニックワードのシーケンスと派生パス（設定されている場合）を紙に書き留めるなど、デジタル以外の方法でバックアップします。";
