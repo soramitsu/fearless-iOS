@@ -199,3 +199,5 @@ Chemin de dérivation: %@";
 "export.mnemonic.without.dp.template" = "Réseau: %@\
 Mnémonique: %@";
 "export.mnemonic.hint" = "Utilisez un moyen non numérique pour sauvegarder, comme écrire la séquence de mots mnémotechniques et le chemin de dérivation (si défini) sur papier.";
+"common.confirm" = "Confirmer";
+"common.confirmed" = "Confirmé";

@@ -199,3 +199,5 @@ Derivation path: %@";
 "export.mnemonic.without.dp.template" = "Network: %@\
 Mnemonic: %@";
 "export.mnemonic.hint" = "Use non digital way to backup, such as writing the sequence of mnemonic words and derivation path (if set) down on paper.";
+"common.confirm" = "Confirm";
+"common.confirmed" = "Confirmed";

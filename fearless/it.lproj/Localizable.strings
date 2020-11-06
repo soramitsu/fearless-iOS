@@ -198,3 +198,5 @@ Percorso di derivazione: %@";
 "export.mnemonic.without.dp.template" = "Rete: %@\
 Mnemonico: %@";
 "export.mnemonic.hint" = "Utilizzare un metodo non digitale per il backup, come scrivere la sequenza di parole mnemoniche e il percorso di derivazione (se impostato) su carta.";
+"common.confirm" = "Confermare";
+"common.confirmed" = "Confermato";

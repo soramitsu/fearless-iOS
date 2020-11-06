@@ -27,8 +27,10 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var detailsLabel: UILabel!
     @IBOutlet private var bottomPlaneView: UIView!
     @IBOutlet private var topPlaneView: UIView!
+
+    @IBOutlet private var buttonsView: UIView!
     @IBOutlet private var nextButton: TriangularedButton!
-    @IBOutlet private var skipButton: RoundedButton!
+    @IBOutlet private var skipButton: TriangularedButton?
 
     @IBOutlet private var topPlaneHeight: NSLayoutConstraint!
     @IBOutlet private var bottomPlaneHeight: NSLayoutConstraint!
@@ -51,8 +53,18 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     private var positions: [RoundedButton: Position] = [:]
     private var originalPositions: [RoundedButton: Position] = [:]
 
+    lazy var nextButtonTitle: LocalizableResource<String> = LocalizableResource { locale in
+        R.string.localizable.commonNext(preferredLanguages: locale.rLanguages)
+    }
+
+    var skipButtonTitle: LocalizableResource<String>?
+
     override func viewDidLoad() {
         super.viewDidLoad()
+
+        if skipButtonTitle != nil {
+            createSkipButton()
+        }
 
         setupNavigationItem()
         setupLocalization()
@@ -67,19 +79,19 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+        guard let locale = localizationManager?.selectedLocale else {
+            return
+        }
 
         title = R.string.localizable.accountConfirmationTitle(preferredLanguages: locale.rLanguages)
 
         detailsLabel.text = R.string.localizable
             .accountConfirmationDetails(preferredLanguages: locale.rLanguages)
 
-        nextButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: locale.rLanguages)
+        nextButton.imageWithTitleView?.title = nextButtonTitle.value(for: locale)
         nextButton.invalidateLayout()
 
-        skipButton.imageWithTitleView?.title = R.string.localizable
-            .confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        skipButton?.imageWithTitleView?.title = skipButtonTitle?.value(for: locale)
     }
 
     private func createButton() -> RoundedButton {
@@ -140,6 +152,53 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         navigationItem.rightBarButtonItem = infoItem
     }
 
+    private func createSkipButton() {
+        let skipButton = TriangularedButton()
+        skipButton.translatesAutoresizingMaskIntoConstraints = false
+        skipButton.applyAccessoryStyle()
+        buttonsView.addSubview(skipButton)
+
+        skipButton.addTarget(self,
+                             action: #selector(actionSkip),
+                             for: .touchUpInside)
+
+        skipButton.leadingAnchor.constraint(equalTo: buttonsView.leadingAnchor).isActive = true
+        skipButton.trailingAnchor.constraint(equalTo: buttonsView.trailingAnchor).isActive = true
+        skipButton.bottomAnchor.constraint(equalTo: nextButton.topAnchor,
+                                           constant: UIConstants.mainAccessoryActionsSpacing).isActive = true
+        skipButton.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
+
+        self.skipButton = skipButton
+    }
+
+    private func updateNextButton() {
+        nextButton.isEnabled = pendingButtons.isEmpty && !submittedButtons.isEmpty
+    }
+
+    @objc private func actionRetry() {
+        presenter.requestWords()
+    }
+
+    @IBAction private func actionNext() {
+        guard pendingButtons.isEmpty else {
+            return
+        }
+
+        let words: [String] = submittedButtons.reduce(into: []) { (list, button) in
+            if let title = button.imageWithTitleView?.title {
+                list.append(title)
+            }
+        }
+
+        presenter.confirm(words: words)
+    }
+
+    @objc private func actionSkip() {
+        presenter.skip()
+    }
+}
+
+extension AccountConfirmViewController {
     private func layoutButtons() {
         layoutPendingButtons()
         layoutSubmittedButtons()
@@ -247,10 +306,6 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         return totalHeight + CGFloat(rows.count - 1) * Constants.itemsSpacing
     }
 
-    private func updateNextButton() {
-        nextButton.isEnabled = pendingButtons.isEmpty && !submittedButtons.isEmpty
-    }
-
     @objc private func actionItem(_ sender: AnyObject) {
         guard let button = sender as? RoundedButton else {
             return
@@ -303,28 +358,6 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         }
 
         updateNextButton()
-    }
-
-    @objc private func actionRetry() {
-        presenter.requestWords()
-    }
-
-    @IBAction private func actionNext() {
-        guard pendingButtons.isEmpty else {
-            return
-        }
-
-        let words: [String] = submittedButtons.reduce(into: []) { (list, button) in
-            if let title = button.imageWithTitleView?.title {
-                list.append(title)
-            }
-        }
-
-        presenter.confirm(words: words)
-    }
-
-    @IBAction private func actionSkip() {
-        presenter.skip()
     }
 }
 
