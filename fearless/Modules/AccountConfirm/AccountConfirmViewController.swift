@@ -29,6 +29,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var topPlaneView: UIView!
 
     @IBOutlet private var buttonsView: UIView!
+    @IBOutlet private var buttonsHeightConstraint: NSLayoutConstraint!
     @IBOutlet private var nextButton: TriangularedButton!
     @IBOutlet private var skipButton: TriangularedButton?
 
@@ -165,8 +166,10 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         skipButton.leadingAnchor.constraint(equalTo: buttonsView.leadingAnchor).isActive = true
         skipButton.trailingAnchor.constraint(equalTo: buttonsView.trailingAnchor).isActive = true
         skipButton.bottomAnchor.constraint(equalTo: nextButton.topAnchor,
-                                           constant: UIConstants.mainAccessoryActionsSpacing).isActive = true
+                                           constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
         skipButton.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
+
+        buttonsHeightConstraint.constant = 2.0 * UIConstants.actionHeight + UIConstants.mainAccessoryActionsSpacing
 
         self.skipButton = skipButton
     }

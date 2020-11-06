@@ -19,6 +19,7 @@
             <connections>
                 <outlet property="bottomPlaneHeight" destination="B42-zO-Mqd" id="06I-Ga-m1G"/>
                 <outlet property="bottomPlaneView" destination="iI2-ci-IkH" id="JVG-se-v1O"/>
+                <outlet property="buttonsHeightConstraint" destination="SLW-TS-FwD" id="ZLy-MJ-590"/>
                 <outlet property="buttonsView" destination="E2p-hu-yYu" id="p3G-AP-PBb"/>
                 <outlet property="contentView" destination="oVw-Ru-zUO" id="2gL-fY-6LL"/>
                 <outlet property="detailsLabel" destination="h9t-43-ypk" id="leW-V7-KZ4"/>
