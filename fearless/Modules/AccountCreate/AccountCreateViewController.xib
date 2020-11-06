@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -117,9 +118,9 @@
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
                                     <rect key="frame" x="0.0" y="150" width="382" height="226"/>
                                     <subviews>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="48"/>
-                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="16" width="380" height="52"/>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
                                                     <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -161,17 +162,17 @@
                                                 <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="80" width="380" height="52"/>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="84" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i8u-Ig-8Iw">
-                                                    <rect key="frame" x="16" y="8" width="319" height="15.333333333333336"/>
+                                                    <rect key="frame" x="16" y="8" width="319" height="14"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                     <color key="textColor" name="colorLightGray"/>
                                                     <nil key="highlightedColor"/>
                                                 </label>
                                                 <textField opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="//hard/soft///password" textAlignment="natural" minimumFontSize="14" translatesAutoresizingMaskIntoConstraints="NO" id="rzy-lG-JEs">
-                                                    <rect key="frame" x="16" y="24.666666666666657" width="319" height="19.333333333333329"/>
+                                                    <rect key="frame" x="16" y="26" width="319" height="18"/>
                                                     <color key="tintColor" name="colorWhite"/>
                                                     <color key="textColor" name="colorWhite"/>
                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
@@ -222,9 +223,9 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="148" width="380" height="56.333333333333343"/>
-                                            <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
+                                            <rect key="frame" x="1" y="152" width="380" height="58.333333333333343"/>
+                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
                                                     <real key="value" value="1"/>
@@ -293,7 +294,7 @@
                 </scrollView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="YBP-AM-Ejm" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="660" width="382" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="Ekb-QS-0r6"/>
                     </constraints>
@@ -322,6 +323,7 @@
                     </connections>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="YBP-AM-Ejm" secondAttribute="trailing" constant="16" id="9iY-6L-WRu"/>
@@ -333,10 +335,23 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="j2J-jw-4dD" secondAttribute="trailing" id="nZX-kU-Kp9"/>
                 <constraint firstItem="nt2-2c-HuT" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" constant="-32" id="ysR-LX-OTN"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="137.68115942028987" y="132.88043478260872"/>
         </view>
     </objects>
+    <designables>
+        <designable name="Mz8-da-wtW">
+            <size key="intrinsicContentSize" width="326" height="52"/>
+        </designable>
+        <designable name="YBP-AM-Ejm">
+            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
+        </designable>
+        <designable name="eM4-fP-HgV">
+            <size key="intrinsicContentSize" width="238.66666666666666" height="58.333333333333336"/>
+        </designable>
+        <designable name="oE5-fi-Ix8">
+            <size key="intrinsicContentSize" width="99.666666666666671" height="20"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconAlert" width="24" height="24"/>
         <image name="iconDropDown" width="24" height="24"/>
@@ -359,5 +374,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>
