@@ -62,6 +62,7 @@ final class ExportGenericViewController: UIViewController {
 
         setupSourceTypeView()
         setupExpandableActionView()
+        setupAnimatingView()
     }
 
     override func viewDidLoad() {
@@ -138,7 +139,7 @@ final class ExportGenericViewController: UIViewController {
 
         containerView.stackView.sendSubviewToBack(advancedContainerView)
 
-        advancedContainerView.isHidden = !expandableControl.isActivated
+        advancedContainerView.isHidden = !self.expandableControl.isActivated
 
         if expandableControl.isActivated {
             advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
@@ -172,6 +173,18 @@ extension ExportGenericViewController {
         self.mainActionButton = button
     }
 
+    private func setupAnimatingView() {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.backgroundColor = R.color.colorBlack()
+        containerView.stackView.insertSubview(view, at: 0)
+
+        view.leadingAnchor.constraint(equalTo: containerView.stackView.leadingAnchor).isActive = true
+        view.trailingAnchor.constraint(equalTo: containerView.stackView.trailingAnchor).isActive = true
+        view.topAnchor.constraint(equalTo: sourceTypeView.topAnchor).isActive = true
+        view.bottomAnchor.constraint(equalTo: expandableControl.bottomAnchor).isActive = true
+    }
+
     private func setupAccessoryButton() {
         let button = uiFactory.createAccessoryButton()
         button.translatesAutoresizingMaskIntoConstraints = false
@@ -199,6 +212,8 @@ extension ExportGenericViewController {
         containerView = ScrollableContainerView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(containerView)
+
+        containerView.stackView.spacing = Constants.verticalSpacing
 
         containerView.topAnchor
             .constraint(equalTo: view.safeAreaLayoutGuide.topAnchor).isActive = true
@@ -240,19 +255,12 @@ extension ExportGenericViewController {
     }
 
     private func setupExpandableActionView() {
-        let topSpacing = uiFactory.createSeparatorView()
-        topSpacing.translatesAutoresizingMaskIntoConstraints = false
-        topSpacing.backgroundColor = R.color.colorBlack()!
-        containerView.stackView.addArrangedSubview(topSpacing)
-
-        topSpacing.widthAnchor.constraint(equalTo: self.view.widthAnchor,
-                                          constant: -2.0 * UIConstants.horizontalInset).isActive = true
-        topSpacing.heightAnchor.constraint(equalToConstant: Constants.verticalSpacing).isActive = true
-
         let view = uiFactory.createExpandableActionControl()
         view.backgroundColor = .black
         view.translatesAutoresizingMaskIntoConstraints = false
         containerView.stackView.addArrangedSubview(view)
+
+        containerView.stackView.setCustomSpacing(0.0, after: view)
 
         view.widthAnchor.constraint(equalTo: self.view.widthAnchor,
                                     constant: -2.0 * UIConstants.horizontalInset).isActive = true
@@ -318,8 +326,7 @@ extension ExportGenericViewController {
                                 constant: Constants.verticalSpacing).isActive = true
             } else {
                 subview.topAnchor
-                    .constraint(equalTo: containerView.topAnchor,
-                                constant: Constants.verticalSpacing).isActive = true
+                    .constraint(equalTo: containerView.topAnchor).isActive = true
             }
 
             return subview
