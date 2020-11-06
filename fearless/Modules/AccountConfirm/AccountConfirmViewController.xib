@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -41,7 +42,7 @@
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mbj-JZ-Ope" customClass="RoundedView" customModule="SoraUI">
                                     <rect key="frame" x="0.0" y="26" width="382" height="144"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="144" id="Jif-RH-1ha"/>
                                     </constraints>
@@ -69,7 +70,7 @@
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iI2-ci-IkH" customClass="RoundedView" customModule="SoraUI">
                                     <rect key="frame" x="0.0" y="222.33333333333337" width="382" height="144"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="144" id="B42-zO-Mqd"/>
                                     </constraints>
@@ -114,7 +115,7 @@
                 </scrollView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="02i-Et-cAL" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="624.33333333333337" width="382" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="kYl-o1-wkF"/>
                     </constraints>
@@ -144,7 +145,7 @@
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aO6-DA-2xu" customClass="RoundedButton" customModule="SoraUI">
                     <rect key="frame" x="144" y="686.33333333333337" width="126" height="49.666666666666629"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Skip process"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
@@ -182,6 +183,7 @@
                     </connections>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="6fY-mm-hDT"/>
@@ -195,10 +197,17 @@
                 <constraint firstItem="oVw-Ru-zUO" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" constant="-32" id="uxI-B3-6pi"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="02i-Et-cAL" secondAttribute="trailing" constant="16" id="z0z-r6-bru"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="139" y="133"/>
         </view>
     </objects>
+    <designables>
+        <designable name="02i-Et-cAL">
+            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
+        </designable>
+        <designable name="aO6-DA-2xu">
+            <size key="intrinsicContentSize" width="126" height="49.666666666666671"/>
+        </designable>
+    </designables>
     <resources>
         <namedColor name="colorAlmostBlack">
             <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -207,7 +216,7 @@
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorCoral">
-            <color red="0.027" green="0.75600000000000001" blue="0.94099999999999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.027000000700354576" green="0.75599998235702515" blue="0.94099998474121094" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorDarkBlue">
             <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -218,5 +227,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

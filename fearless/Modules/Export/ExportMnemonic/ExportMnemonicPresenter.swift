@@ -69,7 +69,13 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
 
-    func activateAccessoryOption() {}
+    func activateAccessoryOption() {
+        guard let exportData = exportData else {
+            return
+        }
+
+        wireframe.openConfirmationForMnemonic(exportData.mnemonic, from: view)
+    }
 }
 
 extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {

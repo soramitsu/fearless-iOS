@@ -141,14 +141,7 @@ final class ExportGenericViewController: UIViewController {
         advancedContainerView.isHidden = !expandableControl.isActivated
 
         if expandableControl.isActivated {
-            advancedAppearanceAnimator.animate(view: advancedContainerView) { completed in
-                if completed {
-                    let visibleFrame = self.containerView.scrollView
-                        .convert(advancedContainerView.frame,
-                                 from: advancedContainerView.superview)
-                    self.containerView.scrollView.scrollRectToVisible(visibleFrame, animated: true)
-                }
-            }
+            advancedAppearanceAnimator.animate(view: advancedContainerView, completionBlock: nil)
         } else {
             advancedDismissalAnimator.animate(view: advancedContainerView, completionBlock: nil)
         }
