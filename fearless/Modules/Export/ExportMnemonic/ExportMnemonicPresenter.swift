@@ -9,7 +9,7 @@ final class ExportMnemonicPresenter {
     let address: String
     let localizationManager: LocalizationManager
 
-    private var exportData: ExportMnemonicData?
+    private(set) var exportData: ExportMnemonicData?
 
     init(address: String, localizationManager: LocalizationManager) {
         self.address = address
