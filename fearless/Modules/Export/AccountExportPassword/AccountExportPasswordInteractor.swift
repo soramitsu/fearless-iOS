@@ -1,9 +1,11 @@
 import UIKit
 import RobinHood
+import IrohaCrypto
 
 enum AccountExportPasswordInteractorError: Error {
     case missingAccount
     case invalidResult
+    case unsupportedAddress
 }
 
 final class AccountExportPasswordInteractor {
@@ -26,7 +28,7 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
     func exportAccount(address: String, password: String) {
         let accountOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
 
-        let exportOperation: BaseOperation<String> = ClosureOperation { [weak self] in
+        let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
             guard let account = try accountOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
                 throw AccountExportPasswordInteractorError.missingAccount
@@ -41,7 +43,15 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                 throw AccountExportPasswordInteractorError.invalidResult
             }
 
-            return result
+            let addressRawType = try SS58AddressFactory().type(fromAddress: address)
+
+            guard let chain = SNAddressType(rawValue: addressRawType.uint8Value)?.chain else {
+                throw AccountExportPasswordInteractorError.unsupportedAddress
+            }
+
+            return RestoreJson(data: result,
+                               chain: chain,
+                               cryptoType: account.cryptoType)
         }
 
         exportOperation.addDependency(accountOperation)
@@ -49,9 +59,10 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
         exportOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let json = try exportOperation
+                    let model = try exportOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                    self?.presenter.didExport(json: json)
+
+                    self?.presenter.didExport(json: model)
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }

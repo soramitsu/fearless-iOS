@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -39,7 +40,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstItem="Oj2-Mf-2Jx" firstAttribute="centerY" secondItem="eRQ-VL-HUF" secondAttribute="centerY" id="BD2-bc-0s3"/>
                         <constraint firstItem="eUK-u1-QpA" firstAttribute="centerY" secondItem="eRQ-VL-HUF" secondAttribute="centerY" id="Xfu-NQ-Swd"/>
@@ -66,7 +67,7 @@
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h4Y-XV-NT5" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="56" width="382" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="skT-Hb-Xbp"/>
                     </constraints>
@@ -119,6 +120,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="33h-52-ul5"/>
             <color key="backgroundColor" name="colorAlmostBlack"/>
             <constraints>
                 <constraint firstItem="h4Y-XV-NT5" firstAttribute="top" secondItem="eRQ-VL-HUF" secondAttribute="bottom" constant="8" id="68i-5i-2d0"/>
@@ -129,7 +131,6 @@
                 <constraint firstAttribute="top" secondItem="eRQ-VL-HUF" secondAttribute="top" id="bvH-jp-1RR"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
-            <viewLayoutGuide key="safeArea" id="33h-52-ul5"/>
             <connections>
                 <outlet property="amountLabel" destination="Oj2-Mf-2Jx" id="Mbd-tu-Qu8"/>
                 <outlet property="detailsView" destination="h4Y-XV-NT5" id="HbZ-ZE-mpw"/>
@@ -158,5 +159,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

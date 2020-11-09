@@ -28,7 +28,7 @@ class AccountInfoExportTests: XCTestCase {
                               keystore: keychain,
                               settings: settings,
                               expectedAddress: givenAccount.address,
-                              expectedOptions: [.mnemonic, .keystore])
+                              expectedOptions: [.keystore, .mnemonic, .seed])
     }
 
     func testExportAfterCreationWithSeed() throws {
@@ -53,7 +53,7 @@ class AccountInfoExportTests: XCTestCase {
                               keystore: keychain,
                               settings: settings,
                               expectedAddress: givenAccount.address,
-                              expectedOptions: [.keystore])
+                              expectedOptions: [.keystore, .seed])
     }
 
     func testExportAfterCreationWithKeystore() throws {

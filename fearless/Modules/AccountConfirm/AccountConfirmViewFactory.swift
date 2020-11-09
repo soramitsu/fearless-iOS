@@ -13,6 +13,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
@@ -51,6 +55,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
@@ -88,6 +96,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()

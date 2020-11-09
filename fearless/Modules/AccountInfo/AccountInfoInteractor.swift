@@ -112,12 +112,17 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
         operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
     }
 
-    func requestExportOptions(address: String) {
+    func requestExportOptions(accountItem: ManagedAccountItem) {
         do {
             var options: [ExportOption] = [.keystore]
 
-            if try keystore.checkEntropyForAddress(address) {
-                options.insert(.mnemonic, at: 0)
+            if try keystore.checkEntropyForAddress(accountItem.address) {
+                options.append(.mnemonic)
+            }
+
+            let hasSeed = try keystore.checkSeedForAddress(accountItem.address)
+            if hasSeed || accountItem.cryptoType.supportsSeedFromSecretKey {
+                options.append(.seed)
             }
 
             presenter.didReceive(exportOptions: options)

@@ -1,8 +1,11 @@
 import Foundation
 
 final class AccountExportPasswordWireframe: AccountExportPasswordWireframeProtocol {
-    func showJSONExport(_ json: String, from view: AccountExportPasswordViewProtocol?) {
-        // TODO: FLW - 420
-        Logger.shared.debug("Did receive json: \(json)")
+    func showJSONExport(_ json: RestoreJson, from view: AccountExportPasswordViewProtocol?) {
+        guard let exportView = ExportRestoreJsonViewFactory.createView(with: json) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(exportView.controller, animated: true)
     }
 }

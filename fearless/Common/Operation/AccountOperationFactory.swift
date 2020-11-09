@@ -70,6 +70,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
 
+            try self.keystore.saveSeed(result.seed.miniSeed, address: address)
+
             return AccountItem(address: address,
                                cryptoType: request.cryptoType,
                                username: request.username,
@@ -120,6 +122,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
+
+            try self.keystore.saveSeed(seed, address: address)
 
             return AccountItem(address: address,
                                cryptoType: request.cryptoType,

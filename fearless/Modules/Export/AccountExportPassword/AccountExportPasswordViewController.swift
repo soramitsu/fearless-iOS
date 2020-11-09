@@ -143,7 +143,7 @@ final class AccountExportPasswordViewController: UIViewController {
         if isSecure {
             eyeButton.imageWithTitleView?.iconImage = R.image.iconEye()
         } else {
-            eyeButton.imageWithTitleView?.iconImage = R.image.iconEye()?.tinted(with: R.color.colorCoral()!)
+            eyeButton.imageWithTitleView?.iconImage = R.image.iconNoEye()
         }
 
         textField.isSecureTextEntry = isSecure
