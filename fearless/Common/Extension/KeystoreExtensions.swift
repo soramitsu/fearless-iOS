@@ -7,6 +7,7 @@ enum KeystoreTag: String, CaseIterable {
     static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
     static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy"}
     static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv"}
+    static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
 }
 
 extension KeystoreProtocol {
@@ -74,6 +75,23 @@ extension KeystoreProtocol {
 
     func checkDeriviationForAddress(_ address: String) throws -> Bool {
         let tag = KeystoreTag.deriviationTagForAddress(address)
+        return try checkKey(for: tag)
+    }
+
+    func saveSeed(_ data: Data, address: String) throws {
+        let tag = KeystoreTag.seedTagForAddress(address)
+
+        try saveKey(data, with: tag)
+    }
+
+    func fetchSeedForAddress(_ address: String) throws -> Data? {
+        let tag = KeystoreTag.seedTagForAddress(address)
+
+        return try loadIfKeyExists(tag)
+    }
+
+    func checkSeedForAddress(_ address: String) throws -> Bool {
+        let tag = KeystoreTag.seedTagForAddress(address)
         return try checkKey(for: tag)
     }
 }

@@ -201,3 +201,8 @@ Mnemonic: %@";
 "export.mnemonic.hint" = "Use non digital way to backup, such as writing the sequence of mnemonic words and derivation path (if set) down on paper.";
 "common.confirm" = "Confirm";
 "common.confirmed" = "Confirmed";
+"export.seed.without.dp.template" = "Network: %@\
+Seed: %@";
+"export.seed.with.dp.template" = "Network: %@\
+Seed: %@\
+Derivation path: %@";

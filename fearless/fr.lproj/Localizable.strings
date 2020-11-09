@@ -201,3 +201,8 @@ Mnémonique: %@";
 "export.mnemonic.hint" = "Utilisez un moyen non numérique pour sauvegarder, comme écrire la séquence de mots mnémotechniques et le chemin de dérivation (si défini) sur papier.";
 "common.confirm" = "Confirmer";
 "common.confirmed" = "Confirmé";
+"export.seed.without.dp.template" = "Réseau: %@\
+Graine: %@";
+"export.seed.with.dp.template" = "Réseau: %@\
+Graine: %@\
+Chemin de dérivation: %@";

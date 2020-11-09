@@ -4415,16 +4415,16 @@ import SoraFoundation
     
     
     
-     func requestExportOptions(address: String)  {
+     func requestExportOptions(accountItem: ManagedAccountItem)  {
         
-    return cuckoo_manager.call("requestExportOptions(address: String)",
-            parameters: (address),
-            escapingParameters: (address),
+    return cuckoo_manager.call("requestExportOptions(accountItem: ManagedAccountItem)",
+            parameters: (accountItem),
+            escapingParameters: (accountItem),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.requestExportOptions(address: address))
+            defaultCall: __defaultImplStub!.requestExportOptions(accountItem: accountItem))
         
     }
     
@@ -4447,9 +4447,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "save(username: String, address: String)", parameterMatchers: matchers))
 	    }
 	    
-	    func requestExportOptions<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "requestExportOptions(address: String)", parameterMatchers: matchers))
+	    func requestExportOptions<M1: Cuckoo.Matchable>(accountItem: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedAccountItem)> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: accountItem) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "requestExportOptions(accountItem: ManagedAccountItem)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4481,9 +4481,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func requestExportOptions<M1: Cuckoo.Matchable>(address: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
-	        return cuckoo_manager.verify("requestExportOptions(address: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func requestExportOptions<M1: Cuckoo.Matchable>(accountItem: M1) -> Cuckoo.__DoNotUse<(ManagedAccountItem), Void> where M1.MatchedType == ManagedAccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: accountItem) { $0 }]
+	        return cuckoo_manager.verify("requestExportOptions(accountItem: ManagedAccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -4503,7 +4503,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func requestExportOptions(address: String)   {
+     func requestExportOptions(accountItem: ManagedAccountItem)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

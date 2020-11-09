@@ -201,3 +201,8 @@ Mnemónico: %@";
 "export.mnemonic.hint" = "Utilice una forma no digital de copia de seguridad, como escribir la secuencia de palabras mnemotécnicas y la ruta de derivación (si está establecida) en papel.";
 "common.confirm" = "Confirmar";
 "common.confirmed" = "Confirmado";
+"export.seed.without.dp.template" = "Red: %@\
+Semilla: %@";
+"export.seed.with.dp.template" = "Red: %@\
+Semilla: %@\
+Ruta de derivación: %@";

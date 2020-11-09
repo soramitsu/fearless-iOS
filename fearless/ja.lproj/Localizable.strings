@@ -198,3 +198,8 @@ a type of password.";
 "export.mnemonic.hint" = "ニーモニックワードのシーケンスと派生パス（設定されている場合）を紙に書き留めるなど、デジタル以外の方法でバックアップします。";
 "common.confirm" = "確認";
 "common.confirmed" = "確認済み";
+"export.seed.without.dp.template" = "ネットワーク： %@\
+シード： %@";
+"export.seed.with.dp.template" = "ネットワーク： %@\
+シード： %@\
+派生パス： %@";
