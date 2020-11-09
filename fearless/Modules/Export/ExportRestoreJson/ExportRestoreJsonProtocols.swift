@@ -1,6 +1,6 @@
 import Foundation
 
-protocol ExportRestoreJsonWireframeProtocol: SharingPresentable {
+protocol ExportRestoreJsonWireframeProtocol: ExportGenericWireframeProtocol {
     func close(view: ExportGenericViewProtocol?)
     func showChangePassword(from view: ExportGenericViewProtocol?)
 }

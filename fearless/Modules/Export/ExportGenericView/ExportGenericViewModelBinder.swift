@@ -20,4 +20,14 @@ final class ExportGenericViewModelBinder: ExportGenericViewModelBinding {
 
         return detailsView
     }
+
+    func bind(mnemonicViewModel: ExportMnemonicViewModel, locale: Locale) -> UIView {
+        let title = R.string.localizable.exportMnemonicHint(preferredLanguages: locale.rLanguages)
+        let icon = R.image.iconAlert()
+
+        let mnemonicView = uiFactory.createTitledMnemonicView(title, icon: icon)
+        mnemonicView.contentView.bind(words: mnemonicViewModel.mnemonic, columnsCount: 2)
+
+        return mnemonicView
+    }
 }

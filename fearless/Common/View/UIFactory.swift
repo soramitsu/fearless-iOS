@@ -19,6 +19,7 @@ protocol UIFactoryProtocol {
     func createDetailsView(with layout: DetailsTriangularedView.Layout,
                            filled: Bool) -> DetailsTriangularedView
     func createExpandableActionControl() -> ExpandableActionControl
+    func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
     func createSeparatorView() -> UIView
 }
 
@@ -76,6 +77,28 @@ final class UIFactory: UIFactoryProtocol {
         view.titleLabel.textColor = R.color.colorWhite()
         view.titleLabel.font = UIFont.p1Paragraph
         view.plusIndicator.strokeColor = R.color.colorWhite()!
+
+        return view
+    }
+
+    func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView {
+        let view = TitledMnemonicView()
+
+        if let icon = icon {
+            view.iconView.image = icon
+        }
+
+        if let title = title {
+            view.titleLabel.textColor = R.color.colorLightGray()!
+            view.titleLabel.font = UIFont.p1Paragraph
+            view.titleLabel.text = title
+        }
+
+        view.contentView.indexTitleColorInColumn = R.color.colorGray()!
+        view.contentView.wordTitleColorInColumn = R.color.colorWhite()!
+
+        view.contentView.indexFontInColumn = .p0Digits
+        view.contentView.wordFontInColumn = .p0Paragraph
 
         return view
     }

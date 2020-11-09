@@ -185,9 +185,19 @@ from the right network";
 "comming.soon.roadmap" = "Check Roadmap";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "Export";
+"account.export.warning.message" = "Sharing or copying your secret is a high risk operation, don’t send it to anyone. Would you like to proceed with sharing/copying process?";
+"account.export.warning.title" = "Be careful";
 "account.export.json.hint" = "Password is required to encrypt your account and store as Restore JSON. Please, create password to continue operation.";
 "common.set.password" = "Set password";
 "common.confirm.password" = "Confirm password";
 "common.error.password.mismatch" = "Password do not match";
 "common.network" = "Network";
 "common.change.password" = "Change password";
+"export.mnemonic.with.dp.template" = "Network: %@\
+Mnemonic: %@\
+Derivation path: %@";
+"export.mnemonic.without.dp.template" = "Network: %@\
+Mnemonic: %@";
+"export.mnemonic.hint" = "Use non digital way to backup, such as writing the sequence of mnemonic words and derivation path (if set) down on paper.";
+"common.confirm" = "Confirm";
+"common.confirmed" = "Confirmed";

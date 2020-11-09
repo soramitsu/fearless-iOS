@@ -55,7 +55,12 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
     }
 
     private func showMnemonicExport(for address: String, from view: AccountInfoViewProtocol?) {
+        guard let mnemonicView = ExportMnemonicViewFactory.createViewForAddress(address) else {
+            return
+        }
 
+        view?.controller.navigationController?.pushViewController(mnemonicView.controller,
+                                                                  animated: true)
     }
 
     private func showKeystoreExport(for address: String, from view: AccountInfoViewProtocol?) {

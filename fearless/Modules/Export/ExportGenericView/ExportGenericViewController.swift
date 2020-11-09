@@ -84,7 +84,7 @@ final class ExportGenericViewController: UIViewController {
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
         mainActionButton.imageWithTitleView?.title = R.string.localizable
-            .commonExport(preferredLanguages: locale.rLanguages)
+            .accountExportAction(preferredLanguages: locale.rLanguages)
         accessoryActionButton?.imageWithTitleView?.title = accessoryOptionTitle?.value(for: locale)
 
         updateFromViewModel(locale)
