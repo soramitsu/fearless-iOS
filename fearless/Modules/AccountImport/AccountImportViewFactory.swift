@@ -99,7 +99,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
         let anyRepository = AnyDataProviderRepository(accountRepository)
         let operationManager = OperationManagerFacade.sharedManager
-        let interactor = ConnectionAccountImportedInteractor(connectionItem: item,
+        let interactor = ConnectionAccountImportInteractor(connectionItem: item,
                                                              accountOperationFactory: accountOperationFactory,
                                                              accountRepository: anyRepository,
                                                              operationManager: operationManager,
@@ -107,7 +107,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
                                                              keystoreImportService: keystoreImportService,
                                                              eventCenter: EventCenter.shared)
 
-        let wireframe = ConnectionAccountImportedWireframe(connection: item)
+        let wireframe = ConnectionAccountImportWireframe(connection: item)
 
         view.presenter = presenter
         presenter.view = view

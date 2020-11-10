@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-final class ConnectionAccountImportedWireframe: AccountImportWireframeProtocol {
+final class ConnectionAccountImportWireframe: AccountImportWireframeProtocol {
     let connection: ConnectionItem
 
     init(connection: ConnectionItem) {

@@ -59,7 +59,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
                                                  supportedAddressTypes: [item.type],
                                                  defaultAddressType: item.type)
 
-        let wireframe = ConnectionAccountCreationWireframe(connectionItem: item)
+        let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
 
         view.presenter = presenter
         presenter.view = view

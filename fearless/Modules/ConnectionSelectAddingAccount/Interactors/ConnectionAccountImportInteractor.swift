@@ -4,7 +4,7 @@ import FearlessUtils
 import RobinHood
 import SoraKeystore
 
-final class ConnectionAccountImportedInteractor: BaseAccountImportInteractor {
+final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
     private(set) var settings: SettingsManagerProtocol
     let connectionItem: ConnectionItem
     let eventCenter: EventCenterProtocol

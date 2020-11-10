@@ -120,7 +120,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
                                                              settings: SettingsManager.shared,
                                                              operationManager: operationManager,
                                                              eventCenter: EventCenter.shared)
-        let wireframe = ConnectionAccountConfirmationWireframe()
+        let wireframe = ConnectionAccountConfirmWireframe()
 
         view.presenter = presenter
         presenter.view = view

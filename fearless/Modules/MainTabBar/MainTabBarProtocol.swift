@@ -21,7 +21,7 @@ protocol MainTabBarInteractorOutputProtocol: class {
     func didRequestImportAccount()
 }
 
-protocol MainTabBarWireframeProtocol: AlertPresentable {
+protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible {
     var walletContext: CommonWalletContextProtocol { get set }
 
     func showNewWalletView(on view: MainTabBarViewProtocol?)

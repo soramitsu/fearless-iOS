@@ -1,6 +1,6 @@
 import Foundation
 
-final class ConnectionAccountConfirmationWireframe: AccountConfirmWireframeProtocol {
+final class ConnectionAccountConfirmWireframe: AccountConfirmWireframeProtocol {
     func proceed(from view: AccountConfirmViewProtocol?) {
         guard let navigationController = view?.controller.navigationController else {
             return

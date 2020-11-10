@@ -60,7 +60,9 @@ extension LanguageSelectionPresenter: LanguageSelectionPresenterProtocol {
     }
 
     func selectItem(at index: Int) {
-        interactor.select(language: languages[index])
+        if interactor.select(language: languages[index]) {
+            wireframe.proceed(from: view)
+        }
     }
 
     func setup() {
