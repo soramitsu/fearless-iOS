@@ -7,14 +7,9 @@ final class AddImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        if let presentingController = navigationController.presentingViewController {
-            presentingController.dismiss(animated: true, completion: nil)
-            return
-        }
-
-        navigationController.popToRootViewController(animated: false)
-
-        navigationController.tabBarController?.selectedIndex = MainTabBarViewFactory.walletIndex
+        MainTransitionHelper.transitToMainIfExists(tabBarController: navigationController.tabBarController,
+                                                   closing: navigationController,
+                                                   animated: true)
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,

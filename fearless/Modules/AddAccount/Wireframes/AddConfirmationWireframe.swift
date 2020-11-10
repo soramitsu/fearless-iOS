@@ -6,8 +6,8 @@ final class AddConfirmationWireframe: AccountConfirmWireframeProtocol {
             return
         }
 
-        navigationController.popToRootViewController(animated: false)
-
-        navigationController.tabBarController?.selectedIndex = MainTabBarViewFactory.walletIndex
+        MainTransitionHelper.transitToMainIfExists(tabBarController: navigationController.tabBarController,
+                                                   closing: navigationController,
+                                                   animated: true)
     }
 }
