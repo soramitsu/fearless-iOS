@@ -3,10 +3,6 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 
-enum AddAccountConfirmInteractorError: Error {
-    case unsupportedNetwork
-}
-
 class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
@@ -28,6 +24,28 @@ class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
                    accountOperationFactory: accountOperationFactory,
                    accountRepository: accountRepository,
                    operationManager: operationManager)
+    }
+
+    private func handleResult(_ result: Result<(AccountItem, ConnectionItem), Error>?) {
+        switch result {
+        case .success(let (accountItem, connectionItem)):
+            settings.selectedAccount = accountItem
+
+            if settings.selectedConnection != connectionItem {
+                settings.selectedConnection = connectionItem
+
+                eventCenter.notify(with: SelectedConnectionChanged())
+            }
+
+            eventCenter.notify(with: SelectedAccountChanged())
+
+            presenter?.didCompleteConfirmation()
+        case .failure(let error):
+            presenter?.didReceive(error: error)
+        case .none:
+            let error = BaseOperationError.parentOperationCancelled
+            presenter?.didReceive(error: error)
+        }
     }
 
     override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -59,7 +77,7 @@ class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
                         .first(where: { $0.type.rawValue == type.uint8Value}) {
                 resultConnection = connection
             } else {
-                throw AddAccountConfirmInteractorError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (accountItem, resultConnection)
@@ -73,25 +91,7 @@ class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
             DispatchQueue.main.async {
                 self?.currentOperation = nil
 
-                switch connectionOperation.result {
-                case .success(let (accountItem, connectionItem)):
-                    self?.settings.selectedAccount = accountItem
-
-                    if selectedConnection != connectionItem {
-                        self?.settings.selectedConnection = connectionItem
-
-                        self?.eventCenter.notify(with: SelectedConnectionChanged())
-                    }
-
-                    self?.eventCenter.notify(with: SelectedAccountChanged())
-
-                    self?.presenter?.didCompleteConfirmation()
-                case .failure(let error):
-                    self?.presenter?.didReceive(error: error)
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceive(error: error)
-                }
+                self?.handleResult(connectionOperation.result)
             }
         }
 

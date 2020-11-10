@@ -43,7 +43,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
 
             guard let connectionItem = ConnectionItem.supportedConnections
                 .first(where: { $0.type.rawValue == type.uint8Value }) else {
-                throw AccountImportError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (accountItem, connectionItem)

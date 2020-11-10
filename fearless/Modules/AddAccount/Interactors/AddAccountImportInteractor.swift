@@ -4,10 +4,6 @@ import FearlessUtils
 import RobinHood
 import SoraKeystore
 
-enum AddAccountImportInteractorError: Error {
-    case unsupportedNetwork
-}
-
 final class AddAccountImportInteractor: BaseAccountImportInteractor {
     private(set) var settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
@@ -61,7 +57,7 @@ final class AddAccountImportInteractor: BaseAccountImportInteractor {
                         .first(where: { $0.type.rawValue == type.uint8Value}) {
                 resultConnection = connection
             } else {
-                throw AddAccountImportInteractorError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (item, resultConnection)

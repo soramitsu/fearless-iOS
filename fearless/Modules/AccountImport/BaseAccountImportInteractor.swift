@@ -75,7 +75,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
 
     func importAccountWithMnemonic(request: AccountImportMnemonicRequest) {
         guard let mnemonic = try? mnemonicCreator.mnemonic(fromList: request.mnemonic) else {
-            presenter.didReceiveAccountImport(error: AccountImportError.invalidMnemonicFormat)
+            presenter.didReceiveAccountImport(error: AccountCreateError.invalidMnemonicFormat)
             return
         }
 

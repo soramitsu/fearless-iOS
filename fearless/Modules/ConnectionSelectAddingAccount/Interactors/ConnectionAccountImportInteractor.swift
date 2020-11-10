@@ -53,7 +53,7 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
             let type = try SS58AddressFactory().type(fromAddress: item.address)
 
             guard type.uint8Value == selectedConnection.type.rawValue else {
-                throw AccountImportError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (item, selectedConnection)

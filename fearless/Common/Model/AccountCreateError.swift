@@ -1,6 +1,6 @@
 import Foundation
 
-enum AccountImportError: Error {
+enum AccountCreateError: Error {
     case invalidMnemonicSize
     case invalidMnemonicFormat
     case invalidSeed
@@ -8,7 +8,7 @@ enum AccountImportError: Error {
     case unsupportedNetwork
 }
 
-extension AccountImportError: ErrorContentConvertible {
+extension AccountCreateError: ErrorContentConvertible {
     func toErrorContent(for locale: Locale?) -> ErrorContent {
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let message: String

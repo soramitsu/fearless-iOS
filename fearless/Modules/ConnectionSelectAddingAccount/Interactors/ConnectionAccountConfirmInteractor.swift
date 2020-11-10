@@ -3,10 +3,6 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 
-enum ConnectionAccountConfirmInteractorError: Error {
-    case unsupportedNetwork
-}
-
 class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
     private var currentOperation: Operation?
@@ -55,7 +51,7 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard type.uint8Value == selectedConnection.type.rawValue else {
-                throw ConnectionAccountConfirmInteractorError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (accountItem, selectedConnection)
