@@ -93,6 +93,8 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             let item = listCalculator.allItems.first(where: { $0.address == viewModel.address }),
             item.address != selectedAccountItem?.address {
             interactor.select(item: item)
+
+            wireframe.complete(from: view)
         }
     }
 

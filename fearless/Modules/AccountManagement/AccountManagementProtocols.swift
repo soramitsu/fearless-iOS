@@ -35,6 +35,7 @@ protocol AccountManagementInteractorOutputProtocol: class {
 protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable {
     func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?)
     func showAddAccount(from view: AccountManagementViewProtocol?)
+    func complete(from view: AccountManagementViewProtocol?)
 }
 
 protocol AccountManagementViewFactoryProtocol: class {
