@@ -24,7 +24,8 @@ final class ConnectionAccountImportedInteractor: BaseAccountImportInteractor {
                    accountRepository: accountRepository,
                    operationManager: operationManager,
                    keystoreImportService: keystoreImportService,
-                   supportedAddressTypes: [connectionItem.type])
+                   supportedAddressTypes: [connectionItem.type],
+                   defaultAddressType: connectionItem.type)
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {

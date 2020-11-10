@@ -43,14 +43,6 @@ final class AccountManagementInteractor {
 
         operationManager.enqueue(operations: [operation], in: .sync)
     }
-
-    private func provideSelectedItem() {
-        guard let account = settings.selectedAccount else {
-            return
-        }
-
-        presenter.didReceiveSelected(item: account)
-    }
 }
 
 extension AccountManagementInteractor: AccountManagementInteractorInputProtocol {
@@ -66,8 +58,6 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         repositoryObservable.addObserver(self, deliverOn: .main) { [weak self] changes in
             self?.presenter.didReceive(changes: changes)
         }
-
-        eventCenter.add(observer: self, dispatchIn: .main)
 
         if let selectedAccountItem = settings.selectedAccount {
             presenter.didReceiveSelected(item: selectedAccountItem)
@@ -105,11 +95,5 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     func remove(item: ManagedAccountItem) {
         let operation = repository.saveOperation({ [] }, { [item.address] })
         operationManager.enqueue(operations: [operation], in: .sync)
-    }
-}
-
-extension AccountManagementInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        provideSelectedItem()
     }
 }

@@ -274,8 +274,8 @@
 		8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */; };
 		8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86424F59D1D00B76BC6 /* IconTitleHeaderView.swift */; };
 		8468B86724F59DA700B76BC6 /* IconTitleHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8468B86624F59DA700B76BC6 /* IconTitleHeaderView.xib */; };
-		8468B86A24F63CBA00B76BC6 /* AddImportedInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86924F63CBA00B76BC6 /* AddImportedInteractor.swift */; };
-		8468B86C24F63CEF00B76BC6 /* AddCreatedInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86B24F63CEF00B76BC6 /* AddCreatedInteractor.swift */; };
+		8468B86A24F63CBA00B76BC6 /* AddAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86924F63CBA00B76BC6 /* AddAccountImportInteractor.swift */; };
+		8468B86C24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86B24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift */; };
 		8468B86E24F63D1400B76BC6 /* AddMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86D24F63D1400B76BC6 /* AddMainWireframe.swift */; };
 		8468B87024F63D2000B76BC6 /* AddUsernameWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B86F24F63D2000B76BC6 /* AddUsernameWireframe.swift */; };
 		8468B87224F63D3A00B76BC6 /* AddCreationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B87124F63D3A00B76BC6 /* AddCreationWireframe.swift */; };
@@ -899,8 +899,8 @@
 		8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserDataStorageTestFacade.swift; sourceTree = "<group>"; };
 		8468B86424F59D1D00B76BC6 /* IconTitleHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IconTitleHeaderView.swift; sourceTree = "<group>"; };
 		8468B86624F59DA700B76BC6 /* IconTitleHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = IconTitleHeaderView.xib; sourceTree = "<group>"; };
-		8468B86924F63CBA00B76BC6 /* AddImportedInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddImportedInteractor.swift; sourceTree = "<group>"; };
-		8468B86B24F63CEF00B76BC6 /* AddCreatedInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCreatedInteractor.swift; sourceTree = "<group>"; };
+		8468B86924F63CBA00B76BC6 /* AddAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountImportInteractor.swift; sourceTree = "<group>"; };
+		8468B86B24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddAccountConfirmInteractor.swift; sourceTree = "<group>"; };
 		8468B86D24F63D1400B76BC6 /* AddMainWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddMainWireframe.swift; sourceTree = "<group>"; };
 		8468B86F24F63D2000B76BC6 /* AddUsernameWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddUsernameWireframe.swift; sourceTree = "<group>"; };
 		8468B87124F63D3A00B76BC6 /* AddCreationWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddCreationWireframe.swift; sourceTree = "<group>"; };
@@ -2048,8 +2048,8 @@
 		8468B87724F63D6000B76BC6 /* Interactors */ = {
 			isa = PBXGroup;
 			children = (
-				8468B86924F63CBA00B76BC6 /* AddImportedInteractor.swift */,
-				8468B86B24F63CEF00B76BC6 /* AddCreatedInteractor.swift */,
+				8468B86924F63CBA00B76BC6 /* AddAccountImportInteractor.swift */,
+				8468B86B24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift */,
 			);
 			path = Interactors;
 			sourceTree = "<group>";
@@ -3860,7 +3860,7 @@
 				84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */,
 				84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */,
 				849014FF24AB69A4008F705E /* WalletContextFactory.swift in Sources */,
-				8468B86A24F63CBA00B76BC6 /* AddImportedInteractor.swift in Sources */,
+				8468B86A24F63CBA00B76BC6 /* AddAccountImportInteractor.swift in Sources */,
 				84155DFA253D8C3600A27058 /* WebSocketEngine+Protocol.swift in Sources */,
 				84D8F16F24D8451F00AF43E9 /* CryptoType+ViewModel.swift in Sources */,
 				8409C2602521EDCD0049B5C8 /* TransferConfirmBinder.swift in Sources */,
@@ -3928,7 +3928,7 @@
 				8494D8782525343500614D8F /* SubscanOperationFactory.swift in Sources */,
 				84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */,
 				846AF8402525B94D00868F37 /* WalletNetworkFacade+Protocol.swift in Sources */,
-				8468B86C24F63CEF00B76BC6 /* AddCreatedInteractor.swift in Sources */,
+				8468B86C24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift in Sources */,
 				84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,

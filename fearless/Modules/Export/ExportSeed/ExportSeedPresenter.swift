@@ -29,11 +29,13 @@ final class ExportSeedPresenter {
             text = R.string.localizable
                 .exportSeedWithDpTemplate(viewModel.networkType.titleForLocale(locale),
                                           viewModel.data,
-                                          derivationPath)
+                                          derivationPath,
+                                          preferredLanguages: locale.rLanguages)
         } else {
             text = R.string.localizable
                 .exportSeedWithoutDpTemplate(viewModel.networkType.titleForLocale(locale),
-                                             viewModel.data)
+                                             viewModel.data,
+                                             preferredLanguages: locale.rLanguages)
         }
 
         wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] (completed) in

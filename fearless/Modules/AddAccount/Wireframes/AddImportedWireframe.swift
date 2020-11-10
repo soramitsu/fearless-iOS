@@ -12,12 +12,9 @@ final class AddImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        if let managementController = navigationController.viewControllers
-            .first(where: { $0 is AccountManagementViewController }) {
-            navigationController.popToViewController(managementController, animated: true)
-        } else {
-            navigationController.popToRootViewController(animated: true)
-        }
+        navigationController.popToRootViewController(animated: false)
+
+        navigationController.tabBarController?.selectedIndex = MainTabBarViewFactory.walletIndex
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,

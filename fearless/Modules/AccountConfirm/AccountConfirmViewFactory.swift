@@ -67,11 +67,13 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AddCreatedInteractor(request: request,
-                                              mnemonic: mnemonic,
-                                              accountOperationFactory: accountOperationFactory,
-                                              accountRepository: AnyDataProviderRepository(accountRepository),
-                                              operationManager: OperationManagerFacade.sharedManager)
+        let interactor = AddAccountConfirmInteractor(request: request,
+                                                     mnemonic: mnemonic,
+                                                     accountOperationFactory: accountOperationFactory,
+                                                     accountRepository: AnyDataProviderRepository(accountRepository),
+                                                     operationManager: OperationManagerFacade.sharedManager,
+                                                     settings: SettingsManager.shared,
+                                                     eventCenter: EventCenter.shared)
         let wireframe = AddConfirmationWireframe()
 
         view.presenter = presenter

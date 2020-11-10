@@ -59,11 +59,12 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
             = UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AddImportedInteractor(accountOperationFactory: accountOperationFactory,
-                                               accountRepository: AnyDataProviderRepository(accountRepository),
-                                               operationManager: OperationManagerFacade.sharedManager,
-                                               keystoreImportService: keystoreImportService,
-                                               supportedAddressTypes: SNAddressType.supported)
+        let interactor = AddAccountImportInteractor(accountOperationFactory: accountOperationFactory,
+                                                    accountRepository: AnyDataProviderRepository(accountRepository),
+                                                    operationManager: OperationManagerFacade.sharedManager,
+                                                    settings: SettingsManager.shared,
+                                                    keystoreImportService: keystoreImportService,
+                                                    eventCenter: EventCenter.shared)
 
         let wireframe = AddImportedWireframe()
 

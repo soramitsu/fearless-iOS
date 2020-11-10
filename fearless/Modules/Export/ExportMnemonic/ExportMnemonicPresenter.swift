@@ -29,11 +29,13 @@ final class ExportMnemonicPresenter {
             text = R.string.localizable
                 .exportMnemonicWithDpTemplate(data.networkType.titleForLocale(locale),
                                               data.mnemonic.toString(),
-                                              derivationPath)
+                                              derivationPath,
+                                              preferredLanguages: locale.rLanguages)
         } else {
             text = R.string.localizable
                 .exportMnemonicWithoutDpTemplate(data.networkType.titleForLocale(locale),
-                                                 data.mnemonic.toString())
+                                                 data.mnemonic.toString(),
+                                                 preferredLanguages: locale.rLanguages)
         }
 
         wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] (completed) in

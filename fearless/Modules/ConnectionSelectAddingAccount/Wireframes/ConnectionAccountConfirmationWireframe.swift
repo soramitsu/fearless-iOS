@@ -6,6 +6,8 @@ final class ConnectionAccountConfirmationWireframe: AccountConfirmWireframeProto
             return
         }
 
-        navigationController.popToRootViewController(animated: true)
+        navigationController.popToRootViewController(animated: false)
+
+        navigationController.tabBarController?.selectedIndex = MainTabBarViewFactory.walletIndex
     }
 }

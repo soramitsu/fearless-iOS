@@ -15,17 +15,20 @@ class BaseAccountImportInteractor {
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let supportedAddressTypes: [SNAddressType]
+    let defaultAddressType: SNAddressType
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
          keystoreImportService: KeystoreImportServiceProtocol,
-         supportedAddressTypes: [SNAddressType]) {
+         supportedAddressTypes: [SNAddressType],
+         defaultAddressType: SNAddressType) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
         self.supportedAddressTypes = supportedAddressTypes
+        self.defaultAddressType = defaultAddressType
     }
 
     private func setupKeystoreImportObserver() {
@@ -51,20 +54,10 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let defaultConnection = ConnectionItem.defaultConnection
-
-        let defaultConnectionType: SNAddressType
-
-        if supportedAddressTypes.contains(defaultConnection.type) {
-            defaultConnectionType = defaultConnection.type
-        } else {
-            defaultConnectionType = supportedAddressTypes.first ?? defaultConnection.type
-        }
-
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
                                              availableAddressTypes: supportedAddressTypes,
-                                             defaultAddressType: defaultConnectionType,
+                                             defaultAddressType: defaultAddressType,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
 

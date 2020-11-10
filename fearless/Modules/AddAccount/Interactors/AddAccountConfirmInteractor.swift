@@ -3,27 +3,24 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 
-enum ConnectionAccountConfirmInteractorError: Error {
+enum AddAccountConfirmInteractorError: Error {
     case unsupportedNetwork
 }
 
-class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
+class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
+    let eventCenter: EventCenterProtocol
+
     private var currentOperation: Operation?
 
-    let eventCenter: EventCenterProtocol
-    let connectionItem: ConnectionItem
-
-    init(connectionItem: ConnectionItem,
-         request: AccountCreationRequest,
+    init(request: AccountCreationRequest,
          mnemonic: IRMnemonicProtocol,
          accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
-         settings: SettingsManagerProtocol,
          operationManager: OperationManagerProtocol,
+         settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol) {
         self.settings = settings
-        self.connectionItem = connectionItem
         self.eventCenter = eventCenter
 
         super.init(request: request,
@@ -38,7 +35,7 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
             return
         }
 
-        let selectedConnection = connectionItem
+        let selectedConnection = settings.selectedConnection
 
         let persistentOperation = accountRepository.saveOperation({
             let accountItem = try importOperation
@@ -54,11 +51,18 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
 
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
-            guard type.uint8Value == selectedConnection.type.rawValue else {
-                throw ConnectionAccountConfirmInteractorError.unsupportedNetwork
+            let resultConnection: ConnectionItem
+
+            if selectedConnection.type == SNAddressType(rawValue: type.uint8Value) {
+                resultConnection = selectedConnection
+            } else if let connection = ConnectionItem.supportedConnections
+                        .first(where: { $0.type.rawValue == type.uint8Value}) {
+                resultConnection = connection
+            } else {
+                throw AddAccountConfirmInteractorError.unsupportedNetwork
             }
 
-            return (accountItem, selectedConnection)
+            return (accountItem, resultConnection)
         }
 
         connectionOperation.addDependency(persistentOperation)
@@ -73,7 +77,7 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
                 case .success(let (accountItem, connectionItem)):
                     self?.settings.selectedAccount = accountItem
 
-                    let connectionChanged = self?.settings.selectedConnection != connectionItem
+                    let connectionChanged = selectedConnection != connectionItem
 
                     if connectionChanged {
                         self?.settings.selectedConnection = connectionItem

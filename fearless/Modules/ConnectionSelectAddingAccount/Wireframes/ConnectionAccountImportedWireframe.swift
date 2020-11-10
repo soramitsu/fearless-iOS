@@ -13,7 +13,9 @@ final class ConnectionAccountImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        navigationController.popToRootViewController(animated: true)
+        navigationController.popToRootViewController(animated: false)
+
+        navigationController.tabBarController?.selectedIndex = MainTabBarViewFactory.walletIndex
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,
