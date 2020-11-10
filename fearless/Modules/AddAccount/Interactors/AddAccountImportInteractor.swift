@@ -29,22 +29,29 @@ final class AddAccountImportInteractor: BaseAccountImportInteractor {
                    defaultAddressType: settings.selectedConnection.type)
     }
 
-    override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+    private func importAccountItem(_ item: AccountItem) {
+        let checkOperation = accountRepository.fetchOperation(by: item.address,
+                                                              options: RepositoryFetchOptions())
+
         let persistentOperation = accountRepository.saveOperation({
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            return [accountItem]
+            if try checkOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
+                throw AddAccountError.duplicated
+            }
+
+            return [item]
         }, { [] })
 
-        persistentOperation.addDependency(importOperation)
+        persistentOperation.addDependency(checkOperation)
 
         let selectedConnection = settings.selectedConnection
 
         let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            if case .failure(let error) = persistentOperation.result {
+                throw error
+            }
 
-            let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
+            let type = try SS58AddressFactory().type(fromAddress: item.address)
 
             let resultConnection: ConnectionItem
 
@@ -57,7 +64,7 @@ final class AddAccountImportInteractor: BaseAccountImportInteractor {
                 throw AddAccountImportInteractorError.unsupportedNetwork
             }
 
-            return (accountItem, resultConnection)
+            return (item, resultConnection)
         }
 
         connectionOperation.addDependency(persistentOperation)
@@ -68,19 +75,15 @@ final class AddAccountImportInteractor: BaseAccountImportInteractor {
                 case .success(let (accountItem, connectionItem)):
                     self?.settings.selectedAccount = accountItem
 
-                    let connectionChanged = selectedConnection != connectionItem
-
-                    if connectionChanged {
+                    if selectedConnection != connectionItem {
                         self?.settings.selectedConnection = connectionItem
-                    }
 
-                    self?.presenter?.didCompleAccountImport()
-
-                    if connectionChanged {
                         self?.eventCenter.notify(with: SelectedConnectionChanged())
                     }
 
                     self?.eventCenter.notify(with: SelectedAccountChanged())
+
+                    self?.presenter?.didCompleteAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
                 case .none:
@@ -90,7 +93,25 @@ final class AddAccountImportInteractor: BaseAccountImportInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
+        operationManager.enqueue(operations: [checkOperation, persistentOperation, connectionOperation],
                                  in: .sync)
+    }
+
+    override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+        importOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                switch importOperation.result {
+                case .success(let accountItem):
+                    self?.importAccountItem(accountItem)
+                case .failure(let error):
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                case .none:
+                    let error = BaseOperationError.parentOperationCancelled
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [importOperation], in: .sync)
     }
 }

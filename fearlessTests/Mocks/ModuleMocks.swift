@@ -3516,16 +3516,16 @@ import SoraFoundation
     
     
     
-     func didCompleAccountImport()  {
+     func didCompleteAccountImport()  {
         
-    return cuckoo_manager.call("didCompleAccountImport()",
+    return cuckoo_manager.call("didCompleteAccountImport()",
             parameters: (),
             escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didCompleAccountImport())
+            defaultCall: __defaultImplStub!.didCompleteAccountImport())
         
     }
     
@@ -3588,9 +3588,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didReceiveAccountImport(metadata: AccountImportMetadata)", parameterMatchers: matchers))
 	    }
 	    
-	    func didCompleAccountImport() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	    func didCompleteAccountImport() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didCompleAccountImport()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportInteractorOutputProtocol.self, method: "didCompleteAccountImport()", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveAccountImport<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
@@ -3631,9 +3631,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didCompleAccountImport() -> Cuckoo.__DoNotUse<(), Void> {
+	    func didCompleteAccountImport() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("didCompleAccountImport()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("didCompleteAccountImport()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -3667,7 +3667,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didCompleAccountImport()   {
+     func didCompleteAccountImport()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

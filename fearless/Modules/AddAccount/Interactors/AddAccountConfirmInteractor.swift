@@ -77,19 +77,15 @@ class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
                 case .success(let (accountItem, connectionItem)):
                     self?.settings.selectedAccount = accountItem
 
-                    let connectionChanged = selectedConnection != connectionItem
-
-                    if connectionChanged {
+                    if selectedConnection != connectionItem {
                         self?.settings.selectedConnection = connectionItem
-                    }
 
-                    self?.presenter?.didCompleteConfirmation()
-
-                    if connectionChanged {
                         self?.eventCenter.notify(with: SelectedConnectionChanged())
                     }
 
                     self?.eventCenter.notify(with: SelectedAccountChanged())
+
+                    self?.presenter?.didCompleteConfirmation()
                 case .failure(let error):
                     self?.presenter?.didReceive(error: error)
                 case .none:

@@ -37,7 +37,7 @@ protocol AccountImportInteractorInputProtocol: class {
 
 protocol AccountImportInteractorOutputProtocol: class {
     func didReceiveAccountImport(metadata: AccountImportMetadata)
-    func didCompleAccountImport()
+    func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
     func didDeriveKeystore(username: String)
     func didSuggestKeystore(text: String, username: String?)

@@ -28,28 +28,35 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
                    defaultAddressType: connectionItem.type)
     }
 
-    override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+    private func importAccountItem(_ item: AccountItem) {
         let selectedConnection = connectionItem
 
+        let checkOperation = accountRepository.fetchOperation(by: item.address,
+                                                              options: RepositoryFetchOptions())
+
         let persistentOperation = accountRepository.saveOperation({
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            return [accountItem]
+            if try checkOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
+                throw AddAccountError.duplicated
+            }
+
+            return [item]
         }, { [] })
 
-        persistentOperation.addDependency(importOperation)
+        persistentOperation.addDependency(checkOperation)
 
         let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-            let accountItem = try importOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            if case .failure(let error) = persistentOperation.result {
+                throw error
+            }
 
-            let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
+            let type = try SS58AddressFactory().type(fromAddress: item.address)
 
             guard type.uint8Value == selectedConnection.type.rawValue else {
                 throw AccountImportError.unsupportedNetwork
             }
 
-            return (accountItem, selectedConnection)
+            return (item, selectedConnection)
         }
 
         connectionOperation.addDependency(persistentOperation)
@@ -61,10 +68,10 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
                     self?.settings.selectedAccount = accountItem
                     self?.settings.selectedConnection = connectionItem
 
-                    self?.presenter?.didCompleAccountImport()
-
                     self?.eventCenter.notify(with: SelectedConnectionChanged())
                     self?.eventCenter.notify(with: SelectedAccountChanged())
+
+                    self?.presenter?.didCompleteAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
                 case .none:
@@ -74,7 +81,24 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                 in: .sync)
+        operationManager.enqueue(operations: [checkOperation, persistentOperation, connectionOperation], in: .sync)
+    }
+
+    override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
+        importOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                switch importOperation.result {
+                case .success(let accountItem):
+                    self?.importAccountItem(accountItem)
+                case .failure(let error):
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                case .none:
+                    let error = BaseOperationError.parentOperationCancelled
+                    self?.presenter?.didReceiveAccountImport(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [importOperation], in: .sync)
     }
 }

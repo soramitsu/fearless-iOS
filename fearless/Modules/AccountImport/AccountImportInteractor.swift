@@ -54,7 +54,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                     self?.settings.selectedAccount = accountItem
                     self?.settings.selectedConnection = connectionItem
 
-                    self?.presenter?.didCompleAccountImport()
+                    self?.presenter?.didCompleteAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
                 case .none:

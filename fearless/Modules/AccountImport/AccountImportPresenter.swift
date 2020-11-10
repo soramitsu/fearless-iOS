@@ -391,7 +391,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         applySourceType()
     }
 
-    func didCompleAccountImport() {
+    func didCompleteAccountImport() {
         wireframe.proceed(from: view)
     }
 
