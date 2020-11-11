@@ -60,6 +60,8 @@ protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable 
                                from view: NetworkManagementViewProtocol?)
 
     func presentConnectionAdd(from view: NetworkManagementViewProtocol?)
+
+    func complete(from view: NetworkManagementViewProtocol?)
 }
 
 protocol NetworkManagementViewFactoryProtocol: class {

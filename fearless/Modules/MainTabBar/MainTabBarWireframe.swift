@@ -41,7 +41,7 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
     // MARK: Private
 
     private func canPresentImport(on view: UIViewController) -> Bool {
-        if isAlreadyImporting(on: view) {
+        if isAuthorizing || isAlreadyImporting(on: view) {
             return false
         }
 

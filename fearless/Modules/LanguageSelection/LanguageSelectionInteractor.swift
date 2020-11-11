@@ -24,11 +24,15 @@ extension LanguageSelectionInteractor: LanguageSelectionInteractorInputProtocol 
         presenter.didLoad(selectedLanguage: localizationManager.selectedLanguage)
     }
 
-    func select(language: Language) {
+    func select(language: Language) -> Bool {
         if language.code != localizationManager.selectedLocalization {
             localizationManager.selectedLocalization = language.code
 
             presenter.didLoad(selectedLanguage: localizationManager.selectedLanguage)
+
+            return true
+        } else {
+            return false
         }
     }
 }

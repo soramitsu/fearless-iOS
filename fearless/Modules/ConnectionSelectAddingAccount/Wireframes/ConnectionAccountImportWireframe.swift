@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-final class ConnectionAccountImportedWireframe: AccountImportWireframeProtocol {
+final class ConnectionAccountImportWireframe: AccountImportWireframeProtocol {
     let connection: ConnectionItem
 
     init(connection: ConnectionItem) {
@@ -13,7 +13,9 @@ final class ConnectionAccountImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        navigationController.popToRootViewController(animated: true)
+        MainTransitionHelper.transitToMainIfExists(tabBarController: navigationController.tabBarController,
+                                                   closing: navigationController,
+                                                   animated: true)
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,

@@ -3,17 +3,21 @@ import SoraKeystore
 import IrohaCrypto
 import RobinHood
 
-class AccountConfirmInteractor: BaseAccountConfirmInteractor {
+class AddAccountConfirmInteractor: BaseAccountConfirmInteractor {
     private(set) var settings: SettingsManagerProtocol
+    let eventCenter: EventCenterProtocol
+
     private var currentOperation: Operation?
 
     init(request: AccountCreationRequest,
          mnemonic: IRMnemonicProtocol,
          accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
+         operationManager: OperationManagerProtocol,
          settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol) {
+         eventCenter: EventCenterProtocol) {
         self.settings = settings
+        self.eventCenter = eventCenter
 
         super.init(request: request,
                    mnemonic: mnemonic,
@@ -22,10 +26,34 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
                    operationManager: operationManager)
     }
 
+    private func handleResult(_ result: Result<(AccountItem, ConnectionItem), Error>?) {
+        switch result {
+        case .success(let (accountItem, connectionItem)):
+            settings.selectedAccount = accountItem
+
+            if settings.selectedConnection != connectionItem {
+                settings.selectedConnection = connectionItem
+
+                eventCenter.notify(with: SelectedConnectionChanged())
+            }
+
+            eventCenter.notify(with: SelectedAccountChanged())
+
+            presenter?.didCompleteConfirmation()
+        case .failure(let error):
+            presenter?.didReceive(error: error)
+        case .none:
+            let error = BaseOperationError.parentOperationCancelled
+            presenter?.didReceive(error: error)
+        }
+    }
+
     override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
         guard currentOperation == nil else {
             return
         }
+
+        let selectedConnection = settings.selectedConnection
 
         let persistentOperation = accountRepository.saveOperation({
             let accountItem = try importOperation
@@ -41,12 +69,18 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
 
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
-            guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type.rawValue == type.uint8Value }) else {
+            let resultConnection: ConnectionItem
+
+            if selectedConnection.type == SNAddressType(rawValue: type.uint8Value) {
+                resultConnection = selectedConnection
+            } else if let connection = ConnectionItem.supportedConnections
+                        .first(where: { $0.type.rawValue == type.uint8Value}) {
+                resultConnection = connection
+            } else {
                 throw AccountCreateError.unsupportedNetwork
             }
 
-            return (accountItem, connectionItem)
+            return (accountItem, resultConnection)
         }
 
         connectionOperation.addDependency(persistentOperation)
@@ -57,18 +91,7 @@ class AccountConfirmInteractor: BaseAccountConfirmInteractor {
             DispatchQueue.main.async {
                 self?.currentOperation = nil
 
-                switch connectionOperation.result {
-                case .success(let (accountItem, connectionItem)):
-                    self?.settings.selectedAccount = accountItem
-                    self?.settings.selectedConnection = connectionItem
-
-                    self?.presenter?.didCompleteConfirmation()
-                case .failure(let error):
-                    self?.presenter?.didReceive(error: error)
-                case .none:
-                    let error = BaseOperationError.parentOperationCancelled
-                    self?.presenter?.didReceive(error: error)
-                }
+                self?.handleResult(connectionOperation.result)
             }
         }
 
