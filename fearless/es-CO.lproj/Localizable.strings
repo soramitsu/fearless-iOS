@@ -206,3 +206,4 @@ Semilla: %@";
 "export.seed.with.dp.template" = "Red: %@\
 Semilla: %@\
 Ruta de derivación: %@";
+"common.changed" = "Cambiado";

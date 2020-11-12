@@ -205,3 +205,4 @@ Seme: %@";
 "export.seed.with.dp.template" = "Rete: %@\
 Seme: %@\
 Percorso di derivazione: %@";
+"common.changed" = "Cambiato";

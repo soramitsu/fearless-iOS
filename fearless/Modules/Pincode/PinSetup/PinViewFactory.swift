@@ -30,6 +30,31 @@ class PinViewFactory: PinViewFactoryProtocol {
         return pinSetupView
     }
 
+    static func createPinChangeView() -> PinSetupViewProtocol? {
+        let pinChangeView = PinSetupViewController(nib: R.nib.pinSetupViewController)
+
+        pinChangeView.mode = .create
+
+        pinChangeView.localizableTopTitle = LocalizableResource { locale in
+            R.string.localizable.profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        let presenter = PinSetupPresenter()
+        let interactor = PinChangeInteractor(secretManager: KeychainManager.shared)
+        let wireframe = PinChangeWireframe(localizationManager: LocalizationManager.shared)
+
+        pinChangeView.presenter = presenter
+        presenter.view = pinChangeView
+        presenter.interactor = interactor
+        presenter.wireframe = wireframe
+
+        interactor.presenter = presenter
+
+        pinChangeView.localizationManager = LocalizationManager.shared
+
+        return pinChangeView
+    }
+
     static func createSecuredPinView() -> PinSetupViewProtocol? {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
 

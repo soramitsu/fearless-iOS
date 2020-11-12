@@ -102,7 +102,7 @@
 "pincode.create.top.title" = "Новый пинкод";
 "profile.accounts.title" = "Аккаунты";
 "profile.network.title" = "Селтәре";
-"profile.pincode.change.title" = "Үҙгәртергә pin-код";
+"profile.pincode.change.title" = "Үҙгәртергә pin код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";
 "confirm.mnemonic.mismatch.error.title" = "Неверная мнемоника";
@@ -203,3 +203,4 @@
 "export.seed.with.dp.template" = "Сеть: %@\
 Сид: %@\
 Путь деривации: %@";
+"common.changed" = "Изменено";
