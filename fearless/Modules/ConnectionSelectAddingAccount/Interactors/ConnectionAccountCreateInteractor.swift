@@ -2,7 +2,7 @@ import UIKit
 import IrohaCrypto
 import RobinHood
 
-final class ConnectionAccountCreationInteractor {
+final class ConnectionAccountCreateInteractor {
     weak var presenter: AccountCreateInteractorOutputProtocol!
 
     let mnemonicCreator: IRMnemonicCreatorProtocol
@@ -14,7 +14,7 @@ final class ConnectionAccountCreationInteractor {
     }
 }
 
-extension ConnectionAccountCreationInteractor: AccountCreateInteractorInputProtocol {
+extension ConnectionAccountCreateInteractor: AccountCreateInteractorInputProtocol {
     func setup() {
         do {
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)

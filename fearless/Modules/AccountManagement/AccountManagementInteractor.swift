@@ -3,7 +3,7 @@ import RobinHood
 import SoraKeystore
 
 final class AccountManagementInteractor {
-    weak var presenter: AccountManagementInteractorOutputProtocol!
+    weak var presenter: AccountManagementInteractorOutputProtocol?
 
     let repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>
     let repository: AnyDataProviderRepository<ManagedAccountItem>
@@ -34,22 +34,14 @@ final class AccountManagementInteractor {
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     let changes = items.map { DataProviderChange.insert(newItem: $0) }
 
-                    self?.presenter.didReceive(changes: changes)
+                    self?.presenter?.didReceive(changes: changes)
                 } catch {
-                    self?.presenter.didReceive(error: error)
+                    self?.presenter?.didReceive(error: error)
                 }
             }
         }
 
         operationManager.enqueue(operations: [operation], in: .sync)
-    }
-
-    private func provideSelectedItem() {
-        guard let account = settings.selectedAccount else {
-            return
-        }
-
-        presenter.didReceiveSelected(item: account)
     }
 }
 
@@ -58,19 +50,17 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
         repositoryObservable.start { [weak self] error in
             if let error = error {
                 DispatchQueue.main.async {
-                    self?.presenter.didReceive(error: error)
+                    self?.presenter?.didReceive(error: error)
                 }
             }
         }
 
         repositoryObservable.addObserver(self, deliverOn: .main) { [weak self] changes in
-            self?.presenter.didReceive(changes: changes)
+            self?.presenter?.didReceive(changes: changes)
         }
 
-        eventCenter.add(observer: self, dispatchIn: .main)
-
         if let selectedAccountItem = settings.selectedAccount {
-            presenter.didReceiveSelected(item: selectedAccountItem)
+            presenter?.didReceiveSelected(item: selectedAccountItem)
         }
 
         provideInitialList()
@@ -92,7 +82,7 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
                                              publicKeyData: item.publicKeyData)
 
         settings.selectedAccount = newSelectedAccountItem
-        presenter.didReceiveSelected(item: newSelectedAccountItem)
+        presenter?.didReceiveSelected(item: newSelectedAccountItem)
 
         eventCenter.notify(with: SelectedAccountChanged())
     }
@@ -105,11 +95,5 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     func remove(item: ManagedAccountItem) {
         let operation = repository.saveOperation({ [] }, { [item.address] })
         operationManager.enqueue(operations: [operation], in: .sync)
-    }
-}
-
-extension AccountManagementInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        provideSelectedItem()
     }
 }

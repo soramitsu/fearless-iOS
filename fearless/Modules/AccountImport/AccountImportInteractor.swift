@@ -18,7 +18,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                    accountRepository: accountRepository,
                    operationManager: operationManager,
                    keystoreImportService: keystoreImportService,
-                   supportedAddressTypes: SNAddressType.supported)
+                   supportedAddressTypes: SNAddressType.supported,
+                   defaultAddressType: ConnectionItem.defaultConnection.type)
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -38,7 +39,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
 
             guard let connectionItem = ConnectionItem.supportedConnections
                 .first(where: { $0.type.rawValue == type.uint8Value }) else {
-                throw AccountImportError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (accountItem, connectionItem)
@@ -53,7 +54,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                     self?.settings.selectedAccount = accountItem
                     self?.settings.selectedConnection = connectionItem
 
-                    self?.presenter?.didCompleAccountImport()
+                    self?.presenter?.didCompleteAccountImport()
                 case .failure(let error):
                     self?.presenter?.didReceiveAccountImport(error: error)
                 case .none:

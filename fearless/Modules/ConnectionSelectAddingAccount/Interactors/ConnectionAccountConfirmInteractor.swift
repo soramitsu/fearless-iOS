@@ -51,7 +51,7 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard type.uint8Value == selectedConnection.type.rawValue else {
-                throw AccountImportError.unsupportedNetwork
+                throw AccountCreateError.unsupportedNetwork
             }
 
             return (accountItem, selectedConnection)
@@ -68,20 +68,12 @@ class ConnectionAccountConfirmInteractor: BaseAccountConfirmInteractor {
                 switch connectionOperation.result {
                 case .success(let (accountItem, connectionItem)):
                     self?.settings.selectedAccount = accountItem
+                    self?.settings.selectedConnection = connectionItem
 
-                    let connectionChanged = self?.settings.selectedConnection != connectionItem
-
-                    if connectionChanged {
-                        self?.settings.selectedConnection = connectionItem
-                    }
+                    self?.eventCenter.notify(with: SelectedConnectionChanged())
+                    self?.eventCenter.notify(with: SelectedAccountChanged())
 
                     self?.presenter?.didCompleteConfirmation()
-
-                    if connectionChanged {
-                        self?.eventCenter.notify(with: SelectedConnectionChanged())
-                    }
-
-                    self?.eventCenter.notify(with: SelectedAccountChanged())
                 case .failure(let error):
                     self?.presenter?.didReceive(error: error)
                 case .none:

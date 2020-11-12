@@ -8,7 +8,9 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedAddressTypes: SNAddressType.supported,
+                                                 defaultAddressType: ConnectionItem.defaultConnection.type)
         let wireframe = AccountCreateWireframe()
 
         view.presenter = presenter
@@ -28,7 +30,11 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let defaultAddressType = SettingsManager.shared.selectedConnection.type
+
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedAddressTypes: SNAddressType.supported,
+                                                 defaultAddressType: defaultAddressType)
         let wireframe = AddCreationWireframe()
 
         view.presenter = presenter
@@ -49,10 +55,11 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = ConnectionAccountCreationInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                             connection: item)
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedAddressTypes: [item.type],
+                                                 defaultAddressType: item.type)
 
-        let wireframe = ConnectionAccountCreationWireframe(connectionItem: item)
+        let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
 
         view.presenter = presenter
         presenter.view = view

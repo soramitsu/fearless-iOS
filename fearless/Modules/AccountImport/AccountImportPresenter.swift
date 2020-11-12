@@ -235,7 +235,7 @@ final class AccountImportPresenter {
         case .mnemonic:
             return validateMnemonic(value: viewModel.inputHandler.value)
         case .seed:
-            return viewModel.inputHandler.completed ? nil : AccountImportError.invalidSeed
+            return viewModel.inputHandler.completed ? nil : AccountCreateError.invalidSeed
         case .keystore:
             return validateKeystore(value: viewModel.inputHandler.value)
         }
@@ -244,19 +244,19 @@ final class AccountImportPresenter {
     func validateMnemonic(value: String) -> Error? {
         let mnemonicSize = value.components(separatedBy: CharacterSet.whitespaces).count
         return mnemonicSize > AccountImportPresenter.maxMnemonicSize ?
-            AccountImportError.invalidMnemonicSize : nil
+            AccountCreateError.invalidMnemonicSize : nil
     }
 
     func validateKeystore(value: String) -> Error? {
         guard let data = value.data(using: .utf8) else {
-            return AccountImportError.invalidKeystore
+            return AccountCreateError.invalidKeystore
         }
 
         do {
             _ = try JSONSerialization.jsonObject(with: data)
             return nil
         } catch {
-            return AccountImportError.invalidKeystore
+            return AccountCreateError.invalidKeystore
         }
     }
 }
@@ -391,7 +391,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
         applySourceType()
     }
 
-    func didCompleAccountImport() {
+    func didCompleteAccountImport() {
         wireframe.proceed(from: view)
     }
 

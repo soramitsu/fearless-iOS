@@ -4,6 +4,8 @@ import SoraKeystore
 import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
+    static let walletIndex: Int = 0
+
 	static func createView() -> MainTabBarViewProtocol? {
 
         guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
@@ -81,7 +83,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         wireframe.walletContext = walletContext
-        view.didReplaceView(for: walletController, for: 0)
+        view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
     static func createWalletController(walletContext: CommonWalletContextProtocol,
