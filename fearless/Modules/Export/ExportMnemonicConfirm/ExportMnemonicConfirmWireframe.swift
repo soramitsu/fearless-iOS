@@ -9,6 +9,13 @@ final class ExportMnemonicConfirmWireframe: AccountConfirmWireframeProtocol, Mod
     }
 
     func proceed(from view: AccountConfirmViewProtocol?) {
-        view?.controller.navigationController?.popToRootViewController(animated: true)
+        let title = R.string.localizable
+            .commonConfirmed(preferredLanguages: localizationManager.selectedLocale.rLanguages)
+
+        presentSuccessNotification(title, from: view) {
+            DispatchQueue.main.async {
+                view?.controller.navigationController?.popToRootViewController(animated: true)
+            }
+        }
     }
 }
