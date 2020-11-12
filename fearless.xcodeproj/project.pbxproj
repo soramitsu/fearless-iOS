@@ -459,6 +459,7 @@
 		84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B98524F5424700FE5470 /* ManagedAccountViewModelFactory.swift */; };
 		84C1B98B24F55E8200FE5470 /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */; };
 		84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */; };
+		84C4C2D1255CA9210045B582 /* Health.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2D0255CA9210045B582 /* Health.swift */; };
 		84C6800E24D6ECE800006BF5 /* ExpandableActionControl.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C6800D24D6ECE800006BF5 /* ExpandableActionControl.swift */; };
 		84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C6800F24D6EE4500006BF5 /* PlusIndicatorView.swift */; };
 		84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C6801124D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift */; };
@@ -1102,6 +1103,7 @@
 		84C1B98524F5424700FE5470 /* ManagedAccountViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountViewModelFactory.swift; sourceTree = "<group>"; };
 		84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
 		84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
+		84C4C2D0255CA9210045B582 /* Health.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Health.swift; sourceTree = "<group>"; };
 		84C6800D24D6ECE800006BF5 /* ExpandableActionControl.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpandableActionControl.swift; sourceTree = "<group>"; };
 		84C6800F24D6EE4500006BF5 /* PlusIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PlusIndicatorView.swift; sourceTree = "<group>"; };
 		84C6801124D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExpandableActionControl+Inspectable.swift"; sourceTree = "<group>"; };
@@ -2879,6 +2881,7 @@
 				8423B0E1251A769300B8687C /* RPCMethod.swift */,
 				84DF21B62539039B005454AE /* ReconnectionStrategy.swift */,
 				84FD3DB42540ED0900A234E3 /* Block.swift */,
+				84C4C2D0255CA9210045B582 /* Health.swift */,
 			);
 			path = JSONRPC;
 			sourceTree = "<group>";
@@ -3747,6 +3750,7 @@
 				84D97EC1251FEE1E00F07405 /* WalletAssetId+Display.swift in Sources */,
 				849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */,
 				84364D6825325E0C00281F9A /* UnlockChunk.swift in Sources */,
+				84C4C2D1255CA9210045B582 /* Health.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,

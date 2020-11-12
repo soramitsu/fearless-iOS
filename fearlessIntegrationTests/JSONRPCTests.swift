@@ -94,6 +94,32 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testHelthCheck() {
+        // given
+
+        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let operation = JSONRPCListOperation<Health>(engine: engine,
+                                                     method: "system_health")
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            logger.debug("Received response: \(result)")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testBlockExtraction() throws {
         // given
 

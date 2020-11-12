@@ -9,4 +9,5 @@ enum RPCMethod {
     static let paymentInfo = "payment_queryInfo"
     static let getRuntimeVersion = "chain_getRuntimeVersion"
     static let getChainBlock = "chain_getBlock"
+    static let helthCheck = "system_health"
 }
