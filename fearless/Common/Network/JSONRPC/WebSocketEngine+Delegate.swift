@@ -35,6 +35,8 @@ extension WebSocketEngine: WebSocketDelegate {
         case .connected:
             let cancelledRequests = resetInProgress()
 
+            pingScheduler.cancel()
+
             connection.disconnect()
             scheduleReconnectionOrDisconnect(1)
 
@@ -55,6 +57,8 @@ extension WebSocketEngine: WebSocketDelegate {
         switch state {
         case .connected:
             let cancelledRequests = resetInProgress()
+
+            pingScheduler.cancel()
 
             connection.disconnect()
             startConnecting(0)
@@ -92,6 +96,8 @@ extension WebSocketEngine: WebSocketDelegate {
 
         changeState(.connected)
         sendAllPendingRequests()
+
+        schedulePingIfNeeded()
     }
 
     private func handleDisconnectedEvent(reason: String, code: UInt16) {
@@ -103,6 +109,8 @@ extension WebSocketEngine: WebSocketDelegate {
         case .connected:
             let cancelledRequests = resetInProgress()
 
+            pingScheduler.cancel()
+
             scheduleReconnectionOrDisconnect(1)
 
             notify(requests: cancelledRequests,
@@ -110,20 +118,6 @@ extension WebSocketEngine: WebSocketDelegate {
         default:
             break
         }
-    }
-}
-
-extension WebSocketEngine: SchedulerDelegate {
-    func didTrigger(scheduler: SchedulerProtocol) {
-        mutex.lock()
-
-        logger.debug("Did trigger reconnection scheduler")
-
-        if case .waitingReconnection(let attempt) = state {
-            startConnecting(attempt)
-        }
-
-        mutex.unlock()
     }
 }
 
@@ -140,5 +134,35 @@ extension WebSocketEngine: ReachabilityListenerDelegate {
         }
 
         mutex.unlock()
+    }
+}
+
+extension WebSocketEngine: SchedulerDelegate {
+    func didTrigger(scheduler: SchedulerProtocol) {
+        mutex.lock()
+
+        if scheduler === pingScheduler {
+            handlePing(scheduler: scheduler)
+        } else {
+            handleReconnection(scheduler: scheduler)
+        }
+
+        mutex.unlock()
+    }
+
+    private func handleReconnection(scheduler: SchedulerProtocol) {
+        logger.debug("Did trigger reconnection scheduler")
+
+        if case .waitingReconnection(let attempt) = state {
+            startConnecting(attempt)
+        }
+    }
+
+    private func handlePing(scheduler: SchedulerProtocol) {
+        schedulePingIfNeeded()
+
+        connection.callbackQueue.async {
+            self.sendPing()
+        }
     }
 }
