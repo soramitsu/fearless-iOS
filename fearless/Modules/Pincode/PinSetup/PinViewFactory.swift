@@ -15,7 +15,8 @@ class PinViewFactory: PinViewFactoryProtocol {
         let presenter = PinSetupPresenter()
         let interactor = PinSetupInteractor(secretManager: KeychainManager.shared,
                                             settingsManager: SettingsManager.shared,
-                                            biometryAuth: BiometryAuth())
+                                            biometryAuth: BiometryAuth(),
+                                            locale: LocalizationManager.shared.selectedLocale)
         let wireframe = PinSetupWireframe()
 
         pinSetupView.presenter = presenter
