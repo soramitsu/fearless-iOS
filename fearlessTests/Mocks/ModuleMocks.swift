@@ -476,16 +476,16 @@ import UIKit
     
     
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)  {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)  {
         
-    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)",
-            parameters: (title, view),
-            escapingParameters: (title, view),
+    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)",
+            parameters: (title, view, closure),
+            escapingParameters: (title, view, closure),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view))
+            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view, completion: closure))
         
     }
     
@@ -498,9 +498,9 @@ import UIKit
 	    }
 	    
 	    
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockModalAlertPresenting.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?, (() -> Void)?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockModalAlertPresenting.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -520,9 +520,9 @@ import UIKit
 	
 	    
 	    @discardableResult
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?, (() -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -534,7 +534,7 @@ import UIKit
     
 
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)   {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4777,16 +4777,16 @@ import SoraFoundation
     
     
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)  {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)  {
         
-    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)",
-            parameters: (title, view),
-            escapingParameters: (title, view),
+    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)",
+            parameters: (title, view, closure),
+            escapingParameters: (title, view, closure),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view))
+            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view, completion: closure))
         
     }
     
@@ -4819,9 +4819,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?, (() -> Void)?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4865,9 +4865,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?, (() -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -4895,7 +4895,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)   {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -9386,16 +9386,16 @@ import SoraFoundation
     
     
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)  {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)  {
         
-    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)",
-            parameters: (title, view),
-            escapingParameters: (title, view),
+    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)",
+            parameters: (title, view, closure),
+            escapingParameters: (title, view, closure),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view))
+            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view, completion: closure))
         
     }
     
@@ -9423,9 +9423,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?, (() -> Void)?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -9463,9 +9463,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?, (() -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -9489,7 +9489,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)   {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -13103,16 +13103,16 @@ import Foundation
     
     
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)  {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)  {
         
-    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)",
-            parameters: (title, view),
-            escapingParameters: (title, view),
+    return cuckoo_manager.call("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)",
+            parameters: (title, view, closure),
+            escapingParameters: (title, view, closure),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view))
+            defaultCall: __defaultImplStub!.presentSuccessNotification(title, from: view, completion: closure))
         
     }
     
@@ -13170,9 +13170,9 @@ import Foundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method: "showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(String, ControllerBackedProtocol?, (() -> Void)?)> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockProfileWireframeProtocol.self, method: "presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -13246,9 +13246,9 @@ import Foundation
 	    }
 	    
 	    @discardableResult
-	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }]
-	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentSuccessNotification<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(_ title: M1, from view: M2, completion closure: M3) -> Cuckoo.__DoNotUse<(String, ControllerBackedProtocol?, (() -> Void)?), Void> where M1.MatchedType == String, M2.OptionalMatchedType == ControllerBackedProtocol, M3.OptionalMatchedType == (() -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, ControllerBackedProtocol?, (() -> Void)?)>] = [wrap(matchable: title) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: closure) { $0.2 }]
+	        return cuckoo_manager.verify("presentSuccessNotification(_: String, from: ControllerBackedProtocol?, completion: (() -> Void)?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -13296,7 +13296,7 @@ import Foundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?)   {
+     func presentSuccessNotification(_ title: String, from view: ControllerBackedProtocol?, completion closure: (() -> Void)?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

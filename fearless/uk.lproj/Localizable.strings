@@ -105,7 +105,7 @@
 "pincode.create.top.title" = "Створення пін-коду";
 "profile.accounts.title" = "Рахунки";
 "profile.network.title" = "Мережа";
-"profile.pincode.change.title" = "Зміна пін-коду";
+"profile.pincode.change.title" = "Зміна пін коду";
 "common.invalid.hard.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /.";
 "common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";
 "confirm.mnemonic.mismatch.error.title" = "Неправильне мнемонічне";
@@ -206,3 +206,4 @@
 "export.seed.with.dp.template" = "Мережа: %@\
 Насіння: %@\
 Шлях виведення: %@";
+"common.changed" = "Змінено";

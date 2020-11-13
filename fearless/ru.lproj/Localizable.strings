@@ -105,7 +105,7 @@ a type of password.";
 "pincode.create.top.title" = "Новый пинкод";
 "profile.accounts.title" = "Аккаунты";
 "profile.network.title" = "Сеть";
-"profile.pincode.change.title" = "Изменить пин-код";
+"profile.pincode.change.title" = "Изменить пин код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";
 "confirm.mnemonic.mismatch.error.title" = "Неверная мнемоника";
@@ -206,3 +206,4 @@ a type of password.";
 "export.seed.with.dp.template" = "Сеть: %@\
 Сид: %@\
 Путь деривации: %@";
+"common.changed" = "Изменено";

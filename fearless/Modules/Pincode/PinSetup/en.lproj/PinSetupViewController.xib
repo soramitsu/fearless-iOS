@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -22,10 +22,9 @@
                 <outlet property="navigationBar" destination="SYy-2D-F5q" id="4Mm-GD-NTm"/>
                 <outlet property="navigationBarTop" destination="Abv-ho-QLD" id="2kV-ae-Iec"/>
                 <outlet property="pinView" destination="im2-a2-44W" id="Xrg-Qo-mMN"/>
-                <outlet property="pinViewBottomConstraint" destination="wNW-TB-ofx" id="U9C-eY-H8f"/>
+                <outlet property="pinViewCenterConstraint" destination="87G-L1-reO" id="O9z-js-sjf"/>
                 <outlet property="pinViewTopConstraint" destination="jnS-B2-0WH" id="Z1i-eF-vnG"/>
                 <outlet property="titleLabel" destination="dqY-VK-ps1" id="psP-B2-oVb"/>
-                <outlet property="titleTopConstraint" destination="W24-mj-kyZ" id="JTb-Zl-IRh"/>
                 <outlet property="topLabel" destination="h4R-Mn-FG7" id="cL6-qa-3pa"/>
                 <outlet property="view" destination="iN0-l3-epB" id="CsI-ai-aIE"/>
             </connections>
@@ -50,19 +49,19 @@
                     </items>
                 </navigationBar>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h4R-Mn-FG7">
-                    <rect key="frame" x="50" y="42" width="275" height="0.0"/>
+                    <rect key="frame" x="50" y="43" width="275" height="0.0"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Enter pin code" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dqY-VK-ps1">
-                    <rect key="frame" x="142" y="138" width="91.5" height="16.5"/>
+                    <rect key="frame" x="142" y="133" width="91.5" height="16.5"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" verticalCompressionResistancePriority="749" placeholderIntrinsicWidth="260" placeholderIntrinsicHeight="424.5" translatesAutoresizingMaskIntoConstraints="NO" id="im2-a2-44W" customClass="PinView" customModule="SoraUI">
-                    <rect key="frame" x="57.5" y="174.5" width="260" height="445.5"/>
+                    <rect key="frame" x="57.5" y="169.5" width="260" height="424.5"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="_mode">
@@ -138,24 +137,28 @@
                     </userDefinedRuntimeAttributes>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
-                <constraint firstItem="h4R-Mn-FG7" firstAttribute="centerY" secondItem="SYy-2D-F5q" secondAttribute="centerY" id="1oj-18-6e8"/>
+                <constraint firstItem="h4R-Mn-FG7" firstAttribute="centerY" secondItem="SYy-2D-F5q" secondAttribute="centerY" constant="1" id="1oj-18-6e8"/>
+                <constraint firstItem="im2-a2-44W" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" constant="48" id="87G-L1-reO"/>
                 <constraint firstItem="SYy-2D-F5q" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="20" id="Abv-ho-QLD"/>
                 <constraint firstItem="dqY-VK-ps1" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="Hpk-l0-S4V"/>
                 <constraint firstItem="h4R-Mn-FG7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="50" id="Iab-xk-gAJ"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="h4R-Mn-FG7" secondAttribute="trailing" constant="50" id="RcW-ud-yrB"/>
                 <constraint firstItem="im2-a2-44W" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="Sht-Lc-uVb"/>
-                <constraint firstItem="dqY-VK-ps1" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="138" id="W24-mj-kyZ"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="SYy-2D-F5q" secondAttribute="trailing" id="Y44-bY-HAB"/>
                 <constraint firstItem="im2-a2-44W" firstAttribute="top" secondItem="dqY-VK-ps1" secondAttribute="bottom" constant="20" id="jnS-B2-0WH"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="im2-a2-44W" secondAttribute="bottom" constant="47" id="wNW-TB-ofx"/>
                 <constraint firstItem="SYy-2D-F5q" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="wSR-Zd-iw1"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="138" y="154"/>
         </view>
     </objects>
+    <designables>
+        <designable name="im2-a2-44W">
+            <size key="intrinsicContentSize" width="260" height="424.5"/>
+        </designable>
+    </designables>
     <resources>
         <image name="pinBackspace" width="23" height="21"/>
         <image name="pinFingerprint" width="23" height="23"/>

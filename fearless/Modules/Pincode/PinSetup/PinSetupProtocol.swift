@@ -36,6 +36,7 @@ protocol PinSetupWireframeProtocol: class {
 
 protocol PinViewFactoryProtocol: class {
     static func createPinSetupView() -> PinSetupViewProtocol?
+    static func createPinChangeView() -> PinSetupViewProtocol?
     static func createSecuredPinView() -> PinSetupViewProtocol?
     static func createScreenAuthorizationView(with wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool)
         -> PinSetupViewProtocol?

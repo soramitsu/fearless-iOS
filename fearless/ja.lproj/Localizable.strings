@@ -203,3 +203,4 @@ a type of password.";
 "export.seed.with.dp.template" = "ネットワーク： %@\
 シード： %@\
 派生パス： %@";
+"common.changed" = "かわった";

@@ -13,7 +13,13 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
                                                                   animated: true)
     }
 
-    func showPincodeChange(from view: ProfileViewProtocol?) {}
+    func showPincodeChange(from view: ProfileViewProtocol?) {
+        authorize(animated: true, cancellable: true) { [weak self] (completed) in
+            if completed {
+                self?.showPinSetup(from: view)
+            }
+        }
+    }
 
     func showAccountSelection(from view: ProfileViewProtocol?) {
         guard let accountManagement = AccountManagementViewFactory.createView() else {
@@ -57,5 +63,18 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
             aboutView.controller.hidesBottomBarWhenPushed = true
             navigationController.pushViewController(aboutView.controller, animated: true)
         }
+    }
+
+    // MARK: Private
+
+    private func showPinSetup(from view: ProfileViewProtocol?) {
+        guard let pinSetup = PinViewFactory.createPinChangeView() else {
+            return
+        }
+
+        pinSetup.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(pinSetup.controller,
+                                                                  animated: true)
     }
 }

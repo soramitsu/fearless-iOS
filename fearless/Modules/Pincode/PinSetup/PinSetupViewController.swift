@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-class PinSetupViewController: UIViewController, AdaptiveDesignable {
+class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDependable {
     private struct Constants {
         static var cancelBottomMargin: CGFloat = 30.0
     }
@@ -20,15 +20,16 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
 
     var localizableTopTitle: LocalizableResource<String> = LocalizableResource { _ in "" }
 
+    weak var navigationControlling: NavigationControlling?
+
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var pinView: PinView!
 
     @IBOutlet private var navigationBar: UINavigationBar!
 
     @IBOutlet private var navigationBarTop: NSLayoutConstraint!
-    @IBOutlet private var titleTopConstraint: NSLayoutConstraint!
     @IBOutlet private var pinViewTopConstraint: NSLayoutConstraint!
-    @IBOutlet private var pinViewBottomConstraint: NSLayoutConstraint!
+    @IBOutlet private var pinViewCenterConstraint: NSLayoutConstraint!
 
     private var cancelButton: UIButton?
 
@@ -167,6 +168,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
 
             if let cancelButton = cancelButton {
                 pinView.verticalSpacing -= cancelButton.intrinsicContentSize.height
+                pinViewCenterConstraint.constant -= cancelButton.intrinsicContentSize.height
             }
 
             pinView.numpadView?.verticalSpacing *= designScaleRatio.height
@@ -178,17 +180,6 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable {
             pinView.numpadView?.horizontalSpacing *= designScaleRatio.width
             pinView.characterFieldsView?.fieldSize.width *= designScaleRatio.width
             pinView.securedCharacterFieldsView?.fieldSize.width *= designScaleRatio.width
-        }
-
-        titleTopConstraint.constant *= designScaleRatio.height
-        pinViewTopConstraint.constant *= designScaleRatio.height
-
-        pinViewBottomConstraint.constant *= designScaleRatio.height
-
-        if cancellable {
-            let cancelMargin = Constants.cancelBottomMargin * designScaleRatio.height
-            titleTopConstraint.constant -= cancelMargin
-            pinViewBottomConstraint.constant += cancelMargin
         }
     }
 
@@ -254,10 +245,14 @@ extension PinSetupViewController: PinViewDelegate {
 
     func didChange(pinView: PinView, from state: PinView.CreationState) {
         updateTitleLabelState()
+
+        let shouldAnimate = navigationControlling == nil
         if pinView.creationState == .confirm {
-            navigationBar.pushItem(UINavigationItem(), animated: true)
+            navigationControlling?.setNavigationBarHidden(true, animated: false)
+            navigationBar.pushItem(UINavigationItem(), animated: shouldAnimate)
         } else {
-            navigationBar.popItem(animated: true)
+            navigationControlling?.setNavigationBarHidden(false, animated: false)
+            navigationBar.popItem(animated: shouldAnimate)
         }
     }
 
@@ -268,6 +263,10 @@ extension PinSetupViewController: PinViewDelegate {
 
 extension PinSetupViewController: UINavigationBarDelegate {
     func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
+        if pinView.creationState == .confirm {
+            navigationControlling?.setNavigationBarHidden(false, animated: false)
+        }
+
         pinView.resetCreationState(animated: true)
         updateTitleLabelState()
         return true
