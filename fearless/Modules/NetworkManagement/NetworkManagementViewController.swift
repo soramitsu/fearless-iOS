@@ -109,6 +109,18 @@ extension NetworkManagementViewController: NetworkManagementViewProtocol {
     func reload() {
         tableView.reloadData()
     }
+
+    func didRemoveCustomItem(at index: Int) {
+        let section = Section.customConnections.rawValue
+        let numberOfRows = tableView.numberOfRows(inSection: section)
+
+        if numberOfRows == 1 {
+            tableView.deleteSections([section], with: .left)
+        } else {
+            let indexPath = IndexPath(row: index, section: section)
+            tableView.deleteRows(at: [indexPath], with: .left)
+        }
+    }
 }
 
 // swiftlint:disable force_cast
@@ -239,15 +251,7 @@ extension NetworkManagementViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView,
                    commit editingStyle: UITableViewCell.EditingStyle,
                    forRowAt indexPath: IndexPath) {
-        let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
-
         presenter.removeCustomItem(at: indexPath.row)
-
-        if numberOfRows == 1 {
-            tableView.deleteSections([indexPath.section], with: .automatic)
-        } else {
-            tableView.deleteRows(at: [indexPath], with: .automatic)
-        }
     }
 }
 
