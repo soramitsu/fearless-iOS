@@ -1,10 +1,9 @@
 import Foundation
-import IrohaCrypto
 
 struct AccountImportMnemonicRequest {
     let mnemonic: String
     let username: String
-    let type: SNAddressType
+    let networkType: Chain
     let derivationPath: String
     let cryptoType: CryptoType
 }
@@ -12,7 +11,7 @@ struct AccountImportMnemonicRequest {
 struct AccountImportSeedRequest {
     let seed: String
     let username: String
-    let type: SNAddressType
+    let networkType: Chain
     let derivationPath: String
     let cryptoType: CryptoType
 }
@@ -20,5 +19,7 @@ struct AccountImportSeedRequest {
 struct AccountImportKeystoreRequest {
     let keystore: String
     let password: String
-    let username: String?
+    let username: String
+    let networkType: Chain
+    let cryptoType: CryptoType
 }

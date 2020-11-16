@@ -24,8 +24,8 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
                    accountRepository: accountRepository,
                    operationManager: operationManager,
                    keystoreImportService: keystoreImportService,
-                   supportedAddressTypes: [connectionItem.type],
-                   defaultAddressType: connectionItem.type)
+                   supportedNetworks: [connectionItem.type.chain],
+                   defaultNetwork: connectionItem.type.chain)
     }
 
     private func importAccountItem(_ item: AccountItem) {

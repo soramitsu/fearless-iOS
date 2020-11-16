@@ -41,8 +41,8 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
                                     delegate: ModalPickerViewControllerDelegate?,
                                     context: AnyObject?)
     func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?,
-                                     availableTypes: [SNAddressType],
-                                     selectedType: SNAddressType,
+                                     availableTypes: [Chain],
+                                     selectedType: Chain,
                                      delegate: ModalPickerViewControllerDelegate?,
                                      context: AnyObject?)
 }

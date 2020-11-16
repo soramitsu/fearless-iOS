@@ -19,7 +19,7 @@ class AccountConfirmTests: XCTestCase {
         let mnemonicWords = "great fog follow obtain oyster raw patient extend use mirror fix balance blame sudden vessel"
 
         let newAccountRequest = AccountCreationRequest(username: "myusername",
-                                                       type: .kusamaMain,
+                                                       type: .kusama,
                                                        derivationPath: "",
                                                        cryptoType: .sr25519)
 

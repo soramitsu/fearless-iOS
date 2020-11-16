@@ -14,21 +14,21 @@ class BaseAccountImportInteractor {
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
-    let supportedAddressTypes: [SNAddressType]
-    let defaultAddressType: SNAddressType
+    let supportedNetworks: [Chain]
+    let defaultNetwork: Chain
 
     init(accountOperationFactory: AccountOperationFactoryProtocol,
          accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
          keystoreImportService: KeystoreImportServiceProtocol,
-         supportedAddressTypes: [SNAddressType],
-         defaultAddressType: SNAddressType) {
+         supportedNetworks: [Chain],
+         defaultNetwork: Chain) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.keystoreImportService = keystoreImportService
-        self.supportedAddressTypes = supportedAddressTypes
-        self.defaultAddressType = defaultAddressType
+        self.supportedNetworks = supportedNetworks
+        self.defaultNetwork = defaultNetwork
     }
 
     private func setupKeystoreImportObserver() {
@@ -42,9 +42,11 @@ class BaseAccountImportInteractor {
 
             do {
                 let jsonData = try JSONEncoder().encode(definition)
+                let info = try AccountImportJsonFactory()
+                    .createInfo(from: definition, supportedNetworks: supportedNetworks)
 
                 if let text = String(data: jsonData, encoding: .utf8) {
-                    presenter.didSuggestKeystore(text: text, username: definition.meta?.name)
+                    presenter.didSuggestKeystore(text: text, preferredInfo: info)
                 }
 
             } catch {
@@ -56,8 +58,8 @@ class BaseAccountImportInteractor {
     private func provideMetadata() {
         let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
                                              defaultSource: .mnemonic,
-                                             availableAddressTypes: supportedAddressTypes,
-                                             defaultAddressType: defaultAddressType,
+                                             availableNetworks: supportedNetworks,
+                                             defaultNetwork: defaultNetwork,
                                              availableCryptoTypes: CryptoType.allCases,
                                              defaultCryptoType: .sr25519)
 
@@ -80,7 +82,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         }
 
         let creationRequest = AccountCreationRequest(username: request.username,
-                                                     type: request.type,
+                                                     type: request.networkType,
                                                      derivationPath: request.derivationPath,
                                                      cryptoType: request.cryptoType)
 
@@ -100,11 +102,14 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         importAccountUsingOperation(operation)
     }
 
-    func deriveUsernameFromKeystore(_ keystore: String) {
+    func deriveMetadataFromKeystore(_ keystore: String) {
         if
             let data = keystore.data(using: .utf8),
-            let username = try? jsonDecoder.decode(KeystoreDefinition.self, from: data).meta?.name {
-            presenter.didDeriveKeystore(username: username)
+            let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data),
+            let info = try? AccountImportJsonFactory()
+                .createInfo(from: definition, supportedNetworks: supportedNetworks) {
+
+            presenter.didSuggestKeystore(text: keystore, preferredInfo: info)
         }
     }
 }

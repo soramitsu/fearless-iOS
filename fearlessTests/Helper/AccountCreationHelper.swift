@@ -3,15 +3,16 @@ import Foundation
 import IrohaCrypto
 import SoraKeystore
 import RobinHood
+import FearlessUtils
 
 final class AccountCreationHelper {
     static func createAccountFromMnemonic(_ mnemonicString: String? = nil,
-                                   cryptoType: CryptoType,
-                                   name: String = "fearless",
-                                   addressType: SNAddressType = .genericSubstrate,
-                                   derivationPath: String = "",
-                                   keychain: KeystoreProtocol,
-                                   settings: SettingsManagerProtocol) throws {
+                                          cryptoType: fearless.CryptoType,
+                                          name: String = "fearless",
+                                          networkType: Chain = .westend,
+                                          derivationPath: String = "",
+                                          keychain: KeystoreProtocol,
+                                          settings: SettingsManagerProtocol) throws {
         let mnemonic: IRMnemonicProtocol
 
         if let mnemonicString = mnemonicString {
@@ -21,7 +22,7 @@ final class AccountCreationHelper {
         }
 
         let request = AccountCreationRequest(username: name,
-                                             type: addressType,
+                                             type: networkType,
                                              derivationPath: derivationPath,
                                              cryptoType: cryptoType)
 
@@ -37,15 +38,15 @@ final class AccountCreationHelper {
     }
 
     static func createAccountFromSeed(_ seed: String,
-                               cryptoType: CryptoType,
-                               name: String = "fearless",
-                               addressType: SNAddressType = .genericSubstrate,
-                               derivationPath: String = "",
-                               keychain: KeystoreProtocol,
-                               settings: SettingsManagerProtocol) throws {
+                                      cryptoType: fearless.CryptoType,
+                                      name: String = "fearless",
+                                      networkType: Chain = .westend,
+                                      derivationPath: String = "",
+                                      keychain: KeystoreProtocol,
+                                      settings: SettingsManagerProtocol) throws {
         let request = AccountImportSeedRequest(seed: seed,
                                                username: name,
-                                               type: addressType,
+                                               networkType: networkType,
                                                derivationPath: derivationPath,
                                                cryptoType: cryptoType)
 
@@ -70,23 +71,35 @@ final class AccountCreationHelper {
 
         let data = try Data(contentsOf: url)
 
+        let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: data)
+
+        let info = try AccountImportJsonFactory().createInfo(from: definition,
+                                                             supportedNetworks: Chain.allCases)
+
         return try createAccountFromKeystoreData(data,
                                                  password: password,
                                                  keychain: keychain,
-                                                 settings: settings)
+                                                 settings: settings,
+                                                 networkType: info.networkType ?? .westend,
+                                                 cryptoType: info.cryptoType ?? .sr25519)
     }
 
     static func createAccountFromKeystoreData(_ data: Data,
                                               password: String,
                                               keychain: KeystoreProtocol,
-                                              settings: SettingsManagerProtocol) throws {
+                                              settings: SettingsManagerProtocol,
+                                              networkType: Chain,
+                                              cryptoType: fearless.CryptoType,
+                                              username: String = "username") throws {
         guard let keystoreString = String(data: data, encoding: .utf8) else {
             return
         }
 
         let request = AccountImportKeystoreRequest(keystore: keystoreString,
                                                    password: password,
-                                                   username: nil)
+                                                   username: username,
+                                                   networkType: networkType,
+                                                   cryptoType: cryptoType)
 
         let operation = AccountOperationFactory(keystore: keychain)
             .newAccountOperation(request: request)

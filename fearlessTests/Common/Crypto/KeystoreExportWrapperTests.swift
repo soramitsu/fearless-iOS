@@ -6,7 +6,8 @@ import RobinHood
 
 class KeystoreExportWrapperTests: XCTestCase {
     func testSrAccountExport() {
-        performExportTestForFilename(Constants.validSrKeystoreName, password: Constants.validSrKeystorePassword)
+        performExportTestForFilename(Constants.validSrKeystoreName,
+                                     password: Constants.validSrKeystorePassword)
     }
 
     func testEd25519AccountExport() {
@@ -21,7 +22,8 @@ class KeystoreExportWrapperTests: XCTestCase {
 
     // MARK: Private
 
-    private func performExportTestForFilename(_ name: String, password: String) {
+    private func performExportTestForFilename(_ name: String,
+                                              password: String) {
         do {
             // given
 
@@ -47,10 +49,17 @@ class KeystoreExportWrapperTests: XCTestCase {
             let resultKeystore = InMemoryKeychain()
             let resultSettings = InMemorySettingsManager()
 
+            let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: exportData)
+
+            let info = try AccountImportJsonFactory().createInfo(from: definition,
+                                                                 supportedNetworks: Chain.allCases)
+
             try AccountCreationHelper.createAccountFromKeystoreData(exportData,
                                                                     password: password,
                                                                     keychain: resultKeystore,
-                                                                    settings: resultSettings)
+                                                                    settings: resultSettings,
+                                                                    networkType: info.networkType ?? .westend,
+                                                                    cryptoType: info.cryptoType ?? .sr25519)
 
             // then
 

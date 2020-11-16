@@ -1,5 +1,4 @@
 import Foundation
-import IrohaCrypto
 import SoraFoundation
 
 enum AccountImportContext: String {
@@ -22,7 +21,7 @@ final class AccountImportPresenter {
 
     private(set) var selectedSourceType: AccountImportSource?
     private(set) var selectedCryptoType: CryptoType?
-    private(set) var selectedAddressType: SNAddressType?
+    private(set) var selectedNetworkType: Chain?
 
     private(set) var sourceViewModel: InputViewModelProtocol?
     private(set) var usernameViewModel: InputViewModelProtocol?
@@ -31,17 +30,24 @@ final class AccountImportPresenter {
 
     private lazy var jsonDeserializer = JSONSerialization()
 
-    private func applySourceType(_ value: String = "") {
+    private func applySourceType(_ value: String = "", preferredInfo: AccountImportPreferredInfo? = nil) {
         guard let selectedSourceType = selectedSourceType else {
             return
+        }
+
+        if let preferredInfo = preferredInfo {
+            selectedCryptoType = preferredInfo.cryptoType
+            selectedNetworkType = preferredInfo.networkType
         }
 
         view?.setSource(type: selectedSourceType)
 
         applySourceTextViewModel(value)
-        applyUsernameViewModel()
+
+        let username = preferredInfo?.username ?? ""
+        applyUsernameViewModel(username)
         applyPasswordViewModel()
-        applyAdvanced()
+        applyAdvanced(preferredInfo)
     }
 
     private func applySourceTextViewModel(_ value: String = "") {
@@ -52,8 +58,6 @@ final class AccountImportPresenter {
         let viewModel: InputViewModelProtocol
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        sourceViewModel?.inputHandler.removeObserver(self)
 
         switch selectedSourceType {
         case .mnemonic:
@@ -79,7 +83,6 @@ final class AccountImportPresenter {
                                             predicate: NSPredicate.notEmpty)
             viewModel = InputViewModel(inputHandler: inputHandler,
                                        placeholder: placeholder)
-            viewModel.inputHandler.addObserver(self)
         }
 
         sourceViewModel = viewModel
@@ -111,22 +114,24 @@ final class AccountImportPresenter {
         }
     }
 
-    private func applyAdvanced() {
+    private func applyAdvanced(_ preferredInfo: AccountImportPreferredInfo?) {
         guard let selectedSourceType = selectedSourceType else {
             return
         }
 
         switch selectedSourceType {
         case .mnemonic, .seed:
-            applyCryptoTypeViewModel()
+            applyCryptoTypeViewModel(preferredInfo)
             applyDerivationPathViewModel()
-            applyAddressTypeViewModel()
+            applyAddressTypeViewModel(preferredInfo)
         case .keystore:
+            applyCryptoTypeViewModel(preferredInfo)
             derivationPathViewModel = nil
+            applyAddressTypeViewModel(preferredInfo)
         }
     }
 
-    private func applyCryptoTypeViewModel() {
+    private func applyCryptoTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
         guard let cryptoType = selectedCryptoType else {
             return
         }
@@ -136,20 +141,36 @@ final class AccountImportPresenter {
         let viewModel = TitleWithSubtitleViewModel(title: cryptoType.titleForLocale(locale),
                                                    subtitle: cryptoType.subtitleForLocale(locale))
 
-        view?.setSelectedCrypto(model: viewModel)
+        let selectable: Bool
+
+        if preferredInfo?.cryptoType != nil {
+            selectable = false
+        } else {
+            selectable = (metadata?.availableCryptoTypes.count ?? 0) > 1
+        }
+
+        view?.setSelectedCrypto(model: SelectableViewModel(underlyingViewModel: viewModel,
+                                                           selectable: selectable))
     }
 
-    private func applyAddressTypeViewModel() {
-        guard let addressType = selectedAddressType else {
+    private func applyAddressTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
+        guard let networkType = selectedNetworkType else {
             return
         }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let contentViewModel = IconWithTitleViewModel(icon: addressType.icon,
-                                                      title: addressType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(icon: networkType.icon,
+                                                      title: networkType.titleForLocale(locale))
 
-        let selectable = (metadata?.availableAddressTypes.count ?? 0) > 1
+        let selectable: Bool
+
+        if preferredInfo?.networkType != nil {
+            selectable = false
+        } else {
+            selectable = (metadata?.availableCryptoTypes.count ?? 0) > 1
+        }
+
         let selectedViewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
                                                     selectable: selectable)
 
@@ -291,19 +312,38 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         }
     }
 
-    func selectAddressType() {
+    func selectNetworkType() {
         if let metadata = metadata {
             let context = AccountImportContext.addressType.rawValue as NSString
-            let selectedType = selectedAddressType ?? metadata.defaultAddressType
-            wireframe.presentAddressTypeSelection(from: view,
-                                                  availableTypes: metadata.availableAddressTypes,
+            let selectedType = selectedNetworkType ?? metadata.defaultNetwork
+            wireframe.presentNetworkTypeSelection(from: view,
+                                                  availableTypes: metadata.availableNetworks,
                                                   selectedType: selectedType,
                                                   delegate: self,
                                                   context: context)
         }
     }
 
-    func activateQrScan() {}
+    func activateUpload() {
+        let locale = localizationManager?.selectedLocale
+
+        let pasteTitle = R.string.localizable
+            .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale?.rLanguages)
+        let pasteAction = AlertPresentableAction(title: pasteTitle) { [weak self] in
+            if let json = UIPasteboard.general.string {
+                self?.interactor.deriveMetadataFromKeystore(json)
+            }
+        }
+
+        let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
+        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let viewModel = AlertPresentableViewModel(title: title,
+                                                  message: nil,
+                                                  actions: [pasteAction],
+                                                  closeAction: closeTitle)
+
+        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
+    }
 
     func validateDerivationPath() {
         guard let viewModel = derivationPathViewModel,
@@ -349,22 +389,22 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         case .mnemonic:
             let mnemonic = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
-            let addressType = selectedAddressType ?? metadata.defaultAddressType
+            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = AccountImportMnemonicRequest(mnemonic: mnemonic,
                                                        username: username,
-                                                       type: addressType,
+                                                       networkType: networkType,
                                                        derivationPath: derivationPath,
                                                        cryptoType: selectedCryptoType)
             interactor.importAccountWithMnemonic(request: request)
         case .seed:
             let seed = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
-            let addressType = selectedAddressType ?? metadata.defaultAddressType
+            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = AccountImportSeedRequest(seed: seed,
                                                    username: username,
-                                                   type: addressType,
+                                                   networkType: networkType,
                                                    derivationPath: derivationPath,
                                                    cryptoType: selectedCryptoType)
             interactor.importAccountWithSeed(request: request)
@@ -372,9 +412,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let keystore = sourceViewModel.inputHandler.value
             let password = passwordViewModel?.inputHandler.value ?? ""
             let username = usernameViewModel.inputHandler.value
+            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let request = AccountImportKeystoreRequest(keystore: keystore,
                                                        password: password,
-                                                       username: username)
+                                                       username: username,
+                                                       networkType: networkType,
+                                                       cryptoType: selectedCryptoType)
+
             interactor.importAccountWithKeystore(request: request)
         }
     }
@@ -386,7 +430,7 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
 
         selectedSourceType = metadata.defaultSource
         selectedCryptoType = metadata.defaultCryptoType
-        selectedAddressType = metadata.defaultAddressType
+        selectedNetworkType = metadata.defaultNetwork
 
         applySourceType()
     }
@@ -407,18 +451,10 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
                               locale: locale)
     }
 
-    func didDeriveKeystore(username: String) {
-        applyUsernameViewModel(username)
-    }
-
-    func didSuggestKeystore(text: String, username: String?) {
+    func didSuggestKeystore(text: String, preferredInfo: AccountImportPreferredInfo?) {
         selectedSourceType = .keystore
 
-        applySourceType(text)
-
-        if let username = username {
-            applyUsernameViewModel(username)
-        }
+        applySourceType(text, preferredInfo: preferredInfo)
     }
 }
 
@@ -437,14 +473,14 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
             case .cryptoType:
                 selectedCryptoType = metadata?.availableCryptoTypes[index]
 
-                applyCryptoTypeViewModel()
+                applyCryptoTypeViewModel(nil)
                 applyDerivationPathViewModel()
 
                 view?.didCompleteCryptoTypeSelection()
             case .addressType:
-                selectedAddressType = metadata?.availableAddressTypes[index]
+                selectedNetworkType = metadata?.availableNetworks[index]
 
-                applyAddressTypeViewModel()
+                applyAddressTypeViewModel(nil)
                 view?.didCompleteAddressTypeSelection()
             }
         }
@@ -463,23 +499,6 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
                 view?.didCompleteAddressTypeSelection()
             }
         }
-    }
-}
-
-extension AccountImportPresenter: InputHandlingObserver {
-    func didChangeInputValue(_ handler: InputHandling, from oldValue: String) {
-        guard
-            let selectedSourceType = selectedSourceType,
-            selectedSourceType == .keystore,
-            validateKeystore(value: handler.value) == nil else {
-            return
-        }
-
-        if let usernameViewModel = usernameViewModel, !usernameViewModel.inputHandler.value.isEmpty {
-            return
-        }
-
-        interactor.deriveUsernameFromKeystore(handler.value)
     }
 }
 

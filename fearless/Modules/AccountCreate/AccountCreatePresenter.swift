@@ -17,7 +17,7 @@ final class AccountCreatePresenter {
     private var metadata: AccountCreationMetadata?
 
     private var selectedCryptoType: CryptoType?
-    private var selectedAddressType: SNAddressType?
+    private var selectedNetworkType: Chain?
 
     private var derivationPathViewModel: InputViewModelProtocol?
 
@@ -38,17 +38,17 @@ final class AccountCreatePresenter {
         view?.setSelectedCrypto(model: viewModel)
     }
 
-    private func applyAddressTypeViewModel() {
-        guard let addressType = selectedAddressType else {
+    private func applyNetworkTypeViewModel() {
+        guard let networkType = selectedNetworkType else {
             return
         }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let contentViewModel = IconWithTitleViewModel(icon: addressType.icon,
-                                                      title: addressType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(icon: networkType.icon,
+                                                      title: networkType.titleForLocale(locale))
 
-        let selectable = (metadata?.availableAddressTypes.count ?? 0) > 1
+        let selectable = (metadata?.availableNetworks.count ?? 0) > 1
         let viewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
                                             selectable: selectable)
 
@@ -140,9 +140,9 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
     func selectNetworkType() {
         if let metadata = metadata {
             let context = AccountCreateContext.networkType.rawValue as NSString
-            let selectedType = selectedAddressType ?? metadata.defaultAddressType
+            let selectedType = selectedNetworkType ?? metadata.defaultNetwork
             wireframe.presentNetworkTypeSelection(from: view,
-                                                  availableTypes: metadata.availableAddressTypes,
+                                                  availableTypes: metadata.availableNetworks,
                                                   selectedType: selectedType,
                                                   delegate: self,
                                                   context: context)
@@ -151,7 +151,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func proceed() {
         guard
-            let addressType = selectedAddressType,
+            let networkType = selectedNetworkType,
             let cryptoType = selectedCryptoType,
             let viewModel = derivationPathViewModel,
             let metadata = metadata else {
@@ -165,7 +165,7 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         }
 
         let request = AccountCreationRequest(username: username,
-                                             type: addressType,
+                                             type: networkType,
                                              derivationPath: viewModel.inputHandler.value,
                                              cryptoType: cryptoType)
 
@@ -180,12 +180,12 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
         self.metadata = metadata
 
         selectedCryptoType = metadata.defaultCryptoType
-        selectedAddressType = metadata.defaultAddressType
+        selectedNetworkType = metadata.defaultNetwork
 
         view?.set(mnemonic: metadata.mnemonic)
 
         applyCryptoTypeViewModel()
-        applyAddressTypeViewModel()
+        applyNetworkTypeViewModel()
         applyDerivationPathViewModel()
     }
 
@@ -216,9 +216,9 @@ extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
 
                 view?.didCompleteCryptoTypeSelection()
             case .networkType:
-                selectedAddressType = metadata?.availableAddressTypes[index]
+                selectedNetworkType = metadata?.availableNetworks[index]
 
-                applyAddressTypeViewModel()
+                applyNetworkTypeViewModel()
                 view?.didCompleteNetworkTypeSelection()
             }
         }
@@ -242,7 +242,7 @@ extension AccountCreatePresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             applyCryptoTypeViewModel()
-            applyAddressTypeViewModel()
+            applyNetworkTypeViewModel()
         }
     }
 }

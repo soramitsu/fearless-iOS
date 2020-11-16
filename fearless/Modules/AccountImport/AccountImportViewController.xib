@@ -17,6 +17,7 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountImportViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="advancedContainerHeight" destination="rp6-eX-8ex" id="rf7-eb-LSe"/>
                 <outlet property="advancedContainerView" destination="qTb-7f-Lmc" id="hS3-vF-4DC"/>
                 <outlet property="advancedControl" destination="yiw-bM-wfH" id="nnj-Zz-oKR"/>
                 <outlet property="advancedView" destination="Htd-FP-vae" id="3Kq-bP-LLG"/>
@@ -24,7 +25,7 @@
                 <outlet property="derivationPathField" destination="2sF-Ds-MqJ" id="LeW-za-qMX"/>
                 <outlet property="derivationPathImageView" destination="eHF-l7-Zou" id="Unh-yR-xNc"/>
                 <outlet property="derivationPathLabel" destination="3bj-3p-BUu" id="Tpw-JS-laf"/>
-                <outlet property="derivationPathView" destination="cVj-lI-0D8" id="qAF-p7-JEj"/>
+                <outlet property="derivationPathView" destination="t6l-pL-2Y0" id="3Aa-yY-33K"/>
                 <outlet property="networkTypeView" destination="KZt-OG-egc" id="4cZ-LV-tte"/>
                 <outlet property="nextButton" destination="1zX-7F-5Jj" id="tDn-Eb-zVt"/>
                 <outlet property="passwordSeparatorView" destination="Fkc-Hl-rio" id="vnu-IK-CqD"/>
@@ -33,8 +34,12 @@
                 <outlet property="scrollView" destination="H0p-yD-Jul" id="NuO-CC-dE8"/>
                 <outlet property="sourceTypeView" destination="cVj-lI-0D8" id="yIQ-uC-GpE"/>
                 <outlet property="stackView" destination="AwS-kl-7JJ" id="o8z-8e-m3K"/>
+                <outlet property="textContainerSeparatorView" destination="JSo-Au-P1P" id="3qa-q7-cUf"/>
+                <outlet property="textContainerView" destination="WIx-3s-1tq" id="pdT-rI-HFh"/>
                 <outlet property="textPlaceholderLabel" destination="Y5W-Vv-VcJ" id="UuY-vj-Eta"/>
                 <outlet property="textView" destination="Yrf-1J-bqb" id="4Ba-AX-TnR"/>
+                <outlet property="uploadSeparatorView" destination="Kgs-h4-caP" id="PF5-IX-qWl"/>
+                <outlet property="uploadView" destination="7cN-eb-nyO" id="CYW-a0-IWn"/>
                 <outlet property="usernameFooterLabel" destination="sLp-RD-GEW" id="qqH-KD-qJH"/>
                 <outlet property="usernameTextField" destination="hRN-qH-rFC" id="XKz-9M-39i"/>
                 <outlet property="usernameView" destination="gfP-C9-Y1O" id="JX8-ej-Tss"/>
@@ -50,11 +55,14 @@
                     <rect key="frame" x="0.0" y="44" width="414" height="718"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="AwS-kl-7JJ">
-                            <rect key="frame" x="16" y="16" width="382" height="668"/>
+                            <rect key="frame" x="16" y="16" width="382" height="733.5"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cVj-lI-0D8" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="0.0" width="382" height="48.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
                                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="52" id="Fbz-Rz-g4W"/>
+                                    </constraints>
                                     <userDefinedRuntimeAttributes>
                                         <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
                                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -97,14 +105,80 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Yre-zF-CNo">
-                                    <rect key="frame" x="0.0" y="48.5" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="52" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="abg-p8-jtD"/>
                                     </constraints>
                                 </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="7cN-eb-nyO" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
+                                    <rect key="frame" x="0.0" y="68" width="382" height="52"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="52" id="Ekh-LA-bkI"/>
+                                    </constraints>
+                                    <userDefinedRuntimeAttributes>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
+                                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                            <color key="value" name="colorGray"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                                            <color key="value" name="colorGray"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                                            <real key="value" value="1"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="title" value="Restore json"/>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                                            <color key="value" name="colorLightGray"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedTitleColor">
+                                            <color key="value" name="colorLightGray"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
+                                            <color key="value" name="colorWhite"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="color" keyPath="highlightedSubtitleColor">
+                                            <color key="value" name="colorWhite"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                            <real key="value" value="12"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
+                                            <real key="value" value="8"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
+                                            <real key="value" value="16"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
+                                            <real key="value" value="8"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
+                                            <real key="value" value="16"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="{“address”:”Gerfdad...DJWIdjawIdjWd”}"/>
+                                        <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
+                                        <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
+                                            <real key="value" value="14"/>
+                                        </userDefinedRuntimeAttribute>
+                                        <userDefinedRuntimeAttribute type="image" keyPath="actionImage" value="iconUpload"/>
+                                    </userDefinedRuntimeAttributes>
+                                </view>
+                                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Kgs-h4-caP">
+                                    <rect key="frame" x="0.0" y="120" width="382" height="16"/>
+                                    <color key="backgroundColor" name="colorBlack"/>
+                                    <constraints>
+                                        <constraint firstAttribute="height" constant="16" id="7yG-tS-mmw"/>
+                                    </constraints>
+                                </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gfP-C9-Y1O">
-                                    <rect key="frame" x="0.0" y="64.5" width="382" height="121.5"/>
+                                    <rect key="frame" x="0.0" y="136" width="382" height="121.5"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="n9V-BL-dV6" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -208,7 +282,7 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WIx-3s-1tq" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="186" width="382" height="122"/>
+                                    <rect key="frame" x="0.0" y="257.5" width="382" height="122"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Mnemonic" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y5W-Vv-VcJ">
                                             <rect key="frame" x="16" y="18" width="350" height="16.5"/>
@@ -272,14 +346,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JSo-Au-P1P">
-                                    <rect key="frame" x="0.0" y="308" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="379.5" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="sfT-5T-PTg"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="GW5-f0-uHW" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                    <rect key="frame" x="0.0" y="324" width="382" height="52"/>
+                                    <rect key="frame" x="0.0" y="395.5" width="382" height="52"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="wwH-SE-Zsz" customClass="AnimatedTextField" customModule="SoraUI">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
@@ -361,14 +435,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fkc-Hl-rio">
-                                    <rect key="frame" x="0.0" y="376" width="382" height="16"/>
+                                    <rect key="frame" x="0.0" y="447.5" width="382" height="16"/>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="16" id="3dB-9o-Oy7"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Htd-FP-vae" customClass="BorderedContainerView" customModule="SoraUI">
-                                    <rect key="frame" x="0.0" y="392" width="382" height="50"/>
+                                    <rect key="frame" x="0.0" y="463.5" width="382" height="50"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yiw-bM-wfH" customClass="ExpandableActionControl" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="382" height="50"/>
@@ -416,11 +490,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qTb-7f-Lmc">
-                                    <rect key="frame" x="0.0" y="442" width="382" height="226"/>
+                                    <rect key="frame" x="0.0" y="513.5" width="382" height="220"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="4i7-A0-UyV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="48.5"/>
+                                            <rect key="frame" x="1" y="16" width="380" height="52"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="52" id="0K8-9L-ycW"/>
+                                            </constraints>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
                                                     <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -463,7 +540,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="t6l-pL-2Y0" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="80.5" width="380" height="52"/>
+                                            <rect key="frame" x="1" y="84" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3bj-3p-BUu">
                                                     <rect key="frame" x="16" y="8" width="319" height="14"/>
@@ -524,8 +601,11 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="KZt-OG-egc" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="148.5" width="380" height="56.5"/>
+                                            <rect key="frame" x="1" y="152" width="380" height="52"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                            <constraints>
+                                                <constraint firstAttribute="height" constant="52" id="Vef-0s-XO0"/>
+                                            </constraints>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
                                                     <real key="value" value="1"/>
@@ -560,13 +640,13 @@
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
                                         <constraint firstAttribute="trailing" secondItem="t6l-pL-2Y0" secondAttribute="trailing" constant="1" id="1hm-Mo-Sia"/>
+                                        <constraint firstItem="t6l-pL-2Y0" firstAttribute="centerY" secondItem="qTb-7f-Lmc" secondAttribute="centerY" id="7cd-5V-3t9"/>
                                         <constraint firstAttribute="trailing" secondItem="KZt-OG-egc" secondAttribute="trailing" constant="1" id="HpV-ge-aen"/>
                                         <constraint firstAttribute="trailing" secondItem="4i7-A0-UyV" secondAttribute="trailing" constant="1" id="OyG-ZC-frl"/>
+                                        <constraint firstAttribute="bottom" secondItem="KZt-OG-egc" secondAttribute="bottom" constant="16" id="e95-NB-Gz7"/>
                                         <constraint firstItem="4i7-A0-UyV" firstAttribute="top" secondItem="qTb-7f-Lmc" secondAttribute="top" constant="16" id="pQn-Bm-4jY"/>
-                                        <constraint firstAttribute="height" constant="226" id="rp6-eX-8ex"/>
+                                        <constraint firstAttribute="height" constant="220" id="rp6-eX-8ex"/>
                                         <constraint firstItem="t6l-pL-2Y0" firstAttribute="leading" secondItem="qTb-7f-Lmc" secondAttribute="leading" constant="1" id="uiZ-gJ-2qx"/>
-                                        <constraint firstItem="t6l-pL-2Y0" firstAttribute="top" secondItem="4i7-A0-UyV" secondAttribute="bottom" constant="16" id="vde-ww-d66"/>
-                                        <constraint firstItem="KZt-OG-egc" firstAttribute="top" secondItem="t6l-pL-2Y0" secondAttribute="bottom" constant="16" id="yQH-gt-nFn"/>
                                         <constraint firstItem="KZt-OG-egc" firstAttribute="leading" secondItem="qTb-7f-Lmc" secondAttribute="leading" constant="1" id="yTU-WZ-akY"/>
                                         <constraint firstItem="4i7-A0-UyV" firstAttribute="leading" secondItem="qTb-7f-Lmc" secondAttribute="leading" constant="1" id="yjY-zk-2OJ"/>
                                     </constraints>
@@ -633,26 +713,10 @@
             <point key="canvasLocation" x="139" y="115"/>
         </view>
     </objects>
-    <designables>
-        <designable name="1zX-7F-5Jj">
-            <size key="intrinsicContentSize" width="43.5" height="32"/>
-        </designable>
-        <designable name="4i7-A0-UyV">
-            <size key="intrinsicContentSize" width="272.5" height="48.5"/>
-        </designable>
-        <designable name="KZt-OG-egc">
-            <size key="intrinsicContentSize" width="213.5" height="56.5"/>
-        </designable>
-        <designable name="cVj-lI-0D8">
-            <size key="intrinsicContentSize" width="155" height="48.5"/>
-        </designable>
-        <designable name="yiw-bM-wfH">
-            <size key="intrinsicContentSize" width="85" height="20"/>
-        </designable>
-    </designables>
     <resources>
         <image name="iconDropDown" width="24" height="24"/>
         <image name="iconKsmSmallBg" width="24" height="24"/>
+        <image name="iconUpload" width="24" height="24"/>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
