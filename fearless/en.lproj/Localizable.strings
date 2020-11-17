@@ -215,4 +215,4 @@ Seed: %@\
 Derivation path: %@";
 "common.changed" = "Changed";
 "account.import.json.no.network" = "JSON contains no network information. Please specify it in advanced block.";
-"account.import.wrong.network" = "Network in JSON is %@, not is the same as selected %@. The latter will be used to import an account.";
+"account.import.wrong.network" = "Network in JSON is %@, do not match selected %@. The latter will be used to import an account.";
