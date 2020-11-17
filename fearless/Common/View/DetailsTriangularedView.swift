@@ -1,28 +1,25 @@
 import UIKit
 import SoraUI
 
-protocol DetailsTriangularedViewDelegate: class {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView)
-}
-
-class DetailsTriangularedView: UIView {
+class DetailsTriangularedView: BackgroundedContentControl {
     enum Layout {
         case singleTitle
         case largeIconTitleSubtitle
         case smallIconTitleSubtitle
     }
 
-    private(set) var backgroundView: TriangularedView!
+    var triangularedBackgroundView: TriangularedView? {
+        backgroundView as? TriangularedView
+    }
+
     private(set) var titleLabel: UILabel!
     private(set) var subtitleLabel: UILabel?
 
     var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
-    var actionButton: RoundedButton { lazyActionButtonOrCreateIfNeeded() }
+    var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
 
     private var lazyIconView: UIImageView?
-    private var lazyActionButton: RoundedButton?
-
-    weak var delegate: DetailsTriangularedViewDelegate?
+    private var lazyActionView: UIImageView?
 
     var horizontalSpacing: CGFloat = 8.0 {
         didSet {
@@ -36,12 +33,6 @@ class DetailsTriangularedView: UIView {
         }
     }
 
-    var contentInsets = UIEdgeInsets(top: 12.0, left: 12.0, bottom: 12.0, right: 16.0) {
-        didSet {
-            setNeedsLayout()
-        }
-    }
-
     var layout: Layout = .largeIconTitleSubtitle {
         didSet {
             switch layout {
@@ -49,7 +40,7 @@ class DetailsTriangularedView: UIView {
                 if subtitleLabel == nil {
                     let label = UILabel()
                     subtitleLabel = label
-                    addSubview(label)
+                    contentView?.addSubview(label)
                 }
             case .singleTitle:
                 if subtitleLabel != nil {
@@ -81,13 +72,13 @@ class DetailsTriangularedView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        backgroundView.frame = bounds
+        contentView?.frame = bounds
 
-        if let actionButton = lazyActionButton {
-            actionButton.frame = CGRect(x: bounds.maxX - bounds.height,
-                                        y: bounds.minY,
-                                        width: bounds.height,
-                                        height: bounds.height)
+        if let actionView = lazyActionView {
+            actionView.frame = CGRect(x: bounds.maxX - bounds.height,
+                                      y: bounds.minY,
+                                      width: bounds.height,
+                                      height: bounds.height)
         }
 
         switch layout {
@@ -106,7 +97,7 @@ class DetailsTriangularedView: UIView {
         let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
-        let trailing = lazyActionButton?.frame.minX ?? bounds.maxX - contentInsets.right
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
         titleLabel.frame = CGRect(x: labelX,
                                   y: bounds.minY + contentInsets.top,
                                   width: trailing - labelX,
@@ -130,7 +121,7 @@ class DetailsTriangularedView: UIView {
         let titleHeight = titleLabel.intrinsicContentSize.height
         let titleX = bounds.minX + contentInsets.left
 
-        let trailing = lazyActionButton?.frame.minX ?? bounds.maxX - contentInsets.right
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
         titleLabel.frame = CGRect(x: titleX,
                                   y: bounds.minY + contentInsets.top,
                                   width: trailing - titleX,
@@ -157,7 +148,7 @@ class DetailsTriangularedView: UIView {
 
         let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
         let labelX = bounds.minX + contentInsets.left + iconOffset
-        let trailing = lazyActionButton?.frame.minX ?? bounds.maxX - contentInsets.right
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
 
         titleLabel.frame = CGRect(x: labelX,
                                   y: bounds.midY - titleHeight / 2.0,
@@ -181,36 +172,30 @@ class DetailsTriangularedView: UIView {
 
     private func configureBackgroundViewIfNeeded() {
         if backgroundView == nil {
-            backgroundView = TriangularedView()
-            backgroundView.shadowOpacity = 0.0
-            addSubview(backgroundView)
+            let triangularedView = TriangularedView()
+            triangularedView.isUserInteractionEnabled = false
+            triangularedView.shadowOpacity = 0.0
+
+            self.backgroundView = triangularedView
         }
     }
 
-    private func lazyActionButtonOrCreateIfNeeded() -> RoundedButton {
-        if let actionButton = lazyActionButton {
+    private func lazyActionViewOrCreateIfNeeded() -> UIImageView {
+        if let actionButton = lazyActionView {
             return actionButton
         }
 
-        let button = RoundedButton()
-        button.contentInsets = .zero
-        button.roundedBackgroundView?.fillColor = .clear
-        button.roundedBackgroundView?.highlightedFillColor = .clear
-        button.roundedBackgroundView?.shadowOpacity = 0.0
-        button.changesContentOpacityWhenHighlighted = true
-        addSubview(button)
+        let imageView = UIImageView()
+        imageView.contentMode = .center
+        contentView?.addSubview(imageView)
 
-        button.addTarget(self,
-                         action: #selector(didSelectAction),
-                         for: .touchUpInside)
-
-        lazyActionButton = button
+        lazyActionView = imageView
 
         if superview != nil {
             setNeedsLayout()
         }
 
-        return button
+        return imageView
     }
 
     private func lazyIconViewOrCreateIfNeeded() -> UIImageView {
@@ -219,7 +204,8 @@ class DetailsTriangularedView: UIView {
         }
 
         let imageView = UIImageView()
-        addSubview(imageView)
+        contentView?.addSubview(imageView)
+
         lazyIconView = imageView
 
         if superview != nil {
@@ -230,19 +216,22 @@ class DetailsTriangularedView: UIView {
     }
 
     private func configureContentViewIfNeeded() {
+        if contentView == nil {
+            let contentView = UIView()
+            contentView.backgroundColor = .clear
+            contentView.isUserInteractionEnabled = false
+            self.contentView = contentView
+        }
+
         if titleLabel == nil {
             titleLabel = UILabel()
-            addSubview(titleLabel)
+            contentView?.addSubview(titleLabel)
         }
 
         if subtitleLabel == nil, layout != .singleTitle {
             let label = UILabel()
-            addSubview(label)
+            contentView?.addSubview(label)
             subtitleLabel = label
         }
-    }
-
-    @objc private func didSelectAction() {
-        delegate?.detailsViewDidSelectAction(self)
     }
 }

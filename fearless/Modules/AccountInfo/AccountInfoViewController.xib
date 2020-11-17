@@ -37,7 +37,7 @@
                             <color key="value" name="colorDarkGray"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
-                            <color key="value" name="colorDarkGray"/>
+                            <color key="value" name="colorHighlightedBlue"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
                             <color key="value" name="colorDarkGray"/>
@@ -83,6 +83,10 @@
                         <userDefinedRuntimeAttribute type="number" keyPath="_horizontalSpacing">
                             <real key="value" value="4"/>
                         </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dND-pR-ncD" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
@@ -389,8 +393,17 @@
         </view>
     </objects>
     <designables>
+        <designable name="4DJ-9E-yEs">
+            <size key="intrinsicContentSize" width="23" height="15"/>
+        </designable>
+        <designable name="dND-pR-ncD">
+            <size key="intrinsicContentSize" width="23" height="15"/>
+        </designable>
+        <designable name="dj9-N6-aJv">
+            <size key="intrinsicContentSize" width="23" height="15"/>
+        </designable>
         <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="136.5" height="20"/>
+            <size key="intrinsicContentSize" width="159.5" height="20"/>
         </designable>
     </designables>
     <resources>

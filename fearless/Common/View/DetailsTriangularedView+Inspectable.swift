@@ -5,44 +5,44 @@ extension DetailsTriangularedView {
     @IBInspectable
     var fillColor: UIColor {
         get {
-            backgroundView.fillColor
+            triangularedBackgroundView!.fillColor
         }
 
         set {
-            backgroundView.fillColor = newValue
+            triangularedBackgroundView!.fillColor = newValue
         }
     }
 
     @IBInspectable
     var highlightedFillColor: UIColor {
         get {
-            backgroundView.highlightedFillColor
+            triangularedBackgroundView!.highlightedFillColor
         }
 
         set {
-            backgroundView.highlightedFillColor = newValue
+            triangularedBackgroundView!.highlightedFillColor = newValue
         }
     }
 
     @IBInspectable
     var strokeColor: UIColor {
         get {
-            backgroundView.strokeColor
+            triangularedBackgroundView!.strokeColor
         }
 
         set {
-            backgroundView.strokeColor = newValue
+            triangularedBackgroundView!.strokeColor = newValue
         }
     }
 
     @IBInspectable
     var highlightedStrokeColor: UIColor {
         get {
-            backgroundView.highlightedStrokeColor
+            triangularedBackgroundView!.highlightedStrokeColor
         }
 
         set {
-            backgroundView.highlightedStrokeColor = newValue
+            triangularedBackgroundView!.highlightedStrokeColor = newValue
         }
     }
 
@@ -200,11 +200,11 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionImage: UIImage? {
         get {
-            return actionButton.imageWithTitleView?.iconImage
+            return actionView.image
         }
 
         set {
-            actionButton.imageWithTitleView?.iconImage = newValue
+            actionView.image = newValue
             setNeedsLayout()
         }
     }
@@ -212,22 +212,22 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionTintColor: UIColor? {
         get {
-            return actionButton.imageWithTitleView?.tintColor
+            return actionView.tintColor
         }
 
         set {
-            actionButton.imageWithTitleView?.tintColor = newValue
+            actionView.tintColor = newValue
         }
     }
 
     @IBInspectable
     var borderWidth: CGFloat {
         get {
-            backgroundView.strokeWidth
+            triangularedBackgroundView?.strokeWidth ?? 0.0
         }
 
         set {
-            backgroundView.strokeWidth = newValue
+            triangularedBackgroundView?.strokeWidth = newValue
         }
     }
 
@@ -275,66 +275,6 @@ extension DetailsTriangularedView {
             default:
                 layout = .singleTitle
             }
-        }
-    }
-
-    @IBInspectable
-    private var _topInset: CGFloat {
-        set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: newValue,
-                                              left: insets.left,
-                                              bottom: insets.bottom,
-                                              right: insets.right)
-        }
-
-        get {
-            return self.contentInsets.top
-        }
-    }
-
-    @IBInspectable
-    private var _leftInset: CGFloat {
-        set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: newValue,
-                                              bottom: insets.bottom,
-                                              right: insets.right)
-        }
-
-        get {
-            return self.contentInsets.left
-        }
-    }
-
-    @IBInspectable
-    private var _bottomInset: CGFloat {
-        set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: insets.left,
-                                              bottom: newValue,
-                                              right: insets.right)
-        }
-
-        get {
-            return self.contentInsets.bottom
-        }
-    }
-
-    @IBInspectable
-    private var _rightInset: CGFloat {
-        set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: insets.left,
-                                              bottom: insets.bottom,
-                                              right: newValue)
-        }
-
-        get {
-            return self.contentInsets.right
         }
     }
 }

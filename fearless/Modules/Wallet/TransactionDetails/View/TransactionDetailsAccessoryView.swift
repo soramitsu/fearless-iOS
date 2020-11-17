@@ -12,7 +12,12 @@ final class TransactionDetailsAccessoryView: UIView {
         super.awakeFromNib()
 
         detailsView.titleLabel.lineBreakMode = .byTruncatingMiddle
-        detailsView.delegate = self
+
+        detailsView.addTarget(self, action: #selector(actionDetails), for: .touchUpInside)
+    }
+
+    @objc private func actionDetails() {
+        try? viewModel?.command.execute()
     }
 }
 
@@ -43,11 +48,5 @@ extension TransactionDetailsAccessoryView: CommonWallet.AccessoryViewProtocol {
             detailsView.title = viewModel.action
             detailsView.iconImage = viewModel.icon
         }
-    }
-}
-
-extension TransactionDetailsAccessoryView: DetailsTriangularedViewDelegate {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
-        try? viewModel?.command.execute()
     }
 }

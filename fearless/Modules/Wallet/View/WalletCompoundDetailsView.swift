@@ -26,7 +26,8 @@ final class WalletCompoundDetailsView: WalletFormItemView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        contentView.delegate = self
+        contentView.addTarget(self, action: #selector(actionDetails), for: .touchUpInside)
+
         contentView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
 
         bottomConstraint.constant = contentInsets.bottom
@@ -50,10 +51,8 @@ final class WalletCompoundDetailsView: WalletFormItemView {
 
         contentView.actionImage = viewModel.actionIcon
     }
-}
 
-extension WalletCompoundDetailsView: DetailsTriangularedViewDelegate {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
+    @objc private func actionDetails() {
         try? viewModel?.command.execute()
     }
 }

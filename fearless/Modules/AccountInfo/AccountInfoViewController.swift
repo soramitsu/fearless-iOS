@@ -51,7 +51,7 @@ final class AccountInfoViewController: UIViewController {
     }
 
     private func setupAddressView() {
-        addressView.delegate = self
+        addressView.addTarget(self, action: #selector(actionAddress), for: .touchUpInside)
 
         addressView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
     }
@@ -110,6 +110,10 @@ final class AccountInfoViewController: UIViewController {
 
     @IBAction private func actionExport() {
         presenter.activateExport()
+    }
+
+    @objc func actionAddress() {
+        presenter.activateAddressAction()
     }
 }
 
@@ -172,11 +176,5 @@ extension AccountInfoViewController: Localizable {
         if isViewLoaded {
             setupLocalization()
         }
-    }
-}
-
-extension AccountInfoViewController: DetailsTriangularedViewDelegate {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
-        presenter.activateAddressAction()
     }
 }
