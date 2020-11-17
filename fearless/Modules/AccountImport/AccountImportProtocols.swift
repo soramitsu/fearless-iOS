@@ -6,9 +6,10 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setSource(viewModel: InputViewModelProtocol)
     func setName(viewModel: InputViewModelProtocol)
     func setPassword(viewModel: InputViewModelProtocol)
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel)
+    func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
+    func setUploadWarning(message: String)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()
@@ -21,8 +22,8 @@ protocol AccountImportPresenterProtocol: class {
     func setup()
     func selectSourceType()
     func selectCryptoType()
-    func selectAddressType()
-    func activateQrScan()
+    func selectNetworkType()
+    func activateUpload()
     func validateDerivationPath()
     func proceed()
 }
@@ -32,15 +33,14 @@ protocol AccountImportInteractorInputProtocol: class {
     func importAccountWithMnemonic(request: AccountImportMnemonicRequest)
     func importAccountWithSeed(request: AccountImportSeedRequest)
     func importAccountWithKeystore(request: AccountImportKeystoreRequest)
-    func deriveUsernameFromKeystore(_ keystore: String)
+    func deriveMetadataFromKeystore(_ keystore: String)
 }
 
 protocol AccountImportInteractorOutputProtocol: class {
     func didReceiveAccountImport(metadata: AccountImportMetadata)
     func didCompleteAccountImport()
     func didReceiveAccountImport(error: Error)
-    func didDeriveKeystore(username: String)
-    func didSuggestKeystore(text: String, username: String?)
+    func didSuggestKeystore(text: String, preferredInfo: AccountImportPreferredInfo?)
 }
 
 protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
@@ -58,9 +58,9 @@ protocol AccountImportWireframeProtocol: AlertPresentable, ErrorPresentable {
                                     delegate: ModalPickerViewControllerDelegate?,
                                     context: AnyObject?)
 
-    func presentAddressTypeSelection(from view: AccountImportViewProtocol?,
-                                     availableTypes: [SNAddressType],
-                                     selectedType: SNAddressType,
+    func presentNetworkTypeSelection(from view: AccountImportViewProtocol?,
+                                     availableTypes: [Chain],
+                                     selectedType: Chain,
                                      delegate: ModalPickerViewControllerDelegate?,
                                      context: AnyObject?)
 }

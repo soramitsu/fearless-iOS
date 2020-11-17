@@ -9,8 +9,8 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let presenter = AccountCreatePresenter(username: username)
 
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedAddressTypes: SNAddressType.supported,
-                                                 defaultAddressType: ConnectionItem.defaultConnection.type)
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
         let wireframe = AccountCreateWireframe()
 
         view.presenter = presenter
@@ -33,8 +33,8 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let defaultAddressType = SettingsManager.shared.selectedConnection.type
 
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedAddressTypes: SNAddressType.supported,
-                                                 defaultAddressType: defaultAddressType)
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: defaultAddressType.chain)
         let wireframe = AddCreationWireframe()
 
         view.presenter = presenter
@@ -56,8 +56,8 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let presenter = AccountCreatePresenter(username: username)
 
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                 supportedAddressTypes: [item.type],
-                                                 defaultAddressType: item.type)
+                                                 supportedNetworkTypes: [item.type.chain],
+                                                 defaultNetwork: item.type.chain)
 
         let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
 

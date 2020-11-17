@@ -20,8 +20,8 @@ extension ConnectionAccountCreateInteractor: AccountCreateInteractorInputProtoco
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
-                                                   availableAddressTypes: [connection.type],
-                                                   defaultAddressType: connection.type,
+                                                   availableNetworks: [connection.type.chain],
+                                                   defaultNetwork: connection.type.chain,
                                                    availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)

@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-enum Chain: String, Codable {
+enum Chain: String, Codable, CaseIterable {
     case kusama = "Kusama"
     case polkadot = "Polkadot"
     case westend = "Westend"

@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import FearlessUtils
+import IrohaCrypto
 
 protocol KeystoreExportWrapperProtocol {
     func export(account: AccountItem, password: String?) throws -> Data
@@ -13,7 +14,13 @@ enum KeystoreExportWrapperError: Error {
 final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
     let keystore: KeystoreProtocol
 
-    private lazy var jsonEncoder = JSONEncoder()
+    private lazy var jsonEncoder: JSONEncoder = {
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .sortedKeys
+        return encoder
+    }()
+
+    private lazy var ss58Factory = SS58AddressFactory()
 
     init(keystore: KeystoreProtocol) {
         self.keystore = keystore
@@ -24,7 +31,15 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             throw KeystoreExportWrapperError.missingSecretKey
         }
 
-        let builder = KeystoreBuilder().with(name: account.username)
+        let addressType = try ss58Factory.type(fromAddress: account.address)
+
+        var builder = KeystoreBuilder()
+            .with(name: account.username)
+
+        if let genesisHash = SNAddressType(rawValue: addressType.uint8Value)?.chain.genesisHash,
+           let genesisHashData = try? Data(hexString: genesisHash) {
+            builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
+        }
 
         let keystoreData = KeystoreData(address: account.address,
                                         secretKeyData: secretKey,

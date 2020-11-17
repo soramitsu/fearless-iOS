@@ -3,7 +3,7 @@ import IrohaCrypto
 
 struct AccountCreationRequest {
     let username: String
-    let type: SNAddressType
+    let type: Chain
     let derivationPath: String
     let cryptoType: CryptoType
 }

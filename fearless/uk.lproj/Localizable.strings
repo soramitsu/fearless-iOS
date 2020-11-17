@@ -93,6 +93,7 @@
 "import.raw.seed" = "Сире насіння";
 "import.recovery.json" = "Відновлення JSON";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Вставити json або завантажити файл ...";
 "account.import.recovery.json.placeholder" = "Вставити json";
 "account.import.raw.seed.placeholder" = "Сире насіння: 64 шістнадцяткових символів";
 "import.mnemonic" = "Мнемонічна фраза";
@@ -124,6 +125,9 @@
 "connections.add.connection" = "Додати підключення";
 "connection.management.default.title" = "За замовчуванням";
 "connection.management.custom.title" = "На замовлення";
+"account.delete.confirmation.title" = "Забути рахунок?";
+"account.delete.confirmation.description" = "Перш ніж продовжувати, переконайтеся, що ви створили резервну копію свого облікового запису.";
+"account.delete.confirm" = "Забути";
 "account.needed.title" = "Потрібен рахунок";
 "account.needed.message" = "У вас немає облікового запису для цієї мережі, ви можете створити або імпортувати обліковий запис.";
 "common.proceed" = "Продовжуйте";
@@ -175,6 +179,9 @@
 "wallet.send.balance.existential" = "Екзистенційний депозит";
 "wallet.send.existential.warning" = "Ваш переказ видалить рахунок із магазину, оскільки загальний залишок буде нижчим за екзистенційний депозит";
 "common.warning" = "Увага";
+"connection.delete.title" = "Видалити мережу?";
+"connection.delete.description" = "Підтвердьте видалення %@ .";
+"connection.delete.confirm" = "Видалити";
 "network.status.connecting" = "Підключення ...";
 "network.status.connected" = "Підключено";
 "wallet.receive.description" = "Поділіться цим QR-кодом відправника";
@@ -207,3 +214,5 @@
 Насіння: %@\
 Шлях виведення: %@";
 "common.changed" = "Змінено";
+"account.import.json.no.network" = "JSON не містить інформації про мережу. Будь ласка, вкажіть це в розширеному блоці.";
+"account.import.wrong.network" = "Мережа в JSON - %@ , а не така, як вибрана %@ . Останній буде використаний для імпорту облікового запису.";
