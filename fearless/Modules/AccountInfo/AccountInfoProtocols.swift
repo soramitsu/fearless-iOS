@@ -4,14 +4,15 @@ import IrohaCrypto
 protocol AccountInfoViewProtocol: ControllerBackedProtocol {
     func set(usernameViewModel: InputViewModelProtocol)
     func set(address: String)
-    func set(networkType: SNAddressType)
+    func set(networkType: Chain)
+    func set(cryptoType: CryptoType)
 }
 
 protocol AccountInfoPresenterProtocol: class {
     func setup()
     func activateClose()
     func activateExport()
-    func activateCopyAddress()
+    func activateAddressAction()
     func save(username: String)
 }
 

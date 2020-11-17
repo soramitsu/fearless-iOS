@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class AccountInfoPresenter {
     weak var view: AccountInfoViewProtocol?
@@ -25,7 +26,8 @@ final class AccountInfoPresenter {
         view?.set(usernameViewModel: usernameViewModel)
 
         view?.set(address: accountItem.address)
-        view?.set(networkType: accountItem.networkType)
+        view?.set(networkType: accountItem.networkType.chain)
+        view?.set(cryptoType: accountItem.cryptoType)
     }
 }
 
@@ -46,7 +48,7 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
         interactor.requestExportOptions(accountItem: accountItem)
     }
 
-    func activateCopyAddress() {
+    func activateAddressAction() {
         UIPasteboard.general.string = address
 
         let locale = localizationManager.selectedLocale

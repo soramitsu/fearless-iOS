@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 import SoraFoundation
-import IrohaCrypto
+import FearlessUtils
 
 final class AccountInfoViewController: UIViewController {
     private struct Constants {
@@ -15,19 +15,22 @@ final class AccountInfoViewController: UIViewController {
 
     @IBOutlet private var usernameDetailsTextField: AnimatedTextField!
 
-    @IBOutlet private var addressTitleLabel: UILabel!
-    @IBOutlet private var addressDetailsLabel: UILabel!
+    @IBOutlet private var addressView: DetailsTriangularedView!
 
-    @IBOutlet private var networkIconView: UIImageView!
-    @IBOutlet private var networkDetailsLabel: UILabel!
+    @IBOutlet private var networkView: DetailsTriangularedView!
+
+    @IBOutlet private var cryptoTypeView: DetailsTriangularedView!
 
     private var usernameViewModel: InputViewModelProtocol?
 
     private var hasChanges: Bool = false
 
+    var iconGenerating: IconGenerating?
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupAddressView()
         setupTextField()
         setupLocalization()
         setupNavigationItem()
@@ -40,6 +43,12 @@ final class AccountInfoViewController: UIViewController {
         super.viewDidLayoutSubviews()
 
         bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
+    }
+
+    private func setupAddressView() {
+        addressView.delegate = self
+
+        addressView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
     }
 
     private func setupTextField() {
@@ -98,8 +107,11 @@ final class AccountInfoViewController: UIViewController {
         navigationItem.rightBarButtonItem?.title = R.string.localizable
             .commonSave(preferredLanguages: locale?.rLanguages)
 
-        addressTitleLabel.text = R.string.localizable
+        addressView.title = R.string.localizable
             .accountInfoTitle(preferredLanguages: locale?.rLanguages)
+
+        cryptoTypeView.title = R.string.localizable
+            .commonCryptoType(preferredLanguages: locale?.rLanguages)
     }
 
     @objc private func actionClose() {
@@ -118,10 +130,6 @@ final class AccountInfoViewController: UIViewController {
 
     @IBAction private func actionExport() {
         presenter.activateExport()
-    }
-
-    @IBAction private func actionCopy() {
-        presenter.activateCopyAddress()
     }
 
     @objc private func actionDone() {
@@ -171,14 +179,25 @@ extension AccountInfoViewController: AccountInfoViewProtocol {
     }
 
     func set(address: String) {
-        addressDetailsLabel.text = address
+        addressView.subtitle = address
+
+        addressView.iconImage = try? iconGenerating?
+            .generateFromAddress(address)
+            .imageWithFillColor(R.color.colorWhite()!,
+                                size: UIConstants.smallAddressSize,
+                                contentScale: UIScreen.main.scale)
     }
 
-    func set(networkType: SNAddressType) {
+    func set(networkType: Chain) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        networkDetailsLabel.text = networkType.titleForLocale(locale)
-        networkIconView.image = networkType.icon
+        networkView.title = networkType.titleForLocale(locale)
+        networkView.iconImage = networkType.icon
+    }
+
+    func set(cryptoType: CryptoType) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        cryptoTypeView.subtitle = cryptoType.titleForLocale(locale) + " | " + cryptoType.subtitleForLocale(locale)
     }
 }
 
@@ -187,5 +206,11 @@ extension AccountInfoViewController: Localizable {
         if isViewLoaded {
             setupLocalization()
         }
+    }
+}
+
+extension AccountInfoViewController: DetailsTriangularedViewDelegate {
+    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
+        presenter.activateAddressAction()
     }
 }

@@ -4017,9 +4017,9 @@ import SoraFoundation
     
     
     
-     func set(networkType: SNAddressType)  {
+     func set(networkType: Chain)  {
         
-    return cuckoo_manager.call("set(networkType: SNAddressType)",
+    return cuckoo_manager.call("set(networkType: Chain)",
             parameters: (networkType),
             escapingParameters: (networkType),
             superclassCall:
@@ -4027,6 +4027,21 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.set(networkType: networkType))
+        
+    }
+    
+    
+    
+     func set(cryptoType: CryptoType)  {
+        
+    return cuckoo_manager.call("set(cryptoType: CryptoType)",
+            parameters: (cryptoType),
+            escapingParameters: (cryptoType),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.set(cryptoType: cryptoType))
         
     }
     
@@ -4059,9 +4074,14 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoViewProtocol.self, method: "set(address: String)", parameterMatchers: matchers))
 	    }
 	    
-	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SNAddressType)> where M1.MatchedType == SNAddressType {
-	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoViewProtocol.self, method: "set(networkType: SNAddressType)", parameterMatchers: matchers))
+	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: networkType) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoViewProtocol.self, method: "set(networkType: Chain)", parameterMatchers: matchers))
+	    }
+	    
+	    func set<M1: Cuckoo.Matchable>(cryptoType: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(CryptoType)> where M1.MatchedType == CryptoType {
+	        let matchers: [Cuckoo.ParameterMatcher<(CryptoType)>] = [wrap(matchable: cryptoType) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoViewProtocol.self, method: "set(cryptoType: CryptoType)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4103,9 +4123,15 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.__DoNotUse<(SNAddressType), Void> where M1.MatchedType == SNAddressType {
-	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
-	        return cuckoo_manager.verify("set(networkType: SNAddressType)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.__DoNotUse<(Chain), Void> where M1.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: networkType) { $0 }]
+	        return cuckoo_manager.verify("set(networkType: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func set<M1: Cuckoo.Matchable>(cryptoType: M1) -> Cuckoo.__DoNotUse<(CryptoType), Void> where M1.MatchedType == CryptoType {
+	        let matchers: [Cuckoo.ParameterMatcher<(CryptoType)>] = [wrap(matchable: cryptoType) { $0 }]
+	        return cuckoo_manager.verify("set(cryptoType: CryptoType)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -4141,7 +4167,11 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func set(networkType: SNAddressType)   {
+     func set(networkType: Chain)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func set(cryptoType: CryptoType)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4219,16 +4249,16 @@ import SoraFoundation
     
     
     
-     func activateCopyAddress()  {
+     func activateAddressAction()  {
         
-    return cuckoo_manager.call("activateCopyAddress()",
+    return cuckoo_manager.call("activateAddressAction()",
             parameters: (),
             escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.activateCopyAddress())
+            defaultCall: __defaultImplStub!.activateAddressAction())
         
     }
     
@@ -4271,9 +4301,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "activateExport()", parameterMatchers: matchers))
 	    }
 	    
-	    func activateCopyAddress() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	    func activateAddressAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "activateCopyAddress()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "activateAddressAction()", parameterMatchers: matchers))
 	    }
 	    
 	    func save<M1: Cuckoo.Matchable>(username: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
@@ -4316,9 +4346,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func activateCopyAddress() -> Cuckoo.__DoNotUse<(), Void> {
+	    func activateAddressAction() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activateCopyAddress()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("activateAddressAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -4348,7 +4378,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func activateCopyAddress()   {
+     func activateAddressAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
