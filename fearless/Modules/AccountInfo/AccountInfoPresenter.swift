@@ -21,7 +21,9 @@ final class AccountInfoPresenter {
 
     private func updateView(accountItem: ManagedAccountItem) {
         let inputHandling = InputHandler(value: accountItem.username, predicate: NSPredicate.notEmpty)
+
         let usernameViewModel = InputViewModel(inputHandler: inputHandling)
+        usernameViewModel.inputHandler.addObserver(self)
 
         view?.set(usernameViewModel: usernameViewModel)
 
@@ -45,6 +47,8 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
             return
         }
 
+        interactor.flushPendingUsername()
+
         interactor.requestExportOptions(accountItem: accountItem)
     }
 
@@ -56,8 +60,8 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
         wireframe.presentSuccessNotification(title, from: view)
     }
 
-    func save(username: String) {
-        interactor.save(username: username, address: address)
+    func finalizeUsername() {
+        interactor.flushPendingUsername()
     }
 }
 
@@ -75,15 +79,22 @@ extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
         updateView(accountItem: accountItem)
     }
 
-    func didSave(username: String) {
-        wireframe.close(view: view)
-    }
+    func didSave(username: String) {}
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
             _ = wireframe.present(error: CommonError.undefined,
                                   from: view,
                                   locale: localizationManager.selectedLocale)
+        }
+    }
+}
+
+extension AccountInfoPresenter: InputHandlingObserver {
+    func didChangeInputValue(_ handler: InputHandling, from oldValue: String) {
+        if handler.completed {
+            let username = handler.normalizedValue
+            interactor.save(username: username, address: address)
         }
     }
 }

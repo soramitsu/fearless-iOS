@@ -13,13 +13,14 @@ protocol AccountInfoPresenterProtocol: class {
     func activateClose()
     func activateExport()
     func activateAddressAction()
-    func save(username: String)
+    func finalizeUsername()
 }
 
 protocol AccountInfoInteractorInputProtocol: class {
     func setup(address: String)
     func save(username: String, address: String)
     func requestExportOptions(accountItem: ManagedAccountItem)
+    func flushPendingUsername()
 }
 
 protocol AccountInfoInteractorOutputProtocol: class {

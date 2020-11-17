@@ -4264,16 +4264,16 @@ import SoraFoundation
     
     
     
-     func save(username: String)  {
+     func finalizeUsername()  {
         
-    return cuckoo_manager.call("save(username: String)",
-            parameters: (username),
-            escapingParameters: (username),
+    return cuckoo_manager.call("finalizeUsername()",
+            parameters: (),
+            escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.save(username: username))
+            defaultCall: __defaultImplStub!.finalizeUsername())
         
     }
     
@@ -4306,9 +4306,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "activateAddressAction()", parameterMatchers: matchers))
 	    }
 	    
-	    func save<M1: Cuckoo.Matchable>(username: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: username) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "save(username: String)", parameterMatchers: matchers))
+	    func finalizeUsername() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoPresenterProtocol.self, method: "finalizeUsername()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4352,9 +4352,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func save<M1: Cuckoo.Matchable>(username: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: username) { $0 }]
-	        return cuckoo_manager.verify("save(username: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func finalizeUsername() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("finalizeUsername()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -4382,7 +4382,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func save(username: String)   {
+     func finalizeUsername()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -4458,6 +4458,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func flushPendingUsername()  {
+        
+    return cuckoo_manager.call("flushPendingUsername()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.flushPendingUsername())
+        
+    }
+    
 
 	 struct __StubbingProxy_AccountInfoInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -4480,6 +4495,11 @@ import SoraFoundation
 	    func requestExportOptions<M1: Cuckoo.Matchable>(accountItem: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ManagedAccountItem)> where M1.MatchedType == ManagedAccountItem {
 	        let matchers: [Cuckoo.ParameterMatcher<(ManagedAccountItem)>] = [wrap(matchable: accountItem) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "requestExportOptions(accountItem: ManagedAccountItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func flushPendingUsername() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountInfoInteractorInputProtocol.self, method: "flushPendingUsername()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -4516,6 +4536,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("requestExportOptions(accountItem: ManagedAccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func flushPendingUsername() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("flushPendingUsername()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -4534,6 +4560,10 @@ import SoraFoundation
     }
     
      func requestExportOptions(accountItem: ManagedAccountItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func flushPendingUsername()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

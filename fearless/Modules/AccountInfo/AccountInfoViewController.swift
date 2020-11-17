@@ -34,9 +34,14 @@ final class AccountInfoViewController: UIViewController {
         setupTextField()
         setupLocalization()
         setupNavigationItem()
-        updateSaveButton()
 
         presenter.setup()
+    }
+
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+
+        presenter.finalizeUsername()
     }
 
     override func viewDidLayoutSubviews() {
@@ -68,29 +73,6 @@ final class AccountInfoViewController: UIViewController {
                                                 action: #selector(actionClose))
 
         navigationItem.leftBarButtonItem = closeBarItem
-
-        let locale = localizationManager?.selectedLocale
-        let saveTitle = R.string.localizable
-        .commonSave(preferredLanguages: locale?.rLanguages)
-
-        let saveButton = UIBarButtonItem(title: saveTitle,
-                                         style: .plain,
-                                         target: self,
-                                         action: #selector(actionDone))
-
-        saveButton.setupDefaultTitleStyle()
-
-        navigationItem.rightBarButtonItem = saveButton
-    }
-
-    private func updateSaveButton() {
-        guard
-            let rightBarButtonItem = navigationItem.rightBarButtonItem,
-            let viewModel = usernameViewModel else {
-            return
-        }
-
-        rightBarButtonItem.isEnabled = hasChanges && viewModel.inputHandler.completed
     }
 
     private func setupLocalization() {
@@ -124,24 +106,10 @@ final class AccountInfoViewController: UIViewController {
         if usernameViewModel?.inputHandler.value != sender.text {
             sender.text = usernameViewModel?.inputHandler.value
         }
-
-        updateSaveButton()
     }
 
     @IBAction private func actionExport() {
         presenter.activateExport()
-    }
-
-    @objc private func actionDone() {
-        guard let viewModel = usernameViewModel, viewModel.inputHandler.completed else {
-            return
-        }
-
-        hasChanges = false
-
-        updateSaveButton()
-
-        presenter.save(username: viewModel.inputHandler.value)
     }
 }
 
@@ -174,8 +142,6 @@ extension AccountInfoViewController: AccountInfoViewProtocol {
     func set(usernameViewModel: InputViewModelProtocol) {
         usernameDetailsTextField.text = usernameViewModel.inputHandler.value
         self.usernameViewModel = usernameViewModel
-
-        updateSaveButton()
     }
 
     func set(address: String) {

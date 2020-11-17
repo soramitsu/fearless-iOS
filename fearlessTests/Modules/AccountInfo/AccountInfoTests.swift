@@ -38,9 +38,12 @@ class AccountInfoTests: XCTestCase {
         let networkExpectation = XCTestExpectation()
         let cryptoExpectation = XCTestExpectation()
 
+        var usernameViewModel: InputViewModelProtocol?
+
         stub(view) { stub in
             when(stub).isSetup.get.thenReturn(false, true)
-            when(stub).set(usernameViewModel: any(InputViewModelProtocol.self)).then { _ in
+            when(stub).set(usernameViewModel: any(InputViewModelProtocol.self)).then { viewModel in
+                usernameViewModel = viewModel
                 usernameExpectation.fulfill()
             }
 
@@ -78,7 +81,8 @@ class AccountInfoTests: XCTestCase {
                                                settings: settings,
                                                keystore: keychain,
                                                eventCenter: eventCenter,
-                                               operationManager: OperationManager())
+                                               operationManager: OperationManager(),
+                                               saveUsernameInterval: Constants.defaultExpectationDuration / 4.0)
 
         presenter.view = view
         presenter.wireframe = wireframe
@@ -98,7 +102,7 @@ class AccountInfoTests: XCTestCase {
 
         let newUsername = "newName"
 
-        presenter.save(username: newUsername)
+        usernameViewModel?.inputHandler.changeValue(to: newUsername)
 
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
 

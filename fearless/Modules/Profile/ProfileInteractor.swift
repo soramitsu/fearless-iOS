@@ -50,4 +50,8 @@ extension ProfileInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         provideUserSettings()
     }
+
+    func processSelectedUsernameChanged(event: SelectedUsernameChanged) {
+        provideUserSettings()
+    }
 }
