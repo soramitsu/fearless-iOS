@@ -30,6 +30,9 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet private var uploadView: DetailsTriangularedView!
     @IBOutlet private var uploadSeparatorView: UIView!
 
+    @IBOutlet private var warningView: UIView!
+    @IBOutlet private var warningLabel: UILabel!
+
     @IBOutlet var networkTypeView: BorderedSubtitleActionView!
     @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
 
@@ -330,6 +333,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
             textContainerSeparatorView.isHidden = true
         }
 
+        warningView.isHidden = true
+
         advancedControl.deactivate(animated: false)
         advancedContainerView.isHidden = true
 
@@ -404,6 +409,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         networkTypeView.actionControl.contentView.invalidateLayout()
         networkTypeView.actionControl.invalidateLayout()
+
+        warningView.isHidden = true
     }
 
     func setDerivationPath(viewModel: InputViewModelProtocol) {
@@ -412,6 +419,11 @@ extension AccountImportViewController: AccountImportViewProtocol {
         derivationPathField.placeholder = viewModel.placeholder
         derivationPathField.text = viewModel.inputHandler.value
         derivationPathImageView.image = nil
+    }
+
+    func setUploadWarning(message: String) {
+        warningLabel.text = message
+        warningView.isHidden = false
     }
 
     func didCompleteSourceTypeSelection() {

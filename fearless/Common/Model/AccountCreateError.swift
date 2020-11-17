@@ -6,6 +6,7 @@ enum AccountCreateError: Error {
     case invalidSeed
     case invalidKeystore
     case unsupportedNetwork
+    case duplicated
 }
 
 extension AccountCreateError: ErrorContentConvertible {
@@ -29,6 +30,9 @@ extension AccountCreateError: ErrorContentConvertible {
         case .unsupportedNetwork:
             message = R.string.localizable
                 .commonUnsupportedNetworkMessage(preferredLanguages: locale?.rLanguages)
+        case .duplicated:
+            message = R.string.localizable
+                .accountAddAlreadyExistsMessage(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)

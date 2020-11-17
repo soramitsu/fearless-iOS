@@ -37,7 +37,7 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
         let persistentOperation = accountRepository.saveOperation({
             if try checkOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
-                throw AddAccountError.duplicated
+                throw AccountCreateError.duplicated
             }
 
             return [item]

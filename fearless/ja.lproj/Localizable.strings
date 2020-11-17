@@ -211,3 +211,5 @@ a type of password.";
 シード： %@\
 派生パス： %@";
 "common.changed" = "かわった";
+"account.import.json.no.network" = "JSONにはネットワーク情報は含まれていません。高度なブロックで指定してください。";
+"account.import.wrong.network" = "JSONのネットワークは%@であり、選択した%@と同じではありません。後者はアカウントのインポートに使用されます。";

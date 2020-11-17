@@ -9,6 +9,7 @@ protocol AccountImportViewProtocol: ControllerBackedProtocol {
     func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>)
     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
+    func setUploadWarning(message: String)
 
     func didCompleteSourceTypeSelection()
     func didCompleteCryptoTypeSelection()

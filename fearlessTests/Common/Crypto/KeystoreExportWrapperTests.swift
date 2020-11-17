@@ -51,8 +51,7 @@ class KeystoreExportWrapperTests: XCTestCase {
 
             let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: exportData)
 
-            let info = try AccountImportJsonFactory().createInfo(from: definition,
-                                                                 supportedNetworks: Chain.allCases)
+            let info = try AccountImportJsonFactory().createInfo(from: definition)
 
             try AccountCreationHelper.createAccountFromKeystoreData(exportData,
                                                                     password: password,

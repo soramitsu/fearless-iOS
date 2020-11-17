@@ -73,8 +73,7 @@ final class AccountCreationHelper {
 
         let definition = try JSONDecoder().decode(KeystoreDefinition.self, from: data)
 
-        let info = try AccountImportJsonFactory().createInfo(from: definition,
-                                                             supportedNetworks: Chain.allCases)
+        let info = try AccountImportJsonFactory().createInfo(from: definition)
 
         return try createAccountFromKeystoreData(data,
                                                  password: password,

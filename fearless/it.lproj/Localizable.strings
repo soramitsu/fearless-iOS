@@ -213,3 +213,5 @@ Seme: %@";
 Seme: %@\
 Percorso di derivazione: %@";
 "common.changed" = "Cambiato";
+"account.import.json.no.network" = "JSON non contiene informazioni di rete. Si prega di specificarlo nel blocco avanzato.";
+"account.import.wrong.network" = "La rete in JSON è %@ , non è la stessa di %@ . Quest'ultimo verrà utilizzato per importare un account.";

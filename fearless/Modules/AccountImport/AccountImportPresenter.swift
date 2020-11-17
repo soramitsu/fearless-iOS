@@ -31,13 +31,23 @@ final class AccountImportPresenter {
     private lazy var jsonDeserializer = JSONSerialization()
 
     private func applySourceType(_ value: String = "", preferredInfo: AccountImportPreferredInfo? = nil) {
-        guard let selectedSourceType = selectedSourceType else {
+        guard let selectedSourceType = selectedSourceType, let metadata = metadata else {
             return
         }
 
         if let preferredInfo = preferredInfo {
             selectedCryptoType = preferredInfo.cryptoType
-            selectedNetworkType = preferredInfo.networkType
+
+            if let preferredNetwork = preferredInfo.networkType,
+               metadata.availableNetworks.contains(preferredNetwork) {
+                selectedNetworkType = preferredInfo.networkType
+            } else {
+                selectedNetworkType = metadata.defaultNetwork
+            }
+
+        } else {
+            selectedCryptoType = selectedCryptoType ?? metadata.defaultCryptoType
+            selectedNetworkType = selectedNetworkType ?? metadata.defaultNetwork
         }
 
         view?.setSource(type: selectedSourceType)
@@ -48,6 +58,10 @@ final class AccountImportPresenter {
         applyUsernameViewModel(username)
         applyPasswordViewModel()
         applyAdvanced(preferredInfo)
+
+        if let preferredInfo = preferredInfo {
+            showUploadWarningIfNeeded(preferredInfo)
+        }
     }
 
     private func applySourceTextViewModel(_ value: String = "") {
@@ -114,8 +128,34 @@ final class AccountImportPresenter {
         }
     }
 
+    private func showUploadWarningIfNeeded(_ preferredInfo: AccountImportPreferredInfo) {
+        guard let metadata = metadata else {
+            return
+        }
+
+        if preferredInfo.networkType == nil {
+            let locale = localizationManager?.selectedLocale
+            let message = R.string.localizable.accountImportJsonNoNetwork(preferredLanguages: locale?.rLanguages)
+            view?.setUploadWarning(message: message)
+            return
+        }
+
+        if let preferredNetwork = preferredInfo.networkType,
+           !metadata.availableNetworks.contains(preferredNetwork) {
+            let locale = localizationManager?.selectedLocale ?? Locale.current
+            let message = R.string.localizable
+                .accountImportWrongNetwork(preferredNetwork.titleForLocale(locale),
+                                           metadata.defaultNetwork.titleForLocale(locale))
+            view?.setUploadWarning(message: message)
+            return
+        }
+    }
+
     private func applyAdvanced(_ preferredInfo: AccountImportPreferredInfo?) {
         guard let selectedSourceType = selectedSourceType else {
+            let locale = localizationManager?.selectedLocale
+            let warning = R.string.localizable.accountImportJsonNoNetwork(preferredLanguages: locale?.rLanguages)
+            view?.setUploadWarning(message: warning)
             return
         }
 
@@ -123,11 +163,11 @@ final class AccountImportPresenter {
         case .mnemonic, .seed:
             applyCryptoTypeViewModel(preferredInfo)
             applyDerivationPathViewModel()
-            applyAddressTypeViewModel(preferredInfo)
+            applyNetworkTypeViewModel(preferredInfo)
         case .keystore:
             applyCryptoTypeViewModel(preferredInfo)
             derivationPathViewModel = nil
-            applyAddressTypeViewModel(preferredInfo)
+            applyNetworkTypeViewModel(preferredInfo)
         }
     }
 
@@ -153,7 +193,7 @@ final class AccountImportPresenter {
                                                            selectable: selectable))
     }
 
-    private func applyAddressTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
+    private func applyNetworkTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
         guard let networkType = selectedNetworkType else {
             return
         }
@@ -168,7 +208,7 @@ final class AccountImportPresenter {
         if preferredInfo?.networkType != nil {
             selectable = false
         } else {
-            selectable = (metadata?.availableCryptoTypes.count ?? 0) > 1
+            selectable = (metadata?.availableNetworks.count ?? 0) > 1
         }
 
         let selectedViewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
@@ -365,8 +405,7 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
             let sourceViewModel = sourceViewModel,
-            let usernameViewModel = usernameViewModel,
-            let metadata = metadata else {
+            let usernameViewModel = usernameViewModel else {
             return
         }
 
@@ -374,6 +413,10 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             _ = wireframe.present(error: error,
                                   from: view,
                                   locale: localizationManager?.selectedLocale)
+            return
+        }
+
+        guard let selectedNetworkType = selectedNetworkType else {
             return
         }
 
@@ -389,22 +432,20 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         case .mnemonic:
             let mnemonic = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
-            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = AccountImportMnemonicRequest(mnemonic: mnemonic,
                                                        username: username,
-                                                       networkType: networkType,
+                                                       networkType: selectedNetworkType,
                                                        derivationPath: derivationPath,
                                                        cryptoType: selectedCryptoType)
             interactor.importAccountWithMnemonic(request: request)
         case .seed:
             let seed = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
-            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
             let request = AccountImportSeedRequest(seed: seed,
                                                    username: username,
-                                                   networkType: networkType,
+                                                   networkType: selectedNetworkType,
                                                    derivationPath: derivationPath,
                                                    cryptoType: selectedCryptoType)
             interactor.importAccountWithSeed(request: request)
@@ -412,11 +453,10 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let keystore = sourceViewModel.inputHandler.value
             let password = passwordViewModel?.inputHandler.value ?? ""
             let username = usernameViewModel.inputHandler.value
-            let networkType = selectedNetworkType ?? metadata.defaultNetwork
             let request = AccountImportKeystoreRequest(keystore: keystore,
                                                        password: password,
                                                        username: username,
-                                                       networkType: networkType,
+                                                       networkType: selectedNetworkType,
                                                        cryptoType: selectedCryptoType)
 
             interactor.importAccountWithKeystore(request: request)
@@ -467,6 +507,9 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
             case .sourceType:
                 selectedSourceType = metadata?.availableSources[index]
 
+                selectedNetworkType = metadata?.defaultNetwork
+                selectedCryptoType = metadata?.defaultCryptoType
+
                 applySourceType()
 
                 view?.didCompleteSourceTypeSelection()
@@ -480,7 +523,7 @@ extension AccountImportPresenter: ModalPickerViewControllerDelegate {
             case .addressType:
                 selectedNetworkType = metadata?.availableNetworks[index]
 
-                applyAddressTypeViewModel(nil)
+                applyNetworkTypeViewModel(nil)
                 view?.didCompleteAddressTypeSelection()
             }
         }

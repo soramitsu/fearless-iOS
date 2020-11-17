@@ -42,8 +42,7 @@ class BaseAccountImportInteractor {
 
             do {
                 let jsonData = try JSONEncoder().encode(definition)
-                let info = try AccountImportJsonFactory()
-                    .createInfo(from: definition, supportedNetworks: supportedNetworks)
+                let info = try AccountImportJsonFactory().createInfo(from: definition)
 
                 if let text = String(data: jsonData, encoding: .utf8) {
                     presenter.didSuggestKeystore(text: text, preferredInfo: info)
@@ -106,8 +105,7 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
         if
             let data = keystore.data(using: .utf8),
             let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data),
-            let info = try? AccountImportJsonFactory()
-                .createInfo(from: definition, supportedNetworks: supportedNetworks) {
+            let info = try? AccountImportJsonFactory().createInfo(from: definition) {
 
             presenter.didSuggestKeystore(text: keystore, preferredInfo: info)
         }

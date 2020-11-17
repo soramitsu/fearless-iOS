@@ -2697,6 +2697,21 @@ import SoraFoundation
     
     
     
+     func setUploadWarning(message: String)  {
+        
+    return cuckoo_manager.call("setUploadWarning(message: String)",
+            parameters: (message),
+            escapingParameters: (message),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setUploadWarning(message: message))
+        
+    }
+    
+    
+    
      func didCompleteSourceTypeSelection()  {
         
     return cuckoo_manager.call("didCompleteSourceTypeSelection()",
@@ -2809,6 +2824,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "setDerivationPath(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
+	    func setUploadWarning<M1: Cuckoo.Matchable>(message: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: message) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "setUploadWarning(message: String)", parameterMatchers: matchers))
+	    }
+	    
 	    func didCompleteSourceTypeSelection() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountImportViewProtocol.self, method: "didCompleteSourceTypeSelection()", parameterMatchers: matchers))
@@ -2898,6 +2918,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func setUploadWarning<M1: Cuckoo.Matchable>(message: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
+	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: message) { $0 }]
+	        return cuckoo_manager.verify("setUploadWarning(message: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didCompleteSourceTypeSelection() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("didCompleteSourceTypeSelection()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -2971,6 +2997,10 @@ import SoraFoundation
     }
     
      func setDerivationPath(viewModel: InputViewModelProtocol)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func setUploadWarning(message: String)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

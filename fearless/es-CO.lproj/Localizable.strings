@@ -214,3 +214,5 @@ Semilla: %@";
 Semilla: %@\
 Ruta de derivación: %@";
 "common.changed" = "Cambiado";
+"account.import.json.no.network" = "JSON no contiene información de red. Especifíquelo en el bloque avanzado.";
+"account.import.wrong.network" = "La red en JSON es %@ , no es la misma que la seleccionada %@ . Este último se utilizará para importar una cuenta.";
