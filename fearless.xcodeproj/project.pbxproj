@@ -454,6 +454,7 @@
 		84BEE059255F4D5700D05EB3 /* AccountImportPreferredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */; };
 		84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */; };
 		84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */; };
+		84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22C2564765F00D05EB3 /* UIAlertViewController+Account.swift */; };
 		84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EDA24AF1924008FC35B /* InfoPlist.strings */; };
 		84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C07EE724AF2E4D008FC35B /* WalletHistoryStyle.swift */; };
 		84C07EEA24AF303D008FC35B /* WalletActionsCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C07EE924AF303D008FC35B /* WalletActionsCell.xib */; };
@@ -1094,6 +1095,7 @@
 		84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportPreferredInfo.swift; sourceTree = "<group>"; };
 		84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportJsonFactory.swift; sourceTree = "<group>"; };
 		84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedUsernameChanged.swift; sourceTree = "<group>"; };
+		84BEE22C2564765F00D05EB3 /* UIAlertViewController+Account.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIAlertViewController+Account.swift"; sourceTree = "<group>"; };
 		84C07ED924AE63C7008FC35B /* es-CO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "es-CO"; path = "es-CO.lproj/Localizable.strings"; sourceTree = "<group>"; };
 		84C07EDB24AF1924008FC35B /* ba-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = "ba-RU"; path = "ba-RU.lproj/InfoPlist.strings"; sourceTree = "<group>"; };
 		84C07EDD24AF1935008FC35B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
@@ -2461,6 +2463,7 @@
 				84D331AE2519E8080078D044 /* TriangularedView+Style.swift */,
 				84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */,
 				84D97EC72520D32000F07405 /* PolkadotIcon+Image.swift */,
+				84BEE22C2564765F00D05EB3 /* UIAlertViewController+Account.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -3786,6 +3789,7 @@
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
 				843C49DF24DF3CB300B71DDA /* AccountImportMetadata.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
+				84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */,
 				84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */,
 				84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */,
 				840882B82514A68100177E20 /* ConnectionAccountCreateWireframe.swift in Sources */,

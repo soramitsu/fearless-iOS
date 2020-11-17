@@ -30,12 +30,19 @@ protocol AccountInfoInteractorOutputProtocol: class {
     func didReceive(error: Error)
 }
 
-protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting {
+protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting, WebPresentable {
     func close(view: AccountInfoViewProtocol?)
+
     func showExport(for address: String,
                     options: [ExportOption],
                     locale: Locale?,
                     from view: AccountInfoViewProtocol?)
+
+    func presentAddressOptions(_ address: String,
+                               chain: Chain,
+                               locale: Locale,
+                               copyClosure: @escaping  () -> Void,
+                               from view: AccountInfoViewProtocol?)
 }
 
 protocol AccountInfoViewFactoryProtocol: class {

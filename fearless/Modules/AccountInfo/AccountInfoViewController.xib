@@ -127,7 +127,7 @@
                             <real key="value" value="8"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
-                            <color key="value" name="colorLightGray"/>
+                            <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
                             <color key="value" name="colorWhite"/>
@@ -390,7 +390,7 @@
     </objects>
     <designables>
         <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="159.5" height="20"/>
+            <size key="intrinsicContentSize" width="136.5" height="20"/>
         </designable>
     </designables>
     <resources>

@@ -1,4 +1,4 @@
-import Foundation
+import UIKit
 
 final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPresentable {
     func close(view: AccountInfoViewProtocol?) {
@@ -17,6 +17,24 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
                                                 from: view)
             }
         }
+    }
+
+    func presentAddressOptions(_ address: String,
+                               chain: Chain,
+                               locale: Locale,
+                               copyClosure: @escaping () -> Void,
+                               from view: AccountInfoViewProtocol?) {
+        let alertController = UIAlertController
+            .presentAccountOptions(address,
+                                   chain: chain,
+                                   locale: locale,
+                                   copyClosure: copyClosure) { [weak self, view] url in
+                if let view = view {
+                    self?.showWeb(url: url, from: view, style: .automatic)
+                }
+        }
+
+        view?.controller.present(alertController, animated: true, completion: nil)
     }
 
     // MARK: Private

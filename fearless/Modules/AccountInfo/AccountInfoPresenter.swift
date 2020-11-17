@@ -31,6 +31,14 @@ final class AccountInfoPresenter {
         view?.set(networkType: accountItem.networkType.chain)
         view?.set(cryptoType: accountItem.cryptoType)
     }
+
+    private func copyAddress() {
+        UIPasteboard.general.string = address
+
+        let locale = localizationManager.selectedLocale
+        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
+        wireframe.presentSuccessNotification(title, from: view)
+    }
 }
 
 extension AccountInfoPresenter: AccountInfoPresenterProtocol {
@@ -53,11 +61,21 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
     }
 
     func activateAddressAction() {
-        UIPasteboard.general.string = address
+        guard let accountItem = accountItem else {
+            return
+        }
 
         let locale = localizationManager.selectedLocale
-        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
-        wireframe.presentSuccessNotification(title, from: view)
+
+        let copyClosure: () -> Void = { [weak self] in
+            self?.copyAddress()
+        }
+
+        wireframe.presentAddressOptions(address,
+                                        chain: accountItem.networkType.chain,
+                                        locale: locale,
+                                        copyClosure: copyClosure,
+                                        from: view)
     }
 
     func finalizeUsername() {
