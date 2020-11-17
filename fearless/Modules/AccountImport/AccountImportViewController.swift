@@ -446,6 +446,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         presenter.validateDerivationPath()
+        textField.resignFirstResponder()
 
         return false
     }
