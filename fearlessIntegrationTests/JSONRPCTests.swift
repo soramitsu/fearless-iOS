@@ -120,6 +120,34 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testNonceFetch() {
+        // given
+
+        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let address = "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn"
+        let operation = JSONRPCListOperation<UInt32>(engine: engine,
+                                                     method: RPCMethod.getExtrinsicNonce,
+                                                     parameters: [address])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            logger.debug("Received response: \(result)")
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testBlockExtraction() throws {
         // given
 
