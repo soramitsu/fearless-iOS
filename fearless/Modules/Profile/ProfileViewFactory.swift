@@ -11,6 +11,8 @@ final class ProfileViewFactory: ProfileViewFactoryProtocol {
         let profileViewModelFactory = ProfileViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
         let view = ProfileViewController(nib: R.nib.profileViewController)
+        view.iconGenerating = PolkadotIconGenerator()
+
         let presenter = ProfilePresenter(viewModelFactory: profileViewModelFactory)
         let interactor = ProfileInteractor(settingsManager: SettingsManager.shared,
                                            eventCenter: EventCenter.shared,

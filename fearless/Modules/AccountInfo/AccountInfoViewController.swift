@@ -154,7 +154,7 @@ extension AccountInfoViewController: AccountInfoViewProtocol {
         addressView.iconImage = try? iconGenerating?
             .generateFromAddress(address)
             .imageWithFillColor(R.color.colorWhite()!,
-                                size: UIConstants.smallAddressSize,
+                                size: UIConstants.smallAddressIconSize,
                                 contentScale: UIScreen.main.scale)
     }
 

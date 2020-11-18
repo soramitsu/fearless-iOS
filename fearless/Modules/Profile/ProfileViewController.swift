@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import FearlessUtils
 
 final class ProfileViewController: UIViewController {
     private struct Constants {
@@ -11,10 +12,13 @@ final class ProfileViewController: UIViewController {
 
     var presenter: ProfilePresenterProtocol!
 
+    var iconGenerating: IconGenerating?
+
     @IBOutlet private var tableView: UITableView!
 
     private(set) var optionViewModels: [ProfileOptionViewModelProtocol] = []
     private(set) var userViewModel: ProfileUserViewModelProtocol?
+    private(set) var userIcon: UIImage?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -61,10 +65,9 @@ extension ProfileViewController: UITableViewDataSource {
         case 1:
             let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.profileDetailsCellId,
                                                      for: indexPath)!
-            cell.detailsView.delegate = self
 
             if let userViewModel = userViewModel {
-                cell.detailsView.bind(model: userViewModel)
+                cell.bind(model: userViewModel, icon: userIcon)
             }
 
             return cell
@@ -94,7 +97,9 @@ extension ProfileViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        if indexPath.row >= 2 {
+        if indexPath.row == 1 {
+            presenter.activateAccountDetails()
+        } else if indexPath.row >= 2 {
             presenter.activateOption(at: UInt(indexPath.row) - 2)
         }
     }
@@ -103,6 +108,10 @@ extension ProfileViewController: UITableViewDelegate {
 extension ProfileViewController: ProfileViewProtocol {
     func didLoad(userViewModel: ProfileUserViewModelProtocol) {
         self.userViewModel = userViewModel
+        self.userIcon = try? iconGenerating?.generateFromAddress(userViewModel.details)
+            .imageWithFillColor(.white,
+                                size: UIConstants.normalAddressIconSize,
+                                contentScale: UIScreen.main.scale)
         tableView.reloadData()
     }
 
@@ -122,15 +131,5 @@ extension ProfileViewController: Localizable {
             setupLocalization()
             view.setNeedsLayout()
         }
-    }
-}
-
-extension ProfileViewController: ProfileViewDelegate {
-    func profileViewDidSelectContent(_ profileView: ProfileView) {
-        presenter.activateAccountDetails()
-    }
-
-    func profileViewDidSelectCopy(_ profileView: ProfileView) {
-        presenter.activeteAccountCopy()
     }
 }

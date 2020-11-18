@@ -11,7 +11,8 @@ struct UIConstants {
     static let formSeparatorWidth: CGFloat = 0.5
     static let triangularedIconLargeRadius: CGFloat = 12.0
     static let triangularedIconSmallRadius: CGFloat = 9.0
-    static let smallAddressSize: CGSize = CGSize(width: 18.0, height: 18.0)
+    static let smallAddressIconSize: CGSize = CGSize(width: 18.0, height: 18.0)
+    static let normalAddressIconSize: CGSize = CGSize(width: 32.0, height: 32.0)
 }
 
 protocol UIFactoryProtocol {

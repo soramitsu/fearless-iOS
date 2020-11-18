@@ -131,8 +131,6 @@
 		8428765C24ADDE0200D91AD8 /* ProfileViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765024ADDE0200D91AD8 /* ProfileViewController.swift */; };
 		8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */; };
 		8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428765E24ADE0BB00D91AD8 /* UserSettings.swift */; };
-		8428766324ADE1E300D91AD8 /* ProfileView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */; };
-		8428766424ADE1E400D91AD8 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766224ADE1E300D91AD8 /* ProfileView.swift */; };
 		8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */; };
 		8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */; };
 		8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */; };
@@ -760,8 +758,6 @@
 		8428765024ADDE0200D91AD8 /* ProfileViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileViewController.swift; sourceTree = "<group>"; };
 		8428765124ADDE0200D91AD8 /* ProfileInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileInteractor.swift; sourceTree = "<group>"; };
 		8428765E24ADE0BB00D91AD8 /* UserSettings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserSettings.swift; sourceTree = "<group>"; };
-		8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ProfileView+Inspectable.swift"; sourceTree = "<group>"; };
-		8428766224ADE1E300D91AD8 /* ProfileView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; sourceTree = "<group>"; };
 		8428766624ADF22000D91AD8 /* TransformAnimator+Common.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformAnimator+Common.swift"; sourceTree = "<group>"; };
 		8428766824ADF27D00D91AD8 /* AuthorizationPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AuthorizationPresentable.swift; sourceTree = "<group>"; };
 		8428766A24ADF51D00D91AD8 /* UIViewController+Modal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIViewController+Modal.swift"; sourceTree = "<group>"; };
@@ -1675,15 +1671,6 @@
 			path = ProfileView;
 			sourceTree = "<group>";
 		};
-		8428766024ADE1E300D91AD8 /* ProfileView */ = {
-			isa = PBXGroup;
-			children = (
-				8428766124ADE1E300D91AD8 /* ProfileView+Inspectable.swift */,
-				8428766224ADE1E300D91AD8 /* ProfileView.swift */,
-			);
-			path = ProfileView;
-			sourceTree = "<group>";
-		};
 		8428766524ADF20700D91AD8 /* Animation */ = {
 			isa = PBXGroup;
 			children = (
@@ -2550,7 +2537,6 @@
 				8468B86324F59CF600B76BC6 /* TableHeader */,
 				84C6800C24D6ECC200006BF5 /* ActionView */,
 				842D1E7724D063E500C30A7A /* TriangularedView */,
-				8428766024ADE1E300D91AD8 /* ProfileView */,
 				8467FD4024ED3C72005D486C /* AlignableContentControl.swift */,
 				843910DA253F90C400E3C217 /* FearlessWindow.swift */,
 				8460E11C2542011200826F55 /* DetailsTriangularedView.swift */,
@@ -3813,7 +3799,6 @@
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,
-				8428766324ADE1E300D91AD8 /* ProfileView+Inspectable.swift in Sources */,
 				84FAB06D254303DA00319F74 /* ContactViewModel.swift in Sources */,
 				8490149924AA7892008F705E /* SharingPresentable.swift in Sources */,
 				84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */,
@@ -3838,7 +3823,6 @@
 				843910AE253EC73D00E3C217 /* StakingInfoSubscription.swift in Sources */,
 				84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
-				8428766424ADE1E400D91AD8 /* ProfileView.swift in Sources */,
 				8494D85B252469A500614D8F /* WalletDisplayReceiverView.swift in Sources */,
 				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
 				84C6801824D7053B00006BF5 /* BorderedSubtitleActionView.swift in Sources */,

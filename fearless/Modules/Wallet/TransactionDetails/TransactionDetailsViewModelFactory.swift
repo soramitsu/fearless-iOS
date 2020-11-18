@@ -182,7 +182,7 @@ final class TransactionDetailsViewModelFactory {
                                        locale: Locale) {
         let icon: UIImage? = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(R.color.colorWhite()!,
-                                size: UIConstants.smallAddressSize,
+                                size: UIConstants.smallAddressIconSize,
                                 contentScale: UIScreen.main.scale)
 
         let actionIcon = R.image.iconCopy()

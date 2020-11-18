@@ -12725,21 +12725,6 @@ import Foundation
     
     
     
-     func activeteAccountCopy()  {
-        
-    return cuckoo_manager.call("activeteAccountCopy()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.activeteAccountCopy())
-        
-    }
-    
-    
-    
      func activateOption(at index: UInt)  {
         
     return cuckoo_manager.call("activateOption(at: UInt)",
@@ -12770,11 +12755,6 @@ import Foundation
 	    func activateAccountDetails() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockProfilePresenterProtocol.self, method: "activateAccountDetails()", parameterMatchers: matchers))
-	    }
-	    
-	    func activeteAccountCopy() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockProfilePresenterProtocol.self, method: "activeteAccountCopy()", parameterMatchers: matchers))
 	    }
 	    
 	    func activateOption<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt)> where M1.MatchedType == UInt {
@@ -12811,12 +12791,6 @@ import Foundation
 	    }
 	    
 	    @discardableResult
-	    func activeteAccountCopy() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("activeteAccountCopy()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func activateOption<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(UInt), Void> where M1.MatchedType == UInt {
 	        let matchers: [Cuckoo.ParameterMatcher<(UInt)>] = [wrap(matchable: index) { $0 }]
 	        return cuckoo_manager.verify("activateOption(at: UInt)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -12836,10 +12810,6 @@ import Foundation
     }
     
      func activateAccountDetails()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func activeteAccountCopy()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
