@@ -14,8 +14,8 @@
             <rect key="frame" x="0.0" y="0.0" width="414" height="33"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="DCs-kK-mJZ" customClass="ImageWithTitleView" customModule="SoraUI">
-                    <rect key="frame" x="16" y="4.5" width="76" height="24"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="DCs-kK-mJZ" customClass="ImageWithTitleView" customModule="SoraUI">
+                    <rect key="frame" x="16" y="4.5" width="80" height="24"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="title" value="WESTEND"/>
@@ -47,6 +47,11 @@
             <point key="canvasLocation" x="139" y="153"/>
         </view>
     </objects>
+    <designables>
+        <designable name="DCs-kK-mJZ">
+            <size key="intrinsicContentSize" width="80" height="24"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconWestendSmallBg" width="24" height="24"/>
         <namedColor name="colorWhite">

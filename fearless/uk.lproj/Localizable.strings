@@ -115,6 +115,9 @@
 "common.done" = "Завершено";
 "accounts.add.account" = "Додати обліковий запис";
 "account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";
+"about.website" = "Офіційний веб-сайт";
+"about.github" = "Вихідний код Github";
+"about.telegram" = "Приєднуйтесь до Telegram Group";
 "confirmation.skip.action" = "Пропустити процес";
 "account.info.title" = "Рахунок";
 "account.info.name.title" = "Ім'я";

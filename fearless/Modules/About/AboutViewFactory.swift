@@ -17,6 +17,8 @@ final class AboutViewFactory: AboutViewFactoryProtocol {
 
         let about = AboutData(version: config.version,
                               opensourceUrl: config.opensourceURL,
+                              websiteUrl: config.websiteURL,
+                              socialUrl: config.socialURL,
                               legal: legal,
                               writeUs: supportData)
 

@@ -118,13 +118,13 @@
                     <rect key="frame" x="0.0" y="68" width="16" height="16"/>
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="FREE BALANCE:" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="KML-PQ-f24">
-                    <rect key="frame" x="21" y="71" width="76.5" height="12"/>
+                    <rect key="frame" x="21" y="70.5" width="80.5" height="13"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="200.83" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5at-AO-l35">
-                    <rect key="frame" x="101.5" y="71" width="273.5" height="12"/>
+                    <rect key="frame" x="105.5" y="70.5" width="269.5" height="13"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
                     <color key="textColor" name="colorGreen"/>
                     <nil key="highlightedColor"/>
@@ -158,7 +158,7 @@
     </objects>
     <designables>
         <designable name="hqD-qj-6OL">
-            <size key="intrinsicContentSize" width="117" height="56.5"/>
+            <size key="intrinsicContentSize" width="126.5" height="58.5"/>
         </designable>
         <designable name="wil-D8-nPO">
             <size key="intrinsicContentSize" width="16" height="16"/>

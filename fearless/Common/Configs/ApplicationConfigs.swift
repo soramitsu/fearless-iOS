@@ -7,6 +7,8 @@ protocol ApplicationConfigProtocol {
     var devStatusURL: URL { get }
     var roadmapURL: URL { get }
     var supportEmail: String { get }
+    var websiteURL: URL { get }
+    var socialURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
 }
@@ -36,6 +38,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var supportEmail: String {
         "fearless@soramitsu.co.jp"
+    }
+
+    var websiteURL: URL {
+        URL(string: "https://fearlesswallet.io")!
+    }
+
+    var socialURL: URL {
+        URL(string: "https://t.me/fearlesswallet")!
     }
 
     //swiftlint:disable force_cast

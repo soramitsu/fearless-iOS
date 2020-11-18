@@ -112,6 +112,9 @@
 "common.done" = "Эшләй";
 "accounts.add.account" = "Добавить аккаунт";
 "account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
+"about.website" = "Официальный Сайт";
+"about.github" = "Исходным Коды Github";
+"about.telegram" = "Telegram Төркөмөнә Ҡушылды";
 "confirmation.skip.action" = "Пропустить";
 "account.info.title" = "Аккаунт";
 "account.info.name.title" = "Имя";
