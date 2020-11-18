@@ -486,6 +486,7 @@
 		84CD357525264FA30081BC0B /* WalletAccountListConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CD357425264FA30081BC0B /* WalletAccountListConstants.swift */; };
 		84CD3577252654EA0081BC0B /* WalletAssetCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CD3576252654EA0081BC0B /* WalletAssetCell.swift */; };
 		84CD35792526554A0081BC0B /* WalletAssetCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84CD35782526554A0081BC0B /* WalletAssetCell.xib */; };
+		84CE69922565244700559427 /* WalletAccountOpenCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69912565244700559427 /* WalletAccountOpenCommand.swift */; };
 		84D331AF2519E8080078D044 /* TriangularedView+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D331AE2519E8080078D044 /* TriangularedView+Style.swift */; };
 		84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D8F15424D80CA100AF43E9 /* ModalPickerViewController.swift */; };
 		84D8F15724D80D5500AF43E9 /* ModalPickerViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D8F15624D80D5500AF43E9 /* ModalPickerViewController.xib */; };
@@ -1133,6 +1134,7 @@
 		84CD357425264FA30081BC0B /* WalletAccountListConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAccountListConstants.swift; sourceTree = "<group>"; };
 		84CD3576252654EA0081BC0B /* WalletAssetCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetCell.swift; sourceTree = "<group>"; };
 		84CD35782526554A0081BC0B /* WalletAssetCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = WalletAssetCell.xib; sourceTree = "<group>"; };
+		84CE69912565244700559427 /* WalletAccountOpenCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAccountOpenCommand.swift; sourceTree = "<group>"; };
 		84D331AE2519E8080078D044 /* TriangularedView+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedView+Style.swift"; sourceTree = "<group>"; };
 		84D8F15424D80CA100AF43E9 /* ModalPickerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalPickerViewController.swift; sourceTree = "<group>"; };
 		84D8F15624D80D5500AF43E9 /* ModalPickerViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ModalPickerViewController.xib; sourceTree = "<group>"; };
@@ -2778,6 +2780,7 @@
 				84DF21A82535AA8F005454AE /* ExistentialDepositInfoCommand.swift */,
 				84DF21B02536DDC1005454AE /* TransferConfirmCommand.swift */,
 				8460E12A2542357300826F55 /* WalletExtrinsicOpenCommand.swift */,
+				84CE69912565244700559427 /* WalletAccountOpenCommand.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -3910,6 +3913,7 @@
 				84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */,
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
 				84754CA22513DB8800854599 /* EmptyAccountIcon.swift in Sources */,
+				84CE69922565244700559427 /* WalletAccountOpenCommand.swift in Sources */,
 				8468B87424F63D4B00B76BC6 /* AddConfirmationWireframe.swift in Sources */,
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,

@@ -151,6 +151,7 @@ final class TransactionDetailsViewModelFactory {
 
     private func populateSender(in viewModelList: inout [WalletFormViewBindingProtocol],
                                 address: String,
+                                chain: Chain,
                                 commandFactory: WalletCommandFactoryProtocol,
                                 locale: Locale) {
         let title = R.string.localizable
@@ -158,12 +159,14 @@ final class TransactionDetailsViewModelFactory {
         populatePeerViewModel(in: &viewModelList,
                               title: title,
                               address: address,
+                              chain: chain,
                               commandFactory: commandFactory,
                               locale: locale)
     }
 
     private func populateReceiver(in viewModelList: inout [WalletFormViewBindingProtocol],
                                   address: String,
+                                  chain: Chain,
                                   commandFactory: WalletCommandFactoryProtocol,
                                   locale: Locale) {
         let title = R.string.localizable
@@ -171,6 +174,7 @@ final class TransactionDetailsViewModelFactory {
         populatePeerViewModel(in: &viewModelList,
                               title: title,
                               address: address,
+                              chain: chain,
                               commandFactory: commandFactory,
                               locale: locale)
     }
@@ -178,6 +182,7 @@ final class TransactionDetailsViewModelFactory {
     private func populatePeerViewModel(in viewModelList: inout [WalletFormViewBindingProtocol],
                                        title: String,
                                        address: String,
+                                       chain: Chain,
                                        commandFactory: WalletCommandFactoryProtocol,
                                        locale: Locale) {
         let icon: UIImage? = try? iconGenerator.generateFromAddress(address)
@@ -185,11 +190,12 @@ final class TransactionDetailsViewModelFactory {
                                 size: UIConstants.smallAddressIconSize,
                                 contentScale: UIScreen.main.scale)
 
-        let actionIcon = R.image.iconCopy()
+        let actionIcon = R.image.iconMore()
 
-        let alertTitle = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
-        let command = WalletCopyCommand(copyingString: address, alertTitle: alertTitle)
-        command.commandFactory = commandFactory
+        let command = WalletAccountOpenCommand(address: address,
+                                               chain: chain,
+                                               commandFactory: commandFactory,
+                                               locale: locale)
 
         let viewModel = WalletCompoundDetailsViewModel(title: title,
                                                        details: address,
@@ -227,19 +233,23 @@ extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOve
         if type == .incoming {
             populateSender(in: &viewModels,
                            address: peerAddress,
+                           chain: chain,
                            commandFactory: commandFactory,
                            locale: locale)
             populateReceiver(in: &viewModels,
                              address: address,
+                             chain: chain,
                              commandFactory: commandFactory,
                              locale: locale)
         } else {
             populateSender(in: &viewModels,
                            address: address,
+                           chain: chain,
                            commandFactory: commandFactory,
                            locale: locale)
             populateReceiver(in: &viewModels,
                              address: peerAddress,
+                             chain: chain,
                              commandFactory: commandFactory,
                              locale: locale)
         }

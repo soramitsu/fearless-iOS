@@ -67,6 +67,13 @@ final class WalletExtrinsicOpenCommand: WalletCommandProtocol {
 
     private func copyHash() {
         UIPasteboard.general.string = extrinsicHash
+
+        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
+        let controller = ModalAlertFactory.createSuccessAlert(title)
+
+        let command = commandFactory?.preparePresentationCommand(for: controller)
+        command?.presentationStyle = .modal(inNavigation: false)
+        try? command?.execute()
     }
 
     private func present(url: URL) {
