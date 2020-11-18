@@ -403,7 +403,7 @@
             <size key="intrinsicContentSize" width="23" height="15"/>
         </designable>
         <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="159.5" height="20"/>
+            <size key="intrinsicContentSize" width="136.5" height="20"/>
         </designable>
     </designables>
     <resources>

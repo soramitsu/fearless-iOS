@@ -11,15 +11,13 @@ final class TransferHeaderViewModelFactory: OperationDefinitionHeaderModelFactor
     func createAssetTitle(assetId: String,
                           receiverId: String?,
                           locale: Locale) -> MultilineTitleIconViewModelProtocol? {
-        let text = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
-        return MultilineTitleIconViewModel(text: text)
+        return nil
     }
 
     func createReceiverTitle(assetId: String,
                              receiverId: String?,
                              locale: Locale) -> MultilineTitleIconViewModelProtocol? {
-        let text = R.string.localizable.walletSendReceiverTitle(preferredLanguages: locale.rLanguages)
-        return MultilineTitleIconViewModel(text: text)
+        return nil
     }
 
     func createFeeTitleForDescription(assetId: String,

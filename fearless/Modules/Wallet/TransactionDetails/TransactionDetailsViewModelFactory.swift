@@ -145,7 +145,8 @@ final class TransactionDetailsViewModelFactory {
                                                        details: data.transactionId,
                                                        mainIcon: nil,
                                                        actionIcon: actionIcon,
-                                                       command: command)
+                                                       command: command,
+                                                       enabled: true)
         viewModelList.append(viewModel)
     }
 
@@ -201,7 +202,8 @@ final class TransactionDetailsViewModelFactory {
                                                        details: address,
                                                        mainIcon: icon,
                                                        actionIcon: actionIcon,
-                                                       command: command)
+                                                       command: command,
+                                                       enabled: true)
         viewModelList.append(viewModel)
     }
 }

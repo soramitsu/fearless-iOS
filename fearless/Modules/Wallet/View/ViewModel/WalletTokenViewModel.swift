@@ -2,6 +2,8 @@ import Foundation
 import CommonWallet
 
 struct WalletTokenViewModel: AssetSelectionViewModelProtocol {
+    let header: String
+
     let title: String
 
     let subtitle: String

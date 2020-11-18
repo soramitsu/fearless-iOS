@@ -33,6 +33,14 @@ final class WalletCompoundDetailsView: WalletFormItemView {
         bottomConstraint.constant = contentInsets.bottom
     }
 
+    private func setupContentInsets() {
+        if borderType.contains(.bottom) {
+            contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 16.0, right: 0.0)
+        } else {
+            contentInsets = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        }
+    }
+
     func bind(viewModel: WalletCompoundDetailsViewModel) {
         self.viewModel = viewModel
 
@@ -50,6 +58,18 @@ final class WalletCompoundDetailsView: WalletFormItemView {
         }
 
         contentView.actionImage = viewModel.actionIcon
+
+        if viewModel.enabled {
+            contentView.fillColor = .clear
+            contentView.strokeColor = R.color.colorGray()!
+            contentView.highlightedStrokeColor = R.color.colorGray()!
+            contentView.highlightedFillColor = R.color.colorHighlightedBlue()!
+        } else {
+            contentView.fillColor = R.color.colorDarkGray()!
+            contentView.strokeColor = R.color.colorDarkGray()!
+            contentView.highlightedStrokeColor = R.color.colorDarkGray()!
+            contentView.highlightedFillColor = R.color.colorHighlightedBlue()!
+        }
     }
 
     @objc private func actionDetails() {
@@ -65,6 +85,19 @@ extension WalletCompoundDetailsView {
 
         set {
             borderedView.borderType = newValue
+            setupContentInsets()
+            invalidateIntrinsicContentSize()
+            setNeedsLayout()
         }
+    }
+}
+
+extension WalletCompoundDetailsView: ReceiverViewProtocol {
+    func bind(viewModel: MultilineTitleIconViewModelProtocol) {
+        guard let viewModel = viewModel as? WalletCompoundDetailsViewModel else {
+            return
+        }
+
+        bind(viewModel: viewModel)
     }
 }

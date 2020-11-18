@@ -24,8 +24,6 @@ final class TransferConfirmViewModelFactory {
         }
 
         let headerTitle = R.string.localizable.walletSendAssetTitle(preferredLanguages: locale.rLanguages)
-        let headerViewModel = WalletFormDetailsHeaderModel(title: headerTitle)
-        viewModelList.append(headerViewModel)
 
         let subtitle: String = R.string.localizable
             .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)
@@ -58,7 +56,8 @@ final class TransferConfirmViewModelFactory {
         }
 
         let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
-        let tokenViewModel = WalletTokenViewModel(title: assetId.titleForLocale(locale),
+        let tokenViewModel = WalletTokenViewModel(header: headerTitle,
+                                                  title: assetId.titleForLocale(locale),
                                                   subtitle: subtitle,
                                                   details: details,
                                                   icon: assetId.icon,
@@ -139,7 +138,8 @@ final class TransferConfirmViewModelFactory {
                                                        details: payload.receiverName,
                                                        mainIcon: icon,
                                                        actionIcon: R.image.iconMore(),
-                                                       command: command)
+                                                       command: command,
+                                                       enabled: false)
 
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
     }

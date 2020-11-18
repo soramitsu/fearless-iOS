@@ -13,9 +13,7 @@ class WalletBaseTokenView: UIControl {
     }
 
     @IBOutlet private(set) var borderedView: BorderedContainerView!
-    @IBOutlet private(set) var tokenBackgroundView: TriangularedView!
-    @IBOutlet private(set) var actionControl: ActionTitleControl!
-    @IBOutlet private(set) var iconImageView: UIImageView!
+    @IBOutlet private(set) var borderedActionControl: BorderedSubtitleActionView!
     @IBOutlet private(set) var balanceTitle: UILabel!
     @IBOutlet private(set) var balanceDetails: UILabel!
     @IBOutlet private(set) var contentView: UIView!
