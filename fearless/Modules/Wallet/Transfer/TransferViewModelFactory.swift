@@ -117,7 +117,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         let iconGenerator = PolkadotIconGenerator()
         let icon = try? iconGenerator.generateFromAddress(payload.receiverName)
             .imageWithFillColor(R.color.colorWhite()!,
-                                size: CGSize(width: 24.0, height: 24.0),
+                                size: UIConstants.smallAddressIconSize,
                                 contentScale: UIScreen.main.scale)
 
         let alertTitle = R.string.localizable

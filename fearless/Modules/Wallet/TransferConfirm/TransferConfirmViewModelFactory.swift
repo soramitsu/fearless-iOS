@@ -115,27 +115,32 @@ final class TransferConfirmViewModelFactory {
 
     func populateReceiver(in viewModelList: inout [WalletFormViewBindingProtocol],
                           payload: ConfirmationPayload,
+                          chain: Chain,
                           locale: Locale) {
+        guard let commandFactory = commandFactory else {
+            return
+        }
+
         let headerTitle = R.string.localizable
             .walletSendReceiverTitle(preferredLanguages: locale.rLanguages)
-        let headerViewModel = WalletFormDetailsHeaderModel(title: headerTitle)
-        viewModelList.append(headerViewModel)
 
         let iconGenerator = PolkadotIconGenerator()
         let icon = try? iconGenerator.generateFromAddress(payload.receiverName)
             .imageWithFillColor(R.color.colorWhite()!,
-                                size: CGSize(width: 24.0, height: 24.0),
+                                size: UIConstants.smallAddressIconSize,
                                 contentScale: UIScreen.main.scale)
 
-        let alertTitle = R.string.localizable
-            .commonCopied(preferredLanguages: locale.rLanguages)
-        let copyCommand = WalletCopyCommand(copyingString: payload.receiverName,
-                                            alertTitle: alertTitle)
-        copyCommand.commandFactory = commandFactory
+        let command = WalletAccountOpenCommand(address: payload.receiverName,
+                                               chain: chain,
+                                               commandFactory: commandFactory,
+                                               locale: locale)
 
-        let viewModel = WalletAccountViewModel(text: payload.receiverName,
-                                               icon: icon,
-                                               copyCommand: copyCommand)
+        let viewModel = WalletCompoundDetailsViewModel(title: headerTitle,
+                                                       details: payload.receiverName,
+                                                       mainIcon: icon,
+                                                       actionIcon: R.image.iconMore(),
+                                                       command: command)
+
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
     }
 }
@@ -143,10 +148,14 @@ final class TransferConfirmViewModelFactory {
 extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryOverriding {
     func createViewModelsFromPayload(_ payload: ConfirmationPayload,
                                      locale: Locale) -> [WalletFormViewBindingProtocol]? {
+        guard let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
+            return nil
+        }
+
         var viewModelList: [WalletFormViewBindingProtocol] = []
 
         populateAsset(in: &viewModelList, payload: payload, locale: locale)
-        populateReceiver(in: &viewModelList, payload: payload, locale: locale)
+        populateReceiver(in: &viewModelList, payload: payload, chain: chain, locale: locale)
         populateSendingAmount(in: &viewModelList, payload: payload, locale: locale)
         populateFee(in: &viewModelList, payload: payload, locale: locale)
 
