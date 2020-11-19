@@ -211,8 +211,8 @@ final class AccountImportPresenter {
 
         let selectable: Bool
 
-        if preferredInfo?.networkType != nil {
-            selectable = false
+        if let preferredInfo = preferredInfo, preferredInfo.networkType != nil {
+            selectable = !preferredInfo.networkTypeConfirmed
         } else {
             selectable = (metadata?.availableNetworks.count ?? 0) > 1
         }
