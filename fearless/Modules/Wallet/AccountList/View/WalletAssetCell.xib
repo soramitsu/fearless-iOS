@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina6_1" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="collection view cell content view" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -26,9 +27,39 @@
                 <rect key="frame" x="0.0" y="0.0" width="375" height="96"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
-                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kV4-Z9-Bj8" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kV4-Z9-Bj8">
                         <rect key="frame" x="16" y="8" width="343" height="80"/>
                         <subviews>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zsr-9m-Xng" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="0.0" width="64" height="80"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                                        <integer key="value" value="1"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                                        <integer key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_overlayFillColor">
+                                        <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Zv-VC-z9Q" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
+                                <rect key="frame" x="64" y="0.0" width="279" height="80"/>
+                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                                        <integer key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                                        <integer key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_overlayFillColor">
+                                        <color key="value" white="0.0" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                            </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gQ9-WX-OdT">
                                 <rect key="frame" x="0.0" y="0.0" width="64" height="80"/>
                                 <constraints>
@@ -36,43 +67,43 @@
                                 </constraints>
                             </imageView>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kusama" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gag-6u-iE8">
-                                <rect key="frame" x="72" y="6" width="51.5" height="16.5"/>
+                                <rect key="frame" x="72" y="6" width="55.5" height="18"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                 <color key="textColor" name="colorWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qvi-bz-Yi2">
-                                <rect key="frame" x="72" y="25.5" width="39.5" height="21"/>
+                                <rect key="frame" x="72" y="27" width="42.5" height="23"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                                 <color key="textColor" name="colorGray"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="44.0849" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="BRZ-kb-M9S">
-                                <rect key="frame" x="119.5" y="25.5" width="211.5" height="21"/>
+                                <rect key="frame" x="122.5" y="27" width="208.5" height="23"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                                 <color key="textColor" name="colorWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$10.31" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YJu-Wm-1v9">
-                                <rect key="frame" x="72" y="55.5" width="43" height="16.5"/>
+                                <rect key="frame" x="72" y="54" width="44" height="18"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                 <color key="textColor" name="colorWhite"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+25%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Js2-kv-WeL">
-                                <rect key="frame" x="119" y="55.5" width="38" height="16.5"/>
+                                <rect key="frame" x="120" y="54" width="38" height="18"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                 <color key="textColor" name="colorGreen"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="751" text="$1000.05" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tao-am-aq2">
-                                <rect key="frame" x="165" y="55.5" width="166" height="16.5"/>
+                                <rect key="frame" x="166" y="54" width="165" height="18"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                 <color key="textColor" name="colorGray"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
-                        <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="gQ9-WX-OdT" firstAttribute="leading" secondItem="kV4-Z9-Bj8" secondAttribute="leading" id="0B9-oc-hVN"/>
                             <constraint firstItem="BRZ-kb-M9S" firstAttribute="leading" secondItem="qvi-bz-Yi2" secondAttribute="trailing" constant="8" id="6fa-Vf-61c"/>
@@ -81,31 +112,28 @@
                             <constraint firstItem="qvi-bz-Yi2" firstAttribute="leading" secondItem="gag-6u-iE8" secondAttribute="leading" id="ElP-Jb-7z5"/>
                             <constraint firstAttribute="bottom" secondItem="YJu-Wm-1v9" secondAttribute="bottom" constant="8" id="GzO-fY-jR3"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="leading" secondItem="Js2-kv-WeL" secondAttribute="trailing" constant="8" id="QOU-lO-x0q"/>
+                            <constraint firstItem="zsr-9m-Xng" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Rp2-ez-ebf"/>
+                            <constraint firstAttribute="bottom" secondItem="zsr-9m-Xng" secondAttribute="bottom" id="WIf-HL-RfB"/>
                             <constraint firstAttribute="bottom" secondItem="gQ9-WX-OdT" secondAttribute="bottom" id="XtZ-dX-DKf"/>
+                            <constraint firstItem="9Zv-VC-z9Q" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Yn1-PO-3OG"/>
                             <constraint firstItem="gQ9-WX-OdT" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Yvt-MI-CGO"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="centerY" secondItem="YJu-Wm-1v9" secondAttribute="centerY" id="Z5q-8B-QGn"/>
                             <constraint firstItem="Js2-kv-WeL" firstAttribute="leading" secondItem="YJu-Wm-1v9" secondAttribute="trailing" constant="4" id="ZTg-Cz-xn2"/>
+                            <constraint firstAttribute="bottom" secondItem="9Zv-VC-z9Q" secondAttribute="bottom" id="a3o-Zp-BbR"/>
                             <constraint firstItem="gag-6u-iE8" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" constant="6" id="cH7-tp-kkV"/>
+                            <constraint firstItem="zsr-9m-Xng" firstAttribute="leading" secondItem="kV4-Z9-Bj8" secondAttribute="leading" id="e9C-uv-p6S"/>
+                            <constraint firstItem="zsr-9m-Xng" firstAttribute="trailing" secondItem="gQ9-WX-OdT" secondAttribute="trailing" id="fya-5U-VbV"/>
+                            <constraint firstAttribute="trailing" secondItem="9Zv-VC-z9Q" secondAttribute="trailing" id="hpx-P6-z3h"/>
                             <constraint firstItem="BRZ-kb-M9S" firstAttribute="centerY" secondItem="qvi-bz-Yi2" secondAttribute="centerY" id="ov6-NT-6Vk"/>
                             <constraint firstItem="Js2-kv-WeL" firstAttribute="centerY" secondItem="YJu-Wm-1v9" secondAttribute="centerY" id="puB-AR-J0Q"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="trailing" secondItem="BRZ-kb-M9S" secondAttribute="trailing" id="qtR-ij-9dD"/>
                             <constraint firstItem="qvi-bz-Yi2" firstAttribute="top" secondItem="gag-6u-iE8" secondAttribute="bottom" constant="3" id="rgZ-hn-OTM"/>
                             <constraint firstAttribute="trailing" secondItem="BRZ-kb-M9S" secondAttribute="trailing" constant="12" id="sIn-eP-roS"/>
+                            <constraint firstItem="9Zv-VC-z9Q" firstAttribute="leading" secondItem="zsr-9m-Xng" secondAttribute="trailing" id="zz6-AA-0oO"/>
                         </constraints>
-                        <userDefinedRuntimeAttributes>
-                            <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
-                                <color key="value" name="colorBlack"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
-                                <color key="value" name="colorBlack"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
-                                <real key="value" value="0.0"/>
-                            </userDefinedRuntimeAttribute>
-                            <userDefinedRuntimeAttribute type="boolean" keyPath="isHighlighted" value="NO"/>
-                        </userDefinedRuntimeAttributes>
                     </view>
                 </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                 <constraints>
                     <constraint firstAttribute="trailing" secondItem="kV4-Z9-Bj8" secondAttribute="trailing" constant="16" id="UH2-Sq-6ey"/>
                     <constraint firstItem="kV4-Z9-Bj8" firstAttribute="top" secondItem="Nsm-Vz-WtH" secondAttribute="top" constant="8" id="eSZ-oj-E4a"/>
@@ -113,6 +141,7 @@
                     <constraint firstAttribute="bottom" secondItem="kV4-Z9-Bj8" secondAttribute="bottom" constant="8" id="mZ3-5d-cHK"/>
                 </constraints>
             </collectionViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <connections>
                 <outlet property="balanceLabel" destination="BRZ-kb-M9S" id="d11-qG-O3G"/>
                 <outlet property="changeLabel" destination="Js2-kv-WeL" id="wDk-wt-EiE"/>
@@ -121,15 +150,11 @@
                 <outlet property="priceLabel" destination="YJu-Wm-1v9" id="HPS-pV-4Gn"/>
                 <outlet property="symbolLabel" destination="qvi-bz-Yi2" id="RpH-pX-373"/>
                 <outlet property="totalPriceLabel" destination="tao-am-aq2" id="KXx-AM-dL9"/>
-                <outlet property="triangualedView" destination="kV4-Z9-Bj8" id="egH-cE-IGP"/>
             </connections>
             <point key="canvasLocation" x="139" y="131"/>
         </collectionViewCell>
     </objects>
     <resources>
-        <namedColor name="colorBlack">
-            <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <namedColor name="colorGray">
             <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -139,5 +164,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

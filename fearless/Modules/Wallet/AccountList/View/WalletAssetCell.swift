@@ -2,6 +2,10 @@ import UIKit
 import CommonWallet
 
 final class WalletAssetCell: UICollectionViewCell {
+    private struct Constants {
+        static let contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
+    }
+
     @IBOutlet private var iconView: UIImageView!
     @IBOutlet private var platformLabel: UILabel!
     @IBOutlet private var symbolLabel: UILabel!
@@ -9,7 +13,6 @@ final class WalletAssetCell: UICollectionViewCell {
     @IBOutlet private var priceLabel: UILabel!
     @IBOutlet private var changeLabel: UILabel!
     @IBOutlet private var totalPriceLabel: UILabel!
-    @IBOutlet private var triangualedView: TriangularedView!
 
     var viewModel: WalletViewModelProtocol?
 

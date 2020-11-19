@@ -6,55 +6,55 @@ extension TriangularedButton {
     @IBInspectable
     private var _fillColor: UIColor {
         get {
-            return self.roundedBackgroundView!.fillColor
+            return self.triangularedView!.fillColor
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.fillColor = newValue
+            self.triangularedView!.fillColor = newValue
         }
     }
 
     @IBInspectable
     private var _highlightedFillColor: UIColor {
         get {
-            return self.roundedBackgroundView!.highlightedFillColor
+            return self.triangularedView!.highlightedFillColor
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.highlightedFillColor = newValue
+            self.triangularedView!.highlightedFillColor = newValue
         }
     }
 
     @IBInspectable
     private var _strokeColor: UIColor {
         get {
-            return self.roundedBackgroundView!.strokeColor
+            return self.triangularedView!.strokeColor
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.strokeColor = newValue
+            self.triangularedView!.strokeColor = newValue
         }
     }
 
     @IBInspectable
     private var _highlightedStrokeColor: UIColor {
         get {
-            return self.roundedBackgroundView!.highlightedStrokeColor
+            return self.triangularedView!.highlightedStrokeColor
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.highlightedStrokeColor = newValue
+            self.triangularedView!.highlightedStrokeColor = newValue
         }
     }
 
     @IBInspectable
     private var _strokeWidth: CGFloat {
         get {
-            return self.roundedBackgroundView!.strokeWidth
+            return self.triangularedView!.strokeWidth
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.strokeWidth = newValue
+            self.triangularedView!.strokeWidth = newValue
         }
     }
 
@@ -190,11 +190,11 @@ extension TriangularedButton {
     @IBInspectable
     private var _shadowColor: UIColor {
         get {
-            return self.roundedBackgroundView!.shadowColor
+            return self.triangularedView!.shadowColor
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.shadowColor = newValue
+            self.triangularedView!.shadowColor = newValue
             self.invalidateLayout()
         }
     }
@@ -202,44 +202,44 @@ extension TriangularedButton {
     @IBInspectable
     private var _shadowOffset: CGSize {
         get {
-            return self.roundedBackgroundView!.shadowOffset
+            return self.triangularedView!.shadowOffset
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.shadowOffset = newValue
+            self.triangularedView!.shadowOffset = newValue
         }
     }
 
     @IBInspectable
     private var _shadowRadius: CGFloat {
         get {
-            return self.roundedBackgroundView!.shadowRadius
+            return self.triangularedView!.shadowRadius
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.shadowRadius = newValue
+            self.triangularedView!.shadowRadius = newValue
         }
     }
 
     @IBInspectable
     private var _shadowOpacity: Float {
         get {
-            return self.roundedBackgroundView!.shadowOpacity
+            return self.triangularedView!.shadowOpacity
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.shadowOpacity = newValue
+            self.triangularedView!.shadowOpacity = newValue
         }
     }
 
     @IBInspectable
     private var _sideLength: CGFloat {
         get {
-            return self.roundedBackgroundView!.sideLength
+            return self.triangularedView!.sideLength
         }
 
         set(newValue) {
-            self.roundedBackgroundView!.sideLength = newValue
+            self.triangularedView!.sideLength = newValue
         }
     }
 
@@ -296,6 +296,17 @@ extension TriangularedButton {
 
         set(newValue) {
             imageWithTitleView!.displacementBetweenLabelAndIcon = newValue
+        }
+    }
+
+    @IBInspectable
+    private var _cornerCut: UInt8 {
+        get {
+            triangularedView!.cornerCut.rawValue
+        }
+
+        set {
+            triangularedView!.cornerCut = TriangularedCorners(rawValue: newValue)
         }
     }
 }
