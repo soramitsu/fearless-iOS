@@ -6,7 +6,8 @@ final class UsernameSetupPresenter {
     var wireframe: UsernameSetupWireframeProtocol!
 
     private var viewModel: InputViewModelProtocol = {
-        let inputHandling = InputHandler(predicate: NSPredicate.notEmpty)
+        let inputHandling = InputHandler(predicate: NSPredicate.notEmpty,
+                                         processor: ByteLengthProcessor.username)
         return InputViewModel(inputHandler: inputHandling)
     }()
 }

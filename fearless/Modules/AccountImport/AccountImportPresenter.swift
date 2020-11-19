@@ -105,7 +105,13 @@ final class AccountImportPresenter {
     }
 
     private func applyUsernameViewModel(_ username: String = "") {
-        let inputHandler = InputHandler(value: username, predicate: NSPredicate.notEmpty)
+        let processor = ByteLengthProcessor.username
+        let processedUsername = processor.process(text: username)
+
+        let inputHandler = InputHandler(value: processedUsername,
+                                        predicate: NSPredicate.notEmpty,
+                                        processor: processor)
+
         let viewModel = InputViewModel(inputHandler: inputHandler)
         usernameViewModel = viewModel
 
