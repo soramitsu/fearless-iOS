@@ -250,6 +250,8 @@
 		846449FF2567090B004EAA4B /* TriangularedView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846449FE2567090B004EAA4B /* TriangularedView+Inspectable.swift */; };
 		84644A0725670B03004EAA4B /* TriangularedBlurView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84644A0625670B03004EAA4B /* TriangularedBlurView.swift */; };
 		84644A0C256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84644A0B256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift */; };
+		84644A2B2567222A004EAA4B /* TriangularedBlurButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84644A2A2567222A004EAA4B /* TriangularedBlurButton.swift */; };
+		84644A30256722D2004EAA4B /* TriangularedBlurButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84644A2F256722D2004EAA4B /* TriangularedBlurButton+Inspectable.swift */; };
 		8467FCFC24E5C3BD005D486C /* URLHandlingService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FCFB24E5C3BD005D486C /* URLHandlingService.swift */; };
 		8467FCFE24E5C50B005D486C /* KeystoreImportService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FCFD24E5C50B005D486C /* KeystoreImportService.swift */; };
 		8467FD0224E5D2D9005D486C /* OnboardingMainInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD0124E5D2D9005D486C /* OnboardingMainInteractor.swift */; };
@@ -882,6 +884,8 @@
 		846449FE2567090B004EAA4B /* TriangularedView+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedView+Inspectable.swift"; sourceTree = "<group>"; };
 		84644A0625670B03004EAA4B /* TriangularedBlurView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedBlurView.swift; sourceTree = "<group>"; };
 		84644A0B256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedBlurView+Inspectable.swift"; sourceTree = "<group>"; };
+		84644A2A2567222A004EAA4B /* TriangularedBlurButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedBlurButton.swift; sourceTree = "<group>"; };
+		84644A2F256722D2004EAA4B /* TriangularedBlurButton+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedBlurButton+Inspectable.swift"; sourceTree = "<group>"; };
 		8467FCFB24E5C3BD005D486C /* URLHandlingService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHandlingService.swift; sourceTree = "<group>"; };
 		8467FCFD24E5C50B005D486C /* KeystoreImportService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreImportService.swift; sourceTree = "<group>"; };
 		8467FD0124E5D2D9005D486C /* OnboardingMainInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OnboardingMainInteractor.swift; sourceTree = "<group>"; };
@@ -1769,6 +1773,8 @@
 				842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */,
 				84644A0625670B03004EAA4B /* TriangularedBlurView.swift */,
 				84644A0B256713D5004EAA4B /* TriangularedBlurView+Inspectable.swift */,
+				84644A2A2567222A004EAA4B /* TriangularedBlurButton.swift */,
+				84644A2F256722D2004EAA4B /* TriangularedBlurButton+Inspectable.swift */,
 			);
 			path = TriangularedView;
 			sourceTree = "<group>";
@@ -3787,6 +3793,7 @@
 				84D8F15F24D8179000AF43E9 /* TitleWithSubtitleViewModel.swift in Sources */,
 				84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */,
 				840882B82514A68100177E20 /* ConnectionAccountCreateWireframe.swift in Sources */,
+				84644A30256722D2004EAA4B /* TriangularedBlurButton+Inspectable.swift in Sources */,
 				84DF21B72539039B005454AE /* ReconnectionStrategy.swift in Sources */,
 				84FD3DBE25419FD900A234E3 /* TransactionDetailsConfigurator.swift in Sources */,
 				84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */,
@@ -4062,6 +4069,7 @@
 				846A2C4D2529FBB700731018 /* NSPredicate+Filter.swift in Sources */,
 				843910B2253ED4D100E3C217 /* CDChainStorageItem+CoreDataDecodable.swift in Sources */,
 				843910B6253EE62B00E3C217 /* DataProviderChange+Result.swift in Sources */,
+				84644A2B2567222A004EAA4B /* TriangularedBlurButton.swift in Sources */,
 				84754C982511FC1F00854599 /* ManagedConnectionViewModelFactory.swift in Sources */,
 				840882BA2514A94800177E20 /* ConnectionAccountImportWireframe.swift in Sources */,
 				84FAB0632542C8D600319F74 /* ContactItem.swift in Sources */,

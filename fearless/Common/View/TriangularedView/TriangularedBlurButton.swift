@@ -3,20 +3,20 @@ import SoraUI
 
 /**
  *  Subclass of `BackgroundedContentControl` designed to provide button that contains
- *  triangulared background with shadows and content view consisting of title and icon.
+ *  triangulared blured background and content view consisting of title and icon.
  *
  *  Class supports `IBDesignable` protocol to provide appearance via Interface Builder.
  */
 @IBDesignable
-class TriangularedButton: BackgroundedContentControl {
+class TriangularedBlurButton: BackgroundedContentControl {
     /// Returns content view that consists of title and icon
     public var imageWithTitleView: ImageWithTitleView? {
         return self.contentView as? ImageWithTitleView
     }
 
-    /// Returns backround view with cut corners
-    var triangularedView: TriangularedView? {
-        return self.backgroundView as? TriangularedView
+    /// Returns blured backround view with cut corners
+    var triangularedBlurView: TriangularedBlurView? {
+        return self.backgroundView as? TriangularedBlurView
     }
 
     // MARK: Overriden initializers
@@ -45,7 +45,7 @@ class TriangularedButton: BackgroundedContentControl {
         self.backgroundColor = UIColor.clear
 
         if self.backgroundView == nil {
-            self.backgroundView = TriangularedView()
+            self.backgroundView = TriangularedBlurView()
             self.backgroundView?.isUserInteractionEnabled = false
         }
 
