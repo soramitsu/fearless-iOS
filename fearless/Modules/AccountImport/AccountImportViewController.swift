@@ -176,7 +176,7 @@ final class AccountImportViewController: UIViewController {
 
     private func setupUsernamePlaceholder(for locale: Locale) {
         usernameTextField.title = R.string.localizable
-            .usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
+            .accountInfoNameTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupPasswordPlaceholder(for locale: Locale) {
