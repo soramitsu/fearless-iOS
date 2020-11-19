@@ -152,6 +152,36 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func removeCustomItem(at index: Int) {
+        let viewModel = customConnectionViewModels[index]
+
+        let locale = localizationManager.selectedLocale
+
+        let removeTitle = R.string.localizable
+            .connectionDeleteConfirm(preferredLanguages: locale.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            self?.performCustomItemRemoval(at: index)
+
+            self?.view?.didRemoveCustomItem(at: index)
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+
+        let title = R.string.localizable
+            .connectionDeleteTitle(preferredLanguages: locale.rLanguages)
+
+        let detailsParam = "\(viewModel.type.titleForLocale(locale)), \(viewModel.name)"
+        let details = R.string.localizable
+            .connectionDeleteDescription(detailsParam, preferredLanguages: locale.rLanguages)
+        let alertViewModel = AlertPresentableViewModel(title: title,
+                                                       message: details,
+                                                       actions: [removeAction],
+                                                       closeAction: cancelTitle)
+
+        wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
+    }
+
+    private func performCustomItemRemoval(at index: Int) {
         let viewModel = customConnectionViewModels.remove(at: index)
 
         if let item = listCalculator.allItems.first(where: { $0.identifier == viewModel.identifier }) {
