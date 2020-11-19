@@ -18,8 +18,9 @@ final class ReceiveConfigurator: AdaptiveDesignable {
 
     let shareFactory: AccountShareFactoryProtocol
 
-    init(account: AccountItem, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
+    init(account: AccountItem, chain: Chain, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
         receiveFactory = ReceiveViewFactory(account: account,
+                                            chain: chain,
                                             localizationManager: localizationManager)
         shareFactory = AccountShareFactory(address: account.address,
                                            assets: assets,

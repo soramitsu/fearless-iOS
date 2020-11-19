@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class AccountInfoPresenter {
     weak var view: AccountInfoViewProtocol?
@@ -20,12 +21,23 @@ final class AccountInfoPresenter {
 
     private func updateView(accountItem: ManagedAccountItem) {
         let inputHandling = InputHandler(value: accountItem.username, predicate: NSPredicate.notEmpty)
+
         let usernameViewModel = InputViewModel(inputHandler: inputHandling)
+        usernameViewModel.inputHandler.addObserver(self)
 
         view?.set(usernameViewModel: usernameViewModel)
 
         view?.set(address: accountItem.address)
-        view?.set(networkType: accountItem.networkType)
+        view?.set(networkType: accountItem.networkType.chain)
+        view?.set(cryptoType: accountItem.cryptoType)
+    }
+
+    private func copyAddress() {
+        UIPasteboard.general.string = address
+
+        let locale = localizationManager.selectedLocale
+        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
+        wireframe.presentSuccessNotification(title, from: view)
     }
 }
 
@@ -43,19 +55,31 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
             return
         }
 
+        interactor.flushPendingUsername()
+
         interactor.requestExportOptions(accountItem: accountItem)
     }
 
-    func activateCopyAddress() {
-        UIPasteboard.general.string = address
+    func activateAddressAction() {
+        guard let accountItem = accountItem else {
+            return
+        }
 
         let locale = localizationManager.selectedLocale
-        let title = R.string.localizable.commonCopied(preferredLanguages: locale.rLanguages)
-        wireframe.presentSuccessNotification(title, from: view)
+
+        let copyClosure: () -> Void = { [weak self] in
+            self?.copyAddress()
+        }
+
+        wireframe.presentAddressOptions(address,
+                                        chain: accountItem.networkType.chain,
+                                        locale: locale,
+                                        copyClosure: copyClosure,
+                                        from: view)
     }
 
-    func save(username: String) {
-        interactor.save(username: username, address: address)
+    func finalizeUsername() {
+        interactor.flushPendingUsername()
     }
 }
 
@@ -73,15 +97,22 @@ extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
         updateView(accountItem: accountItem)
     }
 
-    func didSave(username: String) {
-        wireframe.close(view: view)
-    }
+    func didSave(username: String) {}
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
             _ = wireframe.present(error: CommonError.undefined,
                                   from: view,
                                   locale: localizationManager.selectedLocale)
+        }
+    }
+}
+
+extension AccountInfoPresenter: InputHandlingObserver {
+    func didChangeInputValue(_ handler: InputHandling, from oldValue: String) {
+        if handler.completed {
+            let username = handler.normalizedValue
+            interactor.save(username: username, address: address)
         }
     }
 }

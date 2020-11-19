@@ -97,6 +97,7 @@ class AccountInfoExportTests: XCTestCase {
         let usernameExpectation = XCTestExpectation()
         let addressExpectation = XCTestExpectation()
         let networkExpectation = XCTestExpectation()
+        let cryptoExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).isSetup.get.thenReturn(false, true)
@@ -110,6 +111,10 @@ class AccountInfoExportTests: XCTestCase {
 
             when(stub).set(networkType: any()).then { _ in
                 networkExpectation.fulfill()
+            }
+
+            when(stub).set(cryptoType: any()).then { _ in
+                cryptoExpectation.fulfill()
             }
         }
 
@@ -130,7 +135,7 @@ class AccountInfoExportTests: XCTestCase {
 
         presenter.setup()
 
-        wait(for: [usernameExpectation, addressExpectation, networkExpectation],
+        wait(for: [usernameExpectation, cryptoExpectation, addressExpectation, networkExpectation],
              timeout: Constants.defaultExpectationDuration)
 
         let completionExpectation = XCTestExpectation()

@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -35,7 +35,7 @@
                     <rect key="frame" x="64.5" y="152" width="246" height="123"/>
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comming Soon..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ldd-c1-jg1">
-                    <rect key="frame" x="16" y="345" width="343" height="26"/>
+                    <rect key="frame" x="16" y="345" width="343" height="28"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
@@ -45,7 +45,6 @@
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="So8-5w-jLj"/>
-                        <constraint firstAttribute="width" constant="343" id="p7A-Pd-FZU"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
@@ -101,7 +100,6 @@
                     <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="NmR-DO-AYL"/>
-                        <constraint firstAttribute="width" constant="343" id="h3g-fm-xJz"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Check Roadmap"/>
@@ -150,6 +148,7 @@
                     </connections>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
                 <constraint firstItem="Ldd-c1-jg1" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="2it-QK-WES"/>
@@ -168,10 +167,17 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="hzk-06-evr" secondAttribute="trailing" constant="16" id="svd-89-Vtn"/>
                 <constraint firstAttribute="bottom" secondItem="ube-N0-UYT" secondAttribute="bottom" id="vCa-2u-Dr4"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="139" y="134"/>
         </view>
     </objects>
+    <designables>
+        <designable name="hzk-06-evr">
+            <size key="intrinsicContentSize" width="127" height="18"/>
+        </designable>
+        <designable name="zF7-iA-1zR">
+            <size key="intrinsicContentSize" width="119.5" height="18"/>
+        </designable>
+    </designables>
     <resources>
         <image name="backgroundImage" width="414" height="896"/>
         <image name="iconFearlessLog" width="246" height="123"/>

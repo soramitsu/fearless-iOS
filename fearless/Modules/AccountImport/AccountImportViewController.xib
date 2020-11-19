@@ -124,7 +124,7 @@
                                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         </userDefinedRuntimeAttribute>
                                         <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
-                                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <color key="value" name="colorHighlightedBlue"/>
                                         </userDefinedRuntimeAttribute>
                                         <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
                                             <color key="value" name="colorGray"/>
@@ -170,6 +170,7 @@
                                             <real key="value" value="14"/>
                                         </userDefinedRuntimeAttribute>
                                         <userDefinedRuntimeAttribute type="image" keyPath="actionImage" value="iconUpload"/>
+                                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Kgs-h4-caP">
@@ -738,6 +739,26 @@
             <point key="canvasLocation" x="139" y="115"/>
         </view>
     </objects>
+    <designables>
+        <designable name="1zX-7F-5Jj">
+            <size key="intrinsicContentSize" width="43.5" height="32"/>
+        </designable>
+        <designable name="4i7-A0-UyV">
+            <size key="intrinsicContentSize" width="272.5" height="48.5"/>
+        </designable>
+        <designable name="7cN-eb-nyO">
+            <size key="intrinsicContentSize" width="31" height="15"/>
+        </designable>
+        <designable name="KZt-OG-egc">
+            <size key="intrinsicContentSize" width="213.5" height="56.5"/>
+        </designable>
+        <designable name="cVj-lI-0D8">
+            <size key="intrinsicContentSize" width="155" height="48.5"/>
+        </designable>
+        <designable name="yiw-bM-wfH">
+            <size key="intrinsicContentSize" width="85" height="20"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconAlert" width="24" height="24"/>
         <image name="iconDropDown" width="24" height="24"/>

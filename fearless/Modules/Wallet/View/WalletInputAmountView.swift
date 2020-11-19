@@ -39,6 +39,7 @@ final class WalletInputAmountView: WalletBaseAmountView {
         super.setupSubviews()
 
         animatedTextField.delegate = self
+        animatedTextField.textField.keyboardType = .decimalPad
     }
 }
 

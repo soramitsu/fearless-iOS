@@ -130,7 +130,7 @@ final class AccountImportViewController: UIViewController {
         usernameTextField.delegate = self
         passwordTextField.delegate = self
 
-        uploadView.delegate = self
+        uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -260,6 +260,10 @@ final class AccountImportViewController: UIViewController {
         }
 
         updateNextButton()
+    }
+
+    @objc private func actionUpload() {
+        presenter.activateUpload()
     }
 
     @objc private func actionOpenSourceType() {
@@ -572,11 +576,5 @@ extension AccountImportViewController: Localizable {
             setupLocalization()
             view.setNeedsLayout()
         }
-    }
-}
-
-extension AccountImportViewController: DetailsTriangularedViewDelegate {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
-        presenter.activateUpload()
     }
 }

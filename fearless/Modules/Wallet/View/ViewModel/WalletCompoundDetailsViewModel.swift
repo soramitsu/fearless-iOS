@@ -7,6 +7,7 @@ struct WalletCompoundDetailsViewModel: WalletFormViewBindingProtocol {
     let mainIcon: UIImage?
     let actionIcon: UIImage?
     let command: WalletCommandProtocol
+    let enabled: Bool
 
     func accept(definition: WalletFormDefining) -> WalletFormItemView? {
         if let definition = definition as? WalletFearlessFormDefining {
@@ -15,4 +16,10 @@ struct WalletCompoundDetailsViewModel: WalletFormViewBindingProtocol {
             return nil
         }
     }
+}
+
+extension WalletCompoundDetailsViewModel: MultilineTitleIconViewModelProtocol {
+    var text: String { details }
+
+    var icon: UIImage? { mainIcon }
 }

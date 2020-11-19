@@ -158,6 +158,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
         let receiveConfigurator = ReceiveConfigurator(account: selectedAccount,
+                                                      chain: networkType.chain,
                                                       assets: tokenAssets,
                                                       localizationManager: localizationManager)
         receiveConfigurator.configure(builder: builder.receiveModuleBuilder)
