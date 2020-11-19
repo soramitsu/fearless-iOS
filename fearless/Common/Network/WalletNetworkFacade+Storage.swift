@@ -77,24 +77,30 @@ extension WalletNetworkFacade {
     }
 
     func queryStorageByKey<T: ScaleDecodable>(_ storageKey: Data) -> CompoundOperationWrapper<T?> {
-        let fetchOperation = chainStorage
-            .fetchOperation(by: storageKey.toHex(includePrefix: true),
-                            options: RepositoryFetchOptions())
+        do {
+            let identifier = try localStorageIdFactory.createIdentifier(for: storageKey)
 
-        let decoderOperation = ScaleDecoderOperation<T>()
-        decoderOperation.configurationBlock = {
-            do {
-                decoderOperation.data = try fetchOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)?
-                    .data
-            } catch {
-                decoderOperation.result = .failure(error)
+            let fetchOperation = chainStorage
+                .fetchOperation(by: identifier,
+                                options: RepositoryFetchOptions())
+
+            let decoderOperation = ScaleDecoderOperation<T>()
+            decoderOperation.configurationBlock = {
+                do {
+                    decoderOperation.data = try fetchOperation
+                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)?
+                        .data
+                } catch {
+                    decoderOperation.result = .failure(error)
+                }
             }
+
+            decoderOperation.addDependency(fetchOperation)
+
+            return CompoundOperationWrapper(targetOperation: decoderOperation,
+                                            dependencies: [fetchOperation])
+        } catch {
+            return CompoundOperationWrapper.createWithError(error)
         }
-
-        decoderOperation.addDependency(fetchOperation)
-
-        return CompoundOperationWrapper(targetOperation: decoderOperation,
-                                        dependencies: [fetchOperation])
     }
 }
