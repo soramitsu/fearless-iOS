@@ -1,14 +1,16 @@
 protocol AboutViewProtocol: ControllerBackedProtocol {
-    func didReceive(version: String)
+    func didReceive(viewModel: AboutViewModel)
 }
 
 protocol AboutPresenterProtocol: class {
     func setup()
 
+    func activateWebsite()
     func activateOpensource()
+    func activateSocial()
+    func activateWriteUs()
     func activateTerms()
     func activatePrivacyPolicy()
-    func activateWriteUs()
 }
 
 protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, AlertPresentable {}

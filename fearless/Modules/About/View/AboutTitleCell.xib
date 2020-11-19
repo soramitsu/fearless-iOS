@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="aboutTitleCellId" id="RGG-Gc-td6" customClass="AboutTitleCell" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="48"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="RGG-Gc-td6" id="iM5-TR-bcY">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="48"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="2YJ-ou-4U1" customClass="BorderedContainerView" customModule="SoraUI">
+                        <rect key="frame" x="20" y="0.0" width="374" height="48"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                <color key="value" name="colorDarkGray"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Terms &amp; Conditions" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Xno-pl-eOf">
+                        <rect key="frame" x="20" y="16" width="350" height="16.5"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <color key="textColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAboutArrow" translatesAutoresizingMaskIntoConstraints="NO" id="7av-93-jrc">
+                        <rect key="frame" x="378" y="16" width="16" height="16"/>
+                    </imageView>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="7av-93-jrc" secondAttribute="trailing" constant="20" id="0Cf-Me-bhl"/>
+                    <constraint firstItem="Xno-pl-eOf" firstAttribute="centerY" secondItem="iM5-TR-bcY" secondAttribute="centerY" id="Rlb-RC-XJX"/>
+                    <constraint firstItem="7av-93-jrc" firstAttribute="leading" secondItem="Xno-pl-eOf" secondAttribute="trailing" constant="8" id="Rqs-pt-ncf"/>
+                    <constraint firstItem="2YJ-ou-4U1" firstAttribute="bottom" secondItem="iM5-TR-bcY" secondAttribute="bottom" id="UJp-de-plU"/>
+                    <constraint firstItem="7av-93-jrc" firstAttribute="centerY" secondItem="iM5-TR-bcY" secondAttribute="centerY" id="VcR-bM-zAL"/>
+                    <constraint firstItem="2YJ-ou-4U1" firstAttribute="top" secondItem="iM5-TR-bcY" secondAttribute="top" id="a1W-8a-GSk"/>
+                    <constraint firstAttribute="trailing" secondItem="2YJ-ou-4U1" secondAttribute="trailing" constant="20" id="i3R-W8-9kX"/>
+                    <constraint firstItem="2YJ-ou-4U1" firstAttribute="leading" secondItem="iM5-TR-bcY" secondAttribute="leading" constant="20" id="jwM-p1-mZl"/>
+                    <constraint firstItem="Xno-pl-eOf" firstAttribute="leading" secondItem="iM5-TR-bcY" secondAttribute="leading" constant="20" id="s3y-Fg-7sn"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <connections>
+                <outlet property="titleLabel" destination="Xno-pl-eOf" id="HcM-fC-FaS"/>
+            </connections>
+            <point key="canvasLocation" x="56" y="81"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="iconAboutArrow" width="16" height="16"/>
+        <namedColor name="colorDarkGray">
+            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

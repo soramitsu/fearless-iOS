@@ -6,12 +6,17 @@ struct MainTransitionHelper {
                                       selectingIndex: Int = MainTabBarViewFactory.walletIndex,
                                       closing navigationController: UINavigationController,
                                       animated: Bool) {
-        guard let tabBarController = tabBarController else {
-            return
-        }
 
         if let presentingController = navigationController.presentingViewController {
             presentingController.dismiss(animated: animated, completion: nil)
+            return
+        }
+
+        if navigationController.presentedViewController != nil {
+            navigationController.presentedViewController?.dismiss(animated: true, completion: nil)
+        }
+
+        guard let tabBarController = tabBarController else {
             return
         }
 
