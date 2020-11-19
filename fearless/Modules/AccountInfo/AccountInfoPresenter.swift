@@ -20,7 +20,12 @@ final class AccountInfoPresenter {
     }
 
     private func updateView(accountItem: ManagedAccountItem) {
-        let inputHandling = InputHandler(value: accountItem.username, predicate: NSPredicate.notEmpty)
+        let processor = ByteLengthProcessor.username
+        let processedUsername = processor.process(text: accountItem.username)
+
+        let inputHandling = InputHandler(value: processedUsername,
+                                         predicate: NSPredicate.notEmpty,
+                                         processor: processor)
 
         let usernameViewModel = InputViewModel(inputHandler: inputHandling)
         usernameViewModel.inputHandler.addObserver(self)
