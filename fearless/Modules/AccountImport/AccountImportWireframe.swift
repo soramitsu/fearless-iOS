@@ -46,9 +46,9 @@ final class AccountImportWireframe: AccountImportWireframeProtocol {
                                                        completion: nil)
     }
 
-    func presentAddressTypeSelection(from view: AccountImportViewProtocol?,
-                                     availableTypes: [SNAddressType],
-                                     selectedType: SNAddressType,
+    func presentNetworkTypeSelection(from view: AccountImportViewProtocol?,
+                                     availableTypes: [Chain],
+                                     selectedType: Chain,
                                      delegate: ModalPickerViewControllerDelegate?,
                                      context: AnyObject?) {
         guard let modalPicker = ModalPickerFactory.createPickerForList(availableTypes,

@@ -15,8 +15,8 @@ class AccountCreateTests: XCTestCase {
 
         let mnemonicCreator = IRMnemonicCreator()
         let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator,
-                                                 supportedAddressTypes: SNAddressType.supported,
-                                                 defaultAddressType: ConnectionItem.defaultConnection.type)
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
 
         let expectedUsername = "myname"
         let presenter = AccountCreatePresenter(username: expectedUsername)

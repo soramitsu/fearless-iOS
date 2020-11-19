@@ -93,6 +93,7 @@ a type of password.";
 "import.raw.seed" = "Сид";
 "import.recovery.json" = "JSON для восстановления";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Вставьте json строку или загрузите файл...";
 "account.import.recovery.json.placeholder" = "Вставьте json";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
 "import.mnemonic" = "Мнемоническая фраза";
@@ -213,3 +214,5 @@ a type of password.";
 Сид: %@\
 Путь деривации: %@";
 "common.changed" = "Изменено";
+"account.import.json.no.network" = "JSON не содержит информации о сети. Пожалуйста, укажите её в блоке дополнительных настроек.";
+"account.import.wrong.network" = "Сеть в JSON - это %@ , а не такая, как у выбранной %@ . Выбранная сеть будет использоваться для импорта аккаунта.";

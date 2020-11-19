@@ -40,8 +40,8 @@ final class ConnectionAccountCreateWireframe: AccountCreateWireframeProtocol {
     }
 
     func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?,
-                                     availableTypes: [SNAddressType],
-                                     selectedType: SNAddressType,
+                                     availableTypes: [Chain],
+                                     selectedType: Chain,
                                      delegate: ModalPickerViewControllerDelegate?,
                                      context: AnyObject?) {
         guard let modalPicker = ModalPickerFactory.createPickerForList(availableTypes,

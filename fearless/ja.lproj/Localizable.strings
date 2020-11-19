@@ -91,6 +91,7 @@ a type of password.";
 "import.raw.seed" = "生の種子";
 "import.recovery.json" = "リカバリJSON";
 "account.import.password.placeholder" = "パスワード";
+"recover.json.hint" = "JSONを貼り付けるかファイルをアップロード...";
 "account.import.recovery.json.placeholder" = "jsonを貼り付け";
 "account.import.raw.seed.placeholder" = "生の種：64桁の16進記号";
 "import.mnemonic" = "ニーモニックパスフレーズ";
@@ -210,3 +211,5 @@ a type of password.";
 シード： %@\
 派生パス： %@";
 "common.changed" = "かわった";
+"account.import.json.no.network" = "JSONにはネットワーク情報は含まれていません。高度なブロックで指定してください。";
+"account.import.wrong.network" = "JSONのネットワークは%@であり、選択した%@と同じではありません。後者はアカウントのインポートに使用されます。";

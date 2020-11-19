@@ -92,6 +92,7 @@ trasferimenti appariranno qui";
 "import.raw.seed" = "Seme crudo";
 "import.recovery.json" = "JSON di ripristino";
 "account.import.password.placeholder" = "Parola d'ordine";
+"recover.json.hint" = "Incolla json o carica il file ...";
 "account.import.recovery.json.placeholder" = "Incolla json";
 "account.import.raw.seed.placeholder" = "Seme grezzo: 64 simboli esadecimali";
 "import.mnemonic" = "Passphrase mnemonica";
@@ -212,3 +213,5 @@ Seme: %@";
 Seme: %@\
 Percorso di derivazione: %@";
 "common.changed" = "Cambiato";
+"account.import.json.no.network" = "JSON non contiene informazioni di rete. Si prega di specificarlo nel blocco avanzato.";
+"account.import.wrong.network" = "La rete in JSON è %@ , non è la stessa di %@ . Quest'ultimo verrà utilizzato per importare un account.";

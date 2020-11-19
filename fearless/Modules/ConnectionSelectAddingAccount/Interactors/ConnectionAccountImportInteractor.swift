@@ -24,8 +24,8 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
                    accountRepository: accountRepository,
                    operationManager: operationManager,
                    keystoreImportService: keystoreImportService,
-                   supportedAddressTypes: [connectionItem.type],
-                   defaultAddressType: connectionItem.type)
+                   supportedNetworks: [connectionItem.type.chain],
+                   defaultNetwork: connectionItem.type.chain)
     }
 
     private func importAccountItem(_ item: AccountItem) {
@@ -37,7 +37,7 @@ final class ConnectionAccountImportInteractor: BaseAccountImportInteractor {
         let persistentOperation = accountRepository.saveOperation({
             if try checkOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
-                throw AddAccountError.duplicated
+                throw AccountCreateError.duplicated
             }
 
             return [item]

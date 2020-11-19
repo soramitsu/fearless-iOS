@@ -90,6 +90,7 @@
 "import.raw.seed" = "Сей орлоҡ";
 "import.recovery.json" = "JSON тергеҙеү";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Json профилендә йәки загрузить файл...";
 "account.import.recovery.json.placeholder" = "Json профилендә";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
 "import.mnemonic" = "Мнемоническая фраза";
@@ -210,3 +211,5 @@
 Сид: %@\
 Путь деривации: %@";
 "common.changed" = "Изменено";
+"account.import.json.no.network" = "JSON не содержит информации о сети. Пожалуйста, укажите её в блоке дополнительных настроек.";
+"account.import.wrong.network" = "Сеть в JSON - это %@ , а не та, что была выбрана %@ . Выбранная сеть будет использоваться для импорта аккаунта.";

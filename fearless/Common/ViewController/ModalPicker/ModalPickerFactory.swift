@@ -50,8 +50,8 @@ struct ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerForList(_ types: [SNAddressType],
-                                    selectedType: SNAddressType?,
+    static func createPickerForList(_ types: [Chain],
+                                    selectedType: Chain?,
                                     delegate: ModalPickerViewControllerDelegate?,
                                     context: AnyObject?) -> UIViewController? {
         guard types.count > 0 else {

@@ -93,6 +93,7 @@
 "import.raw.seed" = "Сире насіння";
 "import.recovery.json" = "Відновлення JSON";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Вставити json або завантажити файл ...";
 "account.import.recovery.json.placeholder" = "Вставити json";
 "account.import.raw.seed.placeholder" = "Сире насіння: 64 шістнадцяткових символів";
 "import.mnemonic" = "Мнемонічна фраза";
@@ -213,3 +214,5 @@
 Насіння: %@\
 Шлях виведення: %@";
 "common.changed" = "Змінено";
+"account.import.json.no.network" = "JSON не містить інформації про мережу. Будь ласка, вкажіть це в розширеному блоці.";
+"account.import.wrong.network" = "Мережа в JSON - %@ , а не така, як вибрана %@ . Останній буде використаний для імпорту облікового запису.";

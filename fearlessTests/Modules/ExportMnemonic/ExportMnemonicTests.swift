@@ -19,7 +19,7 @@ class ExportMnemonicTests: XCTestCase {
 
         try AccountCreationHelper
             .createAccountFromMnemonic(cryptoType: .sr25519,
-                                       addressType: .kusamaMain,
+                                       networkType: .kusama,
                                        derivationPath: derivationPath,
                                        keychain: keychain,
                                        settings: settings)

@@ -46,7 +46,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
 
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
-                                                     type: request.type)
+                                                     type: SNAddressType(chain: request.type))
 
             let secretKey: Data
 
@@ -100,7 +100,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
 
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
-                                                     type: request.type)
+                                                     type: SNAddressType(chain: request.networkType))
 
             let secretKey: Data
 
@@ -149,21 +149,26 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 throw AccountOperationFactoryError.decryption
             }
 
-            let username: String
+            let publicKey: IRPublicKeyProtocol
 
-            if let requestName = request.username, !requestName.isEmpty {
-                username = requestName
-            } else if let definitionName = keystoreDefinition.meta?.name {
-                username = definitionName
-            } else {
-                throw AccountOperationFactoryError.missingUsername
+            switch request.cryptoType {
+            case .sr25519:
+                publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+            case .ed25519:
+                publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+            case .ecdsa:
+                publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
             }
 
-            try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)
+            let addressFactory = SS58AddressFactory()
+            let address = try addressFactory.address(fromPublicKey: publicKey,
+                                                     type: SNAddressType(chain: request.networkType))
 
-            return AccountItem(address: keystore.address,
-                               cryptoType: CryptoType(keystore.cryptoType),
-                               username: username,
+            try self.keystore.saveSecretKey(keystore.secretKeyData, address: address)
+
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
                                publicKeyData: keystore.publicKeyData)
         }
     }

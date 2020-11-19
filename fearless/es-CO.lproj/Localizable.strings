@@ -93,6 +93,7 @@ transferencias aparecerán aquí";
 "import.raw.seed" = "Semilla cruda";
 "import.recovery.json" = "JSON de recuperación";
 "account.import.password.placeholder" = "Contraseña";
+"recover.json.hint" = "Pegar json o cargar archivo ...";
 "account.import.recovery.json.placeholder" = "Pegar json";
 "account.import.raw.seed.placeholder" = "Semilla cruda: 64 símbolos hexagonales";
 "import.mnemonic" = "Frase de contraseña mnemónica";
@@ -213,3 +214,5 @@ Semilla: %@";
 Semilla: %@\
 Ruta de derivación: %@";
 "common.changed" = "Cambiado";
+"account.import.json.no.network" = "JSON no contiene información de red. Especifíquelo en el bloque avanzado.";
+"account.import.wrong.network" = "La red en JSON es %@ , no es la misma que la seleccionada %@ . Este último se utilizará para importar una cuenta.";
