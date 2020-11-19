@@ -1,16 +1,25 @@
 import UIKit
 
 struct AlertPresentableAction {
-    var title: String
-    var handler: (() -> Void)?
-
-    init(title: String, handler: @escaping () -> Void) {
-        self.title = title
-        self.handler = handler
+    enum Style {
+        case normal
+        case destructive
+        case cancel
     }
 
-    init(title: String) {
+    var title: String
+    var handler: (() -> Void)?
+    var style: Style
+
+    init(title: String, style: Style = .normal, handler: @escaping () -> Void) {
         self.title = title
+        self.handler = handler
+        self.style = style
+    }
+
+    init(title: String, style: Style = .normal) {
+        self.title = title
+        self.style = style
     }
 }
 
@@ -29,6 +38,19 @@ protocol AlertPresentable: class {
     func present(viewModel: AlertPresentableViewModel,
                  style: UIAlertController.Style,
                  from view: ControllerBackedProtocol?)
+}
+
+extension AlertPresentableAction.Style {
+    var uialertStyle: UIAlertAction.Style {
+        switch self {
+        case .normal:
+            return .default
+        case .cancel:
+            return .cancel
+        case .destructive:
+            return .destructive
+        }
+    }
 }
 
 extension AlertPresentable {
@@ -71,7 +93,7 @@ extension AlertPresentable {
                                           preferredStyle: style)
 
         viewModel.actions.forEach { action in
-            let alertAction = UIAlertAction(title: action.title, style: .default) { _ in
+            let alertAction = UIAlertAction(title: action.title, style: action.style.uialertStyle) { _ in
                 action.handler?()
             }
 

@@ -181,12 +181,10 @@ extension AccountManagementViewController: UITableViewDelegate {
                    forRowAt indexPath: IndexPath) {
         let numberOfRows = tableView.numberOfRows(inSection: indexPath.section)
 
-        presenter.removeItem(at: indexPath.row, in: indexPath.section)
-
         if numberOfRows == 1 {
-            tableView.deleteSections([indexPath.section], with: .automatic)
+            presenter.removeSection(at: indexPath.section)
         } else {
-            tableView.deleteRows(at: [indexPath], with: .automatic)
+            presenter.removeItem(at: indexPath.row, in: indexPath.section)
         }
     }
 }
@@ -194,6 +192,15 @@ extension AccountManagementViewController: UITableViewDelegate {
 extension AccountManagementViewController: AccountManagementViewProtocol {
     func reload() {
         tableView.reloadData()
+    }
+
+    func didRemoveItem(at index: Int, in section: Int) {
+        let indexPath = IndexPath(row: index, section: section)
+        tableView.deleteRows(at: [indexPath], with: .left)
+    }
+
+    func didRemoveSection(at section: Int) {
+        tableView.deleteSections([section], with: .automatic)
     }
 }
 
