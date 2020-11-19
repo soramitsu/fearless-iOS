@@ -3,6 +3,9 @@ import RobinHood
 
 protocol AccountManagementViewProtocol: ControllerBackedProtocol {
     func reload()
+
+    func didRemoveItem(at index: Int, in section: Int)
+    func didRemoveSection(at section: Int)
 }
 
 protocol AccountManagementPresenterProtocol: class {
@@ -16,7 +19,9 @@ protocol AccountManagementPresenterProtocol: class {
 
     func selectItem(at index: Int, in section: Int)
     func moveItem(at startIndex: Int, to finalIndex: Int, in section: Int)
+
     func removeItem(at index: Int, in section: Int)
+    func removeSection(at index: Int)
 }
 
 protocol AccountManagementInteractorInputProtocol: class {

@@ -3,6 +3,8 @@ import IrohaCrypto
 
 protocol NetworkManagementViewProtocol: ControllerBackedProtocol {
     func reload()
+
+    func didRemoveCustomItem(at index: Int)
 }
 
 protocol NetworkManagementPresenterProtocol: class {
@@ -15,6 +17,7 @@ protocol NetworkManagementPresenterProtocol: class {
     func selectCustomItem(at index: Int)
 
     func moveCustomItem(at startIndex: Int, to finalIndex: Int)
+
     func removeCustomItem(at index: Int)
 
     func numberOfDefaultConnections() -> Int
