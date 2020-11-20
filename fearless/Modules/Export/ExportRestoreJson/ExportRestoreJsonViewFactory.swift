@@ -7,9 +7,14 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
             R.string.localizable.commonChangePassword(preferredLanguages: locale.rLanguages)
         }
 
+        let mainActionTitle = LocalizableResource { locale in
+            R.string.localizable.accountExportAction(preferredLanguages: locale.rLanguages)
+        }
+
         let uiFactory = UIFactory()
         let view = ExportGenericViewController(uiFactory: uiFactory,
                                                binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+                                               mainTitle: mainActionTitle,
                                                accessoryTitle: accessoryActionTitle)
 
         let presenter = ExportRestoreJsonPresenter(model: model)

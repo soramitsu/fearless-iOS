@@ -12,6 +12,7 @@ final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
         let uiFactory = UIFactory()
         let view = ExportGenericViewController(uiFactory: uiFactory,
                                                binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+                                               mainTitle: nil,
                                                accessoryTitle: accessoryActionTitle)
 
         let localizationManager = LocalizationManager.shared

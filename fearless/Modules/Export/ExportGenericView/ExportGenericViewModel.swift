@@ -2,6 +2,7 @@ import UIKit
 
 protocol ExportGenericViewModelBinding {
     func bind(stringViewModel: ExportStringViewModel, locale: Locale) -> UIView
+    func bind(multilineViewModel: ExportStringViewModel, locale: Locale) -> UIView
     func bind(mnemonicViewModel: ExportMnemonicViewModel, locale: Locale) -> UIView
 }
 
@@ -26,7 +27,11 @@ struct ExportStringViewModel: ExportGenericViewModelProtocol {
     let data: String
 
     func accept(binder: ExportGenericViewModelBinding, locale: Locale) -> UIView {
-        binder.bind(stringViewModel: self, locale: locale)
+        if option == .seed {
+            return binder.bind(multilineViewModel: self, locale: locale)
+        } else {
+            return binder.bind(stringViewModel: self, locale: locale)
+        }
     }
 }
 

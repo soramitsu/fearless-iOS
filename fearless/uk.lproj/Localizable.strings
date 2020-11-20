@@ -63,7 +63,7 @@
 "no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
 "connection.management.title" = "Мережі";
 "onboarding.create.account" = "Створити рахунок";
-"username.setup.choose.title" = "Виберіть ім'я";
+"username.setup.choose.title" = "Ім'я";
 "username.setup.hint" = "Назва цього облікового запису та спосіб відображення під вашими адресами. Завдяки ланцюговій ідентичності він може бути доступний для інших.";
 "username.setup.title" = "Створити рахунок";
 "common.no.screenshot.title" = "Не робити знімки екрана";
@@ -219,3 +219,4 @@
 "common.changed" = "Змінено";
 "account.import.json.no.network" = "JSON не містить інформації про мережу. Будь ласка, вкажіть це в розширеному блоці.";
 "account.import.wrong.network" = "Мережа в JSON - %@ , а не така, як вибрана %@ . Останній буде використаний для імпорту облікового запису.";
+"common.address" = "Адреса";

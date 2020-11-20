@@ -60,7 +60,7 @@
 "no.email.bound.error.message" = "Тышҡы һылтанманы асыу мөмкин түгел. Зинһар, көйләүҙәрҙе тикшерегеҙ.";
 "connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
-"username.setup.choose.title" = "Выберите имя";
+"username.setup.choose.title" = "Имя";
 "username.setup.hint" = "Имя аккаунта и его отображение рядом с адресом. Используя хранение идентификационных данных в блокчейне, имя можно сделать доступных для остальных.";
 "username.setup.title" = "Создать аккаунт";
 "common.no.screenshot.title" = "Не делайте снимков экрана";
@@ -216,3 +216,4 @@
 "common.changed" = "Изменено";
 "account.import.json.no.network" = "JSON не содержит информации о сети. Пожалуйста, укажите её в блоке дополнительных настроек.";
 "account.import.wrong.network" = "Сеть в JSON - это %@ , а не та, что была выбрана %@ . Выбранная сеть будет использоваться для импорта аккаунта.";
+"common.address" = "Адрес";
