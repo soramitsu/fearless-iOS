@@ -18,6 +18,13 @@ open class TriangularedBlurView: UIView {
         configure()
     }
 
+    var sideLength: CGFloat = 10.0 {
+        didSet {
+            blurMaskView?.sideLength  = sideLength
+            overlayView.sideLength = sideLength
+        }
+    }
+
     var cornerCut: TriangularedCorners = [.topLeft, .bottomRight] {
         didSet {
             blurMaskView?.cornerCut = cornerCut
@@ -44,6 +51,7 @@ open class TriangularedBlurView: UIView {
         if overlayView == nil {
             overlayView = TriangularedView()
             overlayView.cornerCut = cornerCut
+            overlayView.sideLength = sideLength
             overlayView.shadowOpacity = 0.0
             overlayView.fillColor = .clear
             overlayView.highlightedFillColor = .clear
