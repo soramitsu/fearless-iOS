@@ -2,18 +2,21 @@ import Foundation
 import RobinHood
 
 class BaseStorageChildSubscription: StorageChildSubscribing {
-    let storageKey: Data
+    let remoteStorageKey: Data
+    let localStorageKey: String
     let logger: LoggerProtocol
     let eventCenter: EventCenterProtocol
     let storage: AnyDataProviderRepository<ChainStorageItem>
     let operationManager: OperationManagerProtocol
 
-    init(storageKey: Data,
+    init(remoteStorageKey: Data,
+         localStorageKey: String,
          storage: AnyDataProviderRepository<ChainStorageItem>,
          operationManager: OperationManagerProtocol,
          logger: LoggerProtocol,
          eventCenter: EventCenterProtocol) {
-        self.storageKey = storageKey
+        self.remoteStorageKey = remoteStorageKey
+        self.localStorageKey = localStorageKey
         self.storage = storage
         self.operationManager = operationManager
         self.logger = logger
@@ -25,7 +28,7 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
     }
 
     func processUpdate(_ data: Data?, blockHash: Data?) {
-        let identifier = storageKey.toHex(includePrefix: true)
+        let identifier = localStorageKey
 
         let fetchOperation = storage.fetchOperation(by: identifier,
                                                     options: RepositoryFetchOptions())

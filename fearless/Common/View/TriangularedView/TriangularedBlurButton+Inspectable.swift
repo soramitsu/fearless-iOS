@@ -1,63 +1,7 @@
-import Foundation
+import UIKit
 import SoraUI
 
-/// Extension of the TriangularedButton to support design through Interface Builder
-extension TriangularedButton {
-    @IBInspectable
-    private var _fillColor: UIColor {
-        get {
-            return self.triangularedView!.fillColor
-        }
-
-        set(newValue) {
-            self.triangularedView!.fillColor = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _highlightedFillColor: UIColor {
-        get {
-            return self.triangularedView!.highlightedFillColor
-        }
-
-        set(newValue) {
-            self.triangularedView!.highlightedFillColor = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _strokeColor: UIColor {
-        get {
-            return self.triangularedView!.strokeColor
-        }
-
-        set(newValue) {
-            self.triangularedView!.strokeColor = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _highlightedStrokeColor: UIColor {
-        get {
-            return self.triangularedView!.highlightedStrokeColor
-        }
-
-        set(newValue) {
-            self.triangularedView!.highlightedStrokeColor = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _strokeWidth: CGFloat {
-        get {
-            return self.triangularedView!.strokeWidth
-        }
-
-        set(newValue) {
-            self.triangularedView!.strokeWidth = newValue
-        }
-    }
-
+extension TriangularedBlurButton {
     @IBInspectable
     private var _layoutType: UInt8 {
         get {
@@ -188,62 +132,6 @@ extension TriangularedButton {
     }
 
     @IBInspectable
-    private var _shadowColor: UIColor {
-        get {
-            return self.triangularedView!.shadowColor
-        }
-
-        set(newValue) {
-            self.triangularedView!.shadowColor = newValue
-            self.invalidateLayout()
-        }
-    }
-
-    @IBInspectable
-    private var _shadowOffset: CGSize {
-        get {
-            return self.triangularedView!.shadowOffset
-        }
-
-        set(newValue) {
-            self.triangularedView!.shadowOffset = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _shadowRadius: CGFloat {
-        get {
-            return self.triangularedView!.shadowRadius
-        }
-
-        set(newValue) {
-            self.triangularedView!.shadowRadius = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _shadowOpacity: Float {
-        get {
-            return self.triangularedView!.shadowOpacity
-        }
-
-        set(newValue) {
-            self.triangularedView!.shadowOpacity = newValue
-        }
-    }
-
-    @IBInspectable
-    private var _sideLength: CGFloat {
-        get {
-            return self.triangularedView!.sideLength
-        }
-
-        set(newValue) {
-            self.triangularedView!.sideLength = newValue
-        }
-    }
-
-    @IBInspectable
     private var _spacingBetweenItems: CGFloat {
         get {
             return self.imageWithTitleView!.spacingBetweenLabelAndIcon
@@ -302,11 +190,36 @@ extension TriangularedButton {
     @IBInspectable
     private var _cornerCut: UInt8 {
         get {
-            triangularedView!.cornerCut.rawValue
+            triangularedBlurView!.cornerCut.rawValue
         }
 
         set {
-            triangularedView!.cornerCut = TriangularedCorners(rawValue: newValue)
+            triangularedBlurView!.cornerCut = TriangularedCorners(rawValue: newValue)
+        }
+    }
+
+    @IBInspectable
+    private var _blurStyle: Int {
+        get {
+            triangularedBlurView?.blurStyle.rawValue ?? 0
+        }
+
+        set {
+            if let newBlur = UIBlurEffect.Style(rawValue: newValue) {
+                triangularedBlurView?.blurStyle = newBlur
+            }
+        }
+    }
+
+    @IBInspectable
+    private var _overlayFillColor: UIColor {
+        get {
+            triangularedBlurView?.overlayView.fillColor ?? UIColor.black
+        }
+
+        set {
+            triangularedBlurView?.overlayView.fillColor = newValue
+            triangularedBlurView?.overlayView.highlightedFillColor = newValue
         }
     }
 }

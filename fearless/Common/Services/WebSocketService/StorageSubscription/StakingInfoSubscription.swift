@@ -7,6 +7,7 @@ final class StakingInfoSubscription: WebSocketSubscribing {
     let logger: LoggerProtocol
     let stashId: Data
     let storage: AnyDataProviderRepository<ChainStorageItem>
+    let localStorageIdFactory: ChainStorageIdFactoryProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
@@ -24,12 +25,14 @@ final class StakingInfoSubscription: WebSocketSubscribing {
     init(engine: JSONRPCEngine,
          stashId: Data,
          storage: AnyDataProviderRepository<ChainStorageItem>,
+         localStorageIdFactory: ChainStorageIdFactoryProtocol,
          operationManager: OperationManagerProtocol,
          eventCenter: EventCenterProtocol,
          logger: LoggerProtocol) {
         self.engine = engine
         self.stashId = stashId
         self.storage = storage
+        self.localStorageIdFactory = localStorageIdFactory
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.logger = logger
@@ -85,9 +88,9 @@ final class StakingInfoSubscription: WebSocketSubscribing {
             }
 
             // save by stash id to avoid intermediate call to controller
-            let identifier = try StorageKeyFactory()
-                .stakingInfoForControllerId(stashId)
-                .toHex(includePrefix: true)
+            let storageKey = try StorageKeyFactory().stakingInfoForControllerId(stashId)
+
+            let identifier = try localStorageIdFactory.createIdentifier(for: storageKey)
 
             let fetchOperation = storage.fetchOperation(by: identifier,
                                                         options: RepositoryFetchOptions())

@@ -11,6 +11,7 @@ final class WalletNetworkFacade {
     let networkType: SNAddressType
     let totalPriceAssetId: WalletAssetId
     let chainStorage: AnyDataProviderRepository<ChainStorageItem>
+    let localStorageIdFactory: ChainStorageIdFactoryProtocol
     let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
     let contactsOperationFactory: WalletContactOperationFactoryProtocol
     let accountsRepository: AnyDataProviderRepository<ManagedAccountItem>
@@ -19,6 +20,7 @@ final class WalletNetworkFacade {
          nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
          subscanOperationFactory: SubscanOperationFactoryProtocol,
          chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+         localStorageIdFactory: ChainStorageIdFactoryProtocol,
          txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
          contactsOperationFactory: WalletContactOperationFactoryProtocol,
          accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
@@ -32,6 +34,7 @@ final class WalletNetworkFacade {
         self.networkType = networkType
         self.totalPriceAssetId = totalPriceAssetId
         self.chainStorage = chainStorage
+        self.localStorageIdFactory = localStorageIdFactory
         self.txStorage = txStorage
         self.contactsOperationFactory = contactsOperationFactory
         self.accountsRepository = accountsRepository
