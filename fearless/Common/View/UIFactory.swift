@@ -22,6 +22,7 @@ protocol UIFactoryProtocol {
                            filled: Bool) -> DetailsTriangularedView
     func createExpandableActionControl() -> ExpandableActionControl
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
+    func createMultilinedTriangularedView() -> MultilineTriangularedView
     func createSeparatorView() -> UIView
 }
 
@@ -101,6 +102,23 @@ final class UIFactory: UIFactoryProtocol {
 
         view.contentView.indexFontInColumn = .p0Digits
         view.contentView.wordFontInColumn = .p0Paragraph
+
+        return view
+    }
+
+    func createMultilinedTriangularedView() -> MultilineTriangularedView {
+        let view = MultilineTriangularedView()
+        view.backgroundView.fillColor = R.color.colorDarkGray()!
+        view.backgroundView.highlightedFillColor = R.color.colorDarkGray()!
+        view.backgroundView.strokeColor = .clear
+        view.backgroundView.highlightedStrokeColor = .clear
+        view.backgroundView.strokeWidth = 0.0
+
+        view.titleLabel.textColor = R.color.colorLightGray()!
+        view.titleLabel.font = UIFont.p2Paragraph
+        view.subtitleLabel?.textColor = R.color.colorWhite()!
+        view.subtitleLabel?.font = UIFont.p1Paragraph
+        view.contentInsets = UIEdgeInsets(top: 8.0, left: 16.0, bottom: 8.0, right: 16.0)
 
         return view
     }

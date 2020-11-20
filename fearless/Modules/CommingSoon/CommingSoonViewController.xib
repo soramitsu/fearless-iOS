@@ -35,7 +35,7 @@
                     <rect key="frame" x="64.5" y="134.5" width="246" height="158"/>
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comming Soon..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ldd-c1-jg1">
-                    <rect key="frame" x="16" y="334.5" width="343" height="28"/>
+                    <rect key="frame" x="16" y="334.5" width="343" height="26"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
