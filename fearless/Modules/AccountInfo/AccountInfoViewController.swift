@@ -90,7 +90,7 @@ final class AccountInfoViewController: UIViewController {
             .commonSave(preferredLanguages: locale?.rLanguages)
 
         addressView.title = R.string.localizable
-            .accountInfoTitle(preferredLanguages: locale?.rLanguages)
+            .commonAddress(preferredLanguages: locale?.rLanguages)
 
         cryptoTypeView.title = R.string.localizable
             .commonCryptoType(preferredLanguages: locale?.rLanguages)
