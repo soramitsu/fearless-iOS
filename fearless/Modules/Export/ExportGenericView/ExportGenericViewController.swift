@@ -11,10 +11,11 @@ final class ExportGenericViewController: UIViewController {
     var presenter: ExportGenericPresenterProtocol!
 
     let accessoryOptionTitle: LocalizableResource<String>?
+    let mainOptionTitle: LocalizableResource<String>?
     let binder: ExportGenericViewModelBinding
     let uiFactory: UIFactoryProtocol
 
-    private var mainActionButton: TriangularedButton!
+    private var mainActionButton: TriangularedButton?
     private var accessoryActionButton: TriangularedButton?
     private var containerView: ScrollableContainerView!
     private var sourceTypeView: DetailsTriangularedView!
@@ -36,9 +37,11 @@ final class ExportGenericViewController: UIViewController {
 
     init(uiFactory: UIFactoryProtocol,
          binder: ExportGenericViewModelBinding,
+         mainTitle: LocalizableResource<String>?,
          accessoryTitle: LocalizableResource<String>?) {
         self.uiFactory = uiFactory
         self.binder = binder
+        self.mainOptionTitle = mainTitle
         self.accessoryOptionTitle = accessoryTitle
 
         super.init(nibName: nil, bundle: nil)
@@ -52,7 +55,9 @@ final class ExportGenericViewController: UIViewController {
         view = UIView()
         view.backgroundColor = R.color.colorBlack()
 
-        setupMainActionButton()
+        if mainOptionTitle != nil {
+            setupMainActionButton()
+        }
 
         if accessoryOptionTitle != nil {
             setupAccessoryButton()
@@ -84,8 +89,7 @@ final class ExportGenericViewController: UIViewController {
         expandableControl.titleLabel.text = R.string.localizable
             .commonAdvanced(preferredLanguages: locale.rLanguages)
 
-        mainActionButton.imageWithTitleView?.title = R.string.localizable
-            .accountExportAction(preferredLanguages: locale.rLanguages)
+        mainActionButton?.imageWithTitleView?.title = mainOptionTitle?.value(for: locale)
         accessoryActionButton?.imageWithTitleView?.title = accessoryOptionTitle?.value(for: locale)
 
         updateFromViewModel(locale)
@@ -196,8 +200,13 @@ extension ExportGenericViewController {
         button.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor,
                                          constant: -UIConstants.horizontalInset).isActive = true
 
-        button.bottomAnchor.constraint(equalTo: mainActionButton.topAnchor,
-                                       constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
+        if let mainButton = mainActionButton {
+            button.bottomAnchor.constraint(equalTo: mainButton.topAnchor,
+                                           constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
+        } else {
+            button.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                                           constant: -UIConstants.actionBottomInset).isActive = true
+        }
 
         button.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
 
@@ -232,10 +241,13 @@ extension ExportGenericViewController {
             containerView.bottomAnchor
                 .constraint(equalTo: accessoryButton.topAnchor,
                             constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
+        } else if let mainButton = mainActionButton {
+            containerView.bottomAnchor
+                .constraint(equalTo: mainButton.topAnchor,
+                            constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
         } else {
             containerView.bottomAnchor
-                .constraint(equalTo: mainActionButton.topAnchor,
-                            constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
+                .constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor).isActive = true
         }
     }
 

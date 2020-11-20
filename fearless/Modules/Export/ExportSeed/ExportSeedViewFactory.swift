@@ -8,6 +8,7 @@ final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
         let uiFactory = UIFactory()
         let view = ExportGenericViewController(uiFactory: uiFactory,
                                                binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+                                               mainTitle: nil,
                                                accessoryTitle: nil)
 
         let localizationManager = LocalizationManager.shared
