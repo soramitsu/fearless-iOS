@@ -6,8 +6,7 @@ final class ConnectionAccountConfirmWireframe: AccountConfirmWireframeProtocol {
             return
         }
 
-        MainTransitionHelper.transitToMainIfExists(tabBarController: navigationController.tabBarController,
-                                                   closing: navigationController,
-                                                   animated: true)
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
     }
 }

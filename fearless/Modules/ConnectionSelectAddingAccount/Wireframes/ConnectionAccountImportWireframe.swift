@@ -13,9 +13,8 @@ final class ConnectionAccountImportWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        MainTransitionHelper.transitToMainIfExists(tabBarController: navigationController.tabBarController,
-                                                   closing: navigationController,
-                                                   animated: true)
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,

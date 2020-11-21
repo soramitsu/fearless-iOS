@@ -2,30 +2,27 @@ import UIKit
 import SoraUI
 
 struct MainTransitionHelper {
-    static func transitToMainIfExists(tabBarController: UITabBarController?,
-                                      selectingIndex: Int = MainTabBarViewFactory.walletIndex,
-                                      closing navigationController: UINavigationController,
-                                      animated: Bool) {
+    static func transitToMainTabBarController(selectingIndex: Int = MainTabBarViewFactory.walletIndex,
+                                              closing controller: UIViewController,
+                                              animated: Bool) {
 
-        if let presentingController = navigationController.presentingViewController {
+        if let presentingController = controller.presentingViewController {
             presentingController.dismiss(animated: animated, completion: nil)
+        }
+
+        guard let tabBarController = UIApplication.shared
+                .delegate?.window??.rootViewController as? UITabBarController else {
             return
         }
 
-        if navigationController.presentedViewController != nil {
-            navigationController.presentedViewController?.dismiss(animated: true, completion: nil)
-        }
-
-        guard let tabBarController = tabBarController else {
-            return
-        }
+        let navigationController = tabBarController.selectedViewController as? UINavigationController
 
         guard tabBarController.selectedIndex != selectingIndex else {
-            navigationController.popToRootViewController(animated: animated)
+            navigationController?.popToRootViewController(animated: animated)
             return
         }
 
-        navigationController.popToRootViewController(animated: false)
+        navigationController?.popToRootViewController(animated: false)
 
         tabBarController.selectedIndex = selectingIndex
 
