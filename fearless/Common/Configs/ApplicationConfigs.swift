@@ -19,13 +19,11 @@ final class ApplicationConfig {
 
 extension ApplicationConfig: ApplicationConfigProtocol {
     var termsURL: URL {
-        // TODO: Replace terms URL
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+        URL(string: "https://fearlesswallet.io/terms")!
     }
 
     var privacyPolicyURL: URL {
-        // TODO: Replace privacy URL
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+        URL(string: "https://fearlesswallet.io/privacy")!
     }
 
     var devStatusURL: URL {
