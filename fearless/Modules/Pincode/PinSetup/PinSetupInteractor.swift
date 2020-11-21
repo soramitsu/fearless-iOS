@@ -15,13 +15,16 @@ class PinSetupInteractor {
     private(set) var secretManager: SecretStoreManagerProtocol
     private(set) var settingsManager: SettingsManagerProtocol
     private(set) var biometryAuth: BiometryAuthProtocol
+    private let locale: Locale
 
     init(secretManager: SecretStoreManagerProtocol,
          settingsManager: SettingsManagerProtocol,
-         biometryAuth: BiometryAuthProtocol) {
+         biometryAuth: BiometryAuthProtocol,
+         locale: Locale) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
+        self.locale = locale
     }
 
     private(set) var pincode: String?
@@ -31,6 +34,29 @@ class PinSetupInteractor {
                 presenter?.didChangeState(from: oldValue)
             }
         }
+    }
+
+    private func handleNoneAuthType() {
+        state = .submitingPincode
+        submitPincode()
+    }
+
+    private func handleTouchId() {
+        state = .waitingBiometrics
+
+        presenter?.didStartWaitingBiometryDecision(type: .touchId) { [weak self] (result: Bool) -> Void in
+            self?.processResponseForBiometrics(result: result)
+        }
+    }
+
+    private func handleFaceId() {
+        state = .waitingBiometrics
+
+        let reason = R.string.localizable.askBiometryReason(preferredLanguages: locale.rLanguages)
+        biometryAuth
+            .authenticate(localizedReason: reason, completionQueue: .main) { [weak self] result in
+                self?.processResponseForBiometrics(result: result)
+            }
     }
 
     private func processResponseForBiometrics(result: Bool) {
@@ -66,18 +92,13 @@ extension PinSetupInteractor: PinSetupInteractorInputProtocol {
 
         self.pincode = pin
 
-        let authType = biometryAuth.availableBiometryType
-        if authType != .none {
-            state = .waitingBiometrics
-
-            presenter?.didStartWaitingBiometryDecision(type: authType) { [weak self] (result: Bool) -> Void in
-
-                self?.processResponseForBiometrics(result: result)
-            }
-
-        } else {
-            state = .submitingPincode
-            submitPincode()
+        switch biometryAuth.availableBiometryType {
+        case .none:
+            handleNoneAuthType()
+        case .touchId:
+            handleTouchId()
+        case .faceId:
+            handleFaceId()
         }
     }
 }

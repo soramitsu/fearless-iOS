@@ -59,15 +59,19 @@ class AccountManagementTests: XCTestCase {
             }
         }
 
-        let eventCenter = MockEventCenterProtocol()
-
         let completionExpectation = XCTestExpectation()
+
+        stub(wireframe) { stub in
+            when(stub).complete(from: any()).then { _ in
+                completionExpectation.fulfill()
+            }
+        }
+
+        let eventCenter = MockEventCenterProtocol()
 
         stub(eventCenter) { stub in
             when(stub).add(observer: any(), dispatchIn: any()).thenDoNothing()
-            when(stub).notify(with: any()).then { _ in
-                completionExpectation.fulfill()
-            }
+            when(stub).notify(with: any()).thenDoNothing()
         }
 
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
@@ -99,5 +103,7 @@ class AccountManagementTests: XCTestCase {
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
 
         XCTAssertEqual(settings.selectedAccount, account1)
+
+        verify(eventCenter, times(1)).notify(with: any())
     }
 }

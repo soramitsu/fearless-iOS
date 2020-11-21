@@ -24,7 +24,7 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
 
     private func subscribe() {
         do {
-            let storageKeys = children.map { $0.storageKey.toHex(includePrefix: true) }
+            let storageKeys = children.map { $0.remoteStorageKey.toHex(includePrefix: true) }
 
             let updateClosure: (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void = {
                 [weak self] (update) in
@@ -54,7 +54,7 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
         let updateData = StorageUpdateData(update: update)
 
         for change in updateData.changes {
-            let childrenToNotify = children.filter { $0.storageKey == change.key }
+            let childrenToNotify = children.filter { $0.remoteStorageKey == change.key }
 
             childrenToNotify.forEach {
                 $0.processUpdate(change.value, blockHash: updateData.blockHash)

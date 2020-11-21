@@ -6,9 +6,15 @@ final class AccountCreateInteractor {
     weak var presenter: AccountCreateInteractorOutputProtocol!
 
     let mnemonicCreator: IRMnemonicCreatorProtocol
+    let supportedNetworkTypes: [Chain]
+    let defaultNetwork: Chain
 
-    init(mnemonicCreator: IRMnemonicCreatorProtocol) {
+    init(mnemonicCreator: IRMnemonicCreatorProtocol,
+         supportedNetworkTypes: [Chain],
+         defaultNetwork: Chain) {
         self.mnemonicCreator = mnemonicCreator
+        self.supportedNetworkTypes = supportedNetworkTypes
+        self.defaultNetwork = defaultNetwork
     }
 }
 
@@ -17,11 +23,9 @@ extension AccountCreateInteractor: AccountCreateInteractorInputProtocol {
         do {
             let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
-            let defaultConnection = ConnectionItem.defaultConnection
-
             let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
-                                                   availableAddressTypes: SNAddressType.supported,
-                                                   defaultAddressType: defaultConnection.type,
+                                                   availableNetworks: supportedNetworkTypes,
+                                                   defaultNetwork: defaultNetwork,
                                                    availableCryptoTypes: CryptoType.allCases,
                                                    defaultCryptoType: .sr25519)
             presenter.didReceive(metadata: metadata)

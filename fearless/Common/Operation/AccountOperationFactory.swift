@@ -46,7 +46,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
 
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
-                                                     type: request.type)
+                                                     type: SNAddressType(chain: request.type))
 
             let secretKey: Data
 
@@ -55,11 +55,11 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 secretKey = keypair.privateKey().rawData()
             case .ed25519:
                 let derivableSeedFactory = Ed25519KeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             case .ecdsa:
                 let derivableSeedFactory = EcdsaKeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(result.seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             }
 
@@ -69,6 +69,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
+
+            try self.keystore.saveSeed(result.seed.miniSeed, address: address)
 
             return AccountItem(address: address,
                                cryptoType: request.cryptoType,
@@ -98,7 +100,7 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
 
             let addressFactory = SS58AddressFactory()
             let address = try addressFactory.address(fromPublicKey: keypair.publicKey(),
-                                                     type: request.type)
+                                                     type: SNAddressType(chain: request.networkType))
 
             let secretKey: Data
 
@@ -107,11 +109,11 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 secretKey = keypair.privateKey().rawData()
             case .ed25519:
                 let derivableSeedFactory = Ed25519KeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             case .ecdsa:
                 let derivableSeedFactory = EcdsaKeypairFactory()
-                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed,
+                secretKey = try derivableSeedFactory.deriveChildSeedFromParent(seed.miniSeed,
                                                                                chaincodeList: chaincodes)
             }
 
@@ -120,6 +122,8 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
             if !request.derivationPath.isEmpty {
                 try self.keystore.saveDeriviation(request.derivationPath, address: address)
             }
+
+            try self.keystore.saveSeed(seed, address: address)
 
             return AccountItem(address: address,
                                cryptoType: request.cryptoType,
@@ -145,19 +149,26 @@ final class AccountOperationFactory: AccountOperationFactoryProtocol {
                 throw AccountOperationFactoryError.decryption
             }
 
-            let username: String
+            let publicKey: IRPublicKeyProtocol
 
-            if let requestName = request.username, !requestName.isEmpty {
-                username = requestName
-            } else {
-                username = keystoreDefinition.meta.name
+            switch request.cryptoType {
+            case .sr25519:
+                publicKey = try SNPublicKey(rawData: keystore.publicKeyData)
+            case .ed25519:
+                publicKey = try EDPublicKey(rawData: keystore.publicKeyData)
+            case .ecdsa:
+                publicKey = try SECPublicKey(rawData: keystore.publicKeyData)
             }
 
-            try self.keystore.saveSecretKey(keystore.secretKeyData, address: keystore.address)
+            let addressFactory = SS58AddressFactory()
+            let address = try addressFactory.address(fromPublicKey: publicKey,
+                                                     type: SNAddressType(chain: request.networkType))
 
-            return AccountItem(address: keystore.address,
-                               cryptoType: CryptoType(keystore.cryptoType),
-                               username: username,
+            try self.keystore.saveSecretKey(keystore.secretKeyData, address: address)
+
+            return AccountItem(address: address,
+                               cryptoType: request.cryptoType,
+                               username: request.username,
                                publicKeyData: keystore.publicKeyData)
         }
     }

@@ -1,24 +1,25 @@
 import UIKit
 import SoraUI
 
-protocol DetailsTriangularedViewDelegate: class {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView)
-}
-
-class DetailsTriangularedView: UIView {
+class DetailsTriangularedView: BackgroundedContentControl {
     enum Layout {
         case singleTitle
         case largeIconTitleSubtitle
         case smallIconTitleSubtitle
     }
 
-    private(set) var backgroundView: TriangularedView!
-    private(set) var iconView: UIImageView!
+    var triangularedBackgroundView: TriangularedView? {
+        backgroundView as? TriangularedView
+    }
+
     private(set) var titleLabel: UILabel!
     private(set) var subtitleLabel: UILabel?
-    private(set) var actionButton: RoundedButton!
 
-    weak var delegate: DetailsTriangularedViewDelegate?
+    var iconView: UIImageView { lazyIconViewOrCreateIfNeeded() }
+    var actionView: UIImageView { lazyActionViewOrCreateIfNeeded() }
+
+    private var lazyIconView: UIImageView?
+    private var lazyActionView: UIImageView?
 
     var horizontalSpacing: CGFloat = 8.0 {
         didSet {
@@ -32,12 +33,6 @@ class DetailsTriangularedView: UIView {
         }
     }
 
-    var contentInsets = UIEdgeInsets(top: 12.0, left: 12.0, bottom: 12.0, right: 16.0) {
-        didSet {
-            setNeedsLayout()
-        }
-    }
-
     var layout: Layout = .largeIconTitleSubtitle {
         didSet {
             switch layout {
@@ -45,7 +40,7 @@ class DetailsTriangularedView: UIView {
                 if subtitleLabel == nil {
                     let label = UILabel()
                     subtitleLabel = label
-                    addSubview(label)
+                    contentView?.addSubview(label)
                 }
             case .singleTitle:
                 if subtitleLabel != nil {
@@ -77,12 +72,14 @@ class DetailsTriangularedView: UIView {
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        backgroundView.frame = bounds
+        contentView?.frame = bounds
 
-        actionButton.frame = CGRect(x: bounds.maxX - bounds.height,
-                                    y: bounds.minY,
-                                    width: bounds.height,
-                                    height: bounds.height)
+        if let actionView = lazyActionView {
+            actionView.frame = CGRect(x: bounds.maxX - bounds.height,
+                                      y: bounds.minY,
+                                      width: bounds.height,
+                                      height: bounds.height)
+        }
 
         switch layout {
         case .largeIconTitleSubtitle:
@@ -96,111 +93,145 @@ class DetailsTriangularedView: UIView {
 
     private func layoutLargeIconTitleSubtitle() {
         let titleHeight = titleLabel.intrinsicContentSize.height
-        let labelX = bounds.minX + contentInsets.left + 2.0 * iconRadius + horizontalSpacing
+
+        let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
         titleLabel.frame = CGRect(x: labelX,
                                   y: bounds.minY + contentInsets.top,
-                                  width: actionButton.frame.minX - labelX,
+                                  width: trailing - labelX,
                                   height: titleHeight)
 
         let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
         subtitleLabel?.frame = CGRect(x: labelX,
                                      y: bounds.maxY - contentInsets.bottom - subtitleHeight,
-                                     width: actionButton.frame.minX - labelX,
+                                     width: trailing - labelX,
                                      height: subtitleHeight)
 
-        iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                y: bounds.midY - iconRadius,
-                                width: 2.0 * iconRadius,
-                                height: 2.0 * iconRadius)
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
+                                    y: bounds.midY - iconRadius,
+                                    width: 2.0 * iconRadius,
+                                    height: 2.0 * iconRadius)
+        }
     }
 
     private func layoutSmallIconTitleSubtitle() {
         let titleHeight = titleLabel.intrinsicContentSize.height
         let titleX = bounds.minX + contentInsets.left
+
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
         titleLabel.frame = CGRect(x: titleX,
                                   y: bounds.minY + contentInsets.top,
-                                  width: actionButton.frame.minX - titleX,
+                                  width: trailing - titleX,
                                   height: titleHeight)
 
         let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
-        let subtitleX = titleX + 2.0 * iconRadius + horizontalSpacing
+        let subtitleX = lazyIconView != nil ? titleX + 2.0 * iconRadius + horizontalSpacing : titleX
         subtitleLabel?.frame = CGRect(x: subtitleX,
                                       y: bounds.maxY - contentInsets.bottom - subtitleHeight,
-                                      width: actionButton.frame.minX - subtitleX,
+                                      width: trailing - subtitleX,
                                       height: subtitleHeight)
 
-        let subtitleCenter = subtitleLabel?.frame.midY ?? bounds.midY
-        iconView.frame = CGRect(x: titleX,
-                                y: subtitleCenter - iconRadius,
-                                width: 2.0 * iconRadius,
-                                height: 2.0 * iconRadius)
+        if let iconView = lazyIconView {
+            let subtitleCenter = subtitleLabel?.frame.midY ?? bounds.midY
+            iconView.frame = CGRect(x: titleX,
+                                    y: subtitleCenter - iconRadius,
+                                    width: 2.0 * iconRadius,
+                                    height: 2.0 * iconRadius)
+        }
     }
 
     private func layoutSingleTitle() {
         let titleHeight = titleLabel.intrinsicContentSize.height
-        let labelX = bounds.minX + contentInsets.left + 2.0 * iconRadius + horizontalSpacing
+
+        let iconOffset = lazyIconView != nil ? 2.0 * iconRadius + horizontalSpacing : 0.0
+        let labelX = bounds.minX + contentInsets.left + iconOffset
+        let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
+
         titleLabel.frame = CGRect(x: labelX,
                                   y: bounds.midY - titleHeight / 2.0,
-                                  width: actionButton.frame.minX - labelX,
+                                  width: trailing - labelX,
                                   height: titleHeight)
 
-        iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                y: bounds.midY - iconRadius,
-                                width: 2.0 * iconRadius,
-                                height: 2.0 * iconRadius)
+        if let iconView = lazyIconView {
+            iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
+                                    y: bounds.midY - iconRadius,
+                                    width: 2.0 * iconRadius,
+                                    height: 2.0 * iconRadius)
+        }
     }
 
     private func configure() {
         self.backgroundColor = UIColor.clear
 
         configureBackgroundViewIfNeeded()
-        configureActionButtonIfNeeded()
         configureContentViewIfNeeded()
     }
 
     private func configureBackgroundViewIfNeeded() {
         if backgroundView == nil {
-            backgroundView = TriangularedView()
-            backgroundView.shadowOpacity = 0.0
-            addSubview(backgroundView)
+            let triangularedView = TriangularedView()
+            triangularedView.isUserInteractionEnabled = false
+            triangularedView.shadowOpacity = 0.0
+
+            self.backgroundView = triangularedView
         }
     }
 
-    private func configureActionButtonIfNeeded() {
-        if actionButton == nil {
-            actionButton = RoundedButton()
-            actionButton.contentInsets = .zero
-            actionButton.roundedBackgroundView?.fillColor = .clear
-            actionButton.roundedBackgroundView?.highlightedFillColor = .clear
-            actionButton.roundedBackgroundView?.shadowOpacity = 0.0
-            actionButton.changesContentOpacityWhenHighlighted = true
-            addSubview(actionButton)
-
-            actionButton.addTarget(self,
-                                   action: #selector(didSelectAction),
-                                   for: .touchUpInside)
+    private func lazyActionViewOrCreateIfNeeded() -> UIImageView {
+        if let actionButton = lazyActionView {
+            return actionButton
         }
+
+        let imageView = UIImageView()
+        imageView.contentMode = .center
+        contentView?.addSubview(imageView)
+
+        lazyActionView = imageView
+
+        if superview != nil {
+            setNeedsLayout()
+        }
+
+        return imageView
+    }
+
+    private func lazyIconViewOrCreateIfNeeded() -> UIImageView {
+        if let iconView = lazyIconView {
+            return iconView
+        }
+
+        let imageView = UIImageView()
+        contentView?.addSubview(imageView)
+
+        lazyIconView = imageView
+
+        if superview != nil {
+            setNeedsLayout()
+        }
+
+        return imageView
     }
 
     private func configureContentViewIfNeeded() {
-        if iconView == nil {
-            iconView = UIImageView()
-            addSubview(iconView)
+        if contentView == nil {
+            let contentView = UIView()
+            contentView.backgroundColor = .clear
+            contentView.isUserInteractionEnabled = false
+            self.contentView = contentView
         }
 
         if titleLabel == nil {
             titleLabel = UILabel()
-            addSubview(titleLabel)
+            contentView?.addSubview(titleLabel)
         }
 
         if subtitleLabel == nil, layout != .singleTitle {
             let label = UILabel()
-            addSubview(label)
+            contentView?.addSubview(label)
             subtitleLabel = label
         }
-    }
-
-    @objc private func didSelectAction() {
-        delegate?.detailsViewDidSelectAction(self)
     }
 }

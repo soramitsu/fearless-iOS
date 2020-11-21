@@ -56,7 +56,7 @@ class NetworkInfoTests: XCTestCase {
         let copyExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            stub.presentSuccessNotification(any(), from: any()).then { _ in
+            stub.presentSuccessNotification(any(), from: any(), completion: any()).then { _ in
                 copyExpectation.fulfill()
             }
         }

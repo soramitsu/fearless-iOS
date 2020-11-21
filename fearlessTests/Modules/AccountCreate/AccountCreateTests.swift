@@ -14,7 +14,9 @@ class AccountCreateTests: XCTestCase {
         let wireframe = MockAccountCreateWireframeProtocol()
 
         let mnemonicCreator = IRMnemonicCreator()
-        let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator)
+        let interactor = AccountCreateInteractor(mnemonicCreator: mnemonicCreator,
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
 
         let expectedUsername = "myname"
         let presenter = AccountCreatePresenter(username: expectedUsername)

@@ -14,6 +14,8 @@ final class NetworkManagementPresenter {
     private var defaultConnectionViewModels: [ManagedConnectionViewModel] = []
     private var customConnectionViewModels: [ManagedConnectionViewModel] = []
 
+    private var pendingCompletion: Bool = false
+
     private let listCalculator: ListDifferenceCalculator<ManagedConnectionItem> = {
         let calculator = ListDifferenceCalculator<ManagedConnectionItem>(initialItems: []) { (item1, item2) in
             item1.order < item2.order
@@ -56,6 +58,14 @@ final class NetworkManagementPresenter {
             view?.reload()
         }
     }
+
+    private func checkPendingCompletion() {
+        if pendingCompletion {
+            pendingCompletion = false
+
+            wireframe.complete(from: view)
+        }
+    }
 }
 
 extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
@@ -93,6 +103,8 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let connection = defaultConnectionItems[index]
 
         if selectedConnectionItem != connection {
+            pendingCompletion = true
+
             interactor.select(connection: connection)
         }
     }
@@ -101,6 +113,8 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let connection = ConnectionItem(managedConnectionItem: listCalculator.allItems[index])
 
         if connection != selectedConnectionItem {
+            pendingCompletion = true
+
             interactor.select(connection: connection)
         }
     }
@@ -138,6 +152,36 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     }
 
     func removeCustomItem(at index: Int) {
+        let viewModel = customConnectionViewModels[index]
+
+        let locale = localizationManager.selectedLocale
+
+        let removeTitle = R.string.localizable
+            .connectionDeleteConfirm(preferredLanguages: locale.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            self?.performCustomItemRemoval(at: index)
+
+            self?.view?.didRemoveCustomItem(at: index)
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
+
+        let title = R.string.localizable
+            .connectionDeleteTitle(preferredLanguages: locale.rLanguages)
+
+        let detailsParam = "\(viewModel.type.titleForLocale(locale)), \(viewModel.name)"
+        let details = R.string.localizable
+            .connectionDeleteDescription(detailsParam, preferredLanguages: locale.rLanguages)
+        let alertViewModel = AlertPresentableViewModel(title: title,
+                                                       message: details,
+                                                       actions: [removeAction],
+                                                       closeAction: cancelTitle)
+
+        wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
+    }
+
+    private func performCustomItemRemoval(at index: Int) {
         let viewModel = customConnectionViewModels.remove(at: index)
 
         if let item = listCalculator.allItems.first(where: { $0.identifier == viewModel.identifier }) {
@@ -166,6 +210,8 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
     func didReceiveSelectedConnection(_ item: ConnectionItem) {
         selectedConnectionItem = item
         updateViewModels()
+
+        checkPendingCompletion()
     }
 
     func didReceiveDefaultConnections(_ connections: [ConnectionItem]) {
@@ -187,6 +233,8 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
     }
 
     func didFindMultiple(accounts: [AccountItem], for connection: ConnectionItem) {
+        pendingCompletion = false
+
         let context = PrimitiveContextWrapper(value: (accounts, connection))
 
         wireframe.presentAccountSelection(accounts,
@@ -197,6 +245,8 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
     }
 
     func didFindNoAccounts(for connection: ConnectionItem) {
+        pendingCompletion = false
+
         let title = R.string.localizable
             .accountNeededTitle(preferredLanguages: localizationManager.selectedLocale.rLanguages)
         let message = R.string.localizable
@@ -239,6 +289,8 @@ extension NetworkManagementPresenter: ModalPickerViewControllerDelegate {
             (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value else {
             return
         }
+
+        pendingCompletion = true
 
         interactor.select(connection: connection, account: accounts[index])
     }

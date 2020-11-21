@@ -6,11 +6,7 @@ final class AddConfirmationWireframe: AccountConfirmWireframeProtocol {
             return
         }
 
-        if let managementController = navigationController.viewControllers
-            .first(where: { $0 is AccountManagementViewController }) {
-            navigationController.popToViewController(managementController, animated: true)
-        } else {
-            navigationController.popToRootViewController(animated: true)
-        }
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
     }
 }

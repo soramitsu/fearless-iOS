@@ -1,28 +1,33 @@
 import UIKit
+import SoraUI
 
-final class AboutViewController: UIViewController {
+final class AboutViewController: UIViewController, AdaptiveDesignable {
+    private struct Constants {
+        static let logoTopOffset: CGFloat = 102.0
+        static let tableTopOffset: CGFloat = 279
+        static let heightFriction: CGFloat = 0.85
+    }
+
     private enum Row {
-        static let height: CGFloat = 55.0
+        static let height: CGFloat = 48.0
 
-        case version
-        case writeUs
+        case website
         case opensource
+        case social
+        case writeUs
         case terms
         case privacy
     }
 
     private enum Section: Int, CaseIterable {
-        static let height: CGFloat = 35.0
+        static let height: CGFloat = 68.0
 
-        case software
-        case legal
+        case about
 
         var rows: [Row] {
             switch self {
-            case .software:
-                return [.version, .writeUs, .opensource]
-            case .legal:
-                return [.terms, .privacy]
+            case .about:
+                return [.website, .opensource, .social, .writeUs, .terms, .privacy]
             }
         }
     }
@@ -33,60 +38,70 @@ final class AboutViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
 
-    private var version: String = ""
+    @IBOutlet private var logoTop: NSLayoutConstraint!
+    @IBOutlet private var tableTop: NSLayoutConstraint!
+
+    private var viewModel: AboutViewModel = AboutViewModel(website: "",
+                                                           version: "",
+                                                           social: "",
+                                                           email: "")
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        adjustLayout()
         configureTableView()
-        setupLocalization()
 
         presenter.setup()
+    }
+
+    private func adjustLayout() {
+        if isAdaptiveHeightDecreased {
+            logoTop.constant = Constants.logoTopOffset * designScaleRatio.height
+                * Constants.heightFriction
+            tableTop.constant = Constants.tableTopOffset * designScaleRatio.height
+                * Constants.heightFriction
+        }
     }
 
     // MARK: UITableView
 
     private func title(for section: Section) -> String {
         switch section {
-        case .software:
-            return R.string.localizable.aboutSoftware(preferredLanguages: locale?.rLanguages)
-        case .legal:
-            return R.string.localizable.aboutLegal(preferredLanguages: locale?.rLanguages)
+        case .about:
+            return R.string.localizable.aboutTitle(preferredLanguages: locale?.rLanguages)
         }
     }
 
     private func configureTableView() {
-        tableView.register(R.nib.aboutAccessoryTitleCell)
-        tableView.register(R.nib.aboutNavigationCell)
+        tableView.register(R.nib.aboutTitleCell)
+        tableView.register(R.nib.aboutDetailsCell)
 
         let hiddableFooterSize = CGSize(width: tableView.bounds.width, height: 1.0)
         tableView.tableFooterView = UIView(frame: CGRect(origin: .zero,
                                                          size: hiddableFooterSize))
     }
 
-    private func setupLocalization() {
-        title = R.string.localizable.aboutTitle(preferredLanguages: locale?.rLanguages)
-    }
-
-    private func prepareAccessoryCell(for tableView: UITableView,
-                                      indexPath: IndexPath,
-                                      title: String,
-                                      subtitle: String) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.aboutAccessoryTitleCellId,
+    private func prepareTitleCell(for tableView: UITableView,
+                                  indexPath: IndexPath,
+                                  title: String) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.aboutTitleCellId,
                                                  for: indexPath)!
 
-        cell.bind(title: title, subtitle: subtitle)
+        cell.bind(title: title)
 
         return cell
     }
 
-    private func prepareNavigationCell(for tableView: UITableView,
-                                       indexPath: IndexPath,
-                                       title: String) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.aboutNavigationCellId,
+    private func prepareDetailsCell(for tableView: UITableView,
+                                    indexPath: IndexPath,
+                                    title: String,
+                                    subtitle: String,
+                                    icon: UIImage?) -> UITableViewCell {
+        let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.aboutDetailsCellId,
                                                  for: indexPath)!
 
-        cell.bind(title: title)
+        cell.bind(title: title, subtitle: subtitle, icon: icon)
 
         return cell
     }
@@ -103,31 +118,45 @@ extension AboutViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch Section(rawValue: indexPath.section)!.rows[indexPath.row] {
-        case .version:
-            return prepareAccessoryCell(for: tableView,
-                                        indexPath: indexPath,
-                                        title: R.string.localizable
-                                            .aboutVersion(preferredLanguages: locale?.rLanguages),
-                                        subtitle: version)
-        case .writeUs:
-            return prepareNavigationCell(for: tableView,
-                                         indexPath: indexPath,
-                                         title: R.string.localizable
-                                            .aboutContactUs(preferredLanguages: locale?.rLanguages))
+        case .website:
+            return prepareDetailsCell(for: tableView,
+                                      indexPath: indexPath,
+                                      title: R.string.localizable
+                                            .aboutWebsite(preferredLanguages: locale?.rLanguages),
+                                      subtitle: viewModel.website,
+                                      icon: R.image.iconAboutWeb())
         case .opensource:
-            return prepareNavigationCell(for: tableView,
+            let versionTitle = R.string.localizable
+                .aboutVersion(preferredLanguages: locale?.rLanguages) + " " + viewModel.version
+            return prepareDetailsCell(for: tableView,
                                          indexPath: indexPath,
                                          title: R.string.localizable
-                                            .aboutSourceCode(preferredLanguages: locale?.rLanguages))
+                                            .aboutGithub(preferredLanguages: locale?.rLanguages),
+                                         subtitle: versionTitle,
+                                         icon: R.image.iconAboutGit())
+        case .social:
+            return prepareDetailsCell(for: tableView,
+                                      indexPath: indexPath,
+                                      title: R.string.localizable
+                                        .aboutTelegram(preferredLanguages: locale?.rLanguages),
+                                      subtitle: viewModel.social,
+                                      icon: R.image.iconAboutTg())
+        case .writeUs:
+            return prepareDetailsCell(for: tableView,
+                                      indexPath: indexPath,
+                                      title: R.string.localizable
+                                            .aboutContactUs(preferredLanguages: locale?.rLanguages),
+                                      subtitle: viewModel.email,
+                                      icon: R.image.iconAboutEmail())
         case .terms:
-            return prepareNavigationCell(for: tableView,
+            return prepareTitleCell(for: tableView,
                                          indexPath: indexPath,
                                          title: R.string.localizable
                                             .aboutTerms(preferredLanguages: locale?.rLanguages))
         case .privacy:
-            return prepareNavigationCell(for: tableView,
-                                         indexPath: indexPath,
-                                         title: R.string.localizable
+            return prepareTitleCell(for: tableView,
+                                    indexPath: indexPath,
+                                    title: R.string.localizable
                                             .aboutPrivacy(preferredLanguages: locale?.rLanguages))
         }
     }
@@ -139,7 +168,8 @@ extension AboutViewController: UITableViewDelegate {
     }
 
     func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return Section.height
+        let multiplier = isAdaptiveHeightDecreased ? designScaleRatio.height : 1.0
+        return Section.height * multiplier
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -157,12 +187,14 @@ extension AboutViewController: UITableViewDelegate {
         tableView.deselectRow(at: indexPath, animated: true)
 
         switch Section(rawValue: indexPath.section)!.rows[indexPath.row] {
-        case .version:
-            return
-        case .writeUs:
-            presenter.activateWriteUs()
+        case .website:
+            presenter.activateWebsite()
         case .opensource:
             presenter.activateOpensource()
+        case .social:
+            presenter.activateSocial()
+        case .writeUs:
+            presenter.activateWriteUs()
         case .terms:
             presenter.activateTerms()
         case .privacy:
@@ -172,8 +204,8 @@ extension AboutViewController: UITableViewDelegate {
 }
 
 extension AboutViewController: AboutViewProtocol {
-    func didReceive(version: String) {
-        self.version = version
+    func didReceive(viewModel: AboutViewModel) {
+        self.viewModel = viewModel
         tableView.reloadData()
     }
 }

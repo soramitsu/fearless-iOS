@@ -1,14 +1,14 @@
 import Foundation
 
 final class BondedSubscription: StorageChildSubscribing {
-    let storageKey: Data
+    let remoteStorageKey: Data
     let logger: LoggerProtocol
     let stakingSubscription: StakingInfoSubscription
 
-    init(storageKey: Data,
+    init(remoteStorageKey: Data,
          stakingSubscription: StakingInfoSubscription,
          logger: LoggerProtocol) {
-        self.storageKey = storageKey
+        self.remoteStorageKey = remoteStorageKey
         self.stakingSubscription = stakingSubscription
         self.logger = logger
     }

@@ -14,12 +14,10 @@ final class ReceiveHeaderView: UIView {
     override func awakeFromNib() {
         super.awakeFromNib()
 
-        accountView.delegate = self
+        accountView.addTarget(self, action: #selector(actionReceive), for: .touchUpInside)
     }
-}
 
-extension ReceiveHeaderView: DetailsTriangularedViewDelegate {
-    func detailsViewDidSelectAction(_ details: DetailsTriangularedView) {
+    @objc func actionReceive() {
         try? actionCommand?.execute()
     }
 }

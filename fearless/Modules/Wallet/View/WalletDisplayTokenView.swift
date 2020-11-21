@@ -16,14 +16,16 @@ extension WalletDisplayTokenView {
     func bind(viewModel: WalletTokenViewModel) {
         self.viewModel = viewModel
 
-        iconImageView.image = viewModel.icon
+        borderedActionControl.actionControl.contentView.titleLabel.text = viewModel.header
+        borderedActionControl.actionControl.contentView.subtitleImageView.image = viewModel.icon
+        borderedActionControl.actionControl.contentView.subtitleLabelView.text = viewModel.title
 
-        actionControl.titleLabel.text = viewModel.title
         balanceTitle.text = viewModel.subtitle.uppercased() + ":"
         balanceDetails.text = viewModel.details
 
-        actionControl.isUserInteractionEnabled = false
-        tokenBackgroundView.applyDisabledStyle()
+        borderedActionControl.isUserInteractionEnabled = false
+
+        borderedActionControl.applyDisabledStyle()
     }
 }
 

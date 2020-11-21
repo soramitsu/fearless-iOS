@@ -4,7 +4,15 @@ import SoraKeystore
 import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
+    static let walletIndex: Int = 0
+
 	static func createView() -> MainTabBarViewProtocol? {
+
+        guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
+                .findService() else {
+            Logger.shared.error("Can't find required keystore import service")
+            return nil
+        }
 
         let localizationManager = LocalizationManager.shared
         let webSocketService = WebSocketService.shared
@@ -13,7 +21,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
-                                              webSocketService: webSocketService)
+                                              webSocketService: webSocketService,
+                                              keystoreImportService: keystoreImportService)
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),
@@ -74,7 +83,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         wireframe.walletContext = walletContext
-        view.didReplaceView(for: walletController, for: 0)
+        view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
     static func createWalletController(walletContext: CommonWalletContextProtocol,
@@ -176,9 +185,8 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        let localizableTitle = LocalizableResource { _ in
-            // TODO: fix translation in corresponding task
-            "Polkaswap"
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarPolkaswapTitle(preferredLanguages: locale.rLanguages)
         }
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)

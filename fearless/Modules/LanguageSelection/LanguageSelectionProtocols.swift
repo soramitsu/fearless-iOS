@@ -6,7 +6,7 @@ protocol LanguageSelectionPresenterProtocol: SelectionListPresenterProtocol {
 
 protocol LanguageSelectionInteractorInputProtocol: class {
     func load()
-    func select(language: Language)
+    func select(language: Language) -> Bool
 }
 
 protocol LanguageSelectionInteractorOutputProtocol: class {
@@ -14,7 +14,9 @@ protocol LanguageSelectionInteractorOutputProtocol: class {
     func didLoad(languages: [Language])
 }
 
-protocol LanguageSelectionWireframeProtocol: class {}
+protocol LanguageSelectionWireframeProtocol: class {
+    func proceed(from view: LanguageSelectionViewProtocol?)
+}
 
 protocol LanguageSelectionViewFactoryProtocol: class {
 	static func createView() -> LanguageSelectionViewProtocol?

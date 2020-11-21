@@ -17,6 +17,8 @@ struct ExtrinsicParameters {
     let specVersion: UInt32
     let transactionVersion: UInt32
     let signatureVersion: UInt8
+    let moduleIndex: UInt8
+    let callIndex: UInt8
 }
 
 struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
@@ -34,8 +36,8 @@ struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
         try transferCall.encode(scaleEncoder: callEncoder)
         let callArguments = callEncoder.encode()
 
-        let call = Call(moduleIndex: ExtrinsicConstants.balanceModuleIndex,
-                        callIndex: ExtrinsicConstants.transferCallIndex,
+        let call = Call(moduleIndex: additionalParameters.moduleIndex,
+                        callIndex: additionalParameters.callIndex,
                         arguments: callArguments)
 
         let era = Era.immortal

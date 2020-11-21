@@ -93,6 +93,8 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             let item = listCalculator.allItems.first(where: { $0.address == viewModel.address }),
             item.address != selectedAccountItem?.address {
             interactor.select(item: item)
+
+            wireframe.complete(from: view)
         }
     }
 
@@ -131,6 +133,51 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
     }
 
     func removeItem(at index: Int, in section: Int) {
+        askAndPerformRemoveItem(at: index, in: section) { [weak self] result in
+            if result {
+                self?.view?.didRemoveItem(at: index, in: section)
+            }
+        }
+    }
+
+    func removeSection(at index: Int) {
+        askAndPerformRemoveItem(at: 0, in: index) { [weak self] result in
+            if result {
+                self?.view?.didRemoveSection(at: index)
+            }
+        }
+    }
+
+    private func askAndPerformRemoveItem(at index: Int, in section: Int, completion: @escaping (Bool) -> Void) {
+        let locale = localizationManager?.selectedLocale
+
+        let removeTitle = R.string.localizable
+            .accountDeleteConfirm(preferredLanguages: locale?.rLanguages)
+
+        let removeAction = AlertPresentableAction(title: removeTitle, style: .destructive) { [weak self] in
+            self?.performRemoveItem(at: index, in: section)
+
+            completion(true)
+        }
+
+        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let cancelAction = AlertPresentableAction(title: cancelTitle, style: .cancel) {
+            completion(false)
+        }
+
+        let title = R.string.localizable
+            .accountDeleteConfirmationTitle(preferredLanguages: locale?.rLanguages)
+        let details = R.string.localizable
+            .accountDeleteConfirmationDescription(preferredLanguages: locale?.rLanguages)
+        let viewModel = AlertPresentableViewModel(title: title,
+                                                  message: details,
+                                                  actions: [cancelAction, removeAction],
+                                                  closeAction: nil)
+
+        wireframe.present(viewModel: viewModel, style: .alert, from: view)
+    }
+
+    private func performRemoveItem(at index: Int, in section: Int) {
         var newItems = sections[section].items
         let viewModel = newItems.remove(at: index)
 

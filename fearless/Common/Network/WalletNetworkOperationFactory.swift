@@ -38,40 +38,17 @@ final class WalletNetworkOperationFactory {
                                             parameters: [param])
     }
 
-    func createAccountInfoFetchOperation(_ accountId: Data? = nil)
-        -> BaseOperation<JSONScaleDecodable<AccountInfo>> {
+    func createExtrinsicNonceFetchOperation(_ chain: Chain, accountId: Data? = nil) -> BaseOperation<UInt32> {
         do {
             let identifier = try (accountId ?? Data(hexString: accountSettings.accountId))
 
-            return createStorageFetchOperation(moduleName: "System",
-                                               serviceName: "Account",
-                                               identifier: identifier)
-        } catch {
-            return createBaseOperation(result: .failure(error))
-        }
-    }
+            let address = try SS58AddressFactory()
+                .address(fromPublicKey: AccountIdWrapper(rawData: identifier),
+                         type: SNAddressType(chain: chain))
 
-    func createStorageFetchOperation<T: Decodable>(moduleName: String,
-                                                   serviceName: String,
-                                                   identifier: Data? = nil) -> BaseOperation<T> {
-        do {
-            let key: String
-            let storageKeyFactory = StorageKeyFactory()
-
-            if let identifier = identifier {
-                key = try storageKeyFactory.createStorageKey(moduleName: moduleName,
-                                                             serviceName: serviceName,
-                                                             identifier: identifier)
-                    .toHex(includePrefix: true)
-            } else {
-                key = try storageKeyFactory.createStorageKey(moduleName: moduleName,
-                                                             serviceName: serviceName)
-                    .toHex(includePrefix: true)
-            }
-
-            return JSONRPCListOperation<T>(engine: engine,
-                                           method: RPCMethod.getStorage,
-                                           parameters: [key])
+            return JSONRPCListOperation<UInt32>(engine: engine,
+                                                method: RPCMethod.getExtrinsicNonce,
+                                                parameters: [address])
         } catch {
             return createBaseOperation(result: .failure(error))
         }
@@ -86,18 +63,16 @@ final class WalletNetworkOperationFactory {
                                    receiver: String,
                                    chain: Chain,
                                    signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
-        let accountInfoOperation = createAccountInfoFetchOperation()
-        let runtimeVersionOperation = createRuntimeVersionOperation()
-
         let sender = accountSettings.accountId
         let currentCryptoType = cryptoType
 
+        let nonceOperation = createExtrinsicNonceFetchOperation(chain)
+        let runtimeVersionOperation = createRuntimeVersionOperation()
+
         targetOperation.configurationBlock = {
             do {
-                let nonce = try accountInfoOperation
+                let nonce = try nonceOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                    .underlyingValue?
-                    .nonce ?? 0
 
                 let runtimeVersion = try runtimeVersionOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -110,7 +85,9 @@ final class WalletNetworkOperationFactory {
                                                                genesisHash: genesisHashData,
                                                                specVersion: runtimeVersion.specVersion,
                                                                transactionVersion: runtimeVersion.transactionVersion,
-                                                               signatureVersion: currentCryptoType.version)
+                                                               signatureVersion: currentCryptoType.version,
+                                                               moduleIndex: chain.balanceModuleIndex,
+                                                               callIndex: chain.transferCallIndex)
 
                 let extrinsicData = try ExtrinsicFactory.transferExtrinsic(from: senderAccountId,
                                                                            to: receiverAccountId,
@@ -124,7 +101,7 @@ final class WalletNetworkOperationFactory {
             }
         }
 
-        let dependencies: [Operation] = [accountInfoOperation, runtimeVersionOperation]
+        let dependencies: [Operation] = [nonceOperation, runtimeVersionOperation]
 
         dependencies.forEach { targetOperation.addDependency($0)}
 

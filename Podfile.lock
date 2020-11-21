@@ -9,7 +9,7 @@ PODS:
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
-  - FearlessUtils (0.7.0):
+  - FearlessUtils (0.8.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.7.0)
     - IrohaCrypto/Scrypt (~> 0.7.0)
@@ -94,9 +94,9 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `2e79d218d2f00c60af4a345f8e4c08b28c0c87a0`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `7e4abb43634fbc1740c25067ea8f50a447991079`)
   - Cuckoo
-  - FearlessUtils (~> 0.7.0)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `f821a9352d1592d60a43b7ced4fe977373d445a4`)
   - FireMock
   - R.swift
   - ReachabilitySwift
@@ -113,7 +113,6 @@ SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
-    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
@@ -132,16 +131,22 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 2e79d218d2f00c60af4a345f8e4c08b28c0c87a0
+    :commit: 7e4abb43634fbc1740c25067ea8f50a447991079
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 2e79d218d2f00c60af4a345f8e4c08b28c0c87a0
+    :commit: 7e4abb43634fbc1740c25067ea8f50a447991079
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -150,7 +155,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: aff931b1371471e6bd06e5c43028b67d5ab60d5a
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: c5ff1bfef02d7f0ceb02cae3e6a266bb4e0063cf
+  FearlessUtils: 979e4d4f7fce0432217588b6d693cb86166545e5
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
@@ -168,6 +173,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1b15a5c1b03cb34c3abeaca62ed922578cba3f9b
+PODFILE CHECKSUM: 9bed606088b36dc7ce2b9c529aed1ee581daa113
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0

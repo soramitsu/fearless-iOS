@@ -14,8 +14,8 @@ class TriangularedButton: BackgroundedContentControl {
         return self.contentView as? ImageWithTitleView
     }
 
-    /// Returns backround view with rounded corners
-    var roundedBackgroundView: TriangularedView? {
+    /// Returns backround view with cut corners
+    var triangularedView: TriangularedView? {
         return self.backgroundView as? TriangularedView
     }
 

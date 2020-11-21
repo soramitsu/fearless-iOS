@@ -3,15 +3,9 @@ import IrohaCrypto
 
 extension ConnectionItem {
     static var defaultConnection: ConnectionItem {
-        #if F_DEV
-            return ConnectionItem(title: "Westend, Parity node",
-                                  url: URL(string: "wss://westend-rpc.polkadot.io")!,
-                                  type: SNAddressType.genericSubstrate)
-        #else
-            return ConnectionItem(title: "Kusama, Parity node",
-                                  url: URL(string: "wss://kusama-rpc.polkadot.io")!,
-                                  type: SNAddressType.kusamaMain)
-        #endif
+        return ConnectionItem(title: "Kusama, Parity node",
+                              url: URL(string: "wss://kusama-rpc.polkadot.io")!,
+                              type: SNAddressType.kusamaMain)
     }
 
     static var supportedConnections: [ConnectionItem] {

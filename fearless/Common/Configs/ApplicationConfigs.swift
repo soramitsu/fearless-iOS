@@ -7,6 +7,8 @@ protocol ApplicationConfigProtocol {
     var devStatusURL: URL { get }
     var roadmapURL: URL { get }
     var supportEmail: String { get }
+    var websiteURL: URL { get }
+    var socialURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
 }
@@ -17,13 +19,11 @@ final class ApplicationConfig {
 
 extension ApplicationConfig: ApplicationConfigProtocol {
     var termsURL: URL {
-        // TODO: Replace terms URL
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+        URL(string: "https://fearlesswallet.io/terms")!
     }
 
     var privacyPolicyURL: URL {
-        // TODO: Replace privacy URL
-        URL(string: "https://soramitsucoltd.aha.io/shared/343e5db57d53398e3f26d0048158c4a2")!
+        URL(string: "https://fearlesswallet.io/privacy")!
     }
 
     var devStatusURL: URL {
@@ -36,6 +36,14 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var supportEmail: String {
         "fearless@soramitsu.co.jp"
+    }
+
+    var websiteURL: URL {
+        URL(string: "https://fearlesswallet.io")!
+    }
+
+    var socialURL: URL {
+        URL(string: "https://t.me/fearlesswallet")!
     }
 
     //swiftlint:disable force_cast

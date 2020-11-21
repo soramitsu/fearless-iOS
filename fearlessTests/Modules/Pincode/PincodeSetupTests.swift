@@ -17,7 +17,8 @@ class PincodeSetupTests: XCTestCase {
 
         let interactor = PinSetupInteractor(secretManager: keystore,
                                             settingsManager: settings,
-                                            biometryAuth: biometry)
+                                            biometryAuth: biometry,
+                                            locale: Locale.current)
 
         let presenter = PinSetupPresenter()
         presenter.view = view

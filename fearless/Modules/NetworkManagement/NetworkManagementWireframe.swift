@@ -50,4 +50,13 @@ final class NetworkManagementWireframe: NetworkManagementWireframeProtocol {
         view?.controller.navigationController?.pushViewController(addConnectionView.controller,
                                                                   animated: true)
     }
+
+    func complete(from view: NetworkManagementViewProtocol?) {
+        guard let navigationController = view?.controller.navigationController else {
+            return
+        }
+
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
+    }
 }

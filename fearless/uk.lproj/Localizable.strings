@@ -63,7 +63,7 @@
 "no.email.bound.error.message" = "Переконайтеся, що поштова програма встановлена на пристрої.";
 "connection.management.title" = "Мережі";
 "onboarding.create.account" = "Створити рахунок";
-"username.setup.choose.title" = "Виберіть ім'я";
+"username.setup.choose.title" = "Ім'я";
 "username.setup.hint" = "Назва цього облікового запису та спосіб відображення під вашими адресами. Завдяки ланцюговій ідентичності він може бути доступний для інших.";
 "username.setup.title" = "Створити рахунок";
 "common.no.screenshot.title" = "Не робити знімки екрана";
@@ -93,6 +93,7 @@
 "import.raw.seed" = "Сире насіння";
 "import.recovery.json" = "Відновлення JSON";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Вставити json або завантажити файл ...";
 "account.import.recovery.json.placeholder" = "Вставити json";
 "account.import.raw.seed.placeholder" = "Сире насіння: 64 шістнадцяткових символів";
 "import.mnemonic" = "Мнемонічна фраза";
@@ -105,7 +106,7 @@
 "pincode.create.top.title" = "Створення пін-коду";
 "profile.accounts.title" = "Рахунки";
 "profile.network.title" = "Мережа";
-"profile.pincode.change.title" = "Зміна пін-коду";
+"profile.pincode.change.title" = "Зміна пін коду";
 "common.invalid.hard.soft.message" = "Перевірте, чи є вхід сумішшю // 'hard' та / 'soft', де 'hard' та 'soft' може бути будь-якою послідовністю символів, не включаючи /.";
 "common.invalid.hard.message" = "Будь ласка, перевірте, що введення - це суміш // 'hard', де 'hard' може бути будь-яка послідовність символів, не включаючи /.";
 "confirm.mnemonic.mismatch.error.title" = "Неправильне мнемонічне";
@@ -114,6 +115,9 @@
 "common.done" = "Завершено";
 "accounts.add.account" = "Додати обліковий запис";
 "account.add.already.exists.message" = "Рахунок вже існує. Спробуйте інший.";
+"about.website" = "Офіційний веб-сайт";
+"about.github" = "Вихідний код Github";
+"about.telegram" = "Приєднуйтесь до Telegram Group";
 "confirmation.skip.action" = "Пропустити процес";
 "account.info.title" = "Рахунок";
 "account.info.name.title" = "Ім'я";
@@ -124,6 +128,9 @@
 "connections.add.connection" = "Додати підключення";
 "connection.management.default.title" = "За замовчуванням";
 "connection.management.custom.title" = "На замовлення";
+"account.delete.confirmation.title" = "Забути рахунок?";
+"account.delete.confirmation.description" = "Перш ніж продовжувати, переконайтеся, що ви створили резервну копію свого облікового запису.";
+"account.delete.confirm" = "Забути";
 "account.needed.title" = "Потрібен рахунок";
 "account.needed.message" = "У вас немає облікового запису для цієї мережі, ви можете створити або імпортувати обліковий запис.";
 "common.proceed" = "Продовжуйте";
@@ -175,6 +182,9 @@
 "wallet.send.balance.existential" = "Екзистенційний депозит";
 "wallet.send.existential.warning" = "Ваш переказ видалить рахунок із магазину, оскільки загальний залишок буде нижчим за екзистенційний депозит";
 "common.warning" = "Увага";
+"connection.delete.title" = "Видалити мережу?";
+"connection.delete.description" = "Підтвердьте видалення %@ .";
+"connection.delete.confirm" = "Видалити";
 "network.status.connecting" = "Підключення ...";
 "network.status.connected" = "Підключено";
 "wallet.receive.description" = "Поділіться цим QR-кодом відправника";
@@ -183,3 +193,30 @@
 "wallet.receive.share.message" = "Мою %@ адресу для отримання %@:";
 "coming.soon.dev.status" = "Перевірте статус розробника";
 "comming.soon.roadmap" = "Перевірте дорожню карту";
+"tabbar.polkaswap.title" = "Polkaswap";
+"account.export.action" = "Експорт";
+"account.export.warning.message" = "Поділитися або скопіювати вашу таємницю є операцією високого ризику, не надсилайте її нікому. Ви хотіли б продовжити процес обміну / копіювання?";
+"account.export.warning.title" = "Будь обережний";
+"account.export.json.hint" = "Пароль потрібен для шифрування вашого облікового запису та зберігання як Recovery JSON. Будь ласка, створіть пароль для продовження роботи.";
+"common.set.password" = "Встановити пароль";
+"common.confirm.password" = "Підтвердьте пароль";
+"common.error.password.mismatch" = "Пароль не відповідає";
+"common.network" = "Мережа";
+"common.change.password" = "Змінити пароль";
+"export.mnemonic.with.dp.template" = "Мережа: %@\
+Мнемоніка: %@\
+Шлях виведення: %@";
+"export.mnemonic.without.dp.template" = "Мережа: %@\
+Мнемоніка: %@";
+"export.mnemonic.hint" = "Використовуйте нецифровий спосіб резервного копіювання, наприклад, записуючи послідовність мнемонічних слів та шлях виведення (якщо встановлено) на папері.";
+"common.confirm" = "Підтвердити";
+"common.confirmed" = "Підтверджено";
+"export.seed.without.dp.template" = "Мережа: %@\
+Насіння: %@";
+"export.seed.with.dp.template" = "Мережа: %@\
+Насіння: %@\
+Шлях виведення: %@";
+"common.changed" = "Змінено";
+"account.import.json.no.network" = "JSON не містить інформації про мережу. Будь ласка, вкажіть це в розширеному блоці.";
+"account.import.wrong.network" = "Мережа в JSON - %@ , а не така, як вибрана %@ . Останній буде використаний для імпорту облікового запису.";
+"common.address" = "Адреса";

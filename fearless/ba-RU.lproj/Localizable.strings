@@ -60,7 +60,7 @@
 "no.email.bound.error.message" = "Тышҡы һылтанманы асыу мөмкин түгел. Зинһар, көйләүҙәрҙе тикшерегеҙ.";
 "connection.management.title" = "Сети";
 "onboarding.create.account" = "Создать аккаунт";
-"username.setup.choose.title" = "Выберите имя";
+"username.setup.choose.title" = "Имя";
 "username.setup.hint" = "Имя аккаунта и его отображение рядом с адресом. Используя хранение идентификационных данных в блокчейне, имя можно сделать доступных для остальных.";
 "username.setup.title" = "Создать аккаунт";
 "common.no.screenshot.title" = "Не делайте снимков экрана";
@@ -90,6 +90,7 @@
 "import.raw.seed" = "Сей орлоҡ";
 "import.recovery.json" = "JSON тергеҙеү";
 "account.import.password.placeholder" = "Пароль";
+"recover.json.hint" = "Json профилендә йәки загрузить файл...";
 "account.import.recovery.json.placeholder" = "Json профилендә";
 "account.import.raw.seed.placeholder" = "Бинарный сид: 64 шестнадцатиричных символа";
 "import.mnemonic" = "Мнемоническая фраза";
@@ -102,7 +103,7 @@
 "pincode.create.top.title" = "Новый пинкод";
 "profile.accounts.title" = "Аккаунты";
 "profile.network.title" = "Селтәре";
-"profile.pincode.change.title" = "Үҙгәртергә pin-код";
+"profile.pincode.change.title" = "Үҙгәртергә pin код";
 "common.invalid.hard.soft.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' и //'soft' где 'hard' и 'soft' могут быть любой последовательностью символов, не включая /.";
 "common.invalid.hard.message" = "Пожалуйста, удостоверьтесь, что введенная строка это комбинация //'hard' где 'hard' может быть любой последовательностью символов, не включая /.";
 "confirm.mnemonic.mismatch.error.title" = "Неверная мнемоника";
@@ -111,6 +112,9 @@
 "common.done" = "Эшләй";
 "accounts.add.account" = "Добавить аккаунт";
 "account.add.already.exists.message" = "Аккаунт уже существует. Пожалуйста, попробуйте другой.";
+"about.website" = "Официальный Сайт";
+"about.github" = "Исходным Коды Github";
+"about.telegram" = "Telegram Төркөмөнә Ҡушылды";
 "confirmation.skip.action" = "Пропустить";
 "account.info.title" = "Аккаунт";
 "account.info.name.title" = "Имя";
@@ -121,6 +125,9 @@
 "connections.add.connection" = "Добавить соединение";
 "connection.management.default.title" = "По умолчанию";
 "connection.management.custom.title" = "Добавленные";
+"account.delete.confirmation.title" = "Забыть аккаунт?";
+"account.delete.confirmation.description" = "Прежде чем продолжить, убедитесь, что вы создали резервную копию своей учетной записи.";
+"account.delete.confirm" = "Забыть";
 "account.needed.title" = "Необходим аккаунт";
 "account.needed.message" = "У вас нет учетной записи в этой сети, вы можете создать или импортировать учетную запись.";
 "common.proceed" = "Продолжить";
@@ -172,6 +179,9 @@
 "wallet.send.balance.existential" = "Экзистенциальный депозит";
 "wallet.send.existential.warning" = "Ваш перевод удалит учетную запись, так как общий баланс будет ниже, чем существующий депозит.";
 "common.warning" = "Предупреждение";
+"connection.delete.title" = "Удалить сеть?";
+"connection.delete.description" = "Подтвердите удаление %@.";
+"connection.delete.confirm" = "Удалить";
 "network.status.connecting" = "Подключение";
 "network.status.connected" = "Подключено";
 "wallet.receive.description" = "Поделиться этим QR-кодом c отправителем";
@@ -180,3 +190,30 @@
 "wallet.receive.share.message" = "Мой %@ адрес для получения %@:";
 "coming.soon.dev.status" = "Статус разработки";
 "comming.soon.roadmap" = "План разработки";
+"tabbar.polkaswap.title" = "Polkaswap";
+"account.export.action" = "Экспортировать";
+"account.export.warning.message" = "Передача или копирование вашего секрета - операция с высоким риском, не отправляйте ее никому. Хотите продолжить процесс обмена / копирования?";
+"account.export.warning.title" = "Будьте осторожны";
+"account.export.json.hint" = "Пароль необходим для шифрования вашей учетной записи и сохранения как Recovery JSON. Пожалуйста, придумайте пароль для продолжения работы.";
+"common.set.password" = "Новый пароль";
+"common.confirm.password" = "Подтверждение пароля";
+"common.error.password.mismatch" = "Неверный пароль";
+"common.network" = "";
+"common.change.password" = "Сменить пароль";
+"export.mnemonic.with.dp.template" = "Сеть: %@\
+Мнемоника: %@\
+Путь деривации: %@";
+"export.mnemonic.without.dp.template" = "Сеть: %@\
+Мнемоника: %@";
+"export.mnemonic.hint" = "Используйте нецифровой способ резервного копирования, например, записав последовательность мнемонических слов и путь их образования (если он установлен) на бумаге.";
+"common.confirm" = "Подтвердить";
+"common.confirmed" = "Подтверждено";
+"export.seed.without.dp.template" = "Сеть: %@\
+Сид: %@";
+"export.seed.with.dp.template" = "Сеть: %@\
+Сид: %@\
+Путь деривации: %@";
+"common.changed" = "Изменено";
+"account.import.json.no.network" = "JSON не содержит информации о сети. Пожалуйста, укажите её в блоке дополнительных настроек.";
+"account.import.wrong.network" = "Сеть в JSON - это %@ , а не та, что была выбрана %@ . Выбранная сеть будет использоваться для импорта аккаунта.";
+"common.address" = "Адрес";

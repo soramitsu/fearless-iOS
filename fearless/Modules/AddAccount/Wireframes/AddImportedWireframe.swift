@@ -7,12 +7,8 @@ final class AddImportedWireframe: AccountImportWireframeProtocol {
             return
         }
 
-        if let managementController = navigationController.viewControllers
-            .first(where: { $0 is AccountManagementViewController }) {
-            navigationController.popToViewController(managementController, animated: true)
-        } else {
-            navigationController.popToRootViewController(animated: true)
-        }
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
     }
 
     func presentSourceTypeSelection(from view: AccountImportViewProtocol?,
@@ -49,9 +45,9 @@ final class AddImportedWireframe: AccountImportWireframeProtocol {
                                                        completion: nil)
     }
 
-    func presentAddressTypeSelection(from view: AccountImportViewProtocol?,
-                                     availableTypes: [SNAddressType],
-                                     selectedType: SNAddressType,
+    func presentNetworkTypeSelection(from view: AccountImportViewProtocol?,
+                                     availableTypes: [Chain],
+                                     selectedType: Chain,
                                      delegate: ModalPickerViewControllerDelegate?,
                                      context: AnyObject?) {
         guard let modalPicker = ModalPickerFactory.createPickerForList(availableTypes,

@@ -13,6 +13,17 @@ extension SNAddressType {
         }
     }
 
+    var chain: Chain {
+        switch self {
+        case .kusamaMain:
+            return .kusama
+        case .polkadotMain:
+            return .polkadot
+        default:
+            return .westend
+        }
+    }
+
     var precision: Int16 {
         switch self {
         case .polkadotMain:

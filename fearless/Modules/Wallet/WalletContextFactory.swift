@@ -89,6 +89,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             substrateStorageFacade.createRepository()
+        let localStorageIdFactory = try ChainStorageIdFactory(chain: networkType.chain)
 
         let txFilter = NSPredicate.filterTransactionsBy(address: selectedAccount.address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
@@ -107,6 +108,7 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                                 nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,
                                                 chainStorage: AnyDataProviderRepository(chainStorage),
+                                                localStorageIdFactory: localStorageIdFactory,
                                                 txStorage: AnyDataProviderRepository(txStorage),
                                                 contactsOperationFactory: contactOperationFactory,
                                                 accountsRepository: AnyDataProviderRepository(accountStorage),
@@ -119,9 +121,12 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         let localizationManager = LocalizationManager.shared
 
+        let tokenAssets = accountSettings.assets.filter { $0.identifier != priceAsset.identifier }
+
         WalletCommonConfigurator(localizationManager: localizationManager,
                                  networkType: networkType,
-                                 account: selectedAccount).configure(builder: builder)
+                                 account: selectedAccount,
+                                 assets: tokenAssets).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
         let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
@@ -154,11 +159,14 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let contactsConfigurator = ContactsConfigurator(networkType: networkType)
         contactsConfigurator.configure(builder: builder.contactsModuleBuilder)
 
-        let tokenAssets = accountSettings.assets.filter { $0.identifier != priceAsset.identifier }
         let receiveConfigurator = ReceiveConfigurator(account: selectedAccount,
+                                                      chain: networkType.chain,
                                                       assets: tokenAssets,
                                                       localizationManager: localizationManager)
         receiveConfigurator.configure(builder: builder.receiveModuleBuilder)
+
+        let invoiceScanConfigurator = InvoiceScanConfigurator(networkType: networkType)
+        invoiceScanConfigurator.configure(builder: builder.invoiceScanModuleBuilder)
 
         let context = try builder.build()
 

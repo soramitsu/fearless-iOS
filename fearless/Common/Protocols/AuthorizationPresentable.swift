@@ -8,11 +8,25 @@ protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
                    with completionBlock: @escaping AuthorizationCompletionBlock)
 }
 
+protocol AuthorizationAccessible {
+    var isAuthorizing: Bool { get }
+}
+
 private let authorization = UUID().uuidString
 
 private struct AuthorizationConstants {
     static var completionBlockKey: String = "co.jp.fearless.auth.delegate"
     static var authorizationViewKey: String = "co.jp.fearless.auth.view"
+}
+
+extension AuthorizationAccessible {
+    var isAuthorizing: Bool {
+        let view = objc_getAssociatedObject(authorization,
+                                            &AuthorizationConstants.authorizationViewKey)
+            as? PinSetupViewProtocol
+
+        return view != nil
+    }
 }
 
 extension AuthorizationPresentable {

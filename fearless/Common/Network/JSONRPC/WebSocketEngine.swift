@@ -28,6 +28,7 @@ final class WebSocketEngine {
     let logger: LoggerProtocol
     let reachabilityManager: ReachabilityManagerProtocol?
     let completionQueue: DispatchQueue
+    let pingInterval: TimeInterval
 
     private(set) var state: State = .notConnected {
         didSet {
@@ -52,6 +53,11 @@ final class WebSocketEngine {
         return scheduler
     }()
 
+    private(set) lazy var pingScheduler: SchedulerProtocol = {
+        let scheduler = Scheduler(with: self, callbackQueue: connection.callbackQueue)
+        return scheduler
+    }()
+
     private(set) var pendingRequests: [JSONRPCRequest] = []
     private(set) var inProgressRequests: [UInt16: JSONRPCRequest] = [:]
     private(set) var subscriptions: [UInt16: JSONRPCSubscribing] = [:]
@@ -65,12 +71,14 @@ final class WebSocketEngine {
                 processingQueue: DispatchQueue? = nil,
                 autoconnect: Bool = true,
                 connectionTimeout: TimeInterval = 10.0,
+                pingInterval: TimeInterval = 30,
                 logger: LoggerProtocol) {
         self.version = version
         self.logger = logger
         self.reconnectionStrategy = reconnectionStrategy
         self.reachabilityManager = reachabilityManager
         self.completionQueue = processingQueue ?? Self.sharedProcessingQueue
+        self.pingInterval = pingInterval
 
         let request = URLRequest(url: url, timeoutInterval: connectionTimeout)
 
@@ -98,6 +106,7 @@ final class WebSocketEngine {
          reconnectionStrategy: ReconnectionStrategyProtocol = ExponentialReconnection(),
          version: String = "2.0",
          autoconnect: Bool = true,
+         pingInterval: TimeInterval = 30,
          logger: LoggerProtocol) {
         self.connection = connection
         self.reachabilityManager = reachabilityManager
@@ -105,6 +114,7 @@ final class WebSocketEngine {
         self.version = version
         self.logger = logger
         self.completionQueue = Self.sharedProcessingQueue
+        self.pingInterval = pingInterval
 
         connection.delegate = self
 
@@ -155,6 +165,8 @@ final class WebSocketEngine {
 
             notify(requests: cancelledRequests,
                    error: JSONRPCEngineError.clientCancelled)
+
+            pingScheduler.cancel()
 
             logger.debug("Did start disconnect from socket")
         case .connecting:
@@ -465,6 +477,47 @@ extension WebSocketEngine {
 
             let requestError = error ?? JSONRPCEngineError.unknownError
             requests.forEach { $0.responseHandler?.handle(error: requestError) }
+        }
+    }
+
+    func schedulePingIfNeeded() {
+        guard pingInterval > 0.0, case .connected = state else {
+            return
+        }
+
+        logger.debug("Schedule socket ping")
+
+        pingScheduler.notifyAfter(pingInterval)
+    }
+
+    func sendPing() {
+        guard case .connected = state else {
+            logger.warning("Tried to send ping but not connected")
+            return
+        }
+
+        logger.debug("Sending socket ping")
+
+        do {
+            let options = JSONRPCOptions(resendOnReconnect: false)
+            _ = try callMethod(RPCMethod.helthCheck,
+                               params: [String](),
+                               options: options) { [weak self] (result: Result<Health, Error>) in
+                self?.handlePing(result: result)
+            }
+        } catch {
+            logger.error("Did receive ping error: \(error)")
+        }
+    }
+
+    func handlePing(result: Result<Health, Error>) {
+        switch result {
+        case .success(let health):
+            if health.isSyncing {
+                logger.warning("Node is not healthy")
+            }
+        case .failure(let error):
+            logger.error("Health check error: \(error)")
         }
     }
 

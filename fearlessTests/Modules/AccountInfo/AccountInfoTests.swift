@@ -36,10 +36,14 @@ class AccountInfoTests: XCTestCase {
         let usernameExpectation = XCTestExpectation()
         let addressExpectation = XCTestExpectation()
         let networkExpectation = XCTestExpectation()
+        let cryptoExpectation = XCTestExpectation()
+
+        var usernameViewModel: InputViewModelProtocol?
 
         stub(view) { stub in
             when(stub).isSetup.get.thenReturn(false, true)
-            when(stub).set(usernameViewModel: any(InputViewModelProtocol.self)).then { _ in
+            when(stub).set(usernameViewModel: any(InputViewModelProtocol.self)).then { viewModel in
+                usernameViewModel = viewModel
                 usernameExpectation.fulfill()
             }
 
@@ -49,6 +53,10 @@ class AccountInfoTests: XCTestCase {
 
             when(stub).set(networkType: any()).then { _ in
                 networkExpectation.fulfill()
+            }
+
+            when(stub).set(cryptoType: any()).then { _ in
+                cryptoExpectation.fulfill()
             }
         }
 
@@ -67,12 +75,14 @@ class AccountInfoTests: XCTestCase {
             when(stub).close(view: any()).thenDoNothing()
         }
 
-        let presenter = AccountInfoPresenter(accountId: givenAccount.identifier,
+        let presenter = AccountInfoPresenter(address: givenAccount.address,
                                              localizationManager: LocalizationManager.shared)
         let interactor = AccountInfoInteractor(repository: AnyDataProviderRepository(repository),
                                                settings: settings,
+                                               keystore: keychain,
                                                eventCenter: eventCenter,
-                                               operationManager: OperationManager())
+                                               operationManager: OperationManager(),
+                                               saveUsernameInterval: Constants.defaultExpectationDuration / 4.0)
 
         presenter.view = view
         presenter.wireframe = wireframe
@@ -85,14 +95,14 @@ class AccountInfoTests: XCTestCase {
 
         // then
 
-        wait(for: [usernameExpectation, addressExpectation, networkExpectation],
+        wait(for: [usernameExpectation, cryptoExpectation, addressExpectation, networkExpectation],
              timeout: Constants.defaultExpectationDuration)
 
         // when
 
         let newUsername = "newName"
 
-        presenter.save(username: newUsername)
+        usernameViewModel?.inputHandler.changeValue(to: newUsername)
 
         wait(for: [completionExpectation], timeout: Constants.defaultExpectationDuration)
 

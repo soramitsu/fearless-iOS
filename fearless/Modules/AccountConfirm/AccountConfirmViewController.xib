@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <customFonts key="customFonts">
@@ -18,11 +19,12 @@
             <connections>
                 <outlet property="bottomPlaneHeight" destination="B42-zO-Mqd" id="06I-Ga-m1G"/>
                 <outlet property="bottomPlaneView" destination="iI2-ci-IkH" id="JVG-se-v1O"/>
+                <outlet property="buttonsHeightConstraint" destination="SLW-TS-FwD" id="ZLy-MJ-590"/>
+                <outlet property="buttonsView" destination="E2p-hu-yYu" id="p3G-AP-PBb"/>
                 <outlet property="contentView" destination="oVw-Ru-zUO" id="2gL-fY-6LL"/>
                 <outlet property="detailsLabel" destination="h9t-43-ypk" id="leW-V7-KZ4"/>
                 <outlet property="nextButton" destination="02i-Et-cAL" id="kHI-2q-Dt1"/>
                 <outlet property="scrollView" destination="HJf-mV-DOB" id="Jgh-p8-d9V"/>
-                <outlet property="skipButton" destination="aO6-DA-2xu" id="MJX-N9-jYi"/>
                 <outlet property="topPlaneHeight" destination="Jif-RH-1ha" id="VWf-Rh-boR"/>
                 <outlet property="topPlaneView" destination="Mbj-JZ-Ope" id="9At-Mm-XYo"/>
                 <outlet property="view" destination="iN0-l3-epB" id="UGw-vC-vRl"/>
@@ -34,14 +36,14 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <scrollView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="HJf-mV-DOB">
-                    <rect key="frame" x="0.0" y="0.0" width="414" height="624.33333333333337"/>
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="636"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oVw-Ru-zUO">
-                            <rect key="frame" x="16" y="0.0" width="382" height="382.33333333333331"/>
+                            <rect key="frame" x="16" y="0.0" width="382" height="380.66666666666669"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mbj-JZ-Ope" customClass="RoundedView" customModule="SoraUI">
                                     <rect key="frame" x="0.0" y="26" width="382" height="144"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="144" id="Jif-RH-1ha"/>
                                     </constraints>
@@ -62,14 +64,14 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Choose words in the right order" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h9t-43-ypk">
-                                    <rect key="frame" x="0.0" y="186" width="382" height="20.333333333333343"/>
+                                    <rect key="frame" x="0.0" y="186" width="382" height="18.666666666666657"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iI2-ci-IkH" customClass="RoundedView" customModule="SoraUI">
-                                    <rect key="frame" x="0.0" y="222.33333333333337" width="382" height="144"/>
-                                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                                    <rect key="frame" x="0.0" y="220.66666666666663" width="382" height="144"/>
+                                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="144" id="B42-zO-Mqd"/>
                                     </constraints>
@@ -112,102 +114,75 @@
                         <constraint firstItem="oVw-Ru-zUO" firstAttribute="top" secondItem="HJf-mV-DOB" secondAttribute="top" id="bTd-II-3hd"/>
                     </constraints>
                 </scrollView>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="02i-Et-cAL" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="624.33333333333337" width="382" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E2p-hu-yYu">
+                    <rect key="frame" x="16" y="660" width="382" height="52"/>
+                    <subviews>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="02i-Et-cAL" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                            <rect key="frame" x="0.0" y="0.0" width="382" height="52"/>
+                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="52" id="kYl-o1-wkF"/>
+                            </constraints>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                                    <color key="value" name="colorDarkBlue"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                                    <color key="value" name="colorHighlightedBlue"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Next"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                    <real key="value" value="14"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
+                                <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="actionNext" destination="-1" eventType="touchUpInside" id="2Xg-Vy-9fT"/>
+                            </connections>
+                        </view>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="52" id="kYl-o1-wkF"/>
+                        <constraint firstAttribute="bottom" secondItem="02i-Et-cAL" secondAttribute="bottom" id="Ado-Pt-t0K"/>
+                        <constraint firstAttribute="trailing" secondItem="02i-Et-cAL" secondAttribute="trailing" id="LGV-Zz-gqk"/>
+                        <constraint firstAttribute="height" constant="52" id="SLW-TS-FwD"/>
+                        <constraint firstItem="02i-Et-cAL" firstAttribute="leading" secondItem="E2p-hu-yYu" secondAttribute="leading" id="p0T-P4-RTk"/>
                     </constraints>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                            <color key="value" name="colorWhite"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorDarkBlue"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedBlue"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Next"/>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                            <real key="value" value="14"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
-                            <color key="value" name="colorWhite"/>
-                        </userDefinedRuntimeAttribute>
-                    </userDefinedRuntimeAttributes>
-                    <connections>
-                        <action selector="actionNext" destination="-1" eventType="touchUpInside" id="2Xg-Vy-9fT"/>
-                    </connections>
-                </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aO6-DA-2xu" customClass="RoundedButton" customModule="SoraUI">
-                    <rect key="frame" x="144" y="686.33333333333337" width="126" height="49.666666666666629"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Skip process"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
-                            <real key="value" value="16"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                            <real key="value" value="16"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
-                            <real key="value" value="16"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
-                            <real key="value" value="16"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                            <color key="value" name="colorCoral"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                            <real key="value" value="14"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
-                            <real key="value" value="0.0"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                        </userDefinedRuntimeAttribute>
-                    </userDefinedRuntimeAttributes>
-                    <connections>
-                        <action selector="actionSkip" destination="-1" eventType="touchUpInside" id="0Yz-Yu-qN1"/>
-                    </connections>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="E2p-hu-yYu" secondAttribute="bottom" constant="24" id="0mT-y2-pzS"/>
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="6fY-mm-hDT"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="aO6-DA-2xu" secondAttribute="bottom" id="Axg-GJ-aWq"/>
-                <constraint firstItem="02i-Et-cAL" firstAttribute="top" secondItem="HJf-mV-DOB" secondAttribute="bottom" id="Bsk-KI-ju2"/>
-                <constraint firstItem="aO6-DA-2xu" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="DQI-HM-wbS"/>
-                <constraint firstItem="02i-Et-cAL" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="ILv-eG-fgW"/>
-                <constraint firstItem="aO6-DA-2xu" firstAttribute="top" secondItem="02i-Et-cAL" secondAttribute="bottom" constant="10" id="VOo-GJ-gcl"/>
+                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="E2p-hu-yYu" secondAttribute="trailing" constant="16" id="UcF-1p-bpP"/>
                 <constraint firstItem="HJf-mV-DOB" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" id="Z6W-ha-v3N"/>
+                <constraint firstItem="E2p-hu-yYu" firstAttribute="top" secondItem="HJf-mV-DOB" secondAttribute="bottom" constant="24" id="r8D-i8-03e"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="HJf-mV-DOB" secondAttribute="trailing" id="uwy-LY-vI8"/>
                 <constraint firstItem="oVw-Ru-zUO" firstAttribute="width" secondItem="iN0-l3-epB" secondAttribute="width" constant="-32" id="uxI-B3-6pi"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="02i-Et-cAL" secondAttribute="trailing" constant="16" id="z0z-r6-bru"/>
+                <constraint firstItem="E2p-hu-yYu" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="yEX-ll-8gk"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="139" y="133"/>
         </view>
     </objects>
+    <designables>
+        <designable name="02i-Et-cAL">
+            <size key="intrinsicContentSize" width="43.333333333333329" height="31.666666666666664"/>
+        </designable>
+    </designables>
     <resources>
         <namedColor name="colorAlmostBlack">
             <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="colorCoral">
-            <color red="0.027" green="0.75600000000000001" blue="0.94099999999999995" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorDarkBlue">
             <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -218,5 +193,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

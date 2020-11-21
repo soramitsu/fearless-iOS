@@ -124,8 +124,7 @@ extension WalletSelectAccountCommand: ModalPickerViewControllerDelegate {
         repository = nil
 
         guard
-            let accountView = OnboardingMainViewFactory
-                .createViewForConnection(item: settings.selectedConnection) else {
+            let accountView = OnboardingMainViewFactory.createViewForAdding() else {
             return
         }
 

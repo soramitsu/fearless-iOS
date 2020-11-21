@@ -11,6 +11,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let accountId = try addressFactory.accountId(fromAddress: address, type: type)
 
         let keyFactory = StorageKeyFactory()
+        let localStorageIdFactory = try ChainStorageIdFactory(chain: type.chain)
 
         let transferSubscription = createTransferSubscription(address: address,
                                                               engine: engine,
@@ -19,12 +20,18 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let accountSubscription = try createAccountInfoSubscription(transferSubscription: transferSubscription,
                                                                     accountId: accountId,
-                                                                    storageKeyFactory: keyFactory)
+                                                                    storageKeyFactory: keyFactory,
+                                                                    localStorageIdFactory:
+                                                                        localStorageIdFactory)
 
-        let activeEraSubscription = try createActiveEraSubscription(storageKeyFactory: keyFactory)
+        let activeEraSubscription = try createActiveEraSubscription(storageKeyFactory: keyFactory,
+                                                                    localStorageIdFactory:
+                                                                        localStorageIdFactory)
 
         let stakingSubscription = try createStakingSubscription(engine: engine,
-                                                                accountId: accountId)
+                                                                accountId: accountId,
+                                                                localStorageIdFactory:
+                                                                    localStorageIdFactory)
 
         let bondedSubscription = try createBondedSubscription(accountId: accountId,
                                                               stakingSubscription: stakingSubscription,
@@ -45,29 +52,36 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
     private func createAccountInfoSubscription(transferSubscription: TransferSubscription,
                                                accountId: Data,
-                                               storageKeyFactory: StorageKeyFactoryProtocol)
+                                               storageKeyFactory: StorageKeyFactoryProtocol,
+                                               localStorageIdFactory: ChainStorageIdFactoryProtocol)
         throws -> AccountInfoSubscription {
         let accountStorageKey = try storageKeyFactory.accountInfoKeyForId(accountId)
+
+        let localStorageKey = try localStorageIdFactory.createIdentifier(for: accountStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
         return AccountInfoSubscription(transferSubscription: transferSubscription,
-                                       storageKey: accountStorageKey,
+                                       remoteStorageKey: accountStorageKey,
+                                       localStorageKey: localStorageKey,
                                        storage: AnyDataProviderRepository(storage),
                                        operationManager: OperationManagerFacade.sharedManager,
                                        logger: Logger.shared,
                                        eventCenter: EventCenter.shared)
     }
 
-    private func createActiveEraSubscription(storageKeyFactory: StorageKeyFactoryProtocol)
+    private func createActiveEraSubscription(storageKeyFactory: StorageKeyFactoryProtocol,
+                                             localStorageIdFactory: ChainStorageIdFactoryProtocol)
         throws -> ActiveEraSubscription {
-        let storageKey = try storageKeyFactory.activeEra()
+        let remoteStorageKey = try storageKeyFactory.activeEra()
+        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
-        return ActiveEraSubscription(storageKey: storageKey,
+        return ActiveEraSubscription(remoteStorageKey: remoteStorageKey,
+                                     localStorageKey: localStorageKey,
                                      storage: AnyDataProviderRepository(storage),
                                      operationManager: OperationManagerFacade.sharedManager,
                                      logger: Logger.shared,
@@ -75,7 +89,9 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     }
 
     private func createStakingSubscription(engine: JSONRPCEngine,
-                                           accountId: Data) throws -> StakingInfoSubscription {
+                                           accountId: Data,
+                                           localStorageIdFactory: ChainStorageIdFactoryProtocol)
+    throws -> StakingInfoSubscription {
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
@@ -83,6 +99,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return StakingInfoSubscription(engine: engine,
                                        stashId: accountId,
                                        storage: AnyDataProviderRepository(storage),
+                                       localStorageIdFactory: localStorageIdFactory,
                                        operationManager: OperationManagerFacade.sharedManager,
                                        eventCenter: EventCenter.shared,
                                        logger: Logger.shared)
@@ -94,7 +111,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         throws -> BondedSubscription {
         let storageKey = try storageKeyFactory.bondedKeyForId(accountId)
 
-        return BondedSubscription(storageKey: storageKey,
+        return BondedSubscription(remoteStorageKey: storageKey,
                                   stakingSubscription: stakingSubscription,
                                   logger: Logger.shared)
     }
@@ -115,7 +132,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         return TransferSubscription(engine: engine,
                                     address: address,
-                                    networkType: networkType,
+                                    chain: networkType.chain,
                                     addressFactory: addressFactory,
                                     storage: AnyDataProviderRepository(storage),
                                     contactOperationFactory: contactOperationFactory,

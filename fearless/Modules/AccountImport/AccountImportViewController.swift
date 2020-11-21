@@ -4,6 +4,11 @@ import SoraFoundation
 import SoraUI
 
 final class AccountImportViewController: UIViewController {
+    private struct Constants {
+        static let advancedFullHeight: CGFloat = 220.0
+        static let advancedTruncHeight: CGFloat = 152.0
+    }
+
     var presenter: AccountImportPresenterProtocol!
 
     @IBOutlet private var scrollView: UIScrollView!
@@ -19,6 +24,15 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet private var textView: UITextView!
     @IBOutlet private var nextButton: TriangularedButton!
 
+    @IBOutlet private var textContainerView: UIView!
+    @IBOutlet private var textContainerSeparatorView: UIView!
+
+    @IBOutlet private var uploadView: DetailsTriangularedView!
+    @IBOutlet private var uploadSeparatorView: UIView!
+
+    @IBOutlet private var warningView: UIView!
+    @IBOutlet private var warningLabel: UILabel!
+
     @IBOutlet var networkTypeView: BorderedSubtitleActionView!
     @IBOutlet var cryptoTypeView: BorderedSubtitleActionView!
 
@@ -30,6 +44,8 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet var advancedContainerView: UIView!
     @IBOutlet var advancedView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
+
+    @IBOutlet var advancedContainerHeight: NSLayoutConstraint!
 
     private var derivationPathModel: InputViewModelProtocol?
     private var usernameViewModel: InputViewModelProtocol?
@@ -113,6 +129,8 @@ final class AccountImportViewController: UIViewController {
 
         usernameTextField.delegate = self
         passwordTextField.delegate = self
+
+        uploadView.addTarget(self, action: #selector(actionUpload), for: .touchUpInside)
     }
 
     private func setupLocalization() {
@@ -148,11 +166,17 @@ final class AccountImportViewController: UIViewController {
         nextButton.imageWithTitleView?.title = R.string.localizable
             .commonNext(preferredLanguages: locale.rLanguages)
         nextButton.invalidateLayout()
+
+        uploadView.title = R.string.localizable.importRecoveryJson(preferredLanguages: locale.rLanguages)
+
+        if !uploadView.isHidden {
+            updateUploadView()
+        }
     }
 
     private func setupUsernamePlaceholder(for locale: Locale) {
         usernameTextField.title = R.string.localizable
-            .usernameSetupChooseTitle(preferredLanguages: locale.rLanguages)
+            .accountInfoNameTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupPasswordPlaceholder(for locale: Locale) {
@@ -164,7 +188,9 @@ final class AccountImportViewController: UIViewController {
         var isEnabled: Bool = true
 
         if let viewModel = sourceViewModel, viewModel.inputHandler.required {
-            isEnabled = isEnabled && !textView.text.isEmpty
+            let uploadViewActive = !uploadView.isHidden && !(uploadView.subtitle?.isEmpty ?? false)
+            let textViewActive = !textContainerView.isHidden && !textView.text.isEmpty
+            isEnabled = isEnabled && (uploadViewActive || textViewActive)
         }
 
         if let viewModel = usernameViewModel, viewModel.inputHandler.required {
@@ -186,8 +212,16 @@ final class AccountImportViewController: UIViewController {
         textPlaceholderLabel.isHidden = !textView.text.isEmpty
     }
 
-    @objc private func actionOpenScanQr() {
-        presenter.activateQrScan()
+    private func updateUploadView() {
+        if let viewModel = sourceViewModel, !viewModel.inputHandler.normalizedValue.isEmpty {
+            uploadView.subtitleLabel?.textColor = R.color.colorWhite()
+            uploadView.subtitle = viewModel.inputHandler.normalizedValue
+        } else {
+            uploadView.subtitleLabel?.textColor = R.color.colorLightGray()
+
+            let locale = localizationManager?.selectedLocale
+            uploadView.subtitle = R.string.localizable.recoverJsonHint(preferredLanguages: locale?.rLanguages)
+        }
     }
 
     @IBAction private func actionExpand() {
@@ -228,6 +262,10 @@ final class AccountImportViewController: UIViewController {
         updateNextButton()
     }
 
+    @objc private func actionUpload() {
+        presenter.activateUpload()
+    }
+
     @objc private func actionOpenSourceType() {
         if sourceTypeView.actionControl.isActivated {
             presenter.selectSourceType()
@@ -242,7 +280,7 @@ final class AccountImportViewController: UIViewController {
 
     @objc private func actionOpenAddressType() {
         if networkTypeView.actionControl.isActivated {
-            presenter.selectAddressType()
+            presenter.selectNetworkType()
         }
     }
 
@@ -260,22 +298,49 @@ extension AccountImportViewController: AccountImportViewProtocol {
             passwordTextField.text = nil
             passwordViewModel = nil
 
-            advancedView.isHidden = false
+            derivationPathView.isHidden = false
+            advancedContainerHeight.constant = Constants.advancedFullHeight
+
+            uploadView.isHidden = true
+            uploadSeparatorView.isHidden = true
+
+            textContainerView.isHidden = false
+            textContainerSeparatorView.isHidden = false
+
         case .seed:
             passwordView.isHidden = true
             passwordSeparatorView.isHidden = true
             passwordTextField.text = nil
             passwordViewModel = nil
 
-            advancedView.isHidden = false
+            derivationPathView.isHidden = false
+            advancedContainerHeight.constant = Constants.advancedFullHeight
+
+            uploadView.isHidden = true
+            uploadSeparatorView.isHidden = true
+
+            textContainerView.isHidden = false
+            textContainerSeparatorView.isHidden = false
+
         case .keystore:
             passwordView.isHidden = false
             passwordSeparatorView.isHidden = false
 
-            advancedView.isHidden = true
-            advancedControl.deactivate(animated: false)
-            advancedContainerView.isHidden = true
+            derivationPathView.isHidden = true
+            advancedContainerHeight.constant = Constants.advancedTruncHeight
+
+            uploadView.isHidden = false
+            uploadSeparatorView.isHidden = false
+
+            textContainerView.isHidden = true
+            textView.text = nil
+            textContainerSeparatorView.isHidden = true
         }
+
+        warningView.isHidden = true
+
+        advancedControl.deactivate(animated: false)
+        advancedContainerView.isHidden = true
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
@@ -288,8 +353,12 @@ extension AccountImportViewController: AccountImportViewProtocol {
     func setSource(viewModel: InputViewModelProtocol) {
         sourceViewModel = viewModel
 
-        textPlaceholderLabel.text = viewModel.placeholder
-        textView.text = viewModel.inputHandler.value
+        if !uploadView.isHidden {
+            updateUploadView()
+        } else {
+            textPlaceholderLabel.text = viewModel.placeholder
+            textView.text = viewModel.inputHandler.value
+        }
 
         updateTextViewPlaceholder()
         updateNextButton()
@@ -311,10 +380,19 @@ extension AccountImportViewController: AccountImportViewProtocol {
         updateNextButton()
     }
 
-    func setSelectedCrypto(model: TitleWithSubtitleViewModel) {
-        let title = "\(model.title) | \(model.subtitle)"
+    func setSelectedCrypto(model: SelectableViewModel<TitleWithSubtitleViewModel>) {
+        let title = "\(model.underlyingViewModel.title) | \(model.underlyingViewModel.subtitle)"
 
         cryptoTypeView.actionControl.contentView.subtitleLabelView.text = title
+
+        cryptoTypeView.actionControl.showsImageIndicator = model.selectable
+        cryptoTypeView.isUserInteractionEnabled = model.selectable
+
+        if model.selectable {
+            cryptoTypeView.applyEnabledStyle()
+        } else {
+            cryptoTypeView.applyDisabledStyle()
+        }
 
         cryptoTypeView.actionControl.contentView.invalidateLayout()
         cryptoTypeView.actionControl.invalidateLayout()
@@ -335,6 +413,8 @@ extension AccountImportViewController: AccountImportViewProtocol {
 
         networkTypeView.actionControl.contentView.invalidateLayout()
         networkTypeView.actionControl.invalidateLayout()
+
+        warningView.isHidden = true
     }
 
     func setDerivationPath(viewModel: InputViewModelProtocol) {
@@ -343,6 +423,11 @@ extension AccountImportViewController: AccountImportViewProtocol {
         derivationPathField.placeholder = viewModel.placeholder
         derivationPathField.text = viewModel.inputHandler.value
         derivationPathImageView.image = nil
+    }
+
+    func setUploadWarning(message: String) {
+        warningLabel.text = message
+        warningView.isHidden = false
     }
 
     func didCompleteSourceTypeSelection() {
@@ -365,6 +450,7 @@ extension AccountImportViewController: AccountImportViewProtocol {
 extension AccountImportViewController: UITextFieldDelegate {
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
         presenter.validateDerivationPath()
+        textField.resignFirstResponder()
 
         return false
     }

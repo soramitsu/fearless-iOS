@@ -21,7 +21,19 @@ final class AboutPresenter {
 
 extension AboutPresenter: AboutPresenterProtocol {
     func setup() {
-        view?.didReceive(version: about.version)
+        let viewModel = AboutViewModel(website: about.websiteUrl.absoluteString,
+                                       version: about.version,
+                                       social: about.socialUrl.absoluteString,
+                                       email: about.writeUs.email)
+        view?.didReceive(viewModel: viewModel)
+    }
+
+    func activateWebsite() {
+        show(url: about.websiteUrl)
+    }
+
+    func activateSocial() {
+        show(url: about.socialUrl)
     }
 
     func activateOpensource() {

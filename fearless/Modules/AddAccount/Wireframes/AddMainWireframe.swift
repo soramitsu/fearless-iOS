@@ -25,7 +25,7 @@ final class AddMainWireframe: OnboardingMainWireframeProtocol {
     func showKeystoreImport(from view: OnboardingMainViewProtocol?) {
         if
             let navigationController = view?.controller.navigationController,
-            navigationController.viewControllers.count == 1,
+            navigationController.topViewController == view?.controller,
             navigationController.presentedViewController == nil {
             showAccountRestore(from: view)
         }

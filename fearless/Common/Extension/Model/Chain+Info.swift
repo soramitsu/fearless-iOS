@@ -34,6 +34,17 @@ extension Chain {
         }
     }
 
+    func polkascanAddressURL(_ address: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkascan.io/polkadot/account/\(address)")
+        case .kusama:
+            return URL(string: "https://polkascan.io/kusama/account/\(address)")
+        case .westend:
+            return nil
+        }
+    }
+
     func subscanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
         case .polkadot:
@@ -42,6 +53,17 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
         case .westend:
             return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
+        }
+    }
+
+    func subscanAddressURL(_ address: String) -> URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://polkadot.subscan.io/account/\(address)")
+        case .kusama:
+            return URL(string: "https://kusama.subscan.io/account/\(address)")
+        case .westend:
+            return URL(string: "https://westend.subscan.io/account/\(address)")
         }
     }
 }

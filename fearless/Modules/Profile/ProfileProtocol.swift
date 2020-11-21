@@ -8,7 +8,6 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
 protocol ProfilePresenterProtocol: class {
     func setup()
     func activateAccountDetails()
-    func activeteAccountCopy()
     func activateOption(at index: UInt)
 }
 

@@ -12,21 +12,31 @@ final class AccountInfoInteractor {
     let repository: AnyDataProviderRepository<ManagedAccountItem>
     private(set) var settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
+    let keystore: KeystoreProtocol
     let operationManager: OperationManagerProtocol
+
+    private lazy var usernameSaveScheduler = Scheduler(with: self, callbackQueue: .main)
+    private var saveUsernameInterval: TimeInterval
+    private var pendingUsername: String?
+    private var pendingAddress: String?
 
     init(repository: AnyDataProviderRepository<ManagedAccountItem>,
          settings: SettingsManagerProtocol,
+         keystore: KeystoreProtocol,
          eventCenter: EventCenterProtocol,
-         operationManager: OperationManagerProtocol) {
+         operationManager: OperationManagerProtocol,
+         saveUsernameInterval: TimeInterval = 2.0) {
         self.repository = repository
         self.settings = settings
+        self.keystore = keystore
         self.eventCenter = eventCenter
         self.operationManager = operationManager
+        self.saveUsernameInterval = saveUsernameInterval
     }
 
     private func handleUsernameSave(result: Result<Void, Error>?,
                                     username: String,
-                                    accountId: String) {
+                                    address: String) {
         guard let result = result else {
             presenter.didReceive(error: BaseOperationError.parentOperationCancelled)
             return
@@ -35,10 +45,10 @@ final class AccountInfoInteractor {
         switch result {
         case .success:
             if
-                let selectedAccount = settings.selectedAccount, selectedAccount.identifier == accountId {
+                let selectedAccount = settings.selectedAccount, selectedAccount.address == address {
                 let newSelectedAccount = selectedAccount.replacingUsername(username)
                 settings.selectedAccount = newSelectedAccount
-                eventCenter.notify(with: SelectedAccountChanged())
+                eventCenter.notify(with: SelectedUsernameChanged())
             }
 
             presenter.didSave(username: username)
@@ -64,23 +74,9 @@ final class AccountInfoInteractor {
             presenter.didReceive(error: error)
         }
     }
-}
 
-extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
-    func setup(accountId: String) {
-        let operation = repository.fetchOperation(by: accountId, options: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                self?.handleAccountItem(result: operation.result)
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .sync)
-    }
-
-    func save(username: String, accountId: String) {
-        let fetchOperation = repository.fetchOperation(by: accountId, options: RepositoryFetchOptions())
+    private func performUsernameSave(_ username: String, address: String) {
+        let fetchOperation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
         let saveOperation = repository.saveOperation({
             guard let changingAccountItem = try fetchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
@@ -102,10 +98,73 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
             DispatchQueue.main.async {
                 self?.handleUsernameSave(result: saveOperation.result,
                                          username: username,
-                                         accountId: accountId)
+                                         address: address)
             }
         }
 
         operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
+    }
+
+    private func performUsernameFinalizationIfNeeded() {
+        if let username = pendingUsername, let address = pendingAddress {
+            pendingUsername = nil
+            pendingAddress = nil
+
+            performUsernameSave(username, address: address)
+        }
+    }
+}
+
+extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
+    func setup(address: String) {
+        let operation = repository.fetchOperation(by: address, options: RepositoryFetchOptions())
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                self.handleAccountItem(result: operation.result)
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .sync)
+    }
+
+    func save(username: String, address: String) {
+        let shouldScheduleSave = pendingUsername == nil
+
+        pendingUsername = username
+        pendingAddress = address
+
+        if shouldScheduleSave {
+            usernameSaveScheduler.notifyAfter(saveUsernameInterval)
+        }
+    }
+
+    func flushPendingUsername() {
+        performUsernameFinalizationIfNeeded()
+    }
+
+    func requestExportOptions(accountItem: ManagedAccountItem) {
+        do {
+            var options: [ExportOption] = [.keystore]
+
+            if try keystore.checkEntropyForAddress(accountItem.address) {
+                options.append(.mnemonic)
+            }
+
+            let hasSeed = try keystore.checkSeedForAddress(accountItem.address)
+            if hasSeed || accountItem.cryptoType.supportsSeedFromSecretKey {
+                options.append(.seed)
+            }
+
+            presenter.didReceive(exportOptions: options)
+        } catch {
+            presenter.didReceive(error: error)
+        }
+    }
+}
+
+extension AccountInfoInteractor: SchedulerDelegate {
+    func didTrigger(scheduler: SchedulerProtocol) {
+        performUsernameFinalizationIfNeeded()
     }
 }

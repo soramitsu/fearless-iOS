@@ -22,12 +22,6 @@ final class WalletFearlessDefinition: WalletFearlessFormDefining {
         return assetView
     }
 
-    func defineViewForFearlessAccountViewModel(_ model: WalletAccountViewModel) -> WalletFormItemView? {
-        let receiverView = WalletDisplayReceiverView()
-        receiverView.bind(viewModel: model)
-        return receiverView
-    }
-
     func defineViewForCompoundDetails(_ viewModel: WalletCompoundDetailsViewModel) -> WalletFormItemView? {
         let detailsView = R.nib.walletCompoundDetailsView(owner: nil)!
         detailsView.bind(viewModel: viewModel)

@@ -5,14 +5,16 @@ final class AccountInfoSubscription: BaseStorageChildSubscription {
     let transferSubscription: TransferSubscription
 
     init(transferSubscription: TransferSubscription,
-         storageKey: Data,
+         remoteStorageKey: Data,
+         localStorageKey: String,
          storage: AnyDataProviderRepository<ChainStorageItem>,
          operationManager: OperationManagerProtocol,
          logger: LoggerProtocol,
          eventCenter: EventCenterProtocol) {
         self.transferSubscription = transferSubscription
 
-        super.init(storageKey: storageKey,
+        super.init(remoteStorageKey: remoteStorageKey,
+                   localStorageKey: localStorageKey,
                    storage: storage,
                    operationManager: operationManager,
                    logger: logger,

@@ -13,6 +13,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
@@ -51,6 +55,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
@@ -59,11 +67,13 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AddCreatedInteractor(request: request,
-                                              mnemonic: mnemonic,
-                                              accountOperationFactory: accountOperationFactory,
-                                              accountRepository: AnyDataProviderRepository(accountRepository),
-                                              operationManager: OperationManagerFacade.sharedManager)
+        let interactor = AddAccountConfirmInteractor(request: request,
+                                                     mnemonic: mnemonic,
+                                                     accountOperationFactory: accountOperationFactory,
+                                                     accountRepository: AnyDataProviderRepository(accountRepository),
+                                                     operationManager: OperationManagerFacade.sharedManager,
+                                                     settings: SettingsManager.shared,
+                                                     eventCenter: EventCenter.shared)
         let wireframe = AddConfirmationWireframe()
 
         view.presenter = presenter
@@ -88,6 +98,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         }
 
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
+        view.skipButtonTitle = LocalizableResource { locale in
+            R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
+        }
+
         let presenter = AccountConfirmPresenter()
 
         let keychain = Keychain()
@@ -106,7 +120,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
                                                              settings: SettingsManager.shared,
                                                              operationManager: operationManager,
                                                              eventCenter: EventCenter.shared)
-        let wireframe = ConnectionAccountConfirmationWireframe()
+        let wireframe = ConnectionAccountConfirmWireframe()
 
         view.presenter = presenter
         presenter.view = view

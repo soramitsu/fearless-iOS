@@ -20,7 +20,8 @@ final class AccountShareFactory: AccountShareFactoryProtocol {
         let symbol = asset?.symbol ?? ""
         let platform = asset?.platform?.value(for: locale) ?? ""
 
-        let message = R.string.localizable.walletReceiveShareMessage(platform, symbol)
+        let message = R.string.localizable
+            .walletReceiveShareMessage(platform, symbol, preferredLanguages: locale.rLanguages)
 
         return [qrImage, message, address]
     }

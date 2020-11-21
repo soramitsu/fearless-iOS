@@ -8,7 +8,9 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
         let wireframe = AccountCreateWireframe()
 
         view.presenter = presenter
@@ -28,7 +30,11 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
+        let defaultAddressType = SettingsManager.shared.selectedConnection.type
+
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedNetworkTypes: Chain.allCases,
+                                                 defaultNetwork: defaultAddressType.chain)
         let wireframe = AddCreationWireframe()
 
         view.presenter = presenter
@@ -49,10 +55,11 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 
-        let interactor = ConnectionAccountCreationInteractor(mnemonicCreator: IRMnemonicCreator(),
-                                                             connection: item)
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
+                                                 supportedNetworkTypes: [item.type.chain],
+                                                 defaultNetwork: item.type.chain)
 
-        let wireframe = ConnectionAccountCreationWireframe(connectionItem: item)
+        let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
 
         view.presenter = presenter
         presenter.view = view

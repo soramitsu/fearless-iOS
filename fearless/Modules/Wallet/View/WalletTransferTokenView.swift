@@ -8,7 +8,7 @@ final class WalletTransferTokenView: WalletBaseTokenView {
     private(set) var viewModel: WalletTokenViewModel?
 
     var activated: Bool {
-        actionControl.isActivated
+        borderedActionControl.actionControl.isActivated
     }
 
     override func actionBalance() {
@@ -18,16 +18,21 @@ final class WalletTransferTokenView: WalletBaseTokenView {
 
 extension WalletTransferTokenView: SelectedAssetViewProtocol {
     func bind(viewModel: AssetSelectionViewModelProtocol) {
-        self.viewModel = viewModel as? WalletTokenViewModel
+        guard let viewModel = viewModel as? WalletTokenViewModel else {
+            return
+        }
 
-        iconImageView.image = viewModel.icon
+        self.viewModel = viewModel
 
-        actionControl.titleLabel.text = viewModel.title
+        borderedActionControl.actionControl.contentView.titleLabel.text = viewModel.header
+        borderedActionControl.actionControl.contentView.subtitleImageView.image = viewModel.icon
+        borderedActionControl.actionControl.contentView.subtitleLabelView.text = viewModel.title
+
         balanceTitle.text = viewModel.subtitle.uppercased() + ":"
         balanceDetails.text = viewModel.details
 
-        actionControl.isUserInteractionEnabled = false
+        borderedActionControl.isUserInteractionEnabled = false
 
-        tokenBackgroundView.applyEnabledStyle()
+        borderedActionControl.applyDisabledStyle()
     }
 }

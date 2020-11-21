@@ -2,7 +2,7 @@ import Foundation
 
 final class AccountManagementWireframe: AccountManagementWireframeProtocol {
     func showAccountDetails(_ account: ManagedAccountItem, from view: AccountManagementViewProtocol?) {
-        guard let infoView = AccountInfoViewFactory.createView(accountId: account.identifier) else {
+        guard let infoView = AccountInfoViewFactory.createView(address: account.address) else {
             return
         }
 
@@ -19,5 +19,14 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
         if let navigationController = view?.controller.navigationController {
             navigationController.pushViewController(onboarding.controller, animated: true)
         }
+    }
+
+    func complete(from view: AccountManagementViewProtocol?) {
+        guard let navigationController = view?.controller.navigationController else {
+            return
+        }
+
+        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
+                                                           animated: true)
     }
 }
