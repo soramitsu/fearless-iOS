@@ -1,5 +1,5 @@
 ### Fearless Wallet iOS
-[![Apple Store](https://img.shields.io/badge/Apple%20Store-iOS-Silver?logo=apple)](https://testflight.apple.com/join/012KzFyD)
+[![Apple Store](https://img.shields.io/badge/Apple%20Store-iOS-Silver?logo=apple)](https://apps.apple.com/us/app/fearless-wallet/id1537251089)
 
 ![logo](/docs/fearlesswallet_promo.png)
 
