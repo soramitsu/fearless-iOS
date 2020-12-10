@@ -4,6 +4,7 @@ enum RPCMethod {
     static let storageSubscibe = "state_subscribeStorage"
     static let chain = "system_chain"
     static let getStorage = "state_getStorage"
+    static let getStorageKeys = "state_getKeys"
     static let queryStorageAt = "state_queryStorageAt"
     static let getBlockHash = "chain_getBlockHash"
     static let submitExtrinsic = "author_submitExtrinsic"

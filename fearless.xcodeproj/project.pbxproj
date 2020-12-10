@@ -92,6 +92,8 @@
 		8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */; };
 		8409C279252286B60049B5C8 /* TransferConfirmAccessoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */; };
 		8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */; };
+		840FDF8C2582182D00CDEA88 /* StakingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840FDF8B2582182D00CDEA88 /* StakingTests.swift */; };
+		840FDF91258229D700CDEA88 /* Nominations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840FDF90258229D700CDEA88 /* Nominations.swift */; };
 		84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84113B6B255B2835009BD21A /* AccountCreateError.swift */; };
 		84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */; };
 		84155DEB253980F900A27058 /* WebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84155DEA253980F900A27058 /* WebSocketService.swift */; };
@@ -757,6 +759,8 @@
 		8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryView.swift; sourceTree = "<group>"; };
 		8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransferConfirmAccessoryView.xib; sourceTree = "<group>"; };
 		8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryViewFactory.swift; sourceTree = "<group>"; };
+		840FDF8B2582182D00CDEA88 /* StakingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingTests.swift; sourceTree = "<group>"; };
+		840FDF90258229D700CDEA88 /* Nominations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Nominations.swift; sourceTree = "<group>"; };
 		84113B6B255B2835009BD21A /* AccountCreateError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateError.swift; sourceTree = "<group>"; };
 		84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTransitionHelper.swift; sourceTree = "<group>"; };
 		84155DEA253980F900A27058 /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
@@ -1939,6 +1943,7 @@
 				8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */,
 				8438E1D324BFAAD2001BDB13 /* Info.plist */,
 				846AF83B2525AEE200868F37 /* SubscanTests.swift */,
+				840FDF8B2582182D00CDEA88 /* StakingTests.swift */,
 			);
 			path = fearlessIntegrationTests;
 			sourceTree = "<group>";
@@ -1958,6 +1963,7 @@
 				84364D6725325E0C00281F9A /* UnlockChunk.swift */,
 				84DF21A62534D031005454AE /* AccountId.swift */,
 				849E0D1725D01FD000B33506 /* Multiaddress.swift */,
+				840FDF90258229D700CDEA88 /* Nominations.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -3743,6 +3749,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				840FDF8C2582182D00CDEA88 /* StakingTests.swift in Sources */,
 				8438E1D224BFAAD2001BDB13 /* JSONRPCTests.swift in Sources */,
 				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
 			);
@@ -4127,6 +4134,7 @@
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
+				840FDF91258229D700CDEA88 /* Nominations.swift in Sources */,
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,
 				8467FD4124ED3C72005D486C /* AlignableContentControl.swift in Sources */,
 				84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */,
