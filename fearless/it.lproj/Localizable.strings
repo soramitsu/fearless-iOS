@@ -219,3 +219,4 @@ Percorso di derivazione: %@";
 "account.import.json.no.network" = "JSON non contiene informazioni di rete. Si prega di specificarlo nel blocco avanzato.";
 "account.import.wrong.network" = "La rete in JSON è %@ , non è la stessa di %@ . Quest'ultimo verrà utilizzato per importare un account.";
 "common.address" = "Indirizzo";
+"wallet.asset.buy" = "Acquistare";

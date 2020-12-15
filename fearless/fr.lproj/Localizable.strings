@@ -220,3 +220,4 @@ Chemin de dérivation: %@";
 "account.import.json.no.network" = "JSON ne contient aucune information sur le réseau. Veuillez le spécifier dans le bloc avancé.";
 "account.import.wrong.network" = "Le réseau en JSON est %@ , ce n'est pas le même que celui sélectionné %@ . Ce dernier sera utilisé pour importer un compte.";
 "common.address" = "Adresse";
+"wallet.asset.buy" = "Acheter";

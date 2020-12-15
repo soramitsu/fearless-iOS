@@ -151,6 +151,7 @@
                 <constraint firstAttribute="trailing" secondItem="Dh3-9s-ecf" secondAttribute="trailing" constant="16" id="kaZ-cL-oPy"/>
             </constraints>
             <connections>
+                <outlet property="buyButton" destination="iYe-nj-CwM" id="K78-5a-WRt"/>
                 <outlet property="receiveButton" destination="0zh-ex-7Mv" id="4kd-rH-NmC"/>
                 <outlet property="sendButton" destination="XZf-yH-CMf" id="yrz-4e-afZ"/>
             </connections>

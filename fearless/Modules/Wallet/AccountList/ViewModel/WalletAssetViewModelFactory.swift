@@ -158,11 +158,16 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
                                 commandFactory: WalletCommandFactoryProtocol,
                                 locale: Locale) -> WalletViewModelProtocol? {
         let sendCommand: WalletCommandProtocol = commandFactory.prepareSendCommand(for: assetId)
-        let sendViewModel = WalletActionViewModel(title: L10n.Common.send,
+        let sendTitle = R.string.localizable
+            .walletSendTitle(preferredLanguages: locale.rLanguages)
+        let sendViewModel = WalletActionViewModel(title: sendTitle,
                                                   command: sendCommand)
 
         let receiveCommand: WalletCommandProtocol = commandFactory.prepareReceiveCommand(for: assetId)
-        let receiveViewModel = WalletActionViewModel(title: L10n.Common.receive,
+
+        let receiveTitle = R.string.localizable
+            .walletAssetReceive(preferredLanguages: locale.rLanguages)
+        let receiveViewModel = WalletActionViewModel(title: receiveTitle,
                                                      command: receiveCommand)
 
         let buyViewModel: ActionViewModelProtocol?
@@ -182,7 +187,9 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
         if !actions.isEmpty {
             let command = WalletBuyCommand(actions: actions,
                                            commandFactory: commandFactory)
-            buyViewModel = WalletActionViewModel(title: "Buy",
+            let buyTitle = R.string.localizable
+                .walletAssetBuy(preferredLanguages: locale.rLanguages)
+            buyViewModel = WalletActionViewModel(title: buyTitle,
                                                  command: command)
         } else {
             buyViewModel = nil
