@@ -11,18 +11,21 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
         <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="EAl-XV-dse" customClass="WalletActionsCell" customModule="fearless" customModuleProvider="target">
-            <rect key="frame" x="0.0" y="0.0" width="335" height="72"/>
+            <rect key="frame" x="0.0" y="0.0" width="335" height="122"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                <rect key="frame" x="0.0" y="0.0" width="335" height="72"/>
+                <rect key="frame" x="0.0" y="0.0" width="335" height="122"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Dh3-9s-ecf">
-                        <rect key="frame" x="16" y="0.0" width="303" height="56"/>
+                        <rect key="frame" x="16" y="0.0" width="303" height="106"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XZf-yH-CMf" customClass="TriangularedBlurButton" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="145.5" height="56"/>
+                                <rect key="frame" x="0.0" y="0.0" width="145.5" height="52"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="52" id="w1R-Xh-ePC"/>
+                                </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="image" keyPath="_iconImage" value="iconSend"/>
                                     <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Send"/>
@@ -55,8 +58,11 @@
                                 </connections>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="0zh-ex-7Mv" customClass="TriangularedBlurButton" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="157.5" y="0.0" width="145.5" height="56"/>
+                                <rect key="frame" x="157.5" y="0.0" width="145.5" height="52"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="52" id="0Gh-xJ-AHD"/>
+                                </constraints>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Receive"/>
                                     <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
@@ -86,16 +92,52 @@
                                     <action selector="actionReceive" destination="EAl-XV-dse" eventType="touchUpInside" id="fSd-Uz-Vqs"/>
                                 </connections>
                             </view>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="iYe-nj-CwM" customClass="TriangularedBlurButton" customModule="fearless" customModuleProvider="target">
+                                <rect key="frame" x="0.0" y="60" width="303" height="52"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="52" id="EX1-Zw-0dj"/>
+                                </constraints>
+                                <userDefinedRuntimeAttributes>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Buy"/>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                                        <color key="value" name="colorWhite"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_spacingBetweenItems">
+                                        <real key="value" value="10"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                        <real key="value" value="14"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
+                                    <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
+                                    <userDefinedRuntimeAttribute type="image" keyPath="_iconImage" value="iconReceive"/>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                                        <integer key="value" value="3"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                                        <integer key="value" value="2"/>
+                                    </userDefinedRuntimeAttribute>
+                                    <userDefinedRuntimeAttribute type="color" keyPath="_overlayFillColor">
+                                        <color key="value" name="colorBlurOverlay"/>
+                                    </userDefinedRuntimeAttribute>
+                                </userDefinedRuntimeAttributes>
+                                <connections>
+                                    <action selector="actionBuy" destination="EAl-XV-dse" eventType="touchUpInside" id="Dgn-iF-47l"/>
+                                </connections>
+                            </view>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
-                            <constraint firstItem="XZf-yH-CMf" firstAttribute="height" secondItem="Dh3-9s-ecf" secondAttribute="height" id="0pq-zZ-jMV"/>
                             <constraint firstItem="XZf-yH-CMf" firstAttribute="top" secondItem="Dh3-9s-ecf" secondAttribute="top" id="10a-XK-hz7"/>
+                            <constraint firstItem="iYe-nj-CwM" firstAttribute="top" secondItem="0zh-ex-7Mv" secondAttribute="bottom" constant="8" id="DV4-yK-4Jp"/>
                             <constraint firstItem="0zh-ex-7Mv" firstAttribute="width" secondItem="Dh3-9s-ecf" secondAttribute="width" multiplier="0.48" id="JOO-3I-sVT"/>
-                            <constraint firstItem="0zh-ex-7Mv" firstAttribute="height" secondItem="Dh3-9s-ecf" secondAttribute="height" id="JmU-l8-1cy"/>
                             <constraint firstItem="XZf-yH-CMf" firstAttribute="leading" secondItem="Dh3-9s-ecf" secondAttribute="leading" id="Spi-N3-7W5"/>
+                            <constraint firstItem="iYe-nj-CwM" firstAttribute="leading" secondItem="XZf-yH-CMf" secondAttribute="leading" id="Txw-m2-2NZ"/>
                             <constraint firstItem="XZf-yH-CMf" firstAttribute="width" secondItem="Dh3-9s-ecf" secondAttribute="width" multiplier="0.48" id="U6O-iH-6CU"/>
                             <constraint firstAttribute="trailing" secondItem="0zh-ex-7Mv" secondAttribute="trailing" id="azq-eF-etm"/>
+                            <constraint firstItem="iYe-nj-CwM" firstAttribute="trailing" secondItem="0zh-ex-7Mv" secondAttribute="trailing" id="gVE-fo-Lv3"/>
                             <constraint firstItem="0zh-ex-7Mv" firstAttribute="top" secondItem="Dh3-9s-ecf" secondAttribute="top" id="jwo-lP-HAO"/>
                         </constraints>
                     </view>
@@ -117,10 +159,13 @@
     </objects>
     <designables>
         <designable name="0zh-ex-7Mv">
-            <size key="intrinsicContentSize" width="87.5" height="32"/>
+            <size key="intrinsicContentSize" width="100" height="34"/>
         </designable>
         <designable name="XZf-yH-CMf">
-            <size key="intrinsicContentSize" width="70" height="32"/>
+            <size key="intrinsicContentSize" width="79.5" height="34"/>
+        </designable>
+        <designable name="iYe-nj-CwM">
+            <size key="intrinsicContentSize" width="69" height="34"/>
         </designable>
     </designables>
     <resources>

@@ -129,8 +129,11 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                                  assets: tokenAssets).configure(builder: builder)
         WalletCommonStyleConfigurator().configure(builder: builder.styleBuilder)
 
+        let purchaseProvider = PurchaseAggregator.defaultAggregator()
         let accountListConfigurator = WalletAccountListConfigurator(address: selectedAccount.address,
+                                                                    chain: networkType.chain,
                                                                     priceAsset: priceAsset,
+                                                                    purchaseProvider: purchaseProvider,
                                                                     logger: logger)
 
         accountListConfigurator.configure(builder: builder.accountListModuleBuilder)

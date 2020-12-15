@@ -1,0 +1,69 @@
+import Foundation
+
+final class RampProvider: PurchaseProviderProtocol {
+    #if F_DEV
+        static let pubToken = "5dn6pmprtxc7hecuj29tkpwq7ao4nxqdq3wx7fxm"
+        static let baseUrlString = "https://ri-widget-staging.firebaseapp.com/"
+    #else
+        static let pubToken = "3quzr4e6wdyccndec8jzjebzar5kxxzfy2f3us5k"
+        static let baseUrlString = "https://buy.ramp.network/"
+    #endif
+
+    private var appName: String?
+    private var logoUrl: URL?
+
+    func with(appName: String) -> Self {
+        self.appName = appName
+        return self
+    }
+
+    func with(logoUrl: URL) -> Self {
+        self.logoUrl = logoUrl
+        return self
+    }
+
+    func buildPurchaseAction(for chain: Chain,
+                             assetId: WalletAssetId?,
+                             address: String) -> [PurchaseAction] {
+        let optionUrl: URL?
+
+        switch chain {
+        case .polkadot:
+            optionUrl = buildURLForToken("DOT", address: address)
+        case .kusama:
+            optionUrl = buildURLForToken("KSM", address: address)
+        case .westend:
+            optionUrl = nil
+        }
+
+        if let url = optionUrl {
+            let action = PurchaseAction(title: "Ramp", url: url)
+            return [action]
+        } else {
+            return []
+        }
+    }
+
+    private func buildURLForToken(_ token: String, address: String) -> URL? {
+        var components = URLComponents(string: Self.baseUrlString)
+
+        var queryItems = [
+            URLQueryItem(name: "swapAsset", value: token),
+            URLQueryItem(name: "userAddress", value: address),
+            URLQueryItem(name: "hostApiKey", value: Self.pubToken)
+        ]
+
+        if let appName = appName?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            queryItems.append(URLQueryItem(name: "hostAppName", value: appName))
+        }
+
+        if let logoUrl = logoUrl?.absoluteString
+            .addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+            queryItems.append(URLQueryItem(name: "hostLogoUrl", value: logoUrl))
+        }
+
+        components?.queryItems = queryItems
+
+        return components?.url
+    }
+}
