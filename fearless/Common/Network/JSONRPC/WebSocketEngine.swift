@@ -209,6 +209,9 @@ extension WebSocketEngine {
     func updateConnectionForRequest(_ request: JSONRPCRequest) {
         switch state {
         case .connected:
+            logger.debug("Sending request with id: \(request.requestId)")
+            logger.debug("\(String(data: request.data, encoding: .utf8)!)")
+
             send(request: request)
         case .connecting:
             pendingRequests.append(request)

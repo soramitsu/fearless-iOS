@@ -110,8 +110,9 @@ class StakingTests: XCTestCase {
                                                                                    method: RPCMethod.getStorage,
                                                                                    parameters: [currentEraKey])
 
-        let stakersOperation = JSONRPCListOperation<[String]>(engine: engine,
-                                                            method: RPCMethod.getStorageKeys)
+        let stakersOperation = JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
+                                                                            method: RPCMethod.getStorageKeysPaged,
+                                                                            timeout: 60)
         stakersOperation.configurationBlock = {
             guard let currentEra = try? currentEraOperation.extractResultData()?.underlyingValue else {
                 stakersOperation.cancel()
@@ -124,7 +125,7 @@ class StakingTests: XCTestCase {
                 return
             }
 
-            stakersOperation.parameters = [key]
+            stakersOperation.parameters = PagedKeysRequest(key: key, count: 1000)
         }
 
         stakersOperation.addDependency(currentEraOperation)
@@ -157,7 +158,7 @@ class StakingTests: XCTestCase {
 
         let ss58Factory = SS58AddressFactory()
 
-        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let url = URL(string: "wss://rpc.polkadot.io")!
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
@@ -167,9 +168,11 @@ class StakingTests: XCTestCase {
 
         let key = try StorageKeyFactory().wannabeValidators().toHex(includePrefix: true)
 
-        let operation = JSONRPCListOperation<[String]>(engine: engine,
-                                                       method: RPCMethod.getStorageKeys,
-                                                       parameters: [key])
+        let params = PagedKeysRequest(key: key, count: 1000)
+        let operation = JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
+                                                       method: RPCMethod.getStorageKeysPaged,
+                                                       parameters: params,
+                                                       timeout: 60)
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
@@ -188,6 +191,7 @@ class StakingTests: XCTestCase {
             }
 
             logger.debug("Wannabe Validators: \(addresses)")
+            logger.debug("Wannabe Validators count: \(addresses.count)")
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -196,7 +200,7 @@ class StakingTests: XCTestCase {
     func testFetchOverview() throws {
         // given
 
-        let url = URL(string: "wss://westend-rpc.polkadot.io/")!
+        let url = URL(string: "wss://rpc.polkadot.io/")!
         let logger = Logger.shared
         let operationQueue = OperationQueue()
 
@@ -208,23 +212,75 @@ class StakingTests: XCTestCase {
         let activeEraKey = try storageKeyFactory.activeEra().toHex(includePrefix: true)
         let currentEraKey = try storageKeyFactory.currentEra().toHex(includePrefix: true)
         let sessionIndexKey = try storageKeyFactory.sessionIndex().toHex(includePrefix: true)
-        let validatorsCountKey = try storageKeyFactory.stakingValidatorsCount()
-            .toHex(includePrefix: true)
+        let validatorsCountKey = try storageKeyFactory
+            .stakingValidatorsCount().toHex(includePrefix: true)
+        let historyDepthKey = try storageKeyFactory.historyDepth().toHex(includePrefix: true)
 
-        let allKeys = [activeEraKey, currentEraKey, sessionIndexKey, validatorsCountKey]
+        let allKeys = [activeEraKey, currentEraKey, sessionIndexKey, validatorsCountKey, historyDepthKey]
 
-        let operation = JSONRPCOperation<[[String]], [[String]]>(engine: engine,
-                                                         method: RPCMethod.queryStorageAt,
-                                                         parameters: [allKeys])
+        let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
+                                                                    method: RPCMethod.queryStorageAt,
+                                                                    parameters: [allKeys])
 
         // then
 
         operationQueue.addOperations([operation], waitUntilFinished: true)
 
         do {
-            let result = try operation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            logger.debug("Result: \(result)")
+            guard let result = try operation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .first else {
+                logger.debug("No result found")
+                return
+            }
+
+            let storageData = StorageUpdateData(update: result)
+
+            if let activeEraData  = storageData.changes
+                    .first(where:{ $0.key.toHex(includePrefix: true) == activeEraKey})?.value {
+                let scaleDecoder = try ScaleDecoder(data: activeEraData)
+                let activeEra = try UInt32(scaleDecoder: scaleDecoder)
+                logger.debug("Active era: \(activeEra)")
+            } else {
+                logger.debug("Empty active era")
+            }
+
+            if let currentEraData  = storageData.changes
+                    .first(where:{ $0.key.toHex(includePrefix: true) == currentEraKey})?.value {
+                let scaleDecoder = try ScaleDecoder(data: currentEraData)
+                let currentEra = try UInt32(scaleDecoder: scaleDecoder)
+                logger.debug("Current era: \(currentEra)")
+            } else {
+                logger.debug("Empty current era")
+            }
+
+            if let sessionIndexData  = storageData.changes
+                    .first(where:{ $0.key.toHex(includePrefix: true) == sessionIndexKey})?.value {
+                let scaleDecoder = try ScaleDecoder(data: sessionIndexData)
+                let sessionIndex = try UInt32(scaleDecoder: scaleDecoder)
+                logger.debug("Session index: \(sessionIndex)")
+            } else {
+                logger.debug("Empty session index")
+            }
+
+            if let validatorCountData  = storageData.changes
+                    .first(where:{ $0.key.toHex(includePrefix: true) == validatorsCountKey})?.value {
+                let scaleDecoder = try ScaleDecoder(data: validatorCountData)
+                let validatorCount = try UInt32(scaleDecoder: scaleDecoder)
+                logger.debug("Validator count: \(validatorCount)")
+            } else {
+                logger.debug("Empty validator count")
+            }
+
+            if let historyDepthData = storageData.changes
+                .first(where: { $0.key.toHex(includePrefix: true) == historyDepthKey})?.value {
+                let scaleDecoder = try ScaleDecoder(data: historyDepthData)
+                let historyDepth = try UInt32(scaleDecoder: scaleDecoder)
+                logger.debug("History depth: \(historyDepth)")
+            } else {
+                logger.debug("Empty history depth")
+            }
+
         } catch {
             logger.debug("Unexpected error: \(error)")
         }

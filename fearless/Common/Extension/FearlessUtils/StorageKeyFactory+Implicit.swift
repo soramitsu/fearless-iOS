@@ -49,6 +49,10 @@ extension StorageKeyFactoryProtocol {
         try createStorageKey(moduleName: "Session", serviceName: "CurrentIndex")
     }
 
+    func historyDepth() throws -> Data {
+        try createStorageKey(moduleName: "Staking", serviceName: "HistoryDepth")
+    }
+
     func stakingValidatorsCount() throws -> Data {
         try createStorageKey(moduleName: "Staking", serviceName: "ValidatorCount")
     }
