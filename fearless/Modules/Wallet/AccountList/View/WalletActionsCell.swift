@@ -3,9 +3,9 @@ import SoraUI
 import CommonWallet
 
 final class WalletActionsCell: UICollectionViewCell {
-    @IBOutlet private var sendButton: TriangularedBlurButton!
-    @IBOutlet private var receiveButton: TriangularedBlurButton!
-    @IBOutlet private var buyButton: TriangularedBlurButton!
+    @IBOutlet private var sendButton: RoundedButton!
+    @IBOutlet private var receiveButton: RoundedButton!
+    @IBOutlet private var buyButton: RoundedButton!
 
     private(set) var actionsViewModel: WalletActionsViewModelProtocol?
 
@@ -46,7 +46,9 @@ extension WalletActionsCell: WalletViewProtocol {
             sendButton.imageWithTitleView?.title = actionsViewModel.send.title
             receiveButton.imageWithTitleView?.title = actionsViewModel.receive.title
             buyButton.imageWithTitleView?.title = actionsViewModel.buy.title
-            buyButton.isEnabled = (actionsViewModel.buy.command != nil)
+
+            let enabled = (actionsViewModel.buy.command != nil)
+            buyButton.isEnabled = enabled
 
             sendButton.invalidateLayout()
             receiveButton.invalidateLayout()

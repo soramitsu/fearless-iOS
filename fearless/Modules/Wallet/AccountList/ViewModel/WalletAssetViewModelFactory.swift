@@ -60,6 +60,8 @@ final class WalletAssetViewModelFactory {
         let totalPriceString = priceFormater.string(from: totalPrice)
 
         let priceChangeString = NumberFormatter.percent
+            .localizableResource()
+            .value(for: locale)
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
 
         let priceChangeViewModel = balanceContext.priceChange >= 0.0 ?
