@@ -3,10 +3,11 @@ import SoraUI
 import CommonWallet
 
 final class WalletActionsCell: UICollectionViewCell {
-    @IBOutlet private var sendButton: TriangularedButton!
-    @IBOutlet private var receiveButton: TriangularedButton!
+    @IBOutlet private var sendButton: TriangularedBlurButton!
+    @IBOutlet private var receiveButton: TriangularedBlurButton!
+    @IBOutlet private var buyButton: TriangularedBlurButton!
 
-    private(set) var actionsViewModel: ActionsViewModelProtocol?
+    private(set) var actionsViewModel: WalletActionsViewModelProtocol?
 
     override func prepareForReuse() {
         super.prepareForReuse()
@@ -25,6 +26,12 @@ final class WalletActionsCell: UICollectionViewCell {
             try? actionsViewModel.receive.command.execute()
         }
     }
+
+    @IBAction private func actionBuy() {
+        if let command = actionsViewModel?.buy.command {
+            try? command.execute()
+        }
+    }
 }
 
 extension WalletActionsCell: WalletViewProtocol {
@@ -33,14 +40,17 @@ extension WalletActionsCell: WalletViewProtocol {
     }
 
     func bind(viewModel: WalletViewModelProtocol) {
-        if let actionsViewModel = viewModel as? ActionsViewModelProtocol {
+        if let actionsViewModel = viewModel as? WalletActionsViewModelProtocol {
             self.actionsViewModel = actionsViewModel
 
             sendButton.imageWithTitleView?.title = actionsViewModel.send.title
             receiveButton.imageWithTitleView?.title = actionsViewModel.receive.title
+            buyButton.imageWithTitleView?.title = actionsViewModel.buy.title
+            buyButton.isEnabled = (actionsViewModel.buy.command != nil)
 
             sendButton.invalidateLayout()
             receiveButton.invalidateLayout()
+            buyButton.invalidateLayout()
         }
     }
 }
