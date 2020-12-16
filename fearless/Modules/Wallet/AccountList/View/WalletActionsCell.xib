@@ -160,13 +160,13 @@
     </objects>
     <designables>
         <designable name="0zh-ex-7Mv">
-            <size key="intrinsicContentSize" width="100" height="34"/>
+            <size key="intrinsicContentSize" width="87.5" height="32"/>
         </designable>
         <designable name="XZf-yH-CMf">
-            <size key="intrinsicContentSize" width="79.5" height="34"/>
+            <size key="intrinsicContentSize" width="70" height="32"/>
         </designable>
         <designable name="iYe-nj-CwM">
-            <size key="intrinsicContentSize" width="69" height="34"/>
+            <size key="intrinsicContentSize" width="65.5" height="32"/>
         </designable>
     </designables>
     <resources>
