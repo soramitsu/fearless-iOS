@@ -28,7 +28,7 @@ final class WalletActionsCell: UICollectionViewCell {
     }
 
     @IBAction private func actionBuy() {
-        if let command = actionsViewModel?.buy?.command {
+        if let command = actionsViewModel?.buy.command {
             try? command.execute()
         }
     }
@@ -45,7 +45,8 @@ extension WalletActionsCell: WalletViewProtocol {
 
             sendButton.imageWithTitleView?.title = actionsViewModel.send.title
             receiveButton.imageWithTitleView?.title = actionsViewModel.receive.title
-            buyButton.imageWithTitleView?.title = actionsViewModel.buy?.title
+            buyButton.imageWithTitleView?.title = actionsViewModel.buy.title
+            buyButton.isEnabled = (actionsViewModel.buy.command != nil)
 
             sendButton.invalidateLayout()
             receiveButton.invalidateLayout()

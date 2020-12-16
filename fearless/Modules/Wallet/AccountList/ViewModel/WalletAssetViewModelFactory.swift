@@ -170,8 +170,6 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
         let receiveViewModel = WalletActionViewModel(title: receiveTitle,
                                                      command: receiveCommand)
 
-        let buyViewModel: ActionViewModelProtocol?
-
         let walletAssetId: WalletAssetId?
 
         if let assetId = assetId {
@@ -184,16 +182,15 @@ extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
                                                            assetId: walletAssetId,
                                                            address: address)
 
+        let buyCommand: WalletCommandProtocol?
         if !actions.isEmpty {
-            let command = WalletBuyCommand(actions: actions,
-                                           commandFactory: commandFactory)
-            let buyTitle = R.string.localizable
-                .walletAssetBuy(preferredLanguages: locale.rLanguages)
-            buyViewModel = WalletActionViewModel(title: buyTitle,
-                                                 command: command)
+            buyCommand = WalletBuyCommand(actions: actions, commandFactory: commandFactory)
         } else {
-            buyViewModel = nil
+            buyCommand = nil
         }
+
+        let buyTitle = R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages)
+        let buyViewModel = WalletDisablingAction(title: buyTitle, command: buyCommand)
 
         return WalletActionsViewModel(send: sendViewModel,
                                       receive: receiveViewModel,
