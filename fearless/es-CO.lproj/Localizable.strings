@@ -221,3 +221,5 @@ Ruta de derivación: %@";
 "account.import.wrong.network" = "La red en JSON es %@ , no es la misma que la seleccionada %@ . Este último se utilizará para importar una cuenta.";
 "common.address" = "Habla a";
 "wallet.asset.buy" = "Comprar";
+"wallet.send.dead.recipient.title" = "La cantidad es demasiado baja";
+"wallet.send.dead.recipient.message" = "Su transferencia fallará ya que el monto final en la cuenta de destino será menor que el depósito existente. Por favor, intente aumentar la cantidad.";
