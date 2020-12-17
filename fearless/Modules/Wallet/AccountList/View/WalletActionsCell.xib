@@ -193,13 +193,13 @@
     </objects>
     <designables>
         <designable name="CUU-GF-oZf">
-            <size key="intrinsicContentSize" width="55" height="61.5"/>
+            <size key="intrinsicContentSize" width="64" height="63.5"/>
         </designable>
         <designable name="Gbb-8e-YAc">
-            <size key="intrinsicContentSize" width="40" height="61.5"/>
+            <size key="intrinsicContentSize" width="48" height="63.5"/>
         </designable>
         <designable name="sdA-VH-n2P">
-            <size key="intrinsicContentSize" width="40" height="61.5"/>
+            <size key="intrinsicContentSize" width="40" height="63.5"/>
         </designable>
     </designables>
     <resources>

@@ -1,10 +1,11 @@
 import UIKit
 import CommonWallet
+import SoraUI
 
 final class AssetDetailsView: BaseAccountDetailsContainingView {
     var contentInsets: UIEdgeInsets = .zero
 
-    var preferredContentHeight: CGFloat { 205.0 }
+    var preferredContentHeight: CGFloat { 227.0 }
 
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconView: UIImageView!
@@ -16,10 +17,11 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
     @IBOutlet private var leftDetailsLabel: UILabel!
     @IBOutlet private var rightTitleLabel: UILabel!
     @IBOutlet private var rightDetailsLabel: UILabel!
-    @IBOutlet private var sendButton: TriangularedButton!
-    @IBOutlet private var receiveButton: TriangularedButton!
+    @IBOutlet private var sendButton: RoundedButton!
+    @IBOutlet private var receiveButton: RoundedButton!
+    @IBOutlet private var buyButton: RoundedButton!
 
-    private var actionsViewModel: ActionsViewModelProtocol?
+    private var actionsViewModel: WalletActionsViewModelProtocol?
     private var assetViewModel: AssetDetailsViewModel?
 
     func setContentInsets(_ contentInsets: UIEdgeInsets, animated: Bool) {
@@ -72,13 +74,20 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
     }
 
     private func bind(actionsViewModel: ActionsViewModelProtocol) {
-        self.actionsViewModel = actionsViewModel
+        if let viewModel = actionsViewModel as? WalletActionsViewModelProtocol {
+            self.actionsViewModel = viewModel
 
-        sendButton.imageWithTitleView?.title = actionsViewModel.send.title
-        sendButton.invalidateLayout()
+            sendButton.imageWithTitleView?.title = viewModel.send.title
+            sendButton.invalidateLayout()
 
-        receiveButton.imageWithTitleView?.title = actionsViewModel.receive.title
-        receiveButton.invalidateLayout()
+            receiveButton.imageWithTitleView?.title = viewModel.receive.title
+            receiveButton.invalidateLayout()
+
+            buyButton.imageWithTitleView?.title = viewModel.buy.title
+            buyButton.invalidateLayout()
+
+            buyButton.isEnabled = (viewModel.buy.command != nil)
+        }
     }
 
     @IBAction private func actionSend() {
@@ -87,6 +96,10 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
 
     @IBAction private func actionReceive() {
         try? actionsViewModel?.receive.command.execute()
+    }
+
+    @IBAction private func actionBuy() {
+        try? actionsViewModel?.buy.command?.execute()
     }
 
     @IBAction private func actionFrozen() {

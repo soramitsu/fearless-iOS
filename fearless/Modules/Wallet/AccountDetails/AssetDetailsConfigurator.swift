@@ -5,10 +5,16 @@ import SoraFoundation
 final class AssetDetailsConfigurator {
     let viewModelFactory: AssetDetailsViewModelFactory
 
-    init(priceAsset: WalletAsset) {
+    init(address: String,
+         chain: Chain,
+         purchaseProvider: PurchaseProviderProtocol,
+         priceAsset: WalletAsset) {
         let amountFormatterFactory = AmountFormatterFactory()
 
-        viewModelFactory = AssetDetailsViewModelFactory(amountFormatterFactory: amountFormatterFactory,
+        viewModelFactory = AssetDetailsViewModelFactory(address: address,
+                                                        chain: chain,
+                                                        purchaseProvider: purchaseProvider,
+                                                        amountFormatterFactory: amountFormatterFactory,
                                                         priceAsset: priceAsset)
     }
 
