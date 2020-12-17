@@ -8,5 +8,5 @@ struct WalletAccountListConstants {
     static let assetCellHeight: CGFloat = 96.0
 
     static let actionsCellId: String = "fearlessActionsCellId"
-    static let actionsCellHeight: CGFloat = 122
+    static let actionsCellHeight: CGFloat = 90
 }

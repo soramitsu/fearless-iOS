@@ -1,16 +1,22 @@
 import Foundation
 import CommonWallet
 
-final class AssetDetailsViewModelFactory: AccountListViewModelFactoryProtocol {
+final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let priceAsset: WalletAsset
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol, priceAsset: WalletAsset) {
+    init(address: String,
+         chain: Chain,
+         purchaseProvider: PurchaseProviderProtocol,
+         amountFormatterFactory: NumberFormatterFactoryProtocol,
+         priceAsset: WalletAsset) {
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
+
+        super.init(address: address, chain: chain, purchaseProvider: purchaseProvider)
     }
 
-    func createAssetViewModel(for asset: WalletAsset,
+    override func createAssetViewModel(for asset: WalletAsset,
                               balance: BalanceData,
                               commandFactory: WalletCommandFactoryProtocol,
                               locale: Locale) -> WalletViewModelProtocol? {
@@ -37,6 +43,8 @@ final class AssetDetailsViewModelFactory: AccountListViewModelFactoryProtocol {
         let totalPriceString = priceFormater.string(from: totalPrice) ?? ""
 
         let priceChangeString = NumberFormatter.percent
+            .localizableResource()
+            .value(for: locale)
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
 
         let priceChangeViewModel = balanceContext.priceChange >= 0.0 ?
