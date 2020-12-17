@@ -11,6 +11,7 @@ enum WalletNetworkOperationFactoryError: Error {
     case invalidAmount
     case invalidAsset
     case invalidChain
+    case invalidReceiver
 }
 
 extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
@@ -46,6 +47,17 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return createCompoundOperation(result: .failure(error))
         }
 
+        guard let receiver = try? Data(hexString: info.receiver),
+              let accountKey = try? StorageKeyFactory().accountInfoKeyForId(receiver)
+                .toHex(includePrefix: true) else {
+            let error = WalletNetworkOperationFactoryError.invalidReceiver
+            return createCompoundOperation(result: .failure(error))
+        }
+
+        let receiverOperation = JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
+                                                                  method: RPCMethod.getStorage,
+                                                                  parameters: [accountKey])
+
         let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
                                                                       method: RPCMethod.paymentInfo)
 
@@ -71,13 +83,26 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
                                                 type: FeeType.fixed.rawValue,
                                                 parameters: [amount])
 
-            return TransferMetaData(feeDescriptions: [feeDescription])
+            if let receiverInfo = try receiverOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .underlyingValue {
+                let context = TransferMetadataContext(data: receiverInfo.data,
+                                                      precision: asset.precision)
+                    .toContext()
+                return TransferMetaData(feeDescriptions: [feeDescription],
+                                        context: context)
+            } else {
+                return TransferMetaData(feeDescriptions: [feeDescription])
+            }
         }
 
         mapOperation.addDependency(compoundInfo.targetOperation)
+        mapOperation.addDependency(receiverOperation)
+
+        let dependencies = compoundInfo.allOperations + [receiverOperation]
 
         return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: compoundInfo.allOperations)
+                                        dependencies: dependencies)
     }
 
     func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {

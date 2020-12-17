@@ -220,3 +220,5 @@ Percorso di derivazione: %@";
 "account.import.wrong.network" = "La rete in JSON è %@ , non è la stessa di %@ . Quest'ultimo verrà utilizzato per importare un account.";
 "common.address" = "Indirizzo";
 "wallet.asset.buy" = "Acquistare";
+"wallet.send.dead.recipient.title" = "L'importo è troppo basso";
+"wallet.send.dead.recipient.message" = "Il tuo trasferimento non andrà a buon fine poiché l'importo finale sul conto di destinazione sarà inferiore al deposito esistenziale. Per favore, prova ad aumentare l'importo.";
