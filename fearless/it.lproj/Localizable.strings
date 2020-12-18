@@ -222,3 +222,4 @@ Percorso di derivazione: %@";
 "wallet.asset.buy" = "Acquistare";
 "wallet.send.dead.recipient.title" = "L'importo è troppo basso";
 "wallet.send.dead.recipient.message" = "Il tuo trasferimento non andrà a buon fine poiché l'importo finale sul conto di destinazione sarà inferiore al deposito esistenziale. Per favore, prova ad aumentare l'importo.";
+"buy.completed" = "Acquisto avviato! Attendi fino a 60 minuti. Puoi tenere traccia dello stato sull'e-mail.";

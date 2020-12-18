@@ -3,13 +3,13 @@ import IrohaCrypto
 
 extension ConnectionItem {
     static var defaultConnection: ConnectionItem {
-        return ConnectionItem(title: "Kusama, Parity node",
-                              url: URL(string: "wss://kusama-rpc.polkadot.io")!,
-                              type: SNAddressType.kusamaMain)
+        ConnectionItem(title: "Kusama, Parity node",
+                       url: URL(string: "wss://kusama-rpc.polkadot.io")!,
+                       type: SNAddressType.kusamaMain)
     }
 
     static var supportedConnections: [ConnectionItem] {
-        return [
+        [
             ConnectionItem(title: "Kusama, Parity node",
                            url: URL(string: "wss://kusama-rpc.polkadot.io")!,
                            type: SNAddressType.kusamaMain),
@@ -24,9 +24,6 @@ extension ConnectionItem {
                            type: SNAddressType.polkadotMain),
             ConnectionItem(title: "Westend, Parity node",
                            url: URL(string: "wss://westend-rpc.polkadot.io")!,
-                           type: SNAddressType.genericSubstrate),
-            ConnectionItem(title: "Westend, Soramitsu node",
-                           url: URL(string: "wss://ws.validator.dev.polkadot-rust.soramitsu.co.jp:443")!,
                            type: SNAddressType.genericSubstrate)
         ]
     }

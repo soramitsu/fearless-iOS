@@ -223,3 +223,4 @@ Derivation path: %@";
 "wallet.asset.buy" = "Buy";
 "wallet.send.dead.recipient.title" = "Amount is too low";
 "wallet.send.dead.recipient.message" = "Your transfer will fail since the final amount on the destination account will be less than the existential deposit. Please, try to increase the amount.";
+"buy.completed" = "Purchase initiated! Please wait up to 60 minutes. You can track status on the email.";
