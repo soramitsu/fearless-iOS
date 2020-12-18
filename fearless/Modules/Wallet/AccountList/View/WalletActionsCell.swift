@@ -48,7 +48,8 @@ extension WalletActionsCell: WalletViewProtocol {
             buyButton.imageWithTitleView?.title = actionsViewModel.buy.title
 
             let enabled = (actionsViewModel.buy.command != nil)
-            buyButton.isEnabled = enabled
+            buyButton.isUserInteractionEnabled = enabled
+            buyButton.alpha = enabled ? 1.0 : 0.2
 
             sendButton.invalidateLayout()
             receiveButton.invalidateLayout()
