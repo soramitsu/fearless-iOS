@@ -4,23 +4,25 @@ import RobinHood
 import SoraFoundation
 import FearlessUtils
 
-final class WalletAssetViewModelFactory {
-    let address: String
+final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
     let assetCellStyleFactory: AssetCellStyleFactoryProtocol
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let priceAsset: WalletAsset
     let accountCommandFactory: WalletSelectAccountCommandFactoryProtocol
 
     init(address: String,
+         chain: Chain,
          assetCellStyleFactory: AssetCellStyleFactoryProtocol,
          amountFormatterFactory: NumberFormatterFactoryProtocol,
          priceAsset: WalletAsset,
-         accountCommandFactory: WalletSelectAccountCommandFactoryProtocol) {
-        self.address = address
+         accountCommandFactory: WalletSelectAccountCommandFactoryProtocol,
+         purchaseProvider: PurchaseProviderProtocol) {
         self.assetCellStyleFactory = assetCellStyleFactory
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
         self.accountCommandFactory = accountCommandFactory
+
+        super.init(address: address, chain: chain, purchaseProvider: purchaseProvider)
     }
 
     private func creatRegularViewModel(for asset: WalletAsset,
@@ -54,6 +56,8 @@ final class WalletAssetViewModelFactory {
         let totalPriceString = priceFormater.string(from: totalPrice)
 
         let priceChangeString = NumberFormatter.percent
+            .localizableResource()
+            .value(for: locale)
             .string(from: balanceContext.priceChange as NSNumber) ?? ""
 
         let priceChangeViewModel = balanceContext.priceChange >= 0.0 ?
@@ -128,13 +132,11 @@ final class WalletAssetViewModelFactory {
                                          command: nil,
                                          accountCommand: accountCommand)
     }
-}
 
-extension WalletAssetViewModelFactory: AccountListViewModelFactoryProtocol {
-    func createAssetViewModel(for asset: WalletAsset,
-                              balance: BalanceData,
-                              commandFactory: WalletCommandFactoryProtocol,
-                              locale: Locale) -> WalletViewModelProtocol? {
+    override func createAssetViewModel(for asset: WalletAsset,
+                                       balance: BalanceData,
+                                       commandFactory: WalletCommandFactoryProtocol,
+                                       locale: Locale) -> WalletViewModelProtocol? {
         if asset.identifier == priceAsset.identifier {
             return createTotalPriceViewModel(for: asset,
                                              balance: balance,

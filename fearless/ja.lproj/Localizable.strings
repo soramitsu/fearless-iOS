@@ -217,3 +217,7 @@ a type of password.";
 "account.import.json.no.network" = "JSONにはネットワーク情報は含まれていません。高度なブロックで指定してください。";
 "account.import.wrong.network" = "JSONのネットワークは%@であり、選択した%@と同じではありません。後者はアカウントのインポートに使用されます。";
 "common.address" = "住所";
+"wallet.asset.buy" = "購入";
+"wallet.send.dead.recipient.title" = "金額が少なすぎる";
+"wallet.send.dead.recipient.message" = "宛先アカウントの最終金額が既存の預金より少ないため、転送は失敗します。量を増やしてみてください。";
+"buy.completed" = "購入開始！ 60分ほどお待ちください。メールでステータスを追跡できます。";

@@ -17,12 +17,24 @@ final class TransferValidator: TransferValidating {
             return result + fee.value.decimalValue
         }
 
-        let totalAmount = info.amount.decimalValue + totalFee
-        let availableBalance = BalanceContext(context: balanceData.context ?? [:]).available
+        let balanceContext = BalanceContext(context: balanceData.context ?? [:])
+
+        let sendingAmount = info.amount.decimalValue
+        let totalAmount = sendingAmount + totalFee
+        let availableBalance = balanceContext.available
 
         guard totalAmount < availableBalance else {
             throw TransferValidatingError.unsufficientFunds(assetId: info.asset,
                                                             available: availableBalance)
+        }
+
+        let transferMetadataContext = TransferMetadataContext(context: metadata.context ?? [:])
+
+        let receiverTotalAfterTransfer = transferMetadataContext.receiverBalance + sendingAmount
+        guard
+            let chain = WalletAssetId(rawValue: info.asset)?.chain,
+            receiverTotalAfterTransfer >= chain.existentialDeposit else {
+            throw FearlessTransferValidatingError.receiverBalanceTooLow
         }
 
         return TransferInfo(source: info.source,
@@ -31,6 +43,6 @@ final class TransferValidator: TransferValidating {
                             asset: info.asset,
                             details: info.details,
                             fees: info.fees,
-                            context: balanceData.context)
+                            context: balanceContext.toContext())
     }
 }

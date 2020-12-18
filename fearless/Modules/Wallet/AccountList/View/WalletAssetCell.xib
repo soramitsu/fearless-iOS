@@ -31,11 +31,11 @@
                         <rect key="frame" x="16" y="8" width="343" height="80"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zsr-9m-Xng" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="0.0" width="64" height="80"/>
+                                <rect key="frame" x="0.0" y="0.0" width="343" height="80"/>
                                 <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                 <userDefinedRuntimeAttributes>
                                     <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
-                                        <integer key="value" value="1"/>
+                                        <integer key="value" value="3"/>
                                     </userDefinedRuntimeAttribute>
                                     <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
                                         <integer key="value" value="2"/>
@@ -45,27 +45,19 @@
                                     </userDefinedRuntimeAttribute>
                                 </userDefinedRuntimeAttributes>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="9Zv-VC-z9Q" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
-                                <rect key="frame" x="64" y="0.0" width="279" height="80"/>
-                                <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
-                                        <integer key="value" value="2"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
-                                        <integer key="value" value="2"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="_overlayFillColor">
-                                        <color key="value" name="colorBlurOverlay"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
-                            </view>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="gQ9-WX-OdT">
                                 <rect key="frame" x="0.0" y="0.0" width="64" height="80"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="64" id="IVy-Ck-Mz9"/>
                                 </constraints>
                             </imageView>
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WkE-7P-L2I">
+                                <rect key="frame" x="63" y="8" width="1" height="64"/>
+                                <color key="backgroundColor" red="1" green="1" blue="1" alpha="0.10000000000000001" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="1" id="h76-KT-mNO"/>
+                                </constraints>
+                            </view>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kusama" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gag-6u-iE8">
                                 <rect key="frame" x="72" y="6" width="51.5" height="16.5"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
@@ -75,7 +67,7 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qvi-bz-Yi2">
                                 <rect key="frame" x="72" y="25.5" width="39.5" height="21"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
-                                <color key="textColor" name="colorGray"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="44.0849" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="BRZ-kb-M9S">
@@ -99,37 +91,36 @@
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" verticalCompressionResistancePriority="751" text="$1000.05" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="tao-am-aq2">
                                 <rect key="frame" x="165" y="55.5" width="166" height="16.5"/>
                                 <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
-                                <color key="textColor" name="colorGray"/>
+                                <color key="textColor" red="1" green="1" blue="1" alpha="0.5" colorSpace="custom" customColorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
                         </subviews>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="gQ9-WX-OdT" firstAttribute="leading" secondItem="kV4-Z9-Bj8" secondAttribute="leading" id="0B9-oc-hVN"/>
+                            <constraint firstAttribute="trailing" secondItem="zsr-9m-Xng" secondAttribute="trailing" id="6Mz-Qc-RHw"/>
                             <constraint firstItem="BRZ-kb-M9S" firstAttribute="leading" secondItem="qvi-bz-Yi2" secondAttribute="trailing" constant="8" id="6fa-Vf-61c"/>
                             <constraint firstItem="gag-6u-iE8" firstAttribute="leading" secondItem="gQ9-WX-OdT" secondAttribute="trailing" constant="8" id="BqC-sz-ZaK"/>
                             <constraint firstItem="YJu-Wm-1v9" firstAttribute="leading" secondItem="gag-6u-iE8" secondAttribute="leading" id="Der-y3-vkK"/>
                             <constraint firstItem="qvi-bz-Yi2" firstAttribute="leading" secondItem="gag-6u-iE8" secondAttribute="leading" id="ElP-Jb-7z5"/>
                             <constraint firstAttribute="bottom" secondItem="YJu-Wm-1v9" secondAttribute="bottom" constant="8" id="GzO-fY-jR3"/>
+                            <constraint firstItem="WkE-7P-L2I" firstAttribute="leading" secondItem="kV4-Z9-Bj8" secondAttribute="leading" constant="63" id="Kfg-IG-LLW"/>
+                            <constraint firstAttribute="bottom" secondItem="WkE-7P-L2I" secondAttribute="bottom" constant="8" id="MsR-VF-l2M"/>
+                            <constraint firstItem="WkE-7P-L2I" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" constant="8" id="NbU-eH-lgx"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="leading" secondItem="Js2-kv-WeL" secondAttribute="trailing" constant="8" id="QOU-lO-x0q"/>
                             <constraint firstItem="zsr-9m-Xng" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Rp2-ez-ebf"/>
                             <constraint firstAttribute="bottom" secondItem="zsr-9m-Xng" secondAttribute="bottom" id="WIf-HL-RfB"/>
                             <constraint firstAttribute="bottom" secondItem="gQ9-WX-OdT" secondAttribute="bottom" id="XtZ-dX-DKf"/>
-                            <constraint firstItem="9Zv-VC-z9Q" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Yn1-PO-3OG"/>
                             <constraint firstItem="gQ9-WX-OdT" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" id="Yvt-MI-CGO"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="centerY" secondItem="YJu-Wm-1v9" secondAttribute="centerY" id="Z5q-8B-QGn"/>
                             <constraint firstItem="Js2-kv-WeL" firstAttribute="leading" secondItem="YJu-Wm-1v9" secondAttribute="trailing" constant="4" id="ZTg-Cz-xn2"/>
-                            <constraint firstAttribute="bottom" secondItem="9Zv-VC-z9Q" secondAttribute="bottom" id="a3o-Zp-BbR"/>
                             <constraint firstItem="gag-6u-iE8" firstAttribute="top" secondItem="kV4-Z9-Bj8" secondAttribute="top" constant="6" id="cH7-tp-kkV"/>
                             <constraint firstItem="zsr-9m-Xng" firstAttribute="leading" secondItem="kV4-Z9-Bj8" secondAttribute="leading" id="e9C-uv-p6S"/>
-                            <constraint firstItem="zsr-9m-Xng" firstAttribute="trailing" secondItem="gQ9-WX-OdT" secondAttribute="trailing" id="fya-5U-VbV"/>
-                            <constraint firstAttribute="trailing" secondItem="9Zv-VC-z9Q" secondAttribute="trailing" id="hpx-P6-z3h"/>
                             <constraint firstItem="BRZ-kb-M9S" firstAttribute="centerY" secondItem="qvi-bz-Yi2" secondAttribute="centerY" id="ov6-NT-6Vk"/>
                             <constraint firstItem="Js2-kv-WeL" firstAttribute="centerY" secondItem="YJu-Wm-1v9" secondAttribute="centerY" id="puB-AR-J0Q"/>
                             <constraint firstItem="tao-am-aq2" firstAttribute="trailing" secondItem="BRZ-kb-M9S" secondAttribute="trailing" id="qtR-ij-9dD"/>
                             <constraint firstItem="qvi-bz-Yi2" firstAttribute="top" secondItem="gag-6u-iE8" secondAttribute="bottom" constant="3" id="rgZ-hn-OTM"/>
                             <constraint firstAttribute="trailing" secondItem="BRZ-kb-M9S" secondAttribute="trailing" constant="12" id="sIn-eP-roS"/>
-                            <constraint firstItem="9Zv-VC-z9Q" firstAttribute="leading" secondItem="zsr-9m-Xng" secondAttribute="trailing" id="zz6-AA-0oO"/>
                         </constraints>
                     </view>
                 </subviews>
@@ -155,12 +146,6 @@
         </collectionViewCell>
     </objects>
     <resources>
-        <namedColor name="colorBlurOverlay">
-            <color red="0.0" green="0.0" blue="0.0" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="colorGray">
-            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
         <namedColor name="colorGreen">
             <color red="0.054999999701976776" green="0.82700002193450928" blue="0.23100000619888306" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

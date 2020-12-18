@@ -33,4 +33,37 @@ struct ModalAlertFactory {
 
         return controller
     }
+
+    static func createMultilineSuccessAlert(_ title: String,
+                                            dissmisAfter timeInterval: TimeInterval = 4.0)
+    -> UIViewController {
+        let contentView = MultilineImageWithTitleView()
+        contentView.verticalSpacing = 8.0
+        contentView.titleLabel.textColor = R.color.colorWhite()
+        contentView.titleLabel.font = UIFont.p2Paragraph
+        contentView.titleLabel.text = title
+        contentView.titleLabel.textAlignment = .center
+        contentView.imageView.image = R.image.iconValidBig()
+        contentView.contentInsets = UIEdgeInsets(top: 16.0, left: 16.0, bottom: 16.0, right: 16.0)
+
+        contentView.forceSizeCalculation()
+
+        let controller = UIViewController()
+        controller.view = contentView
+
+        let style = ModalAlertPresentationStyle(backgroundColor: R.color.colorAlmostBlack()!,
+                                                backdropColor: .clear,
+                                                cornerRadius: 8.0)
+
+        let preferredSize = contentView.intrinsicContentSize
+        let configuration = ModalAlertPresentationConfiguration(style: style,
+                                                                preferredSize: preferredSize,
+                                                                dismissAfterDelay: timeInterval,
+                                                                completionFeedback: .success)
+
+        controller.modalTransitioningFactory = ModalAlertPresentationFactory(configuration: configuration)
+        controller.modalPresentationStyle = .custom
+
+        return controller
+    }
 }
