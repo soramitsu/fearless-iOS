@@ -6,18 +6,29 @@ import RobinHood
 final class RootInteractor {
     weak var presenter: RootInteractorOutputProtocol?
 
-    var settings: SettingsManagerProtocol
-    var keystore: KeystoreProtocol
+    let settings: SettingsManagerProtocol
+    let keystore: KeystoreProtocol
+    let applicationConfig: ApplicationConfigProtocol
+    let eventCenter: EventCenterProtocol
 
     init(settings: SettingsManagerProtocol,
-         keystore: KeystoreProtocol) {
+         keystore: KeystoreProtocol,
+         applicationConfig: ApplicationConfigProtocol,
+         eventCenter: EventCenterProtocol) {
         self.settings = settings
         self.keystore = keystore
+        self.applicationConfig = applicationConfig
+        self.eventCenter = eventCenter
     }
 
     private func setupURLHandlingService() {
         let keystoreImportService = KeystoreImportService(logger: Logger.shared)
-        URLHandlingService.shared.setup(children: [keystoreImportService])
+
+        let callbackUrl = applicationConfig.purchaseRedirect
+        let purchaseHandler = PurchaseCompletionHandler(callbackUrl: callbackUrl,
+                                                        eventCenter: eventCenter)
+
+        URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
     }
 }
 

@@ -8,6 +8,7 @@ struct PurchaseAction {
 protocol PurchaseProviderProtocol {
     func with(appName: String) -> Self
     func with(logoUrl: URL) -> Self
+    func with(callbackUrl: URL) -> Self
     func buildPurchaseAction(for chain: Chain,
                              assetId: WalletAssetId?,
                              address: String) -> [PurchaseAction]
@@ -29,6 +30,11 @@ extension PurchaseAggregator: PurchaseProviderProtocol {
 
     func with(logoUrl: URL) -> Self {
         providers = providers.map { $0.with(logoUrl: logoUrl) }
+        return self
+    }
+
+    func with(callbackUrl: URL) -> Self {
+        providers = providers.map { $0.with(callbackUrl: callbackUrl) }
         return self
     }
 

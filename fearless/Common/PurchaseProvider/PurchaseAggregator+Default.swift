@@ -7,7 +7,8 @@ extension PurchaseAggregator {
             RampProvider()
         ]
         return PurchaseAggregator(providers: purchaseProviders)
-            .with(appName: config.appName)
+            .with(appName: config.purchaseAppName)
             .with(logoUrl: config.logoUrl)
+            .with(callbackUrl: config.purchaseRedirect)
     }
 }

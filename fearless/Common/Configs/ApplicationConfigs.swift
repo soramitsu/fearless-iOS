@@ -13,6 +13,8 @@ protocol ApplicationConfigProtocol {
     var opensourceURL: URL { get }
     var appName: String { get }
     var logoUrl: URL { get }
+    var purchaseAppName: String { get }
+    var purchaseRedirect: URL { get }
 }
 
 final class ApplicationConfig {
@@ -76,4 +78,12 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         return URL(string: logoString)!
     }
     //swiftlint:enable line_length
+
+    var purchaseAppName: String {
+        return "Fearless Wallet"
+    }
+
+    var purchaseRedirect: URL {
+        return URL(string: "fearless://fearless.io/redirect")!
+    }
 }

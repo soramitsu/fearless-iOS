@@ -223,3 +223,4 @@ Chemin de dérivation: %@";
 "wallet.asset.buy" = "Acheter";
 "wallet.send.dead.recipient.title" = "Le montant est trop faible";
 "wallet.send.dead.recipient.message" = "Votre transfert échouera car le montant final sur le compte de destination sera inférieur au dépôt existentiel. S'il vous plaît, essayez d'augmenter le montant.";
+"buy.completed" = "Achat lancé! Veuillez patienter jusqu'à 60 minutes. Vous pouvez suivre le statut sur l'e-mail.";

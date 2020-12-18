@@ -6,6 +6,7 @@ final class RampProvider: PurchaseProviderProtocol {
 
     private var appName: String?
     private var logoUrl: URL?
+    private var callbackUrl: URL?
 
     func with(appName: String) -> Self {
         self.appName = appName
@@ -14,6 +15,11 @@ final class RampProvider: PurchaseProviderProtocol {
 
     func with(logoUrl: URL) -> Self {
         self.logoUrl = logoUrl
+        return self
+    }
+
+    func with(callbackUrl: URL) -> Self {
+        self.callbackUrl = callbackUrl
         return self
     }
 
@@ -45,10 +51,15 @@ final class RampProvider: PurchaseProviderProtocol {
         var queryItems = [
             URLQueryItem(name: "swapAsset", value: token),
             URLQueryItem(name: "userAddress", value: address),
-            URLQueryItem(name: "hostApiKey", value: Self.pubToken)
+            URLQueryItem(name: "hostApiKey", value: Self.pubToken),
+            URLQueryItem(name: "variant", value: "hosted-mobile")
         ]
 
-        if let appName = appName?.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) {
+        if let callbackUrl = callbackUrl?.absoluteString {
+            queryItems.append(URLQueryItem(name: "finalUrl", value: callbackUrl))
+        }
+
+        if let appName = appName {
             queryItems.append(URLQueryItem(name: "hostAppName", value: appName))
         }
 

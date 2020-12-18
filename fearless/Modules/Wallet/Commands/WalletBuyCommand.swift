@@ -11,11 +11,16 @@ final class WalletBuyCommand: WalletCommandProtocol {
     }
 
     private func handle(action: PurchaseAction) throws {
-        let webViewController = WebViewFactory.createWebViewController(for: action.url,
-                                                                       style: .automatic)
-        try commandFactory?
-                .preparePresentationCommand(for: webViewController)
-                .execute()
+        guard
+            let commandFactory = commandFactory,
+            let webView = PurchaseViewFactory.createView(for: action,
+                                                         commandFactory: commandFactory) else {
+            return
+        }
+
+        let command = commandFactory.preparePresentationCommand(for: webView.controller)
+        command.presentationStyle = .modal(inNavigation: false)
+        try command.execute()
     }
 
     func execute() throws {
