@@ -220,3 +220,7 @@ Derivation path: %@";
 "account.import.json.no.network" = "JSON contains no network information. Please specify it in advanced block.";
 "account.import.wrong.network" = "Network in JSON is %@, do not match selected %@. The latter will be used to import an account.";
 "common.address" = "Address";
+"wallet.asset.buy" = "Buy";
+"wallet.send.dead.recipient.title" = "Amount is too low";
+"wallet.send.dead.recipient.message" = "Your transfer will fail since the final amount on the destination account will be less than the existential deposit. Please, try to increase the amount.";
+"buy.completed" = "Purchase initiated! Please wait up to 60 minutes. You can track status on the email.";

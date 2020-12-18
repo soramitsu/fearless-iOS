@@ -11,6 +11,10 @@ protocol ApplicationConfigProtocol {
     var socialURL: URL { get }
     var version: String { get }
     var opensourceURL: URL { get }
+    var appName: String { get }
+    var logoUrl: URL { get }
+    var purchaseAppName: String { get }
+    var purchaseRedirect: URL { get }
 }
 
 final class ApplicationConfig {
@@ -59,5 +63,27 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var opensourceURL: URL {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
+    }
+
+    //swiftlint:disable force_cast
+    var appName: String {
+        let bundle = Bundle(for: ApplicationConfig.self)
+        return bundle.infoDictionary?["CFBundleDisplayName"] as! String
+    }
+    //swiftlint:enable force_cast
+
+    //swiftlint:disable line_length
+    var logoUrl: URL {
+        let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/favicon.png"
+        return URL(string: logoString)!
+    }
+    //swiftlint:enable line_length
+
+    var purchaseAppName: String {
+        return "Fearless Wallet"
+    }
+
+    var purchaseRedirect: URL {
+        return URL(string: "fearless://fearless.io/redirect")!
     }
 }

@@ -7,6 +7,7 @@ protocol EventVisitorProtocol: class {
     func processBalanceChanged(event: WalletBalanceChanged)
     func processStakingChanged(event: WalletStakingInfoChanged)
     func processNewTransaction(event: WalletNewTransactionInserted)
+    func processPurchaseCompletion(event: PurchaseCompleted)
 }
 
 extension EventVisitorProtocol {
@@ -16,4 +17,5 @@ extension EventVisitorProtocol {
     func processStakingChanged(event: WalletStakingInfoChanged) {}
     func processNewTransaction(event: WalletNewTransactionInserted) {}
     func processSelectedUsernameChanged(event: SelectedUsernameChanged) {}
+    func processPurchaseCompletion(event: PurchaseCompleted) {}
 }

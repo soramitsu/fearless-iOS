@@ -7,18 +7,25 @@ final class WalletAccountListConfigurator {
     let viewModelFactory: WalletAssetViewModelFactory
     let assetStyleFactory: AssetStyleFactory
 
-    init(address: String, priceAsset: WalletAsset, logger: LoggerProtocol) {
+    init(address: String,
+         chain: Chain,
+         priceAsset: WalletAsset,
+         purchaseProvider: PurchaseProviderProtocol,
+         logger: LoggerProtocol) {
         self.logger = logger
 
         assetStyleFactory = AssetStyleFactory()
 
         let amountFormatterFactory = AmountFormatterFactory()
         let accountCommandFactory = WalletSelectAccountCommandFactory()
+
         viewModelFactory = WalletAssetViewModelFactory(address: address,
+                                                       chain: chain,
                                                        assetCellStyleFactory: assetStyleFactory,
                                                        amountFormatterFactory: amountFormatterFactory,
                                                        priceAsset: priceAsset,
-                                                       accountCommandFactory: accountCommandFactory)
+                                                       accountCommandFactory: accountCommandFactory,
+                                                       purchaseProvider: purchaseProvider)
     }
 
     func configure(builder: AccountListModuleBuilderProtocol) {
@@ -28,11 +35,12 @@ final class WalletAccountListConfigurator {
             viewStyle.backgroundImage = R.image.backgroundImage()
 
             try builder
-            .withActions(cellNib: UINib(resource: R.nib.walletActionsCell))
             .with(cellNib: UINib(resource: R.nib.walletTotalPriceCell),
                   for: WalletAccountListConstants.totalPriceCellId)
             .with(cellNib: UINib(resource: R.nib.walletAssetCell),
                   for: WalletAccountListConstants.assetCellId)
+            .with(cellNib: UINib(resource: R.nib.walletActionsCell),
+                  for: WalletAccountListConstants.actionsCellId)
             .with(listViewModelFactory: viewModelFactory)
             .with(assetCellStyleFactory: assetStyleFactory)
             .with(viewStyle: viewStyle)
