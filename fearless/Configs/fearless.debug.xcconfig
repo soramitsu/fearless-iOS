@@ -3,3 +3,4 @@
 OTHER_SWIFT_FLAGS = $(inherited) "-DENABLE_UITUNNEL" "-DF_DEV"
 
 APP_NAME = Fearless Dev
+ICON_SUFFIX = Dev

@@ -3,3 +3,4 @@
 OTHER_SWIFT_FLAGS = $(inherited) "-DF_DEV"
 
 APP_NAME = Sora Dev
+ICON_SUFFIX = Dev
