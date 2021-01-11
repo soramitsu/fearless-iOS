@@ -32,7 +32,7 @@ final class RampProvider: PurchaseProviderProtocol {
         case .polkadot:
             optionUrl = buildURLForToken("DOT", address: address)
         case .kusama:
-            optionUrl = nil
+            optionUrl = buildURLForToken("KSM", address: address)
         case .westend:
             optionUrl = nil
         }
