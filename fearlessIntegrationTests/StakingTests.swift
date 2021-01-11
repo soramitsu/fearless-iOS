@@ -214,9 +214,17 @@ class StakingTests: XCTestCase {
         let sessionIndexKey = try storageKeyFactory.sessionIndex().toHex(includePrefix: true)
         let validatorsCountKey = try storageKeyFactory
             .stakingValidatorsCount().toHex(includePrefix: true)
+        let totalIssuanceKey = try storageKeyFactory.totalIssuance().toHex(includePrefix: true)
         let historyDepthKey = try storageKeyFactory.historyDepth().toHex(includePrefix: true)
 
-        let allKeys = [activeEraKey, currentEraKey, sessionIndexKey, validatorsCountKey, historyDepthKey]
+        let allKeys = [
+            activeEraKey,
+            currentEraKey,
+            sessionIndexKey,
+            validatorsCountKey,
+            historyDepthKey,
+            totalIssuanceKey
+        ]
 
         let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
                                                                     method: RPCMethod.queryStorageAt,
@@ -279,6 +287,15 @@ class StakingTests: XCTestCase {
                 logger.debug("History depth: \(historyDepth)")
             } else {
                 logger.debug("Empty history depth")
+            }
+
+            if let totalIssuanceData = storageData.changes
+                .first(where: { $0.key.toHex(includePrefix: true) == totalIssuanceKey })?.value {
+                let scaleDecoder = try ScaleDecoder(data: totalIssuanceData)
+                let balance = try Balance(scaleDecoder: scaleDecoder)
+                logger.debug("Total issuance \(balance.value)")
+            } else {
+                logger.debug("Empty total issuance")
             }
 
         } catch {
