@@ -2,5 +2,5 @@
 
 OTHER_SWIFT_FLAGS = $(inherited) "-DF_DEV"
 
-APP_NAME = Sora Dev
+APP_NAME = Fearless Dev
 ICON_SUFFIX = Dev
