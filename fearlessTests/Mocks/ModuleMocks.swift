@@ -8905,6 +8905,21 @@ import SoraFoundation
     
     
     
+     func set(networkType: Chain)  {
+        
+    return cuckoo_manager.call("set(networkType: Chain)",
+            parameters: (networkType),
+            escapingParameters: (networkType),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.set(networkType: networkType))
+        
+    }
+    
+    
+    
      func didStartLoading()  {
         
     return cuckoo_manager.call("didStartLoading()",
@@ -8972,6 +8987,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoViewProtocol.self, method: "set(nodeViewModel: InputViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
+	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: networkType) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoViewProtocol.self, method: "set(networkType: Chain)", parameterMatchers: matchers))
+	    }
+	    
 	    func didStartLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkInfoViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
@@ -9028,6 +9048,12 @@ import SoraFoundation
 	    func set<M1: Cuckoo.Matchable>(nodeViewModel: M1) -> Cuckoo.__DoNotUse<(InputViewModelProtocol), Void> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: nodeViewModel) { $0 }]
 	        return cuckoo_manager.verify("set(nodeViewModel: InputViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func set<M1: Cuckoo.Matchable>(networkType: M1) -> Cuckoo.__DoNotUse<(Chain), Void> where M1.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: networkType) { $0 }]
+	        return cuckoo_manager.verify("set(networkType: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -9088,6 +9114,10 @@ import SoraFoundation
     }
     
      func set(nodeViewModel: InputViewModelProtocol)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func set(networkType: Chain)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
