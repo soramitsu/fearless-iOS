@@ -74,7 +74,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     //swiftlint:disable line_length
     var logoUrl: URL {
-        let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/favicon.png"
+        let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
     //swiftlint:enable line_length
