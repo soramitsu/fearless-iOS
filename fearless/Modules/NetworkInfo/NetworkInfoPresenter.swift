@@ -36,6 +36,7 @@ extension NetworkInfoPresenter: NetworkInfoPresenterProtocol {
     func setup() {
         view?.set(nameViewModel: nameViewModel)
         view?.set(nodeViewModel: nodeViewModel)
+        view?.set(networkType: connectionItem.type.chain)
     }
 
     func activateCopy() {

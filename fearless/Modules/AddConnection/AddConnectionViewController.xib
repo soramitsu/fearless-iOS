@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="16097.2" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="16087"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -74,7 +75,8 @@
                             </connections>
                         </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <viewLayoutGuide key="safeArea" id="NKL-lO-SUI"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstItem="0uE-VB-6T6" firstAttribute="leading" secondItem="r1k-YW-fY5" secondAttribute="leading" id="6T5-LG-kcz"/>
                         <constraint firstAttribute="height" constant="52" id="7T2-yT-8ew"/>
@@ -82,7 +84,6 @@
                         <constraint firstAttribute="trailing" secondItem="0uE-VB-6T6" secondAttribute="trailing" id="fkz-7J-HDv"/>
                         <constraint firstAttribute="bottom" secondItem="0uE-VB-6T6" secondAttribute="bottom" id="oAh-j2-sP3"/>
                     </constraints>
-                    <viewLayoutGuide key="safeArea" id="NKL-lO-SUI"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="sideLength">
                             <real key="value" value="10"/>
@@ -157,7 +158,8 @@
                             </connections>
                         </view>
                     </subviews>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <viewLayoutGuide key="safeArea" id="juH-Y3-cAU"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstItem="aey-zc-1oE" firstAttribute="leading" secondItem="juH-Y3-cAU" secondAttribute="leading" id="DiH-gi-fCB"/>
                         <constraint firstItem="juH-Y3-cAU" firstAttribute="trailing" secondItem="aey-zc-1oE" secondAttribute="trailing" id="KXe-vS-tjb"/>
@@ -165,7 +167,6 @@
                         <constraint firstAttribute="height" constant="52" id="mbD-tA-BzD"/>
                         <constraint firstItem="juH-Y3-cAU" firstAttribute="bottom" secondItem="aey-zc-1oE" secondAttribute="bottom" id="vfP-fs-TqQ"/>
                     </constraints>
-                    <viewLayoutGuide key="safeArea" id="juH-Y3-cAU"/>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="number" keyPath="sideLength">
                             <real key="value" value="10"/>
@@ -192,7 +193,7 @@
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Z5u-RC-Q2j" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="16" y="152" width="343" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor" cocoaTouchSystemColor="whiteColor"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="52" id="bdD-7W-iKm"/>
                     </constraints>
@@ -223,6 +224,7 @@
                     </connections>
                 </view>
             </subviews>
+            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" name="colorBlack"/>
             <constraints>
                 <constraint firstItem="r1k-YW-fY5" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="16" id="8KW-Qk-zWO"/>
@@ -235,10 +237,14 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="Z5u-RC-Q2j" secondAttribute="trailing" constant="16" id="oFS-C3-v7h"/>
                 <constraint firstItem="Z5u-RC-Q2j" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="xtM-xJ-CFz"/>
             </constraints>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <point key="canvasLocation" x="139" y="108"/>
         </view>
     </objects>
+    <designables>
+        <designable name="Z5u-RC-Q2j">
+            <size key="intrinsicContentSize" width="46.5" height="34"/>
+        </designable>
+    </designables>
     <resources>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -258,5 +264,8 @@
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
     </resources>
 </document>

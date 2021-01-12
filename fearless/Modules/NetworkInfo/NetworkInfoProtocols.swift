@@ -3,6 +3,7 @@ import SoraFoundation
 protocol NetworkInfoViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func set(nameViewModel: InputViewModelProtocol)
     func set(nodeViewModel: InputViewModelProtocol)
+    func set(networkType: Chain)
 }
 
 protocol NetworkInfoPresenterProtocol: class {

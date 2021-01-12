@@ -42,14 +42,20 @@ class NetworkInfoTests: XCTestCase {
 
         let nameExpectation = XCTestExpectation()
         let nodeExpectation = XCTestExpectation()
+        let networkExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).isSetup.get.thenReturn(false, true)
             when(stub).set(nameViewModel: any()).then { _ in
                 nameExpectation.fulfill()
             }
+
             when(stub).set(nodeViewModel: any()).then { _ in
                 nodeExpectation.fulfill()
+            }
+
+            when(stub).set(networkType: any()).then { _ in
+                networkExpectation.fulfill()
             }
         }
 
@@ -67,7 +73,8 @@ class NetworkInfoTests: XCTestCase {
 
         // then
 
-        wait(for: [nameExpectation, nodeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [nameExpectation, nodeExpectation, networkExpectation],
+             timeout: Constants.defaultExpectationDuration)
 
         // when
 
@@ -131,6 +138,7 @@ class NetworkInfoTests: XCTestCase {
 
         let nameExpectation = XCTestExpectation()
         let nodeExpectation = XCTestExpectation()
+        let networkExpectation = XCTestExpectation()
 
         stub(substrateOperationFactory) { stub in
             stub.fetchChainOperation(any()).then { _ in
@@ -150,6 +158,9 @@ class NetworkInfoTests: XCTestCase {
                 viewModel.inputHandler.changeValue(to: expectedItem.url.absoluteString)
                 nodeExpectation.fulfill()
             }
+            when(stub).set(networkType: any()).then { _ in
+                networkExpectation.fulfill()
+            }
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
         }
@@ -168,7 +179,8 @@ class NetworkInfoTests: XCTestCase {
 
         // then
 
-        wait(for: [nameExpectation, nodeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [nameExpectation, nodeExpectation, networkExpectation],
+             timeout: Constants.defaultExpectationDuration)
 
         // when
 
