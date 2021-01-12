@@ -14,6 +14,7 @@ final class NetworkInfoViewController: UIViewController {
     @IBOutlet private var nameField: AnimatedTextField!
     @IBOutlet private var nodeBackgroundView: TriangularedView!
     @IBOutlet private var nodeField: AnimatedTextField!
+    @IBOutlet private var networkView: DetailsTriangularedView!
 
     private var nameChanged: Bool = false
     private var nodeChanged: Bool = false
@@ -90,7 +91,7 @@ final class NetworkInfoViewController: UIViewController {
         button.rightAnchor.constraint(equalTo: view.rightAnchor,
                                       constant: -Constants.margin).isActive = true
 
-        button.topAnchor.constraint(equalTo: nodeBackgroundView.bottomAnchor,
+        button.topAnchor.constraint(equalTo: networkView.bottomAnchor,
                                       constant: Constants.margin).isActive = true
 
         button.heightAnchor.constraint(equalToConstant: Constants.actionHeight).isActive = true
@@ -203,6 +204,13 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
         } else {
             clearActionButtonIfNeeded()
         }
+    }
+
+    func set(networkType: Chain) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        networkView.title = networkType.titleForLocale(locale)
+        networkView.iconImage = networkType.icon
     }
 }
 
