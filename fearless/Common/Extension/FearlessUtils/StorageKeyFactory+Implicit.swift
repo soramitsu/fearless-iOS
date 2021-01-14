@@ -82,4 +82,31 @@ extension StorageKeyFactoryProtocol {
         try createStorageKey(moduleName: "Balances",
                              serviceName: "TotalIssuance")
     }
+
+    func wannabeValidatorPrefs(for accountId: Data) throws -> Data {
+        try createStorageKey(moduleName: "Staking",
+                             serviceName: "Validators",
+                             identifier: accountId,
+                             hasher: Twox64Concat())
+    }
+
+    func eraStakersExposure(for eraIndex: UInt32, accountId: Data) throws -> Data {
+        let encoder = ScaleEncoder()
+        try eraIndex.encode(scaleEncoder: encoder)
+        let identifier = encoder.encode()
+
+        let partialKey = try createStorageKey(moduleName: "Staking",
+                                              serviceName: "ErasStakers",
+                                              identifier: identifier,
+                                              hasher: Twox64Concat())
+
+        return partialKey + accountId.twox64Concat()
+    }
+
+    func identity(for accountId: Data) throws -> Data {
+        try createStorageKey(moduleName: "Identity",
+                             serviceName: "IdentityOf",
+                             identifier: accountId,
+                             hasher: Twox64Concat())
+    }
  }

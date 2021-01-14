@@ -125,7 +125,7 @@ class StakingTests: XCTestCase {
                 return
             }
 
-            stakersOperation.parameters = PagedKeysRequest(key: key, count: 1000)
+            stakersOperation.parameters = PagedKeysRequest(key: key, count: 1000, offset: nil)
         }
 
         stakersOperation.addDependency(currentEraOperation)
@@ -168,7 +168,7 @@ class StakingTests: XCTestCase {
 
         let key = try StorageKeyFactory().wannabeValidators().toHex(includePrefix: true)
 
-        let params = PagedKeysRequest(key: key, count: 1000)
+        let params = PagedKeysRequest(key: key, count: 1000, offset: nil)
         let operation = JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
                                                        method: RPCMethod.getStorageKeysPaged,
                                                        parameters: params,
@@ -230,9 +230,9 @@ class StakingTests: XCTestCase {
                                                                     method: RPCMethod.queryStorageAt,
                                                                     parameters: [allKeys])
 
-        // then
-
         operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
 
         do {
             guard let result = try operation
@@ -301,5 +301,207 @@ class StakingTests: XCTestCase {
         } catch {
             logger.debug("Unexpected error: \(error)")
         }
+    }
+
+    func testRecommendations() throws {
+        // given
+
+        let url = URL(string: "wss://rpc.polkadot.io/")!
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let storageKeyFactory = StorageKeyFactory()
+
+        let currentEraKey = try storageKeyFactory.currentEra().toHex(includePrefix: true)
+        let validatorsCountKey = try storageKeyFactory.stakingValidatorsCount().toHex(includePrefix: true)
+
+        let allKeys = [
+            currentEraKey,
+            validatorsCountKey
+        ]
+
+        let infoOperation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
+                                                                          method: RPCMethod.queryStorageAt,
+                                                                          parameters: [allKeys])
+
+        operationQueue.addOperations([infoOperation], waitUntilFinished: true)
+
+        do {
+            guard let result = try infoOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .first else {
+                logger.debug("No result found")
+                return
+            }
+
+            let storageData = StorageUpdateData(update: result)
+
+            guard let currentEra: UInt32 = try storageData.decodeUpdatedData(for: currentEraKey) else {
+                logger.debug("Unexpected empty era")
+                return
+            }
+
+            guard let validatorsCount: UInt32 = try storageData.decodeUpdatedData(for: validatorsCountKey) else {
+                logger.debug("Unexpected empty validator count")
+                return
+            }
+
+            logger.debug("Current era: \(currentEra)")
+            logger.debug("Validators count: \(validatorsCount)")
+
+            // fetching elected validator ids
+
+            let validatorsPerPage: UInt32 = 1000
+            let requestsCount = validatorsCount % validatorsPerPage == 0 ? validatorsCount / validatorsPerPage : (validatorsCount / validatorsPerPage) + 1
+
+            let partialKey = try storageKeyFactory
+                .eraStakers(for: currentEra).toHex(includePrefix: true)
+
+            let operations = (0..<requestsCount).map { index in
+                JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
+                                                             method: RPCMethod.getStorageKeysPaged,
+                                                             timeout: 60)
+            }
+
+            for index in (0..<operations.count) {
+                operations[index].configurationBlock = {
+                    let request: PagedKeysRequest
+
+                    do {
+                        if index > 0 {
+                            let lastKey = try operations[index-1].extractResultData()?.last
+                            request = PagedKeysRequest(key: partialKey, count: validatorsPerPage, offset: lastKey)
+                        } else {
+                            request = PagedKeysRequest(key: partialKey, count: validatorsPerPage, offset: nil)
+                        }
+
+                        operations[index].parameters = request
+                    } catch {
+                        operations[index].result = .failure(error)
+                    }
+                }
+
+                if index > 0 {
+                    operations[index].addDependency(operations[index-1])
+                }
+            }
+
+            let mapOperation = ClosureOperation<[AccountId]> {
+                let accountIds: [[AccountId]] = try operations.map {
+                    let keys = try $0.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+                    let accountIds: [AccountId] = try keys.map { key in
+                        let accountId = try Data(hexString: key).suffix(32)
+                        return AccountId(value: Data(accountId))
+                    }
+
+                    return accountIds
+                }
+
+                return accountIds.flatMap { $0 }
+            }
+
+            if let lastOperation = operations.last {
+                mapOperation.addDependency(lastOperation)
+            }
+
+            let electedIdsOperation = CompoundOperationWrapper(targetOperation: mapOperation,
+                                                               dependencies: operations)
+
+            operationQueue.addOperations(electedIdsOperation.allOperations, waitUntilFinished: true)
+
+            let validatorIds = try electedIdsOperation.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            logger.debug("Elected validators count \(validatorIds.count)")
+
+            let identitiesOperation = try fetchIdentities(for: validatorIds,
+                                                      engine: engine)
+
+            operationQueue.addOperations(identitiesOperation.allOperations, waitUntilFinished: true)
+
+            let identities = try identitiesOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            logger.debug("Identities count: \(identities.count)")
+
+            let names: [String] = identities.compactMap { identity in
+                guard case .raw(let data) = identity.info.display else {
+                    return nil
+                }
+
+                return String(data: data, encoding: .utf8)
+            }
+
+            for name in names {
+                logger.debug(name)
+            }
+        }
+    }
+
+    private func fetchIdentities(for accountIds: [AccountId], engine: JSONRPCEngine) throws
+    -> CompoundOperationWrapper<[IdentityRegistration]> {
+        let itemsPerPage = 100
+        let accountCount = accountIds.count
+
+        let requestsCount = accountCount % itemsPerPage == 0 ? accountCount / itemsPerPage : (accountCount / itemsPerPage) + 1
+
+        let storageFactory = StorageKeyFactory()
+
+        let operations: [CompoundOperationWrapper<[IdentityRegistration]>] =
+            try (0..<requestsCount).map { index in
+            let pageStart = index * itemsPerPage
+            let length = pageStart + itemsPerPage > accountCount ? accountCount - pageStart : itemsPerPage
+            let pageEnd = pageStart + length
+
+            let allKeys = try accountIds[pageStart..<pageEnd].map {
+                try storageFactory.identity(for: $0.value).toHex(includePrefix: true)
+            }
+
+            let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
+                                                                        method: RPCMethod.queryStorageAt,
+                                                                        parameters: [allKeys])
+
+            let mapOperation = ClosureOperation<[IdentityRegistration]> {
+                 try operation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .map { StorageUpdateData(update: $0) }
+                    .flatMap { $0.changes }
+                    .compactMap { change in
+                        guard let value = change.value else {
+                            return nil
+                        }
+
+                        let scaleDecoder = try ScaleDecoder(data: value)
+                        return try IdentityRegistration(scaleDecoder: scaleDecoder)
+                    }
+            }
+
+            mapOperation.addDependency(operation)
+
+            return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [operation])
+        }
+
+        let mapOperation = ClosureOperation {
+            try operations.flatMap {
+                try $0.targetOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            }
+        }
+
+        for index in (0..<operations.count) {
+            if index > 0 {
+                operations[index].allOperations.forEach { $0.addDependency(operations[index-1].targetOperation) }
+            }
+
+            mapOperation.addDependency(operations[index].targetOperation)
+        }
+
+        let dependencies = operations.flatMap { $0.allOperations }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 }

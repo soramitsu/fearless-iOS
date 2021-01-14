@@ -1,12 +1,8 @@
 import Foundation
 import FearlessUtils
 
-struct AccountId: ScaleCodable {
+struct H256: ScaleCodable, Equatable {
     let value: Data
-
-    init(value: Data) {
-        self.value = value
-    }
 
     init(scaleDecoder: ScaleDecoding) throws {
         value = try scaleDecoder.readAndConfirm(count: 32)
