@@ -3,8 +3,15 @@ import XCTest
 import FearlessUtils
 import IrohaCrypto
 import RobinHood
+import BigInt
 
 class StakingTests: XCTestCase {
+    let logger: LoggerProtocol = {
+        let shared = Logger.shared
+        shared.minLevel = .debug
+        return shared
+    }()
+
     func testNominationsFetch() throws {
         // given
 
@@ -13,7 +20,6 @@ class StakingTests: XCTestCase {
         let accountId = try ss58Factory.accountId(fromAddress: address, type: .genericSubstrate)
 
         let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-        let logger = Logger.shared
         let operationQueue = OperationQueue()
 
 
@@ -56,7 +62,6 @@ class StakingTests: XCTestCase {
         let ss58Factory = SS58AddressFactory()
 
         let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-        let logger = Logger.shared
         let operationQueue = OperationQueue()
 
         let engine = WebSocketEngine(url: url, logger: logger)
@@ -96,7 +101,6 @@ class StakingTests: XCTestCase {
         let ss58Factory = SS58AddressFactory()
 
         let url = URL(string: "wss://westend-rpc.polkadot.io/")!
-        let logger = Logger.shared
         let operationQueue = OperationQueue()
 
         let engine = WebSocketEngine(url: url, logger: logger)
@@ -159,7 +163,6 @@ class StakingTests: XCTestCase {
         let ss58Factory = SS58AddressFactory()
 
         let url = URL(string: "wss://rpc.polkadot.io")!
-        let logger = Logger.shared
         let operationQueue = OperationQueue()
 
         let engine = WebSocketEngine(url: url, logger: logger)
@@ -197,11 +200,38 @@ class StakingTests: XCTestCase {
         }
     }
 
+    func testHistoryDepth() throws {
+        // given
+
+        let url = URL(string: "wss://polkadot.elara.patract.io/")!
+
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        let storageKeyFactory = StorageKeyFactory()
+
+        let historyDepthKey = try storageKeyFactory.historyDepth().toHex(includePrefix: true)
+
+        let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
+                                                                         method: RPCMethod.getStorage,
+                                                                         parameters: [historyDepthKey])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        if let depth = try operation
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled).underlyingValue {
+            logger.info("History depth: \(depth)")
+        } else {
+            logger.info("Empty history depth")
+        }
+    }
+
     func testFetchOverview() throws {
         // given
 
-        let url = URL(string: "wss://rpc.polkadot.io/")!
-        let logger = Logger.shared
+        let url = URL(string: "wss://kusama-rpc.polkadot.io/")!
+
         let operationQueue = OperationQueue()
 
         let engine = WebSocketEngine(url: url, logger: logger)
@@ -238,7 +268,7 @@ class StakingTests: XCTestCase {
             guard let result = try operation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     .first else {
-                logger.debug("No result found")
+                logger.error("No result found")
                 return
             }
 
@@ -248,54 +278,54 @@ class StakingTests: XCTestCase {
                     .first(where:{ $0.key.toHex(includePrefix: true) == activeEraKey})?.value {
                 let scaleDecoder = try ScaleDecoder(data: activeEraData)
                 let activeEra = try UInt32(scaleDecoder: scaleDecoder)
-                logger.debug("Active era: \(activeEra)")
+                logger.info("Active era: \(activeEra)")
             } else {
-                logger.debug("Empty active era")
+                logger.info("Empty active era")
             }
 
             if let currentEraData  = storageData.changes
                     .first(where:{ $0.key.toHex(includePrefix: true) == currentEraKey})?.value {
                 let scaleDecoder = try ScaleDecoder(data: currentEraData)
                 let currentEra = try UInt32(scaleDecoder: scaleDecoder)
-                logger.debug("Current era: \(currentEra)")
+                logger.info("Current era: \(currentEra)")
             } else {
-                logger.debug("Empty current era")
+                logger.info("Empty current era")
             }
 
             if let sessionIndexData  = storageData.changes
                     .first(where:{ $0.key.toHex(includePrefix: true) == sessionIndexKey})?.value {
                 let scaleDecoder = try ScaleDecoder(data: sessionIndexData)
                 let sessionIndex = try UInt32(scaleDecoder: scaleDecoder)
-                logger.debug("Session index: \(sessionIndex)")
+                logger.info("Session index: \(sessionIndex)")
             } else {
-                logger.debug("Empty session index")
+                logger.info("Empty session index")
             }
 
             if let validatorCountData  = storageData.changes
                     .first(where:{ $0.key.toHex(includePrefix: true) == validatorsCountKey})?.value {
                 let scaleDecoder = try ScaleDecoder(data: validatorCountData)
                 let validatorCount = try UInt32(scaleDecoder: scaleDecoder)
-                logger.debug("Validator count: \(validatorCount)")
+                logger.info("Validator count: \(validatorCount)")
             } else {
-                logger.debug("Empty validator count")
+                logger.info("Empty validator count")
             }
 
             if let historyDepthData = storageData.changes
                 .first(where: { $0.key.toHex(includePrefix: true) == historyDepthKey})?.value {
                 let scaleDecoder = try ScaleDecoder(data: historyDepthData)
                 let historyDepth = try UInt32(scaleDecoder: scaleDecoder)
-                logger.debug("History depth: \(historyDepth)")
+                logger.info("History depth: \(historyDepth)")
             } else {
-                logger.debug("Empty history depth")
+                logger.info("Empty history depth")
             }
 
             if let totalIssuanceData = storageData.changes
                 .first(where: { $0.key.toHex(includePrefix: true) == totalIssuanceKey })?.value {
                 let scaleDecoder = try ScaleDecoder(data: totalIssuanceData)
                 let balance = try Balance(scaleDecoder: scaleDecoder)
-                logger.debug("Total issuance \(balance.value)")
+                logger.info("Total issuance \(balance.value)")
             } else {
-                logger.debug("Empty total issuance")
+                logger.info("Empty total issuance")
             }
 
         } catch {
@@ -303,11 +333,67 @@ class StakingTests: XCTestCase {
         }
     }
 
-    func testRecommendations() throws {
+    func testRecommendationsMeasuring() throws {
+        self.measure {
+            do {
+                let url = URL(string: "wss://kusama-rpc.polkadot.io/")!
+                try performRecommendations(for: url)
+            } catch {
+                logger.error("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testSlashingSpansMeasuring() throws {
+        self.measure {
+            do {
+                let url = URL(string: "wss://kusama-rpc.polkadot.io/")!
+                try performSlashingSpans(url: url)
+            } catch {
+                logger.error("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    // MARK: Private
+
+    func performNominationState(url: URL) throws {
         // given
 
-        let url = URL(string: "wss://rpc.polkadot.io/")!
-        let logger = Logger.shared
+        let engine = WebSocketEngine(url: url, logger: logger)
+        let storageFactory = StorageKeyFactory()
+        let operationQueue = OperationQueue()
+    }
+
+    func performSlashingSpans(url: URL) throws {
+        // given
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+        let storageFactory = StorageKeyFactory()
+        let operationQueue = OperationQueue()
+
+        // when
+
+        let slashedPartialKey = try storageFactory.slashedAccounts().toHex(includePrefix: true)
+        let slashedAccountIds = try fetchAccountIds(for: slashedPartialKey,
+                                                    engine: engine, itemsPerPage: 1000,
+                                                    operationQueue: operationQueue)
+
+        // then
+
+        logger.debug("Total slashed accounts: \(slashedAccountIds.count)")
+
+        let allSlashings: [Data: SlashingSpans] = try fetchItems(for: slashedAccountIds,
+                                                                 keyFactory: storageFactory.slashingSpans(for:),
+                                                                 engine: engine,
+                                                                 itemsPerPage: 1000,
+                                                                 operationQueue: operationQueue)
+
+        XCTAssertEqual(allSlashings.count, slashedAccountIds.count)
+    }
+
+    func performRecommendations(for url: URL, itemsPerPage: Int = 1000) throws {
+        // given
         let operationQueue = OperationQueue()
 
         let engine = WebSocketEngine(url: url, logger: logger)
@@ -334,149 +420,145 @@ class StakingTests: XCTestCase {
             guard let result = try infoOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     .first else {
-                logger.debug("No result found")
+                logger.error("No result found")
                 return
             }
 
             let storageData = StorageUpdateData(update: result)
 
             guard let currentEra: UInt32 = try storageData.decodeUpdatedData(for: currentEraKey) else {
-                logger.debug("Unexpected empty era")
+                logger.error("Unexpected empty era")
                 return
             }
 
             guard let validatorsCount: UInt32 = try storageData.decodeUpdatedData(for: validatorsCountKey) else {
-                logger.debug("Unexpected empty validator count")
+                logger.error("Unexpected empty validator count")
                 return
             }
 
-            logger.debug("Current era: \(currentEra)")
-            logger.debug("Validators count: \(validatorsCount)")
+            logger.info("Current era: \(currentEra)")
+            logger.info("Validators count: \(validatorsCount)")
 
-            // fetching elected validator ids
-
-            let validatorsPerPage: UInt32 = 1000
-            let requestsCount = validatorsCount % validatorsPerPage == 0 ? validatorsCount / validatorsPerPage : (validatorsCount / validatorsPerPage) + 1
-
-            let partialKey = try storageKeyFactory
+            let electedPartialKey = try storageKeyFactory
                 .eraStakers(for: currentEra).toHex(includePrefix: true)
 
-            let operations = (0..<requestsCount).map { index in
-                JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
-                                                             method: RPCMethod.getStorageKeysPaged,
-                                                             timeout: 60)
+            let validatorIds = try fetchAccountIds(for: electedPartialKey,
+                                                   engine: engine,
+                                                   itemsPerPage: UInt32(itemsPerPage),
+                                                   operationQueue: operationQueue)
+
+            logger.info("Elected validators count \(validatorIds.count)")
+
+            let identities: [Data: IdentityRegistration] =
+                try fetchItems(for: validatorIds,
+                               keyFactory: storageKeyFactory.identity(for:),
+                               engine: engine,
+                               itemsPerPage: itemsPerPage,
+                               operationQueue: operationQueue)
+            logger.info("Identities count: \(identities.count)")
+
+            let exposureKeyClosure = { (accountId: Data) in
+                try storageKeyFactory.eraStakersExposure(for: currentEra, accountId: accountId)
             }
 
-            for index in (0..<operations.count) {
-                operations[index].configurationBlock = {
-                    let request: PagedKeysRequest
+            let exposures: [Data: Exposure] = try fetchItems(for: validatorIds,
+                                                             keyFactory: exposureKeyClosure,
+                                                             engine: engine,
+                                                             itemsPerPage: itemsPerPage,
+                                                             operationQueue: operationQueue)
 
-                    do {
-                        if index > 0 {
-                            let lastKey = try operations[index-1].extractResultData()?.last
-                            request = PagedKeysRequest(key: partialKey, count: validatorsPerPage, offset: lastKey)
-                        } else {
-                            request = PagedKeysRequest(key: partialKey, count: validatorsPerPage, offset: nil)
-                        }
+            XCTAssertEqual(exposures.count, validatorIds.count)
 
-                        operations[index].parameters = request
-                    } catch {
-                        operations[index].result = .failure(error)
-                    }
-                }
+            let commissions: [Data: BigUInt] = try fetchItems(for: validatorIds,
+                                                              keyFactory: storageKeyFactory.wannabeValidatorPrefs(for:),
+                                                              engine: engine,
+                                                              itemsPerPage: itemsPerPage,
+                                                              operationQueue: operationQueue)
 
-                if index > 0 {
-                    operations[index].addDependency(operations[index-1])
-                }
-            }
+            logger.info("Slashed validators count: \(validatorIds.count - commissions.count)")
 
-            let mapOperation = ClosureOperation<[AccountId]> {
-                let accountIds: [[AccountId]] = try operations.map {
-                    let keys = try $0.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let slashes: [Data: SlashingSpans] = try fetchItems(for: validatorIds,
+                                                                keyFactory: storageKeyFactory.slashingSpans(for:),
+                                                                engine: engine,
+                                                                itemsPerPage: itemsPerPage,
+                                                                operationQueue: operationQueue)
 
-                    let accountIds: [AccountId] = try keys.map { key in
-                        let accountId = try Data(hexString: key).suffix(32)
-                        return AccountId(value: Data(accountId))
-                    }
-
-                    return accountIds
-                }
-
-                return accountIds.flatMap { $0 }
-            }
-
-            if let lastOperation = operations.last {
-                mapOperation.addDependency(lastOperation)
-            }
-
-            let electedIdsOperation = CompoundOperationWrapper(targetOperation: mapOperation,
-                                                               dependencies: operations)
-
-            operationQueue.addOperations(electedIdsOperation.allOperations, waitUntilFinished: true)
-
-            let validatorIds = try electedIdsOperation.targetOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            logger.debug("Elected validators count \(validatorIds.count)")
-
-            let identitiesOperation = try fetchIdentities(for: validatorIds,
-                                                      engine: engine)
-
-            operationQueue.addOperations(identitiesOperation.allOperations, waitUntilFinished: true)
-
-            let identities = try identitiesOperation.targetOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            logger.debug("Identities count: \(identities.count)")
-
-            let names: [String] = identities.compactMap { identity in
-                guard case .raw(let data) = identity.info.display else {
-                    return nil
-                }
-
-                return String(data: data, encoding: .utf8)
-            }
-
-            for name in names {
-                logger.debug(name)
-            }
+            logger.info("Slashed at least ones: \(slashes.count)")
         }
     }
 
-    private func fetchIdentities(for accountIds: [AccountId], engine: JSONRPCEngine) throws
-    -> CompoundOperationWrapper<[IdentityRegistration]> {
-        let itemsPerPage = 100
+
+    private func fetchAccountIds(for partialKey: String,
+                         engine: JSONRPCEngine,
+                         itemsPerPage: UInt32 = 100,
+                         operationQueue: OperationQueue = OperationQueue()) throws -> [AccountId] {
+        var lastKey: String?
+        var accountIds: [AccountId] = []
+
+        repeat {
+            let request = PagedKeysRequest(key: partialKey, count: itemsPerPage, offset: lastKey)
+
+            let operation = JSONRPCOperation<PagedKeysRequest, [String]>(engine: engine,
+                                                                         method: RPCMethod.getStorageKeysPaged,
+                                                                         parameters: request,
+                                                                         timeout: 60)
+
+            operationQueue.addOperations([operation], waitUntilFinished: true)
+
+            let keys = try operation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            let ids: [AccountId] = try keys.map { key in
+                    let accountId = try Data(hexString: key).suffix(32)
+                    return AccountId(value: Data(accountId))
+                }
+
+            accountIds.append(contentsOf: ids)
+            lastKey = keys.count == itemsPerPage ? keys.last : nil
+
+        } while lastKey != nil
+
+        return accountIds
+    }
+
+    func fetchItems<T: ScaleDecodable>(for accountIds: [AccountId],
+                                       keyFactory: (Data) throws -> Data,
+                                       engine: JSONRPCEngine,
+                                       itemsPerPage: Int = 100,
+                                       operationQueue: OperationQueue = OperationQueue()) throws
+    -> [Data: T] {
         let accountCount = accountIds.count
 
         let requestsCount = accountCount % itemsPerPage == 0 ? accountCount / itemsPerPage : (accountCount / itemsPerPage) + 1
 
-        let storageFactory = StorageKeyFactory()
-
-        let operations: [CompoundOperationWrapper<[IdentityRegistration]>] =
+        let operations: [CompoundOperationWrapper<[Data: T]>] =
             try (0..<requestsCount).map { index in
             let pageStart = index * itemsPerPage
             let length = pageStart + itemsPerPage > accountCount ? accountCount - pageStart : itemsPerPage
             let pageEnd = pageStart + length
 
             let allKeys = try accountIds[pageStart..<pageEnd].map {
-                try storageFactory.identity(for: $0.value).toHex(includePrefix: true)
+                try keyFactory($0.value).toHex(includePrefix: true)
             }
 
             let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
                                                                         method: RPCMethod.queryStorageAt,
                                                                         parameters: [allKeys])
 
-            let mapOperation = ClosureOperation<[IdentityRegistration]> {
+            let mapOperation = ClosureOperation<[Data: T]> {
                  try operation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                     .map { StorageUpdateData(update: $0) }
                     .flatMap { $0.changes }
-                    .compactMap { change in
+                    .reduce(into: [Data: T]()) { (result, change) in
                         guard let value = change.value else {
-                            return nil
+                            return
                         }
 
+                        let accountId = change.key.suffix(32)
+
                         let scaleDecoder = try ScaleDecoder(data: value)
-                        return try IdentityRegistration(scaleDecoder: scaleDecoder)
+                        result[accountId] = try T(scaleDecoder: scaleDecoder)
                     }
             }
 
@@ -486,9 +568,10 @@ class StakingTests: XCTestCase {
         }
 
         let mapOperation = ClosureOperation {
-            try operations.flatMap {
-                try $0.targetOperation
+            try operations.reduce(into: [Data: T]()) { (result, operation) in
+                let item = try operation.targetOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                result.merge(item) { (s1, s2) in s1 }
             }
         }
 
@@ -502,6 +585,8 @@ class StakingTests: XCTestCase {
 
         let dependencies = operations.flatMap { $0.allOperations }
 
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+        operationQueue.addOperations(dependencies + [mapOperation], waitUntilFinished: true)
+
+        return try mapOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
     }
 }

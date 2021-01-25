@@ -109,4 +109,16 @@ extension StorageKeyFactoryProtocol {
                              identifier: accountId,
                              hasher: Twox64Concat())
     }
+
+    func slashedAccounts() throws -> Data {
+        try createStorageKey(moduleName: "Staking",
+                             serviceName: "SlashingSpans")
+    }
+
+    func slashingSpans(for accountId: Data) throws -> Data {
+        try createStorageKey(moduleName: "Staking",
+                             serviceName: "SlashingSpans",
+                             identifier: accountId,
+                             hasher: Twox64Concat())
+    }
  }

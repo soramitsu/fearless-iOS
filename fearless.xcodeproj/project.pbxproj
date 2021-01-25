@@ -183,6 +183,7 @@
 		84296E0625AF91D4009D2630 /* H256.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84296E0525AF91D4009D2630 /* H256.swift */; };
 		84296E0B25B04BDE009D2630 /* SubscanRewardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84296E0A25B04BDE009D2630 /* SubscanRewardData.swift */; };
 		84296E1025B0505E009D2630 /* RewardInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84296E0F25B0505E009D2630 /* RewardInfo.swift */; };
+		84296E1525B08902009D2630 /* SlashingSpans.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84296E1425B08902009D2630 /* SlashingSpans.swift */; };
 		842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7824D063FD00C30A7A /* TriangularedView.swift */; };
 		842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */; };
 		842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */; };
@@ -862,6 +863,7 @@
 		84296E0525AF91D4009D2630 /* H256.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = H256.swift; sourceTree = "<group>"; };
 		84296E0A25B04BDE009D2630 /* SubscanRewardData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanRewardData.swift; sourceTree = "<group>"; };
 		84296E0F25B0505E009D2630 /* RewardInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardInfo.swift; sourceTree = "<group>"; };
+		84296E1425B08902009D2630 /* SlashingSpans.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlashingSpans.swift; sourceTree = "<group>"; };
 		842D1E7824D063FD00C30A7A /* TriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedView.swift; sourceTree = "<group>"; };
 		842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedButton.swift; sourceTree = "<group>"; };
 		842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Inspectable.swift"; sourceTree = "<group>"; };
@@ -1996,6 +1998,7 @@
 				84296DFB25AF8B21009D2630 /* ChainData.swift */,
 				84296E0025AF916B009D2630 /* H160.swift */,
 				84296E0525AF91D4009D2630 /* H256.swift */,
+				84296E1425B08902009D2630 /* SlashingSpans.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -4069,6 +4072,7 @@
 				8436EDDC25893FA0004D9E97 /* WalletBuyCommand.swift in Sources */,
 				849014FC24AA9939008F705E /* Charset+Mnemonic.swift in Sources */,
 				8428769224AE046300D91AD8 /* AboutHeaderView.swift in Sources */,
+				84296E1525B08902009D2630 /* SlashingSpans.swift in Sources */,
 				8460E12925422C5A00826F55 /* WalletCompoundDetailsViewModel.swift in Sources */,
 				84644B3325685915004EAA4B /* WalletHistoryBackgroundView.swift in Sources */,
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
