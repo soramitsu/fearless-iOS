@@ -8,7 +8,7 @@ import BigInt
 class StakingTests: XCTestCase {
     let logger: LoggerProtocol = {
         let shared = Logger.shared
-        shared.minLevel = .debug
+        shared.minLevel = .info
         return shared
     }()
 
@@ -238,99 +238,14 @@ class StakingTests: XCTestCase {
 
         // when
 
-        let storageKeyFactory = StorageKeyFactory()
-        let activeEraKey = try storageKeyFactory.activeEra().toHex(includePrefix: true)
-        let currentEraKey = try storageKeyFactory.currentEra().toHex(includePrefix: true)
-        let sessionIndexKey = try storageKeyFactory.sessionIndex().toHex(includePrefix: true)
-        let validatorsCountKey = try storageKeyFactory
-            .stakingValidatorsCount().toHex(includePrefix: true)
-        let totalIssuanceKey = try storageKeyFactory.totalIssuance().toHex(includePrefix: true)
-        let historyDepthKey = try storageKeyFactory.historyDepth().toHex(includePrefix: true)
+        let overview = try fetchOverview(engine: engine, operationQueue: operationQueue)
 
-        let allKeys = [
-            activeEraKey,
-            currentEraKey,
-            sessionIndexKey,
-            validatorsCountKey,
-            historyDepthKey,
-            totalIssuanceKey
-        ]
-
-        let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
-                                                                    method: RPCMethod.queryStorageAt,
-                                                                    parameters: [allKeys])
-
-        operationQueue.addOperations([operation], waitUntilFinished: true)
-
-        // then
-
-        do {
-            guard let result = try operation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                    .first else {
-                logger.error("No result found")
-                return
-            }
-
-            let storageData = StorageUpdateData(update: result)
-
-            if let activeEraData  = storageData.changes
-                    .first(where:{ $0.key.toHex(includePrefix: true) == activeEraKey})?.value {
-                let scaleDecoder = try ScaleDecoder(data: activeEraData)
-                let activeEra = try UInt32(scaleDecoder: scaleDecoder)
-                logger.info("Active era: \(activeEra)")
-            } else {
-                logger.info("Empty active era")
-            }
-
-            if let currentEraData  = storageData.changes
-                    .first(where:{ $0.key.toHex(includePrefix: true) == currentEraKey})?.value {
-                let scaleDecoder = try ScaleDecoder(data: currentEraData)
-                let currentEra = try UInt32(scaleDecoder: scaleDecoder)
-                logger.info("Current era: \(currentEra)")
-            } else {
-                logger.info("Empty current era")
-            }
-
-            if let sessionIndexData  = storageData.changes
-                    .first(where:{ $0.key.toHex(includePrefix: true) == sessionIndexKey})?.value {
-                let scaleDecoder = try ScaleDecoder(data: sessionIndexData)
-                let sessionIndex = try UInt32(scaleDecoder: scaleDecoder)
-                logger.info("Session index: \(sessionIndex)")
-            } else {
-                logger.info("Empty session index")
-            }
-
-            if let validatorCountData  = storageData.changes
-                    .first(where:{ $0.key.toHex(includePrefix: true) == validatorsCountKey})?.value {
-                let scaleDecoder = try ScaleDecoder(data: validatorCountData)
-                let validatorCount = try UInt32(scaleDecoder: scaleDecoder)
-                logger.info("Validator count: \(validatorCount)")
-            } else {
-                logger.info("Empty validator count")
-            }
-
-            if let historyDepthData = storageData.changes
-                .first(where: { $0.key.toHex(includePrefix: true) == historyDepthKey})?.value {
-                let scaleDecoder = try ScaleDecoder(data: historyDepthData)
-                let historyDepth = try UInt32(scaleDecoder: scaleDecoder)
-                logger.info("History depth: \(historyDepth)")
-            } else {
-                logger.info("Empty history depth")
-            }
-
-            if let totalIssuanceData = storageData.changes
-                .first(where: { $0.key.toHex(includePrefix: true) == totalIssuanceKey })?.value {
-                let scaleDecoder = try ScaleDecoder(data: totalIssuanceData)
-                let balance = try Balance(scaleDecoder: scaleDecoder)
-                logger.info("Total issuance \(balance.value)")
-            } else {
-                logger.info("Empty total issuance")
-            }
-
-        } catch {
-            logger.debug("Unexpected error: \(error)")
-        }
+        logger.info("Active era: \(overview.activeEra)")
+        logger.info("Current era: \(overview.currentEra)")
+        logger.info("Session index: \(overview.sessionIndex)")
+        logger.info("Validator count: \(overview.validatorCount)")
+        logger.info("History depth: \(overview.historyDepth)")
+        logger.info("Total issuance \(overview.totalIssuance.value)")
     }
 
     func testRecommendationsMeasuring() throws {
@@ -355,14 +270,47 @@ class StakingTests: XCTestCase {
         }
     }
 
+    func testViewPayoutMeasuring() throws {
+        do {
+            let nodeUrl = URL(string: "wss://westend-rpc.polkadot.io/")!
+            let subscanUrl = WalletAssetId.westend.subscanUrl!.appendingPathComponent(SubscanApi.extrinsics)
+            let nominatorAddress = "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn"
+            try performViewPayout(nodeUrl: nodeUrl,
+                                  subscanUrl: subscanUrl,
+                                  nominatorAddress: nominatorAddress)
+        } catch {
+            logger.error("Unexpected error: \(error)")
+        }
+    }
+
     // MARK: Private
 
-    func performNominationState(url: URL) throws {
+    func performViewPayout(nodeUrl: URL,
+                           subscanUrl: URL,
+                           nominatorAddress: String) throws {
         // given
 
-        let engine = WebSocketEngine(url: url, logger: logger)
-        let storageFactory = StorageKeyFactory()
+        let engine = WebSocketEngine(url: nodeUrl, logger: logger)
         let operationQueue = OperationQueue()
+
+        // when
+
+        let overview = try fetchOverview(engine: engine, operationQueue: operationQueue)
+
+        logger.info("Active era: \(overview.activeEra)")
+        logger.info("Current era: \(overview.currentEra)")
+        logger.info("History depth: \(overview.historyDepth)")
+
+        let startEra = max(overview.currentEra - overview.historyDepth, 0)
+        let endEra = max(overview.activeEra - 1, 0)
+        let eraRange = startEra...endEra
+        let validatorsRewardsOverview = try fetchValidatorsRewardOverview(eraRange: eraRange,
+                                                                          engine: engine,
+                                                                          operationQueue: operationQueue)
+
+        let nominatorValidators = try fetchAllValidators(url: subscanUrl, nominatorAddress: nominatorAddress)
+
+        // then
     }
 
     func performSlashingSpans(url: URL) throws {
@@ -588,5 +536,243 @@ class StakingTests: XCTestCase {
         operationQueue.addOperations(dependencies + [mapOperation], waitUntilFinished: true)
 
         return try mapOperation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+    }
+
+    func fetchOverview(engine: JSONRPCEngine,
+                       operationQueue: OperationQueue = OperationQueue()) throws
+    -> StakingOverview {
+        let storageKeyFactory = StorageKeyFactory()
+        let activeEraKey = try storageKeyFactory.activeEra().toHex(includePrefix: true)
+        let currentEraKey = try storageKeyFactory.currentEra().toHex(includePrefix: true)
+        let sessionIndexKey = try storageKeyFactory.sessionIndex().toHex(includePrefix: true)
+        let validatorsCountKey = try storageKeyFactory
+            .stakingValidatorsCount().toHex(includePrefix: true)
+        let totalIssuanceKey = try storageKeyFactory.totalIssuance().toHex(includePrefix: true)
+        let historyDepthKey = try storageKeyFactory.historyDepth().toHex(includePrefix: true)
+
+        let allKeys = [
+            activeEraKey,
+            currentEraKey,
+            sessionIndexKey,
+            validatorsCountKey,
+            historyDepthKey,
+            totalIssuanceKey
+        ]
+
+        let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
+                                                                    method: RPCMethod.queryStorageAt,
+                                                                    parameters: [allKeys])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        guard let result = try operation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                .first else {
+            logger.error("No result found")
+            throw BaseOperationError.unexpectedDependentResult
+        }
+
+        let storageData = StorageUpdateData(update: result)
+
+        let activeEra: UInt32
+        let currentEra: UInt32
+        let sessionIndex: UInt32
+        let validatorCount: UInt32
+        let historyDepth: UInt32
+        let totalIssuance: Balance
+
+        if let activeEraData  = storageData.changes
+                .first(where:{ $0.key.toHex(includePrefix: true) == activeEraKey})?.value {
+            let scaleDecoder = try ScaleDecoder(data: activeEraData)
+            activeEra = try UInt32(scaleDecoder: scaleDecoder)
+        } else {
+            activeEra = 0
+        }
+
+        if let currentEraData  = storageData.changes
+                .first(where:{ $0.key.toHex(includePrefix: true) == currentEraKey})?.value {
+            let scaleDecoder = try ScaleDecoder(data: currentEraData)
+            currentEra = try UInt32(scaleDecoder: scaleDecoder)
+        } else {
+            currentEra = 0
+        }
+
+        if let sessionIndexData  = storageData.changes
+                .first(where:{ $0.key.toHex(includePrefix: true) == sessionIndexKey})?.value {
+            let scaleDecoder = try ScaleDecoder(data: sessionIndexData)
+            sessionIndex = try UInt32(scaleDecoder: scaleDecoder)
+        } else {
+            sessionIndex = 0
+        }
+
+        if let validatorCountData  = storageData.changes
+                .first(where:{ $0.key.toHex(includePrefix: true) == validatorsCountKey})?.value {
+            let scaleDecoder = try ScaleDecoder(data: validatorCountData)
+            validatorCount = try UInt32(scaleDecoder: scaleDecoder)
+        } else {
+            validatorCount = 0
+        }
+
+        if let historyDepthData = storageData.changes
+            .first(where: { $0.key.toHex(includePrefix: true) == historyDepthKey})?.value {
+            let scaleDecoder = try ScaleDecoder(data: historyDepthData)
+            historyDepth = try UInt32(scaleDecoder: scaleDecoder)
+        } else {
+            historyDepth = 84
+        }
+
+        if let totalIssuanceData = storageData.changes
+            .first(where: { $0.key.toHex(includePrefix: true) == totalIssuanceKey })?.value {
+            let scaleDecoder = try ScaleDecoder(data: totalIssuanceData)
+            totalIssuance = try Balance(scaleDecoder: scaleDecoder)
+        } else {
+            totalIssuance = Balance(value: 0)
+        }
+
+        return StakingOverview(currentEra: currentEra,
+                               activeEra: activeEra,
+                               historyDepth: historyDepth,
+                               sessionIndex: sessionIndex,
+                               validatorCount: validatorCount,
+                               totalIssuance: totalIssuance)
+    }
+
+    func fetchValidatorsRewardOverview(eraRange: ClosedRange<UInt32>,
+                                       engine: JSONRPCEngine,
+                                       operationQueue: OperationQueue = OperationQueue()) throws
+    -> ValidatorsRewardOverview {
+        let storageKeyFactory = StorageKeyFactory()
+
+        let totalRewardKeys = try eraRange.map { era in
+            try storageKeyFactory.totalValidatorsReward(for: era).toHex(includePrefix: true)
+        }
+
+        let rewardPointsKeys = try eraRange.map { era in
+            try storageKeyFactory.validatorsPoints(at: era).toHex(includePrefix: true)
+        }
+
+        let allKeys = totalRewardKeys + rewardPointsKeys
+
+        let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
+                                                                    method: RPCMethod.queryStorageAt,
+                                                                    parameters: [allKeys])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        guard let result = try operation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                .first else {
+            logger.error("No result found")
+            throw BaseOperationError.unexpectedDependentResult
+        }
+
+        let storageData = StorageUpdateData(update: result)
+
+        let totalRewards: [Balance] = try totalRewardKeys.map { key in
+            return (try storageData.decodeUpdatedData(for: key)) ?? Balance(value: BigUInt(0))
+        }
+
+        let rewardPoints: [EraRewardPoints] = try rewardPointsKeys.map { key in
+            return (try storageData.decodeUpdatedData(for: key)) ?? EraRewardPoints(total: 0, individuals: [])
+        }
+
+        return ValidatorsRewardOverview(initialEra: eraRange.first ?? 0,
+                                        totalValidatorsReward: totalRewards,
+                                        rewardsPoints: rewardPoints)
+    }
+
+    func fetchAllValidators(url: URL, nominatorAddress: String) throws -> [AccountId] {
+        let bondCalls = try fetchAllSubscanExtrinsics(url: url,
+                                                      address: nominatorAddress,
+                                                      module: "staking",
+                                                      call: "bond")
+
+        let setControllerCalls = try fetchAllSubscanExtrinsics(url: url,
+                                                               address: nominatorAddress,
+                                                               module: "staking",
+                                                               call: "set_controller")
+
+        let stashBatchAllCalls = try fetchAllSubscanExtrinsics(url: url,
+                                                            address: nominatorAddress,
+                                                            module: "utility",
+                                                            call: "batch_all")
+
+        let stashBatchCalls = try fetchAllSubscanExtrinsics(url: url,
+                                                            address: nominatorAddress,
+                                                            module: "utility",
+                                                            call: "batch")
+
+        logger.info("Bond by stash \(nominatorAddress): \(bondCalls.count)")
+        logger.info("Controller changes by stash \(nominatorAddress): \(setControllerCalls.count)")
+        logger.info("BatchesAll by stash \(nominatorAddress): \(stashBatchCalls.count)")
+        logger.info("Batches by stash \(nominatorAddress): \(stashBatchCalls.count)")
+
+        return []
+    }
+
+    func fetchAllSubscanExtrinsics(url: URL,
+                                   address: String,
+                                   module: String,
+                                   call: String,
+                                   pageLength: Int = 100) throws -> [SubscanItemExtrinsicData] {
+        // given
+
+        let subscan = SubscanOperationFactory()
+        let operationQueue = OperationQueue()
+
+        // when
+
+        let firstPageRequest = ExtrinsicInfo(address: address,
+                                             row: pageLength,
+                                             page: 0,
+                                             module: module,
+                                             call: call)
+
+        let firstPageOperation = subscan.fetchExtrinsics(url: url, info: firstPageRequest)
+
+        operationQueue.addOperations([firstPageOperation], waitUntilFinished: true)
+
+        let firstPage = try firstPageOperation
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+        let otherPageOperations: [BaseOperation<SubscanExtrinsicData>]
+
+        if firstPage.count > pageLength {
+            let remainedItemsCount = firstPage.count - pageLength
+            let remainedPagesCount = remainedItemsCount % pageLength == 0 ? remainedItemsCount / pageLength
+                : (remainedItemsCount / pageLength) + 1
+
+            otherPageOperations = (0..<remainedPagesCount).map { pageIndex in
+                let info = ExtrinsicInfo(address: address,
+                                         row: pageLength,
+                                         page: pageIndex + 1, module: module, call: call)
+                return subscan.fetchExtrinsics(url: url, info: info)
+            }
+        } else {
+            otherPageOperations = []
+        }
+
+        let allPagesOperations = [firstPageOperation] + otherPageOperations
+
+        let allExtrinsicsOperation = ClosureOperation<[SubscanItemExtrinsicData]> {
+            let items: [SubscanItemExtrinsicData] = try allPagesOperations.flatMap { operation in
+                try operation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    .extrinsics ?? []
+
+            }
+
+            return items
+        }
+
+        for otherOperation in otherPageOperations {
+            allExtrinsicsOperation.addDependency(otherOperation)
+        }
+
+        operationQueue.addOperations(otherPageOperations + [allExtrinsicsOperation],
+                                     waitUntilFinished: true)
+
+        return try allExtrinsicsOperation
+            .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
     }
 }

@@ -5,6 +5,7 @@ struct SubscanApi {
     static let price = "api/open/price"
     static let history = "api/scan/transfers"
     static let rewardAndSlash = "api/scan/account/reward_slash"
+    static let extrinsics = "api/scan/extrinsics"
 }
 
 extension WalletAssetId {

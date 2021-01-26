@@ -121,4 +121,26 @@ extension StorageKeyFactoryProtocol {
                              identifier: accountId,
                              hasher: Twox64Concat())
     }
+
+    func totalValidatorsReward(for eraIndex: UInt32) throws -> Data {
+        let encoder = ScaleEncoder()
+        try eraIndex.encode(scaleEncoder: encoder)
+        let identifier = encoder.encode()
+
+        return try createStorageKey(moduleName: "Staking",
+                                    serviceName: "ErasValidatorReward",
+                                    identifier: identifier,
+                                    hasher: Twox64Concat())
+    }
+
+    func validatorsPoints(at eraIndex: UInt32) throws -> Data {
+        let encoder = ScaleEncoder()
+        try eraIndex.encode(scaleEncoder: encoder)
+        let identifier = encoder.encode()
+
+        return try createStorageKey(moduleName: "Staking",
+                                    serviceName: "ErasRewardPoints",
+                                    identifier: identifier,
+                                    hasher: Twox64Concat())
+    }
  }
