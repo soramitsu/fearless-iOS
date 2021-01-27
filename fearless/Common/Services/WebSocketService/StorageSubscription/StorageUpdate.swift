@@ -48,4 +48,9 @@ struct StorageUpdateData {
 
         changes = update.changes?.compactMap { StorageUpdateChangeData(change: $0) } ?? []
     }
+
+    init(blockHash: Data?, changes: [StorageUpdateChangeData]) {
+        self.blockHash = blockHash
+        self.changes = changes
+    }
 }

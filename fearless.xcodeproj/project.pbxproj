@@ -102,6 +102,10 @@
 		8412F16225C045DA0003D6D0 /* EraRewardPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F16125C045DA0003D6D0 /* EraRewardPoints.swift */; };
 		8412F16725C05EF00003D6D0 /* SubscanExtrinsicData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F16625C05EF00003D6D0 /* SubscanExtrinsicData.swift */; };
 		8412F16C25C061970003D6D0 /* ExtrinsicInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F16B25C061970003D6D0 /* ExtrinsicInfo.swift */; };
+		8412F18D25C0B5AB0003D6D0 /* JSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F18C25C0B5AB0003D6D0 /* JSON.swift */; };
+		8412F1C825C0C8DE0003D6D0 /* ErasItems.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F1C725C0C8DE0003D6D0 /* ErasItems.swift */; };
+		8412F1D025C0E0E70003D6D0 /* ValidatorPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F1CF25C0E0E70003D6D0 /* ValidatorPrefs.swift */; };
+		8412F1D525C0E4360003D6D0 /* ValidatorMiscEraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8412F1D425C0E4360003D6D0 /* ValidatorMiscEraInfo.swift */; };
 		84155DEB253980F900A27058 /* WebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84155DEA253980F900A27058 /* WebSocketService.swift */; };
 		84155DED2539817200A27058 /* ApplicationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84155DEC2539817200A27058 /* ApplicationService.swift */; };
 		84155DEF2539832C00A27058 /* WebSocketEngineFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84155DEE2539832C00A27058 /* WebSocketEngineFactory.swift */; };
@@ -787,6 +791,10 @@
 		8412F16125C045DA0003D6D0 /* EraRewardPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraRewardPoints.swift; sourceTree = "<group>"; };
 		8412F16625C05EF00003D6D0 /* SubscanExtrinsicData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanExtrinsicData.swift; sourceTree = "<group>"; };
 		8412F16B25C061970003D6D0 /* ExtrinsicInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicInfo.swift; sourceTree = "<group>"; };
+		8412F18C25C0B5AB0003D6D0 /* JSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSON.swift; sourceTree = "<group>"; };
+		8412F1C725C0C8DE0003D6D0 /* ErasItems.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErasItems.swift; sourceTree = "<group>"; };
+		8412F1CF25C0E0E70003D6D0 /* ValidatorPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorPrefs.swift; sourceTree = "<group>"; };
+		8412F1D425C0E4360003D6D0 /* ValidatorMiscEraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorMiscEraInfo.swift; sourceTree = "<group>"; };
 		84155DEA253980F900A27058 /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
 		84155DEC2539817200A27058 /* ApplicationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationService.swift; sourceTree = "<group>"; };
 		84155DEE2539832C00A27058 /* WebSocketEngineFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketEngineFactory.swift; sourceTree = "<group>"; };
@@ -2010,6 +2018,7 @@
 				84296E0525AF91D4009D2630 /* H256.swift */,
 				84296E1425B08902009D2630 /* SlashingSpans.swift */,
 				8412F16125C045DA0003D6D0 /* EraRewardPoints.swift */,
+				8412F1CF25C0E0E70003D6D0 /* ValidatorPrefs.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2500,6 +2509,8 @@
 				84113B6B255B2835009BD21A /* AccountCreateError.swift */,
 				8412F15725C042070003D6D0 /* StakingOverview.swift */,
 				8412F15C25C045250003D6D0 /* ValidatorsRewardOverview.swift */,
+				8412F1C725C0C8DE0003D6D0 /* ErasItems.swift */,
+				8412F1D425C0E4360003D6D0 /* ValidatorMiscEraInfo.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2624,6 +2635,7 @@
 				84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */,
 				84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */,
 				84CE69E72566750D00559427 /* ByteLengthProcessor.swift */,
+				8412F18C25C0B5AB0003D6D0 /* JSON.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -4124,6 +4136,7 @@
 				84CE69922565244700559427 /* WalletAccountOpenCommand.swift in Sources */,
 				84296E1025B0505E009D2630 /* RewardInfo.swift in Sources */,
 				8468B87424F63D4B00B76BC6 /* AddConfirmationWireframe.swift in Sources */,
+				8412F18D25C0B5AB0003D6D0 /* JSON.swift in Sources */,
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
@@ -4137,6 +4150,7 @@
 				8494D8782525343500614D8F /* SubscanOperationFactory.swift in Sources */,
 				84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */,
 				846AF8402525B94D00868F37 /* WalletNetworkFacade+Protocol.swift in Sources */,
+				8412F1C825C0C8DE0003D6D0 /* ErasItems.swift in Sources */,
 				8468B86C24F63CEF00B76BC6 /* AddAccountConfirmInteractor.swift in Sources */,
 				84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
@@ -4150,6 +4164,7 @@
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
+				8412F1D025C0E0E70003D6D0 /* ValidatorPrefs.swift in Sources */,
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
 				847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */,
 				8468B86E24F63D1400B76BC6 /* AddMainWireframe.swift in Sources */,
@@ -4327,6 +4342,7 @@
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
 				8412F16225C045DA0003D6D0 /* EraRewardPoints.swift in Sources */,
 				607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */,
+				8412F1D525C0E4360003D6D0 /* ValidatorMiscEraInfo.swift in Sources */,
 				84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */,
 				68FC03E9D94736F7B87EA008 /* AddConnectionProtocols.swift in Sources */,
 				84364D5C252FB65C00281F9A /* AssetDetailsContainingViewFactory.swift in Sources */,

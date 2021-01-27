@@ -3,7 +3,7 @@ import FearlessUtils
 
 extension Dictionary: ScaleCodable where Dictionary.Key: ScaleCodable, Dictionary.Value: ScaleCodable {
     public init(scaleDecoder: ScaleDecoding) throws {
-        let pairList = try Array<Pair<Dictionary.Key, Dictionary.Value>>(scaleDecoder: scaleDecoder)
+        let pairList = try [Pair<Dictionary.Key, Dictionary.Value>](scaleDecoder: scaleDecoder)
 
         self = pairList.reduce(into: [:]) { (result, pair) in
             result[pair.first] = pair.second
