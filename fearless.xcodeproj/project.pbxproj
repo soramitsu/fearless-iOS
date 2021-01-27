@@ -494,6 +494,7 @@
 		849E0D0025D01C5800B33506 /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CFF25D01C5800B33506 /* TransferCall.swift */; };
 		849E0D1025D01E4800B33506 /* ExtrinsicPayload.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0D0F25D01E4800B33506 /* ExtrinsicPayload.swift */; };
 		849E0D1825D01FD000B33506 /* Multiaddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0D1725D01FD000B33506 /* Multiaddress.swift */; };
+		849C9B5025C15D02009305FF /* NominatorReward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849C9B4F25C15D02009305FF /* NominatorReward.swift */; };
 		849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */; };
 		849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */; };
 		84A259F82555C8C9001E91BC /* CryptoType+Keystore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */; };
@@ -1195,6 +1196,7 @@
 		849E0CFF25D01C5800B33506 /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		849E0D0F25D01E4800B33506 /* ExtrinsicPayload.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicPayload.swift; sourceTree = "<group>"; };
 		849E0D1725D01FD000B33506 /* Multiaddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Multiaddress.swift; sourceTree = "<group>"; };
+		849C9B4F25C15D02009305FF /* NominatorReward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominatorReward.swift; sourceTree = "<group>"; };
 		849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanConfigurator.swift; sourceTree = "<group>"; };
 		849E2350254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanLocalSearchEngine.swift; sourceTree = "<group>"; };
 		84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CryptoType+Keystore.swift"; sourceTree = "<group>"; };
@@ -2511,6 +2513,7 @@
 				8412F15C25C045250003D6D0 /* ValidatorsRewardOverview.swift */,
 				8412F1C725C0C8DE0003D6D0 /* ErasItems.swift */,
 				8412F1D425C0E4360003D6D0 /* ValidatorMiscEraInfo.swift */,
+				849C9B4F25C15D02009305FF /* NominatorReward.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4137,6 +4140,7 @@
 				84296E1025B0505E009D2630 /* RewardInfo.swift in Sources */,
 				8468B87424F63D4B00B76BC6 /* AddConfirmationWireframe.swift in Sources */,
 				8412F18D25C0B5AB0003D6D0 /* JSON.swift in Sources */,
+				849C9B5025C15D02009305FF /* NominatorReward.swift in Sources */,
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,

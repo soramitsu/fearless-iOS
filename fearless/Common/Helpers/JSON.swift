@@ -22,6 +22,7 @@ enum JSON {
     case stringValue(String)
     case arrayValue([JSON])
     case dictionaryValue([String: JSON])
+    case null
 
     var stringValue: String? {
         if case .stringValue(let str) = self {
@@ -91,7 +92,7 @@ extension JSON: Codable {
         } else if let list = try? [JSON](from: decoder) {
             self = .arrayValue(list)
         } else {
-            throw JSONError.unsupported
+            self = .null
         }
     }
 
@@ -105,6 +106,8 @@ extension JSON: Codable {
             try value.encode(to: encoder)
         case .arrayValue(let value):
             try value.encode(to: encoder)
+        case .null:
+            try (JSON?).none.encode(to: encoder)
         }
     }
 }

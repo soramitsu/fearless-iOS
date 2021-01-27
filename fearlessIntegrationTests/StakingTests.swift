@@ -8,7 +8,7 @@ import BigInt
 class StakingTests: XCTestCase {
     let logger: LoggerProtocol = {
         let shared = Logger.shared
-        shared.minLevel = .none
+        shared.minLevel = .info
         return shared
     }()
 
@@ -279,10 +279,73 @@ class StakingTests: XCTestCase {
                 try performViewPayout(nodeUrl: nodeUrl,
                                       subscanUrl: subscanUrl,
                                       nominatorAddress: nominatorAddress,
-                                      type: .polkadotMain)
+                                      type: .polkadotMain,
+                                      precision: 10)
             } catch {
                 logger.error("Unexpected error: \(error)")
             }
+        }
+    }
+
+    func testViewPayout() throws {
+        do {
+            let nodeUrl = URL(string: "wss://rpc.polkadot.io/")!
+            let subscanUrl = WalletAssetId.dot.subscanUrl!.appendingPathComponent(SubscanApi.extrinsics)
+            let nominatorAddress = "15cfSaBcTxNr8rV59cbhdMNCRagFr3GE6B3zZRsCp4QHHKPu"
+            try performViewPayout(nodeUrl: nodeUrl,
+                                  subscanUrl: subscanUrl,
+                                  nominatorAddress: nominatorAddress,
+                                  type: .polkadotMain,
+                                  precision: 10)
+        } catch {
+            logger.error("Unexpected error: \(error)")
+        }
+    }
+
+    func testViewPayoutKusama() throws {
+        do {
+            let nodeUrl = URL(string: "wss://kusama-rpc.polkadot.io/")!
+            let subscanUrl = WalletAssetId.kusama.subscanUrl!.appendingPathComponent(SubscanApi.extrinsics)
+            let nominatorAddress = "Day71GSJAxUUiFic8bVaWoAczR3Ue3jNonBZthVHp2BKzyJ"
+            try performViewPayout(nodeUrl: nodeUrl,
+                                  subscanUrl: subscanUrl,
+                                  nominatorAddress: nominatorAddress,
+                                  type: .kusamaMain,
+                                  precision: 12)
+        } catch {
+            logger.error("Unexpected error: \(error)")
+        }
+    }
+
+    func testViewPayoutKusamaMeasuring() throws {
+        self.measure {
+            do {
+                let nodeUrl = URL(string: "wss://kusama-rpc.polkadot.io/")!
+                let subscanUrl = WalletAssetId.kusama.subscanUrl!.appendingPathComponent(SubscanApi.extrinsics)
+                let nominatorAddress = "Day71GSJAxUUiFic8bVaWoAczR3Ue3jNonBZthVHp2BKzyJ"
+                try performViewPayout(nodeUrl: nodeUrl,
+                                      subscanUrl: subscanUrl,
+                                      nominatorAddress: nominatorAddress,
+                                      type: .kusamaMain,
+                                      precision: 12)
+            } catch {
+                logger.error("Unexpected error: \(error)")
+            }
+        }
+    }
+
+    func testViewPayoutWestend() throws {
+        do {
+            let nodeUrl = URL(string: "wss://westend-rpc.polkadot.io/")!
+            let subscanUrl = WalletAssetId.westend.subscanUrl!.appendingPathComponent(SubscanApi.extrinsics)
+            let nominatorAddress = "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn"
+            try performViewPayout(nodeUrl: nodeUrl,
+                                  subscanUrl: subscanUrl,
+                                  nominatorAddress: nominatorAddress,
+                                  type: .genericSubstrate,
+                                  precision: 12)
+        } catch {
+            logger.error("Unexpected error: \(error)")
         }
     }
 
@@ -291,12 +354,14 @@ class StakingTests: XCTestCase {
     func performViewPayout(nodeUrl: URL,
                            subscanUrl: URL,
                            nominatorAddress: String,
-                           type: SNAddressType) throws {
+                           type: SNAddressType,
+                           precision: Int16) throws {
         // given
 
         let engine = WebSocketEngine(url: nodeUrl, logger: logger)
         let operationQueue = OperationQueue()
-        let accountId = try SS58AddressFactory().accountId(fromAddress: nominatorAddress, type: type)
+        let addressFactory = SS58AddressFactory()
+        let nominatorAccountId = try addressFactory.accountId(fromAddress: nominatorAddress, type: type)
 
         // when
 
@@ -309,6 +374,9 @@ class StakingTests: XCTestCase {
         let startEra = max(overview.currentEra - overview.historyDepth, 0)
         let endEra = max(overview.activeEra - 1, 0)
         let eraRange = startEra...endEra
+
+        logger.info("Eras count: \(eraRange.count)")
+
         let validatorsRewardsOverview = try fetchValidatorsRewardOverview(eraRange: eraRange,
                                                                           engine: engine,
                                                                           operationQueue: operationQueue)
@@ -328,7 +396,7 @@ class StakingTests: XCTestCase {
 
         let newItems = erasExposures.items.map { mapping in
             mapping.compactMapValues { value in
-                value.other.contains { $0.accoundId.value == accountId } ? value : nil
+                value.other.contains { $0.accoundId.value == nominatorAccountId } ? value : nil
             }
         }
 
@@ -341,8 +409,83 @@ class StakingTests: XCTestCase {
                                                                      itemsPerPage: 1000,
                                                                      operationQueue: operationQueue)
 
-        logger.info("Total validators: \(totalValidatorsCount)")
+        logger.info("Total validators in all eras: \(totalValidatorsCount)")
         logger.info("Validator ledgers: \(validatorsMiscInfo.ledgers.count)")
+
+        let compountRewards: [[NominatorReward]] = eraRange.map { era in
+            let eraIndex = Int(era) - Int(validatorsRewardsOverview.initialEra)
+            let totalPointsInEra = Decimal(validatorsRewardsOverview.rewardsPoints[eraIndex].total)
+            guard
+                let totalRewardInEra = Decimal
+                    .fromSubstrateAmount(validatorsRewardsOverview.totalValidatorsReward[eraIndex].value,
+                                         precision: precision),
+                totalPointsInEra > 0 else {
+                return []
+            }
+
+            let rewardsInEra: [NominatorReward] = filteredExposures.items[eraIndex].map { (validatorId, exposure) in
+                let pointsInEra = Decimal(validatorsRewardsOverview.rewardsPoints[eraIndex].individuals
+                    .first(where: { $0.accountId == validatorId })?.points ?? 0)
+
+                let validatorRewardFraction = pointsInEra / totalPointsInEra
+
+                let nominatorStake = Decimal.fromSubstrateAmount(exposure.other
+                                                                    .first(where: { nominatorAccountId == $0.accoundId.value })?.value ?? 0, precision: precision) ?? 0.0
+
+                guard let totalStake = Decimal.fromSubstrateAmount(exposure.total,
+                                                                   precision: precision),
+                      totalStake > 0 else {
+                    return NominatorReward(era: era,
+                                           reward: 0.0,
+                                           validatorId: AccountId(value: validatorId),
+                                           claimed: false)
+                }
+
+                let nominatorFraction = nominatorStake / totalStake
+
+                let commission = Decimal.fromSubstrateAmount((validatorsMiscInfo.erasItems.items[eraIndex])[validatorId]?.commission ?? 0, precision: 9) ?? 0.0
+
+                let reward = (totalRewardInEra * validatorRewardFraction) * (1 - commission) * nominatorFraction
+
+                let claimed = (validatorsMiscInfo.ledgers[validatorId]?.claimedRewards.contains(era) ?? false)
+
+                return NominatorReward(era: era,
+                                       reward: reward,
+                                       validatorId: AccountId(value: validatorId),
+                                       claimed: claimed)
+            }
+
+            return rewardsInEra
+        }
+
+        let rewards = compountRewards.flatMap { $0 }
+
+        for reward in rewards {
+            logger.info("Reward in era \(reward.era) : \(reward.reward)")
+
+            let validatorAddress = try addressFactory
+                .address(fromPublicKey: AccountIdWrapper(rawData: reward.validatorId.value),
+                         type: type)
+            logger.info("Validator \(validatorAddress)")
+            logger.info("Claimed: \(reward.claimed)")
+            logger.info("\n")
+        }
+
+        let totalReward = rewards.reduce(Decimal(0.0)) { (result, reward) in
+            result + reward.reward
+        }
+
+        let totalClaimed = rewards.reduce(Decimal(0.0)) { (result, reward) in
+            reward.claimed ? result + reward.reward : result
+        }
+
+        let totalUnclaimed = totalReward - totalClaimed
+
+        logger.info("Total reward: \(totalReward)")
+        logger.info("Total claimed: \(totalClaimed)")
+        logger.info("Total unclaimed: \(totalUnclaimed)")
+
+        sleep(2)
     }
 
     func performSlashingSpans(url: URL) throws {
