@@ -103,7 +103,7 @@ DEPENDENCIES:
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI
+  - SoraUI (= 1.9.3)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
@@ -173,6 +173,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6ddb8167c3594d9e7d73e8687fb2afaee746b8fa
+PODFILE CHECKSUM: 3be81ff813b58e62c6ca2c1b29873165f7accb2b
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.10.1
