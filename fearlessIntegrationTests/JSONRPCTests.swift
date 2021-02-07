@@ -529,8 +529,8 @@ class JSONRPCTests: XCTestCase {
         let addressFactory = SS58AddressFactory()
         let receiverAccountId = try addressFactory.accountId(fromAddress: address,
                                                              type: .genericSubstrate)
-        let transferCall = TransferCall(receiver: receiverAccountId,
-                                        amount: amount)
+        let transferCall = TransferCallV27(receiver: receiverAccountId,
+                                           amount: amount)
 
         let callEncoder = ScaleEncoder()
         try transferCall.encode(scaleEncoder: callEncoder)
@@ -556,16 +556,16 @@ class JSONRPCTests: XCTestCase {
         let signer = SNSigner(keypair: keypair)
         let signature = try signer.sign(payloadEncoder.encode())
 
-        let transaction = Transaction(accountId: receiverAccountId,
-                                      signatureVersion: 0,
-                                      signature: signature.rawData(),
-                                      era: era,
-                                      nonce: nonce,
-                                      tip: tip)
+        let transaction = TransactionV27(accountId: receiverAccountId,
+                                         signatureVersion: 0,
+                                         signature: signature.rawData(),
+                                         era: era,
+                                         nonce: nonce,
+                                         tip: tip)
 
-        let extrinsic = Extrinsic(version: 132,
-                                  transaction: transaction,
-                                  call: call)
+        let extrinsic = ExtrinsicV27(version: 132,
+                                     transaction: transaction,
+                                     call: call)
 
         let extrinsicCoder = ScaleEncoder()
         try extrinsic.encode(scaleEncoder: extrinsicCoder)
@@ -583,8 +583,8 @@ class JSONRPCTests: XCTestCase {
         let addressFactory = SS58AddressFactory()
         let receiverAccountId = try addressFactory.accountId(fromAddress: address,
                                                              type: .genericSubstrate)
-        let transferCall = TransferCall(receiver: receiverAccountId,
-                                        amount: amount)
+        let transferCall = TransferCallV27(receiver: receiverAccountId,
+                                           amount: amount)
 
         let callEncoder = ScaleEncoder()
         try transferCall.encode(scaleEncoder: callEncoder)
@@ -610,16 +610,16 @@ class JSONRPCTests: XCTestCase {
         let signer = EDSigner(privateKey: privateKey)
         let signature = try signer.sign(payloadEncoder.encode())
 
-        let transaction = Transaction(accountId: accountId,
-                                      signatureVersion: 0,
-                                      signature: signature.rawData(),
-                                      era: era,
-                                      nonce: nonce,
-                                      tip: tip)
+        let transaction = TransactionV27(accountId: accountId,
+                                         signatureVersion: 0,
+                                         signature: signature.rawData(),
+                                         era: era,
+                                         nonce: nonce,
+                                         tip: tip)
 
-        let extrinsic = Extrinsic(version: 132,
-                                  transaction: transaction,
-                                  call: call)
+        let extrinsic = ExtrinsicV27(version: 132,
+                                     transaction: transaction,
+                                     call: call)
 
         let extrinsicCoder = ScaleEncoder()
         try extrinsic.encode(scaleEncoder: extrinsicCoder)

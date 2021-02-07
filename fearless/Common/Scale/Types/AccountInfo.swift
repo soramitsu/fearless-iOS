@@ -4,6 +4,27 @@ import BigInt
 
 struct AccountInfo: ScaleDecodable {
     let nonce: UInt32
+    let consumers: UInt32
+    let providers: UInt32
+    let data: AccountData
+
+    init(v27: AccountInfoV27) {
+        self.nonce = v27.nonce
+        self.consumers = v27.refcount
+        self.providers = 0
+        self.data = v27.data
+    }
+
+    init(scaleDecoder: ScaleDecoding) throws {
+        nonce = try UInt32(scaleDecoder: scaleDecoder)
+        consumers = try UInt32(scaleDecoder: scaleDecoder)
+        providers = try UInt32(scaleDecoder: scaleDecoder)
+        data = try AccountData(scaleDecoder: scaleDecoder)
+    }
+}
+
+struct AccountInfoV27: ScaleDecodable {
+    let nonce: UInt32
     let refcount: UInt32
     let data: AccountData
 
