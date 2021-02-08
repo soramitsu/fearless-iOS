@@ -3,14 +3,14 @@ import IrohaCrypto
 import BigInt
 import FearlessUtils
 
-struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
+struct ExtrinsicFactoryV27: ExtrinsicFactoryProtocol {
     static func transferExtrinsic(from senderAccountId: Data,
                                   to receiverAccountId: Data,
                                   amount: BigUInt,
                                   additionalParameters: ExtrinsicParameters,
                                   signer: IRSignatureCreatorProtocol) throws -> Data {
-        let transferCall = TransferCall(receiver: .accountId(receiverAccountId),
-                                        amount: amount)
+        let transferCall = TransferCallV27(receiver: receiverAccountId,
+                                           amount: amount)
 
         let callEncoder = ScaleEncoder()
         try transferCall.encode(scaleEncoder: callEncoder)
@@ -39,16 +39,16 @@ struct ExtrinsicFactory: ExtrinsicFactoryProtocol {
 
         let signature = try signer.sign(payloadData)
 
-        let transaction = Transaction(address: .accountId(senderAccountId),
-                                      signatureVersion: additionalParameters.signatureVersion,
-                                      signature: signature.rawData(),
-                                      era: era,
-                                      nonce: additionalParameters.nonce,
-                                      tip: tip)
+        let transaction = TransactionV27(accountId: senderAccountId,
+                                         signatureVersion: additionalParameters.signatureVersion,
+                                         signature: signature.rawData(),
+                                         era: era,
+                                         nonce: additionalParameters.nonce,
+                                         tip: tip)
 
-        let extrinsic = Extrinsic(version: ExtrinsicConstants.extrinsicVersion,
-                                  transaction: transaction,
-                                  call: call)
+        let extrinsic = ExtrinsicV27(version: ExtrinsicConstants.extrinsicVersion,
+                                     transaction: transaction,
+                                     call: call)
 
         let extrinsicCoder = ScaleEncoder()
         try extrinsic.encode(scaleEncoder: extrinsicCoder)
