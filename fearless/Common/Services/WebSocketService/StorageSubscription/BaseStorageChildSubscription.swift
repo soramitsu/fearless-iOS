@@ -5,7 +5,6 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
     let remoteStorageKey: Data
     let localStorageKey: String
     let logger: LoggerProtocol
-    let eventCenter: EventCenterProtocol
     let storage: AnyDataProviderRepository<ChainStorageItem>
     let operationManager: OperationManagerProtocol
 
@@ -13,14 +12,12 @@ class BaseStorageChildSubscription: StorageChildSubscribing {
          localStorageKey: String,
          storage: AnyDataProviderRepository<ChainStorageItem>,
          operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol,
-         eventCenter: EventCenterProtocol) {
+         logger: LoggerProtocol) {
         self.remoteStorageKey = remoteStorageKey
         self.localStorageKey = localStorageKey
         self.storage = storage
         self.operationManager = operationManager
         self.logger = logger
-        self.eventCenter = eventCenter
     }
 
     func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash: Data?) {

@@ -30,8 +30,7 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     }
 
     func transferMetadataOperation(_ info: TransferMetadataInfo) -> CompoundOperationWrapper<TransferMetaData?> {
-        guard
-            let asset = accountSettings.assets.first(where: { $0.identifier == info.assetId }),
+        guard let asset = accountSettings.assets.first(where: { $0.identifier == info.assetId }),
             let assetId = WalletAssetId(rawValue: asset.identifier) else {
             let error = WalletNetworkOperationFactoryError.invalidAsset
             return createCompoundOperation(result: .failure(error))
@@ -47,25 +46,18 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return createCompoundOperation(result: .failure(error))
         }
 
-        guard let receiver = try? Data(hexString: info.receiver),
-              let accountKey = try? StorageKeyFactory().accountInfoKeyForId(receiver)
-                .toHex(includePrefix: true) else {
+        guard let receiver = try? Data(hexString: info.receiver) else {
             let error = WalletNetworkOperationFactoryError.invalidReceiver
             return createCompoundOperation(result: .failure(error))
         }
 
-        let receiverOperation = JSONRPCListOperation<JSONScaleDecodable<AccountInfo>>(engine: engine,
-                                                                  method: RPCMethod.getStorage,
-                                                                  parameters: [accountKey])
+        let compoundReceiver = createAccountInfoFetchOperation(receiver)
 
         let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
                                                                       method: RPCMethod.paymentInfo)
 
-        let compoundInfo = setupTransferExtrinsic(infoOperation,
-                                                  amount: amount,
-                                                  receiver: info.receiver,
-                                                  chain: chain,
-                                                  signer: dummySigner)
+        let compoundInfo = setupTransferExtrinsic(infoOperation, amount: amount, receiver: info.receiver,
+                                                  chain: chain, signer: dummySigner)
 
         let mapOperation: ClosureOperation<TransferMetaData?> = ClosureOperation {
             let paymentInfo = try infoOperation
@@ -78,31 +70,24 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
             let amount = AmountDecimal(value: decimalFee)
 
-            let feeDescription = FeeDescription(identifier: asset.identifier,
-                                                assetId: asset.identifier,
-                                                type: FeeType.fixed.rawValue,
-                                                parameters: [amount])
+            let feeDescription = FeeDescription(identifier: asset.identifier, assetId: asset.identifier,
+                                                type: FeeType.fixed.rawValue, parameters: [amount])
 
-            if let receiverInfo = try receiverOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-                    .underlyingValue {
+            if let receiverInfo = try compoundReceiver.targetOperation
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) {
                 let context = TransferMetadataContext(data: receiverInfo.data,
-                                                      precision: asset.precision)
-                    .toContext()
-                return TransferMetaData(feeDescriptions: [feeDescription],
-                                        context: context)
+                                                      precision: asset.precision).toContext()
+                return TransferMetaData(feeDescriptions: [feeDescription], context: context)
             } else {
                 return TransferMetaData(feeDescriptions: [feeDescription])
             }
         }
 
-        mapOperation.addDependency(compoundInfo.targetOperation)
-        mapOperation.addDependency(receiverOperation)
+        let dependencies = compoundInfo.allOperations + compoundReceiver.allOperations
 
-        let dependencies = compoundInfo.allOperations + [receiverOperation]
+        dependencies.forEach { mapOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {
