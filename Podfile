@@ -3,12 +3,12 @@ platform :ios, '11.0'
 abstract_target 'fearlessAll' do
   use_frameworks!
 
-  pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'f821a9352d1592d60a43b7ced4fe977373d445a4'
+  pod 'FearlessUtils', '~> 0.8.0'
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'FireMock', :inhibit_warnings => true
   pod 'SoraKeystore'
-  pod 'SoraUI'
+  pod 'SoraUI', '1.9.3'
   pod 'RobinHood'
   pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '725cefe1d0fa1ea8456580289b326558b13225c2'
   pod 'SoraFoundation', '~> 0.8.0'
@@ -21,7 +21,7 @@ abstract_target 'fearlessAll' do
     inherit! :search_paths
 
     pod 'Cuckoo'
-    pod 'FearlessUtils', :git => 'https://github.com/soramitsu/fearless-utils-iOS.git', :commit => 'f821a9352d1592d60a43b7ced4fe977373d445a4'
+    pod 'FearlessUtils', '~> 0.8.0'
     pod 'SoraFoundation', '~> 0.8.0'
     pod 'FireMock'
     pod 'SoraKeystore'

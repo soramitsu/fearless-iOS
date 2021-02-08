@@ -2,22 +2,22 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct TransferCall: ScaleCodable {
-    let receiver: Multiaddress
+struct TransferCallV27: ScaleCodable {
+    let receiver: Data
     let amount: BigUInt
 
-    init(receiver: Multiaddress, amount: BigUInt) {
+    init(receiver: Data, amount: BigUInt) {
         self.receiver = receiver
         self.amount = amount
     }
 
     init(scaleDecoder: ScaleDecoding) throws {
-        receiver = try Multiaddress(scaleDecoder: scaleDecoder)
+        receiver = try scaleDecoder.readAndConfirm(count: 32)
         amount = try BigUInt(scaleDecoder: scaleDecoder)
     }
 
     func encode(scaleEncoder: ScaleEncoding) throws {
-        try receiver.encode(scaleEncoder: scaleEncoder)
+        scaleEncoder.appendRaw(data: receiver)
         try amount.encode(scaleEncoder: scaleEncoder)
     }
 }

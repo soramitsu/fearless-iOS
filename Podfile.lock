@@ -18,18 +18,19 @@ PODS:
     - TweetNacl (~> 1.0.0)
     - xxHash-Swift (~> 1.0.0)
   - FireMock (3.1)
-  - IrohaCrypto/BIP39 (0.7.2):
+  - IrohaCrypto/BIP39 (0.7.3):
     - IrohaCrypto/Common
-  - IrohaCrypto/blake2 (0.7.2)
-  - IrohaCrypto/Common (0.7.2)
-  - IrohaCrypto/ed25519 (0.7.2):
+  - IrohaCrypto/blake2 (0.7.3)
+  - IrohaCrypto/Common (0.7.3)
+  - IrohaCrypto/ed25519 (0.7.3):
     - IrohaCrypto/Common
-  - IrohaCrypto/Scrypt (0.7.2):
+  - IrohaCrypto/Scrypt (0.7.3):
     - IrohaCrypto/Common
     - scrypt.c (~> 0.1)
-  - IrohaCrypto/secp256k1 (0.7.2):
+  - IrohaCrypto/secp256k1 (0.7.3):
     - IrohaCrypto/Common
-  - IrohaCrypto/sr25519 (0.7.2):
+    - secp256k1.c (~> 0.1)
+  - IrohaCrypto/sr25519 (0.7.3):
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
@@ -39,6 +40,7 @@ PODS:
   - ReachabilitySwift (5.0.0)
   - RobinHood (2.5.1)
   - scrypt.c (0.1.1)
+  - secp256k1.c (0.1.2)
   - SoraFoundation (0.8.0):
     - SoraFoundation/DateProcessing (= 0.8.0)
     - SoraFoundation/Localization (= 0.8.0)
@@ -96,14 +98,14 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `725cefe1d0fa1ea8456580289b326558b13225c2`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `f821a9352d1592d60a43b7ced4fe977373d445a4`)
+  - FearlessUtils (~> 0.8.0)
   - FireMock
   - R.swift
   - ReachabilitySwift
   - RobinHood
   - SoraFoundation (~> 0.8.0)
   - SoraKeystore
-  - SoraUI
+  - SoraUI (= 1.9.3)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
@@ -113,6 +115,7 @@ SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
@@ -120,6 +123,7 @@ SPEC REPOS:
     - ReachabilitySwift
     - RobinHood
     - scrypt.c
+    - secp256k1.c
     - SoraFoundation
     - SoraKeystore
     - SoraUI
@@ -133,9 +137,6 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 725cefe1d0fa1ea8456580289b326558b13225c2
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -144,9 +145,6 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 725cefe1d0fa1ea8456580289b326558b13225c2
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -155,14 +153,15 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: aff931b1371471e6bd06e5c43028b67d5ab60d5a
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: 979e4d4f7fce0432217588b6d693cb86166545e5
+  FearlessUtils: 49001ba810f648cffa9c50ee0598583c406b97fd
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
-  IrohaCrypto: bddf15865c4df189b9c5273ba9c675afae8b7f4c
+  IrohaCrypto: 6944fc5fea160cebd1219b5f76539ed72908de71
   R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
   R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
+  secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
   SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
@@ -173,6 +172,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6ddb8167c3594d9e7d73e8687fb2afaee746b8fa
+PODFILE CHECKSUM: df8a4a61cc81160d81864cfdfb37f829ffeadbab
 
 COCOAPODS: 1.10.0
