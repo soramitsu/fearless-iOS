@@ -4,10 +4,64 @@ import IrohaCrypto
 import RobinHood
 import BigInt
 
+enum ExtrinsicResult {
+    case v28(_ extrinsic: Extrinsic)
+    case v27(_ extrinsic: ExtrinsicV27)
+
+    var call: Call {
+        switch self {
+        case .v28(let extrinsic):
+            return extrinsic.call
+        case .v27(let extrinsic):
+            return extrinsic.call
+        }
+    }
+
+    var sender: Data? {
+        switch self {
+        case .v28(let extrinsic):
+            if case .accountId(let value) = extrinsic.transaction?.address {
+                return value
+            } else {
+                return nil
+            }
+        case .v27(let extrinsic):
+            return extrinsic.transaction?.accountId
+        }
+    }
+}
+
+enum TransferCallResult {
+    case v28(_ call: TransferCall)
+    case v27(_ call: TransferCallV27)
+
+    var receiver: Data? {
+        switch self {
+        case .v28(let call):
+            if case .accountId(let value) = call.receiver {
+                return value
+            } else {
+                return nil
+            }
+        case .v27(let call):
+            return call.receiver
+        }
+    }
+
+    var amount: BigUInt {
+        switch self {
+        case .v28(let call):
+            return call.amount
+        case .v27(let call):
+            return call.amount
+        }
+    }
+}
+
 struct TransferSubscriptionResult {
-    let extrinsic: Extrinsic
+    let extrinsic: ExtrinsicResult
     let encodedExtrinsic: String
-    let call: TransferCall
+    let call: TransferCallResult
     let extrinsicHash: Data
     let blockNumber: Int64
     let txIndex: Int16
@@ -21,7 +75,9 @@ final class TransferSubscription {
     let address: String
     let chain: Chain
     let addressFactory: SS58AddressFactoryProtocol
-    let storage: AnyDataProviderRepository<TransactionHistoryItem>
+    let txStorage: AnyDataProviderRepository<TransactionHistoryItem>
+    let chainStorage: AnyDataProviderRepository<ChainStorageItem>
+    let localIdFactory: ChainStorageIdFactoryProtocol
     let contactOperationFactory: WalletContactOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
@@ -31,7 +87,9 @@ final class TransferSubscription {
          address: String,
          chain: Chain,
          addressFactory: SS58AddressFactoryProtocol,
-         storage: AnyDataProviderRepository<TransactionHistoryItem>,
+         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+         localIdFactory: ChainStorageIdFactoryProtocol,
          contactOperationFactory: WalletContactOperationFactoryProtocol,
          operationManager: OperationManagerProtocol,
          eventCenter: EventCenterProtocol,
@@ -41,7 +99,9 @@ final class TransferSubscription {
         self.chain = chain
         self.addressFactory = addressFactory
         self.contactOperationFactory = contactOperationFactory
-        self.storage = storage
+        self.txStorage = txStorage
+        self.chainStorage = chainStorage
+        self.localIdFactory = localIdFactory
         self.operationManager = operationManager
         self.eventCenter = eventCenter
         self.logger = logger
@@ -55,9 +115,13 @@ final class TransferSubscription {
                              method: RPCMethod.getChainBlock,
                              parameters: [blockHash.toHex(includePrefix: true)])
 
-        let parseOperation = createParseOperation(dependingOn: fetchBlockOperation)
+        let upgradedOperation = createUpgradedOperation()
+
+        let parseOperation = createParseOperation(dependingOn: fetchBlockOperation,
+                                                  upgradedOperation: upgradedOperation)
 
         parseOperation.addDependency(fetchBlockOperation)
+        upgradedOperation.allOperations.forEach { parseOperation.addDependency($0) }
 
         parseOperation.completionBlock = {
             do {
@@ -71,8 +135,21 @@ final class TransferSubscription {
             }
         }
 
-        operationManager.enqueue(operations: [fetchBlockOperation, parseOperation],
+        let operations = upgradedOperation.allOperations + [fetchBlockOperation, parseOperation]
+
+        operationManager.enqueue(operations: operations,
                                  in: .sync)
+    }
+
+    private func createUpgradedOperation() -> CompoundOperationWrapper<Bool?> {
+        do {
+            let remoteKey = try StorageKeyFactory().updatedDualRefCount()
+            let localKey = try localIdFactory.createIdentifier(for: remoteKey)
+
+            return chainStorage.queryStorageByKey(localKey)
+        } catch {
+            return CompoundOperationWrapper.createWithError(error)
+        }
     }
 
     private func handle(results: [TransferSubscriptionResult]) {
@@ -154,7 +231,7 @@ extension TransferSubscription {
 
     private func createTxSaveDependingOnFee(wrappers: [ResultAndFeeOperationWrapper])
         -> BaseOperation<Void> {
-        storage.saveOperation({
+        txStorage.saveOperation({
             wrappers.compactMap { wrapper in
                 do {
                     let feeResult = try wrapper.targetOperation
@@ -181,7 +258,11 @@ extension TransferSubscription {
 
             let contacts: Set<Data> = Set(
                 results.compactMap { result in
-                    if let origin = result.extrinsic.transaction?.accountId, origin != accountId {
+                    guard let origin = result.extrinsic.sender else {
+                        return nil
+                    }
+
+                    if origin != accountId {
                         return origin
                     } else {
                         return result.call.receiver
@@ -201,7 +282,8 @@ extension TransferSubscription {
         }
     }
 
-    private func createParseOperation(dependingOn fetchOperation: BaseOperation<SignedBlock>)
+    private func createParseOperation(dependingOn fetchOperation: BaseOperation<SignedBlock>,
+                                      upgradedOperation: CompoundOperationWrapper<Bool?>)
         -> BaseOperation<[TransferSubscriptionResult]> {
 
         let currentChain = chain
@@ -211,6 +293,9 @@ extension TransferSubscription {
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                 .block
 
+            let upgraded = (try upgradedOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
+
             let blockNumberData = try Data(hexString: block.header.number)
 
             let blockNumber = UInt32(BigUInt(blockNumberData))
@@ -219,26 +304,42 @@ extension TransferSubscription {
                 do {
                     let data = try Data(hexString: hexExtrinsic)
                     let extrinsicHash = try data.blake2b32()
-                    let extrinsic = try Extrinsic(scaleDecoder: ScaleDecoder(data: data))
+                    let extrinsicResult: ExtrinsicResult
 
-                    guard extrinsic.call.moduleIndex == currentChain.balanceModuleIndex else {
+                    if upgraded {
+                        let extrinsic = try Extrinsic(scaleDecoder: ScaleDecoder(data: data))
+                        extrinsicResult = .v28(extrinsic)
+                    } else {
+                        let extrinsicV27 = try ExtrinsicV27(scaleDecoder: ScaleDecoder(data: data))
+                        extrinsicResult = .v27(extrinsicV27)
+                    }
+
+                    guard extrinsicResult.call.moduleIndex == currentChain.balanceModuleIndex else {
                         return nil
                     }
 
                     let isValidTransfer = [
                         currentChain.transferCallIndex,
                         currentChain.keepAliveTransferCallIndex
-                    ].contains(extrinsic.call.callIndex)
+                    ].contains(extrinsicResult.call.callIndex)
 
-                    guard isValidTransfer, let callData = extrinsic.call.arguments else {
+                    guard isValidTransfer, let callData = extrinsicResult.call.arguments else {
                         return nil
                     }
 
-                    let call = try TransferCall(scaleDecoder: ScaleDecoder(data: callData))
+                    let callResult: TransferCallResult
 
-                    return TransferSubscriptionResult(extrinsic: extrinsic,
+                    if upgraded {
+                        let call = try TransferCall(scaleDecoder: ScaleDecoder(data: callData))
+                        callResult = .v28(call)
+                    } else {
+                        let call = try TransferCallV27(scaleDecoder: ScaleDecoder(data: callData))
+                        callResult = .v27(call)
+                    }
+
+                    return TransferSubscriptionResult(extrinsic: extrinsicResult,
                                                       encodedExtrinsic: hexExtrinsic,
-                                                      call: call,
+                                                      call: callResult,
                                                       extrinsicHash: extrinsicHash,
                                                       blockNumber: Int64(blockNumber),
                                                       txIndex: Int16(index))

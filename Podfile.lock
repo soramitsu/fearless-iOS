@@ -98,7 +98,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `725cefe1d0fa1ea8456580289b326558b13225c2`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `f821a9352d1592d60a43b7ced4fe977373d445a4`)
+  - FearlessUtils (~> 0.8.0)
   - FireMock
   - R.swift
   - ReachabilitySwift
@@ -115,6 +115,7 @@ SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
@@ -136,9 +137,6 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 725cefe1d0fa1ea8456580289b326558b13225c2
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -147,9 +145,6 @@ CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 725cefe1d0fa1ea8456580289b326558b13225c2
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: f821a9352d1592d60a43b7ced4fe977373d445a4
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -157,12 +152,12 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: aff931b1371471e6bd06e5c43028b67d5ab60d5a
-  Cuckoo: 4625f7f54d9bb880123270e8969898d6c1d036b5
-  FearlessUtils: 979e4d4f7fce0432217588b6d693cb86166545e5
+  Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
+  FearlessUtils: 49001ba810f648cffa9c50ee0598583c406b97fd
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 6944fc5fea160cebd1219b5f76539ed72908de71
-  R.swift: 56ec7e3aef34b9eee47a659e42462db2c1cc5ac3
-  R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
+  R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
+  R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
@@ -177,6 +172,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 3be81ff813b58e62c6ca2c1b29873165f7accb2b
+PODFILE CHECKSUM: df8a4a61cc81160d81864cfdfb37f829ffeadbab
 
-COCOAPODS: 1.10.1
+COCOAPODS: 1.10.0

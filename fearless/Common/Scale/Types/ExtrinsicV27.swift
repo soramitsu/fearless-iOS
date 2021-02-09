@@ -2,12 +2,12 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct Extrinsic: ScaleCodable {
+struct ExtrinsicV27: ScaleCodable {
     let version: UInt8
-    let transaction: Transaction?
+    let transaction: TransactionV27?
     let call: Call
 
-    init(version: UInt8, transaction: Transaction?, call: Call) {
+    init(version: UInt8, transaction: TransactionV27?, call: Call) {
         self.version = version
         self.transaction = transaction
         self.call = call
@@ -24,7 +24,7 @@ struct Extrinsic: ScaleCodable {
         version = try UInt8(scaleDecoder: internalDecoder)
 
         if version >= ExtrinsicConstants.signedExtrinsicInitialVersion {
-            transaction = try Transaction(scaleDecoder: internalDecoder)
+            transaction = try TransactionV27(scaleDecoder: internalDecoder)
         } else {
             transaction = nil
         }
@@ -63,21 +63,21 @@ struct Extrinsic: ScaleCodable {
     }
 }
 
-struct Transaction: ScaleCodable {
-    let address: Multiaddress
+struct TransactionV27: ScaleCodable {
+    let accountId: Data
     let signatureVersion: UInt8
     let signature: Data
     let era: Era
     let nonce: UInt32
     let tip: BigUInt
 
-    init(address: Multiaddress,
+    init(accountId: Data,
          signatureVersion: UInt8,
          signature: Data,
          era: Era,
          nonce: UInt32,
          tip: BigUInt) {
-        self.address = address
+        self.accountId = accountId
         self.signatureVersion = signatureVersion
         self.signature = signature
         self.era = era
@@ -86,7 +86,7 @@ struct Transaction: ScaleCodable {
     }
 
     init(scaleDecoder: ScaleDecoding) throws {
-        address = try Multiaddress(scaleDecoder: scaleDecoder)
+        accountId = try scaleDecoder.readAndConfirm(count: Int(ExtrinsicConstants.accountIdLength))
         signatureVersion = try UInt8(scaleDecoder: scaleDecoder)
 
         guard let cryptoType = CryptoType(version: signatureVersion) else {
@@ -104,7 +104,7 @@ struct Transaction: ScaleCodable {
     }
 
     func encode(scaleEncoder: ScaleEncoding) throws {
-        try address.encode(scaleEncoder: scaleEncoder)
+        scaleEncoder.appendRaw(data: accountId)
         try signatureVersion.encode(scaleEncoder: scaleEncoder)
         scaleEncoder.appendRaw(data: signature)
         try era.encode(scaleEncoder: scaleEncoder)

@@ -17,9 +17,9 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
     }
 
     override func createAssetViewModel(for asset: WalletAsset,
-                              balance: BalanceData,
-                              commandFactory: WalletCommandFactoryProtocol,
-                              locale: Locale) -> WalletViewModelProtocol? {
+                                       balance: BalanceData,
+                                       commandFactory: WalletCommandFactoryProtocol,
+                                       locale: Locale) -> WalletViewModelProtocol? {
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
 
