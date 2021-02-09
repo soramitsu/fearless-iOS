@@ -4,12 +4,13 @@ import CommonWallet
 import FearlessUtils
 
 final class MainTabBarInteractor {
-	weak var presenter: MainTabBarInteractorOutputProtocol?
+    weak var presenter: MainTabBarInteractorOutputProtocol?
 
     let eventCenter: EventCenterProtocol
     let settings: SettingsManagerProtocol
     let webSocketService: WebSocketServiceProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
+    let gitHubPhishingAPIService: ApplicationServiceProtocol
 
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
@@ -21,11 +22,13 @@ final class MainTabBarInteractor {
     init(eventCenter: EventCenterProtocol,
          settings: SettingsManagerProtocol,
          webSocketService: WebSocketServiceProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+         keystoreImportService: KeystoreImportServiceProtocol,
+         gitHubPhishingAPIService: ApplicationServiceProtocol) {
         self.eventCenter = eventCenter
         self.settings = settings
         self.webSocketService = webSocketService
         self.keystoreImportService = keystoreImportService
+        self.gitHubPhishingAPIService = gitHubPhishingAPIService
 
         updateSelectedItems()
 
@@ -39,10 +42,12 @@ final class MainTabBarInteractor {
 
     private func startServices() {
         webSocketService.setup()
+        gitHubPhishingAPIService.setup()
     }
 
     private func stopServices() {
         webSocketService.throttle()
+        gitHubPhishingAPIService.throttle()
     }
 
     private func updateWebSocketSettings() {

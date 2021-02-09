@@ -18,11 +18,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let webSocketService = WebSocketService.shared
         webSocketService.networkStatusPresenter =
             createNetworkStatusPresenter(localizationManager: localizationManager)
+        let gitHubPhishingAPIService = GitHubPhishingAPIService()
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
                                               webSocketService: webSocketService,
-                                              keystoreImportService: keystoreImportService)
+                                              keystoreImportService: keystoreImportService,
+                                              gitHubPhishingAPIService: gitHubPhishingAPIService)
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),
