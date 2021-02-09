@@ -60,10 +60,6 @@
 "no.email.bound.error.message" = "Por favor, asegúrese de que la aplicación de correo esté instalada en el dispositivo.";
 "connection.management.title" = "Redes";
 "onboarding.create.account" = "Crear una cuenta";
-"NSCameraUsageDescription" = "La cámara se utiliza para capturar el código QR";
-"NSFaceIDUsageDescription" = "Face ID se utiliza para autorizar en la aplicación";
-"NSPhotoLibraryUsageDescription" = "Cargar fotos de la galeria";
-"NSPhotoLibraryAddUsageDescription" = "Guardar la solicitud de transferencia como un código qr";
 "username.setup.choose.title" = "Nombre";
 "username.setup.hint" = "El nombre de esta cuenta y cómo aparecerá bajo tus direcciones. Con una identidad on-chain, puede estar disponible para otros.";
 "username.setup.title" = "Crear una cuenta";
