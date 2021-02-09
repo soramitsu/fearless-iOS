@@ -18,7 +18,7 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
         self.localizationManager = localizationManager
         self.payload = payload
     }
-
+// TODO: Looks like this is the file where I should insert my alert
     func execute() throws {
         guard let context = payload.transferInfo.context,
             let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
