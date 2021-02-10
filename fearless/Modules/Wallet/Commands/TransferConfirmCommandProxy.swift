@@ -41,12 +41,12 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
     private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
         switch result {
         case .success(let account):
-            guard account == nil else {
+            guard account == nil else { // TODO: Change to "!=" for production version
                 try? self.calleeCommand.execute()
                 return
             }
 
-            self.issueWarning()
+            self.showWarning()
 
         case .failure(let error):
             self.logger.error(error.localizedDescription)
@@ -56,41 +56,20 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
         }
     }
 
-    private func issueWarning() {
+    private func showWarning() {
         let locale = self.calleeCommand.localizationManager.selectedLocale
 
-        let title = R.string.localizable.walletSendPhishingWarningTitle(preferredLanguages: locale.rLanguages)
-        let message = R.string.localizable.walletSendPhishingWarningText(calleeCommand.payload.receiverName,
-                                                                         preferredLanguages: locale.rLanguages)
-
-        let alertController = UIAlertController(title: title,
-                                                message: message,
-                                                preferredStyle: .alert)
-
-        let continueTitle = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
-
-        let continueAction = UIAlertAction(title: continueTitle, style: .default) { _ in
+        let alertController = UIAlertController.phishingWarningAlert(onConfirm: { () -> Void in
             try? self.calleeCommand.execute()
-        }
-
-        alertController.addAction(continueAction)
-
-        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let cancelAction = UIAlertAction(title: cancelTitle,
-                                        style: .cancel,
-                                        handler: cancelActionHandler(alert:))
-        alertController.addAction(cancelAction)
+        }, onCancel: { () -> Void in
+            let hideCommand = self.calleeCommand.commandFactory?.prepareHideCommand(with: .pop)
+            try? hideCommand?.execute()
+        }, locale: locale,
+        publicKey: calleeCommand.payload.receiverName)
 
         let presentationCommand = calleeCommand.commandFactory?.preparePresentationCommand(for: alertController)
         presentationCommand?.presentationStyle = .modal(inNavigation: false)
 
         try? presentationCommand?.execute()
-    }
-
-    func cancelActionHandler(alert: UIAlertAction!) {
-        let hideCommand = calleeCommand.commandFactory?.prepareHideCommand(with: .pop)
-
-        try? hideCommand?.execute()
     }
 }
