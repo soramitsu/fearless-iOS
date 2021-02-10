@@ -187,6 +187,7 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
                                                  icon: nil,
                                                  action: actionTitle,
                                                  numberOfLines: 1,
-                                                 amount: amount)
+                                                 amount: amount,
+                                                 shouldAllowAction: true)
     }
 }

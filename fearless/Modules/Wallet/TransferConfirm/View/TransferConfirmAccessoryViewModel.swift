@@ -7,4 +7,5 @@ struct TransferConfirmAccessoryViewModel: AccessoryViewModelProtocol {
     let action: String
     let numberOfLines: Int
     let amount: String
+    let shouldAllowAction: Bool
 }

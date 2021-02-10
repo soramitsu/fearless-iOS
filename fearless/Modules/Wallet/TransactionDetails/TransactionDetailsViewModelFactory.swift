@@ -305,6 +305,7 @@ extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOve
                                                     amount: amount,
                                                     action: data.peerName ?? "",
                                                     icon: icon,
-                                                    command: command)
+                                                    command: command,
+                                                    shouldAllowAction: true)
     }
 }
