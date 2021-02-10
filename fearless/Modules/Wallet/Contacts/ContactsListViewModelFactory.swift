@@ -63,7 +63,8 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
             itemViewModelFactory.createContactViewModelFromContact($0,
                                                                    accountId: parameters.accountId,
                                                                    assetId: parameters.assetId,
-                                                                   delegate: delegate)
+                                                                   delegate: delegate,
+                                                                   commandFactory: commandFactory)
         }
     }
 

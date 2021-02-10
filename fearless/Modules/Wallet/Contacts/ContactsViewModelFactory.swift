@@ -9,7 +9,8 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
     func createContactViewModelFromContact(_ contact: SearchData,
                                            accountId: String,
                                            assetId: String,
-                                           delegate: ContactViewModelDelegate?)
+                                           delegate: ContactViewModelDelegate?,
+                                           commandFactory: WalletCommandFactoryProtocol)
         -> ContactViewModelProtocol? {
         do {
             guard accountId != contact.accountId else {
