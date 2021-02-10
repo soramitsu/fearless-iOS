@@ -1,14 +1,9 @@
 import Foundation
-import IrohaCrypto
-import CoreData
-import RobinHood
-import SoraFoundation
-import CommonWallet
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     lazy var endPoint: String = { return "https://polkadot.js.org/phishing/address.json" }()
 
-    let scamAddressProcessor: ScamAddressRepositoryFacadeProtocol = ScamAddressProcessor()
+    let phishingAddressStorageManager: PhishingAddressRepositoryFacadeProtocol = PhishingAddressStorageManager()
     let logger = Logger.shared
 
     enum State {
@@ -77,41 +72,6 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func processData(data: [String: AnyObject]) {
-        let scamAddressProcessor = ScamAddressProcessor()
-        scamAddressProcessor.updateRepository(from: data)
+        self.phishingAddressStorageManager.updateRepository(from: data)
     }
-
-//
-//    func showAlert() {
-//        let localizationManager = LocalizationManager.shared
-//        let locale = localizationManager.selectedLocale
-//
-//        let title = R.string.localizable.walletSendPhishingWarningTitle(preferredLanguages: locale.rLanguages)
-//        let message = R.string.localizable.walletSendPhishingWarningText("HRgJz89P1R5NEaMhaLzXSm9u3GFJiUsda7jXkVNikU8Y5th", preferredLanguages: locale.rLanguages)
-//
-//        let alertController = UIAlertController(title: title,
-//                                                message: message,
-//                                                preferredStyle: .alert)
-//
-//        let continueTitle = R.string.localizable
-//            .commonContinue(preferredLanguages: locale.rLanguages)
-//
-//        let continueAction = UIAlertAction(title: continueTitle, style: .default) { _ in
-//            //            try? self.undelyingCommand?.execute()
-//        }
-//
-//        alertController.addAction(continueAction)
-//
-//        let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-//        let closeAction = UIAlertAction(title: cancelTitle,
-//                                        style: .cancel,
-//                                        handler: nil)
-//        alertController.addAction(closeAction)
-//
-//        //        let presentationCommand = commandFactory?.preparePresentationCommand(for: alertController)
-//        //        presentationCommand?.presentationStyle = .modal(inNavigation: false)
-//        //
-//        //        try? presentationCommand?.execute()
-//    }
-//
 }

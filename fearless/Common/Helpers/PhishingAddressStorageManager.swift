@@ -3,14 +3,14 @@ import IrohaCrypto
 import CoreData
 import RobinHood
 
-protocol ScamAddressRepositoryFacadeProtocol {
+protocol PhishingAddressRepositoryFacadeProtocol {
     func updateRepository(from data: [String: AnyObject])
 
     func fetchAddress(publicKey: String,
                       completionHandler: @escaping (Result<PhishingItem?, Error>?) -> Void) throws
 }
 
-class ScamAddressProcessor: ScamAddressRepositoryFacadeProtocol {
+class PhishingAddressStorageManager: PhishingAddressRepositoryFacadeProtocol {
     let logger = Logger.shared
     let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
         SubstrateDataStorageFacade.shared.createRepository()

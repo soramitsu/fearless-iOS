@@ -3,46 +3,53 @@ import CommonWallet
 import SoraFoundation
 
 final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
-    var realCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
+    var calleeCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
+
     var undelyingCommand: WalletCommandProtocol? {
-        get { realCommand.undelyingCommand }
-        set { realCommand.undelyingCommand = newValue }
+        get { calleeCommand.undelyingCommand }
+        set { calleeCommand.undelyingCommand = newValue }
         }
 
-    init(transferConfirmCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol) {
-        self.realCommand = transferConfirmCommand
+    let logger = Logger.shared
+
+    init(payload: ConfirmationPayload,
+         localizationManager: LocalizationManagerProtocol,
+         commandFactory: WalletCommandFactoryProtocol) {
+        self.calleeCommand = TransferConfirmCommand(payload: payload,
+                                                  localizationManager: localizationManager,
+                                                  commandFactory: commandFactory)
     }
 
     func execute() throws {
-        let scamAddressProcessor = ScamAddressProcessor()
-        let destinationKey = realCommand.payload.transferInfo.destination
-        try? scamAddressProcessor.fetchAddress(publicKey: destinationKey,
+        let phishingAddressStorageManager = PhishingAddressStorageManager()
+        let destinationKey = calleeCommand.payload.transferInfo.destination
+        try? phishingAddressStorageManager.fetchAddress(publicKey: destinationKey,
                                                completionHandler: handleAccountFetch(result:))
     }
 
-    func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
+    private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
         switch result {
         case .success(let account):
-            guard account != nil else {
-                try? self.realCommand.execute()
+            guard account == nil else {
+                try? self.calleeCommand.execute()
                 return
             }
 
-            issueWarning()
+            self.issueWarning()
 
         case .failure(let error):
-            print(error)
+            self.logger.error(error.localizedDescription)
 
         case .none:
-            print("none")
+            self.logger.error("Scam account fetch operation cancelled")
         }
     }
 
     private func issueWarning() {
-        let locale = self.realCommand.localizationManager.selectedLocale
+        let locale = self.calleeCommand.localizationManager.selectedLocale
 
         let title = R.string.localizable.walletSendPhishingWarningTitle(preferredLanguages: locale.rLanguages)
-        let message = R.string.localizable.walletSendPhishingWarningText(realCommand.payload.receiverName,
+        let message = R.string.localizable.walletSendPhishingWarningText(calleeCommand.payload.receiverName,
                                                                          preferredLanguages: locale.rLanguages)
 
         let alertController = UIAlertController(title: title,
@@ -53,20 +60,26 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
             .commonContinue(preferredLanguages: locale.rLanguages)
 
         let continueAction = UIAlertAction(title: continueTitle, style: .default) { _ in
-            try? self.realCommand.execute()
+            try? self.calleeCommand.execute()
         }
 
         alertController.addAction(continueAction)
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let closeAction = UIAlertAction(title: cancelTitle,
+        let cancelAction = UIAlertAction(title: cancelTitle,
                                         style: .cancel,
-                                        handler: nil)
-        alertController.addAction(closeAction)
+                                        handler: cancelActionHandler(alert:))
+        alertController.addAction(cancelAction)
 
-        let presentationCommand = self.realCommand.commandFactory?.preparePresentationCommand(for: alertController)
+        let presentationCommand = calleeCommand.commandFactory?.preparePresentationCommand(for: alertController)
         presentationCommand?.presentationStyle = .modal(inNavigation: false)
 
         try? presentationCommand?.execute()
+    }
+
+    func cancelActionHandler(alert: UIAlertAction!) {
+        let hideCommand = calleeCommand.commandFactory?.prepareHideCommand(with: .pop)
+
+        try? hideCommand?.execute()
     }
 }
