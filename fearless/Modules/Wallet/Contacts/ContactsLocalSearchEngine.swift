@@ -17,7 +17,8 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
     func search(query: String,
                 accountId: String,
                 assetId: String,
-                delegate: ContactViewModelDelegate?) -> [ContactViewModelProtocol]? {
+                delegate: ContactViewModelDelegate?,
+                commandFactory: WalletCommandFactoryProtocol) -> [ContactViewModelProtocol]? {
         do {
             let peerId = try addressFactory.accountId(fromAddress: query, type: networkType)
             let accountIdData = try Data(hexString: accountId)
@@ -34,7 +35,8 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
                 .createContactViewModelFromContact(searchData,
                                                    accountId: accountId,
                                                    assetId: assetId,
-                                                   delegate: delegate) else {
+                                                   delegate: delegate,
+                                                   commandFactory: commandFactory) else {
                 return nil
             }
 

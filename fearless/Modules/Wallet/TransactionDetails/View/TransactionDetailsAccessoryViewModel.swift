@@ -7,6 +7,7 @@ struct TransactionDetailsAccessoryViewModel: AccessoryViewModelProtocol {
     let action: String
     let icon: UIImage?
     let command: WalletCommandProtocol
+    let shouldAllowAction: Bool
 
     let numberOfLines: Int = 0
 
@@ -14,11 +15,13 @@ struct TransactionDetailsAccessoryViewModel: AccessoryViewModelProtocol {
          amount: String,
          action: String,
          icon: UIImage?,
-         command: WalletCommandProtocol) {
+         command: WalletCommandProtocol,
+         shouldAllowAction: Bool) {
         self.title = title
         self.amount = amount
         self.action = action
         self.icon = icon
         self.command = command
+        self.shouldAllowAction = shouldAllowAction
     }
 }
