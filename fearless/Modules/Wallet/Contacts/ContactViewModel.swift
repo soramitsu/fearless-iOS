@@ -32,6 +32,7 @@ extension ContactViewModel: WalletCommandProtocol {
     var command: WalletCommandProtocol? { self }
 
     func execute() throws {
+        // TODO: Insert alert here
         delegate?.didSelect(contact: self)
     }
 }

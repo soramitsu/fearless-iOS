@@ -17,9 +17,10 @@ final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol
 
     func createTransferConfirmationDecorator(with commandFactory: WalletCommandFactoryProtocol,
                                              payload: ConfirmationPayload)
-        -> WalletCommandDecoratorProtocol? {
-        TransferConfirmCommand(payload: payload,
-                               localizationManager: localizationManager,
-                               commandFactory: commandFactory)
+    -> WalletCommandDecoratorProtocol? {
+        let transferConfirmCommand = TransferConfirmCommand(payload: payload,
+                                                            localizationManager: localizationManager,
+                                                            commandFactory: commandFactory)
+        return TransferConfirmCommandProxy(transferConfirmCommand: transferConfirmCommand)
     }
 }

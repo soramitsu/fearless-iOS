@@ -2,7 +2,13 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 
-final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
+protocol WalletCommandDecoratorDelegateProtocol {
+    var payload: ConfirmationPayload { get }
+    var localizationManager: LocalizationManagerProtocol { get }
+    var commandFactory: WalletCommandFactoryProtocol? { get set }
+}
+
+final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletCommandDecoratorDelegateProtocol {
     var undelyingCommand: WalletCommandProtocol?
 
     let payload: ConfirmationPayload
@@ -18,7 +24,7 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
         self.localizationManager = localizationManager
         self.payload = payload
     }
-// TODO: Looks like this is the file where I should insert my alert
+
     func execute() throws {
         guard let context = payload.transferInfo.context,
             let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
