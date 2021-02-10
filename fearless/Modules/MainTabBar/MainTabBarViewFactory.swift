@@ -18,7 +18,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let webSocketService = WebSocketService.shared
         webSocketService.networkStatusPresenter =
             createNetworkStatusPresenter(localizationManager: localizationManager)
-        let gitHubPhishingAPIService = GitHubPhishingAPIService()
+        let gitHubPhishingAPIService = GitHubPhishingServiceFactory().createGitHubService()
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,

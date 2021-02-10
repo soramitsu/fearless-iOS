@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import RobinHood
 
 final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
     var calleeCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
@@ -21,10 +22,20 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
     }
 
     func execute() throws {
-        let phishingAddressStorageManager = PhishingAddressStorageManager()
         let destinationKey = calleeCommand.payload.transferInfo.destination
-        try? phishingAddressStorageManager.fetchAddress(publicKey: destinationKey,
-                                               completionHandler: handleAccountFetch(result:))
+
+        let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
+        let fetchOperation = storage.fetchOperation(by: destinationKey,
+                                                    options: RepositoryFetchOptions())
+        fetchOperation.completionBlock = {
+            DispatchQueue.main.async {
+                self.handleAccountFetch(result: fetchOperation.result)
+            }
+        }
+
+        OperationManagerFacade.sharedManager.enqueue(operations: [fetchOperation], in: .sync)
     }
 
     private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {

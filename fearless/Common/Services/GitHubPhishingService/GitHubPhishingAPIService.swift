@@ -1,10 +1,20 @@
 import Foundation
+import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     lazy var endPoint: String = { return "https://polkadot.js.org/phishing/address.json" }()
 
-    let phishingAddressStorageManager: PhishingAddressRepositoryFacadeProtocol = PhishingAddressStorageManager()
-    let logger = Logger.shared
+    private var operation: BaseOperation<[PhishingItem]>
+    private var logger: Logger
+    private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+
+    init(operation: BaseOperation<[PhishingItem]>,
+         logger: Logger,
+         storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
+        self.operation = operation
+        self.logger = logger
+        self.storage = storage
+    }
 
     enum State {
         case throttled
@@ -35,43 +45,27 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
         clearConnection()
     }
 
-    private func setupConnection() {
-        getDataWith { (result) in
-            switch result {
-            case .success(let data):
-                self.processData(data: data)
-            case .failure(let message):
-                self.logger.error("Problem retreiving scam addresses: \(message)")
-            }
-        }
-    }
-
     private func clearConnection() {
-
+        operation.cancel()
     }
 
-    func getDataWith(completion: @escaping (Result<[String: AnyObject], Error>) -> Void) {
-        guard let url = URL(string: endPoint) else { return }
-
-        URLSession.shared.dataTask(with: url) { (data, _, error) in
-            guard error == nil else { return }
-            guard let data = data else { return }
-
+    private func setupConnection() {
+        operation.completionBlock = { [self] in
             do {
-                if let json = try JSONSerialization.jsonObject(with: data,
-                                                               options: [.mutableContainers]) as? [String: AnyObject] {
+                if let phishingItems = try operation.extractResultData() {
+                    let deleteOperation = storage.deleteAllOperation()
+                    OperationManagerFacade.sharedManager.enqueue(operations: [deleteOperation], in: .sync)
 
-                    DispatchQueue.main.async {
-                        completion(.success(json))
+                    for phishingItem in phishingItems {
+                        let saveOperation = storage.saveOperation({ [phishingItem] }, { [] })
+                        OperationManagerFacade.sharedManager.enqueue(operations: [saveOperation], in: .sync)
                     }
                 }
-            } catch let error {
-                completion(.failure(error))
+            } catch {
+                self.logger.error("Request unsuccessful")
             }
-        }.resume()
-    }
+        }
 
-    private func processData(data: [String: AnyObject]) {
-        self.phishingAddressStorageManager.updateRepository(from: data)
+        OperationManagerFacade.sharedManager.enqueue(operations: [operation], in: .sync)
     }
 }
