@@ -41,7 +41,7 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
     private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
         switch result {
         case .success(let account):
-            guard account == nil else { // TODO: Change to "!=" for production version
+            guard account != nil else {
                 try? self.calleeCommand.execute()
                 return
             }
