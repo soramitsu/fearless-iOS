@@ -66,4 +66,38 @@ extension Chain {
             return URL(string: "https://westend.subscan.io/account/\(address)")
         }
     }
+
+    func preparedDefaultTypeDefPath() -> String? {
+        return R.file.runtimeDefaultJson.path()
+    }
+
+    func preparedNetworkTypeDefPath() -> String? {
+        switch self {
+        case .polkadot:
+            return R.file.runtimePolkadotJson.path()
+        case .kusama:
+            return R.file.runtimeKusamaJson.path()
+        case .westend:
+            return R.file.runtimeWestendJson.path()
+        }
+    }
+
+    //swiftlint:disable line_length
+    func typeDefDefaultFileURL() -> URL? {
+        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")
+    }
+
+    func typeDefNetworkFileURL() -> URL? {
+        let base = URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry")
+
+        switch self {
+        case .westend:
+            return base?.appendingPathComponent("westend.json")
+        case .kusama:
+            return base?.appendingPathComponent("kusama.json")
+        case .polkadot:
+            return base?.appendingPathComponent("polkadot.json")
+        }
+    }
+    //swiftlint:enable line_length
 }

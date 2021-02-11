@@ -2,11 +2,18 @@ import Foundation
 import RobinHood
 
 protocol FileRepositoryProtocol {
-    func fileExistsOperation(at path: String) -> BaseOperation<Bool>
+    func createDirectoryIfNeededOperation(at path: String) -> BaseOperation<Void>
+    func fileExistsOperation(at path: String) -> BaseOperation<FileExistence>
     func readOperation(at path: String) -> BaseOperation<Data?>
     func writeOperation(dataClosure: @escaping () throws -> Data, at path: String) -> BaseOperation<Void>
     func copyOperation(from fromPath: String, to toPath: String) -> BaseOperation<Void>
     func removeOperation(at path: String) -> BaseOperation<Void>
+}
+
+enum FileExistence {
+    case notExists
+    case directory
+    case file
 }
 
 /**
@@ -18,9 +25,27 @@ protocol FileRepositoryProtocol {
  */
 
 final class FileRepository: FileRepositoryProtocol {
-    func fileExistsOperation(at path: String) -> BaseOperation<Bool> {
+    func createDirectoryIfNeededOperation(at path: String) -> BaseOperation<Void> {
         ClosureOperation {
-            FileManager.default.fileExists(atPath: path)
+            var isDirectory: ObjCBool = false
+            if !FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+                || !isDirectory.boolValue {
+                try FileManager.default
+                    .createDirectory(atPath: path, withIntermediateDirectories: true)
+            }
+        }
+    }
+
+    func fileExistsOperation(at path: String) -> BaseOperation<FileExistence> {
+        ClosureOperation {
+            var isDirectory: ObjCBool = false
+            let exists = FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
+
+            if !exists {
+                return .notExists
+            } else {
+                return isDirectory.boolValue ? .directory : .file
+            }
         }
     }
 

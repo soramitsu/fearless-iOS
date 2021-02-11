@@ -33,7 +33,7 @@ class FileManagerTests: XCTestCase {
         // then
 
         let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-        XCTAssertFalse(result)
+        XCTAssertEqual(result, .notExists)
     }
 
     func testWriteReadFile() throws {
@@ -64,7 +64,7 @@ class FileManagerTests: XCTestCase {
 
             let readData = try read.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-            XCTAssertTrue(exists)
+            XCTAssertEqual(exists, .file)
             XCTAssertEqual(data, readData)
         } catch {
             XCTFail("Unexpected error: \(error)")
@@ -109,8 +109,47 @@ class FileManagerTests: XCTestCase {
 
             let readData = try read.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-            XCTAssertFalse(exists)
+            XCTAssertEqual(exists, .notExists)
             XCTAssertEqual(data, readData)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testDirectoryCreate() {
+        // directory
+
+        let filesRepository = FileRepository()
+        let dirPath = directory.appendingPathComponent("test-dir").path
+        let queue = OperationQueue()
+
+        // when
+
+        let newDirectory = filesRepository.createDirectoryIfNeededOperation(at: dirPath)
+        let existsBefore = filesRepository.fileExistsOperation(at: dirPath)
+        existsBefore.addDependency(newDirectory)
+
+        let remove = filesRepository.removeOperation(at: dirPath)
+        remove.addDependency(existsBefore)
+
+        let existsAfter = filesRepository.fileExistsOperation(at: dirPath)
+        existsAfter.addDependency(remove)
+
+        queue.addOperations([newDirectory, existsBefore, remove, existsAfter], waitUntilFinished: true)
+
+        do {
+            try newDirectory.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            let existsBeforeValue = try existsBefore
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            try remove.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            let existsAfterValue = try existsAfter
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            XCTAssertEqual(existsBeforeValue, .directory)
+            XCTAssertEqual(existsAfterValue, .notExists)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
