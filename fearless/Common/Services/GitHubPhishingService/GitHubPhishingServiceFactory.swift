@@ -7,13 +7,12 @@ protocol GitHubPhishingServiceFactoryProtocol {
 
 class GitHubPhishingServiceFactory: GitHubPhishingServiceFactoryProtocol {
 
-    lazy var endPoint: String = { return "https://polkadot.js.org/phishing/address.json" }()
-
     func createGitHubService() -> ApplicationServiceProtocol {
         let logger = Logger.shared
         let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
             SubstrateDataStorageFacade.shared.createRepository()
-        let url = URL(string: endPoint)!
+        let config: ApplicationConfigProtocol = ApplicationConfig.shared
+        let url = config.phishingListURL
 
         let networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
 

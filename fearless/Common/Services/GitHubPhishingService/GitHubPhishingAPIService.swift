@@ -2,8 +2,6 @@ import Foundation
 import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
-    lazy var endPoint: String = { return "https://polkadot.js.org/phishing/address.json" }()
-
     private var operation: BaseOperation<[PhishingItem]>
     private var logger: Logger
     private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
