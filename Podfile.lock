@@ -96,7 +96,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `45d3dff17b3f78da78e780fcd10bc454ccbf6190`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `29518e70c1a386405c19f2f335eaeef6d500c4ad`)
   - Cuckoo
   - FearlessUtils (~> 0.8.0)
   - FireMock
@@ -135,7 +135,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 45d3dff17b3f78da78e780fcd10bc454ccbf6190
+    :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -143,7 +143,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 45d3dff17b3f78da78e780fcd10bc454ccbf6190
+    :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
     :git: https://github.com/soramitsu/Capital-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -172,6 +172,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: a39be8a1f9da80c817cfa5774fb4f7dd100cfc2b
+PODFILE CHECKSUM: 843f0c58b7f42fd6159ff0f65817c2aff81cf628
 
 COCOAPODS: 1.10.0

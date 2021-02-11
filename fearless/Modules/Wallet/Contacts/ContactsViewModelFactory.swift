@@ -7,13 +7,13 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
     private let iconGenerator = PolkadotIconGenerator()
 
     func createContactViewModelFromContact(_ contact: SearchData,
-                                           accountId: String,
-                                           assetId: String,
+                                           parameters: ContactModuleParameters,
+                                           locale: Locale,
                                            delegate: ContactViewModelDelegate?,
                                            commandFactory: WalletCommandFactoryProtocol)
         -> ContactViewModelProtocol? {
         do {
-            guard accountId != contact.accountId else {
+            guard parameters.accountId != contact.accountId else {
                 return nil
             }
 
