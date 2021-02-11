@@ -3,11 +3,11 @@ import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     private var operation: BaseOperation<[PhishingItem]>
-    private var logger: Logger
+    private var logger: LoggerProtocol
     private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
 
     init(operation: BaseOperation<[PhishingItem]>,
-         logger: Logger,
+         logger: LoggerProtocol,
          storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
         self.operation = operation
         self.logger = logger
