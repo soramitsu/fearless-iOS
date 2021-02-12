@@ -31,13 +31,13 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
     }
 
     func search(query: String,
-                accountId: String,
-                assetId: String,
+                parameters: ContactModuleParameters,
+                locale: Locale,
                 delegate: ContactViewModelDelegate?,
                 commandFactory: WalletCommandFactoryProtocol) -> [ContactViewModelProtocol]? {
         do {
             let peerId = try addressFactory.accountId(fromAddress: query, type: networkType)
-            let accountIdData = try Data(hexString: accountId)
+            let accountIdData = try Data(hexString: parameters.accountId)
 
             guard peerId != accountIdData  else {
                 return []
@@ -48,11 +48,11 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
                                         lastName: "")
 
             guard let viewModel = contactViewModelFactory
-                    .createContactViewModelFromContact(searchData,
-                                                       accountId: accountId,
-                                                       assetId: assetId,
-                                                       delegate: delegate,
-                                                       commandFactory: commandFactory) else {
+                .createContactViewModelFromContact(searchData,
+                                                   parameters: parameters,
+                                                   locale: locale,
+                                                   delegate: delegate,
+                                                   commandFactory: commandFactory) else {
                 return nil
             }
 
