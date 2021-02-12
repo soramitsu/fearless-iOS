@@ -1,6 +1,7 @@
 import Foundation
 import CommonWallet
 import SoraFoundation
+import RobinHood
 
 final class StubCommandDecorator: WalletCommandDecoratorProtocol {
     var undelyingCommand: WalletCommandProtocol?
@@ -18,8 +19,13 @@ final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol
     func createTransferConfirmationDecorator(with commandFactory: WalletCommandFactoryProtocol,
                                              payload: ConfirmationPayload)
         -> WalletCommandDecoratorProtocol? {
-        TransferConfirmCommandProxy(payload: payload,
+
+        let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
+        return TransferConfirmCommandProxy(payload: payload,
                                localizationManager: localizationManager,
-                               commandFactory: commandFactory)
+                               commandFactory: commandFactory,
+                               storage: storage)
     }
 }

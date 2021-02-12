@@ -2,9 +2,11 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 import RobinHood
+import CoreData
 
-final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
+final class TransferConfirmCommandProxy<T: Identifiable, U: NSManagedObject>: WalletCommandDecoratorProtocol {
     var calleeCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
+    private var storage: CoreDataRepository<T, U>
 
     var undelyingCommand: WalletCommandProtocol? {
         get { calleeCommand.undelyingCommand }
@@ -15,7 +17,9 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
 
     init(payload: ConfirmationPayload,
          localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol) {
+         commandFactory: WalletCommandFactoryProtocol,
+         storage: CoreDataRepository<T, U>) {
+        self.storage = storage
         self.calleeCommand = TransferConfirmCommand(payload: payload,
                                                   localizationManager: localizationManager,
                                                   commandFactory: commandFactory)
@@ -23,9 +27,6 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
 
     func execute() throws {
         let destinationKey = calleeCommand.payload.transferInfo.destination
-
-        let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
 
         let fetchOperation = storage.fetchOperation(by: destinationKey,
                                                     options: RepositoryFetchOptions())
@@ -38,7 +39,7 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
         OperationManagerFacade.sharedManager.enqueue(operations: [fetchOperation], in: .sync)
     }
 
-    private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
+    private func handleAccountFetch(result: Result<T?, Error>?) {
         switch result {
         case .success(let account):
             guard account != nil else {
