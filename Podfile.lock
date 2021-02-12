@@ -6,9 +6,9 @@ PODS:
     - SoraFoundation/Localization (~> 0.8.0)
     - SoraFoundation/NotificationHandlers (~> 0.8.0)
     - SoraUI (~> 1.9.3)
-  - Cuckoo (1.4.0):
-    - Cuckoo/Swift (= 1.4.0)
-  - Cuckoo/Swift (1.4.0)
+  - Cuckoo (1.4.1):
+    - Cuckoo/Swift (= 1.4.1)
+  - Cuckoo/Swift (1.4.1)
   - FearlessUtils (0.8.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.7.0)
@@ -34,9 +34,9 @@ PODS:
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
-  - R.swift (5.2.2):
-    - R.swift.Library (~> 5.2.0)
-  - R.swift.Library (5.2.0)
+  - R.swift (5.3.1):
+    - R.swift.Library (~> 5.3.0)
+  - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
   - RobinHood (2.5.1)
   - scrypt.c (0.1.1)
@@ -90,8 +90,8 @@ PODS:
   - SoraUI/Skrull (1.9.3)
   - Starscream (4.0.4)
   - SwiftGifOrigin (1.7.0)
-  - SwiftLint (0.39.2)
-  - SwiftyBeaver (1.9.1)
+  - SwiftLint (0.42.0)
+  - SwiftyBeaver (1.9.3)
   - TweetNacl (1.0.2)
   - xxHash-Swift (1.0.13)
 
@@ -152,12 +152,12 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: c7d06c122997f01ea343c2d5fdd8c8022bf48961
-  Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
+  Cuckoo: 4625f7f54d9bb880123270e8969898d6c1d036b5
   FearlessUtils: 49001ba810f648cffa9c50ee0598583c406b97fd
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 6944fc5fea160cebd1219b5f76539ed72908de71
-  R.swift: 7c52cdc57a66840ffe6cbd8a823d732059d42a32
-  R.swift.Library: 5ba4f1631300caf9a4d890186930da85d540769d
+  R.swift: 56ec7e3aef34b9eee47a659e42462db2c1cc5ac3
+  R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
   RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
@@ -167,11 +167,11 @@ SPEC CHECKSUMS:
   SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
-  SwiftLint: 22ccbbe3b8008684be5955693bab135e0ed6a447
-  SwiftyBeaver: a1f5691458561414bcfab51874b2b7445451602b
+  SwiftLint: 4fa9579c63416865179bc416f0a92d55f009600d
+  SwiftyBeaver: 2e8acd6fc90c6d0a27055867a290794926d57c02
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
 PODFILE CHECKSUM: a39be8a1f9da80c817cfa5774fb4f7dd100cfc2b
 
-COCOAPODS: 1.10.0
+COCOAPODS: 1.10.1

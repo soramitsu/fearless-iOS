@@ -2,6 +2,22 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import FearlessUtils
+import RobinHood
+import SoraFoundation
+
+class ContactsViewModelDelegateProxy: ContactViewModelDelegate {
+    let callee: ContactViewModelDelegate?
+    let localizationManager: LocalizationManagerProtocol = LocalizationManager.shared
+    let logger = Logger.shared
+
+    init(callee: ContactViewModelDelegate?) {
+        self.callee = callee
+    }
+
+    func didSelect(contact: ContactViewModelProtocol) {
+        callee?.didSelect(contact: contact)
+    }
+}
 
 final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
     let contactViewModelFactory: ContactsFactoryWrapperProtocol
@@ -32,11 +48,11 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
                                         lastName: "")
 
             guard let viewModel = contactViewModelFactory
-                .createContactViewModelFromContact(searchData,
-                                                   accountId: accountId,
-                                                   assetId: assetId,
-                                                   delegate: delegate,
-                                                   commandFactory: commandFactory) else {
+                    .createContactViewModelFromContact(searchData,
+                                                       accountId: accountId,
+                                                       assetId: assetId,
+                                                       delegate: delegate,
+                                                       commandFactory: commandFactory) else {
                 return nil
             }
 

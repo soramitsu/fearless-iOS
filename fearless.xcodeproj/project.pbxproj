@@ -25,6 +25,13 @@
 		1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93A1BA7DFEE1D7728B84949 /* AccountExportPasswordTests.swift */; };
 		21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */; };
 		2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */; };
+		2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */; };
+		2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */; };
+		2A84E87825D425750006FE9C /* AlertControllerFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A84E87725D425750006FE9C /* AlertControllerFactory.swift */; };
+		2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AB7A7FE25CD0E7F00767D87 /* GitHubPhishingAPIService.swift */; };
+		2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD0A16925D3854700312428 /* TransferConfirmCommandProxy.swift */; };
+		2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD0A18F25D3D1E100312428 /* GitHubPhishingServiceFactory.swift */; };
+		2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2AD0A19425D3D3EC00312428 /* GitHubOperationFactory.swift */; };
 		2BAD49EF1B2C52059A5E7E9A /* AccountInfoViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E5E310A67B23D53954C2BDA /* AccountInfoViewFactory.swift */; };
 		2CF2F93AF862CF54FC46B560 /* PurchaseInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 91D44421CCD7AD220A05CD0E /* PurchaseInteractor.swift */; };
 		2E83FA4B0E7339A19F5012C3 /* NetworkManagementPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5976C524A70284D8009D5197 /* NetworkManagementPresenter.swift */; };
@@ -688,7 +695,14 @@
 		26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoTests.swift; sourceTree = "<group>"; };
 		27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewController.swift; sourceTree = "<group>"; };
 		2A0AC679F039526102165678 /* AccountManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountManagementViewController.xib; sourceTree = "<group>"; };
+		2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDPhishingItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
+		2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingItem.swift; sourceTree = "<group>"; };
+		2A84E87725D425750006FE9C /* AlertControllerFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertControllerFactory.swift; sourceTree = "<group>"; };
+		2AB7A7FE25CD0E7F00767D87 /* GitHubPhishingAPIService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubPhishingAPIService.swift; sourceTree = "<group>"; };
 		2ACA4A5B186EE6D40BFE9D66 /* ExportMnemonicWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicWireframe.swift; sourceTree = "<group>"; };
+		2AD0A16925D3854700312428 /* TransferConfirmCommandProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmCommandProxy.swift; sourceTree = "<group>"; };
+		2AD0A18F25D3D1E100312428 /* GitHubPhishingServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubPhishingServiceFactory.swift; sourceTree = "<group>"; };
+		2AD0A19425D3D3EC00312428 /* GitHubOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GitHubOperationFactory.swift; sourceTree = "<group>"; };
 		2C97681A329ED47837745C1A /* AddConnectionInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AddConnectionInteractor.swift; sourceTree = "<group>"; };
 		31226053044986BC828AA912 /* AccountExportPasswordPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordPresenter.swift; sourceTree = "<group>"; };
 		3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementInteractor.swift; sourceTree = "<group>"; };
@@ -1488,6 +1502,15 @@
 			path = NetworkInfo;
 			sourceTree = "<group>";
 		};
+		2AB7A7FD25CD0E3E00767D87 /* GitHubPhishingService */ = {
+			isa = PBXGroup;
+			children = (
+				2AB7A7FE25CD0E7F00767D87 /* GitHubPhishingAPIService.swift */,
+				2AD0A18F25D3D1E100312428 /* GitHubPhishingServiceFactory.swift */,
+			);
+			path = GitHubPhishingService;
+			sourceTree = "<group>";
+		};
 		2CE06DA20D3E261ED3AF2B99 /* AccountManagement */ = {
 			isa = PBXGroup;
 			children = (
@@ -1653,6 +1676,7 @@
 		84155DE8253980D700A27058 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				2AB7A7FD25CD0E3E00767D87 /* GitHubPhishingService */,
 				84155DE9253980E100A27058 /* WebSocketService */,
 				84155DEC2539817200A27058 /* ApplicationService.swift */,
 			);
@@ -2119,6 +2143,7 @@
 				843910B5253EE62B00E3C217 /* DataProviderChange+Result.swift */,
 				8434C9E525403686009E4191 /* CDTransactionHistoryItem+CoreDataDecodable.swift */,
 				84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */,
+				2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */,
 				84452A5F25D037AE00F47EC5 /* ChainStorage+Decodable.swift */,
 			);
 			path = Storage;
@@ -2321,27 +2346,27 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				849014C924AA8B75008F705E /* Animation */,
+				849013D524A927E2008F705E /* Configs */,
+				8490147C24AA14AF008F705E /* Crypto */,
+				84EBC54424F660A700459D15 /* EventCenter */,
+				849013D724A927E2008F705E /* Extension */,
+				8490145424A9403C008F705E /* Helpers */,
+				849014C624AA8A28008F705E /* LocalAuthentication */,
+				849013D324A927E2008F705E /* Logger */,
+				849013E024A9287F008F705E /* Model */,
+				8490150124AB6BEA008F705E /* Network */,
+				8490147924AA13C7008F705E /* Operation */,
+				8490142624A935FE008F705E /* Protocols */,
 				8436EDE0258957B3004D9E97 /* PurchaseProvider */,
 				84155DF4253B252000A27058 /* Reachability */,
+				8490154E24ACD521008F705E /* Scale */,
 				84155DE8253980D700A27058 /* Services */,
-				849244902514EDD900477C1B /* ViewModel */,
-				84EBC54424F660A700459D15 /* EventCenter */,
 				8467FD4E24EFD0EC005D486C /* Storage */,
 				8467FCFA24E59C3E005D486C /* URLHandling */,
-				8490154E24ACD521008F705E /* Scale */,
-				8490150124AB6BEA008F705E /* Network */,
-				849014C924AA8B75008F705E /* Animation */,
-				849014C624AA8A28008F705E /* LocalAuthentication */,
 				8490149D24AA7F9A008F705E /* View */,
-				8490147C24AA14AF008F705E /* Crypto */,
-				8490147924AA13C7008F705E /* Operation */,
-				8490145424A9403C008F705E /* Helpers */,
 				8490144124A93CDC008F705E /* ViewController */,
-				8490142624A935FE008F705E /* Protocols */,
-				849013E024A9287F008F705E /* Model */,
-				849013D524A927E2008F705E /* Configs */,
-				849013D724A927E2008F705E /* Extension */,
-				849013D324A927E2008F705E /* Logger */,
+				849244902514EDD900477C1B /* ViewModel */,
 			);
 			path = Common;
 			sourceTree = "<group>";
@@ -2446,6 +2471,7 @@
 				84F4A9172550331D000CF0A3 /* ExportOption.swift */,
 				847C9658255362F7002D288F /* RestoreJson.swift */,
 				84113B6B255B2835009BD21A /* AccountCreateError.swift */,
+				2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2570,6 +2596,7 @@
 				84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */,
 				84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */,
 				84CE69E72566750D00559427 /* ByteLengthProcessor.swift */,
+				2A84E87725D425750006FE9C /* AlertControllerFactory.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -2770,6 +2797,7 @@
 				843910C2253F39B100E3C217 /* WalletNetworkFacade+Storage.swift */,
 				84FD3DB22540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift */,
 				84FAB0662542D06B00319F74 /* WalletContactOperationFactory.swift */,
+				2AD0A19425D3D3EC00312428 /* GitHubOperationFactory.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -2890,6 +2918,7 @@
 				8460E12A2542357300826F55 /* WalletExtrinsicOpenCommand.swift */,
 				84CE69912565244700559427 /* WalletAccountOpenCommand.swift */,
 				8436EDDB25893FA0004D9E97 /* WalletBuyCommand.swift */,
+				2AD0A16925D3854700312428 /* TransferConfirmCommandProxy.swift */,
 			);
 			path = Commands;
 			sourceTree = "<group>";
@@ -3857,6 +3886,7 @@
 				84FAB076254378FC00319F74 /* ContactsListViewModelFactory.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				8438E1DE24C18FAD001BDB13 /* ExtrinsicV27.swift in Sources */,
+				2AD0A19525D3D3EC00312428 /* GitHubOperationFactory.swift in Sources */,
 				842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */,
 				84EBC55024F660A700459D15 /* EventCenter.swift in Sources */,
 				849014CB24AA8B75008F705E /* RootControllerAnimationCoordinator.swift in Sources */,
@@ -3864,6 +3894,7 @@
 				8428766924ADF27D00D91AD8 /* AuthorizationPresentable.swift in Sources */,
 				84563D0524F466470055591D /* ManagedAccountItem.swift in Sources */,
 				84364D55252FAD7100281F9A /* AssetDetailsConfigurator.swift in Sources */,
+				2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
 				843910D6253F8DAD00E3C217 /* NetworkAvailabilityLayerProtocols.swift in Sources */,
 				8468B87624F63D5900B76BC6 /* AddImportedWireframe.swift in Sources */,
@@ -3947,9 +3978,11 @@
 				8490152724ABCC40008F705E /* NumberFormatter.swift in Sources */,
 				846A2C4325271CDE00731018 /* TransactionType.swift in Sources */,
 				84893C0124DA861D008F6A3F /* AccountCreationMetadata.swift in Sources */,
+				2A84E87825D425750006FE9C /* AlertControllerFactory.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
 				849E0D1025D01E4800B33506 /* ExtrinsicPayload.swift in Sources */,
 				84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */,
+				2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
 				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				8419377F25441D5E00CFA50C /* ReceiveHeaderView.swift in Sources */,
@@ -3965,6 +3998,7 @@
 				84265E002523C410005EEE2D /* TransferDefinitionFactory.swift in Sources */,
 				8428766B24ADF51D00D91AD8 /* UIViewController+Modal.swift in Sources */,
 				8494D85E25246E9A00614D8F /* WalletTokenViewModel.swift in Sources */,
+				2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */,
 				843910D9253F8DFB00E3C217 /* StatusPresentable.swift in Sources */,
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
@@ -4040,6 +4074,7 @@
 				849013DB24A927E2008F705E /* Logger.swift in Sources */,
 				84C6800E24D6ECE800006BF5 /* ExpandableActionControl.swift in Sources */,
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
+				2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */,
 				84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */,
 				842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */,
 				849E0CF825D01B9200B33506 /* Extrinsic.swift in Sources */,
@@ -4253,6 +4288,7 @@
 				84CD357525264FA30081BC0B /* WalletAccountListConstants.swift in Sources */,
 				84265E062523D7BE005EEE2D /* WalletInputAmountView.swift in Sources */,
 				612FCA358D3DD9405477C445 /* AddConnectionWireframe.swift in Sources */,
+				2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */,
 				8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */,
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
