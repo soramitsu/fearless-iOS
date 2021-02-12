@@ -61,14 +61,15 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
     -> [WalletViewModelProtocol] {
         items.compactMap {
             itemViewModelFactory.createContactViewModelFromContact($0,
-                                                                   accountId: parameters.accountId,
-                                                                   assetId: parameters.assetId,
+                                                                   parameters: parameters,
+                                                                   locale: locale,
                                                                    delegate: delegate,
                                                                    commandFactory: commandFactory)
         }
     }
 
     func createBarActionForAccountId(_ parameters: ContactModuleParameters,
+                                     locale: Locale,
                                      commandFactory: WalletCommandFactoryProtocol)
     -> WalletBarActionViewModelProtocol? {
         guard let icon = R.image.iconScanQr() else {
