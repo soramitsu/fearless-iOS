@@ -52,7 +52,10 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                      children: children,
                                                      logger: Logger.shared)
 
-        return [container, stakingSubscription]
+        let runtimeSubscription = createRuntimeVersionSubscription(engine: engine,
+                                                                   networkType: type)
+
+        return [container, stakingSubscription, runtimeSubscription]
     }
 
     private func createAccountInfoSubscription(transferSubscription: TransferSubscription,
@@ -167,5 +170,20 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                     operationManager: OperationManagerFacade.sharedManager,
                                     eventCenter: EventCenter.shared,
                                     logger: Logger.shared)
+    }
+
+    private func createRuntimeVersionSubscription(engine: JSONRPCEngine,
+                                                  networkType: SNAddressType)
+    -> RuntimeVersionSubscription {
+        let storageFacade = SubstrateDataStorageFacade.shared
+
+        let storage: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
+            storageFacade.createRepository()
+
+        return RuntimeVersionSubscription(chain: networkType.chain,
+                                          storage: AnyDataProviderRepository(storage),
+                                          engine: engine,
+                                          operationManager: OperationManagerFacade.sharedManager,
+                                          logger: Logger.shared)
     }
 }
