@@ -15,11 +15,13 @@ class GitHubPhishingServiceFactory: GitHubPhishingServiceFactoryProtocol {
         let url = config.phishingListURL
 
         let networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
+        let operationManager = OperationManagerFacade.sharedManager
 
         let gitHubPhishingService: ApplicationServiceProtocol =
             GitHubPhishingAPIService(operation: networkOperation,
                                      logger: logger,
-                                     storage: storage)
+                                     storage: storage,
+                                     operationManager: operationManager)
 
         return gitHubPhishingService
     }

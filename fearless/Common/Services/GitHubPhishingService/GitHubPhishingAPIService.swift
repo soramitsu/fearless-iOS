@@ -5,13 +5,16 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     private var operation: BaseOperation<[PhishingItem]>
     private var logger: LoggerProtocol
     private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    private var operationManager: OperationManagerProtocol
 
     init(operation: BaseOperation<[PhishingItem]>,
          logger: LoggerProtocol,
-         storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
+         storage: CoreDataRepository<PhishingItem, CDPhishingItem>,
+         operationManager: OperationManagerProtocol) {
         self.operation = operation
         self.logger = logger
         self.storage = storage
+        self.operationManager = operationManager
     }
 
     enum State {
@@ -52,11 +55,11 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
             do {
                 if let phishingItems = try operation.extractResultData() {
                     let deleteOperation = storage.deleteAllOperation()
-                    OperationManagerFacade.sharedManager.enqueue(operations: [deleteOperation], in: .sync)
+                    operationManager.enqueue(operations: [deleteOperation], in: .sync)
 
                     for phishingItem in phishingItems {
                         let saveOperation = storage.saveOperation({ [phishingItem] }, { [] })
-                        OperationManagerFacade.sharedManager.enqueue(operations: [saveOperation], in: .sync)
+                        operationManager.enqueue(operations: [saveOperation], in: .sync)
                     }
                 }
             } catch {
