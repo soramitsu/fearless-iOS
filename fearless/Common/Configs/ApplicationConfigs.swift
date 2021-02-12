@@ -15,6 +15,7 @@ protocol ApplicationConfigProtocol {
     var logoUrl: URL { get }
     var purchaseAppName: String { get }
     var purchaseRedirect: URL { get }
+    var phishingListURL: URL { get }
 }
 
 final class ApplicationConfig {
@@ -50,7 +51,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         URL(string: "https://t.me/fearlesswallet")!
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     var version: String {
         let bundle = Bundle(for: ApplicationConfig.self)
 
@@ -59,25 +60,25 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
         return "\(mainVersion).\(buildNumber)"
     }
-    //swiftlint:enable force_cast
+    // swiftlint:enable force_cast
 
     var opensourceURL: URL {
         URL(string: "https://github.com/soramitsu/fearless-iOS")!
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     var appName: String {
         let bundle = Bundle(for: ApplicationConfig.self)
         return bundle.infoDictionary?["CFBundleDisplayName"] as! String
     }
-    //swiftlint:enable force_cast
+    // swiftlint:enable force_cast
 
-    //swiftlint:disable line_length
+    // swiftlint:disable line_length
     var logoUrl: URL {
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
-    //swiftlint:enable line_length
+    // swiftlint:enable line_length
 
     var purchaseAppName: String {
         return "Fearless Wallet"
@@ -85,5 +86,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var purchaseRedirect: URL {
         return URL(string: "fearless://fearless.io/redirect")!
+    }
+
+    var phishingListURL: URL {
+        return URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 }

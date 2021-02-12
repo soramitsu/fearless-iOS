@@ -2,7 +2,13 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 
-final class TransferConfirmCommand: WalletCommandDecoratorProtocol {
+protocol WalletCommandDecoratorDelegateProtocol {
+    var payload: ConfirmationPayload { get }
+    var localizationManager: LocalizationManagerProtocol { get }
+    var commandFactory: WalletCommandFactoryProtocol? { get set }
+}
+
+final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletCommandDecoratorDelegateProtocol {
     var undelyingCommand: WalletCommandProtocol?
 
     let payload: ConfirmationPayload

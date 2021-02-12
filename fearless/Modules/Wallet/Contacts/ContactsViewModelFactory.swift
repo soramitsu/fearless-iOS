@@ -27,7 +27,8 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                                     accountId: contact.accountId,
                                     image: icon,
                                     name: contact.firstName,
-                                    delegate: delegate)
+                                    delegate: delegate,
+                                    commandFactory: commandFactory)
         } catch {
             return nil
         }
