@@ -17,27 +17,32 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
         }
 
         let resultFactory = AnyNetworkResultFactory<[PhishingItem]> { data in
+            guard let json =
+                    try JSONSerialization.jsonObject(with: data,
+                                                     options: [.mutableContainers]) as? [String: AnyObject]
+            else {
+                return []
+            }
+
             var phishingItems: [PhishingItem] = []
 
-            if let json = try JSONSerialization.jsonObject(with: data,
-                                                           options: [.mutableContainers]) as? [String: AnyObject] {
-                for (key, value) in json {
-                    if let addresses = value as? [String] {
-                        for address in addresses {
-                            do {
-                                let typeRawValue = try SS58AddressFactory().type(fromAddress: address)
+            let addressFactory = SS58AddressFactory()
+            for (key, value) in json {
+                if let addresses = value as? [String] {
+                    for address in addresses {
+                        do {
+                            let typeRawValue = try addressFactory.type(fromAddress: address)
 
-                                guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
-                                    continue
-                                }
-
-                                let accountId = try SS58AddressFactory().accountId(fromAddress: address,
-                                                                                   type: addressType)
-
-                                let item = PhishingItem(source: key,
-                                                        publicKey: accountId.toHex())
-                                phishingItems.append(item)
+                            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
+                                continue
                             }
+
+                            let accountId = try addressFactory.accountId(fromAddress: address,
+                                                                         type: addressType)
+
+                            let item = PhishingItem(source: key,
+                                                    publicKey: accountId.toHex())
+                            phishingItems.append(item)
                         }
                     }
                 }
