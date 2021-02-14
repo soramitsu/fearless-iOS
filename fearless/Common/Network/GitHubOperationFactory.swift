@@ -24,6 +24,8 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
                 return []
             }
 
+            print(json.compactMap { ($0, $1) })
+            print(json.compactMap { $1 })
             var phishingItems: [PhishingItem] = []
 
             let addressFactory = SS58AddressFactory()
