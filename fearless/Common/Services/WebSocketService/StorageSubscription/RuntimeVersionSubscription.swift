@@ -131,7 +131,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             _ = try RuntimeMetadata(scaleDecoder: decoder)
 
             let item = RuntimeMetadataItem(chain: self.chain.genesisHash,
-                                           version: Int64(runtimeVersion.specVersion),
+                                           version: runtimeVersion.specVersion,
                                            metadata: rawMetadata)
 
             return [item]

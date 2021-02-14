@@ -7,7 +7,7 @@ extension CDRuntimeMetadataItem: CoreDataCodable {
         let item = try RuntimeMetadataItem(from: decoder)
 
         identifier = item.chain
-        version = item.version
+        version = Int32(bitPattern: item.version)
         metadata = item.metadata
     }
 
@@ -16,6 +16,6 @@ extension CDRuntimeMetadataItem: CoreDataCodable {
 
         try container.encode(identifier, forKey: .chain)
         try container.encode(metadata, forKey: .metadata)
-        try container.encode(version, forKey: .version)
+        try container.encode(UInt32(bitPattern: version), forKey: .version)
     }
 }

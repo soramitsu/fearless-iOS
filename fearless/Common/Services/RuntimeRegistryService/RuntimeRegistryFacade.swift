@@ -1,0 +1,29 @@
+import Foundation
+import RobinHood
+import SoraKeystore
+
+final class RuntimeRegistryFacade {
+    static let sharedService: RuntimeRegistryServiceProtocol = {
+        let chain = SettingsManager.shared.selectedConnection.type.chain
+        let storageFacade = SubstrateDataStorageFacade.shared
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                           operationManager: operationManager)
+        let logger = Logger.shared
+
+        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
+            FileManager.default.temporaryDirectory
+        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
+        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
+                                                          directoryPath: runtimeDirectory)
+
+        return RuntimeRegistryService(chain: chain,
+                                      metadataProviderFactory: providerFactory,
+                                      dataOperationFactory: DataOperationFactory(),
+                                      filesOperationFacade: filesRepository,
+                                      operationManager: operationManager,
+                                      eventCenter: EventCenter.shared,
+                                      logger: Logger.shared)
+    }()
+}

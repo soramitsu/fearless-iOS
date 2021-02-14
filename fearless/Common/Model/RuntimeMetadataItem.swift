@@ -9,7 +9,7 @@ struct RuntimeMetadataItem: Codable & Equatable {
     }
 
     let chain: String
-    let version: Int64
+    let version: UInt32
     let metadata: Data
 }
 

@@ -175,12 +175,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     private func createRuntimeVersionSubscription(engine: JSONRPCEngine,
                                                   networkType: SNAddressType)
     -> RuntimeVersionSubscription {
+        let chain = networkType.chain
         let storageFacade = SubstrateDataStorageFacade.shared
 
+        let filter = NSPredicate.filterRuntimeMetadataItemsBy(identifier: chain.genesisHash)
         let storage: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
-            storageFacade.createRepository()
+            storageFacade.createRepository(filter: filter)
 
-        return RuntimeVersionSubscription(chain: networkType.chain,
+        return RuntimeVersionSubscription(chain: chain,
                                           storage: AnyDataProviderRepository(storage),
                                           engine: engine,
                                           operationManager: OperationManagerFacade.sharedManager,

@@ -594,6 +594,11 @@
 		84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54724F660A700459D15 /* EventProtocols.swift */; };
 		84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC55A24F660F500459D15 /* SelectedAccountChanged.swift */; };
 		84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */; };
+		84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */; };
+		84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */; };
+		84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */; };
+		84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */; };
+		84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4387425D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift */; };
 		84F4A90A254CC863000CF0A3 /* KeystoreExportWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */; };
 		84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */; };
 		84F4A9182550331D000CF0A3 /* ExportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A9172550331D000CF0A3 /* ExportOption.swift */; };
@@ -1301,6 +1306,11 @@
 		84EBC54724F660A700459D15 /* EventProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EventProtocols.swift; sourceTree = "<group>"; };
 		84EBC55A24F660F500459D15 /* SelectedAccountChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedAccountChanged.swift; sourceTree = "<group>"; };
 		84EBC55E24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableViewCell+ReorderColor.swift"; sourceTree = "<group>"; };
+		84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Time.swift"; sourceTree = "<group>"; };
+		84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeRegistryPrepared.swift; sourceTree = "<group>"; };
+		84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeRegistryFacade.swift; sourceTree = "<group>"; };
+		84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStreamableSource.swift; sourceTree = "<group>"; };
+		84F4387425D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateDataProviderFactory.swift; sourceTree = "<group>"; };
 		84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapper.swift; sourceTree = "<group>"; };
 		84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapperTests.swift; sourceTree = "<group>"; };
 		84F4A9172550331D000CF0A3 /* ExportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOption.swift; sourceTree = "<group>"; };
@@ -2062,6 +2072,7 @@
 				84452F4D25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift */,
 				84452F5225D5BD2A00F47EC5 /* RuntimeRegistryService.swift */,
 				84452F6125D5D5AC00F47EC5 /* RuntimeFilesOperationFacade.swift */,
+				84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */,
 			);
 			path = RuntimeRegistryService;
 			sourceTree = "<group>";
@@ -2672,6 +2683,8 @@
 				84CE69E72566750D00559427 /* ByteLengthProcessor.swift */,
 				2A84E87725D425750006FE9C /* AlertControllerFactory.swift */,
 				84452F5725D5C30600F47EC5 /* FilesRepository.swift */,
+				84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */,
+				84F4387425D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift */,
 			);
 			path = Helpers;
 			sourceTree = "<group>";
@@ -2688,6 +2701,7 @@
 				8494D86A25247F9600614D8F /* Decimal+String.swift */,
 				846A2C4425271F0100731018 /* DateFormatter.swift */,
 				846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */,
+				84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3255,6 +3269,7 @@
 				84FD3DBA254104B600A234E3 /* WalletNewTransactionInserted.swift */,
 				84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */,
 				8488ECDE258CE118004591CC /* PurchaseCompleted.swift */,
+				84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */,
 			);
 			path = Events;
 			sourceTree = "<group>";
@@ -4201,6 +4216,7 @@
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
 				847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */,
 				8468B86E24F63D1400B76BC6 /* AddMainWireframe.swift in Sources */,
+				84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */,
 				8475AE0C258ACA8800B058F3 /* BaseAssetViewModelFactory.swift in Sources */,
 				843910BF253F354900E3C217 /* ActiveEraSubscription.swift in Sources */,
 				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
@@ -4217,6 +4233,7 @@
 				84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */,
 				8494D8742525331B00614D8F /* PriceInfo.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
+				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
@@ -4247,6 +4264,7 @@
 				843910C3253F39B100E3C217 /* WalletNetworkFacade+Storage.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
+				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
@@ -4267,6 +4285,7 @@
 				84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */,
 				847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */,
 				84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */,
+				84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */,
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
 				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
@@ -4278,6 +4297,7 @@
 				8419378125442FEE00CFA50C /* WalletQRCoderFactory.swift in Sources */,
 				849E0CEA25D01B5E00B33506 /* BaseExtrinsic.swift in Sources */,
 				84D8F15B24D8136700AF43E9 /* ModalPickerCellProtocol.swift in Sources */,
+				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
 				84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */,
 				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
