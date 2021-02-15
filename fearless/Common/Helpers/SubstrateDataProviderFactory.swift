@@ -8,10 +8,14 @@ protocol SubstrateDataProviderFactoryProtocol {
 final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
     let facade: StorageFacadeProtocol
     let operationManager: OperationManagerProtocol
+    let logger: LoggerProtocol
 
-    init(facade: StorageFacadeProtocol, operationManager: OperationManagerProtocol) {
+    init(facade: StorageFacadeProtocol,
+         operationManager: OperationManagerProtocol,
+         logger: LoggerProtocol) {
         self.facade = facade
         self.operationManager = operationManager
+        self.logger = logger
     }
 
     func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem> {
@@ -24,6 +28,12 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
         let observable = CoreDataContextObservable(service: facade.databaseService,
                                                    mapper: AnyCoreDataMapper(storage.dataMapper),
                                                    predicate: { $0.identifier == identifier })
+
+        observable.start { error in
+            if let error = error {
+                self.logger.error("Can't start storage observing: \(error)")
+            }
+        }
 
         let operationManager = OperationManagerFacade.sharedManager
 

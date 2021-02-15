@@ -599,6 +599,13 @@
 		84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */; };
 		84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */; };
 		84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4387425D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift */; };
+		84F4387A25D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4387925D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift */; };
+		84F4387F25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4387E25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift */; };
+		84F4388525DA4F2A00AEDA56 /* NetworkMockManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4388425DA4F2A00AEDA56 /* NetworkMockManager.swift */; };
+		84F4388D25DA4F4A00AEDA56 /* TypeDefFileMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4388C25DA4F4A00AEDA56 /* TypeDefFileMock.swift */; };
+		84F4389225DA505300AEDA56 /* NetworkBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4389125DA505300AEDA56 /* NetworkBaseTests.swift */; };
+		84F438B225DA548700AEDA56 /* runtimeTestMetadata in Resources */ = {isa = PBXBuildFile; fileRef = 84F438B125DA548700AEDA56 /* runtimeTestMetadata */; };
+		84F438BA25DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */; };
 		84F4A90A254CC863000CF0A3 /* KeystoreExportWrapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */; };
 		84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */; };
 		84F4A9182550331D000CF0A3 /* ExportOption.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4A9172550331D000CF0A3 /* ExportOption.swift */; };
@@ -1311,6 +1318,13 @@
 		84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeRegistryFacade.swift; sourceTree = "<group>"; };
 		84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyStreamableSource.swift; sourceTree = "<group>"; };
 		84F4387425D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateDataProviderFactory.swift; sourceTree = "<group>"; };
+		84F4387925D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeRegistryServiceTests.swift; sourceTree = "<group>"; };
+		84F4387E25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateStorageTestFacade.swift; sourceTree = "<group>"; };
+		84F4388425DA4F2A00AEDA56 /* NetworkMockManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkMockManager.swift; sourceTree = "<group>"; };
+		84F4388C25DA4F4A00AEDA56 /* TypeDefFileMock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeDefFileMock.swift; sourceTree = "<group>"; };
+		84F4389125DA505300AEDA56 /* NetworkBaseTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NetworkBaseTests.swift; sourceTree = "<group>"; };
+		84F438B125DA548700AEDA56 /* runtimeTestMetadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = runtimeTestMetadata; sourceTree = "<group>"; };
+		84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeMetadataCreationHelper.swift; sourceTree = "<group>"; };
 		84F4A909254CC863000CF0A3 /* KeystoreExportWrapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapper.swift; sourceTree = "<group>"; };
 		84F4A90F255001D2000CF0A3 /* KeystoreExportWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeystoreExportWrapperTests.swift; sourceTree = "<group>"; };
 		84F4A9172550331D000CF0A3 /* ExportOption.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportOption.swift; sourceTree = "<group>"; };
@@ -1934,6 +1948,7 @@
 		842D1E8A24D208AF00C30A7A /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
+				84F4388325DA4F2A00AEDA56 /* Network */,
 				8400F0B9252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift */,
 				842D1E8C24D2091A00C30A7A /* CommonMocks.swift */,
 				842D1E8B24D2091A00C30A7A /* ModuleMocks.swift */,
@@ -2100,6 +2115,7 @@
 			isa = PBXGroup;
 			children = (
 				84452F8925D5E6F600F47EC5 /* RuntimeFilesOperationFacadeTests.swift */,
+				84F4387925D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift */,
 			);
 			path = RuntimeRegistryService;
 			sourceTree = "<group>";
@@ -2189,6 +2205,8 @@
 			children = (
 				8467FD3824EACE08005D486C /* AccountCreationHelper.swift */,
 				8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */,
+				84F4387E25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift */,
+				84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -3274,6 +3292,25 @@
 			path = Events;
 			sourceTree = "<group>";
 		};
+		84F4388325DA4F2A00AEDA56 /* Network */ = {
+			isa = PBXGroup;
+			children = (
+				84F438B025DA548700AEDA56 /* Resources */,
+				84F4389125DA505300AEDA56 /* NetworkBaseTests.swift */,
+				84F4388425DA4F2A00AEDA56 /* NetworkMockManager.swift */,
+				84F4388C25DA4F4A00AEDA56 /* TypeDefFileMock.swift */,
+			);
+			path = Network;
+			sourceTree = "<group>";
+		};
+		84F438B025DA548700AEDA56 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				84F438B125DA548700AEDA56 /* runtimeTestMetadata */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
 		84F4A90E25500119000CF0A3 /* Helpers */ = {
 			isa = PBXGroup;
 			children = (
@@ -3661,6 +3698,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8467FD0624E5E0A5005D486C /* invalidKeystore.json in Resources */,
+				84F438B225DA548700AEDA56 /* runtimeTestMetadata in Resources */,
 				8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */,
 				8467FD0A24E5E258005D486C /* validSrKeystore.json in Resources */,
 				8467FD3E24EAD66F005D486C /* validEd25519Keystore.json in Resources */,
@@ -4455,6 +4493,7 @@
 				842D1E9324D20CC800C30A7A /* OnboardingMainTests.swift in Sources */,
 				842D1E8124D0BEF400C30A7A /* RTests.swift in Sources */,
 				84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */,
+				84F4387A25D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift in Sources */,
 				84DA3B1024C5CA0200B5E27F /* ScaleExtrinsicTests.swift in Sources */,
 				84F4A93725504E6E000CF0A3 /* AccountInfoExportTests.swift in Sources */,
 				84CE69ED25667A5600559427 /* ByteLengthEncodingTests.swift in Sources */,
@@ -4463,6 +4502,7 @@
 				093C10C88C0A209158EA75D1 /* UsernameSetupTests.swift in Sources */,
 				8467FD3B24EAD236005D486C /* SigningWrapperTests.swift in Sources */,
 				84893BFC24D9B0F1008F6A3F /* PredicateTests.swift in Sources */,
+				84F438BA25DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift in Sources */,
 				842D1E8D24D2091A00C30A7A /* ModuleMocks.swift in Sources */,
 				842D1E9024D20B1500C30A7A /* Constants.swift in Sources */,
 				8467FD0D24E5E585005D486C /* KeystoreImportTests.swift in Sources */,
@@ -4471,9 +4511,12 @@
 				A76B05966CE772DD4B822A3C /* AccountCreateTests.swift in Sources */,
 				8467FD4C24EEA081005D486C /* ProfileTests.swift in Sources */,
 				8432E55124EFDF6100B05B58 /* AccountItemMapperTests.swift in Sources */,
+				84F4388525DA4F2A00AEDA56 /* NetworkMockManager.swift in Sources */,
+				84F4389225DA505300AEDA56 /* NetworkBaseTests.swift in Sources */,
 				84452F8A25D5E6F600F47EC5 /* RuntimeFilesOperationFacadeTests.swift in Sources */,
 				3F312DAAA6ACF1C9DEC4C079 /* AccountImportTests.swift in Sources */,
 				8467FD5C24EFDCC9005D486C /* UserDataStorageTestFacade.swift in Sources */,
+				84F4387F25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift in Sources */,
 				8434C9EA2540AE51009E4191 /* ExtrinsicEraTests.swift in Sources */,
 				846A2C54252A0FDF00731018 /* FilterTests.swift in Sources */,
 				CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */,
@@ -4483,6 +4526,7 @@
 				84155DF3253A1DBA00A27058 /* SchedulerTests.swift in Sources */,
 				91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */,
 				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
+				84F4388D25DA4F4A00AEDA56 /* TypeDefFileMock.swift in Sources */,
 				8400F0BA252BBD2200E6B4CB /* WalletCommandFactoryProtocolMock.swift in Sources */,
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,

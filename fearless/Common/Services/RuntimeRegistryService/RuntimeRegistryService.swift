@@ -205,6 +205,8 @@ final class RuntimeRegistryService {
             logger.debug("Did complete loading snapshot version: \(snapshot.version)")
             self.snapshot = snapshot
 
+            notifyPendingClosures(with: snapshot)
+
             if shouldSyncFiles {
                 syncTypeFiles()
             }

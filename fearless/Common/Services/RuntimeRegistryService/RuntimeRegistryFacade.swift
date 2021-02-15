@@ -8,9 +8,10 @@ final class RuntimeRegistryFacade {
         let storageFacade = SubstrateDataStorageFacade.shared
         let operationManager = OperationManagerFacade.sharedManager
 
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager)
         let logger = Logger.shared
+        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                           operationManager: operationManager,
+                                                           logger: logger)
 
         let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
             FileManager.default.temporaryDirectory
