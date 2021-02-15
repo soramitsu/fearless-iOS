@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
-    private var networkOperation: BaseOperation<[PhishingItem]>?
+    private var networkOperation: BaseOperation<[PhishingItem]>! = nil
     private var operationFactory: GitHubOperationFactoryProtocol
     private var operationManager: OperationManagerProtocol
     private var url: URL
@@ -51,30 +51,22 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func clearConnection() {
-        guard let operation = networkOperation else { return }
-        operation.cancel()
+        networkOperation.cancel()
     }
 
     private func setupConnection() {
         networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
-        guard let operation = networkOperation else { return }
-
-        operation.completionBlock = { [self] in
+        networkOperation.completionBlock = { [self] in
             do {
-                if let phishingItems = try operation.extractResultData() {
-                    let deleteOperation = storage.deleteAllOperation()
-                    operationManager.enqueue(operations: [deleteOperation], in: .sync)
-
-                    for phishingItem in phishingItems {
-                        let saveOperation = storage.saveOperation({ [phishingItem] }, { [] })
-                        operationManager.enqueue(operations: [saveOperation], in: .sync)
-                    }
+                if let phishingItems = try networkOperation.extractResultData() {
+                    let replaceOperation = storage.replaceOperation({ phishingItems })
+                    operationManager.enqueue(operations: [replaceOperation], in: .sync)
                 }
             } catch {
                 self.logger.error("Request unsuccessful")
             }
         }
 
-        OperationManagerFacade.sharedManager.enqueue(operations: [operation], in: .sync)
+        OperationManagerFacade.sharedManager.enqueue(operations: [networkOperation], in: .sync)
     }
 }
