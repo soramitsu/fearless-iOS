@@ -342,10 +342,10 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        let moduleKeyHash = "Staking".data(using: .utf8)!.xxh128()
-        let serviceKeyHash = "ActiveEra".data(using: .utf8)!.xxh128()
-
-        let key = (moduleKeyHash + serviceKeyHash).toHex(includePrefix: true)
+        let storageFactory = StorageKeyFactory()
+        let key = try! storageFactory
+            .createStorageKey(moduleName: "Staking", storageName: "ActiveEra")
+            .toHex(includePrefix: true)
 
         let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
                                                                          method: RPCMethod.getStorage,
