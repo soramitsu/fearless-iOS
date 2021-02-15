@@ -23,7 +23,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
                                               webSocketService: webSocketService,
-                                              gitHubPhishingAPIService: gitHubPhishingAPIService)
+                                              gitHubPhishingAPIService: gitHubPhishingAPIService,
                                               runtimeService: RuntimeRegistryFacade.sharedService,
                                               keystoreImportService: keystoreImportService)
 
