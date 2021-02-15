@@ -82,7 +82,7 @@ extension Chain {
         }
     }
 
-    //swiftlint:disable line_length
+    // swiftlint:disable line_length
     func typeDefDefaultFileURL() -> URL? {
         URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")
     }
@@ -99,5 +99,5 @@ extension Chain {
             return base?.appendingPathComponent("polkadot.json")
         }
     }
-    //swiftlint:enable line_length
+    // swiftlint:enable line_length
 }

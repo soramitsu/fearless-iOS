@@ -116,6 +116,10 @@ extension DetailsTriangularedView {
 
     @IBInspectable
     private var _titleFontName: String? {
+        get {
+            return titleLabel.font.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
                 titleLabel.font = nil
@@ -128,14 +132,14 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            return titleLabel.font.fontName
-        }
     }
 
     @IBInspectable
     private var _titleFontSize: CGFloat {
+        get {
+            titleLabel.font.pointSize
+        }
+
         set(newValue) {
             let fontName = titleLabel.font.fontName
 
@@ -143,14 +147,14 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            titleLabel.font.pointSize
-        }
     }
 
     @IBInspectable
     private var _subtitleFontName: String? {
+        get {
+            return titleLabel.font.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
                 titleLabel.font = nil
@@ -163,14 +167,14 @@ extension DetailsTriangularedView {
 
             setNeedsLayout()
         }
-
-        get {
-            return titleLabel.font.fontName
-        }
     }
 
     @IBInspectable
     private var _subtitleFontSize: CGFloat {
+        get {
+            subtitleLabel?.font.pointSize ?? 0.0
+        }
+
         set(newValue) {
             guard let fontName = subtitleLabel?.font.fontName else {
                 return
@@ -179,10 +183,6 @@ extension DetailsTriangularedView {
             subtitleLabel?.font = UIFont(name: fontName, size: newValue)
 
             setNeedsLayout()
-        }
-
-        get {
-            subtitleLabel?.font.pointSize ?? 0.0
         }
     }
 

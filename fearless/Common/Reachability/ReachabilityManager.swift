@@ -33,13 +33,13 @@ final class ReachabilityManager {
 
         reachability = newReachability
 
-        reachability.whenReachable = { [weak self] (reachability) in
+        reachability.whenReachable = { [weak self] _ in
             if let strongSelf = self {
                 self?.listeners.forEach { $0.listener?.didChangeReachability(by: strongSelf) }
             }
         }
 
-        reachability.whenUnreachable = { [weak self] (reachability) in
+        reachability.whenUnreachable = { [weak self] _ in
             if let strongSelf = self {
                 self?.listeners.forEach { $0.listener?.didChangeReachability(by: strongSelf) }
             }

@@ -37,8 +37,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
     private func subscribe() {
         do {
 
-            let updateClosure: (JSONRPCSubscriptionUpdate<RuntimeVersion>) -> Void = {
-                [weak self] (update) in
+            let updateClosure: (RuntimeVersionUpdate) -> Void = { [weak self] (update) in
                 let runtimeVersion = update.params.result
                 self?.logger.debug("Did receive spec version: \(runtimeVersion.specVersion)")
                 self?.logger.debug("Did receive tx version: \(runtimeVersion.transactionVersion)")
