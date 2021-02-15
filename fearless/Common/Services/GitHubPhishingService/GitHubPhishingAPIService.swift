@@ -2,19 +2,23 @@ import Foundation
 import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
-    private var operation: BaseOperation<[PhishingItem]>
-    private var logger: LoggerProtocol
-    private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    private var networkOperation: BaseOperation<[PhishingItem]>?
+    private var operationFactory: GitHubOperationFactoryProtocol
     private var operationManager: OperationManagerProtocol
+    private var url: URL
+    private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    private var logger: LoggerProtocol
 
-    init(operation: BaseOperation<[PhishingItem]>,
-         logger: LoggerProtocol,
+    init(url: URL,
+         operationFactory: GitHubOperationFactoryProtocol,
+         operationManager: OperationManagerProtocol,
          storage: CoreDataRepository<PhishingItem, CDPhishingItem>,
-         operationManager: OperationManagerProtocol) {
-        self.operation = operation
-        self.logger = logger
-        self.storage = storage
+         logger: LoggerProtocol) {
+        self.url = url
+        self.operationFactory = operationFactory
         self.operationManager = operationManager
+        self.storage = storage
+        self.logger = logger
     }
 
     enum State {
@@ -47,10 +51,14 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func clearConnection() {
+        guard let operation = networkOperation else { return }
         operation.cancel()
     }
 
     private func setupConnection() {
+        networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
+        guard let operation = networkOperation else { return }
+
         operation.completionBlock = { [self] in
             do {
                 if let phishingItems = try operation.extractResultData() {
