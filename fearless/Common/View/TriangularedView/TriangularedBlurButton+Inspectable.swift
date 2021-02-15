@@ -88,6 +88,10 @@ extension TriangularedBlurButton {
 
     @IBInspectable
     private var _titleFontName: String? {
+        get {
+            return self.imageWithTitleView!.titleFont?.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
                 self.imageWithTitleView?.titleFont = nil
@@ -103,14 +107,18 @@ extension TriangularedBlurButton {
 
             self.invalidateLayout()
         }
-
-        get {
-            return self.imageWithTitleView!.titleFont?.fontName
-        }
     }
 
     @IBInspectable
     private var _titleFontSize: CGFloat {
+        get {
+            if let pointSize = self.imageWithTitleView!.titleFont?.pointSize {
+                return pointSize
+            } else {
+                return 0.0
+            }
+        }
+
         set(newValue) {
             guard let fontName = self.imageWithTitleView!.titleFont?.fontName else {
                 self.imageWithTitleView!.titleFont = UIFont.systemFont(ofSize: newValue)
@@ -120,14 +128,6 @@ extension TriangularedBlurButton {
             self.imageWithTitleView!.titleFont = UIFont(name: fontName, size: newValue)
 
             self.invalidateLayout()
-        }
-
-        get {
-            if let pointSize = self.imageWithTitleView!.titleFont?.pointSize {
-                return pointSize
-            } else {
-                return 0.0
-            }
         }
     }
 

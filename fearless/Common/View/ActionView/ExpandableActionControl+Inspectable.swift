@@ -69,6 +69,10 @@ extension ExpandableActionControl {
 
     @IBInspectable
     private var _titleFontName: String? {
+        get {
+            return self.titleLabel.font.fontName
+        }
+
         set(newValue) {
             guard let fontName = newValue else {
                 self.titleLabel.font = nil
@@ -84,14 +88,18 @@ extension ExpandableActionControl {
 
             self.invalidateLayout()
         }
-
-        get {
-            return self.titleLabel.font.fontName
-        }
     }
 
     @IBInspectable
     private var _titleFontSize: CGFloat {
+        get {
+            if let pointSize = self.titleLabel.font?.pointSize {
+                return pointSize
+            } else {
+                return 0.0
+            }
+        }
+
         set(newValue) {
             guard let fontName = self.titleLabel.font?.fontName else {
                 self.titleLabel.font = UIFont.systemFont(ofSize: newValue)
@@ -102,52 +110,44 @@ extension ExpandableActionControl {
 
             self.invalidateLayout()
         }
-
-        get {
-            if let pointSize = self.titleLabel.font?.pointSize {
-                return pointSize
-            } else {
-                return 0.0
-            }
-        }
     }
 
     @IBInspectable
     private var _minimumFontScale: CGFloat {
+        get {
+            return titleLabel.minimumScaleFactor
+        }
+
         set(newValue) {
             titleLabel.minimumScaleFactor = newValue
             invalidateLayout()
-        }
-
-        get {
-            return titleLabel.minimumScaleFactor
         }
     }
 
     @IBInspectable
     private var _adjustsFontSizeToFitWidth: Bool {
+        get {
+            return titleLabel.adjustsFontSizeToFitWidth
+        }
+
         set(newValue) {
             titleLabel.adjustsFontSizeToFitWidth = newValue
             invalidateLayout()
-        }
-
-        get {
-            return titleLabel.adjustsFontSizeToFitWidth
         }
     }
 
     @IBInspectable
     private var _layoutType: UInt {
+        get {
+            return layoutType.rawValue
+        }
+
         set(newValue) {
             guard let newType = LayoutType(rawValue: newValue) else {
                 return
             }
 
             layoutType = newType
-        }
-
-        get {
-            return layoutType.rawValue
         }
     }
 
