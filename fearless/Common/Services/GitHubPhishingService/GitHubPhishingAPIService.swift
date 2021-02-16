@@ -55,18 +55,20 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func setupConnection() {
+
         networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
-        networkOperation.completionBlock = { [self] in
-            do {
-                if let phishingItems = try networkOperation.extractResultData() {
-                    let replaceOperation = storage.replaceOperation({ phishingItems })
-                    operationManager.enqueue(operations: [replaceOperation], in: .sync)
-                }
-            } catch {
-                self.logger.error("Request unsuccessful")
-            }
+
+        let replaceOperation = storage.replaceOperation {
+            let phishingItem = try self.networkOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            return phishingItem
         }
 
-        OperationManagerFacade.sharedManager.enqueue(operations: [networkOperation], in: .sync)
+        replaceOperation.addDependency(networkOperation)
+
+        let operationWrapper = CompoundOperationWrapper(targetOperation: replaceOperation,
+                                        dependencies: [networkOperation])
+
+        OperationManagerFacade.sharedManager.enqueue(operations: operationWrapper.allOperations, in: .sync)
     }
 }

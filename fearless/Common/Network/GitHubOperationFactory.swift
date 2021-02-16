@@ -3,11 +3,11 @@ import RobinHood
 import IrohaCrypto
 
 protocol GitHubOperationFactoryProtocol {
-    func fetchPhishingListOperation(_ url: URL) -> BaseOperation<[PhishingItem]>
+    func fetchPhishingListOperation(_ url: URL) -> NetworkOperation<[PhishingItem]>
 }
 
 class GitHubOperationFactory: GitHubOperationFactoryProtocol {
-    func fetchPhishingListOperation(_ url: URL) -> BaseOperation<[PhishingItem]> {
+    func fetchPhishingListOperation(_ url: URL) -> NetworkOperation<[PhishingItem]> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
             request.setValue(HttpContentType.json.rawValue,
@@ -24,23 +24,23 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
                 return []
             }
 
-            var phishingItems: [PhishingItem] = []
-
             let addressFactory = SS58AddressFactory()
 
-            for (key, value) in json {
-                if let addresses = value as? [String] {
-                    for address in addresses {
-                        do {
-                            if let publicKey = self.getPublicKey(from: address, using: addressFactory) {
-                                let item = PhishingItem(source: key,
-                                                        publicKey: publicKey)
-                                phishingItems.append(item)
-                            }
+            let phishingItems = json.flatMap { (key, value) -> [PhishingItem] in
+                if let publicKeys = value as? [String] {
+                    let items = publicKeys.map {
+                        if let publicKey = self.getPublicKey(from: $0, using: addressFactory) {
+                            return publicKey
                         }
+                        return ""
+                    }.map {
+                        return PhishingItem(source: key, publicKey: $0)
                     }
+                    return items
                 }
+                return []
             }
+
             return phishingItems
         }
 
