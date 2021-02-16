@@ -6,7 +6,7 @@ extension UIAlertController {
     static func phishingWarningAlert(onConfirm: @escaping () -> Void,
                                      onCancel: @escaping () -> Void,
                                      locale: Locale,
-                                     publicKey paramValue: String) -> UIAlertController {
+                                     displayName paramValue: String) -> UIAlertController {
         let title = R.string.localizable
             .walletSendPhishingWarningTitle(preferredLanguages: locale.rLanguages)
 

@@ -2,9 +2,11 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 import FearlessUtils
+import RobinHood
 
 final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
     private let iconGenerator = PolkadotIconGenerator()
+    private var proxy: ContactViewModelDelegate?
 
     func createContactViewModelFromContact(_ contact: SearchData,
                                            parameters: ContactModuleParameters,
@@ -22,13 +24,23 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                                     size: CGSize(width: 24.0, height: 24.0),
                                     contentScale: UIScreen.main.scale)
 
-            return ContactViewModel(firstName: contact.firstName,
-                                    lastName: contact.lastName,
-                                    accountId: contact.accountId,
-                                    image: icon,
-                                    name: contact.firstName,
-                                    delegate: delegate,
-                                    commandFactory: commandFactory)
+            let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
+                SubstrateDataStorageFacade.shared.createRepository()
+
+            proxy = ContactsViewModelDelegateProxy(
+                callee: delegate,
+                storage: storage,
+                commandFactory: commandFactory,
+                locale: locale)
+
+            return ContactViewModel(
+                firstName: contact.firstName,
+                lastName: contact.lastName,
+                accountId: contact.accountId,
+                image: icon,
+                name: contact.firstName,
+                delegate: proxy,
+                commandFactory: commandFactory)
         } catch {
             return nil
         }

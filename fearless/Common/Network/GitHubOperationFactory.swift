@@ -24,27 +24,19 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
                 return []
             }
 
-            print(json.compactMap { ($0, $1) })
-            print(json.compactMap { $1 })
             var phishingItems: [PhishingItem] = []
 
             let addressFactory = SS58AddressFactory()
+
             for (key, value) in json {
                 if let addresses = value as? [String] {
                     for address in addresses {
                         do {
-                            let typeRawValue = try addressFactory.type(fromAddress: address)
-
-                            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
-                                continue
+                            if let publicKey = self.getPublicKey(from: address, using: addressFactory) {
+                                let item = PhishingItem(source: key,
+                                                        publicKey: publicKey)
+                                phishingItems.append(item)
                             }
-
-                            let accountId = try addressFactory.accountId(fromAddress: address,
-                                                                         type: addressType)
-
-                            let item = PhishingItem(source: key,
-                                                    publicKey: accountId.toHex())
-                            phishingItems.append(item)
                         }
                     }
                 }
@@ -55,5 +47,22 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
         let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
 
         return operation
+    }
+
+    private func getPublicKey(from address: String, using addressFactory: SS58AddressFactoryProtocol) -> String? {
+        do {
+            let typeRawValue = try addressFactory.type(fromAddress: address)
+
+            guard let addressType = SNAddressType(rawValue: typeRawValue.uint8Value) else {
+                return nil
+            }
+
+            let publicKey = try addressFactory.accountId(fromAddress: address,
+                                                         type: addressType)
+
+            return publicKey.toHex()
+        } catch {
+            return nil
+        }
     }
 }
