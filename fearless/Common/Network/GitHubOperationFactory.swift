@@ -28,11 +28,8 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
 
             let phishingItems = json.flatMap { (key, value) -> [PhishingItem] in
                 if let publicKeys = value as? [String] {
-                    let items = publicKeys.map {
-                        if let publicKey = self.getPublicKey(from: $0, using: addressFactory) {
-                            return publicKey
-                        }
-                        return ""
+                    let items = publicKeys.compactMap {
+                        self.getPublicKey(from: $0, using: addressFactory)
                     }.map {
                         return PhishingItem(source: key, publicKey: $0)
                     }
