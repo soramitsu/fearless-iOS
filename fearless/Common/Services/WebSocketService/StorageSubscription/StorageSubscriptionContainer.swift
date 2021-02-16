@@ -26,8 +26,7 @@ final class StorageSubscriptionContainer: WebSocketSubscribing {
         do {
             let storageKeys = children.map { $0.remoteStorageKey.toHex(includePrefix: true) }
 
-            let updateClosure: (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void = {
-                [weak self] (update) in
+            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] (update) in
                 self?.handleUpdate(update.params.result)
             }
 

@@ -9,6 +9,7 @@ final class MainTabBarInteractor {
     let eventCenter: EventCenterProtocol
     let settings: SettingsManagerProtocol
     let webSocketService: WebSocketServiceProtocol
+    let runtimeService: RuntimeRegistryServiceProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let gitHubPhishingAPIService: ApplicationServiceProtocol
 
@@ -22,11 +23,13 @@ final class MainTabBarInteractor {
     init(eventCenter: EventCenterProtocol,
          settings: SettingsManagerProtocol,
          webSocketService: WebSocketServiceProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol,
-         gitHubPhishingAPIService: ApplicationServiceProtocol) {
+         gitHubPhishingAPIService: ApplicationServiceProtocol,
+         runtimeService: RuntimeRegistryServiceProtocol,
+         keystoreImportService: KeystoreImportServiceProtocol) {
         self.eventCenter = eventCenter
         self.settings = settings
         self.webSocketService = webSocketService
+        self.runtimeService = runtimeService
         self.keystoreImportService = keystoreImportService
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
 
@@ -43,9 +46,11 @@ final class MainTabBarInteractor {
     private func startServices() {
         webSocketService.setup()
         gitHubPhishingAPIService.setup()
+        runtimeService.setup()
     }
 
     private func stopServices() {
+        runtimeService.throttle()
         webSocketService.throttle()
         gitHubPhishingAPIService.throttle()
     }
@@ -58,6 +63,11 @@ final class MainTabBarInteractor {
                                                 addressType: connectionItem.type,
                                                 address: account?.address)
         webSocketService.update(settings: settings)
+    }
+
+    private func updateRuntimeService() {
+        let connectionItem = settings.selectedConnection
+        runtimeService.update(to: connectionItem.type.chain)
     }
 }
 
@@ -76,6 +86,7 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         if currentAccount != settings.selectedAccount {
             updateWebSocketSettings()
+            updateRuntimeService()
             updateSelectedItems()
             presenter?.didReloadSelectedAccount()
         }
@@ -84,6 +95,7 @@ extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
         if currentConnection != settings.selectedConnection {
             updateWebSocketSettings()
+            updateRuntimeService()
             updateSelectedItems()
             presenter?.didReloadSelectedNetwork()
         }

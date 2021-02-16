@@ -54,8 +54,7 @@ final class StakingInfoSubscription: WebSocketSubscribing {
                 .stakingInfoForControllerId(controllerId)
                 .toHex(includePrefix: true)
 
-            let updateClosure: (JSONRPCSubscriptionUpdate<StorageUpdate>) -> Void = {
-                [weak self] (update) in
+            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] (update) in
                 self?.handleUpdate(update.params.result)
             }
 

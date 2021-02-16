@@ -26,4 +26,8 @@ extension NSPredicate {
     static func filterContactsByTarget(address: String) -> NSPredicate {
         return NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
     }
+
+    static func filterRuntimeMetadataItemsBy(identifier: String) -> NSPredicate {
+        return NSPredicate(format: "%K == %@", #keyPath(CDRuntimeMetadataItem.identifier), identifier)
+    }
 }

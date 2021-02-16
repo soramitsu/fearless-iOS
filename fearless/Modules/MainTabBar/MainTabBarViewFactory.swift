@@ -23,8 +23,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
                                               webSocketService: webSocketService,
-                                              keystoreImportService: keystoreImportService,
-                                              gitHubPhishingAPIService: gitHubPhishingAPIService)
+                                              gitHubPhishingAPIService: gitHubPhishingAPIService,
+                                              runtimeService: RuntimeRegistryFacade.sharedService,
+                                              keystoreImportService: keystoreImportService)
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),

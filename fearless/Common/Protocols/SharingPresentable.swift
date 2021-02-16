@@ -25,7 +25,7 @@ extension SharingPresentable {
                                                           applicationActivities: nil)
 
         if let handler = completionHandler {
-            activityController.completionWithItemsHandler = { (alertType, completed, returnedItems, error) in
+            activityController.completionWithItemsHandler = { (_, completed, _, _) in
                 handler(completed)
             }
         }

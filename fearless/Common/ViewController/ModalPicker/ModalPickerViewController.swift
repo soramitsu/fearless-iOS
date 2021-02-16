@@ -163,7 +163,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         return viewModels.count
     }
 
-    //swiftlint:disable force_cast
+    // swiftlint:disable force_cast
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         var cell = tableView.dequeueReusableCell(withIdentifier: cellIdentifier, for: indexPath) as! C
 
@@ -174,7 +174,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         return cell
     }
-    //swiftlint:enable force_cast
+    // swiftlint:enable force_cast
 
     @objc private func handleAction() {
         delegate?.modalPickerDidSelectAction(context: context)
