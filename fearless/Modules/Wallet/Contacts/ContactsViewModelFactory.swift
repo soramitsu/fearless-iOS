@@ -29,7 +29,7 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
 
             proxy = ContactsViewModelDelegateProxy(
                 callee: delegate,
-                storage: storage,
+                storage: AnyDataProviderRepository(storage),
                 commandFactory: commandFactory,
                 locale: locale)
 

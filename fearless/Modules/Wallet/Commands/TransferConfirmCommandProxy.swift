@@ -4,9 +4,9 @@ import SoraFoundation
 import RobinHood
 import CoreData
 
-final class TransferConfirmCommandProxy<T: Identifiable, U: NSManagedObject>: WalletCommandDecoratorProtocol {
+final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
     private var commandFactory: WalletCommandFactoryProtocol
-    private var storage: CoreDataRepository<T, U>
+    private var storage: AnyDataProviderRepository<PhishingItem>
     private var locale: Locale
 
     var calleeCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
@@ -21,7 +21,7 @@ final class TransferConfirmCommandProxy<T: Identifiable, U: NSManagedObject>: Wa
     init(payload: ConfirmationPayload,
          localizationManager: LocalizationManagerProtocol,
          commandFactory: WalletCommandFactoryProtocol,
-         storage: CoreDataRepository<T, U>) {
+         storage: AnyDataProviderRepository<PhishingItem>) {
         self.locale = localizationManager.selectedLocale
         self.storage = storage
         self.commandFactory = commandFactory

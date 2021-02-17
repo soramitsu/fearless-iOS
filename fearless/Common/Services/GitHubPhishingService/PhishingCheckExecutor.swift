@@ -8,15 +8,15 @@ protocol PhishingCheckExecutorProtocol {
     func checkPhishing(publicKey: String, walletAddress displayName: String)
 }
 
-class PhishingCheckExecutor<T: Identifiable, U: NSManagedObject>: PhishingCheckExecutorProtocol {
-    private var storage: CoreDataRepository<T, U>
+class PhishingCheckExecutor: PhishingCheckExecutorProtocol {
+    private var storage: AnyDataProviderRepository<PhishingItem>
     private var nextActionBlock: () -> Void
     private var cancelActionBlock: () -> Void
     private var locale: Locale
     private var commandFactory: WalletCommandFactoryProtocol?
 
     init(commandFactory: WalletCommandFactoryProtocol,
-         storage: CoreDataRepository<T, U>,
+         storage: AnyDataProviderRepository<PhishingItem>,
          nextAction nextActionBlock: @escaping () -> Void,
          cancelAction cancelActionBlock: @escaping () -> Void,
          locale: Locale) {

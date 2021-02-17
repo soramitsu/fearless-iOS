@@ -3,16 +3,16 @@ import RobinHood
 import CommonWallet
 import CoreData
 
-class ContactsViewModelDelegateProxy<T: Identifiable, U: NSManagedObject>: ContactViewModelDelegate {
+class ContactsViewModelDelegateProxy: ContactViewModelDelegate {
     private var locale: Locale
-    private var storage: CoreDataRepository<T, U>
+    private var storage: AnyDataProviderRepository<PhishingItem>
     private var commandFactory: WalletCommandFactoryProtocol
 
     private weak var callee: ContactViewModelDelegate?
     let logger = Logger.shared
 
     init(callee: ContactViewModelDelegate?,
-         storage: CoreDataRepository<T, U>,
+         storage: AnyDataProviderRepository<PhishingItem>,
          commandFactory: WalletCommandFactoryProtocol,
          locale: Locale
     ) {

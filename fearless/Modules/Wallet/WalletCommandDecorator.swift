@@ -26,6 +26,6 @@ final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol
         return TransferConfirmCommandProxy(payload: payload,
                                localizationManager: localizationManager,
                                commandFactory: commandFactory,
-                               storage: storage)
+                               storage: AnyDataProviderRepository(storage))
     }
 }
