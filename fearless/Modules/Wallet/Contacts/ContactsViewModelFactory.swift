@@ -34,7 +34,7 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                 image: icon,
                 name: contact.firstName)
 
-            let nextAction = {
+            let nextAction = { [weak delegate] in
                 delegate?.didSelect(contact: viewModel)
                 return
             }
