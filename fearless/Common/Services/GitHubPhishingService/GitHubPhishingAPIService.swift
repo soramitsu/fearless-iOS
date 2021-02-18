@@ -4,16 +4,19 @@ import RobinHood
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     private var networkOperation: BaseOperation<[PhishingItem]>! = nil
     private var operationFactory: GitHubOperationFactoryProtocol
+    private var operationManager: OperationManagerProtocol
     private var url: URL
     private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
     private var logger: LoggerProtocol
 
     init(url: URL,
          operationFactory: GitHubOperationFactoryProtocol,
+         operationManager: OperationManagerProtocol,
          storage: CoreDataRepository<PhishingItem, CDPhishingItem>,
          logger: LoggerProtocol) {
         self.url = url
         self.operationFactory = operationFactory
+        self.operationManager = operationManager
         self.storage = storage
         self.logger = logger
     }
@@ -66,6 +69,6 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
         let operationWrapper = CompoundOperationWrapper(targetOperation: replaceOperation,
                                         dependencies: [networkOperation])
 
-        OperationManagerFacade.sharedManager.enqueue(operations: operationWrapper.allOperations, in: .sync)
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .sync)
     }
 }
