@@ -6,14 +6,18 @@ import RobinHood
 
 final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
     private let iconGenerator = PolkadotIconGenerator()
-    private var proxy: ContactViewModelDelegate?
+    var dataStorageFacade: StorageFacadeProtocol
+
+    init(dataStorageFacade: StorageFacadeProtocol) {
+        self.dataStorageFacade = dataStorageFacade
+    }
 
     func createContactViewModelFromContact(_ contact: SearchData,
                                            parameters: ContactModuleParameters,
                                            locale: Locale,
                                            delegate: ContactViewModelDelegate?,
                                            commandFactory: WalletCommandFactoryProtocol)
-        -> ContactViewModelProtocol? {
+    -> ContactViewModelProtocol? {
         do {
             guard parameters.accountId != contact.accountId else {
                 return nil
@@ -25,7 +29,7 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                                     contentScale: UIScreen.main.scale)
 
             let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
-                SubstrateDataStorageFacade.shared.createRepository()
+                dataStorageFacade.createRepository()
 
             let viewModel = ContactViewModel(
                 firstName: contact.firstName,

@@ -11,9 +11,12 @@ final class StubCommandDecorator: WalletCommandDecoratorProtocol {
 
 final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol {
     let localizationManager: LocalizationManagerProtocol
+    let dataStorageFacade: StorageFacadeProtocol
 
-    init(localizationManager: LocalizationManagerProtocol) {
+    init(localizationManager: LocalizationManagerProtocol,
+         dataStorageFacade: StorageFacadeProtocol) {
         self.localizationManager = localizationManager
+        self.dataStorageFacade = dataStorageFacade
     }
 
     func createTransferConfirmationDecorator(with commandFactory: WalletCommandFactoryProtocol,
@@ -21,7 +24,7 @@ final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol
         -> WalletCommandDecoratorProtocol? {
 
         let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            dataStorageFacade.createRepository()
 
         return TransferConfirmCommandProxy(payload: payload,
                                localizationManager: localizationManager,

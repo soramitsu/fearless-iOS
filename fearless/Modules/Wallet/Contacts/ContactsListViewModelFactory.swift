@@ -2,7 +2,8 @@ import Foundation
 import CommonWallet
 
 final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
-    private var itemViewModelFactory = ContactsViewModelFactory()
+    private var itemViewModelFactory =
+        ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared)
 
     func createContactViewModelListFromItems(_ items: [SearchData],
                                              parameters: ContactModuleParameters,
