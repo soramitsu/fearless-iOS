@@ -7,6 +7,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol {
 protocol StakingMainPresenterProtocol: class {
     func setup()
     func performMainAction()
+    func performAccountAction()
 }
 
 protocol StakingMainInteractorInputProtocol: class {

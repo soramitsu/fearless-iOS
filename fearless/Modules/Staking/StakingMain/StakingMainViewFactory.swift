@@ -8,7 +8,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let settings = SettingsManager.shared
 
         let view = StakingMainViewController(nib: R.nib.stakingMainViewController)
-        let presenter = StakingMainPresenter()
+        let presenter = StakingMainPresenter(logger: Logger.shared)
         let interactor = StakingMainInteractor(settings: settings, eventCenter: EventCenter.shared)
         let wireframe = StakingMainWireframe()
 

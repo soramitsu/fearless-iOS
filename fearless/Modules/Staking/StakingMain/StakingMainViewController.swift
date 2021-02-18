@@ -26,13 +26,15 @@ final class StakingMainViewController: UIViewController {
     }
 
     @IBAction func actionIcon() {
-
+        presenter.performAccountAction()
     }
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
     func didReceive(viewModel: StakingMainViewModelProtocol) {
-        let size = CGSize(width: iconButtonWidth.constant, height: iconButtonWidth.constant)
+        let sideSize = iconButtonWidth.constant - iconButton.contentInsets.left
+            - iconButton.contentInsets.right
+        let size = CGSize(width: sideSize, height: sideSize)
         let icon = try? iconGenerator?.generateFromAddress(viewModel.address)
             .imageWithFillColor(R.color.colorWhite()!, size: size, contentScale: UIScreen.main.scale)
         iconButton.imageWithTitleView?.iconImage = icon

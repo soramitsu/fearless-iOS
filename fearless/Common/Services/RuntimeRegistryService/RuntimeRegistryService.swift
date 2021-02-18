@@ -24,6 +24,7 @@ final class RuntimeRegistryService {
     private struct PendingRequest {
         let resultClosure: (RuntimeCoderFactoryProtocol) -> Void
         let metadata: RuntimeMetadata?
+        let queue: DispatchQueue?
     }
 
     private(set) var chain: Chain
@@ -65,7 +66,7 @@ final class RuntimeRegistryService {
     private func fetchCoderFactory(for metadata: RuntimeMetadata?,
                                    runCompletionIn queue: DispatchQueue?,
                                    executing closure: @escaping (RuntimeCoderFactoryProtocol) -> Void) {
-        let request = PendingRequest(resultClosure: closure, metadata: metadata)
+        let request = PendingRequest(resultClosure: closure, metadata: metadata, queue: queue)
 
         if let snapshot = snapshot {
             deliver(snapshot: snapshot, to: request)
@@ -75,6 +76,8 @@ final class RuntimeRegistryService {
     }
 
     private func notifyPendingClosures(with snapshot: Snapshot) {
+        logger.debug("Attempt fulfill pendings \(pendingRequests.count)")
+
         guard !pendingRequests.isEmpty else {
             return
         }
@@ -83,16 +86,22 @@ final class RuntimeRegistryService {
         pendingRequests = []
 
         requests.forEach { deliver(snapshot: snapshot, to: $0) }
+
+        logger.debug("Fulfilled pendings")
     }
 
     private func deliver(snapshot: Snapshot, to request: PendingRequest) {
         let factory = RuntimeCoderFactory(catalog: snapshot.typeRegistryCatalog,
                                           version: snapshot.version)
-        request.resultClosure(factory)
+
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(factory)
+        }
     }
 
     private func subscribeMetadata() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<RuntimeMetadataItem>]) in
+            self?.logger.debug("Did receive changes \(changes.count)")
             for change in changes {
                 if let item = change.item {
                     self?.runtimeMetadata = item
@@ -119,10 +128,14 @@ final class RuntimeRegistryService {
                                      executing: updateClosure,
                                      failing: failureClosure,
                                      options: options)
+
+        logger.debug("Did subscribe to metadata")
     }
 
     private func unsubscribeMetadata() {
         metadataProvider.removeObserver(self)
+
+        logger.debug("Did unsubscribe from metadata")
     }
 
     private func loadTypeRegistryCatalog(hasher: StorageHasher, shouldSyncFiles: Bool) {
@@ -184,7 +197,9 @@ final class RuntimeRegistryService {
             }
         }
 
-        operationManager.enqueue(operations: dependencies + [combiningOperation], in: .sync)
+        operationManager.enqueue(operations: dependencies + [combiningOperation], in: .transient)
+
+        logger.debug("Did start loading snapshot")
     }
 
     private func updateTypeRegistryCatalog(shouldSyncFiles: Bool) {

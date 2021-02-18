@@ -4,6 +4,12 @@ final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
+
+    let logger: LoggerProtocol
+
+    init(logger: LoggerProtocol) {
+        self.logger = logger
+    }
 }
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
@@ -13,6 +19,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func performMainAction() {
         wireframe.showStartStaking()
+    }
+
+    func performAccountAction() {
+        logger.debug("Did select account")
     }
 }
 

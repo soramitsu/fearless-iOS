@@ -38,23 +38,23 @@
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="cqn-Ij-trJ">
-                            <rect key="frame" x="0.0" y="0.0" width="375" height="398"/>
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="390"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="rLo-pW-hSb">
-                                    <rect key="frame" x="0.0" y="0.0" width="375" height="58"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="375" height="66"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ypp-bS-mpc">
-                                            <rect key="frame" x="16" y="19" width="287" height="38"/>
+                                            <rect key="frame" x="16" y="15.5" width="271" height="35"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="FbN-Vm-EC2" customClass="RoundedButton" customModule="SoraUI">
-                                            <rect key="frame" x="319" y="18" width="40" height="40"/>
+                                            <rect key="frame" x="303" y="0.0" width="72" height="66"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>
-                                                <constraint firstAttribute="width" constant="40" id="1uz-BP-bV1"/>
-                                                <constraint firstAttribute="height" constant="40" id="6Gb-jj-JYc"/>
+                                                <constraint firstAttribute="width" constant="72" id="1uz-BP-bV1"/>
+                                                <constraint firstAttribute="height" constant="66" id="6Gb-jj-JYc"/>
                                             </constraints>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
@@ -73,16 +73,16 @@
                                                     <real key="value" value="0.0"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
-                                                    <real key="value" value="0.0"/>
+                                                    <real key="value" value="13"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                                                    <real key="value" value="0.0"/>
+                                                    <real key="value" value="16"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_bottomInset">
-                                                    <real key="value" value="0.0"/>
+                                                    <real key="value" value="13"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_rightInset">
-                                                    <real key="value" value="0.0"/>
+                                                    <real key="value" value="16"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
                                             </userDefinedRuntimeAttributes>
@@ -97,15 +97,15 @@
                                         <constraint firstItem="ypp-bS-mpc" firstAttribute="leading" secondItem="rLo-pW-hSb" secondAttribute="leading" constant="16" id="MyM-5F-qq3"/>
                                         <constraint firstAttribute="bottom" secondItem="FbN-Vm-EC2" secondAttribute="bottom" id="QN8-oh-MvV"/>
                                         <constraint firstItem="FbN-Vm-EC2" firstAttribute="leading" secondItem="ypp-bS-mpc" secondAttribute="trailing" constant="16" id="fL5-YZ-feT"/>
-                                        <constraint firstAttribute="trailing" secondItem="FbN-Vm-EC2" secondAttribute="trailing" constant="16" id="jzL-Uf-kM9"/>
-                                        <constraint firstAttribute="height" constant="58" id="lBd-3a-no9"/>
+                                        <constraint firstAttribute="trailing" secondItem="FbN-Vm-EC2" secondAttribute="trailing" id="jzL-Uf-kM9"/>
+                                        <constraint firstAttribute="height" constant="66" id="lBd-3a-no9"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pEl-VA-wl2">
-                                    <rect key="frame" x="0.0" y="58" width="375" height="256"/>
+                                    <rect key="frame" x="0.0" y="66" width="375" height="240"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="lEP-2m-nAR" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="16" y="16" width="343" height="240"/>
+                                            <rect key="frame" x="16" y="0.0" width="343" height="240"/>
                                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                             <constraints>
                                                 <constraint firstAttribute="height" constant="240" id="mvK-nA-1ZP"/>
@@ -122,14 +122,14 @@
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
-                                        <constraint firstItem="lEP-2m-nAR" firstAttribute="top" secondItem="pEl-VA-wl2" secondAttribute="top" constant="16" id="AcQ-ek-9Ae"/>
+                                        <constraint firstItem="lEP-2m-nAR" firstAttribute="top" secondItem="pEl-VA-wl2" secondAttribute="top" id="AcQ-ek-9Ae"/>
                                         <constraint firstItem="lEP-2m-nAR" firstAttribute="leading" secondItem="pEl-VA-wl2" secondAttribute="leading" constant="16" id="CSW-9d-ieQ"/>
                                         <constraint firstAttribute="bottom" secondItem="lEP-2m-nAR" secondAttribute="bottom" id="WEE-ER-4nh"/>
                                         <constraint firstAttribute="trailing" secondItem="lEP-2m-nAR" secondAttribute="trailing" constant="16" id="aEy-41-mfn"/>
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uhY-eS-WfL">
-                                    <rect key="frame" x="0.0" y="314" width="375" height="84"/>
+                                    <rect key="frame" x="0.0" y="306" width="375" height="84"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="bRI-Oz-D1K" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="16" y="16" width="343" height="52"/>
@@ -156,6 +156,9 @@
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
+                                                <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
+                                                    <color key="value" name="colorWhite"/>
+                                                </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                             <connections>
                                                 <action selector="actionMain" destination="-1" eventType="touchUpInside" id="vwP-KD-TgN"/>
@@ -202,9 +205,11 @@
         </view>
     </objects>
     <designables>
-        <designable name="FbN-Vm-EC2"/>
+        <designable name="FbN-Vm-EC2">
+            <size key="intrinsicContentSize" width="32" height="26"/>
+        </designable>
         <designable name="bRI-Oz-D1K">
-            <size key="intrinsicContentSize" width="109" height="34"/>
+            <size key="intrinsicContentSize" width="86.5" height="32"/>
         </designable>
     </designables>
     <resources>
