@@ -666,7 +666,6 @@
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
-		AEF73FBA25DBDA6F00407D41 /* ContactsViewModelDelegateProxy.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB925DBDA6F00407D41 /* ContactsViewModelDelegateProxy.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
 		B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E2EDF787BF82F16663215 /* NetworkInfoViewController.swift */; };
 		B96EE077267BBBBB631C9286 /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56E6A56BC39D51551309F1DA /* Pods_fearlessTests.framework */; };
@@ -1380,7 +1379,6 @@
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
-		AEF73FB925DBDA6F00407D41 /* ContactsViewModelDelegateProxy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsViewModelDelegateProxy.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
 		B5934BA68F375F5F8237967D /* NetworkInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkInfoViewController.xib; sourceTree = "<group>"; };
@@ -2137,7 +2135,6 @@
 				84FAB06C254303DA00319F74 /* ContactViewModel.swift */,
 				84FAB075254378FC00319F74 /* ContactsListViewModelFactory.swift */,
 				84FAB0772543791A00319F74 /* ContactContext.swift */,
-				AEF73FB925DBDA6F00407D41 /* ContactsViewModelDelegateProxy.swift */,
 			);
 			path = Contacts;
 			sourceTree = "<group>";
@@ -4293,7 +4290,6 @@
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,
 				8428763E24AD917300D91AD8 /* AccountInfo.swift in Sources */,
-				AEF73FBA25DBDA6F00407D41 /* ContactsViewModelDelegateProxy.swift in Sources */,
 				84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */,
 				8428768524AE046300D91AD8 /* LanguageSelectionProtocols.swift in Sources */,
 				8475AE34258B934F00B058F3 /* TransferValidatingError.swift in Sources */,

@@ -27,20 +27,33 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
             let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
                 SubstrateDataStorageFacade.shared.createRepository()
 
-            proxy = ContactsViewModelDelegateProxy(
-                callee: delegate,
-                storage: AnyDataProviderRepository(storage),
-                commandFactory: commandFactory,
-                locale: locale)
-
-            return ContactViewModel(
+            let viewModel = ContactViewModel(
                 firstName: contact.firstName,
                 lastName: contact.lastName,
                 accountId: contact.accountId,
                 image: icon,
-                name: contact.firstName,
-                delegate: proxy,
-                commandFactory: commandFactory)
+                name: contact.firstName)
+
+            let nextAction = {
+                delegate?.didSelect(contact: viewModel)
+                return
+            }
+
+            let cancelAction = {
+                let hideCommand = commandFactory.prepareHideCommand(with: .pop)
+                try? hideCommand.execute()
+            }
+
+            viewModel.command = PhishingCheckExecutor(
+                commandFactory: commandFactory,
+                storage: AnyDataProviderRepository(storage),
+                nextAction: nextAction,
+                cancelAction: cancelAction,
+                locale: locale,
+                publicKey: contact.accountId,
+                walletAddress: contact.firstName)
+
+            return viewModel
         } catch {
             return nil
         }

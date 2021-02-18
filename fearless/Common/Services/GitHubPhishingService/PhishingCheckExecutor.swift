@@ -4,30 +4,32 @@ import CoreData
 import SoraFoundation
 import CommonWallet
 
-protocol PhishingCheckExecutorProtocol {
-    func checkPhishing(publicKey: String, walletAddress displayName: String)
-}
-
-class PhishingCheckExecutor: PhishingCheckExecutorProtocol {
+class PhishingCheckExecutor: WalletCommandProtocol {
     private var storage: AnyDataProviderRepository<PhishingItem>
     private var nextActionBlock: () -> Void
     private var cancelActionBlock: () -> Void
     private var locale: Locale
     private var commandFactory: WalletCommandFactoryProtocol?
+    private var publicKey: String
+    private var displayName: String
 
     init(commandFactory: WalletCommandFactoryProtocol,
          storage: AnyDataProviderRepository<PhishingItem>,
          nextAction nextActionBlock: @escaping () -> Void,
          cancelAction cancelActionBlock: @escaping () -> Void,
-         locale: Locale) {
+         locale: Locale,
+         publicKey: String,
+         walletAddress displayName: String) {
         self.commandFactory = commandFactory
         self.storage = storage
         self.nextActionBlock = nextActionBlock
         self.cancelActionBlock = cancelActionBlock
         self.locale = locale
+        self.publicKey = publicKey
+        self.displayName = displayName
     }
 
-    func checkPhishing(publicKey: String, walletAddress displayName: String) {
+    func execute() throws {
         let fetchOperation = storage.fetchOperation(by: publicKey,
                                                     options: RepositoryFetchOptions())
 
@@ -44,7 +46,7 @@ class PhishingCheckExecutor: PhishingCheckExecutorProtocol {
                         onConfirm: self.nextActionBlock,
                         onCancel: self.cancelActionBlock,
                         locale: self.locale,
-                        displayName: displayName)
+                        displayName: self.displayName)
 
                     let presentationCommand = self.commandFactory?.preparePresentationCommand(for: alertController)
                     presentationCommand?.presentationStyle = .modal(inNavigation: false)

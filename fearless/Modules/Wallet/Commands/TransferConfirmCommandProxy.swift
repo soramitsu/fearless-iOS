@@ -41,15 +41,15 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
             try? hideCommand.execute()
         }
 
-        let phishingCheckExecutor: PhishingCheckExecutorProtocol =
+        let phishingCheckExecutor =
             PhishingCheckExecutor(commandFactory: commandFactory,
                                   storage: storage,
                                   nextAction: nextAction,
                                   cancelAction: cancelAction,
-                                  locale: locale)
+                                  locale: locale,
+                                  publicKey: calleeCommand.payload.transferInfo.destination,
+                                  walletAddress: calleeCommand.payload.receiverName)
 
-        phishingCheckExecutor.checkPhishing(
-            publicKey: calleeCommand.payload.transferInfo.destination,
-            walletAddress: calleeCommand.payload.receiverName)
+        try? phishingCheckExecutor.execute()
     }
 }
