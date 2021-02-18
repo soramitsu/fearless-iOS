@@ -2,74 +2,54 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 import RobinHood
+import CoreData
 
 final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
+    private var commandFactory: WalletCommandFactoryProtocol
+    private var storage: AnyDataProviderRepository<PhishingItem>
+    private var locale: Locale
+
     var calleeCommand: WalletCommandDecoratorProtocol & WalletCommandDecoratorDelegateProtocol
 
     var undelyingCommand: WalletCommandProtocol? {
         get { calleeCommand.undelyingCommand }
         set { calleeCommand.undelyingCommand = newValue }
-        }
+    }
 
     let logger = Logger.shared
 
     init(payload: ConfirmationPayload,
          localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol) {
+         commandFactory: WalletCommandFactoryProtocol,
+         storage: AnyDataProviderRepository<PhishingItem>) {
+        self.locale = localizationManager.selectedLocale
+        self.storage = storage
+        self.commandFactory = commandFactory
         self.calleeCommand = TransferConfirmCommand(payload: payload,
-                                                  localizationManager: localizationManager,
-                                                  commandFactory: commandFactory)
+                                                    localizationManager: localizationManager,
+                                                    commandFactory: commandFactory)
     }
 
     func execute() throws {
-        let destinationKey = calleeCommand.payload.transferInfo.destination
-
-        let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
-
-        let fetchOperation = storage.fetchOperation(by: destinationKey,
-                                                    options: RepositoryFetchOptions())
-        fetchOperation.completionBlock = {
-            DispatchQueue.main.async {
-                self.handleAccountFetch(result: fetchOperation.result)
-            }
-        }
-
-        OperationManagerFacade.sharedManager.enqueue(operations: [fetchOperation], in: .sync)
-    }
-
-    private func handleAccountFetch(result: Result<PhishingItem?, Error>?) {
-        switch result {
-        case .success(let account):
-            guard account != nil else {
-                try? self.calleeCommand.execute()
-                return
-            }
-
-            self.showWarning()
-
-        case .failure(let error):
-            self.logger.error(error.localizedDescription)
-
-        case .none:
-            self.logger.error("Scam account fetch operation cancelled")
-        }
-    }
-
-    private func showWarning() {
-        let locale = self.calleeCommand.localizationManager.selectedLocale
-
-        let alertController = UIAlertController.phishingWarningAlert(onConfirm: { () -> Void in
+        let nextAction = {
             try? self.calleeCommand.execute()
-        }, onCancel: { () -> Void in
-            let hideCommand = self.calleeCommand.commandFactory?.prepareHideCommand(with: .pop)
-            try? hideCommand?.execute()
-        }, locale: locale,
-        publicKey: calleeCommand.payload.receiverName)
+            return
+        }
 
-        let presentationCommand = calleeCommand.commandFactory?.preparePresentationCommand(for: alertController)
-        presentationCommand?.presentationStyle = .modal(inNavigation: false)
+        let cancelAction = {
+            let hideCommand = self.commandFactory.prepareHideCommand(with: .pop)
+            try? hideCommand.execute()
+        }
 
-        try? presentationCommand?.execute()
+        let phishingCheckExecutor =
+            PhishingCheckExecutor(commandFactory: commandFactory,
+                                  storage: storage,
+                                  nextAction: nextAction,
+                                  cancelAction: cancelAction,
+                                  locale: locale,
+                                  publicKey: calleeCommand.payload.transferInfo.destination,
+                                  walletAddress: calleeCommand.payload.receiverName)
+
+        try? phishingCheckExecutor.execute()
     }
 }

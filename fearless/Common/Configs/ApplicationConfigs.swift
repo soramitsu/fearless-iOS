@@ -10,7 +10,7 @@ protocol ApplicationConfigProtocol {
     var websiteURL: URL { get }
     var socialURL: URL { get }
     var version: String { get }
-    var opensourceURL: URL { get }
+    var opensourceURL: URL { get }  
     var appName: String { get }
     var logoUrl: URL { get }
     var purchaseAppName: String { get }

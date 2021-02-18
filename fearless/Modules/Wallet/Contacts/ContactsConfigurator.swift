@@ -51,7 +51,7 @@ final class ContactsConfigurator {
     }()
 
     init(networkType: SNAddressType) {
-        let viewModelFactory = ContactsViewModelFactory()
+        let viewModelFactory = ContactsViewModelFactory(dataStorageFacade: SubstrateDataStorageFacade.shared)
         localSearchEngine = ContactsLocalSearchEngine(networkType: networkType,
                                                       contactViewModelFactory: viewModelFactory)
     }

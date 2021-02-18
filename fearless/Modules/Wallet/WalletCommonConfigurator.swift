@@ -24,7 +24,8 @@ struct WalletCommonConfigurator {
         let language = WalletLanguage(rawValue: localizationManager.selectedLocalization)
             ?? WalletLanguage.defaultLanguage
 
-        let decoratorFactory = WalletCommandDecoratorFactory(localizationManager: localizationManager)
+        let decoratorFactory = WalletCommandDecoratorFactory(localizationManager: localizationManager,
+                                                             dataStorageFacade: SubstrateDataStorageFacade.shared)
 
         let qrCoderFactory = WalletQRCoderFactory(networkType: networkType,
                                                   publicKey: account.publicKeyData,

@@ -2,16 +2,23 @@ import Foundation
 import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
-    private var operation: BaseOperation<[PhishingItem]>
-    private var logger: LoggerProtocol
+    private var networkOperation: BaseOperation<[PhishingItem]>! = nil
+    private var operationFactory: GitHubOperationFactoryProtocol
+    private var operationManager: OperationManagerProtocol
+    private var url: URL
     private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    private var logger: LoggerProtocol
 
-    init(operation: BaseOperation<[PhishingItem]>,
-         logger: LoggerProtocol,
-         storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
-        self.operation = operation
-        self.logger = logger
+    init(url: URL,
+         operationFactory: GitHubOperationFactoryProtocol,
+         operationManager: OperationManagerProtocol,
+         storage: CoreDataRepository<PhishingItem, CDPhishingItem>,
+         logger: LoggerProtocol) {
+        self.url = url
+        self.operationFactory = operationFactory
+        self.operationManager = operationManager
         self.storage = storage
+        self.logger = logger
     }
 
     enum State {
@@ -44,26 +51,24 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func clearConnection() {
-        operation.cancel()
+        networkOperation.cancel()
     }
 
     private func setupConnection() {
-        operation.completionBlock = { [self] in
-            do {
-                if let phishingItems = try operation.extractResultData() {
-                    let deleteOperation = storage.deleteAllOperation()
-                    OperationManagerFacade.sharedManager.enqueue(operations: [deleteOperation], in: .sync)
 
-                    for phishingItem in phishingItems {
-                        let saveOperation = storage.saveOperation({ [phishingItem] }, { [] })
-                        OperationManagerFacade.sharedManager.enqueue(operations: [saveOperation], in: .sync)
-                    }
-                }
-            } catch {
-                self.logger.error("Request unsuccessful")
-            }
+        networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
+
+        let replaceOperation = storage.replaceOperation {
+            let phishingItem = try self.networkOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            return phishingItem
         }
 
-        OperationManagerFacade.sharedManager.enqueue(operations: [operation], in: .sync)
+        replaceOperation.addDependency(networkOperation)
+
+        let operationWrapper = CompoundOperationWrapper(targetOperation: replaceOperation,
+                                        dependencies: [networkOperation])
+
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .sync)
     }
 }
