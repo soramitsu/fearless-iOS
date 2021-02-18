@@ -214,7 +214,7 @@ Semilla: %@";
 Semilla: %@\
 Ruta de derivación: %@";
 "common.changed" = "Cambiado";
-"account.import.json.no.network" = "JSON no contiene información de la red. Por favor, especifíquelo en el bloque avanzado.";
+"account.import.json.no.network" = "JSON no contiene información de red. Especifíquelo a continuación.";
 "account.import.wrong.network" = "La red en el JSON es %@ , no es la misma que la seleccionada %@. Esta última se utilizará para importar una cuenta.";
 "common.address" = "Dirección";
 "wallet.asset.buy" = "Comprar";
@@ -223,3 +223,4 @@ Ruta de derivación: %@";
 "buy.completed" = "¡Compra iniciada! Por favor, espere hasta 60 minutos. Puede realizar un seguimiento del estado en el correo electrónico.";
 "wallet.send.phishing.warning.text" = "Siguiente dirección: Se sabe que %@ se usa en actividades de phishing, por lo que no recomendamos enviar tokens a esa dirección. ¿Le gustaría continuar de todos modos?";
 "wallet.send.phishing.warning.title" = "Alerta de fraude";
+"staking.start.title" = "Empiece a apostar";

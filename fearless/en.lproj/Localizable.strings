@@ -217,7 +217,7 @@ Seed: %@";
 Seed: %@\
 Derivation path: %@";
 "common.changed" = "Changed";
-"account.import.json.no.network" = "JSON contains no network information. Please specify it in advanced block.";
+"account.import.json.no.network" = "JSON contains no network information. Please specify it below.";
 "account.import.wrong.network" = "Network in JSON is %@, does not match selected %@. The latter will be used to import an account.";
 "common.address" = "Address";
 "wallet.asset.buy" = "Buy";
@@ -226,3 +226,4 @@ Derivation path: %@";
 "buy.completed" = "Purchase initiated! Please wait up to 60 minutes. You can track status on the email.";
 "wallet.send.phishing.warning.text" = "Following address: %@ is known to be used in phishing activities, thus we are not recommending sending tokens to that address. Would you like to proceed anyway?";
 "wallet.send.phishing.warning.title" = "Scam alert";
+"staking.start.title" = "Start staking";
