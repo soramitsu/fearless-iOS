@@ -32,4 +32,9 @@ extension StorageKeyFactoryProtocol {
         try createStorageKey(moduleName: "Staking",
                              storageName: "ActiveEra")
     }
+
+    func currentEra() throws -> Data {
+        try createStorageKey(moduleName: "Staking",
+                             storageName: "CurrentEra")
+    }
  }

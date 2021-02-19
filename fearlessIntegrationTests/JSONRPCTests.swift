@@ -359,11 +359,53 @@ class JSONRPCTests: XCTestCase {
             let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             guard let activeEra = result.underlyingValue else {
-                XCTFail("Empty account id")
+                XCTFail("Empty Active Era")
                 return
             }
 
             Logger.shared.debug("Active Era: \(activeEra)")
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func testPolkadotCurrentEra() {
+        performGetCurrentEra(url: URL(string: "wss://rpc.polkadot.io/")!)
+    }
+
+    func performGetCurrentEra(url: URL) {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let storageFactory = StorageKeyFactory()
+        let key = try! storageFactory
+            .createStorageKey(moduleName: "Staking", storageName: "CurrentEra")
+            .toHex(includePrefix: true)
+
+        let operation = JSONRPCListOperation<JSONScaleDecodable<UInt32>>(engine: engine,
+                                                                         method: RPCMethod.getStorage,
+                                                                         parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let currentEra = result.underlyingValue else {
+                XCTFail("Empty Current Era")
+                return
+            }
+
+            Logger.shared.debug("Current Era: \(currentEra)")
 
         } catch {
             XCTFail("Unexpected error: \(error)")

@@ -32,6 +32,10 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                                     localStorageIdFactory:
                                                                         localStorageIdFactory)
 
+        let currentEraSubscription = try createCurrentEraSubscription(storageKeyFactory: keyFactory,
+                                                                    localStorageIdFactory:
+                                                                        localStorageIdFactory)
+
         let stakingSubscription = try createStakingSubscription(engine: engine,
                                                                 accountId: accountId,
                                                                 localStorageIdFactory:
@@ -45,7 +49,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             upgradeV28Subscription,
             accountSubscription,
             bondedSubscription,
-            activeEraSubscription
+            activeEraSubscription,
+            currentEraSubscription
         ]
 
         let container = StorageSubscriptionContainer(engine: engine,
@@ -89,6 +94,23 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             SubstrateDataStorageFacade.shared.createRepository()
 
         return ActiveEraSubscription(remoteStorageKey: remoteStorageKey,
+                                     localStorageKey: localStorageKey,
+                                     storage: AnyDataProviderRepository(storage),
+                                     operationManager: OperationManagerFacade.sharedManager,
+                                     logger: Logger.shared,
+                                     eventCenter: EventCenter.shared)
+    }
+
+    private func createCurrentEraSubscription(storageKeyFactory: StorageKeyFactoryProtocol,
+                                             localStorageIdFactory: ChainStorageIdFactoryProtocol)
+        throws -> CurrentEraSubscription {
+        let remoteStorageKey = try storageKeyFactory.currentEra()
+        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
+
+        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+            SubstrateDataStorageFacade.shared.createRepository()
+
+        return CurrentEraSubscription(remoteStorageKey: remoteStorageKey,
                                      localStorageKey: localStorageKey,
                                      storage: AnyDataProviderRepository(storage),
                                      operationManager: OperationManagerFacade.sharedManager,
