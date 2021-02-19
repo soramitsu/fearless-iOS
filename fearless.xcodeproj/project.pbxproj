@@ -104,6 +104,8 @@
 		8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */; };
 		8409C279252286B60049B5C8 /* TransferConfirmAccessoryView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */; };
 		8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */; };
+		840DCBF125DFEE4800D45C6A /* AmountInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DCBF025DFEE4800D45C6A /* AmountInputView.swift */; };
+		840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840DCBF525E0059D00D45C6A /* AmountInputView+Inspectable.swift */; };
 		84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84113B6B255B2835009BD21A /* AccountCreateError.swift */; };
 		84113B91255B2CA0009BD21A /* MainTransitionHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */; };
 		84155DEB253980F900A27058 /* WebSocketService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84155DEA253980F900A27058 /* WebSocketService.swift */; };
@@ -829,6 +831,8 @@
 		8409C276252286760049B5C8 /* TransferConfirmAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryView.swift; sourceTree = "<group>"; };
 		8409C278252286B60049B5C8 /* TransferConfirmAccessoryView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = TransferConfirmAccessoryView.xib; sourceTree = "<group>"; };
 		8409C27A25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferConfirmAccessoryViewFactory.swift; sourceTree = "<group>"; };
+		840DCBF025DFEE4800D45C6A /* AmountInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputView.swift; sourceTree = "<group>"; };
+		840DCBF525E0059D00D45C6A /* AmountInputView+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AmountInputView+Inspectable.swift"; sourceTree = "<group>"; };
 		84113B6B255B2835009BD21A /* AccountCreateError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreateError.swift; sourceTree = "<group>"; };
 		84113B90255B2CA0009BD21A /* MainTransitionHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainTransitionHelper.swift; sourceTree = "<group>"; };
 		84155DEA253980F900A27058 /* WebSocketService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketService.swift; sourceTree = "<group>"; };
@@ -2856,6 +2860,8 @@
 				8443FDB02554B7640092893D /* TitledMnemonicView.swift */,
 				84644AC42567EC05004EAA4B /* MultilineTriangularedView.swift */,
 				846CDECC258D212D009F3E75 /* MultilineImageWithTitleView.swift */,
+				840DCBF025DFEE4800D45C6A /* AmountInputView.swift */,
+				840DCBF525E0059D00D45C6A /* AmountInputView+Inspectable.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -4457,6 +4463,7 @@
 				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
 				84C6801624D7036B00006BF5 /* SubtitleActionControl.swift in Sources */,
+				840DCBF125DFEE4800D45C6A /* AmountInputView.swift in Sources */,
 				84D97EC82520D32000F07405 /* PolkadotIcon+Image.swift in Sources */,
 				84563D0724F4674A0055591D /* ManagedAccountItemMapper.swift in Sources */,
 				84A2C90424E07F400020D3B7 /* AccountOperationFactoryError.swift in Sources */,
@@ -4557,6 +4564,7 @@
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
 				84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */,
+				840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */,
 				8488ECEA258CE456004591CC /* PurchaseViewController.swift in Sources */,
 				847C9659255362F7002D288F /* RestoreJson.swift in Sources */,
 				5BA47B0F2286D41E7056DA0F /* AddConnectionInteractor.swift in Sources */,
