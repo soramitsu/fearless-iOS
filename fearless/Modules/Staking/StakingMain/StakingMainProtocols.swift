@@ -19,7 +19,7 @@ protocol StakingMainInteractorOutputProtocol: class {
 }
 
 protocol StakingMainWireframeProtocol: class {
-    func showStartStaking()
+    func showSetupAmount(from view: StakingMainViewProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {
