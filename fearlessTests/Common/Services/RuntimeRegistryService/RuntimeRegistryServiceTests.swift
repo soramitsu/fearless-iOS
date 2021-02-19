@@ -3,15 +3,17 @@ import XCTest
 import RobinHood
 import Cuckoo
 
-class RuntimeRegistryServiceTests: XCTestCase {
+class RuntimeRegistryServiceTests: NetworkBaseTests {
     func testTypeRegistryCreationEventDelivered() throws {
         // given
 
         let storageFacade = SubstrateStorageTestFacade()
         let eventCenter = MockEventCenterProtocol()
+        let operationManager = OperationManager()
 
         let service = createDefaultService(storageFacade: storageFacade,
-                                           eventCenter: eventCenter)
+                                           eventCenter: eventCenter,
+                                           operationManager: operationManager)
 
         // when
 
@@ -30,7 +32,8 @@ class RuntimeRegistryServiceTests: XCTestCase {
         let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
         try RuntimeMetadataCreationHelper.persistTestRuntimeMetadata(for: service.chain.genesisHash,
                                                                  version: 48,
-                                                                 using: AnyDataProviderRepository(repository))
+                                                                 using: AnyDataProviderRepository(repository),
+                                                                 operationManager: operationManager)
 
         // then
 
@@ -42,10 +45,11 @@ class RuntimeRegistryServiceTests: XCTestCase {
 
         let storageFacade = SubstrateStorageTestFacade()
         let eventCenter = MockEventCenterProtocol()
-        let operationQueue = OperationQueue()
+        let operationManager = OperationManager()
 
         let service = createDefaultService(storageFacade: storageFacade,
-                                           eventCenter: eventCenter)
+                                           eventCenter: eventCenter,
+                                           operationManager: operationManager)
 
         // when
 
@@ -68,15 +72,17 @@ class RuntimeRegistryServiceTests: XCTestCase {
             expectation.fulfill()
         }
 
-        let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
-        try RuntimeMetadataCreationHelper.persistTestRuntimeMetadata(for: service.chain.genesisHash,
-                                                                 version: 48,
-                                                                 using: AnyDataProviderRepository(repository),
-                                                                 operationQueue: operationQueue)
-
         // then
 
-        operationQueue.addOperation(fetchFactoryOperation)
+        operationManager.enqueue(operations: [fetchFactoryOperation], in: .transient)
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
+            let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
+            try? RuntimeMetadataCreationHelper.persistTestRuntimeMetadata(for: service.chain.genesisHash,
+                                                                          version: 48,
+                                                                          using:    AnyDataProviderRepository(repository),
+                                                                          operationManager: operationManager)
+        }
 
         wait(for: [expectation], timeout: 10.0)
     }
@@ -84,12 +90,11 @@ class RuntimeRegistryServiceTests: XCTestCase {
     // MARK: Private
 
     func createDefaultService(storageFacade: StorageFacadeProtocol,
-                              eventCenter: EventCenterProtocol) -> RuntimeRegistryService {
+                              eventCenter: EventCenterProtocol,
+                              operationManager: OperationManagerProtocol) -> RuntimeRegistryService {
         let chain = Chain.westend
         TypeDefFileMock.register(mock: .westendDefault, url: chain.typeDefDefaultFileURL()!)
         TypeDefFileMock.register(mock: .westendNetwork, url: chain.typeDefNetworkFileURL()!)
-
-        let operationManager = OperationManager()
 
         let logger = Logger.shared
         let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,

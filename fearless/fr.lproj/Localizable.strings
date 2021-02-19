@@ -216,7 +216,7 @@ Seed : %@";
 Seed : %@\
 Chemin de dérivation : %@";
 "common.changed" = "Modifié";
-"account.import.json.no.network" = "JSON ne contient aucune information sur le réseau. Veuillez l'écrire dans le bloc avancé.";
+"account.import.json.no.network" = "JSON ne contient aucune information sur le réseau. Veuillez le préciser ci-dessous.";
 "account.import.wrong.network" = "Le réseau en JSON est %@ , est différent de celui sélectionné %@. Ce dernier sera utilisé pour importer un compte.";
 "common.address" = "Adresse";
 "wallet.asset.buy" = "Achat";
@@ -225,3 +225,4 @@ Chemin de dérivation : %@";
 "buy.completed" = "Achat initié! Veuillez patienter jusqu'à 60 minutes. Vous pouvez suivre le statut dans votre boite e-mail.";
 "wallet.send.phishing.warning.text" = "Adresse suivante: %@ est connu pour être utilisé dans des activités de phishing, nous ne recommandons donc pas d'envoyer des jetons à cette adresse. Souhaitez-vous quand même continuer?";
 "wallet.send.phishing.warning.title" = "Alerte aux arnaques";
+"staking.start.title" = "Commencer le jalonnement";

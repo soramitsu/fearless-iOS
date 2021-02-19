@@ -216,7 +216,7 @@ Seme: %@";
 Seme: %@\
 Percorso di derivazione: %@";
 "common.changed" = "Cambiato";
-"account.import.json.no.network" = "JSON non contiene informazioni di rete. Si prega di specificarlo nel blocco avanzato.";
+"account.import.json.no.network" = "JSON non contiene informazioni di rete. Si prega di specificarlo di seguito.";
 "account.import.wrong.network" = "La rete in JSON è %@ , non è la stessa di %@ . Quest'ultimo verrà utilizzato per importare un account.";
 "common.address" = "Indirizzo";
 "wallet.asset.buy" = "Acquistare";
@@ -225,3 +225,4 @@ Percorso di derivazione: %@";
 "buy.completed" = "Acquisto avviato! Attendi fino a 60 minuti. Puoi tenere traccia dello stato sull'e-mail.";
 "wallet.send.phishing.warning.text" = "Il seguente indirizzo: %@ è noto per essere utilizzato in attività di phishing, quindi non consigliamo di inviare token a tale indirizzo. Vuoi continuare comunque?";
 "wallet.send.phishing.warning.title" = "Avviso di truffa";
+"staking.start.title" = "Inizia a picchettare";
