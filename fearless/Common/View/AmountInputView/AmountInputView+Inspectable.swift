@@ -431,4 +431,15 @@ extension AmountInputView {
                                               right: newValue)
         }
     }
+
+    @IBInspectable
+    private var _inputIndicatorColor: UIColor {
+        get {
+            return textField.tintColor
+        }
+
+        set {
+            textField.tintColor = newValue
+        }
+    }
 }

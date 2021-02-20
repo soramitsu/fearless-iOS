@@ -7,6 +7,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let interactor = StakingAmountInteractor()
         let wireframe = StakingAmountWireframe()
 
+        view.uiFactory = UIFactory()
+
         view.presenter = presenter
         presenter.view = view
         presenter.interactor = interactor
