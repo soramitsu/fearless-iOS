@@ -24,10 +24,13 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var uiFactory: UIFactoryProtocol!
 
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
+    private var amountPriceViewModel: LocalizableResource<String>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupInitBalanceView()
+        setupInitNetworkFee()
         setupLocalization()
         presenter.setup()
     }
@@ -112,6 +115,16 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         amountInputView.textField.inputAccessoryView = accessoryView
     }
 
+    private func setupInitBalanceView() {
+        amountInputView.priceText = ""
+        amountInputView.balanceText = ""
+    }
+
+    private func setupInitNetworkFee() {
+        feeDetailsLabel.text = ""
+        feeActivityIndicator.startAnimating()
+    }
+
     private func setupLocalization() {
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
 
@@ -136,6 +149,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         learnMoreView.title = R.string.localizable
             .stakingPayoutsLearnMore(preferredLanguages: languages)
 
+        applyAmountPrice()
         applyRewardDestinationViewModel()
 
         if let accountView = accountView {
@@ -147,6 +161,13 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 
     // MARK: Reward Destination
+
+    private func applyAmountPrice() {
+        if let viewModel = amountPriceViewModel {
+            let locale = localizationManager?.selectedLocale ?? Locale.current
+            amountInputView.priceText = viewModel.value(for: locale)
+        }
+    }
 
     private func applyRewardDestinationViewModel() {
         if let rewardDestViewModel = rewardDestinationViewModel {
@@ -238,14 +259,19 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 }
 
-extension StakingAmountViewController: StakingAmountViewProtocol {}
-
-extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
+extension StakingAmountViewController: StakingAmountViewProtocol {
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>) {
         rewardDestinationViewModel = viewModel
         applyRewardDestinationViewModel()
     }
 
+    func didReceiveAmountPrice(viewModel: LocalizableResource<String>) {
+        amountPriceViewModel = viewModel
+        applyAmountPrice()
+    }
+}
+
+extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
     func didSelect(on view: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 

@@ -5,11 +5,12 @@ final class StakingAmountPresenter {
     var wireframe: StakingAmountWireframeProtocol!
     var interactor: StakingAmountInteractorInputProtocol!
 
+    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
-
     let selectedAccount: AccountItem
-
     let logger: LoggerProtocol
+
+    private var priceData: PriceData?
 
     private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
                                                     restakeReturnPercentage: 0.3551,
@@ -18,9 +19,11 @@ final class StakingAmountPresenter {
 
     init(selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
+         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
          logger: LoggerProtocol) {
         self.selectedAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
+        self.balanceViewModelFactory = balanceViewModelFactory
         self.logger = logger
     }
 
@@ -42,10 +45,18 @@ final class StakingAmountPresenter {
             logger.error("Can't create reward destination")
         }
     }
+
+    private func provideAmountPrice() {
+        if let priceData = priceData {
+            let price = balanceViewModelFactory.priceFromAmount(1.0, priceData: priceData)
+            view?.didReceiveAmountPrice(viewModel: price)
+        }
+    }
 }
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func setup() {
+        interactor.setup()
         provideRestakeRewardDestination()
     }
 
@@ -62,7 +73,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutAccount() {
-        
+
     }
 
     func close() {
@@ -72,6 +83,11 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
 extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     func didReceive(accounts: [ManagedAccountItem]) {}
+
+    func didReceive(price: PriceData?) {
+        self.priceData = price
+        provideAmountPrice()
+    }
 
     func didReceive(error: Error) {}
 }

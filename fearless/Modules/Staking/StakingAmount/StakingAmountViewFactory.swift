@@ -9,11 +9,15 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let keystore = Keychain()
         let logger = Logger.shared
 
-        guard let selectedAccount = settings.selectedAccount else {
+        let networkType = settings.selectedConnection.type
+        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+
+        guard let selectedAccount = settings.selectedAccount,
+              let assetId = WalletAssetId(rawValue: asset.identifier) else {
             return nil
         }
 
-        let networkType = settings.selectedConnection.type
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
@@ -24,13 +28,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
 
-        let asset = WalletPrimitiveFactory(keystore: keystore, settings: settings)
-            .createAssetForAddressType(networkType)
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(asset: asset)
+        let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
+                                                              selectedAddressType: networkType)
         let presenter = StakingAmountPresenter(selectedAccount: selectedAccount,
                                                rewardDestViewModelFactory: rewardDestViewModelFactory,
+                                               balanceViewModelFactory: balanceViewModelFactory,
                                                logger: logger)
+
+        let priceProvider = SingleValueProviderFactory.shared.getPriceProvider(for: assetId)
         let interactor = StakingAmountInteractor(repository: AnyDataProviderRepository(accountRepository),
+                                                 priceProvider: priceProvider,
                                                  operationManager: OperationManagerFacade.sharedManager)
         let wireframe = StakingAmountWireframe()
 
