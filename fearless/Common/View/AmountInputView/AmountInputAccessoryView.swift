@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 protocol AmountInputAccessoryViewDelegate: class {
-    func didSelect(on view: AmountInputAccessoryView, percentage: CGFloat)
+    func didSelect(on view: AmountInputAccessoryView, percentage: Float)
     func didSelectDone(on view: AmountInputAccessoryView)
 }
 

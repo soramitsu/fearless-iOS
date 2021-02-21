@@ -265,6 +265,7 @@
 		84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452F9725D6728B00F47EC5 /* RuntimeVersionSubscription.swift */; };
 		84452F9D25D6768000F47EC5 /* RuntimeMetadataItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452F9C25D6768000F47EC5 /* RuntimeMetadataItem.swift */; };
 		84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84452FA425D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift */; };
+		8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8449660925E15ECA00F2E9F5 /* RewardDestinationViewModel.swift */; };
 		84563CFF24EFE07E0055591D /* Storage+Identifiable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563CFE24EFE07E0055591D /* Storage+Identifiable.swift */; };
 		84563D0324EFE6D70055591D /* NetworkItemMapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0224EFE6D70055591D /* NetworkItemMapperTests.swift */; };
 		84563D0524F466470055591D /* ManagedAccountItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84563D0424F466470055591D /* ManagedAccountItem.swift */; };
@@ -524,6 +525,8 @@
 		84C1B98624F5424700FE5470 /* ManagedAccountViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B98524F5424700FE5470 /* ManagedAccountViewModelFactory.swift */; };
 		84C1B98B24F55E8200FE5470 /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */; };
 		84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */; };
+		84C2F27725E296CD0050A4AD /* RewardDestinationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */; };
+		84C2F27D25E297350050A4AD /* RewardDestinationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */; };
 		84C4C2D1255CA9210045B582 /* Health.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2D0255CA9210045B582 /* Health.swift */; };
 		84C4C2D7255D2B780045B582 /* PinChangeWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2D6255D2B780045B582 /* PinChangeWireframe.swift */; };
 		84C4C2F9255DB9510045B582 /* PinChangeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2F8255DB9510045B582 /* PinChangeInteractor.swift */; };
@@ -998,6 +1001,7 @@
 		84452F9725D6728B00F47EC5 /* RuntimeVersionSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeVersionSubscription.swift; sourceTree = "<group>"; };
 		84452F9C25D6768000F47EC5 /* RuntimeMetadataItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeMetadataItem.swift; sourceTree = "<group>"; };
 		84452FA425D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDRuntimeMetadataItem+CoreDataCodable.swift"; sourceTree = "<group>"; };
+		8449660925E15ECA00F2E9F5 /* RewardDestinationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModel.swift; sourceTree = "<group>"; };
 		84563CFE24EFE07E0055591D /* Storage+Identifiable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Storage+Identifiable.swift"; sourceTree = "<group>"; };
 		84563D0224EFE6D70055591D /* NetworkItemMapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkItemMapperTests.swift; sourceTree = "<group>"; };
 		84563D0424F466470055591D /* ManagedAccountItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountItem.swift; sourceTree = "<group>"; };
@@ -1275,6 +1279,8 @@
 		84C1B98524F5424700FE5470 /* ManagedAccountViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedAccountViewModelFactory.swift; sourceTree = "<group>"; };
 		84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
 		84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
+		84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModelFactory.swift; sourceTree = "<group>"; };
+		84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationModel.swift; sourceTree = "<group>"; };
 		84C4C2D0255CA9210045B582 /* Health.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Health.swift; sourceTree = "<group>"; };
 		84C4C2D6255D2B780045B582 /* PinChangeWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinChangeWireframe.swift; sourceTree = "<group>"; };
 		84C4C2F8255DB9510045B582 /* PinChangeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinChangeInteractor.swift; sourceTree = "<group>"; };
@@ -1728,6 +1734,8 @@
 		68DEED3BF634220D4BF7A9C8 /* StakingAmount */ = {
 			isa = PBXGroup;
 			children = (
+				84C2F27B25E2971A0050A4AD /* Model */,
+				8449660825E15EBC00F2E9F5 /* ViewModel */,
 				999C15317E0B4FC67B9C17C5 /* StakingAmountProtocols.swift */,
 				6216F6F1B91F798F07695FB6 /* StakingAmountWireframe.swift */,
 				40B47961B2254E8A4D8EC588 /* StakingAmountPresenter.swift */,
@@ -2208,6 +2216,15 @@
 				84F4387925D9D3D000AEDA56 /* RuntimeRegistryServiceTests.swift */,
 			);
 			path = RuntimeRegistryService;
+			sourceTree = "<group>";
+		};
+		8449660825E15EBC00F2E9F5 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				8449660925E15ECA00F2E9F5 /* RewardDestinationViewModel.swift */,
+				84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */,
+			);
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		84585A32251CE1BF00390F7A /* Contacts */ = {
@@ -3193,6 +3210,14 @@
 				84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */,
 			);
 			path = View;
+			sourceTree = "<group>";
+		};
+		84C2F27B25E2971A0050A4AD /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		84C4C2D5255D2B580045B582 /* ChangePincode */ = {
@@ -4289,6 +4314,7 @@
 				84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */,
 				84C6801A24D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift in Sources */,
 				84CCBFBC2509709500180F4F /* UIBarButtonItem+Style.swift in Sources */,
+				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
 				8460E1192541FD1800826F55 /* TransactionDetailsAccessoryView.swift in Sources */,
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */,
@@ -4387,6 +4413,7 @@
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				8470D6D4253E35F0009E9A5D /* StorageUpdate.swift in Sources */,
+				84C2F27D25E297350050A4AD /* RewardDestinationModel.swift in Sources */,
 				84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
@@ -4486,6 +4513,7 @@
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
 				84C6801624D7036B00006BF5 /* SubtitleActionControl.swift in Sources */,
 				840DCBF125DFEE4800D45C6A /* AmountInputView.swift in Sources */,
+				84C2F27725E296CD0050A4AD /* RewardDestinationViewModelFactory.swift in Sources */,
 				84D97EC82520D32000F07405 /* PolkadotIcon+Image.swift in Sources */,
 				84563D0724F4674A0055591D /* ManagedAccountItemMapper.swift in Sources */,
 				8401620625E130D60087A5F3 /* ViewAction.swift in Sources */,
@@ -4974,6 +5002,7 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -4996,6 +5025,7 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5129,6 +5159,7 @@
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
+					"$(CONFIGURATION_BUILD_DIR)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";

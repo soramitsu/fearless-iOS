@@ -227,3 +227,15 @@
 "wallet.send.phishing.warning.text" = "Наступна адреса: %@ як відомо, використовується у фішинг-діях, тому ми не рекомендуємо надсилати токени на цю адресу. Ви хочете всеодно продовжити?";
 "wallet.send.phishing.warning.title" = "Попередження про шахрайство";
 "staking.start.title" = "Почніть робити ставку";
+"staking.setup.title" = "Налаштування розміщення";
+"staking.amount.title" = "Сума ставки";
+"common.balance.format" = "Баланс: %@";
+"common.network.fee" = "Плата за мережу";
+"staking.reward.destination.choose" = "Виберіть пункт призначення";
+"staking.restake.title" = "Переробити";
+"staking.payout.title" = "Виплата";
+"staking.reward.restake.subtitle" = "Заробляйте більше винагород";
+"staking.reward.destination.desc" = "Заробіток за перший рік";
+"staking.payout.subtitle" = "Передача винагород";
+"staking.payouts.learn.more" = "Дізнайтеся більше про виплати";
+"staking.reward.payout.account" = "Рахунок для виплат";
