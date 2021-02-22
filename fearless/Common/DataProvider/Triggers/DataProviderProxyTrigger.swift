@@ -1,9 +1,8 @@
-//
-//  DataProviderProxyTrigger.swift
-//  fearless
-//
-//  Created by Ruslan Rezin on 22.02.2021.
-//  Copyright © 2021 Soramitsu. All rights reserved.
-//
-
 import Foundation
+import RobinHood
+
+final class DataProviderProxyTrigger: DataProviderTriggerProtocol {
+    weak var delegate: DataProviderTriggerDelegate?
+
+    func receive(event: DataProviderEvent) {}
+}

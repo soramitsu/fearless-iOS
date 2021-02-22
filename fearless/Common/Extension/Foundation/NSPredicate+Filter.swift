@@ -30,4 +30,8 @@ extension NSPredicate {
     static func filterRuntimeMetadataItemsBy(identifier: String) -> NSPredicate {
         return NSPredicate(format: "%K == %@", #keyPath(CDRuntimeMetadataItem.identifier), identifier)
     }
+
+    static func filterStorageItemBy(identifier: String) -> NSPredicate {
+        return NSPredicate(format: "%K == %@", #keyPath(CDChainStorageItem.identifier), identifier)
+    }
 }

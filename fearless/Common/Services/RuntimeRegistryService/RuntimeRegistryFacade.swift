@@ -3,7 +3,7 @@ import RobinHood
 import SoraKeystore
 
 final class RuntimeRegistryFacade {
-    static let sharedService: RuntimeRegistryServiceProtocol = {
+    static let sharedService: RuntimeRegistryServiceProtocol & RuntimeCodingServiceProtocol = {
         let chain = SettingsManager.shared.selectedConnection.type.chain
         let storageFacade = SubstrateDataStorageFacade.shared
         let operationManager = OperationManagerFacade.sharedManager

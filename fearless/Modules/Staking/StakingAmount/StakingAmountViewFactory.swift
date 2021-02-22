@@ -18,6 +18,13 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        let providerFactory = SingleValueProviderFactory.shared
+        guard let balanceProvider = try? providerFactory
+                .getAccountProvider(for: selectedAccount.address,
+                                    runtimeServie: RuntimeRegistryFacade.sharedService) else {
+            return nil
+        }
+
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
@@ -31,14 +38,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(asset: asset)
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: networkType)
-        let presenter = StakingAmountPresenter(selectedAccount: selectedAccount,
+        let presenter = StakingAmountPresenter(asset: asset,
+                                               selectedAccount: selectedAccount,
                                                rewardDestViewModelFactory: rewardDestViewModelFactory,
                                                balanceViewModelFactory: balanceViewModelFactory,
                                                logger: logger)
 
-        let priceProvider = SingleValueProviderFactory.shared.getPriceProvider(for: assetId)
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+
         let interactor = StakingAmountInteractor(repository: AnyDataProviderRepository(accountRepository),
                                                  priceProvider: priceProvider,
+                                                 balanceProvider: balanceProvider,
                                                  operationManager: OperationManagerFacade.sharedManager)
         let wireframe = StakingAmountWireframe()
 

@@ -25,6 +25,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     private var amountPriceViewModel: LocalizableResource<String>?
+    private var balanceViewModel: LocalizableResource<String>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -150,6 +151,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
             .stakingPayoutsLearnMore(preferredLanguages: languages)
 
         applyAmountPrice()
+        applyBalance()
         applyRewardDestinationViewModel()
 
         if let accountView = accountView {
@@ -166,6 +168,15 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         if let viewModel = amountPriceViewModel {
             let locale = localizationManager?.selectedLocale ?? Locale.current
             amountInputView.priceText = viewModel.value(for: locale)
+        }
+    }
+
+    private func applyBalance() {
+        if let viewModel = balanceViewModel {
+            let locale = localizationManager?.selectedLocale ?? Locale.current
+            let value = R.string.localizable.commonBalanceFormat(viewModel.value(for: locale),
+                                                                 preferredLanguages: locale.rLanguages)
+            amountInputView.balanceText = value
         }
     }
 
@@ -268,6 +279,11 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
     func didReceiveAmountPrice(viewModel: LocalizableResource<String>) {
         amountPriceViewModel = viewModel
         applyAmountPrice()
+    }
+
+    func didReceiveBalance(viewModel: LocalizableResource<String>) {
+        balanceViewModel = viewModel
+        applyBalance()
     }
 }
 

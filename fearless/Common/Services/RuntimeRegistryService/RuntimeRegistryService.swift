@@ -171,8 +171,7 @@ final class RuntimeRegistryService {
             let catalog = try TypeRegistryCatalog
                 .createFromBaseTypeDefinition(baseData,
                                               networkDefinitionData: networkData,
-                                              runtimeMetadata: metadata,
-                                              version: UInt64(runtimeMetadata.version))
+                                              runtimeMetadata: metadata)
 
             let localBaseHash = try hasher.hash(data: baseData)
             let localNetworkHash = try hasher.hash(data: networkData)

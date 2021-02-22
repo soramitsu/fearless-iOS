@@ -7,13 +7,16 @@ final class StakingAmountInteractor {
 
     private let repository: AnyDataProviderRepository<ManagedAccountItem>
     private let priceProvider: SingleValueProvider<PriceData>
+    private let balanceProvider: DataProvider<DecodedAccountInfo>
     private let operationManager: OperationManagerProtocol
 
     init(repository: AnyDataProviderRepository<ManagedAccountItem>,
          priceProvider: SingleValueProvider<PriceData>,
+         balanceProvider: DataProvider<DecodedAccountInfo>,
          operationManager: OperationManagerProtocol) {
         self.repository = repository
         self.priceProvider = priceProvider
+        self.balanceProvider = balanceProvider
         self.operationManager = operationManager
     }
 
@@ -46,11 +49,42 @@ final class StakingAmountInteractor {
                                   failing: failureClosure,
                                   options: options)
     }
+
+    private func subscribeToAccountChanges() {
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
+            if changes.isEmpty {
+                self?.presenter.didReceive(balance: nil)
+            } else {
+                for change in changes {
+                    switch change {
+                    case .insert(let wrapped), .update(let wrapped):
+                        self?.presenter.didReceive(balance: wrapped.item.data)
+                    case .delete:
+                        self?.presenter.didReceive(price: nil)
+                    }
+                }
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(error: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
+                                                  waitsInProgressSyncOnAdd: false)
+        balanceProvider.addObserver(self,
+                                    deliverOn: .main,
+                                    executing: updateClosure,
+                                    failing: failureClosure,
+                                    options: options)
+    }
 }
 
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
+        subscribeToAccountChanges()
     }
 
     func fetchAccounts() {

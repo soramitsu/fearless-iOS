@@ -15,3 +15,10 @@ struct DyAccountData: Codable, Equatable {
     @StringCodable var miscFrozen: BigUInt
     @StringCodable var feeFrozen: BigUInt
 }
+
+extension DyAccountData {
+    var total: BigUInt { free + reserved }
+    var frozen: BigUInt { reserved + locked }
+    var locked: BigUInt { max(miscFrozen, feeFrozen) }
+    var available: BigUInt { free - locked }
+}

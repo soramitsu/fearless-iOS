@@ -1,5 +1,5 @@
 import Foundation
 
-protocol DynamicScaleCodable: Codable {
-    static var typeName: String { get }
+struct DynamicScaleType {
+    static let accountInfo = "AccountInfo"
 }

@@ -1,4 +1,5 @@
 import Foundation
+import CommonWallet
 
 final class StakingAmountPresenter {
     weak var view: StakingAmountViewProtocol?
@@ -11,16 +12,20 @@ final class StakingAmountPresenter {
     let logger: LoggerProtocol
 
     private var priceData: PriceData?
+    private var balance: Decimal?
+    private var asset: WalletAsset
 
     private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
                                                     restakeReturnPercentage: 0.3551,
                                                     payoutReturn: 2.15,
                                                     payoutReturnPercentage: 0.2131)
 
-    init(selectedAccount: AccountItem,
+    init(asset: WalletAsset,
+         selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
          logger: LoggerProtocol) {
+        self.asset = asset
         self.selectedAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
@@ -51,6 +56,11 @@ final class StakingAmountPresenter {
             let price = balanceViewModelFactory.priceFromAmount(1.0, priceData: priceData)
             view?.didReceiveAmountPrice(viewModel: price)
         }
+    }
+
+    private func provideBalance() {
+        let balanceViewModel = balanceViewModelFactory.amountFromValue(balance ?? 0.0)
+        view?.didReceiveBalance(viewModel: balanceViewModel)
     }
 }
 
@@ -89,5 +99,19 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         provideAmountPrice()
     }
 
-    func didReceive(error: Error) {}
+    func didReceive(balance: DyAccountData?) {
+        if let availableValue = balance?.available,
+           let available = Decimal.fromSubstrateAmount(availableValue,
+                                                       precision: asset.precision) {
+            self.balance = available
+        } else {
+            self.balance = nil
+        }
+
+        provideBalance()
+    }
+
+    func didReceive(error: Error) {
+        logger.error("Did receive error: \(error)")
+    }
 }

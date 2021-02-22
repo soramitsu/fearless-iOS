@@ -4,6 +4,7 @@ import SoraFoundation
 protocol StakingAmountViewProtocol: ControllerBackedProtocol {
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAmountPrice(viewModel: LocalizableResource<String>)
+    func didReceiveBalance(viewModel: LocalizableResource<String>)
 }
 
 protocol StakingAmountPresenterProtocol: class {
@@ -23,6 +24,7 @@ protocol StakingAmountInteractorInputProtocol: class {
 protocol StakingAmountInteractorOutputProtocol: class {
     func didReceive(accounts: [ManagedAccountItem])
     func didReceive(price: PriceData?)
+    func didReceive(balance: DyAccountData?)
     func didReceive(error: Error)
 }
 
