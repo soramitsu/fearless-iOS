@@ -71,17 +71,12 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     -> DataProvider<DecodedAccountInfo> {
         clearIfNeeded()
 
-        let ss58Factory = SS58AddressFactory()
+        let addressFactory = SS58AddressFactory()
 
-        let addressTypeValue = try ss58Factory.type(fromAddress: address)
-
-        guard let addressType = SNAddressType(rawValue: addressTypeValue.uint8Value) else {
-            throw SingleValueProviderFactoryError.unexpectedAddress
-        }
+        let addressType = try addressFactory.extractAddressType(from: address)
+        let accountId = try addressFactory.accountId(fromAddress: address, type: addressType)
 
         let storageIdFactory = try ChainStorageIdFactory(chain: addressType.chain)
-
-        let accountId = try ss58Factory.accountId(fromAddress: address, type: addressType)
 
         let remoteKey = try StorageKeyFactory().accountInfoKeyForId(accountId)
         let localKey = try storageIdFactory.createIdentifier(for: remoteKey)

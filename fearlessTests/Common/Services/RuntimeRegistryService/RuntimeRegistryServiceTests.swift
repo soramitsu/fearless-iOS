@@ -31,7 +31,8 @@ class RuntimeRegistryServiceTests: NetworkBaseTests {
 
         let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
         try RuntimeMetadataCreationHelper.persistTestRuntimeMetadata(for: service.chain.genesisHash,
-                                                                 version: 48,
+                                                                 specVersion: 48,
+                                                                 txVersion: 4,
                                                                  using: AnyDataProviderRepository(repository),
                                                                  operationManager: operationManager)
 
@@ -79,7 +80,8 @@ class RuntimeRegistryServiceTests: NetworkBaseTests {
         DispatchQueue.main.asyncAfter(deadline: .now() + .seconds(1)) {
             let repository: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> = storageFacade.createRepository()
             try? RuntimeMetadataCreationHelper.persistTestRuntimeMetadata(for: service.chain.genesisHash,
-                                                                          version: 48,
+                                                                          specVersion: 48,
+                                                                          txVersion: 4,
                                                                           using:    AnyDataProviderRepository(repository),
                                                                           operationManager: operationManager)
         }

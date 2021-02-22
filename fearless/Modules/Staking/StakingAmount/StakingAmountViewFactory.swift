@@ -25,6 +25,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        guard let connection = WebSocketService.shared.connection else {
+            return nil
+        }
+
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
@@ -46,9 +50,16 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
+        let extrinsicService = ExtrinsicService(address: selectedAccount.address,
+                                                cryptoType: selectedAccount.cryptoType,
+                                                runtimeRegistry: RuntimeRegistryFacade.sharedService,
+                                                engine: connection,
+                                                operationManager: OperationManagerFacade.sharedManager)
+
         let interactor = StakingAmountInteractor(repository: AnyDataProviderRepository(accountRepository),
                                                  priceProvider: priceProvider,
                                                  balanceProvider: balanceProvider,
+                                                 extrinsicService: extrinsicService,
                                                  operationManager: OperationManagerFacade.sharedManager)
         let wireframe = StakingAmountWireframe()
 

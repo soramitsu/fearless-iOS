@@ -274,6 +274,13 @@
 		84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */; };
 		84585A31251C0B9300390F7A /* NetworkInfoMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A30251C0B9300390F7A /* NetworkInfoMode.swift */; };
 		84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */; };
+		845BB8B825E4465F00E5FCDC /* ExtrinsicService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8B725E4465F00E5FCDC /* ExtrinsicService.swift */; };
+		845BB8C025E4508800E5FCDC /* SS58FactoryExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8BF25E4508800E5FCDC /* SS58FactoryExtensions.swift */; };
+		845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8C825E45D1500E5FCDC /* BondCall.swift */; };
+		845BB8D125E45F1300E5FCDC /* NominateCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8D025E45F1300E5FCDC /* NominateCall.swift */; };
+		845BB8D625E461FC00E5FCDC /* RewardDestination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8D525E461FC00E5FCDC /* RewardDestination.swift */; };
+		845BB8DB25E462B100E5FCDC /* SubstrateConstansts.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8DA25E462B100E5FCDC /* SubstrateConstansts.swift */; };
+		845BB8E025E463D500E5FCDC /* RuntimeCall+Known.swift in Sources */ = {isa = PBXBuildFile; fileRef = 845BB8DF25E463D500E5FCDC /* RuntimeCall+Known.swift */; };
 		8460516D25536C4800A1F0B4 /* ExportOption+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */; };
 		8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8460517125536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift */; };
 		8460519425546E7100A1F0B4 /* Chain+ViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8460519325546E7100A1F0B4 /* Chain+ViewModel.swift */; };
@@ -1021,6 +1028,13 @@
 		84585A2E251BFC8400390F7A /* TriangularedButton+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Style.swift"; sourceTree = "<group>"; };
 		84585A30251C0B9300390F7A /* NetworkInfoMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoMode.swift; sourceTree = "<group>"; };
 		84585A33251CE2E300390F7A /* ContactsLocalSearchEngine.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContactsLocalSearchEngine.swift; sourceTree = "<group>"; };
+		845BB8B725E4465F00E5FCDC /* ExtrinsicService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicService.swift; sourceTree = "<group>"; };
+		845BB8BF25E4508800E5FCDC /* SS58FactoryExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SS58FactoryExtensions.swift; sourceTree = "<group>"; };
+		845BB8C825E45D1500E5FCDC /* BondCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondCall.swift; sourceTree = "<group>"; };
+		845BB8D025E45F1300E5FCDC /* NominateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominateCall.swift; sourceTree = "<group>"; };
+		845BB8D525E461FC00E5FCDC /* RewardDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestination.swift; sourceTree = "<group>"; };
+		845BB8DA25E462B100E5FCDC /* SubstrateConstansts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateConstansts.swift; sourceTree = "<group>"; };
+		845BB8DF25E463D500E5FCDC /* RuntimeCall+Known.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuntimeCall+Known.swift"; sourceTree = "<group>"; };
 		8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExportOption+ViewModel.swift"; sourceTree = "<group>"; };
 		8460517125536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewModelBinder.swift; sourceTree = "<group>"; };
 		8460519325546E7100A1F0B4 /* Chain+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Chain+ViewModel.swift"; sourceTree = "<group>"; };
@@ -1849,6 +1863,7 @@
 		84155DE8253980D700A27058 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				845BB8B625E4464D00E5FCDC /* ExtrinsicService */,
 				2AB7A7FD25CD0E3E00767D87 /* GitHubPhishingService */,
 				84452F2925D5B81800F47EC5 /* RuntimeRegistryService */,
 				84155DE9253980E100A27058 /* WebSocketService */,
@@ -2169,6 +2184,7 @@
 			children = (
 				843910B8253EFB8100E3C217 /* StorageKeyFactory+Implicit.swift */,
 				849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */,
+				845BB8BF25E4508800E5FCDC /* SS58FactoryExtensions.swift */,
 			);
 			path = FearlessUtils;
 			sourceTree = "<group>";
@@ -2264,6 +2280,24 @@
 				84FAB0772543791A00319F74 /* ContactContext.swift */,
 			);
 			path = Contacts;
+			sourceTree = "<group>";
+		};
+		845BB8B625E4464D00E5FCDC /* ExtrinsicService */ = {
+			isa = PBXGroup;
+			children = (
+				845BB8B725E4465F00E5FCDC /* ExtrinsicService.swift */,
+			);
+			path = ExtrinsicService;
+			sourceTree = "<group>";
+		};
+		845BB8C725E45D0600E5FCDC /* Calls */ = {
+			isa = PBXGroup;
+			children = (
+				845BB8C825E45D1500E5FCDC /* BondCall.swift */,
+				845BB8D025E45F1300E5FCDC /* NominateCall.swift */,
+				845BB8DF25E463D500E5FCDC /* RuntimeCall+Known.swift */,
+			);
+			path = Calls;
 			sourceTree = "<group>";
 		};
 		8460E1142541E01B00826F55 /* Style */ = {
@@ -2742,6 +2776,8 @@
 				2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */,
 				84452F9C25D6768000F47EC5 /* RuntimeMetadataItem.swift */,
 				8401620525E130D60087A5F3 /* ViewAction.swift */,
+				845BB8D525E461FC00E5FCDC /* RewardDestination.swift */,
+				845BB8DA25E462B100E5FCDC /* SubstrateConstansts.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -3137,6 +3173,7 @@
 		8490154E24ACD521008F705E /* Scale */ = {
 			isa = PBXGroup;
 			children = (
+				845BB8C725E45D0600E5FCDC /* Calls */,
 				8438E1DC24C18F11001BDB13 /* Types */,
 			);
 			path = Scale;
@@ -4189,6 +4226,7 @@
 				84DA3B0E24C5AEB600B5E27F /* TransferCallV27.swift in Sources */,
 				8494D86B25247F9600614D8F /* Decimal+String.swift in Sources */,
 				843910AA253E3BAA00E3C217 /* WebSocketSubscriptionProtocols.swift in Sources */,
+				845BB8DB25E462B100E5FCDC /* SubstrateConstansts.swift in Sources */,
 				849014C824AA8A28008F705E /* BiometryAuth.swift in Sources */,
 				84DF21A72534D031005454AE /* AccountId.swift in Sources */,
 				8428768C24AE046300D91AD8 /* AboutPresenter.swift in Sources */,
@@ -4196,6 +4234,7 @@
 				84754C902511557200854599 /* ConnectionTableViewCell.swift in Sources */,
 				840882BD2514B3DC00177E20 /* ConnectionAccountImportInteractor.swift in Sources */,
 				842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */,
+				845BB8B825E4465F00E5FCDC /* ExtrinsicService.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
 				842876A524AE049B00D91AD8 /* SelectableTitleListViewModel.swift in Sources */,
 				847C96302553426D002D288F /* ExportGenericViewModel.swift in Sources */,
@@ -4210,7 +4249,9 @@
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
+				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
 				84FB1F73252700A200E0242B /* HistoryItemTableViewCell.swift in Sources */,
+				845BB8D625E461FC00E5FCDC /* RewardDestination.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
 				842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */,
 				8470D6CD253E3170009E9A5D /* AccountInfoSubscription.swift in Sources */,
@@ -4282,6 +4323,7 @@
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
+				845BB8D125E45F1300E5FCDC /* NominateCall.swift in Sources */,
 				8490147B24AA13D9008F705E /* AccountOperationFactory.swift in Sources */,
 				8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */,
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
@@ -4304,6 +4346,7 @@
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
 				843C49DF24DF3CB300B71DDA /* AccountImportMetadata.swift in Sources */,
+				845BB8E025E463D500E5FCDC /* RuntimeCall+Known.swift in Sources */,
 				8463A72525E3A82A003B8160 /* DataProviderProxyTrigger.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
 				84BEE22D2564765F00D05EB3 /* UIAlertViewController+Account.swift in Sources */,
@@ -4500,6 +4543,7 @@
 				8468B86E24F63D1400B76BC6 /* AddMainWireframe.swift in Sources */,
 				84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */,
 				8475AE0C258ACA8800B058F3 /* BaseAssetViewModelFactory.swift in Sources */,
+				845BB8C025E4508800E5FCDC /* SS58FactoryExtensions.swift in Sources */,
 				843910BF253F354900E3C217 /* ActiveEraSubscription.swift in Sources */,
 				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,

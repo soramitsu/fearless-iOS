@@ -26,6 +26,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
     private var amountPriceViewModel: LocalizableResource<String>?
     private var balanceViewModel: LocalizableResource<String>?
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -152,6 +153,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
         applyAmountPrice()
         applyBalance()
+        applyFee()
         applyRewardDestinationViewModel()
 
         if let accountView = accountView {
@@ -253,6 +255,34 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         accountView?.subtitle = title
     }
 
+    private func applyFee() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        if let fee = feeViewModel?.value(for: locale) {
+            feeActivityIndicator.stopAnimating()
+
+            let amountAttributedString = NSMutableAttributedString(string: fee.amount + "  ",
+                                                                   attributes: [
+                                                                        .foregroundColor: R.color.colorWhite()!,
+                                                                        .font: UIFont.p1Paragraph
+                                                                   ])
+
+            if let price = fee.price {
+                let priceAttributedString = NSAttributedString(string: price,
+                                                               attributes: [
+                                                                .foregroundColor: R.color.colorGray()!,
+                                                                .font: UIFont.p1Paragraph
+                                                               ])
+                amountAttributedString.append(priceAttributedString)
+            }
+
+            feeDetailsLabel.attributedText = amountAttributedString
+
+        } else {
+            feeDetailsLabel.text = ""
+            feeActivityIndicator.startAnimating()
+        }
+    }
+
     @IBAction private func actionRestake() {
         if !restakeView.isSelected {
             presenter.selectRestakeDestination()
@@ -284,6 +314,11 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
     func didReceiveBalance(viewModel: LocalizableResource<String>) {
         balanceViewModel = viewModel
         applyBalance()
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        feeViewModel = viewModel
+        applyFee()
     }
 }
 

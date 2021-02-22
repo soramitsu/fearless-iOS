@@ -6,7 +6,7 @@ import CommonWallet
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData)
+    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
     -> LocalizableResource<BalanceViewModelProtocol>
 }
 
@@ -53,20 +53,20 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData)
+    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
     -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 
         return LocalizableResource { locale in
-            guard let rate = Decimal(string: priceData.price) else {
-                return BalanceViewModel(amount: "", price: "")
+            let amountFormatter = localizableAmountFormatter.value(for: locale)
+            let amountString = amountFormatter.string(from: amount) ?? ""
+
+            guard let priceData = priceData, let rate = Decimal(string: priceData.price) else {
+                return BalanceViewModel(amount: amountString, price: nil)
             }
 
             let targetAmount = rate * amount
-
-            let amountFormatter = localizableAmountFormatter.value(for: locale)
-            let amountString = amountFormatter.string(from: amount) ?? ""
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
             let priceString = priceFormatter.string(from: targetAmount) ?? ""

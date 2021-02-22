@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import BigInt
 
 final class StakingAmountPresenter {
     weak var view: StakingAmountViewProtocol?
@@ -13,6 +14,7 @@ final class StakingAmountPresenter {
 
     private var priceData: PriceData?
     private var balance: Decimal?
+    private var fee: Decimal?
     private var asset: WalletAsset
 
     private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
@@ -62,12 +64,27 @@ final class StakingAmountPresenter {
         let balanceViewModel = balanceViewModelFactory.amountFromValue(balance ?? 0.0)
         view?.didReceiveBalance(viewModel: balanceViewModel)
     }
+
+    private func provideFee() {
+        if let fee = fee {
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
+    }
 }
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func setup() {
         interactor.setup()
         provideRestakeRewardDestination()
+
+        if let amount = Decimal(1.0).toSubstrateAmount(precision: asset.precision) {
+            interactor.estimateFee(for: selectedAccount.address,
+                                   amount: amount,
+                                   rewardDestination: .restake)
+        }
     }
 
     func selectRestakeDestination() {
@@ -97,6 +114,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     func didReceive(price: PriceData?) {
         self.priceData = price
         provideAmountPrice()
+        provideFee()
     }
 
     func didReceive(balance: DyAccountData?) {
@@ -109,6 +127,19 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         }
 
         provideBalance()
+    }
+
+    func didReceive(paymentInfo: RuntimeDispatchInfo,
+                    for amount: BigUInt,
+                    rewardDestination: RewardDestination) {
+        if let feeValue = BigUInt(paymentInfo.fee),
+           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
+            self.fee = fee
+        } else {
+            self.fee = nil
+        }
+
+        provideFee()
     }
 
     func didReceive(error: Error) {
