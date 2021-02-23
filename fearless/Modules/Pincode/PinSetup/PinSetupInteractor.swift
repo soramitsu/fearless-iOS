@@ -3,7 +3,7 @@ import LocalAuthentication
 import SoraKeystore
 
 class PinSetupInteractor {
-    public enum PinSetupState {
+    enum PinSetupState {
         case waitingPincode
         case waitingBiometrics
         case submitingPincode

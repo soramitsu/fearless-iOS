@@ -6,7 +6,7 @@ enum FearlessTransferValidatingError: Error {
 }
 
 extension FearlessTransferValidatingError: WalletErrorContentConvertible {
-    public func toErrorContent(for locale: Locale?) -> WalletErrorContentProtocol {
+    func toErrorContent(for locale: Locale?) -> WalletErrorContentProtocol {
         let title: String
         let message: String
 
