@@ -318,7 +318,7 @@ extension AmountInputView {
     }
 
     @IBInspectable
-    var iconImage: UIImage? {
+    var assetIcon: UIImage? {
         get {
             return iconView.image
         }

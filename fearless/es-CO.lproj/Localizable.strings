@@ -236,3 +236,4 @@ Ruta de derivación: %@";
 "staking.payout.subtitle" = "Recompensas de transferencia";
 "staking.payouts.learn.more" = "Obtenga más información sobre los pagos";
 "staking.reward.payout.account" = "";
+"staking.amount.too.big.error" = "Lo sentimos, no tiene fondos suficientes para apostar la cantidad especificada";

@@ -239,3 +239,4 @@ a type of password.";
 "staking.payout.subtitle" = "Перевести награду";
 "staking.payouts.learn.more" = "Узнать больше про выплаты";
 "staking.reward.payout.account" = "Аккаунт для выплат вознаграждения";
+"staking.amount.too.big.error" = "Извините, у Вас недостаточно средств для стекинга выбранной суммы";

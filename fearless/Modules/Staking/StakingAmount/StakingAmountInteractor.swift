@@ -8,13 +8,13 @@ import FearlessUtils
 final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol!
 
-    private let repository: AnyDataProviderRepository<ManagedAccountItem>
+    private let repository: AnyDataProviderRepository<AccountItem>
     private let priceProvider: SingleValueProvider<PriceData>
     private let balanceProvider: DataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
     private let operationManager: OperationManagerProtocol
 
-    init(repository: AnyDataProviderRepository<ManagedAccountItem>,
+    init(repository: AnyDataProviderRepository<AccountItem>,
          priceProvider: SingleValueProvider<PriceData>,
          balanceProvider: DataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,

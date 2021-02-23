@@ -236,3 +236,4 @@ a type of password.";
 "staking.payout.subtitle" = "報酬を転送する";
 "staking.payouts.learn.more" = "支払いの詳細";
 "staking.reward.payout.account" = "支払い口座";
+"staking.amount.too.big.error" = "申し訳ありませんが、指定された金額を賭けるのに十分な資金がありません";

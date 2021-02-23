@@ -239,3 +239,4 @@
 "staking.payout.subtitle" = "Передача винагород";
 "staking.payouts.learn.more" = "Дізнайтеся більше про виплати";
 "staking.reward.payout.account" = "Рахунок для виплат";
+"staking.amount.too.big.error" = "Вибачте, у вас недостатньо коштів для розміщення вказаної суми";

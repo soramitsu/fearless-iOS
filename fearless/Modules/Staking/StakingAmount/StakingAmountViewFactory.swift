@@ -32,10 +32,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let mapper = ManagedAccountItemMapper()
-        let accountRepository = facade.createRepository(filter: filter,
-                                                        sortDescriptors: [.accountsByOrder],
-                                                        mapper: AnyCoreDataMapper(mapper))
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            facade.createRepository(filter: filter,
+                                    sortDescriptors: [.accountsByOrder])
 
         let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
 
@@ -46,6 +45,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                                                selectedAccount: selectedAccount,
                                                rewardDestViewModelFactory: rewardDestViewModelFactory,
                                                balanceViewModelFactory: balanceViewModelFactory,
+                                               applicationConfig: ApplicationConfig.shared,
                                                logger: logger)
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)

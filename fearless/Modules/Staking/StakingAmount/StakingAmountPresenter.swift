@@ -11,15 +11,18 @@ final class StakingAmountPresenter {
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
-    let feeDebounce = 1.0
+    let feeDebounce: TimeInterval
+    let applicationConfig: ApplicationConfigProtocol
 
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
+    private var loadingFee: Bool = false
     private var asset: WalletAsset
-    private var amount: Decimal = 0.0
+    private var amount: Decimal?
     private var rewardDestination: RewardDestination = .restake
     private var payoutAccount: AccountItem
+    private var loadingPayouts: Bool = false
 
     private lazy var scheduler: SchedulerProtocol = Scheduler(with: self, callbackQueue: .main)
 
@@ -37,12 +40,15 @@ final class StakingAmountPresenter {
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
          feeDebounce: TimeInterval = 2.0,
+         applicationConfig: ApplicationConfigProtocol,
          logger: LoggerProtocol) {
         self.asset = asset
         self.selectedAccount = selectedAccount
         self.payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.feeDebounce = feeDebounce
+        self.applicationConfig = applicationConfig
         self.logger = logger
     }
 
@@ -62,16 +68,11 @@ final class StakingAmountPresenter {
         }
     }
 
-    private func provideAmountPrice() {
-        if let priceData = priceData {
-            let price = balanceViewModelFactory.priceFromAmount(amount, priceData: priceData)
-            view?.didReceiveAmountPrice(viewModel: price)
-        }
-    }
-
-    private func provideBalance() {
-        let balanceViewModel = balanceViewModelFactory.amountFromValue(balance ?? 0.0)
-        view?.didReceiveBalance(viewModel: balanceViewModel)
+    private func provideAsset() {
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(amount ?? 0.0,
+                                                                            balance: balance,
+                                                                            priceData: priceData)
+        view?.didReceiveAsset(viewModel: viewModel)
     }
 
     private func provideFee() {
@@ -90,11 +91,18 @@ final class StakingAmountPresenter {
 
     private func scheduleFeeEstimation() {
         scheduler.cancel()
-        scheduler.notifyAfter(feeDebounce)
+
+        if !loadingFee {
+            loadingFee = true
+            estimateFee()
+        } else {
+            scheduler.notifyAfter(feeDebounce)
+        }
     }
 
     private func estimateFee() {
-        if let amount = amount.toSubstrateAmount(precision: asset.precision) {
+        if let amount = (amount ?? 0.0).toSubstrateAmount(precision: asset.precision) {
+            loadingFee = true
             interactor.estimateFee(for: selectedAccount.address,
                                    amount: amount,
                                    rewardDestination: rewardDestination)
@@ -129,23 +137,52 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func selectAmountPercentage(_ percentage: Float) {
         if let balance = balance, let fee = fee {
             let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
-            amount = newAmount
 
-            provideAmountInputViewModel()
-            provideAmountPrice()
+            if newAmount > 0 {
+                amount = newAmount
+
+                provideAmountInputViewModel()
+                provideAsset()
+            } else {
+                wireframe.presentNotEnoughFunds(from: view)
+            }
         }
     }
 
     func selectPayoutAccount() {
+        guard !loadingPayouts else {
+            return
+        }
 
+        loadingPayouts = true
+
+        interactor.fetchAccounts()
+    }
+
+    func selectLearnMore() {
+        if let view = view {
+            wireframe.showWeb(url: applicationConfig.learnPayoutURL,
+                              from: view,
+                              style: .automatic)
+        }
     }
 
     func updateAmount(_ newValue: Decimal) {
         amount = newValue
 
-        provideAmountPrice()
-        
+        provideAsset()
         scheduleFeeEstimation()
+    }
+
+    func proceed() {
+        guard let amount = amount, let fee = fee, let balance = balance else {
+            return
+        }
+
+        guard amount + fee <= balance else {
+            wireframe.presentNotEnoughFunds(from: view)
+            return
+        }
     }
 
     func close() {
@@ -160,29 +197,40 @@ extension StakingAmountPresenter: SchedulerDelegate {
 }
 
 extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
-    func didReceive(accounts: [ManagedAccountItem]) {}
+    func didReceive(accounts: [AccountItem]) {
+        loadingPayouts = false
+
+        let context = PrimitiveContextWrapper(value: accounts)
+
+        wireframe.presentAccountSelection(accounts,
+                                          selectedAccountItem: payoutAccount,
+                                          delegate: self,
+                                          from: view,
+                                          context: context)
+    }
 
     func didReceive(price: PriceData?) {
         self.priceData = price
-        provideAmountPrice()
+        provideAsset()
         provideFee()
     }
 
     func didReceive(balance: DyAccountData?) {
-        if let availableValue = balance?.available,
-           let available = Decimal.fromSubstrateAmount(availableValue,
-                                                       precision: asset.precision) {
-            self.balance = available
+        if let availableValue = balance?.available {
+            self.balance = Decimal.fromSubstrateAmount(availableValue,
+                                                       precision: asset.precision)
         } else {
-            self.balance = nil
+            self.balance = 0.0
         }
 
-        provideBalance()
+        provideAsset()
     }
 
     func didReceive(paymentInfo: RuntimeDispatchInfo,
                     for amount: BigUInt,
                     rewardDestination: RewardDestination) {
+        loadingFee = false
+
         if let feeValue = BigUInt(paymentInfo.fee),
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
             self.fee = fee
@@ -194,6 +242,26 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
     }
 
     func didReceive(error: Error) {
-        logger.error("Did receive error: \(error)")
+        loadingPayouts = false
+        loadingFee = false
+
+        let locale = view?.localizationManager?.selectedLocale
+
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            logger.error("Did receive error: \(error)")
+        }
+    }
+}
+
+extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let accounts =
+            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value else {
+            return
+        }
+
+        payoutAccount = accounts[index]
+        provideRewardDestination()
     }
 }

@@ -164,6 +164,7 @@ class AmountInputView: BackgroundedContentControl {
         if contentView == nil {
             let contentView = UIView()
             contentView.backgroundColor = .clear
+            contentView.isUserInteractionEnabled = false
             self.contentView = contentView
         }
 
@@ -193,8 +194,10 @@ class AmountInputView: BackgroundedContentControl {
         if textField == nil {
             let field = UITextField()
             field.textAlignment = .right
-            contentView?.addSubview(field)
+            addSubview(field)
             textField = field
+
+            addTarget(self, action: #selector(actionTap), for: .touchUpInside)
         }
     }
 
@@ -213,5 +216,13 @@ class AmountInputView: BackgroundedContentControl {
         }
 
         return imageView
+    }
+
+    // MARK: Action
+
+    @objc private func actionTap() {
+        if !textField.isFirstResponder {
+            textField.becomeFirstResponder()
+        }
     }
 }

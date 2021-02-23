@@ -238,3 +238,4 @@ Percorso di derivazione: %@";
 "staking.payout.subtitle" = "Trasferisci premi";
 "staking.payouts.learn.more" = "Ulteriori informazioni sui pagamenti";
 "staking.reward.payout.account" = "Conto di pagamento";
+"staking.amount.too.big.error" = "Spiacenti, non hai fondi sufficienti per puntare l'importo specificato";

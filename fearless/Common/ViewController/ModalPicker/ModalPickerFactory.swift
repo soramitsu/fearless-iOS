@@ -4,6 +4,11 @@ import SoraFoundation
 import IrohaCrypto
 import FearlessUtils
 
+enum AccountHeaderType {
+    case title(_ title: LocalizableResource<String>)
+    case address(_ type: SNAddressType, title: LocalizableResource<String>)
+}
+
 struct ModalPickerFactory {
     static func createPickerForList(_ types: [CryptoType],
                                     selectedType: CryptoType?,
@@ -142,19 +147,51 @@ struct ModalPickerFactory {
 
     static func createPickerList(_ accounts: [AccountItem],
                                  selectedAccount: AccountItem?,
+                                 title: LocalizableResource<String>,
+                                 delegate: ModalPickerViewControllerDelegate?,
+                                 context: AnyObject?) -> UIViewController? {
+
+        createPickerList(accounts,
+                         selectedAccount: selectedAccount,
+                         headerType: .title(title),
+                         delegate: delegate,
+                         context: context)
+    }
+
+    static func createPickerList(_ accounts: [AccountItem],
+                                 selectedAccount: AccountItem?,
                                  addressType: SNAddressType,
+                                 delegate: ModalPickerViewControllerDelegate?,
+                                 context: AnyObject?) -> UIViewController? {
+
+        let localizedTitle = LocalizableResource { locale in
+            R.string.localizable.profileAccountsTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        return createPickerList(accounts,
+                                selectedAccount: selectedAccount,
+                                headerType: .address(addressType, title: localizedTitle),
+                                delegate: delegate,
+                                context: context)
+    }
+
+    static func createPickerList(_ accounts: [AccountItem],
+                                 selectedAccount: AccountItem?,
+                                 headerType: AccountHeaderType,
                                  delegate: ModalPickerViewControllerDelegate?,
                                  context: AnyObject?) -> UIViewController? {
 
         let viewController: ModalPickerViewController<AccountPickerTableViewCell, AccountPickerViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
-        viewController.localizedTitle = LocalizableResource { locale in
-            R.string.localizable.profileAccountsTitle(preferredLanguages: locale.rLanguages)
+        switch headerType {
+        case .title(let title):
+            viewController.localizedTitle = title
+        case .address(let type, let title):
+            viewController.localizedTitle = title
+            viewController.icon = type.icon
+            viewController.actionType = .add
         }
-
-        viewController.icon = addressType.icon
-        viewController.actionType = .add
 
         viewController.cellNib = UINib(resource: R.nib.accountPickerTableViewCell)
         viewController.delegate = delegate

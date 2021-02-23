@@ -18,6 +18,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var payoutView: RewardSelectionView!
     @IBOutlet private var chooseRewardView: UIView!
     @IBOutlet private var learnMoreView: DetailsTriangularedView!
+    @IBOutlet private var actionButton: TriangularedButton!
 
     private var accountContainerView: UIView?
     private var accountView: DetailsTriangularedView?
@@ -25,8 +26,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var uiFactory: UIFactoryProtocol!
 
     private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
-    private var amountPriceViewModel: LocalizableResource<String>?
-    private var balanceViewModel: LocalizableResource<String>?
+    private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
     private var amountInputViewModel: AmountInputViewModelProtocol?
 
@@ -36,6 +36,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         setupInitBalanceView()
         setupInitNetworkFee()
         setupLocalization()
+        updateActionButton()
+
         presenter.setup()
     }
 
@@ -123,6 +125,15 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         amountInputView.priceText = ""
         amountInputView.balanceText = ""
 
+        let textColor = R.color.colorWhite()!
+        let placeholder = NSAttributedString(string: "0",
+                                             attributes: [
+                                                .foregroundColor: textColor.withAlphaComponent(0.5),
+                                                .font: UIFont.h4Title
+                                             ])
+
+        amountInputView.textField.attributedPlaceholder = placeholder
+
         amountInputView.textField.delegate = self
     }
 
@@ -154,9 +165,10 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
             .stakingRewardDestinationDesc(preferredLanguages: languages)
         learnMoreView.title = R.string.localizable
             .stakingPayoutsLearnMore(preferredLanguages: languages)
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .commonNext(preferredLanguages: languages)
 
-        applyAmountPrice()
-        applyBalance()
+        applyAsset()
         applyFee()
         applyRewardDestinationViewModel()
 
@@ -168,21 +180,49 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         setupBalanceAccessoryView()
     }
 
-    // MARK: Reward Destination
+    private func updateActionButton() {
+        let isEnabled = (feeViewModel != nil) && (amountInputViewModel?.isValid == true)
+        actionButton.isEnabled = isEnabled
+    }
 
-    private func applyAmountPrice() {
-        if let viewModel = amountPriceViewModel {
-            let locale = localizationManager?.selectedLocale ?? Locale.current
-            amountInputView.priceText = viewModel.value(for: locale)
+    private func applyAsset() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        if let viewModel = assetViewModel?.value(for: locale) {
+            amountInputView.balanceText = R.string.localizable
+                .commonBalanceFormat(viewModel.balance ?? "",
+                                     preferredLanguages: locale.rLanguages)
+            amountInputView.priceText = viewModel.price
+
+            amountInputView.assetIcon = viewModel.icon
+            amountInputView.symbol = viewModel.symbol
         }
     }
 
-    private func applyBalance() {
-        if let viewModel = balanceViewModel {
-            let locale = localizationManager?.selectedLocale ?? Locale.current
-            let value = R.string.localizable.commonBalanceFormat(viewModel.value(for: locale),
-                                                                 preferredLanguages: locale.rLanguages)
-            amountInputView.balanceText = value
+    private func applyFee() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        if let fee = feeViewModel?.value(for: locale) {
+            feeActivityIndicator.stopAnimating()
+
+            let amountAttributedString = NSMutableAttributedString(string: fee.amount + "  ",
+                                                                   attributes: [
+                                                                        .foregroundColor: R.color.colorWhite()!,
+                                                                        .font: UIFont.p1Paragraph
+                                                                   ])
+
+            if let price = fee.price {
+                let priceAttributedString = NSAttributedString(string: price,
+                                                               attributes: [
+                                                                .foregroundColor: R.color.colorGray()!,
+                                                                .font: UIFont.p1Paragraph
+                                                               ])
+                amountAttributedString.append(priceAttributedString)
+            }
+
+            feeDetailsLabel.attributedText = amountAttributedString
+
+        } else {
+            feeDetailsLabel.text = ""
+            feeActivityIndicator.startAnimating()
         }
     }
 
@@ -259,34 +299,6 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         accountView?.subtitle = title
     }
 
-    private func applyFee() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let fee = feeViewModel?.value(for: locale) {
-            feeActivityIndicator.stopAnimating()
-
-            let amountAttributedString = NSMutableAttributedString(string: fee.amount + "  ",
-                                                                   attributes: [
-                                                                        .foregroundColor: R.color.colorWhite()!,
-                                                                        .font: UIFont.p1Paragraph
-                                                                   ])
-
-            if let price = fee.price {
-                let priceAttributedString = NSAttributedString(string: price,
-                                                               attributes: [
-                                                                .foregroundColor: R.color.colorGray()!,
-                                                                .font: UIFont.p1Paragraph
-                                                               ])
-                amountAttributedString.append(priceAttributedString)
-            }
-
-            feeDetailsLabel.attributedText = amountAttributedString
-
-        } else {
-            feeDetailsLabel.text = ""
-            feeActivityIndicator.startAnimating()
-        }
-    }
-
     @IBAction private func actionRestake() {
         if !restakeView.isSelected {
             presenter.selectRestakeDestination()
@@ -299,30 +311,35 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         }
     }
 
+    @IBAction private func actionLearnPayout() {
+        presenter.selectLearnMore()
+    }
+
+    @IBAction private func actionProceed() {
+        presenter.proceed()
+    }
+
     @objc private func actionSelectPayoutAccount() {
         presenter.selectPayoutAccount()
     }
 }
 
 extension StakingAmountViewController: StakingAmountViewProtocol {
+    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
+        assetViewModel = viewModel
+        applyAsset()
+    }
+
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>) {
         rewardDestinationViewModel = viewModel
         applyRewardDestinationViewModel()
     }
 
-    func didReceiveAmountPrice(viewModel: LocalizableResource<String>) {
-        amountPriceViewModel = viewModel
-        applyAmountPrice()
-    }
-
-    func didReceiveBalance(viewModel: LocalizableResource<String>) {
-        balanceViewModel = viewModel
-        applyBalance()
-    }
-
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
         applyFee()
+
+        updateActionButton()
     }
 
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
@@ -335,6 +352,8 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
 
         amountInputView.fieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
+
+        updateActionButton()
     }
 }
 
@@ -354,8 +373,9 @@ extension StakingAmountViewController: AmountInputViewModelObserver {
     func amountInputDidChange() {
         amountInputView.fieldText = amountInputViewModel?.displayAmount
 
-        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+        updateActionButton()
 
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
         presenter.updateAmount(amount)
     }
 }

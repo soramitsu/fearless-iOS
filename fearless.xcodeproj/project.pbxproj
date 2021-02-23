@@ -543,7 +543,7 @@
 		84C1B98B24F55E8200FE5470 /* AccountTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */; };
 		84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */; };
 		84C2F27725E296CD0050A4AD /* RewardDestinationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */; };
-		84C2F27D25E297350050A4AD /* RewardDestinationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */; };
+		84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C2F27C25E297350050A4AD /* CalculatedReward.swift */; };
 		84C4C2D1255CA9210045B582 /* Health.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2D0255CA9210045B582 /* Health.swift */; };
 		84C4C2D7255D2B780045B582 /* PinChangeWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2D6255D2B780045B582 /* PinChangeWireframe.swift */; };
 		84C4C2F9255DB9510045B582 /* PinChangeInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C4C2F8255DB9510045B582 /* PinChangeInteractor.swift */; };
@@ -616,6 +616,7 @@
 		84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B22536E666005454AE /* TransferChangeHandling.swift */; };
 		84DF21B525388B35005454AE /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B425388B35005454AE /* Scheduler.swift */; };
 		84DF21B72539039B005454AE /* ReconnectionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B62539039B005454AE /* ReconnectionStrategy.swift */; };
+		84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EA0B2925E579DF00AFB0DC /* AssetBalanceViewModel.swift */; };
 		84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */; };
 		84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */; };
 		84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */; };
@@ -1315,7 +1316,7 @@
 		84C1B98A24F55E8200FE5470 /* AccountTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountTableViewCell.swift; sourceTree = "<group>"; };
 		84C1B98C24F55EB200FE5470 /* AccountTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountTableViewCell.xib; sourceTree = "<group>"; };
 		84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationViewModelFactory.swift; sourceTree = "<group>"; };
-		84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestinationModel.swift; sourceTree = "<group>"; };
+		84C2F27C25E297350050A4AD /* CalculatedReward.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatedReward.swift; sourceTree = "<group>"; };
 		84C4C2D0255CA9210045B582 /* Health.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Health.swift; sourceTree = "<group>"; };
 		84C4C2D6255D2B780045B582 /* PinChangeWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinChangeWireframe.swift; sourceTree = "<group>"; };
 		84C4C2F8255DB9510045B582 /* PinChangeInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PinChangeInteractor.swift; sourceTree = "<group>"; };
@@ -1388,6 +1389,7 @@
 		84DF21B22536E666005454AE /* TransferChangeHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferChangeHandling.swift; sourceTree = "<group>"; };
 		84DF21B425388B35005454AE /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		84DF21B62539039B005454AE /* ReconnectionStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconnectionStrategy.swift; sourceTree = "<group>"; };
+		84EA0B2925E579DF00AFB0DC /* AssetBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBalanceViewModel.swift; sourceTree = "<group>"; };
 		84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountImportInteractor.swift; sourceTree = "<group>"; };
 		84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountConfirmInteractor.swift; sourceTree = "<group>"; };
 		84EBC54224F656D100459D15 /* SortDescriptor+Storage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SortDescriptor+Storage.swift"; sourceTree = "<group>"; };
@@ -2264,6 +2266,7 @@
 				84C2F27625E296CD0050A4AD /* RewardDestinationViewModelFactory.swift */,
 				8463A71125E30C95003B8160 /* BalanceViewModelFactory.swift */,
 				8463A71925E3116A003B8160 /* BalanceViewModel.swift */,
+				84EA0B2925E579DF00AFB0DC /* AssetBalanceViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -3309,7 +3312,7 @@
 		84C2F27B25E2971A0050A4AD /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				84C2F27C25E297350050A4AD /* RewardDestinationModel.swift */,
+				84C2F27C25E297350050A4AD /* CalculatedReward.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4529,7 +4532,7 @@
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,
 				8470D6D4253E35F0009E9A5D /* StorageUpdate.swift in Sources */,
-				84C2F27D25E297350050A4AD /* RewardDestinationModel.swift in Sources */,
+				84C2F27D25E297350050A4AD /* CalculatedReward.swift in Sources */,
 				84893BFE24DA0000008F6A3F /* FieldStatus.swift in Sources */,
 				849014BF24AA87E4008F705E /* ScreenAuthorizationProtocol.swift in Sources */,
 				8490145624A9404E008F705E /* AttributedStringDecorator.swift in Sources */,
@@ -4733,6 +4736,7 @@
 				2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */,
 				8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */,
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
+				84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */,
 				84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */,
 				84452F9825D6728B00F47EC5 /* RuntimeVersionSubscription.swift in Sources */,
 				840DCBF625E0059D00D45C6A /* AmountInputView+Inspectable.swift in Sources */,
