@@ -11,43 +11,52 @@ final class StakingAmountPresenter {
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
+    let feeDebounce = 1.0
 
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
     private var asset: WalletAsset
+    private var amount: Decimal = 0.0
+    private var rewardDestination: RewardDestination = .restake
+    private var payoutAccount: AccountItem
+
+    private lazy var scheduler: SchedulerProtocol = Scheduler(with: self, callbackQueue: .main)
 
     private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
                                                     restakeReturnPercentage: 0.3551,
                                                     payoutReturn: 2.15,
                                                     payoutReturnPercentage: 0.2131)
 
+    deinit {
+        scheduler.cancel()
+    }
+
     init(asset: WalletAsset,
          selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+         feeDebounce: TimeInterval = 2.0,
          logger: LoggerProtocol) {
         self.asset = asset
         self.selectedAccount = selectedAccount
+        self.payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.logger = logger
     }
 
-    private func providePayoutRewardDestination() {
+    private func provideRewardDestination() {
         do {
-            let viewModel = try rewardDestViewModelFactory
-                .createPayout(from: calculatedReward, account: selectedAccount)
-            view?.didReceiveRewardDestination(viewModel: viewModel)
-        } catch {
-            logger.error("Can't create reward destination")
-        }
-    }
-
-    private func provideRestakeRewardDestination() {
-        do {
-            let viewModel = try rewardDestViewModelFactory.createRestake(from: calculatedReward)
-            view?.didReceiveRewardDestination(viewModel: viewModel)
+            switch rewardDestination {
+            case .restake:
+                let viewModel = try rewardDestViewModelFactory.createRestake(from: calculatedReward)
+                view?.didReceiveRewardDestination(viewModel: viewModel)
+            case .payout:
+                let viewModel = try rewardDestViewModelFactory
+                    .createPayout(from: calculatedReward, account: payoutAccount)
+                view?.didReceiveRewardDestination(viewModel: viewModel)
+            }
         } catch {
             logger.error("Can't create reward destination")
         }
@@ -73,38 +82,77 @@ final class StakingAmountPresenter {
             view?.didReceiveFee(viewModel: nil)
         }
     }
+
+    private func provideAmountInputViewModel() {
+        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(amount)
+        view?.didReceiveInput(viewModel: viewModel)
+    }
+
+    private func scheduleFeeEstimation() {
+        scheduler.cancel()
+        scheduler.notifyAfter(feeDebounce)
+    }
+
+    private func estimateFee() {
+        if let amount = amount.toSubstrateAmount(precision: asset.precision) {
+            interactor.estimateFee(for: selectedAccount.address,
+                                   amount: amount,
+                                   rewardDestination: rewardDestination)
+        }
+    }
 }
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func setup() {
-        interactor.setup()
-        provideRestakeRewardDestination()
+        provideAmountInputViewModel()
+        provideRewardDestination()
 
-        if let amount = Decimal(1.0).toSubstrateAmount(precision: asset.precision) {
-            interactor.estimateFee(for: selectedAccount.address,
-                                   amount: amount,
-                                   rewardDestination: .restake)
-        }
+        interactor.setup()
+
+        estimateFee()
     }
 
     func selectRestakeDestination() {
-        provideRestakeRewardDestination()
+        rewardDestination = .restake
+        provideRewardDestination()
+
+        scheduleFeeEstimation()
     }
 
     func selectPayoutDestination() {
-        providePayoutRewardDestination()
+        rewardDestination = .payout(address: payoutAccount.address)
+        provideRewardDestination()
+
+        scheduleFeeEstimation()
     }
 
     func selectAmountPercentage(_ percentage: Float) {
+        if let balance = balance, let fee = fee {
+            let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
+            amount = newAmount
 
+            provideAmountInputViewModel()
+        }
     }
 
     func selectPayoutAccount() {
 
     }
 
+    func updateAmount(_ newValue: Decimal) {
+        amount = newValue
+
+        scheduleFeeEstimation()
+    }
+
     func close() {
         wireframe.close(view: view)
+    }
+}
+
+extension StakingAmountPresenter: SchedulerDelegate {
+    func didTrigger(scheduler: SchedulerProtocol) {
+        estimateFee()
     }
 }
 

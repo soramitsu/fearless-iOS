@@ -1,12 +1,14 @@
 import Foundation
 import SoraFoundation
 import BigInt
+import CommonWallet
 
 protocol StakingAmountViewProtocol: ControllerBackedProtocol {
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
     func didReceiveAmountPrice(viewModel: LocalizableResource<String>)
     func didReceiveBalance(viewModel: LocalizableResource<String>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
+    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
 }
 
 protocol StakingAmountPresenterProtocol: class {
@@ -15,6 +17,7 @@ protocol StakingAmountPresenterProtocol: class {
     func selectPayoutDestination()
     func selectAmountPercentage(_ percentage: Float)
     func selectPayoutAccount()
+    func updateAmount(_ newValue: Decimal)
     func close()
 }
 

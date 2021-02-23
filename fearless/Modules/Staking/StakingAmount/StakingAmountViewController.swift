@@ -2,6 +2,7 @@ import UIKit
 import SoraFoundation
 import SoraUI
 import FearlessUtils
+import CommonWallet
 
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingAmountPresenterProtocol!
@@ -27,6 +28,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     private var amountPriceViewModel: LocalizableResource<String>?
     private var balanceViewModel: LocalizableResource<String>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var amountInputViewModel: AmountInputViewModelProtocol?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -120,6 +122,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     private func setupInitBalanceView() {
         amountInputView.priceText = ""
         amountInputView.balanceText = ""
+
+        amountInputView.textField.delegate = self
     }
 
     private func setupInitNetworkFee() {
@@ -320,6 +324,18 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
         feeViewModel = viewModel
         applyFee()
     }
+
+    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let concreteViewModel = viewModel.value(for: locale)
+
+        amountInputViewModel?.observable.remove(observer: self)
+
+        amountInputViewModel = concreteViewModel
+
+        amountInputView.fieldText = concreteViewModel.displayAmount
+        concreteViewModel.observable.add(observer: self)
+    }
 }
 
 extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
@@ -331,6 +347,24 @@ extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
 
     func didSelectDone(on view: AmountInputAccessoryView) {
         amountInputView.textField.resignFirstResponder()
+    }
+}
+
+extension StakingAmountViewController: AmountInputViewModelObserver {
+    func amountInputDidChange() {
+        amountInputView.fieldText = amountInputViewModel?.displayAmount
+
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+
+        presenter.updateAmount(amount)
+    }
+}
+
+extension StakingAmountViewController: UITextFieldDelegate {
+    func textField(_ textField: UITextField,
+                   shouldChangeCharactersIn range: NSRange,
+                   replacementString string: String) -> Bool {
+        return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }
 
