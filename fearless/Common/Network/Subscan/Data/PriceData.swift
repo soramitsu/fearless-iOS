@@ -1,13 +1,13 @@
 import Foundation
 
-struct PriceData: Codable {
+struct PriceData: Decodable {
     let price: String
     let time: Int64
     let height: Int64
     let records: [PriceRecord]
 }
 
-struct PriceRecord: Codable {
+struct PriceRecord: Decodable {
     let price: String
     let time: Int64
     let height: Int64
