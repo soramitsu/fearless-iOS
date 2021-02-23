@@ -674,7 +674,6 @@
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF73FFD25DFAB9400407D41 /* CurrentEraSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */; };
 		AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */; };
-		AEF7400A25E57E8700407D41 /* StakingOverviewSubscriptionFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400925E57E8600407D41 /* StakingOverviewSubscriptionFactory.swift */; };
 		AEF7401225E57F6D00407D41 /* StakingOverviewSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */; };
 		AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
@@ -1407,7 +1406,6 @@
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentEraSubscription.swift; sourceTree = "<group>"; };
 		AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalIssuanceSubscription.swift; sourceTree = "<group>"; };
-		AEF7400925E57E8600407D41 /* StakingOverviewSubscriptionFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOverviewSubscriptionFactory.swift; sourceTree = "<group>"; };
 		AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOverviewSubscription.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
@@ -2357,7 +2355,6 @@
 				AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */,
 				84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */,
 				849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */,
-				AEF7400925E57E8600407D41 /* StakingOverviewSubscriptionFactory.swift */,
 				AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */,
 			);
 			path = StorageSubscription;
@@ -4552,7 +4549,6 @@
 				800FCAF66DC8A24020D16A9C /* AccountExportPasswordInteractor.swift in Sources */,
 				7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */,
 				61E0DC83C1D60D677274D7CE /* AccountExportPasswordViewFactory.swift in Sources */,
-				AEF7400A25E57E8700407D41 /* StakingOverviewSubscriptionFactory.swift in Sources */,
 				1BFC90E1D8646F7429FFD5E6 /* ExportMnemonicProtocols.swift in Sources */,
 				3133215566E418F40844A60E /* ExportMnemonicWireframe.swift in Sources */,
 				054C4BCDEC29ED5F74A36E8B /* ExportMnemonicPresenter.swift in Sources */,
