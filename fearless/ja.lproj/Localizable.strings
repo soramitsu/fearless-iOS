@@ -214,7 +214,7 @@ a type of password.";
 シード： %@\
 派生パス： %@";
 "common.changed" = "かわった";
-"account.import.json.no.network" = "JSONにはネットワーク情報は含まれていません。高度なブロックで指定してください。";
+"account.import.json.no.network" = "JSONにはネットワーク情報は含まれていません。 以下に指定してください。";
 "account.import.wrong.network" = "JSONのネットワークは%@であり、選択した%@と同じではありません。後者はアカウントのインポートに使用されます。";
 "common.address" = "アドレス";
 "wallet.asset.buy" = "購入";
@@ -223,3 +223,4 @@ a type of password.";
 "buy.completed" = "購入開始！ 60分ほどお待ちください。メールでステータスを追跡できます。";
 "wallet.send.phishing.warning.text" = "次のアドレス： %@はフィッシング活動で使用されることがわかっているため、そのアドレスにトークンを送信することはお勧めしません。とにかく続行しますか？";
 "wallet.send.phishing.warning.title" = "詐欺警告";
+"staking.start.title" = "ステーキングを開始します";

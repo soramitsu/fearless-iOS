@@ -124,7 +124,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
     static func createStakingController(for localizationManager: LocalizationManagerProtocol)
         -> UIViewController? {
-        guard let viewController = CommingSoonViewFactory.createView()?.controller else {
+        guard let viewController = StakingMainViewFactory.createView()?.controller else {
             return nil
         }
 
