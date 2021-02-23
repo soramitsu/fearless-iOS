@@ -2,7 +2,7 @@ import Foundation
 import Starscream
 
 protocol WebSocketConnectionProtocol: WebSocketClient {
-    var callbackQueue: DispatchQueue { get set }
+    var callbackQueue: DispatchQueue { get }
     var delegate: WebSocketDelegate? { get set }
 }
 
