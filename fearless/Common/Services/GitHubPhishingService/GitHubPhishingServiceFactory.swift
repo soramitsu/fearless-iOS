@@ -8,7 +8,6 @@ protocol GitHubPhishingServiceFactoryProtocol {
 class GitHubPhishingServiceFactory: GitHubPhishingServiceFactoryProtocol {
 
     func createGitHubService() -> ApplicationServiceProtocol {
-        let logger = Logger.shared
         let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
             SubstrateDataStorageFacade.shared.createRepository()
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
@@ -21,8 +20,7 @@ class GitHubPhishingServiceFactory: GitHubPhishingServiceFactoryProtocol {
             GitHubPhishingAPIService(url: url,
                                      operationFactory: networkOoperationFactory,
                                      operationManager: operationManager,
-                                     storage: storage,
-                                     logger: logger)
+                                     storage: storage)
 
         return gitHubPhishingService
     }
