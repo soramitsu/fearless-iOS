@@ -64,7 +64,7 @@ final class StakingAmountPresenter {
 
     private func provideAmountPrice() {
         if let priceData = priceData {
-            let price = balanceViewModelFactory.priceFromAmount(1.0, priceData: priceData)
+            let price = balanceViewModelFactory.priceFromAmount(amount, priceData: priceData)
             view?.didReceiveAmountPrice(viewModel: price)
         }
     }
@@ -132,6 +132,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             amount = newAmount
 
             provideAmountInputViewModel()
+            provideAmountPrice()
         }
     }
 
@@ -142,6 +143,8 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     func updateAmount(_ newValue: Decimal) {
         amount = newValue
 
+        provideAmountPrice()
+        
         scheduleFeeEstimation()
     }
 

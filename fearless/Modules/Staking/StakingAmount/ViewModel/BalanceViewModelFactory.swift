@@ -79,12 +79,15 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol> {
         let localizableFormatter = formatterFactory.createInputFormatter(for: targetAsset)
         let symbol = targetAsset.symbol
+        let limit = pow(10, Int(targetAsset.precision))
 
         return LocalizableResource { locale in
-            AmountInputViewModel(symbol: symbol,
-                                 amount: amount,
-                                 limit: 1e+7,
-                                 formatter: localizableFormatter.value(for: locale))
+            let formatter = localizableFormatter.value(for: locale)
+            return AmountInputViewModel(symbol: symbol,
+                                        amount: amount,
+                                        limit: limit,
+                                        formatter: formatter,
+                                        precision: Int16(formatter.maximumFractionDigits))
         }
     }
 }
