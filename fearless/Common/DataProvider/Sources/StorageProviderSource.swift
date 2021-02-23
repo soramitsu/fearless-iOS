@@ -4,13 +4,15 @@ import FearlessUtils
 
 enum StorageProviderSourceError: Error {
     case unsupportedId
+    case unsupportedStorage
 }
 
 final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
     typealias Model = ChainStorageDecodedItem<T>
 
     let itemIdentifier: String
-    let dynamicTypeName: String
+    let decodingModuleName: String
+    let decodingStorageName: String
     let runtimeService: RuntimeCodingServiceProtocol
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
@@ -21,12 +23,14 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     private var lock = NSLock()
 
     init(itemIdentifier: String,
-         dynamicTypeName: String,
+         decodingModuleName: String,
+         decodingStorageName: String,
          runtimeService: RuntimeCodingServiceProtocol,
          provider: StreamableProvider<ChainStorageItem>,
          trigger: DataProviderTriggerProtocol) {
         self.itemIdentifier = itemIdentifier
-        self.dynamicTypeName = dynamicTypeName
+        self.decodingModuleName = decodingModuleName
+        self.decodingStorageName = decodingStorageName
         self.runtimeService = runtimeService
         self.provider = provider
         self.trigger = trigger
@@ -101,10 +105,19 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let typeName = dynamicTypeName
+        let moduleName = decodingModuleName
+        let storageName = decodingStorageName
 
         let decodingOperation: BaseOperation<T?> = ClosureOperation {
-            let decoder = try codingFactoryOperation.extractNoCancellableResultData().createDecoder(from: data)
+            let factory = try codingFactoryOperation.extractNoCancellableResultData()
+
+            guard let typeName = factory.metadata
+                    .getStorageMetadata(in: moduleName,
+                                        storageName: storageName)?.type.typeName else {
+                throw StorageProviderSourceError.unsupportedStorage
+            }
+
+            let decoder = try factory.createDecoder(from: data)
             let item: T = try decoder.read(of: typeName)
             return item
         }

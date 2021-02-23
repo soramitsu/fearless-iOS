@@ -95,7 +95,8 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let trigger = DataProviderProxyTrigger()
         let source: StorageProviderSource<DyAccountInfo> =
             StorageProviderSource(itemIdentifier: localKey,
-                                  dynamicTypeName: DynamicScaleType.accountInfo,
+                                  decodingModuleName: SystemModule.name,
+                                  decodingStorageName: SystemModule.account,
                                   runtimeService: runtimeServie,
                                   provider: streamableProvider,
                                   trigger: trigger)
