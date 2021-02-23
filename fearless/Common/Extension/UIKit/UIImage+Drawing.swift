@@ -1,10 +1,10 @@
 import UIKit
 
 extension UIImage {
-    public static func background(from color: UIColor,
-                                  size: CGSize = CGSize(width: 1.0, height: 1.0),
-                                  cornerRadius: CGFloat = 0.0,
-                                  contentScale: CGFloat = 1.0) -> UIImage? {
+    static func background(from color: UIColor,
+                           size: CGSize = CGSize(width: 1.0, height: 1.0),
+                           cornerRadius: CGFloat = 0.0,
+                           contentScale: CGFloat = 1.0) -> UIImage? {
         let rect = CGRect(origin: .zero, size: size)
         let bezierPath = UIBezierPath(roundedRect: rect, cornerRadius: cornerRadius)
 
