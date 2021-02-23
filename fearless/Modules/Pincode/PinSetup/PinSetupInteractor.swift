@@ -12,9 +12,9 @@ class PinSetupInteractor {
 
     weak var presenter: PinSetupInteractorOutputProtocol?
 
-    private(set) var secretManager: SecretStoreManagerProtocol
+    private let secretManager: SecretStoreManagerProtocol
     private(set) var settingsManager: SettingsManagerProtocol
-    private(set) var biometryAuth: BiometryAuthProtocol
+    private let biometryAuth: BiometryAuthProtocol
     private let locale: Locale
 
     init(secretManager: SecretStoreManagerProtocol,
