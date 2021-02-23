@@ -145,7 +145,7 @@
                         <userDefinedRuntimeAttribute type="number" keyPath="_horizontalSpacing">
                             <real key="value" value="8"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsm"/>
+                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsmSmallBg"/>
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pnx-Ax-udA" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
@@ -403,12 +403,12 @@
             <size key="intrinsicContentSize" width="23" height="15"/>
         </designable>
         <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="136.5" height="20"/>
+            <size key="intrinsicContentSize" width="159.5" height="20"/>
         </designable>
     </designables>
     <resources>
         <image name="iconExport" width="20" height="20"/>
-        <image name="iconKsm" width="48" height="48"/>
+        <image name="iconKsmSmallBg" width="24" height="24"/>
         <image name="iconMore" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorAlmostBlack">
