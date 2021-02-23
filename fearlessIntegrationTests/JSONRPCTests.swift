@@ -412,6 +412,48 @@ class JSONRPCTests: XCTestCase {
         }
     }
 
+    func testPolkadotTotalIssuance() {
+        performGetTotalIssuance(url: URL(string: "wss://rpc.polkadot.io/")!)
+    }
+
+    func performGetTotalIssuance(url: URL) {
+        // given
+
+        let logger = Logger.shared
+        let operationQueue = OperationQueue()
+
+        let engine = WebSocketEngine(url: url, logger: logger)
+
+        // when
+
+        let storageFactory = StorageKeyFactory()
+        let key = try! storageFactory
+            .createStorageKey(moduleName: "Balances", storageName: "TotalIssuance")
+            .toHex(includePrefix: true)
+
+        let operation = JSONRPCListOperation<JSONScaleDecodable<Balance>>(engine: engine,
+                                                                          method: RPCMethod.getStorage,
+                                                                          parameters: [key])
+
+        operationQueue.addOperations([operation], waitUntilFinished: true)
+
+        // then
+
+        do {
+            let result = try operation.extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
+            guard let totalIssuance = result.underlyingValue else {
+                XCTFail("Empty Total Issuance")
+                return
+            }
+
+            Logger.shared.debug("Total Issuance: \(totalIssuance)")
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testGetRuntimeVersion() {
         // given
 
