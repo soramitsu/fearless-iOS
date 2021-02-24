@@ -8,8 +8,8 @@ enum InMemoryDataProviderRepositoryError: Error {
 final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderRepositoryProtocol {
     typealias Model = T
 
-    private var items: [String: Model] = [:]
-    private var lock = NSLock()
+    private var itemsById: [String: Model] = [:]
+    private let lock = NSLock()
 
     func fetchOperation(by modelId: String,
                         options: RepositoryFetchOptions) -> BaseOperation<Model?> {
@@ -20,7 +20,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 self?.lock.unlock()
             }
 
-            return self?.items[modelId]
+            return self?.itemsById[modelId]
         }
     }
 
@@ -32,7 +32,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 self?.lock.unlock()
             }
 
-            guard let values = self?.items.values else {
+            guard let values = self?.itemsById.values else {
                 return []
             }
 
@@ -56,7 +56,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
 
             let models = try updateModelsBlock()
 
-            var items = self?.items ?? [:]
+            var items = self?.itemsById ?? [:]
 
             for model in models {
                 items[model.identifier] = model
@@ -68,7 +68,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 items[deletedId] = nil
             }
 
-            self?.items = items
+            self?.itemsById = items
         }
     }
 
@@ -86,7 +86,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 result[model.identifier] = model
             }
 
-            self?.items = newItems
+            self?.itemsById = newItems
         }
     }
 
@@ -98,7 +98,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 self?.lock.unlock()
             }
 
-            return self?.items.count ?? 0
+            return self?.itemsById.count ?? 0
         }
     }
 
@@ -110,7 +110,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 self?.lock.unlock()
             }
 
-            self?.items = [:]
+            self?.itemsById = [:]
         }
     }
 }
