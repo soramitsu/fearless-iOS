@@ -16,7 +16,7 @@ extension WalletNetworkFacade {
 
             let accountInfoKey = try storageKeyFactory.accountInfoKeyForId(accountId)
             let upgradeKey = try storageKeyFactory.updatedDualRefCount()
-            let eraKey = try storageKeyFactory.activeEra()
+            let activeEraKey = try storageKeyFactory.activeEra()
             let stakingInfoKey = try storageKeyFactory.stakingInfoForControllerId(accountId)
 
             let upgradeCheckOperation: CompoundOperationWrapper<Bool?> = queryStorageByKey(upgradeKey)
@@ -28,7 +28,7 @@ extension WalletNetworkFacade {
                 queryStorageByKey(stakingInfoKey)
 
             let activeEraOperation: CompoundOperationWrapper<UInt32?> =
-                queryStorageByKey(eraKey)
+                queryStorageByKey(activeEraKey)
 
             let mappingOperation = ClosureOperation<[BalanceData]?> {
                 switch accountInfoOperation.targetOperation.result {
