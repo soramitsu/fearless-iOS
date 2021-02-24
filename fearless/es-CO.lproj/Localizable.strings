@@ -235,5 +235,5 @@ Ruta de derivación: %@";
 "staking.reward.destination.desc" = "Ganancias del primer año";
 "staking.payout.subtitle" = "Recompensas de transferencia";
 "staking.payouts.learn.more" = "Obtenga más información sobre los pagos";
-"staking.reward.payout.account" = "";
+"staking.reward.payout.account" = "Cuenta de pago";
 "staking.amount.too.big.error" = "Lo sentimos, no tiene fondos suficientes para apostar la cantidad especificada";
