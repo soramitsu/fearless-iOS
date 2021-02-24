@@ -11,10 +11,6 @@ protocol SingleValueProviderFactoryProtocol {
     -> DataProvider<DecodedAccountInfo>
 }
 
-enum SingleValueProviderFactoryError: Error {
-    case unexpectedAddress
-}
-
 final class SingleValueProviderFactory {
     static let shared = SingleValueProviderFactory(facade: SubstrateDataStorageFacade.shared,
                                                    operationManager: OperationManagerFacade.sharedManager,
