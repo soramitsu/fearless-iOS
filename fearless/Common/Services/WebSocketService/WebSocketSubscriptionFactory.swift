@@ -15,8 +15,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let stakingSubscription = try createStakingSubscription(engine: engine,
                                                                 accountId: accountId,
-                                                                localStorageIdFactory:
-                                                                    localStorageIdFactory)
+                                                                localStorageIdFactory: localStorageIdFactory)
 
         let transferSubscription = createTransferSubscription(address: address,
                                                               engine: engine,
@@ -60,10 +59,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 runtimeSubscription]
     }
 
-    private func createGlobalSubscriptions(
-        keyFactory: StorageKeyFactoryProtocol,
-        localStorageIdFactory: ChainStorageIdFactoryProtocol) throws -> [StorageChildSubscribing] {
-
+    private func createGlobalSubscriptions(keyFactory: StorageKeyFactoryProtocol,
+                                           localStorageIdFactory: ChainStorageIdFactoryProtocol) throws -> [StorageChildSubscribing] {
         let upgradeV28Subscription = try createV28Subscription(
             storageKeyFactory: keyFactory,
             localStorageIdFactory: localStorageIdFactory)
