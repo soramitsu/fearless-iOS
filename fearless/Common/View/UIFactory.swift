@@ -13,6 +13,8 @@ struct UIConstants {
     static let triangularedIconSmallRadius: CGFloat = 9.0
     static let smallAddressIconSize: CGSize = CGSize(width: 18.0, height: 18.0)
     static let normalAddressIconSize: CGSize = CGSize(width: 32.0, height: 32.0)
+    static let accessoryBarHeight: CGFloat = 44.0
+    static let accessoryItemsSpacing: CGFloat = 12.0
 }
 
 protocol UIFactoryProtocol {
@@ -24,6 +26,13 @@ protocol UIFactoryProtocol {
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
     func createMultilinedTriangularedView() -> MultilineTriangularedView
     func createSeparatorView() -> UIView
+    func createActionsAccessoryView(for actions: [ViewSelectorAction],
+                                    doneAction: ViewSelectorAction,
+                                    target: Any?,
+                                    spacing: CGFloat) -> UIToolbar
+
+    func createAmountAccessoryView(for delegate: AmountInputAccessoryViewDelegate?,
+                                   locale: Locale) -> UIToolbar
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -127,5 +136,114 @@ final class UIFactory: UIFactoryProtocol {
         let view = UIView()
         view.backgroundColor = R.color.colorDarkGray()!
         return view
+    }
+
+    func createActionsAccessoryView(for actions: [ViewSelectorAction],
+                                    doneAction: ViewSelectorAction,
+                                    target: Any?,
+                                    spacing: CGFloat) -> UIToolbar {
+        let frame = CGRect(x: 0.0,
+                           y: 0.0,
+                           width: UIScreen.main.bounds.width,
+                           height: UIConstants.accessoryBarHeight)
+
+        let toolBar = UIToolbar(frame: frame)
+
+        return toolBar
+    }
+
+    func createAmountAccessoryView(for delegate: AmountInputAccessoryViewDelegate?,
+                                   locale: Locale) -> UIToolbar {
+        let frame = CGRect(x: 0.0,
+                           y: 0.0,
+                           width: UIScreen.main.bounds.width,
+                           height: UIConstants.accessoryBarHeight)
+
+        let toolBar = AmountInputAccessoryView(frame: frame)
+        toolBar.actionDelegate = delegate
+
+        let actions: [ViewSelectorAction] = [
+            ViewSelectorAction(title: "100%", selector: #selector(toolBar.actionSelect100)),
+            ViewSelectorAction(title: "75%", selector: #selector(toolBar.actionSelect75)),
+            ViewSelectorAction(title: "50%", selector: #selector(toolBar.actionSelect50)),
+            ViewSelectorAction(title: "25%", selector: #selector(toolBar.actionSelect25))
+        ]
+
+        let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
+        let doneAction = ViewSelectorAction(title: doneTitle,
+                                            selector: #selector(toolBar.actionSelectDone))
+
+        let spacing: CGFloat
+
+        if toolBar.isAdaptiveWidthDecreased {
+            spacing = UIConstants.accessoryItemsSpacing * toolBar.designScaleRatio.width
+        } else {
+            spacing = UIConstants.accessoryItemsSpacing
+        }
+
+        return createActionsAccessoryView(for: toolBar,
+                                          actions: actions,
+                                          doneAction: doneAction,
+                                          target: toolBar,
+                                          spacing: spacing)
+    }
+
+    private func createActionsAccessoryView(for toolBar: UIToolbar,
+                                            actions: [ViewSelectorAction],
+                                            doneAction: ViewSelectorAction,
+                                            target: Any?,
+                                            spacing: CGFloat) -> UIToolbar {
+        toolBar.isTranslucent = false
+
+        let background = UIImage.background(from: R.color.colorAlmostBlack()!)
+        toolBar.setBackgroundImage(background,
+                                   forToolbarPosition: .any,
+                                   barMetrics: .default)
+
+        let actionAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorWhite()!,
+            .font: UIFont.p1Paragraph
+        ]
+
+        let barItems = actions.reduce([UIBarButtonItem]()) { (result, action) in
+            let barItem = UIBarButtonItem(title: action.title,
+                                          style: .plain,
+                                          target: target,
+                                          action: action.selector)
+            barItem.setTitleTextAttributes(actionAttributes, for: .normal)
+            barItem.setTitleTextAttributes(actionAttributes, for: .highlighted)
+
+            if result.isEmpty {
+                return [barItem]
+            } else {
+                let fixedSpacing = UIBarButtonItem(barButtonSystemItem: .fixedSpace,
+                                                   target: nil,
+                                                   action: nil)
+                fixedSpacing.width = spacing
+
+                return result + [fixedSpacing, barItem]
+            }
+        }
+
+        let flexibleSpacing = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
+                                              target: nil,
+                                              action: nil)
+
+        let doneItem = UIBarButtonItem(title: doneAction.title,
+                                       style: .done,
+                                       target: target,
+                                       action: doneAction.selector)
+
+        let doneAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorWhite()!,
+            .font: UIFont.h5Title
+        ]
+
+        doneItem.setTitleTextAttributes(doneAttributes, for: .normal)
+        doneItem.setTitleTextAttributes(doneAttributes, for: .highlighted)
+
+        toolBar.setItems(barItems + [flexibleSpacing, doneItem], animated: true)
+
+        return toolBar
     }
 }

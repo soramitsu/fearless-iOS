@@ -18,7 +18,9 @@ final class RuntimeRegistryService {
         let localBaseHash: Data
         let localNetworkHash: Data
         let typeRegistryCatalog: TypeRegistryCatalogProtocol
-        let version: UInt32
+        let specVersion: UInt32
+        let txVersion: UInt32
+        let metadata: RuntimeMetadata
     }
 
     private struct PendingRequest {
@@ -92,7 +94,9 @@ final class RuntimeRegistryService {
 
     private func deliver(snapshot: Snapshot, to request: PendingRequest) {
         let factory = RuntimeCoderFactory(catalog: snapshot.typeRegistryCatalog,
-                                          version: snapshot.version)
+                                          specVersion: snapshot.specVersion,
+                                          txVersion: snapshot.txVersion,
+                                          metadata: snapshot.metadata)
 
         dispatchInQueueWhenPossible(request.queue) {
             request.resultClosure(factory)
@@ -171,8 +175,7 @@ final class RuntimeRegistryService {
             let catalog = try TypeRegistryCatalog
                 .createFromBaseTypeDefinition(baseData,
                                               networkDefinitionData: networkData,
-                                              runtimeMetadata: metadata,
-                                              version: UInt64(runtimeMetadata.version))
+                                              runtimeMetadata: metadata)
 
             let localBaseHash = try hasher.hash(data: baseData)
             let localNetworkHash = try hasher.hash(data: networkData)
@@ -180,7 +183,9 @@ final class RuntimeRegistryService {
             return Snapshot(localBaseHash: localBaseHash,
                             localNetworkHash: localNetworkHash,
                             typeRegistryCatalog: catalog,
-                            version: runtimeMetadata.version)
+                            specVersion: runtimeMetadata.version,
+                            txVersion: runtimeMetadata.txVersion,
+                            metadata: metadata)
         }
 
         let dependencies = baseTypesOperation.allOperations + networkTypesOperation.allOperations + [decoderOperation]
@@ -217,7 +222,7 @@ final class RuntimeRegistryService {
 
         switch result {
         case .success(let snapshot):
-            logger.debug("Did complete loading snapshot version: \(snapshot.version)")
+            logger.debug("Did complete loading snapshot version: \(snapshot.specVersion)")
             self.snapshot = snapshot
 
             notifyPendingClosures(with: snapshot)
@@ -227,7 +232,7 @@ final class RuntimeRegistryService {
             }
 
             DispatchQueue.main.async {
-                let event = TypeRegistryPrepared(version: snapshot.version)
+                let event = TypeRegistryPrepared(version: snapshot.specVersion)
                 self.eventCenter.notify(with: event)
             }
 

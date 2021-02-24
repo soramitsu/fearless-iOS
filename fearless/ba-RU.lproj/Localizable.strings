@@ -224,3 +224,16 @@
 "wallet.send.phishing.warning.text" = "Сираттағы адрес: %@ фишинга ҡулланыла, шуға күрә беҙ ошо адресҡа ебәрергә кәңәш итмәйбеҙ. Һеҙ барыбер дауам итергә теләйһегеҙ?";
 "wallet.send.phishing.warning.title" = "Мутлыҡ тураһында иҫкәртеү";
 "staking.start.title" = "Начать стекинг";
+"staking.setup.title" = "Настройка стекинга";
+"staking.amount.title" = "Сумма стекинга";
+"common.balance.format" = "Баланс: %@";
+"common.network.fee" = "Комиссия сети";
+"staking.reward.destination.choose" = "Что делать с вознаграждением";
+"staking.restake.title" = "В стекинг";
+"staking.payout.title" = "Выплатить";
+"staking.reward.restake.subtitle" = "Больше сумма вознаграждений";
+"staking.reward.destination.desc" = "Заработок за первый год";
+"staking.payout.subtitle" = "Перевести вознаграждение";
+"staking.payouts.learn.more" = "Узнать больше про выплаты";
+"staking.reward.payout.account" = "Аккаунт для выплат вознаграждения";
+"staking.amount.too.big.error" = "Извините, у Вас недостаточно средств для стекинга выбранной суммы";
