@@ -59,11 +59,11 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
 
     func createPriceAsset() -> WalletAsset {
         WalletAsset(identifier: WalletAssetId.usd.rawValue,
-                                          name: LocalizableResource { _ in "" },
-                                          platform: LocalizableResource { _ in "" },
-                                          symbol: "$",
-                                          precision: 2,
-                                          modes: .view)
+                    name: LocalizableResource { _ in "" },
+                    platform: LocalizableResource { _ in "" },
+                    symbol: "$",
+                    precision: 2,
+                    modes: .view)
     }
 
     func createAccountSettings() throws -> WalletAccountSettingsProtocol {

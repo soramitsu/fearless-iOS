@@ -33,8 +33,8 @@ final class ExtrinsicService {
 
     private func createNonceOperation() -> BaseOperation<UInt32> {
         JSONRPCListOperation<UInt32>(engine: engine,
-                                            method: RPCMethod.getExtrinsicNonce,
-                                            parameters: [address])
+                                     method: RPCMethod.getExtrinsicNonce,
+                                     parameters: [address])
     }
 
     private func createCodingFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {

@@ -25,7 +25,7 @@ final class SubscanPriceSource: SingleValueProviderSourceProtocol {
             return CompoundOperationWrapper(targetOperation: targetOperation,
                                             dependencies: [priceOperation])
         } else {
-            return  CompoundOperationWrapper.createWithResult(nil)
+            return CompoundOperationWrapper.createWithResult(nil)
         }
     }
 }
