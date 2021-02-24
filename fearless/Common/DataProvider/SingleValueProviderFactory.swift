@@ -7,7 +7,7 @@ typealias DecodedAccountInfo = ChainStorageDecodedItem<DyAccountInfo>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> SingleValueProvider<PriceData>
-    func getAccountProvider(for address: String, runtimeServie: RuntimeCodingServiceProtocol) throws
+    func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> DataProvider<DecodedAccountInfo>
 }
 
@@ -63,7 +63,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         return provider
     }
 
-    func getAccountProvider(for address: String, runtimeServie: RuntimeCodingServiceProtocol) throws
+    func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> DataProvider<DecodedAccountInfo> {
         clearIfNeeded()
 
@@ -93,7 +93,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             StorageProviderSource(itemIdentifier: localKey,
                                   decodingModuleName: SystemModule.name,
                                   decodingStorageName: SystemModule.account,
-                                  runtimeService: runtimeServie,
+                                  runtimeService: runtimeService,
                                   provider: streamableProvider,
                                   trigger: trigger)
 

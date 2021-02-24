@@ -43,7 +43,7 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
     }
 
     func createStorageProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
-        let filter = NSPredicate.filterStorageItemBy(identifier: key)
+        let filter = NSPredicate.filterStorageItemsBy(identifier: key)
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<ChainStorageItem>()

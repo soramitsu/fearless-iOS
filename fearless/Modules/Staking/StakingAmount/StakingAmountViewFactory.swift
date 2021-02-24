@@ -21,7 +21,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
                 .getAccountProvider(for: selectedAccount.address,
-                                    runtimeServie: RuntimeRegistryFacade.sharedService) else {
+                                    runtimeService: RuntimeRegistryFacade.sharedService) else {
             return nil
         }
 
