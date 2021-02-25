@@ -5,6 +5,8 @@ import SoraFoundation
 import IrohaCrypto
 
 protocol WalletPrimitiveFactoryProtocol {
+    func createAssetForAddressType(_ addressType: SNAddressType) -> WalletAsset
+    func createPriceAsset() -> WalletAsset
     func createAccountSettings() throws -> WalletAccountSettingsProtocol
 }
 
@@ -23,7 +25,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         self.settings = settings
     }
 
-    private func createAssetForAddressType(_ addressType: SNAddressType) -> WalletAsset {
+    func createAssetForAddressType(_ addressType: SNAddressType) -> WalletAsset {
         let localizableName: LocalizableResource<String>
         let platformName: LocalizableResource<String>
         let symbol: String
@@ -55,6 +57,15 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
                            modes: .all)
     }
 
+    func createPriceAsset() -> WalletAsset {
+        WalletAsset(identifier: WalletAssetId.usd.rawValue,
+                    name: LocalizableResource { _ in "" },
+                    platform: LocalizableResource { _ in "" },
+                    symbol: "$",
+                    precision: 2,
+                    modes: .view)
+    }
+
     func createAccountSettings() throws -> WalletAccountSettingsProtocol {
         guard let selectedAccount = settings.selectedAccount else {
             throw WalletPrimitiveFactoryError.missingAccountId
@@ -64,12 +75,7 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
 
         let networkAsset = createAssetForAddressType(selectedConnectionType)
 
-        let totalPriceAsset = WalletAsset(identifier: WalletAssetId.usd.rawValue,
-                                          name: LocalizableResource { _ in "" },
-                                          platform: LocalizableResource { _ in "" },
-                                          symbol: "$",
-                                          precision: 2,
-                                          modes: .view)
+        let totalPriceAsset = createPriceAsset()
 
         let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
                                                            type: settings.selectedConnection.type)

@@ -145,7 +145,7 @@
                         <userDefinedRuntimeAttribute type="number" keyPath="_horizontalSpacing">
                             <real key="value" value="8"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsm"/>
+                        <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconKsmSmallBg"/>
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pnx-Ax-udA" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
@@ -408,7 +408,7 @@
     </designables>
     <resources>
         <image name="iconExport" width="20" height="20"/>
-        <image name="iconKsm" width="48" height="48"/>
+        <image name="iconKsmSmallBg" width="24" height="24"/>
         <image name="iconMore" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorAlmostBlack">

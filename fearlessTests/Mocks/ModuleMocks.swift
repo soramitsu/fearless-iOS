@@ -14641,16 +14641,16 @@ import Foundation
     
     
     
-     func showStartStaking()  {
+     func showSetupAmount(from view: StakingMainViewProtocol?)  {
         
-    return cuckoo_manager.call("showStartStaking()",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("showSetupAmount(from: StakingMainViewProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showStartStaking())
+            defaultCall: __defaultImplStub!.showSetupAmount(from: view))
         
     }
     
@@ -14663,9 +14663,9 @@ import Foundation
 	    }
 	    
 	    
-	    func showStartStaking() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStartStaking()", parameterMatchers: matchers))
+	    func showSetupAmount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?)> where M1.OptionalMatchedType == StakingMainViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showSetupAmount(from: StakingMainViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -14685,9 +14685,9 @@ import Foundation
 	
 	    
 	    @discardableResult
-	    func showStartStaking() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("showStartStaking()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showSetupAmount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showSetupAmount(from: StakingMainViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -14699,7 +14699,7 @@ import Foundation
     
 
     
-     func showStartStaking()   {
+     func showSetupAmount(from view: StakingMainViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

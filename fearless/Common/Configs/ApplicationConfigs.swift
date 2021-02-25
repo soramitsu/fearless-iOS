@@ -16,6 +16,7 @@ protocol ApplicationConfigProtocol {
     var purchaseAppName: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
+    var learnPayoutURL: URL { get }
 }
 
 final class ApplicationConfig {
@@ -90,5 +91,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var phishingListURL: URL {
         return URL(string: "https://polkadot.js.org/phishing/address.json")!
+    }
+
+    var learnPayoutURL: URL {
+        return URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
     }
 }

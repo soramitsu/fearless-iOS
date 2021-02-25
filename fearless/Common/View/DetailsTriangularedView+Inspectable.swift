@@ -3,6 +3,17 @@ import UIKit
 @IBDesignable
 extension DetailsTriangularedView {
     @IBInspectable
+    var backgroundSideLength: CGFloat {
+        get {
+            triangularedBackgroundView!.sideLength
+        }
+
+        set {
+            triangularedBackgroundView?.sideLength = newValue
+        }
+    }
+
+    @IBInspectable
     var fillColor: UIColor {
         get {
             triangularedBackgroundView!.fillColor

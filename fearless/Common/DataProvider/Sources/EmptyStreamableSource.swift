@@ -1,8 +1,8 @@
 import Foundation
 import RobinHood
 
-final class EmptyStreamableSource: StreamableSourceProtocol {
-    typealias Model = RuntimeMetadataItem
+final class EmptyStreamableSource<T: Identifiable>: StreamableSourceProtocol {
+    typealias Model = T
 
     func fetchHistory(runningIn queue: DispatchQueue?,
                       commitNotificationBlock: ((Result<Int, Error>?) -> Void)?) {

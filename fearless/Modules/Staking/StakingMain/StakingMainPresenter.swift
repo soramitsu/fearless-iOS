@@ -18,7 +18,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        wireframe.showStartStaking()
+        wireframe.showSetupAmount(from: view)
     }
 
     func performAccountAction() {
