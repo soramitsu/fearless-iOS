@@ -18,6 +18,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakers")
     }
 
+    static var erasPrefs: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorPrefs")
+    }
+
     static var validatorPrefs: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Validators")
     }

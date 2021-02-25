@@ -20,11 +20,17 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             createNetworkStatusPresenter(localizationManager: localizationManager)
         let gitHubPhishingAPIService = GitHubPhishingServiceFactory().createGitHubService()
 
+        let settings = SettingsManager.shared
+
+        let chain = settings.selectedConnection.type.chain
+        let validatorsService = EraValidatorFactory.createService(from: chain)
+
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
-                                              settings: SettingsManager.shared,
+                                              settings: settings,
                                               webSocketService: webSocketService,
                                               gitHubPhishingAPIService: gitHubPhishingAPIService,
                                               runtimeService: RuntimeRegistryFacade.sharedService,
+                                              validatorService: validatorsService,
                                               keystoreImportService: keystoreImportService)
 
         guard

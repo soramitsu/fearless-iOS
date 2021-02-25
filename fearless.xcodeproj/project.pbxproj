@@ -535,6 +535,7 @@
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
 		84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */; };
 		84A2CD5325685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */; };
+		84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE207725E7D62100B4748C /* ActiveEraInfo.swift */; };
 		84BEE059255F4D5700D05EB3 /* AccountImportPreferredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */; };
 		84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */; };
 		84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */; };
@@ -634,6 +635,7 @@
 		84F2FEFA25E797E8008338D5 /* StorageRequestFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F2FEF925E797E8008338D5 /* StorageRequestFactory.swift */; };
 		84F2FEFF25E7ADE7008338D5 /* ValidatorPrefs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F2FEFE25E7ADE7008338D5 /* ValidatorPrefs.swift */; };
 		84F2FF0725E7AF8F008338D5 /* EraValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F2FF0625E7AF8F008338D5 /* EraValidatorInfo.swift */; };
+		84F2FF0F25E7D059008338D5 /* EraValidatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F2FF0E25E7D059008338D5 /* EraValidatorFactory.swift */; };
 		84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */; };
 		84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */; };
 		84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */; };
@@ -1311,6 +1313,7 @@
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
 		84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeAnimator.swift; sourceTree = "<group>"; };
 		84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryViewFactoryOverriding.swift; sourceTree = "<group>"; };
+		84BE207725E7D62100B4748C /* ActiveEraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveEraInfo.swift; sourceTree = "<group>"; };
 		84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportPreferredInfo.swift; sourceTree = "<group>"; };
 		84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportJsonFactory.swift; sourceTree = "<group>"; };
 		84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedUsernameChanged.swift; sourceTree = "<group>"; };
@@ -1418,6 +1421,7 @@
 		84F2FEF925E797E8008338D5 /* StorageRequestFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageRequestFactory.swift; sourceTree = "<group>"; };
 		84F2FEFE25E7ADE7008338D5 /* ValidatorPrefs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorPrefs.swift; sourceTree = "<group>"; };
 		84F2FF0625E7AF8F008338D5 /* EraValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraValidatorInfo.swift; sourceTree = "<group>"; };
+		84F2FF0E25E7D059008338D5 /* EraValidatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraValidatorFactory.swift; sourceTree = "<group>"; };
 		84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TimeInterval+Time.swift"; sourceTree = "<group>"; };
 		84F4386525D9B8C600AEDA56 /* TypeRegistryPrepared.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TypeRegistryPrepared.swift; sourceTree = "<group>"; };
 		84F4386A25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeRegistryFacade.swift; sourceTree = "<group>"; };
@@ -2193,6 +2197,7 @@
 				84F98D8925E3DD3F0040418E /* StorageCodingPath.swift */,
 				848FFE9925E6E0E400652AA5 /* ValidatorExposure.swift */,
 				84F2FEFE25E7ADE7008338D5 /* ValidatorPrefs.swift */,
+				84BE207725E7D62100B4748C /* ActiveEraInfo.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2613,6 +2618,7 @@
 			children = (
 				848FFE6525E6742400652AA5 /* EraValidatorService.swift */,
 				848FFE8A25E69A6000652AA5 /* EraValidatorServiceProtocol.swift */,
+				84F2FF0E25E7D059008338D5 /* EraValidatorFactory.swift */,
 			);
 			path = EraValidatorsService;
 			sourceTree = "<group>";
@@ -4283,6 +4289,7 @@
 				84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */,
 				84D97ECF2521CA2F00F07405 /* WalletBaseTokenView.swift in Sources */,
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
+				84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
@@ -4414,6 +4421,7 @@
 				8401620B25E144D50087A5F3 /* AmountInputAccessoryView.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
+				84F2FF0F25E7D059008338D5 /* EraValidatorFactory.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
 				849014C524AA890D008F705E /* UIFont+Style.swift in Sources */,

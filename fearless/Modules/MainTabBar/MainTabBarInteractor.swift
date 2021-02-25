@@ -10,6 +10,7 @@ final class MainTabBarInteractor {
     let settings: SettingsManagerProtocol
     let webSocketService: WebSocketServiceProtocol
     let runtimeService: RuntimeRegistryServiceProtocol
+    let validatorService: EraValidatorServiceProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
     let gitHubPhishingAPIService: ApplicationServiceProtocol
 
@@ -25,11 +26,13 @@ final class MainTabBarInteractor {
          webSocketService: WebSocketServiceProtocol,
          gitHubPhishingAPIService: ApplicationServiceProtocol,
          runtimeService: RuntimeRegistryServiceProtocol,
+         validatorService: EraValidatorServiceProtocol,
          keystoreImportService: KeystoreImportServiceProtocol) {
         self.eventCenter = eventCenter
         self.settings = settings
         self.webSocketService = webSocketService
         self.runtimeService = runtimeService
+        self.validatorService = validatorService
         self.keystoreImportService = keystoreImportService
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
 
@@ -47,12 +50,14 @@ final class MainTabBarInteractor {
         webSocketService.setup()
         gitHubPhishingAPIService.setup()
         runtimeService.setup()
+        validatorService.setup()
     }
 
     private func stopServices() {
         runtimeService.throttle()
         webSocketService.throttle()
         gitHubPhishingAPIService.throttle()
+        validatorService.throttle()
     }
 
     private func updateWebSocketSettings() {

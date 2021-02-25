@@ -6,52 +6,93 @@ private typealias IdentifiableExposure = (Data, ValidatorExposure)
 
 enum EraValidatorServiceError: Error {
     case unsuppotedStoragePath(_ path: StorageCodingPath)
+    case timedOut
+    case unexpectedInfo
 }
 
 final class EraValidatorService {
     static let queueLabelPrefix = "jp.co.fearless.recvalidators"
 
+    private struct PendingRequest {
+        let resultClosure: (EraStakersInfo) -> Void
+        let queue: DispatchQueue?
+    }
+
     private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)")
 
     private var activeEra: UInt32?
     private var snapshot: EraStakersInfo?
+    private var eraDataProvider: StreamableProvider<ChainStorageItem>?
+
+    private(set) var chain: Chain
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
-    let eraDataProvider: StreamableProvider<ChainStorageItem>
-    let engine: JSONRPCEngine
+    let providerFactory: SubstrateDataProviderFactoryProtocol
+    private var pendingRequests: [PendingRequest] = []
+    let webSocketService: WebSocketServiceProtocol
     let operationManager: OperationManagerProtocol
-    let storageKeyFactory: StorageKeyFactoryProtocol
-    let localKeyFactory: ChainStorageIdFactoryProtocol
     let logger: LoggerProtocol
 
-    init(storageFacade: StorageFacadeProtocol,
+    init(chain: Chain,
+         storageFacade: StorageFacadeProtocol,
          runtimeCodingService: RuntimeCodingServiceProtocol,
-         eraDataProvider: StreamableProvider<ChainStorageItem>,
-         engine: JSONRPCEngine,
+         providerFactory: SubstrateDataProviderFactoryProtocol,
+         webSocketService: WebSocketServiceProtocol,
          operationManager: OperationManagerProtocol,
-         storageKeyFactory: StorageKeyFactoryProtocol,
-         localKeyFactory: ChainStorageIdFactoryProtocol,
          logger: LoggerProtocol) {
+        self.chain = chain
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
-        self.eraDataProvider = eraDataProvider
-        self.engine = engine
+        self.providerFactory = providerFactory
+        self.webSocketService = webSocketService
         self.operationManager = operationManager
-        self.storageKeyFactory = storageKeyFactory
-        self.localKeyFactory = localKeyFactory
         self.logger = logger
     }
 
-    private func updateValidators(activeEra: UInt32,
+    private func fetchInfoFactory(runCompletionIn queue: DispatchQueue?,
+                                  executing closure: @escaping (EraStakersInfo) -> Void) {
+        let request = PendingRequest(resultClosure: closure, queue: queue)
+
+        if let snapshot = snapshot {
+            deliver(snapshot: snapshot, to: request)
+        } else {
+            pendingRequests.append(request)
+        }
+    }
+
+    private func notifyPendingClosures(with info: EraStakersInfo) {
+        logger.debug("Attempt fulfill pendings \(pendingRequests.count)")
+
+        guard !pendingRequests.isEmpty else {
+            return
+        }
+
+        let requests = pendingRequests
+        pendingRequests = []
+
+        requests.forEach { deliver(snapshot: info, to: $0) }
+
+        logger.debug("Fulfilled pendings")
+    }
+
+    private func deliver(snapshot: EraStakersInfo, to request: PendingRequest) {
+        dispatchInQueueWhenPossible(request.queue) {
+            request.resultClosure(snapshot)
+        }
+    }
+
+    private func updateValidators(chain: Chain,
+                                  activeEra: UInt32,
                                   exposures: [IdentifiableExposure],
                                   prefs: [StorageResponse<ValidatorPrefs>]) {
-        guard activeEra == self.activeEra else {
-            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
+        guard activeEra == self.activeEra, chain == self.chain else {
+            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
             return
         }
 
         let keyedPrefs = prefs.reduce(into: [Data: ValidatorPrefs]()) { (result, item) in
-            result[item.key] = item.value
+            let accountId = item.key.suffix(Int(ExtrinsicConstants.accountIdLength))
+            result[accountId] = item.value
         }
 
         let validators: [EraValidatorInfo] = exposures.compactMap { item in
@@ -64,15 +105,19 @@ final class EraValidatorService {
                                     prefs: pref)
         }
 
-        snapshot = EraStakersInfo(era: activeEra,
-                                  validators: validators)
+        let snapshot = EraStakersInfo(era: activeEra,
+                                      validators: validators)
+        self.snapshot = snapshot
+
+        notifyPendingClosures(with: snapshot)
     }
 
-    private func updatePrefsAndSave(activeEra: UInt32,
+    private func updatePrefsAndSave(chain: Chain,
+                                    activeEra: UInt32,
                                     exposures: [IdentifiableExposure],
                                     codingFactory: RuntimeCoderFactoryProtocol) {
-        guard activeEra == self.activeEra else {
-            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
+        guard activeEra == self.activeEra, chain == self.chain else {
+            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
             return
         }
 
@@ -81,28 +126,34 @@ final class EraValidatorService {
             return
         }
 
-        let params1: () throws -> [UInt32] = {
-            Array(repeating: activeEra, count: exposures.count)
+        guard let engine = webSocketService.connection else {
+            logger.warning("Can't find connection")
+            return
+        }
+
+        let params1: () throws -> [String] = {
+            Array(repeating: String(activeEra), count: exposures.count)
         }
 
         let params2: () throws -> [Data] = {
             exposures.map { $0.0 }
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: storageKeyFactory)
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
             requestFactory.queryItems(engine: engine,
                                       keyParams1: params1,
                                       keyParams2: params2,
                                       factory: { codingFactory },
-                                      storagePath: .validatorPrefs)
+                                      storagePath: .erasPrefs)
 
         queryWrapper.targetOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
                 do {
                     let prefs = try queryWrapper.targetOperation.extractNoCancellableResultData()
-                    self?.updateValidators(activeEra: activeEra,
+                    self?.updateValidators(chain: chain,
+                                           activeEra: activeEra,
                                            exposures: exposures,
                                            prefs: prefs)
                 } catch {
@@ -114,16 +165,20 @@ final class EraValidatorService {
         operationManager.enqueue(operations: queryWrapper.allOperations, in: .transient)
     }
 
-    private func updateFromRemote(activeEra: UInt32,
+    private func updateFromRemote(chain: Chain,
+                                  activeEra: UInt32,
                                   prefixKey: Data,
                                   repository: AnyDataProviderRepository<ChainStorageItem>,
                                   codingFactory: RuntimeCoderFactoryProtocol) {
-        guard activeEra == self.activeEra else {
-            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
+        guard activeEra == self.activeEra, chain == self.chain else {
+            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
             return
         }
 
-        let currentLocalFactory = localKeyFactory
+        guard let engine = webSocketService.connection else {
+            logger.warning("Can't find connection")
+            return
+        }
 
         let request = PagedKeysRequest(key: prefixKey.toHex(includePrefix: true))
         let remoteValidatorIdsOperation =
@@ -136,7 +191,7 @@ final class EraValidatorService {
             return try hexKeys.map { try Data(hexString: $0) }
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: storageKeyFactory)
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> =
             requestFactory.queryItems(engine: engine,
@@ -144,11 +199,14 @@ final class EraValidatorService {
                                       factory: { codingFactory },
                                       storagePath: .erasStakers)
 
+        queryWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
+
         let saveOperation = repository.saveOperation({
+            let localFactory = try ChainStorageIdFactory(chain: chain)
             let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
             return result.compactMap { item in
                     if let data = item.data {
-                        let localId = currentLocalFactory.createIdentifier(for: item.key)
+                        let localId = localFactory.createIdentifier(for: item.key)
                         return ChainStorageItem(identifier: localId, data: data)
                     } else {
                         return nil
@@ -158,7 +216,7 @@ final class EraValidatorService {
 
         saveOperation.addDependency(queryWrapper.targetOperation)
 
-        let operations = queryWrapper.allOperations + [saveOperation]
+        let operations = [remoteValidatorIdsOperation] + queryWrapper.allOperations + [saveOperation]
 
         saveOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
@@ -173,7 +231,8 @@ final class EraValidatorService {
                         return (accountId, value)
                     }
 
-                    self?.updatePrefsAndSave(activeEra: activeEra,
+                    self?.updatePrefsAndSave(chain: chain,
+                                             activeEra: activeEra,
                                              exposures: exposures,
                                              codingFactory: codingFactory)
                 } catch {
@@ -224,15 +283,22 @@ final class EraValidatorService {
                                         dependencies: [fetchOperation, decodingOperation])
     }
 
-    private func updateIfNeeded(activeEra: UInt32,
+    private func updateIfNeeded(chain: Chain,
+                                activeEra: UInt32,
                                 prefixKey: Data,
                                 codingFactory: RuntimeCoderFactoryProtocol) {
-        guard activeEra == self.activeEra else {
+        guard activeEra == self.activeEra, chain == self.chain else {
             Logger.shared.warning("Validators fetched but era changed. Cancelled.")
             return
         }
 
-        let localPrefixKey = localKeyFactory.createIdentifier(for: prefixKey)
+        guard let localFactory = try? ChainStorageIdFactory(chain: chain) else {
+            Logger.shared.error("Can't create local factory")
+            return
+        }
+
+        let localPrefixKey = localFactory.createIdentifier(for: prefixKey)
+
         let filter = NSPredicate.filterByIdPrefix(localPrefixKey)
 
         let repository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
@@ -250,12 +316,14 @@ final class EraValidatorService {
                         .extractNoCancellableResultData()
 
                     if validators.isEmpty {
-                        self?.updateFromRemote(activeEra: activeEra,
+                        self?.updateFromRemote(chain: chain,
+                                               activeEra: activeEra,
                                                prefixKey: prefixKey,
                                                repository: AnyDataProviderRepository(repository),
                                                codingFactory: codingFactory)
                     } else {
-                        self?.updatePrefsAndSave(activeEra: activeEra,
+                        self?.updatePrefsAndSave(chain: chain,
+                                                 activeEra: activeEra,
                                                  exposures: validators,
                                                  codingFactory: codingFactory)
                     }
@@ -269,15 +337,17 @@ final class EraValidatorService {
                                  in: .transient)
     }
 
-    private func preparePrefixKeyAndUpdateIfNeeded() {
-        guard let activeEra = activeEra else {
+    private func preparePrefixKeyAndUpdateIfNeeded(chain: Chain, activeEra: UInt32) {
+        guard activeEra == self.activeEra, chain == self.chain else {
+            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
             return
         }
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+
         let erasStakersKeyOperation = MapKeyEncodingOperation(path: .erasStakers,
-                                                              storageKeyFactory: storageKeyFactory,
-                                                              keyParams: [activeEra])
+                                                              storageKeyFactory: StorageKeyFactory(),
+                                                              keyParams: [String(activeEra)])
 
         erasStakersKeyOperation.configurationBlock = {
             do {
@@ -295,7 +365,10 @@ final class EraValidatorService {
                 switch erasStakersKeyOperation.result {
                 case .success(let prefixKeys):
                     if let factory = erasStakersKeyOperation.codingFactory, let prefixKey = prefixKeys.first {
-                        self?.updateIfNeeded(activeEra: activeEra, prefixKey: prefixKey, codingFactory: factory)
+                        self?.updateIfNeeded(chain: chain,
+                                             activeEra: activeEra,
+                                             prefixKey: prefixKey,
+                                             codingFactory: factory)
                     } else {
                         self?.logger.warning("Can't find coding factory or eras key")
                     }
@@ -306,13 +379,21 @@ final class EraValidatorService {
                 }
             }
         }
+
+        operationManager.enqueue(operations: [codingFactoryOperation, erasStakersKeyOperation],
+                                 in: .transient)
     }
 
-    private func handleEraDecodingResult(_ result: Result<UInt32, Error>?) {
+    private func handleEraDecodingResult(chain: Chain, result: Result<ActiveEraInfo, Error>?) {
+        guard chain == self.chain else {
+            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
+            return
+        }
+
         switch result {
         case .success(let era):
-            self.activeEra = era
-            preparePrefixKeyAndUpdateIfNeeded()
+            self.activeEra = era.index
+            preparePrefixKeyAndUpdateIfNeeded(chain: chain, activeEra: era.index)
         case .failure(let error):
             logger.error("Did receive era decoding error: \(error)")
         case .none:
@@ -326,14 +407,24 @@ final class EraValidatorService {
         }
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation = StorageDecodingOperation<UInt32>(path: .activeEra,
-                                                                 data: eraItem.data)
+        let decodingOperation = StorageDecodingOperation<ActiveEraInfo>(path: .activeEra,
+                                                                        data: eraItem.data)
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation
+                    .extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
 
         decodingOperation.addDependency(codingFactoryOperation)
 
+        let currentChain = chain
+
         decodingOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                self?.handleEraDecodingResult(decodingOperation.result)
+                self?.handleEraDecodingResult(chain: currentChain, result: decodingOperation.result)
             }
         }
 
@@ -342,31 +433,101 @@ final class EraValidatorService {
     }
 
     private func subscribe() {
-        let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
-            let finalValue: ChainStorageItem? = changes.reduce(nil) { (_, item) in
-                switch item {
-                case .insert(let newItem), .update(let newItem):
-                    return newItem
-                case .delete:
-                    return nil
+        do {
+            let localFactory = try ChainStorageIdFactory(chain: chain)
+
+            let path = StorageCodingPath.activeEra
+            let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
+                                                               storageName: path.itemName)
+
+            let localKey = localFactory.createIdentifier(for: key)
+            let eraDataProvider = providerFactory.createStorageProvider(for: localKey)
+
+            let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
+                let finalValue: ChainStorageItem? = changes.reduce(nil) { (_, item) in
+                    switch item {
+                    case .insert(let newItem), .update(let newItem):
+                        return newItem
+                    case .delete:
+                        return nil
+                    }
                 }
+
+                self?.didUpdateActiveEraItem(finalValue)
             }
 
-            self?.didUpdateActiveEraItem(finalValue)
-        }
+            let failureClosure: (Error) -> Void = { [weak self] (error) in
+                self?.logger.error("Did receive error: \(error)")
+            }
 
-        let failureClosure: (Error) -> Void = { [weak self] (error) in
-            self?.logger.error("Did receive error: \(error)")
-        }
+            eraDataProvider.addObserver(self,
+                                        deliverOn: syncQueue,
+                                        executing: updateClosure,
+                                        failing: failureClosure,
+                                        options: StreamableProviderObserverOptions())
 
-        eraDataProvider.addObserver(self,
-                                    deliverOn: syncQueue,
-                                    executing: updateClosure,
-                                    failing: failureClosure,
-                                    options: StreamableProviderObserverOptions())
+            self.eraDataProvider = eraDataProvider
+        } catch {
+            logger.error("Can't make subscription")
+        }
     }
 
     private func unsubscribe() {
-        eraDataProvider.removeObserver(self)
+        eraDataProvider?.removeObserver(self)
+        eraDataProvider = nil
+    }
+}
+
+extension EraValidatorService: EraValidatorServiceProtocol {
+    func setup() {
+        syncQueue.async {
+            self.subscribe()
+        }
+    }
+
+    func throttle() {
+        syncQueue.async {
+            self.unsubscribe()
+        }
+    }
+
+    func update(to chain: Chain) {
+        syncQueue.async {
+            self.unsubscribe()
+            self.snapshot = nil
+            self.activeEra = nil
+            self.chain = chain
+            self.subscribe()
+        }
+    }
+}
+
+extension EraValidatorService: EraValidatorProviderProtocol {
+    func fetchInfoOperation(with timeout: TimeInterval) -> BaseOperation<EraStakersInfo> {
+        ClosureOperation {
+            var fetchedInfo: EraStakersInfo?
+
+            let semaphore = DispatchSemaphore(value: 0)
+
+            self.syncQueue.async {
+                self.fetchInfoFactory(runCompletionIn: nil) { [weak semaphore] info in
+                    fetchedInfo = info
+                    semaphore?.signal()
+                }
+            }
+
+            let result = semaphore.wait(timeout: DispatchTime.now() + .milliseconds(timeout.milliseconds))
+
+            switch result {
+            case .success:
+                guard let info = fetchedInfo else {
+                    throw EraValidatorServiceError.unexpectedInfo
+                }
+
+                return info
+            case .timedOut:
+                throw EraValidatorServiceError.timedOut
+            }
+        }
     }
 }
