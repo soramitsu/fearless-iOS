@@ -15,22 +15,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let localizationManager = LocalizationManager.shared
-        let webSocketService = WebSocketService.shared
-        webSocketService.networkStatusPresenter =
-            createNetworkStatusPresenter(localizationManager: localizationManager)
-        let gitHubPhishingAPIService = GitHubPhishingServiceFactory().createGitHubService()
 
-        let settings = SettingsManager.shared
-
-        let chain = settings.selectedConnection.type.chain
-        let validatorsService = EraValidatorFactory.createService(from: chain)
+        let serviceCoordinator = ServiceCoordinator.createDefault()
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
-                                              settings: settings,
-                                              webSocketService: webSocketService,
-                                              gitHubPhishingAPIService: gitHubPhishingAPIService,
-                                              runtimeService: RuntimeRegistryFacade.sharedService,
-                                              validatorService: validatorsService,
+                                              settings: SettingsManager.shared,
+                                              serviceCoordinator: serviceCoordinator,
                                               keystoreImportService: keystoreImportService)
 
         guard
@@ -265,18 +255,5 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)
 
         return tabBarItem
-    }
-
-    static func createNetworkStatusPresenter(localizationManager: LocalizationManagerProtocol)
-        -> NetworkAvailabilityLayerInteractorOutputProtocol? {
-        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
-            return nil
-        }
-
-        let prenseter = NetworkAvailabilityLayerPresenter()
-        prenseter.localizationManager = localizationManager
-        prenseter.view = window
-
-        return prenseter
     }
 }

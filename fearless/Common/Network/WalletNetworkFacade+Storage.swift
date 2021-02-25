@@ -87,42 +87,38 @@ extension WalletNetworkFacade {
     func queryAccountInfoByKey(_ storageKey: Data,
                                dependingOn upgradeOperation: CompoundOperationWrapper<Bool?>) ->
     CompoundOperationWrapper<AccountInfo?> {
-        do {
-            let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
+        let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
 
-            let fetchOperation = chainStorage
-                .fetchOperation(by: identifier,
-                                options: RepositoryFetchOptions())
+        let fetchOperation = chainStorage
+            .fetchOperation(by: identifier,
+                            options: RepositoryFetchOptions())
 
-            let decoderOperation: ClosureOperation<AccountInfo?> = ClosureOperation {
-                let isUpgraded = (try upgradeOperation.targetOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
+        let decoderOperation: ClosureOperation<AccountInfo?> = ClosureOperation {
+            let isUpgraded = (try upgradeOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
 
-                let item = try fetchOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let item = try fetchOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                guard let data = item?.data else {
-                    return nil
-                }
-
-                let decoder = try ScaleDecoder(data: data)
-
-                if isUpgraded {
-                    return try AccountInfo(scaleDecoder: decoder)
-                } else {
-                    let v27 = try AccountInfoV27(scaleDecoder: decoder)
-                    return AccountInfo(v27: v27)
-                }
+            guard let data = item?.data else {
+                return nil
             }
 
-            decoderOperation.addDependency(fetchOperation)
+            let decoder = try ScaleDecoder(data: data)
 
-            upgradeOperation.allOperations.forEach { decoderOperation.addDependency($0) }
-
-            return CompoundOperationWrapper(targetOperation: decoderOperation,
-                                            dependencies: [fetchOperation])
-        } catch {
-            return CompoundOperationWrapper.createWithError(error)
+            if isUpgraded {
+                return try AccountInfo(scaleDecoder: decoder)
+            } else {
+                let v27 = try AccountInfoV27(scaleDecoder: decoder)
+                return AccountInfo(v27: v27)
+            }
         }
+
+        decoderOperation.addDependency(fetchOperation)
+
+        upgradeOperation.allOperations.forEach { decoderOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: decoderOperation,
+                                        dependencies: [fetchOperation])
     }
 }

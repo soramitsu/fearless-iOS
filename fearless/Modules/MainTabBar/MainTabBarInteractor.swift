@@ -8,11 +8,8 @@ final class MainTabBarInteractor {
 
     let eventCenter: EventCenterProtocol
     let settings: SettingsManagerProtocol
-    let webSocketService: WebSocketServiceProtocol
-    let runtimeService: RuntimeRegistryServiceProtocol
-    let validatorService: EraValidatorServiceProtocol
     let keystoreImportService: KeystoreImportServiceProtocol
-    let gitHubPhishingAPIService: ApplicationServiceProtocol
+    let serviceCoordinator: ServiceCoordinatorProtocol
 
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
@@ -23,18 +20,12 @@ final class MainTabBarInteractor {
 
     init(eventCenter: EventCenterProtocol,
          settings: SettingsManagerProtocol,
-         webSocketService: WebSocketServiceProtocol,
-         gitHubPhishingAPIService: ApplicationServiceProtocol,
-         runtimeService: RuntimeRegistryServiceProtocol,
-         validatorService: EraValidatorServiceProtocol,
+         serviceCoordinator: ServiceCoordinatorProtocol,
          keystoreImportService: KeystoreImportServiceProtocol) {
         self.eventCenter = eventCenter
         self.settings = settings
-        self.webSocketService = webSocketService
-        self.runtimeService = runtimeService
-        self.validatorService = validatorService
         self.keystoreImportService = keystoreImportService
-        self.gitHubPhishingAPIService = gitHubPhishingAPIService
+        self.serviceCoordinator = serviceCoordinator
 
         updateSelectedItems()
 
@@ -47,32 +38,11 @@ final class MainTabBarInteractor {
     }
 
     private func startServices() {
-        webSocketService.setup()
-        gitHubPhishingAPIService.setup()
-        runtimeService.setup()
-        validatorService.setup()
+        serviceCoordinator.setup()
     }
 
     private func stopServices() {
-        runtimeService.throttle()
-        webSocketService.throttle()
-        gitHubPhishingAPIService.throttle()
-        validatorService.throttle()
-    }
-
-    private func updateWebSocketSettings() {
-        let connectionItem = settings.selectedConnection
-        let account = settings.selectedAccount
-
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: account?.address)
-        webSocketService.update(settings: settings)
-    }
-
-    private func updateRuntimeService() {
-        let connectionItem = settings.selectedConnection
-        runtimeService.update(to: connectionItem.type.chain)
+        serviceCoordinator.throttle()
     }
 }
 
@@ -90,8 +60,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 extension MainTabBarInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         if currentAccount != settings.selectedAccount {
-            updateWebSocketSettings()
-            updateRuntimeService()
+            serviceCoordinator.updateOnAccountChange()
             updateSelectedItems()
             presenter?.didReloadSelectedAccount()
         }
@@ -99,8 +68,7 @@ extension MainTabBarInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
         if currentConnection != settings.selectedConnection {
-            updateWebSocketSettings()
-            updateRuntimeService()
+            serviceCoordinator.updateOnNetworkChange()
             updateSelectedItems()
             presenter?.didReloadSelectedNetwork()
         }

@@ -21,30 +21,28 @@ final class EraValidatorService {
     private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)")
 
     private var activeEra: UInt32?
+    private var chain: Chain?
+    private var engine: JSONRPCEngine?
+    private var isActive: Bool = false
+
     private var snapshot: EraStakersInfo?
     private var eraDataProvider: StreamableProvider<ChainStorageItem>?
 
-    private(set) var chain: Chain
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let providerFactory: SubstrateDataProviderFactoryProtocol
     private var pendingRequests: [PendingRequest] = []
-    let webSocketService: WebSocketServiceProtocol
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol
 
-    init(chain: Chain,
-         storageFacade: StorageFacadeProtocol,
+    init(storageFacade: StorageFacadeProtocol,
          runtimeCodingService: RuntimeCodingServiceProtocol,
          providerFactory: SubstrateDataProviderFactoryProtocol,
-         webSocketService: WebSocketServiceProtocol,
          operationManager: OperationManagerProtocol,
          logger: LoggerProtocol) {
-        self.chain = chain
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
         self.providerFactory = providerFactory
-        self.webSocketService = webSocketService
         self.operationManager = operationManager
         self.logger = logger
     }
@@ -126,7 +124,7 @@ final class EraValidatorService {
             return
         }
 
-        guard let engine = webSocketService.connection else {
+        guard let engine = engine else {
             logger.warning("Can't find connection")
             return
         }
@@ -175,7 +173,7 @@ final class EraValidatorService {
             return
         }
 
-        guard let engine = webSocketService.connection else {
+        guard let engine = engine else {
             logger.warning("Can't find connection")
             return
         }
@@ -402,6 +400,11 @@ final class EraValidatorService {
     }
 
     private func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
+        guard let chain = chain else {
+            logger.warning("Missing chain to proccess era")
+            return
+        }
+
         guard let eraItem = eraItem else {
             return
         }
@@ -420,11 +423,9 @@ final class EraValidatorService {
 
         decodingOperation.addDependency(codingFactoryOperation)
 
-        let currentChain = chain
-
         decodingOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                self?.handleEraDecodingResult(chain: currentChain, result: decodingOperation.result)
+                self?.handleEraDecodingResult(chain: chain, result: decodingOperation.result)
             }
         }
 
@@ -434,6 +435,11 @@ final class EraValidatorService {
 
     private func subscribe() {
         do {
+            guard let chain = self.chain else {
+                Logger.shared.warning("Missing chain to subscribe")
+                return
+            }
+
             let localFactory = try ChainStorageIdFactory(chain: chain)
 
             let path = StorageCodingPath.activeEra
@@ -481,28 +487,45 @@ final class EraValidatorService {
 extension EraValidatorService: EraValidatorServiceProtocol {
     func setup() {
         syncQueue.async {
+            guard !self.isActive else {
+                return
+            }
+
+            self.isActive = true
+
             self.subscribe()
         }
     }
 
     func throttle() {
         syncQueue.async {
+            guard !self.isActive else {
+                return
+            }
+
+            self.isActive = false
+
             self.unsubscribe()
         }
     }
 
-    func update(to chain: Chain) {
+    func update(to chain: Chain, engine: JSONRPCEngine) {
         syncQueue.async {
-            self.unsubscribe()
+            if self.isActive {
+                self.unsubscribe()
+            }
+
             self.snapshot = nil
             self.activeEra = nil
+            self.engine = engine
             self.chain = chain
-            self.subscribe()
+
+            if self.isActive {
+                self.subscribe()
+            }
         }
     }
-}
 
-extension EraValidatorService: EraValidatorProviderProtocol {
     func fetchInfoOperation(with timeout: TimeInterval) -> BaseOperation<EraStakersInfo> {
         ClosureOperation {
             var fetchedInfo: EraStakersInfo?
@@ -531,3 +554,4 @@ extension EraValidatorService: EraValidatorProviderProtocol {
         }
     }
 }
+
