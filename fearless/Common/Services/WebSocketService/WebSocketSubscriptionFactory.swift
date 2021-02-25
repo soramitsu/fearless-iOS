@@ -94,7 +94,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     throws -> AccountInfoSubscription {
         let accountStorageKey = try storageKeyFactory.accountInfoKeyForId(accountId)
 
-        let localStorageKey = try localStorageIdFactory.createIdentifier(for: accountStorageKey)
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: accountStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
@@ -112,7 +112,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                              localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> ActiveEraSubscription {
         let remoteStorageKey = try storageKeyFactory.activeEra()
-        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
@@ -129,7 +129,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                               localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> CurrentEraSubscription {
         let remoteStorageKey = try storageKeyFactory.currentEra()
-        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
@@ -146,7 +146,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                  localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> TotalIssuanceSubscription {
         let remoteStorageKey = try storageKeyFactory.totalIssuance()
-        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
@@ -191,7 +191,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                        localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> UpgradeV28Subscription {
         let remoteStorageKey = try storageKeyFactory.updatedDualRefCount()
-        let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
+        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()

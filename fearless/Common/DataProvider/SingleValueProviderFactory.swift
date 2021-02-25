@@ -75,7 +75,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let storageIdFactory = try ChainStorageIdFactory(chain: addressType.chain)
 
         let remoteKey = try StorageKeyFactory().accountInfoKeyForId(accountId)
-        let localKey = try storageIdFactory.createIdentifier(for: remoteKey)
+        let localKey = storageIdFactory.createIdentifier(for: remoteKey)
 
         if let dataProvider = providers[localKey]?.target as? DataProvider<DecodedAccountInfo> {
             return dataProvider
@@ -91,8 +91,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let trigger = DataProviderProxyTrigger()
         let source: StorageProviderSource<DyAccountInfo> =
             StorageProviderSource(itemIdentifier: localKey,
-                                  decodingModuleName: SystemModule.name,
-                                  decodingStorageName: SystemModule.account,
+                                  codingPath: .account,
                                   runtimeService: runtimeService,
                                   provider: streamableProvider,
                                   trigger: trigger)

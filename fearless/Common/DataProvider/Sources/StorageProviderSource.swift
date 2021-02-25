@@ -2,17 +2,11 @@ import Foundation
 import RobinHood
 import FearlessUtils
 
-enum StorageProviderSourceError: Error {
-    case unsupportedId
-    case unsupportedStorage
-}
-
 final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
     typealias Model = ChainStorageDecodedItem<T>
 
     let itemIdentifier: String
-    let decodingModuleName: String
-    let decodingStorageName: String
+    let codingPath: StorageCodingPath
     let runtimeService: RuntimeCodingServiceProtocol
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
@@ -23,14 +17,12 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     private var lock = NSLock()
 
     init(itemIdentifier: String,
-         decodingModuleName: String,
-         decodingStorageName: String,
+         codingPath: StorageCodingPath,
          runtimeService: RuntimeCodingServiceProtocol,
          provider: StreamableProvider<ChainStorageItem>,
          trigger: DataProviderTriggerProtocol) {
         self.itemIdentifier = itemIdentifier
-        self.decodingModuleName = decodingModuleName
-        self.decodingStorageName = decodingStorageName
+        self.codingPath = codingPath
         self.runtimeService = runtimeService
         self.provider = provider
         self.trigger = trigger
@@ -105,27 +97,25 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let moduleName = decodingModuleName
-        let storageName = decodingStorageName
-
-        let decodingOperation: BaseOperation<T?> = ClosureOperation {
-            let factory = try codingFactoryOperation.extractNoCancellableResultData()
-
-            guard let typeName = factory.metadata
-                    .getStorageMetadata(in: moduleName,
-                                        storageName: storageName)?.type.typeName else {
-                throw StorageProviderSourceError.unsupportedStorage
+        let decodingOperation = StorageDecodingOperation<T>(path: codingPath, data: data)
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
             }
-
-            let decoder = try factory.createDecoder(from: data)
-            let item: T = try decoder.read(of: typeName)
-            return item
         }
 
         decodingOperation.addDependency(codingFactoryOperation)
 
-        return CompoundOperationWrapper(targetOperation: decodingOperation,
-                                        dependencies: [codingFactoryOperation])
+        let mappingOperation: BaseOperation<T?> = ClosureOperation {
+            try decodingOperation.extractNoCancellableResultData()
+        }
+
+        mappingOperation.addDependency(decodingOperation)
+
+        return CompoundOperationWrapper(targetOperation: mappingOperation,
+                                        dependencies: [codingFactoryOperation, decodingOperation])
     }
 }
 

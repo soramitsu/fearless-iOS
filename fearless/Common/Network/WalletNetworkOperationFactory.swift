@@ -47,7 +47,7 @@ final class WalletNetworkOperationFactory {
     func createUpgradedInfoFetchOperation() -> CompoundOperationWrapper<Bool?> {
         do {
             let remoteKey = try StorageKeyFactory().updatedDualRefCount()
-            let localKey = try localStorageIdFactory.createIdentifier(for: remoteKey)
+            let localKey = localStorageIdFactory.createIdentifier(for: remoteKey)
 
             return chainStorage.queryStorageByKey(localKey)
 

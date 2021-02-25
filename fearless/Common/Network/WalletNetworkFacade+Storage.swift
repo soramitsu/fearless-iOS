@@ -80,19 +80,15 @@ extension WalletNetworkFacade {
     }
 
     func queryStorageByKey<T: ScaleDecodable>(_ storageKey: Data) -> CompoundOperationWrapper<T?> {
-        do {
-            let identifier = try localStorageIdFactory.createIdentifier(for: storageKey)
-            return chainStorage.queryStorageByKey(identifier)
-        } catch {
-            return CompoundOperationWrapper.createWithError(error)
-        }
+        let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
+        return chainStorage.queryStorageByKey(identifier)
     }
 
     func queryAccountInfoByKey(_ storageKey: Data,
                                dependingOn upgradeOperation: CompoundOperationWrapper<Bool?>) ->
     CompoundOperationWrapper<AccountInfo?> {
         do {
-            let identifier = try localStorageIdFactory.createIdentifier(for: storageKey)
+            let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
 
             let fetchOperation = chainStorage
                 .fetchOperation(by: identifier,

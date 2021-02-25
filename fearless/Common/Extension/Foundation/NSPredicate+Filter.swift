@@ -34,4 +34,8 @@ extension NSPredicate {
     static func filterStorageItemsBy(identifier: String) -> NSPredicate {
         return NSPredicate(format: "%K == %@", #keyPath(CDChainStorageItem.identifier), identifier)
     }
+
+    static func filterByIdPrefix(_ prefix: String) -> NSPredicate {
+        return NSPredicate(format: "%K BEGINSWITH %@", #keyPath(CDChainStorageItem.identifier), prefix)
+    }
 }
