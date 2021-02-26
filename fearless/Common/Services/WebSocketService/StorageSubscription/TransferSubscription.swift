@@ -144,7 +144,7 @@ final class TransferSubscription {
     private func createUpgradedOperation() -> CompoundOperationWrapper<Bool?> {
         do {
             let remoteKey = try StorageKeyFactory().updatedDualRefCount()
-            let localKey = try localIdFactory.createIdentifier(for: remoteKey)
+            let localKey = localIdFactory.createIdentifier(for: remoteKey)
 
             return chainStorage.queryStorageByKey(localKey)
         } catch {

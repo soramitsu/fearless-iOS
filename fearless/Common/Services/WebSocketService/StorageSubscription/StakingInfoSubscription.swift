@@ -89,7 +89,7 @@ final class StakingInfoSubscription: WebSocketSubscribing {
             // save by stash id to avoid intermediate call to controller
             let storageKey = try StorageKeyFactory().stakingInfoForControllerId(stashId)
 
-            let identifier = try localStorageIdFactory.createIdentifier(for: storageKey)
+            let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
 
             let fetchOperation = storage.fetchOperation(by: identifier,
                                                         options: RepositoryFetchOptions())
