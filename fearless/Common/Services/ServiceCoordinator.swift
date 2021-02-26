@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import RobinHood
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -76,14 +77,49 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         webSocketService.setup()
         runtimeService.setup()
 
+        let chain = settings.selectedConnection.type.chain
+
         if let engine = webSocketService.connection {
-            let chain = settings.selectedConnection.type.chain
             validatorService.update(to: chain, engine: engine)
             validatorService.setup()
         }
 
         gitHubPhishingAPIService.setup()
+
+        rewardCalculatorService.update(to: chain)
         rewardCalculatorService.setup()
+
+        let validatorsOperation = validatorService.fetchInfoOperation()
+        let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
+
+        let mapOperation: BaseOperation<[(String, Decimal)]> = ClosureOperation {
+            let info = try validatorsOperation.extractNoCancellableResultData()
+            let calculator = try calculatorOperation.extractNoCancellableResultData()
+            let rewards: [(String, Decimal)] = info.validators.map { validator in
+                let reward = calculator.calculateForValidator(accountId: validator.accountId)
+
+                return (validator.accountId.toHex(includePrefix: true), reward * 100)
+            }
+
+            return rewards
+        }
+
+        mapOperation.addDependency(validatorsOperation)
+        mapOperation.addDependency(calculatorOperation)
+
+        mapOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let result = try mapOperation.extractNoCancellableResultData()
+                    Logger.shared.warning("Reward: \(result)")
+                } catch {
+                    Logger.shared.error("Did receive error: \(error)")
+                }
+            }
+        }
+
+        OperationManagerFacade.sharedManager.enqueue(operations: [validatorsOperation, calculatorOperation, mapOperation],
+                                                     in: .transient)
     }
 
     func throttle() {
@@ -101,7 +137,8 @@ extension ServiceCoordinator {
         let runtimeService = RuntimeRegistryFacade.sharedService
         let gitHubPhishingAPIService = GitHubPhishingServiceFactory.createService()
         let validatorService = EraValidatorFactory.createService(runtime: runtimeService)
-        let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService)
+        let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService,
+                                                                                   validators: validatorService)
 
         return ServiceCoordinator(webSocketService: webSocketService,
                                   runtimeService: runtimeService,

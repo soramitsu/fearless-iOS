@@ -1,7 +1,8 @@
 import Foundation
 
 final class RewardCalculatorServiceFactory {
-    static func createService(runtime: RuntimeCodingServiceProtocol) -> RewardCalculatorServiceProtocol {
+    static func createService(runtime: RuntimeCodingServiceProtocol,
+                              validators: EraValidatorServiceProtocol) -> RewardCalculatorServiceProtocol {
         let storageFacade = SubstrateDataStorageFacade.shared
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
@@ -10,10 +11,8 @@ final class RewardCalculatorServiceFactory {
                                                            operationManager: operationManager,
                                                            logger: logger)
 
-        let eraValidatorsService = EraValidatorFactory.createService(runtime: runtime)
-
         return RewardCalculatorService(
-            eraValidatorsService: eraValidatorsService,
+            eraValidatorsService: validators,
             logger: logger,
             operationManager: operationManager,
             providerFactory: providerFactory,
