@@ -65,7 +65,7 @@ final class RewardCalculatorService {
             dispatchInQueueWhenPossible(request.queue) {
                 if let result = try? eraOperation.extractResultData() {
                     if let chain = self.chain {
-                        let calculator = RewardCalculatorEngine(totalIssuance: Balance(value: snapshot),
+                        let calculator = RewardCalculatorEngine(totalIssuance: snapshot,
                                                                 validators: result.validators,
                                                                 chain: chain)
                         request.resultClosure(calculator)
@@ -100,7 +100,11 @@ final class RewardCalculatorService {
 
         switch result {
         case .success(let totalIssuance):
-            let value = BigUInt(totalIssuance)!
+            guard let value = BigUInt(totalIssuance) else {
+                logger.error("Can't decode total issuance \(totalIssuance)")
+                return
+            }
+
             self.snapshot = value
             notifyPendingClosures(with: value)
         case .failure(let error):

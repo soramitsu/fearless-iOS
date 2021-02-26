@@ -36,17 +36,18 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private var totalIssuance: Decimal
     private var validators: [EraValidatorInfo] = []
 
-    private var chain: Chain?
+    private let chain: Chain
 
     private let decayRate: Decimal = 0.05
     private let idealStakePortion: Decimal = 0.75
     private let idealInflation: Decimal = 0.1
     private let minimalInflation: Decimal = 0.025
 
-    init(totalIssuance: Balance,
+    init(totalIssuance: BigUInt,
          validators: [EraValidatorInfo],
          chain: Chain) {
-        self.totalIssuance = Decimal.fromSubstrateAmount(totalIssuance.value) ?? 0.0
+        self.totalIssuance = Decimal.fromSubstrateAmount(totalIssuance,
+                                                         precision: chain.addressType.precision) ?? 0.0
         self.validators = validators
         self.chain = chain
     }
@@ -56,7 +57,8 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
                                isCompound: Bool,
                                period: CalculationPeriod) throws -> Decimal {
 
-        let totalStake = Decimal.fromSubstrateAmount(validators.map({$0.exposure.total}).reduce(0, +)) ?? 0.0
+        let totalStake = Decimal.fromSubstrateAmount(validators.map({$0.exposure.total}).reduce(0, +),
+                                                     precision: chain.addressType.precision) ?? 0.0
 
         let annualInflation = calculateAnnualInflation(totalStake: totalStake)
 
@@ -64,8 +66,8 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
         let stakePart = annualInflation * averageStake
 
-        let commission = Decimal.fromSubstrateAmount(
-            findMedianCommission(commissions: validators.map { $0.prefs.commission })) ?? 0.0
+        let median = findMedianCommission(commissions: validators.map { $0.prefs.commission })
+        let commission = Decimal.fromSubstratePerbill(median) ?? 0.0
 
         let annualInterestRate = stakePart * (1.0 - commission)
 
@@ -82,7 +84,8 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     func calculateForValidator(accountId: Data) -> Decimal {
-        let totalStake = Decimal.fromSubstrateAmount(validators.map({$0.exposure.own}).reduce(0, +)) ?? 0.0
+        let totalStake = Decimal.fromSubstrateAmount(validators.map({$0.exposure.total}).reduce(0, +),
+                                                     precision: chain.addressType.precision) ?? 0.0
 
         let annualInflation = calculateAnnualInflation(totalStake: totalStake)
 
@@ -92,15 +95,17 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
         guard let validator = validators.first(where: { $0.accountId == accountId }) else { return 0.0 }
 
-        let exposure = Decimal.fromSubstrateAmount(validator.exposure.total) ?? 0.0
+        let exposure = Decimal.fromSubstrateAmount(validator.exposure.total,
+                                                   precision: chain.addressType.precision) ?? 0.0
 
-        return annualInflation * averageStake / (stakedPortion * exposure)
+        let commission = Decimal.fromSubstratePerbill(validator.prefs.commission) ?? 0.0
+
+        return (annualInflation * averageStake / (stakedPortion * exposure)) * (1.0 - commission)
     }
 
     // MARK: - Private
     private func getErasPerDay() throws -> Int {
-
-        switch chain?.addressType {
+        switch chain.addressType {
         case .polkadotMain:
             return 1
         case .genericSubstrate:
@@ -134,17 +139,19 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private func calculateAnnualInflation(totalStake: Decimal) -> Decimal {
         let stakedPortion = calculateStakedPortion(totalStake: totalStake)
 
+        let idealInterest = idealInflation / idealStakePortion
+
         guard stakedPortion <= idealStakePortion else {
             let powerValue = (idealStakePortion - stakedPortion) / decayRate
             let doublePowerValue = Double(truncating: powerValue as NSNumber)
             let decayCoefficient = Decimal(pow(2, doublePowerValue))
-            return minimalInflation + (idealInflation * idealStakePortion - minimalInflation)
+            return minimalInflation + (idealInterest * idealStakePortion - minimalInflation)
                 * decayCoefficient
 
         }
 
         return minimalInflation + stakedPortion *
-            (idealInflation - minimalInflation / idealStakePortion) // 0.025 + 0.67 * (0.1 - 0.025 / 0.75)
+            (idealInterest - minimalInflation / idealStakePortion) // 0.025 + 0.67 * (0.1 - 0.025 / 0.75)
     }
 
     private func findMedianCommission(commissions: [BigUInt]) -> BigUInt {

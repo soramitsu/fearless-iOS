@@ -566,7 +566,7 @@
 		84C6801A24D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C6801924D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift */; };
 		84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C7435A251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift */; };
 		84C7435D251DD205009576C6 /* ExtrinsicFactoryV27.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C7435C251DD205009576C6 /* ExtrinsicFactoryV27.swift */; };
-		84C7435F251DE46F009576C6 /* Decimal+Precision.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C7435E251DE46F009576C6 /* Decimal+Precision.swift */; };
+		84C7435F251DE46F009576C6 /* Decimal+Substrate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C7435E251DE46F009576C6 /* Decimal+Substrate.swift */; };
 		84C74361251E4B5E009576C6 /* FeeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C74360251E4B5E009576C6 /* FeeType.swift */; };
 		84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C74362251E4C2F009576C6 /* DummySigner.swift */; };
 		84C74365251E4D60009576C6 /* SigningWrapperProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84C74364251E4D60009576C6 /* SigningWrapperProtocol.swift */; };
@@ -1359,7 +1359,7 @@
 		84C6801924D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BorderedSubtitleActionView+Inspectable.swift"; sourceTree = "<group>"; };
 		84C7435A251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkOperationFactory+Protocol.swift"; sourceTree = "<group>"; };
 		84C7435C251DD205009576C6 /* ExtrinsicFactoryV27.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicFactoryV27.swift; sourceTree = "<group>"; };
-		84C7435E251DE46F009576C6 /* Decimal+Precision.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Precision.swift"; sourceTree = "<group>"; };
+		84C7435E251DE46F009576C6 /* Decimal+Substrate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Decimal+Substrate.swift"; sourceTree = "<group>"; };
 		84C74360251E4B5E009576C6 /* FeeType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeeType.swift; sourceTree = "<group>"; };
 		84C74362251E4C2F009576C6 /* DummySigner.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DummySigner.swift; sourceTree = "<group>"; };
 		84C74364251E4D60009576C6 /* SigningWrapperProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SigningWrapperProtocol.swift; sourceTree = "<group>"; };
@@ -2973,7 +2973,7 @@
 				8490152624ABCC40008F705E /* NumberFormatter.swift */,
 				842D1E8524D1A90400C30A7A /* NSPredicate+Validation.swift */,
 				8401F24E24E524900081D8F8 /* String+Helpers.swift */,
-				84C7435E251DE46F009576C6 /* Decimal+Precision.swift */,
+				84C7435E251DE46F009576C6 /* Decimal+Substrate.swift */,
 				8494D86A25247F9600614D8F /* Decimal+String.swift */,
 				846A2C4425271F0100731018 /* DateFormatter.swift */,
 				846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */,
@@ -4779,7 +4779,7 @@
 				849E0CD525CFE60C00B33506 /* UpgradeV28Subscription.swift in Sources */,
 				84452A6025D037AE00F47EC5 /* ChainStorage+Decodable.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
-				84C7435F251DE46F009576C6 /* Decimal+Precision.swift in Sources */,
+				84C7435F251DE46F009576C6 /* Decimal+Substrate.swift in Sources */,
 				84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */,
 				F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */,
 				5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */,

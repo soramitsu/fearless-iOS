@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import RobinHood
+import IrohaCrypto
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -95,10 +96,15 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         let mapOperation: BaseOperation<[(String, Decimal)]> = ClosureOperation {
             let info = try validatorsOperation.extractNoCancellableResultData()
             let calculator = try calculatorOperation.extractNoCancellableResultData()
-            let rewards: [(String, Decimal)] = info.validators.map { validator in
+
+            let factory = SS58AddressFactory()
+
+            let rewards: [(String, Decimal)] = try info.validators.map { validator in
                 let reward = calculator.calculateForValidator(accountId: validator.accountId)
 
-                return (validator.accountId.toHex(includePrefix: true), reward * 100)
+                let address = try factory.address(fromPublicKey: AccountIdWrapper(rawData: validator.accountId),
+                                                  type: chain.addressType)
+                return (address, reward * 100.0)
             }
 
             return rewards
