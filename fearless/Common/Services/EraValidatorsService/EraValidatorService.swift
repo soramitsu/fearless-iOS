@@ -89,7 +89,7 @@ final class EraValidatorService {
         }
 
         let keyedPrefs = prefs.reduce(into: [Data: ValidatorPrefs]()) { (result, item) in
-            let accountId = item.key.suffix(Int(ExtrinsicConstants.accountIdLength))
+            let accountId = item.key.getAccountIdFromKey()
             result[accountId] = item.value
         }
 
@@ -115,7 +115,7 @@ final class EraValidatorService {
                                     exposures: [IdentifiableExposure],
                                     codingFactory: RuntimeCoderFactoryProtocol) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
+            Logger.shared.warning("Exposures received but parameters changed. Cancelled.")
             return
         }
 
@@ -163,13 +163,40 @@ final class EraValidatorService {
         operationManager.enqueue(operations: queryWrapper.allOperations, in: .transient)
     }
 
+    private func handleRemoteUpdate(chain: Chain,
+                                    activeEra: UInt32,
+                                    codingFactory: RuntimeCoderFactoryProtocol,
+                                    result: Result<[StorageResponse<ValidatorExposure>], Error>?) {
+        switch result {
+        case .success(let responses):
+            let exposures: [IdentifiableExposure] = responses.compactMap { item in
+                guard let value = item.value else {
+                    return nil
+                }
+
+                let accountId = item.key.getAccountIdFromKey()
+                return (accountId, value)
+            }
+
+            updatePrefsAndSave(chain: chain,
+                               activeEra: activeEra,
+                               exposures: exposures,
+                               codingFactory: codingFactory)
+        case .failure(let error):
+            logger.error("Did receive remote update error: \(error)")
+        case .none:
+            logger.warning("Remote update cancelled")
+        }
+
+    }
+
     private func updateFromRemote(chain: Chain,
                                   activeEra: UInt32,
                                   prefixKey: Data,
                                   repository: AnyDataProviderRepository<ChainStorageItem>,
                                   codingFactory: RuntimeCoderFactoryProtocol) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
+            Logger.shared.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
             return
         }
 
@@ -218,24 +245,10 @@ final class EraValidatorService {
 
         saveOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {
-                do {
-                    let result = try queryWrapper.targetOperation.extractNoCancellableResultData()
-                    let exposures: [IdentifiableExposure] = result.compactMap { item in
-                        guard let value = item.value else {
-                            return nil
-                        }
-
-                        let accountId = item.key.suffix(Int(ExtrinsicConstants.accountIdLength))
-                        return (accountId, value)
-                    }
-
-                    self?.updatePrefsAndSave(chain: chain,
-                                             activeEra: activeEra,
-                                             exposures: exposures,
-                                             codingFactory: codingFactory)
-                } catch {
-                    self?.logger.error("Remote exposure failed: \(error)")
-                }
+                self?.handleRemoteUpdate(chain: chain,
+                                         activeEra: activeEra,
+                                         codingFactory: codingFactory,
+                                         result: queryWrapper.targetOperation.result)
             }
         }
 
@@ -267,8 +280,7 @@ final class EraValidatorService {
 
         let mapOperation: BaseOperation<[IdentifiableExposure]> = ClosureOperation {
             let identifiers = try fetchOperation.extractNoCancellableResultData().map { item in
-                try Data(hexString: item.identifier)
-                    .suffix(Int(ExtrinsicConstants.accountIdLength))
+                try Data(hexString: item.identifier).getAccountIdFromKey()
             }
             let validators = try decodingOperation.extractNoCancellableResultData()
 
@@ -286,7 +298,7 @@ final class EraValidatorService {
                                 prefixKey: Data,
                                 codingFactory: RuntimeCoderFactoryProtocol) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
+            Logger.shared.warning("Update triggered but parameters changed. Cancelled.")
             return
         }
 
@@ -337,7 +349,7 @@ final class EraValidatorService {
 
     private func preparePrefixKeyAndUpdateIfNeeded(chain: Chain, activeEra: UInt32) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Validators fetched but era changed. Cancelled.")
+            Logger.shared.warning("Prefix key for formed but parameters changed. Cancelled.")
             return
         }
 
@@ -384,7 +396,7 @@ final class EraValidatorService {
 
     private func handleEraDecodingResult(chain: Chain, result: Result<ActiveEraInfo, Error>?) {
         guard chain == self.chain else {
-            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
+            Logger.shared.warning("Era decoding triggered but chain changed. Cancelled.")
             return
         }
 
@@ -554,4 +566,3 @@ extension EraValidatorService: EraValidatorServiceProtocol {
         }
     }
 }
-

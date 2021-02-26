@@ -538,6 +538,7 @@
 		84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE207725E7D62100B4748C /* ActiveEraInfo.swift */; };
 		84BE209E25E85CCA00B4748C /* ServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */; };
 		84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */; };
+		84BE20A825E8D93E00B4748C /* Data+StorageKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE20A725E8D93E00B4748C /* Data+StorageKey.swift */; };
 		84BEE059255F4D5700D05EB3 /* AccountImportPreferredInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */; };
 		84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */; };
 		84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */; };
@@ -1318,6 +1319,7 @@
 		84BE207725E7D62100B4748C /* ActiveEraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveEraInfo.swift; sourceTree = "<group>"; };
 		84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCoordinator.swift; sourceTree = "<group>"; };
 		84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServiceFactory.swift; sourceTree = "<group>"; };
+		84BE20A725E8D93E00B4748C /* Data+StorageKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+StorageKey.swift"; sourceTree = "<group>"; };
 		84BEE058255F4D5700D05EB3 /* AccountImportPreferredInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportPreferredInfo.swift; sourceTree = "<group>"; };
 		84BEE0EF2562897100D05EB3 /* AccountImportJsonFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountImportJsonFactory.swift; sourceTree = "<group>"; };
 		84BEE22225646ABF00D05EB3 /* SelectedUsernameChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedUsernameChanged.swift; sourceTree = "<group>"; };
@@ -2967,6 +2969,7 @@
 				846A2C4425271F0100731018 /* DateFormatter.swift */,
 				846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */,
 				84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */,
+				84BE20A725E8D93E00B4748C /* Data+StorageKey.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -4690,6 +4693,7 @@
 				84F4386625D9B8C600AEDA56 /* TypeRegistryPrepared.swift in Sources */,
 				84C7435B251DC504009576C6 /* WalletNetworkOperationFactory+Protocol.swift in Sources */,
 				843910C5253F561500E3C217 /* CompoundOperationWrapper+Result.swift in Sources */,
+				84BE20A825E8D93E00B4748C /* Data+StorageKey.swift in Sources */,
 				84EBC55224F660A700459D15 /* EventProtocols.swift in Sources */,
 				84C6801624D7036B00006BF5 /* SubtitleActionControl.swift in Sources */,
 				840DCBF125DFEE4800D45C6A /* AmountInputView.swift in Sources */,
