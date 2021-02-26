@@ -49,7 +49,7 @@ struct AccountData: ScaleDecodable {
     }
 }
 
-struct Balance: ScaleDecodable {
+struct Balance: ScaleCodable {
     let value: BigUInt
 
     init(value: BigUInt) {
