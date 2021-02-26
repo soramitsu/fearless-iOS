@@ -1,13 +1,8 @@
 import Foundation
 import RobinHood
 
-protocol GitHubPhishingServiceFactoryProtocol {
-    func createGitHubService() -> ApplicationServiceProtocol
-}
-
-class GitHubPhishingServiceFactory: GitHubPhishingServiceFactoryProtocol {
-
-    func createGitHubService() -> ApplicationServiceProtocol {
+class GitHubPhishingServiceFactory {
+    static func createService() -> ApplicationServiceProtocol {
         let logger = Logger.shared
         let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
             SubstrateDataStorageFacade.shared.createRepository()

@@ -76,14 +76,14 @@ extension WebSocketEngine: WebSocketDelegate {
 
     private func handleBinaryEvent(data: Data) {
         if let decodedString = String(data: data, encoding: .utf8) {
-            logger.debug("Did receive data: \(decodedString)")
+            logger.debug("Did receive data: \(decodedString.prefix(1024))")
         }
 
         process(data: data)
     }
 
     private func handleTextEvent(string: String) {
-        logger.debug("Did receive text: \(string)")
+        logger.debug("Did receive text: \(string.prefix(1024))")
         if let data = string.data(using: .utf8) {
             process(data: data)
         } else {

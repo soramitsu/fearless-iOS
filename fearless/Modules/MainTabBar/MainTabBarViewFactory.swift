@@ -15,16 +15,12 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
 
         let localizationManager = LocalizationManager.shared
-        let webSocketService = WebSocketService.shared
-        webSocketService.networkStatusPresenter =
-            createNetworkStatusPresenter(localizationManager: localizationManager)
-        let gitHubPhishingAPIService = GitHubPhishingServiceFactory().createGitHubService()
+
+        let serviceCoordinator = ServiceCoordinator.createDefault()
 
         let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
                                               settings: SettingsManager.shared,
-                                              webSocketService: webSocketService,
-                                              gitHubPhishingAPIService: gitHubPhishingAPIService,
-                                              runtimeService: RuntimeRegistryFacade.sharedService,
+                                              serviceCoordinator: serviceCoordinator,
                                               keystoreImportService: keystoreImportService)
 
         guard
@@ -259,18 +255,5 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         tabBarItem.setTitleTextAttributes(selectedAttributes, for: .selected)
 
         return tabBarItem
-    }
-
-    static func createNetworkStatusPresenter(localizationManager: LocalizationManagerProtocol)
-        -> NetworkAvailabilityLayerInteractorOutputProtocol? {
-        guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
-            return nil
-        }
-
-        let prenseter = NetworkAvailabilityLayerPresenter()
-        prenseter.localizationManager = localizationManager
-        prenseter.view = window
-
-        return prenseter
     }
 }

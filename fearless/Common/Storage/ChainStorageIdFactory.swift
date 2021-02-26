@@ -1,7 +1,7 @@
 import Foundation
 
 protocol ChainStorageIdFactoryProtocol {
-    func createIdentifier(for key: Data) throws -> String
+    func createIdentifier(for key: Data) -> String
 }
 
 final class ChainStorageIdFactory: ChainStorageIdFactoryProtocol {
@@ -11,7 +11,7 @@ final class ChainStorageIdFactory: ChainStorageIdFactoryProtocol {
         genesisData = try Data(hexString: chain.genesisHash)
     }
 
-    func createIdentifier(for key: Data)  throws -> String {
-        try (key + genesisData).blake2b32().toHex(includePrefix: true)
+    func createIdentifier(for key: Data) -> String {
+        (genesisData.prefix(7) + key).toHex()
     }
 }
