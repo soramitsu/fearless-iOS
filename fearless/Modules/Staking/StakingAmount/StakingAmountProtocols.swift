@@ -24,7 +24,9 @@ protocol StakingAmountPresenterProtocol: class {
 
 protocol StakingAmountInteractorInputProtocol: class {
     func setup()
-    func estimateFee(for address: String, amount: BigUInt, rewardDestination: RewardDestination)
+    func estimateFee(for address: String,
+                     amount: BigUInt,
+                     rewardDestination: RewardDestination)
     func fetchAccounts()
 }
 
@@ -32,7 +34,9 @@ protocol StakingAmountInteractorOutputProtocol: class {
     func didReceive(accounts: [AccountItem])
     func didReceive(price: PriceData?)
     func didReceive(balance: DyAccountData?)
-    func didReceive(paymentInfo: RuntimeDispatchInfo, for amount: BigUInt, rewardDestination: RewardDestination)
+    func didReceive(paymentInfo: RuntimeDispatchInfo,
+                    for amount: BigUInt,
+                    rewardDestination: RewardDestination)
     func didReceive(error: Error)
 }
 
@@ -44,6 +48,8 @@ protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, Web
                                  context: AnyObject?)
 
     func presentNotEnoughFunds(from view: StakingAmountViewProtocol?)
+
+    func proceed(from view: StakingAmountViewProtocol?, result: StartStakingResult)
 
     func close(view: StakingAmountViewProtocol?)
 }

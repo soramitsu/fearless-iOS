@@ -25,4 +25,16 @@ extension StorageCodingPath {
     static var validatorPrefs: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Validators")
     }
+
+    static var identity: StorageCodingPath {
+        StorageCodingPath(moduleName: "Identity", itemName: "IdentityOf")
+    }
+
+    static var superIdentity: StorageCodingPath {
+        StorageCodingPath(moduleName: "Identity", itemName: "SuperOf")
+    }
+
+    static var slashingSpans: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "SlashingSpans")
+    }
 }

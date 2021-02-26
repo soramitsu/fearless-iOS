@@ -7,7 +7,9 @@ final class RecommendedValidatorsPresenter {
 }
 
 extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol {
-    func setup() {}
+    func setup() {
+        interactor.setup()
+    }
 }
 
 extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputProtocol {}

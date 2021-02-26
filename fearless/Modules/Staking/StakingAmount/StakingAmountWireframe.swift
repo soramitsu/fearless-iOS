@@ -33,6 +33,15 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
+    func proceed(from view: StakingAmountViewProtocol?, result: StartStakingResult) {
+        guard let validatorsView = RecommendedValidatorsViewFactory.createView(with: result) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(validatorsView.controller,
+                                                                  animated: true)
+    }
+
     func close(view: StakingAmountViewProtocol?) {
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
