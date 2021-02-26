@@ -71,32 +71,27 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
         let mapOperation = ClosureOperation<[StorageResponse<T>]> {
             let result = try queryOperation.extractNoCancellableResultData()
-            let keysData = result
-                .flatMap({ StorageUpdateData(update: $0).changes })
-                .reduce(into: [Data: Data]()) { (result, change) in
-                    if let data = change.value {
-                        result[change.key] = data
-                    }
+
+            let resultChangesData = result.flatMap { StorageUpdateData(update: $0).changes }
+
+            let keyedEncodedItems = resultChangesData.reduce(into: [Data: Data]()) { (result, change) in
+                if let data = change.value {
+                    result[change.key] = data
                 }
+            }
 
-            let allKeys = result
-                .flatMap({ StorageUpdateData(update: $0).changes })
-                .map { $0.key }
+            let allKeys = resultChangesData.map { $0.key }
 
-            let allNonzeroKeys = result
-                .flatMap({ StorageUpdateData(update: $0).changes })
-                .compactMap { $0.value != nil ? $0.key : nil }
+            let allNonzeroKeys = resultChangesData.compactMap { $0.value != nil ? $0.key : nil }
 
             let items = try decodingOperation.extractNoCancellableResultData()
 
-            let keyValue = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { (result, item) in
+            let keyedItems = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { (result, item) in
                 result[item.0] = item.1
             }
 
             return allKeys.map { key in
-                StorageResponse(key: key,
-                                data: keysData[key],
-                                value: keyValue[key])
+                StorageResponse(key: key, data: keyedEncodedItems[key], value: keyedItems[key])
             }
         }
 
@@ -114,10 +109,8 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
                           storagePath: StorageCodingPath)
     -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable {
 
-        let currentRemoteFactory = remoteFactory
-
         let keysOperation = MapKeyEncodingOperation<K>(path: storagePath,
-                                                       storageKeyFactory: currentRemoteFactory)
+                                                       storageKeyFactory: remoteFactory)
 
         keysOperation.configurationBlock = {
             do {
