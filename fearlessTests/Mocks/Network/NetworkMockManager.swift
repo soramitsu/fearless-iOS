@@ -24,14 +24,14 @@ extension NetworkMockManager: NetworkMockManagerProtocol {
         return FireMock.isEnabled
     }
 
-    public func enable() {
+    func enable() {
         initializeMockSupport()
 
         FireMock.unregisterAll()
         FireMock.enabled(true)
     }
 
-    public func disable() {
+    func disable() {
         FireMock.unregisterAll()
         FireMock.enabled(false)
     }

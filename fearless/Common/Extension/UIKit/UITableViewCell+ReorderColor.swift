@@ -5,7 +5,7 @@ extension UITableViewCell {
       * Didn't find other way to customize the reorder control
       * without reimplementing the whole dragging logic
      */
-    func recolorReoderControl(_ newColor: UIColor) {
+    func recolorReorderControl(_ newColor: UIColor) {
         var reorderImage: UIImage?
         for subViewA in subviews {
             if subViewA.classForCoder.description() == "UITableViewCellReorderControl" {

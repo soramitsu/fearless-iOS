@@ -14,7 +14,7 @@ protocol AccountOperationFactoryProtocol {
 }
 
 final class AccountOperationFactory: AccountOperationFactoryProtocol {
-    private(set) var keystore: KeystoreProtocol
+    private let keystore: KeystoreProtocol
 
     init(keystore: KeystoreProtocol) {
         self.keystore = keystore

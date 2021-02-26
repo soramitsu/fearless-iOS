@@ -5,13 +5,13 @@ import SoraFoundation
 import CommonWallet
 
 class PhishingCheckExecutor: WalletCommandProtocol {
-    private var storage: AnyDataProviderRepository<PhishingItem>
-    private var nextActionBlock: () -> Void
-    private var cancelActionBlock: () -> Void
-    private var locale: Locale
-    private var commandFactory: WalletCommandFactoryProtocol?
-    private var publicKey: String
-    private var displayName: String
+    private let storage: AnyDataProviderRepository<PhishingItem>
+    private let nextActionBlock: () -> Void
+    private let cancelActionBlock: () -> Void
+    private let locale: Locale
+    private let commandFactory: WalletCommandFactoryProtocol?
+    private let publicKey: String
+    private let displayName: String
 
     init(commandFactory: WalletCommandFactoryProtocol,
          storage: AnyDataProviderRepository<PhishingItem>,

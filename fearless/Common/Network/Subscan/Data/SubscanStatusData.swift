@@ -1,6 +1,6 @@
 import Foundation
 
-struct SubscanStatusData<T: Codable>: Codable {
+struct SubscanStatusData<T: Decodable>: Decodable {
     let code: Int
     let message: String
     let generatedAt: Int64?

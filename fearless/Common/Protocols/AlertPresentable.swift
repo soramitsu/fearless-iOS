@@ -7,9 +7,9 @@ struct AlertPresentableAction {
         case cancel
     }
 
-    var title: String
-    var handler: (() -> Void)?
-    var style: Style
+    let title: String
+    let handler: (() -> Void)?
+    let style: Style
 
     init(title: String, style: Style = .normal, handler: @escaping () -> Void) {
         self.title = title
@@ -20,6 +20,7 @@ struct AlertPresentableAction {
     init(title: String, style: Style = .normal) {
         self.title = title
         self.style = style
+        handler = nil
     }
 }
 
@@ -112,8 +113,8 @@ extension AlertPresentable {
 }
 
 extension UIAlertController {
-    public static func present(message: String?, title: String?,
-                               closeAction: String?, with presenter: UIViewController) {
+    static func present(message: String?, title: String?,
+                        closeAction: String?, with presenter: UIViewController) {
         let alertView = UIAlertController(title: title, message: message, preferredStyle: .alert)
         let action = UIAlertAction(title: closeAction, style: .cancel, handler: nil)
         alertView.addAction(action)

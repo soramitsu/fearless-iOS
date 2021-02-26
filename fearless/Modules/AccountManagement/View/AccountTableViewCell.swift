@@ -27,7 +27,7 @@ final class AccountTableViewCell: UITableViewCell {
         }
 
         if reordering {
-            recolorReoderControl(R.color.colorWhite()!)
+            recolorReorderControl(R.color.colorWhite()!)
         }
     }
 

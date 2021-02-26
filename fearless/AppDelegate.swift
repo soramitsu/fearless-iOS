@@ -11,16 +11,15 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func application(_ application: UIApplication,
                      didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        if !isUnitTesting {
-            let rootWindow = FearlessWindow()
-            window = rootWindow
+        guard !isUnitTesting else { return true }
 
-            let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
-            presenter.loadOnLaunch()
+        let rootWindow = FearlessWindow()
+        window = rootWindow
 
-            rootWindow.makeKeyAndVisible()
-        }
+        let presenter = RootPresenterFactory.createPresenter(with: rootWindow)
+        presenter.loadOnLaunch()
 
+        rootWindow.makeKeyAndVisible()
         return true
     }
 

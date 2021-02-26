@@ -3,22 +3,19 @@ import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
     private var networkOperation: BaseOperation<[PhishingItem]>! = nil
-    private var operationFactory: GitHubOperationFactoryProtocol
-    private var operationManager: OperationManagerProtocol
-    private var url: URL
-    private var storage: CoreDataRepository<PhishingItem, CDPhishingItem>
-    private var logger: LoggerProtocol
+    private let operationFactory: GitHubOperationFactoryProtocol
+    private let operationManager: OperationManagerProtocol
+    private let url: URL
+    private let storage: CoreDataRepository<PhishingItem, CDPhishingItem>
 
     init(url: URL,
          operationFactory: GitHubOperationFactoryProtocol,
          operationManager: OperationManagerProtocol,
-         storage: CoreDataRepository<PhishingItem, CDPhishingItem>,
-         logger: LoggerProtocol) {
+         storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
         self.url = url
         self.operationFactory = operationFactory
         self.operationManager = operationManager
         self.storage = storage
-        self.logger = logger
     }
 
     enum State {
