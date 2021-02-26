@@ -715,6 +715,9 @@
 		A76B05966CE772DD4B822A3C /* AccountCreateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 17717EAA891DDB5A0223718F /* AccountCreateTests.swift */; };
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
+		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
+		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
+		AEE4E35225E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF73FFD25DFAB9400407D41 /* CurrentEraSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */; };
 		AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */; };
@@ -1500,6 +1503,9 @@
 		AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordProtocols.swift; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
+		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
+		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
+		AEE4E35125E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceFactory.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentEraSubscription.swift; sourceTree = "<group>"; };
 		AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalIssuanceSubscription.swift; sourceTree = "<group>"; };
@@ -3698,6 +3704,9 @@
 			isa = PBXGroup;
 			children = (
 				AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */,
+				AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */,
+				AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */,
+				AEE4E35125E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift */,
 			);
 			path = RewardCalculatorService;
 			sourceTree = "<group>";
@@ -4534,6 +4543,7 @@
 				8428765D24ADDE0200D91AD8 /* ProfileInteractor.swift in Sources */,
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
 				8490151B24ABC44E008F705E /* TransactionHistoryConfigurator.swift in Sources */,
+				AEE4E35225E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift in Sources */,
 				849014DB24AA8F60008F705E /* MainTabBarProtocol.swift in Sources */,
 				84FD3DB32540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift in Sources */,
 				8490142F24A935FE008F705E /* ControllerBackedProtocol.swift in Sources */,
@@ -4586,6 +4596,7 @@
 				8468B87424F63D4B00B76BC6 /* AddConfirmationWireframe.swift in Sources */,
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
+				AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				84155DF6253B252000A27058 /* ReachabilityManager.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
@@ -4640,6 +4651,7 @@
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				84364D6625325A8B00281F9A /* StakingLedger.swift in Sources */,
+				AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,

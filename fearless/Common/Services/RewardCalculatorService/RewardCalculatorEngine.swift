@@ -30,38 +30,29 @@ protocol RewardCalculatorEngineProtocol {
     func calculateForValidator(accountId: Data) -> Decimal
 }
 
-extension RewardCalculatorEngineProtocol {
-    func calculateForNominator(amount: Decimal,
-                               accountId: Data?,
-                               isCompound: Bool = false,
-                               period: CalculationPeriod = .year) throws -> Decimal {
-        return 0.0
-    }
-
-    func calculateForValidator(accountId: Data) -> Decimal {
-        return 0.0
-    }
-}
-
 // For all the cases we suggest that parachains are disabled
 // Thus, i_ideal = 0.1 and x_ideal = 0.75
 class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
-    var totalIssuance: Decimal
-    var validators: [EraValidatorInfo] = []
+    private var totalIssuance: Decimal
+    private var validators: [EraValidatorInfo] = []
+
+    private var chain: Chain?
+
     private let decayRate: Decimal = 0.05
     private let idealStakePortion: Decimal = 0.75
     private let idealInflation: Decimal = 0.1
     private let minimalInflation: Decimal = 0.025
 
     init(totalIssuance: Balance,
-         validators: [EraValidatorInfo]) {
+         validators: [EraValidatorInfo],
+         chain: Chain) {
         self.totalIssuance = Decimal.fromSubstrateAmount(totalIssuance.value) ?? 0.0
         self.validators = validators
+        self.chain = chain
     }
 
     func calculateForNominator(amount: Decimal,
                                accountId: Data?,
-                               address: String,
                                isCompound: Bool,
                                period: CalculationPeriod) throws -> Decimal {
 
@@ -73,7 +64,8 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
 
         let stakePart = annualInflation * averageStake
 
-        let commission = Decimal.fromSubstrateAmount(findMedianCommission(commissions: validators.map { $0.prefs.commission })) ?? 0.0
+        let commission = Decimal.fromSubstrateAmount(
+            findMedianCommission(commissions: validators.map { $0.prefs.commission })) ?? 0.0
 
         let annualInterestRate = stakePart * (1.0 - commission)
 
@@ -83,7 +75,7 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             return amount * dailyInterestRate * Decimal(daysInPeriod(period: period))
         }
 
-        let erasPerDay = try getErasPerDay(address: address)
+        let erasPerDay = try getErasPerDay()
 
         return amount * pow(dailyInterestRate / Decimal(erasPerDay),
                             erasPerDay * daysInPeriod(period: period))
@@ -106,11 +98,9 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     // MARK: - Private
-    private func getErasPerDay(address: String) throws -> Int {
-        let addressFactory = SS58AddressFactory()
-        let addressType = try addressFactory.extractAddressType(from: address)
+    private func getErasPerDay() throws -> Int {
 
-        switch addressType {
+        switch chain?.addressType {
         case .polkadotMain:
             return 1
         case .genericSubstrate:
@@ -145,7 +135,6 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let stakedPortion = calculateStakedPortion(totalStake: totalStake)
 
         guard stakedPortion <= idealStakePortion else {
-            print("Applying complex formula")
             let powerValue = (idealStakePortion - stakedPortion) / decayRate
             let doublePowerValue = Double(truncating: powerValue as NSNumber)
             let decayCoefficient = Decimal(pow(2, doublePowerValue))
@@ -153,7 +142,7 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
                 * decayCoefficient
 
         }
-        print("Applying simple formula")
+
         return minimalInflation + stakedPortion *
             (idealInflation - minimalInflation / idealStakePortion) // 0.025 + 0.67 * (0.1 - 0.025 / 0.75)
     }

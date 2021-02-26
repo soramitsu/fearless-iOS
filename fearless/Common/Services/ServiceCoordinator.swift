@@ -12,17 +12,20 @@ final class ServiceCoordinator {
     let runtimeService: RuntimeRegistryServiceProtocol
     let validatorService: EraValidatorServiceProtocol
     let gitHubPhishingAPIService: ApplicationServiceProtocol
+    let rewardCalculatorService: RewardCalculatorServiceProtocol
     let settings: SettingsManagerProtocol
 
     init(webSocketService: WebSocketServiceProtocol,
          runtimeService: RuntimeRegistryServiceProtocol,
          validatorService: EraValidatorServiceProtocol,
          gitHubPhishingAPIService: ApplicationServiceProtocol,
+         rewardCalculatorService: RewardCalculatorServiceProtocol,
          settings: SettingsManagerProtocol) {
         self.webSocketService = webSocketService
         self.runtimeService = runtimeService
         self.validatorService = validatorService
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
+        self.rewardCalculatorService = rewardCalculatorService
         self.settings = settings
     }
 
@@ -47,6 +50,11 @@ final class ServiceCoordinator {
             validatorService.update(to: chain, engine: engine)
         }
     }
+
+    private func updateRewardCalculatorService() {
+        let chain = settings.selectedConnection.type.chain
+        rewardCalculatorService.update(to: chain)
+    }
 }
 
 extension ServiceCoordinator: ServiceCoordinatorProtocol {
@@ -54,12 +62,14 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         updateWebSocketSettings()
         updateRuntimeService()
         updateValidatorService()
+        updateRewardCalculatorService()
     }
 
     func updateOnNetworkChange() {
         updateWebSocketSettings()
         updateRuntimeService()
         updateValidatorService()
+        updateRewardCalculatorService()
     }
 
     func setup() {
@@ -73,6 +83,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         }
 
         gitHubPhishingAPIService.setup()
+        rewardCalculatorService.setup()
     }
 
     func throttle() {
@@ -80,6 +91,7 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         runtimeService.throttle()
         validatorService.throttle()
         gitHubPhishingAPIService.throttle()
+        rewardCalculatorService.throttle()
     }
 }
 
@@ -89,11 +101,13 @@ extension ServiceCoordinator {
         let runtimeService = RuntimeRegistryFacade.sharedService
         let gitHubPhishingAPIService = GitHubPhishingServiceFactory.createService()
         let validatorService = EraValidatorFactory.createService(runtime: runtimeService)
+        let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService)
 
         return ServiceCoordinator(webSocketService: webSocketService,
                                   runtimeService: runtimeService,
                                   validatorService: validatorService,
                                   gitHubPhishingAPIService: gitHubPhishingAPIService,
+                                  rewardCalculatorService: rewardCalculatorService,
                                   settings: SettingsManager.shared)
     }
 }
