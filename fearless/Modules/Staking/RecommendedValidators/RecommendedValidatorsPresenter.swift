@@ -7,9 +7,14 @@ final class RecommendedValidatorsPresenter {
 
     let logger: LoggerProtocol?
 
+    var allValidators: [ElectedValidatorInfo]?
+    var recommended: [ElectedValidatorInfo]?
+
     init(logger: LoggerProtocol? = nil) {
         self.logger = logger
     }
+
+    private func updateView() {}
 }
 
 extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol {
@@ -20,15 +25,11 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
 
 extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputProtocol {
     func didReceive(validators: [ElectedValidatorInfo]) {
-        let slashedCount = validators.filter { $0.hasSlashes }.count
+        allValidators = validators
 
-        logger?.debug("Slashed count \(slashedCount) of \(validators.count)")
-
-        let oversubscribedCount = validators.filter { $0.oversubscribed }.count
-        logger?.debug("Oversubscribed count \(oversubscribedCount) of \(validators.count)")
-
-        let minStakeNominator = validators.flatMap { $0.nominators }.min(by: { $0.stake < $1.stake })
-        logger?.debug("Minimal stake \(minStakeNominator?.stake ?? 0.0)")
+        recommended = validators
+            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed}
+            .sorted(by: { $0.stakeReturnPer >= $1.stakeReturnPer })
     }
 
     func didReceive(error: Error) {

@@ -172,12 +172,10 @@ final class RuntimeRegistryService {
                 throw RuntimeRegistryServiceError.brokenMetadata
             }
 
-            let nodes: [Node] = [MappingNode.unappliedSlashes]
             let catalog = try TypeRegistryCatalog
                 .createFromBaseTypeDefinition(baseData,
                                               networkDefinitionData: networkData,
-                                              runtimeMetadata: metadata,
-                                              customNodes: nodes)
+                                              runtimeMetadata: metadata)
 
             let localBaseHash = try hasher.hash(data: baseData)
             let localNetworkHash = try hasher.hash(data: networkData)
