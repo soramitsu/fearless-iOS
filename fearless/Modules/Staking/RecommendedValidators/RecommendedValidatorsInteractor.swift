@@ -198,7 +198,11 @@ final class RecommendedValidatorsInteractor {
                                                     runtime: runtimeOperation,
                                                     slashDefer: slashDeferOperation)
 
-        slashingsWrapper.allOperations.forEach { $0.addDependency(identityWrapper.targetOperation) }
+        slashingsWrapper.allOperations.forEach {
+            $0.addDependency(eraValidatorsOperation)
+            $0.addDependency(runtimeOperation)
+            $0.addDependency(slashDeferOperation)
+        }
 
         let addressType = chain.addressType
         let mapOperation = ClosureOperation<[ElectedValidatorInfo]> {
@@ -230,6 +234,8 @@ final class RecommendedValidatorsInteractor {
         }
 
         mapOperation.addDependency(slashingsWrapper.targetOperation)
+        mapOperation.addDependency(identityWrapper.targetOperation)
+        mapOperation.addDependency(maxNominatorsOperation)
 
         mapOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -242,9 +248,15 @@ final class RecommendedValidatorsInteractor {
             }
         }
 
-        let operations = [runtimeOperation, eraValidatorsOperation, slashDeferOperation, maxNominatorsOperation] +
-            superIdentityWrapper.allOperations + identityWrapper.allOperations + slashingsWrapper.allOperations +
-        [mapOperation]
+        let baseOperations = [
+            runtimeOperation,
+            eraValidatorsOperation,
+            slashDeferOperation,
+            maxNominatorsOperation
+        ]
+
+        let operations = baseOperations  + superIdentityWrapper.allOperations +
+            identityWrapper.allOperations + slashingsWrapper.allOperations + [mapOperation]
 
         operationManager.enqueue(operations: operations, in: .transient)
     }

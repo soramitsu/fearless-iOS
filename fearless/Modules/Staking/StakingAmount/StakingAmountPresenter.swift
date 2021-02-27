@@ -175,15 +175,14 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func proceed() {
-        //TODO: REMOVE COMMENTS WHEN DONE
         guard let amount = amount, let fee = fee, let balance = balance else {
             return
         }
 
-        /*guard amount + fee <= balance else {
+        guard amount + fee <= balance else {
             wireframe.presentNotEnoughFunds(from: view)
             return
-        }*/
+        }
 
         let stakingState = StartStakingResult(amount: amount,
                                               rewardDestination: rewardDestination,

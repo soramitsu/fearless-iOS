@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import SoraKeystore
+import SoraFoundation
 
 final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryProtocol {
     static func createView(with stakingState: StartStakingResult) -> RecommendedValidatorsViewProtocol? {
@@ -31,6 +32,8 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter
+
+        view.localizationManager = LocalizationManager.shared
 
         return view
     }

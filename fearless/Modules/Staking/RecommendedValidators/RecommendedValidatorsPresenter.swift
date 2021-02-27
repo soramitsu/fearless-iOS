@@ -1,4 +1,5 @@
 import Foundation
+import RobinHood
 
 final class RecommendedValidatorsPresenter {
     weak var view: RecommendedValidatorsViewProtocol?
@@ -14,12 +15,34 @@ final class RecommendedValidatorsPresenter {
         self.logger = logger
     }
 
-    private func updateView() {}
+    private func updateView() {
+        guard let all = allValidators, let recommended = recommended else {
+            return
+        }
+
+        let totalCount = min(all.count, StakingConstants.maxTargets)
+        let viewModel = RecommendedViewModel(selectedCount: recommended.count,
+                                             totalCount: totalCount)
+
+        view?.didReceive(viewModel: viewModel)
+    }
 }
 
 extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol {
     func setup() {
         interactor.setup()
+    }
+
+    func proceed() {
+
+    }
+
+    func selectRecommendedValidators() {
+
+    }
+
+    func selectCustomValidators() {
+        
     }
 }
 
@@ -27,12 +50,23 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
     func didReceive(validators: [ElectedValidatorInfo]) {
         allValidators = validators
 
-        recommended = validators
+        let recommended = validators
             .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed}
             .sorted(by: { $0.stakeReturnPer >= $1.stakeReturnPer })
+            .prefix(StakingConstants.maxTargets)
+        self.recommended = Array(recommended)
+
+        updateView()
     }
 
     func didReceive(error: Error) {
         logger?.error("Did receive error \(error)")
+
+        let locale = view?.localizationManager?.selectedLocale
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            _ = wireframe.present(error: BaseOperationError.unexpectedDependentResult,
+                                  from: view,
+                                  locale: locale)
+        }
     }
 }
