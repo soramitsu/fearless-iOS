@@ -16,4 +16,8 @@ extension Decimal {
         let valueString = (self as NSDecimalNumber).multiplying(byPowerOf10: precision).stringValue
         return BigUInt(valueString)
     }
+
+    static func fromSubstratePerbill(value: BigUInt) -> Decimal? {
+        fromSubstrateAmount(value, precision: 9)
+    }
 }

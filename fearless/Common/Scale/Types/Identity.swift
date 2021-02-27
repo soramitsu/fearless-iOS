@@ -15,14 +15,6 @@ struct IdentityInfo: Decodable {
     let email: ChainData
     let image: ChainData
     let twitter: ChainData
-
-    var name: String? {
-        if case .raw(let value) = display {
-            return String(data: value, encoding: .utf8)
-        } else {
-            return nil
-        }
-    }
 }
 
 struct IdentityAddition: Decodable {

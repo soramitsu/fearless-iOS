@@ -37,4 +37,8 @@ extension StorageCodingPath {
     static var slashingSpans: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "SlashingSpans")
     }
+
+    static var unappliedSlashes: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
+    }
 }

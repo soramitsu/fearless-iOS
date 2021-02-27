@@ -10,7 +10,10 @@ protocol RecommendedValidatorsInteractorInputProtocol: class {
     func setup()
 }
 
-protocol RecommendedValidatorsInteractorOutputProtocol: class {}
+protocol RecommendedValidatorsInteractorOutputProtocol: class {
+    func didReceive(validators: [ElectedValidatorInfo])
+    func didReceive(error: Error)
+}
 
 protocol RecommendedValidatorsWireframeProtocol: class {}
 

@@ -8,3 +8,4 @@ typealias SuperIdentityWrapper = CompoundOperationWrapper<[StorageResponse<Super
 typealias SuperIdentityOperation = BaseOperation<[StorageResponse<SuperIdentity>]>
 typealias IdentityWrapper = CompoundOperationWrapper<[StorageResponse<Identity>]>
 typealias SlashingSpansWrapper = CompoundOperationWrapper<[StorageResponse<SlashingSpans>]>
+typealias UnappliedSlashesWrapper = CompoundOperationWrapper<[StorageResponse<[UnappliedSlash]>]>
