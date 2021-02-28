@@ -10,7 +10,7 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
         }
 
         let view = RecommendedValidatorsViewController(nib: R.nib.recommendedValidatorsViewController)
-        let presenter = RecommendedValidatorsPresenter(logger: Logger.shared)
+        let presenter = RecommendedValidatorsPresenter(state: stakingState, logger: Logger.shared)
 
         let eraValidatorService = EraValidatorFacade.sharedService
         let runtimeService = RuntimeRegistryFacade.sharedService
@@ -18,11 +18,14 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
         let operationManager = OperationManagerFacade.sharedManager
 
         let chain = SettingsManager.shared.selectedConnection.type.chain
-        let interactor = RecommendedValidatorsInteractor(chain: chain,
+
+        let operationFactory = ValidatorOperationFactory(chain: chain,
                                                          eraValidatorService: eraValidatorService,
                                                          storageRequestFactory: storageOperationFactory,
                                                          runtimeService: runtimeService,
-                                                         engine: engine,
+                                                         engine: engine)
+
+        let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
                                                          operationManager: operationManager,
                                                          logger: Logger.shared)
         let wireframe = RecommendedValidatorsWireframe()

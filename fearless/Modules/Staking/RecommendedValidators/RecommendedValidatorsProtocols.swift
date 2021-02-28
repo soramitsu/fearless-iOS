@@ -22,7 +22,11 @@ protocol RecommendedValidatorsInteractorOutputProtocol: class {
     func didReceive(error: Error)
 }
 
-protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {}
+protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
+    func proceed(from view: RecommendedValidatorsViewProtocol?, result: PreparedNomination)
+    func showRecommended(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
+    func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
+}
 
 protocol RecommendedValidatorsViewFactoryProtocol: class {
     static func createView(with stakingState: StartStakingResult) -> RecommendedValidatorsViewProtocol?

@@ -6,12 +6,15 @@ final class RecommendedValidatorsPresenter {
     var wireframe: RecommendedValidatorsWireframeProtocol!
     var interactor: RecommendedValidatorsInteractorInputProtocol!
 
+    let state: StartStakingResult
     let logger: LoggerProtocol?
 
     var allValidators: [ElectedValidatorInfo]?
     var recommended: [ElectedValidatorInfo]?
 
-    init(logger: LoggerProtocol? = nil) {
+    init(state: StartStakingResult,
+         logger: LoggerProtocol? = nil) {
+        self.state = state
         self.logger = logger
     }
 
@@ -34,15 +37,36 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
     }
 
     func proceed() {
+        guard let recommended = recommended else {
+            return
+        }
 
+        let targets = recommended.map {
+            SelectedValidatorInfo(address: $0.address, identity: $0.identity)
+        }
+
+        let nomination = PreparedNomination(amount: state.amount,
+                                            rewardDestination: state.rewardDestination,
+                                            fee: state.fee,
+                                            targets: targets)
+
+        wireframe.proceed(from: view, result: nomination)
     }
 
     func selectRecommendedValidators() {
+        guard let recommended = recommended else {
+            return
+        }
 
+        wireframe.showRecommended(from: view, validators: recommended)
     }
 
     func selectCustomValidators() {
-        
+        guard let all = allValidators else {
+            return
+        }
+
+        wireframe.showCustom(from: view, validators: all)
     }
 }
 
