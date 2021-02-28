@@ -26,8 +26,7 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
                                                          engine: engine)
 
         let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
-                                                         operationManager: operationManager,
-                                                         logger: Logger.shared)
+                                                         operationManager: operationManager)
         let wireframe = RecommendedValidatorsWireframe()
 
         view.presenter = presenter

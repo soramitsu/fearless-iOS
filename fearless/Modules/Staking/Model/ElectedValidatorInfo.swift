@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-struct ElectedValidatorInfo {
+struct ElectedValidatorInfo: Equatable {
     let address: String
     let nominators: [NominatorInfo]
     let totalStake: Decimal
@@ -17,7 +17,7 @@ struct ElectedValidatorInfo {
     }
 }
 
-struct NominatorInfo {
+struct NominatorInfo: Equatable {
     let address: String
     let stake: Decimal
 }

@@ -8,14 +8,11 @@ final class RecommendedValidatorsInteractor {
 
     let operationFactory: ValidatorOperationFactorProtocol
     let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol
 
     init(operationFactory: ValidatorOperationFactorProtocol,
-         operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol) {
+         operationManager: OperationManagerProtocol) {
         self.operationFactory = operationFactory
         self.operationManager = operationManager
-        self.logger = logger
     }
 
     private func prepareRecommendedValidatorList() {
