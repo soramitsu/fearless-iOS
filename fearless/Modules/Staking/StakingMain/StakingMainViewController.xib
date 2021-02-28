@@ -44,7 +44,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="375" height="66"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ypp-bS-mpc">
-                                            <rect key="frame" x="16" y="14" width="271" height="38"/>
+                                            <rect key="frame" x="16" y="15.5" width="271" height="35"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -204,14 +204,6 @@
             <point key="canvasLocation" x="-107" y="112"/>
         </view>
     </objects>
-    <designables>
-        <designable name="FbN-Vm-EC2">
-            <size key="intrinsicContentSize" width="32" height="26"/>
-        </designable>
-        <designable name="bRI-Oz-D1K">
-            <size key="intrinsicContentSize" width="109" height="34"/>
-        </designable>
-    </designables>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
         <namedColor name="colorHighlightedPink">

@@ -23,7 +23,9 @@
 		1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = EFBC209E3128F504115F4D35 /* UsernameSetupViewController.xib */; };
 		1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5FFEB823BE0057CFB78CC033 /* NetworkManagementTests.swift */; };
 		1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B93A1BA7DFEE1D7728B84949 /* AccountExportPasswordTests.swift */; };
+		1F88F3DBFA0BD6D0FDF558F3 /* StakingConfirmViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 975DECE71DE70DFD866B8E23 /* StakingConfirmViewFactory.swift */; };
 		21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3558BD7D1B8CA1409BE74879 /* AccountManagementInteractor.swift */; };
+		25381484F16FB930B8A90CE3 /* StakingConfirmProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = D7FE5F01FC9364788A91EFA5 /* StakingConfirmProtocols.swift */; };
 		2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6DE4840EBB9892A5E35FB443 /* AccountExportPasswordViewController.xib */; };
 		2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */; };
 		2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */; };
@@ -57,6 +59,7 @@
 		4C74355397068A023BBEDDB5 /* CommingSoonViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D8DC5A3B75E294405D8868C9 /* CommingSoonViewFactory.swift */; };
 		4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 2A0AC679F039526102165678 /* AccountManagementViewController.xib */; };
 		501347BEA67CD30FE484358E /* AccountImportViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1E60EF37AC0A7646ED8FE64 /* AccountImportViewFactory.swift */; };
+		50EA7F4AFF3A33C64E9A5184 /* StakingConfirmViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = DD6322902E35C76E689A28AE /* StakingConfirmViewController.xib */; };
 		51FFF192C62958E4214CD10F /* CommingSoonViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CCC87D994235F4996679ECB5 /* CommingSoonViewController.xib */; };
 		5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = E18B94164B49123E62FA60B7 /* AccountManagementViewFactory.swift */; };
 		58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3BB979A0040FE1AFA1E3CF /* AddConnectionTests.swift */; };
@@ -78,10 +81,12 @@
 		6C56AB4AE63AB2DC73DE98E0 /* AccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CC1FB277A878E9C9B7EAEB /* AccountImportInteractor.swift */; };
 		6D315EFF2B664235D297674E /* AccountImportProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */; };
 		6D6C6FD2F13603BCE83CFC65 /* ExportMnemonicConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1CC566D6EACB81469B926611 /* ExportMnemonicConfirmInteractor.swift */; };
+		6ECD0116CD39D8F55D246864 /* StakingConfirmPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B5626189788682A84D4E9D7 /* StakingConfirmPresenter.swift */; };
 		73056D4920BE0E60FAF5073D /* AccountInfoInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF87FF434F26426278E895EE /* AccountInfoInteractor.swift */; };
 		731EF71ACA427AC4E9D5F634 /* CommingSoonPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74E7553DCA314FAB787497EF /* CommingSoonPresenter.swift */; };
 		742374EE778D76ABC965E107 /* StakingAmountViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AB2349A5057312BDB6C65804 /* StakingAmountViewController.xib */; };
 		7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65AD15693E21C869DE1FDD17 /* UsernameSetupWireframe.swift */; };
+		76C5FD0685615E602696B23D /* StakingConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 28EF0F9F97C89137F642016E /* StakingConfirmTests.swift */; };
 		773EC9764FC9DCD26E9E6424 /* AccountImportViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 4B111BC48900A082DCC89AD3 /* AccountImportViewController.xib */; };
 		7C93FA82996A426E7B8CA06E /* AccountExportPasswordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */; };
 		7D281FEA78E2E5F44990C184 /* AccountImportPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EB8605FD90D8C3553A9897B4 /* AccountImportPresenter.swift */; };
@@ -750,6 +755,7 @@
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
 		AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
+		B02EAF42C91E069FE6872EE0 /* StakingConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */; };
 		B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B0E2EDF787BF82F16663215 /* NetworkInfoViewController.swift */; };
 		B96EE077267BBBBB631C9286 /* Pods_fearlessTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 56E6A56BC39D51551309F1DA /* Pods_fearlessTests.framework */; };
 		BD571417BD18C711B76E1D62 /* ExportSeedWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8B4C1B5D56DB69BA0AECF731 /* ExportSeedWireframe.swift */; };
@@ -763,6 +769,7 @@
 		C89D156BA8B690E8E4DE19ED /* ExportSeedProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3F1D5849A2EBF462B32F3A9C /* ExportSeedProtocols.swift */; };
 		C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 6AE890B7D082A2CFDB7A9199 /* AccountCreateViewController.xib */; };
 		CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 527CD27768E9A75E6CA87FE4 /* AccountConfirmTests.swift */; };
+		CC545DF80038901FA06FDD58 /* StakingConfirmViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5B8B0940B2CB25AD9C36206E /* StakingConfirmViewController.swift */; };
 		CD76A6513A708051857FD480 /* StakingAmountProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 999C15317E0B4FC67B9C17C5 /* StakingAmountProtocols.swift */; };
 		CE478485DE721EBA1845B6FD /* NetworkManagementInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = B7437AE4094114716F3BF175 /* NetworkManagementInteractor.swift */; };
 		D8581E5440A19D977E17BFDE /* StakingAmountViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = D39D54DC9992CF9CB6699AA3 /* StakingAmountViewFactory.swift */; };
@@ -780,6 +787,7 @@
 		F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FCA2DD3A8898D64CBC9F97 /* AccountManagementViewController.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
+		FAD122085BC1E3B872167AC3 /* StakingConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52B7D800BECB832C26C3D1B /* StakingConfirmInteractor.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
 /* End PBXBuildFile section */
 
@@ -818,6 +826,7 @@
 		26635BD49FBF19DB1253906E /* NetworkInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoTests.swift; sourceTree = "<group>"; };
 		27D5AF2F7609ADE855308089 /* AccountExportPasswordViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewController.swift; sourceTree = "<group>"; };
 		27E722B58D9927B8916FD7AF /* RecommendedValidatorsViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = RecommendedValidatorsViewController.xib; sourceTree = "<group>"; };
+		28EF0F9F97C89137F642016E /* StakingConfirmTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmTests.swift; sourceTree = "<group>"; };
 		2A0AC679F039526102165678 /* AccountManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountManagementViewController.xib; sourceTree = "<group>"; };
 		2A66CF4E25D109770006E4C1 /* CDPhishingItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDPhishingItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
 		2A66CFAE25D10EDF0006E4C1 /* PhishingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingItem.swift; sourceTree = "<group>"; };
@@ -860,7 +869,9 @@
 		599FEDBD7E8B665F1A93BA70 /* AccountConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmWireframe.swift; sourceTree = "<group>"; };
 		5A05EB4FAF2FDE7DECEA93E4 /* StakingMainViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainViewController.swift; sourceTree = "<group>"; };
 		5AA3BF0C9C1E0E2C67D962F5 /* PurchaseViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = PurchaseViewFactory.swift; sourceTree = "<group>"; };
+		5B8B0940B2CB25AD9C36206E /* StakingConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewController.swift; sourceTree = "<group>"; };
 		5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementWireframe.swift; sourceTree = "<group>"; };
+		5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmWireframe.swift; sourceTree = "<group>"; };
 		5E0E9B2B39FD46F97573BDCA /* UsernameSetupViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UsernameSetupViewController.swift; sourceTree = "<group>"; };
 		5E11C7AF9A8DEC07246D5626 /* StakingMainTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainTests.swift; sourceTree = "<group>"; };
 		5E5E310A67B23D53954C2BDA /* AccountInfoViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoViewFactory.swift; sourceTree = "<group>"; };
@@ -1540,10 +1551,13 @@
 		93838A49BDD7AC508A6FFB06 /* Pods_fearlessAll_fearless.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_fearlessAll_fearless.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportMnemonicConfirmWireframe.swift; sourceTree = "<group>"; };
 		96F09665083031502F9693F8 /* StakingMainWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingMainWireframe.swift; sourceTree = "<group>"; };
+		975DECE71DE70DFD866B8E23 /* StakingConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewFactory.swift; sourceTree = "<group>"; };
 		999C15317E0B4FC67B9C17C5 /* StakingAmountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingAmountProtocols.swift; sourceTree = "<group>"; };
+		9B5626189788682A84D4E9D7 /* StakingConfirmPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmPresenter.swift; sourceTree = "<group>"; };
 		9C148BF4AF36FA6D85EC59AD /* AccountInfoWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoWireframe.swift; sourceTree = "<group>"; };
 		A14CA4551FCC2EBD078E2242 /* AccountConfirmViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewFactory.swift; sourceTree = "<group>"; };
 		A3104ABC4BECF08B0BA836AA /* AccountConfirmViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountConfirmViewController.swift; sourceTree = "<group>"; };
+		A52B7D800BECB832C26C3D1B /* StakingConfirmInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmInteractor.swift; sourceTree = "<group>"; };
 		A865455F8FC60413A6CB8A44 /* ExportSeedInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ExportSeedInteractor.swift; sourceTree = "<group>"; };
 		A9C0466677704CFA94E5015E /* Pods-fearlessAll-fearlessTests.dev.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.dev.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.dev.xcconfig"; sourceTree = "<group>"; };
 		AB2349A5057312BDB6C65804 /* StakingAmountViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = StakingAmountViewController.xib; sourceTree = "<group>"; };
@@ -1579,10 +1593,12 @@
 		D2FCA2DD3A8898D64CBC9F97 /* AccountManagementViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementViewController.swift; sourceTree = "<group>"; };
 		D39D54DC9992CF9CB6699AA3 /* StakingAmountViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingAmountViewFactory.swift; sourceTree = "<group>"; };
 		D4C391292F22D16427C77CD9 /* RecommendedValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorsViewFactory.swift; sourceTree = "<group>"; };
+		D7FE5F01FC9364788A91EFA5 /* StakingConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingConfirmProtocols.swift; sourceTree = "<group>"; };
 		D8DC5A3B75E294405D8868C9 /* CommingSoonViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = CommingSoonViewFactory.swift; sourceTree = "<group>"; };
 		DA8D61B74FE9C5199FD0AEBC /* NetworkInfoInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkInfoInteractor.swift; sourceTree = "<group>"; };
 		DB76FEC075A6FE1D246BA5DD /* StakingAmountViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingAmountViewController.swift; sourceTree = "<group>"; };
 		DCA8F503A90EFA93C1118E8E /* Pods-fearlessAll-fearless.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.debug.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.debug.xcconfig"; sourceTree = "<group>"; };
+		DD6322902E35C76E689A28AE /* StakingConfirmViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = StakingConfirmViewController.xib; sourceTree = "<group>"; };
 		E004596E18E84F8787E93CF6 /* AccountInfoProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoProtocols.swift; sourceTree = "<group>"; };
 		E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = AccountInfoViewController.xib; sourceTree = "<group>"; };
 		E11575D8B4F64C2E805372A5 /* AccountExportPasswordViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordViewFactory.swift; sourceTree = "<group>"; };
@@ -1856,6 +1872,7 @@
 				D5FF95FE026FFD0875E56413 /* AddConnection */,
 				842113004E02999B03AB4199 /* AccountExportPassword */,
 				41E829DF2B0F955B28BB6367 /* ExportMnemonic */,
+				BFA210AC062971893D4818FE /* StakingConfirm */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1874,6 +1891,20 @@
 				D39D54DC9992CF9CB6699AA3 /* StakingAmountViewFactory.swift */,
 			);
 			path = StakingAmount;
+			sourceTree = "<group>";
+		};
+		77D9A8552D1961A00A3683BE /* StakingConfirm */ = {
+			isa = PBXGroup;
+			children = (
+				D7FE5F01FC9364788A91EFA5 /* StakingConfirmProtocols.swift */,
+				5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */,
+				9B5626189788682A84D4E9D7 /* StakingConfirmPresenter.swift */,
+				A52B7D800BECB832C26C3D1B /* StakingConfirmInteractor.swift */,
+				5B8B0940B2CB25AD9C36206E /* StakingConfirmViewController.swift */,
+				DD6322902E35C76E689A28AE /* StakingConfirmViewController.xib */,
+				975DECE71DE70DFD866B8E23 /* StakingConfirmViewFactory.swift */,
+			);
+			path = StakingConfirm;
 			sourceTree = "<group>";
 		};
 		78B2BD7ABE3B10571DAB69C0 /* AccountInfo */ = {
@@ -3717,6 +3748,7 @@
 				7F32EC2D6AEE8391CDDDBFA8 /* RecommendedValidators */,
 				68DEED3BF634220D4BF7A9C8 /* StakingAmount */,
 				B7B0681CCE8F8F0127E8676C /* StakingMain */,
+				77D9A8552D1961A00A3683BE /* StakingConfirm */,
 			);
 			path = Staking;
 			sourceTree = "<group>";
@@ -3866,6 +3898,14 @@
 				84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */,
 			);
 			path = AccountImport;
+			sourceTree = "<group>";
+		};
+		BFA210AC062971893D4818FE /* StakingConfirm */ = {
+			isa = PBXGroup;
+			children = (
+				28EF0F9F97C89137F642016E /* StakingConfirmTests.swift */,
+			);
+			path = StakingConfirm;
 			sourceTree = "<group>";
 		};
 		BFB3965A583F11EF3045E064 /* Frameworks */ = {
@@ -4154,6 +4194,7 @@
 				48E7D7072820F66F286A0B9D /* StakingMainViewController.xib in Resources */,
 				742374EE778D76ABC965E107 /* StakingAmountViewController.xib in Resources */,
 				2E466A4290BC42F98E35D69A /* RecommendedValidatorsViewController.xib in Resources */,
+				50EA7F4AFF3A33C64E9A5184 /* StakingConfirmViewController.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5032,6 +5073,12 @@
 				2C3124A5EBC1AD57C01EEA17 /* RecommendedValidatorsInteractor.swift in Sources */,
 				85547F698B551ACD387D84E2 /* RecommendedValidatorsViewController.swift in Sources */,
 				41B29C1C9239BB2DCB7903A7 /* RecommendedValidatorsViewFactory.swift in Sources */,
+				25381484F16FB930B8A90CE3 /* StakingConfirmProtocols.swift in Sources */,
+				B02EAF42C91E069FE6872EE0 /* StakingConfirmWireframe.swift in Sources */,
+				6ECD0116CD39D8F55D246864 /* StakingConfirmPresenter.swift in Sources */,
+				FAD122085BC1E3B872167AC3 /* StakingConfirmInteractor.swift in Sources */,
+				CC545DF80038901FA06FDD58 /* StakingConfirmViewController.swift in Sources */,
+				1F88F3DBFA0BD6D0FDF558F3 /* StakingConfirmViewFactory.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5087,6 +5134,7 @@
 				A565F118B7ED356099662F03 /* ExportMnemonicTests.swift in Sources */,
 				36139329003D9269E8D5C11C /* StakingMainTests.swift in Sources */,
 				6A895389D78655DD5EC55CDD /* RecommendedValidatorsTests.swift in Sources */,
+				76C5FD0685615E602696B23D /* StakingConfirmTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -5367,6 +5415,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"$(CONFIGURATION_BUILD_DIR)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5390,6 +5439,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"$(CONFIGURATION_BUILD_DIR)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -5524,6 +5574,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 					"$(CONFIGURATION_BUILD_DIR)",
+					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
