@@ -26,6 +26,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Validators")
     }
 
+    static var totalIssuance: StorageCodingPath {
+        StorageCodingPath(moduleName: "Balances", itemName: "TotalIssuance")
+    }
+
     static var identity: StorageCodingPath {
         StorageCodingPath(moduleName: "Identity", itemName: "IdentityOf")
     }
