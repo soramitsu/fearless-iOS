@@ -81,19 +81,12 @@ class StakingInfoTests: XCTestCase {
         mapOperation.addDependency(calculatorOperation)
 
         // then
-        mapOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let result = try mapOperation.extractNoCancellableResultData()
-                    logger.info("Reward: \(result)")
-                } catch {
-                    XCTFail("Did receive error: \(error)")
-                }
-            }
-        }
 
         let operationQueue = OperationQueue()
         operationQueue.addOperations([validatorsOperation, calculatorOperation, mapOperation],
                                      waitUntilFinished: true)
+
+        let result = try mapOperation.extractNoCancellableResultData()
+        logger.info("Reward: \(result)")
     }
 }

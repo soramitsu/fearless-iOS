@@ -98,7 +98,8 @@ final class RewardCalculatorService {
         logger.debug("Fulfilled pendings")
     }
 
-    private func handleTotalIssuanceDecodingResult(chain: Chain, result: Result<String, Error>?) {
+    private func handleTotalIssuanceDecodingResult(chain: Chain,
+                                                   result: Result<StringScaleMapper<BigUInt>, Error>?) {
         guard chain == self.chain else {
             Logger.shared.warning("Total Issuance decoding triggered but chain changed. Cancelled.")
             return
@@ -106,13 +107,8 @@ final class RewardCalculatorService {
 
         switch result {
         case .success(let totalIssuance):
-            guard let value = BigUInt(totalIssuance) else {
-                logger.error("Can't decode total issuance \(totalIssuance)")
-                return
-            }
-
-            self.snapshot = value
-            notifyPendingClosures(with: value)
+            self.snapshot = totalIssuance.value
+            notifyPendingClosures(with: totalIssuance.value)
         case .failure(let error):
             logger.error("Did receive total issuance decoding error: \(error)")
         case .none:
@@ -131,7 +127,8 @@ final class RewardCalculatorService {
         }
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let decodingOperation = StorageDecodingOperation<String>(path: .totalIssuance,
+        let decodingOperation =
+            StorageDecodingOperation<StringScaleMapper<BigUInt>>(path: .totalIssuance,
                                                                  data: totalIssuanceItem.data)
         decodingOperation.configurationBlock = {
             do {
