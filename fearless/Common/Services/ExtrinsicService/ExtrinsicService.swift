@@ -5,11 +5,17 @@ import IrohaCrypto
 
 typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (ExtrinsicBuilderProtocol)
 typealias EstimateFeeClosure = (Result<RuntimeDispatchInfo, Error>) -> Void
+typealias ExtrinsicSubmitClosure = (Result<String, Error>) -> Void
 
 protocol ExtrinsicServiceProtocol {
     func estimateFee(_ closure: @escaping ExtrinsicBuilderClosure,
                      runningIn queue: DispatchQueue,
                      completion completionClosure: @escaping EstimateFeeClosure)
+
+    func submit(_ closure: @escaping ExtrinsicBuilderClosure,
+                signer: SigningWrapperProtocol,
+                runningIn queue: DispatchQueue,
+                completion completionClosure: @escaping ExtrinsicSubmitClosure)
 }
 
 final class ExtrinsicService {
@@ -124,6 +130,55 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         }
 
         let operations = [nonceOperation, codingFactoryOperation, builderOperation, infoOperation]
+        operationManager.enqueue(operations: operations, in: .transient)
+    }
+
+    func submit(_ closure: @escaping ExtrinsicBuilderClosure,
+                signer: SigningWrapperProtocol,
+                runningIn queue: DispatchQueue,
+                completion completionClosure: @escaping ExtrinsicSubmitClosure) {
+        let nonceOperation = createNonceOperation()
+        let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
+
+        let signingClosure: (Data) throws -> Data = { data in
+            try signer.sign(data).rawData()
+        }
+
+        let builderOperation = createExtrinsicOperation(dependingOn: nonceOperation,
+                                                        codingFactoryOperation: codingFactoryOperation,
+                                                        customClosure: closure,
+                                                        signingClosure: signingClosure)
+
+        builderOperation.addDependency(nonceOperation)
+        builderOperation.addDependency(codingFactoryOperation)
+
+        let submitOperation = JSONRPCListOperation<String>(engine: engine,
+                                                           method: RPCMethod.submitExtrinsic)
+        submitOperation.configurationBlock = {
+            do {
+                let extrinsic = try builderOperation
+                    .extractNoCancellableResultData()
+                    .toHex(includePrefix: true)
+
+                submitOperation.parameters = [extrinsic]
+            } catch {
+                submitOperation.result = .failure(error)
+            }
+        }
+
+        submitOperation.addDependency(builderOperation)
+
+        submitOperation.completionBlock = {
+            queue.async {
+                if let result = submitOperation.result {
+                    completionClosure(result)
+                } else {
+                    completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                }
+            }
+        }
+
+        let operations = [nonceOperation, codingFactoryOperation, builderOperation, submitOperation]
         operationManager.enqueue(operations: operations, in: .transient)
     }
 }
