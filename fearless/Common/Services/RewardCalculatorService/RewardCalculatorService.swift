@@ -63,15 +63,21 @@ final class RewardCalculatorService {
 
         eraOperation.completionBlock = {
             dispatchInQueueWhenPossible(request.queue) {
-                if let result = try? eraOperation.extractResultData() {
+                switch eraOperation.result {
+                case .success(let eraStakersInfo):
                     if let chain = self.chain {
                         let calculator = RewardCalculatorEngine(totalIssuance: snapshot,
-                                                                validators: result.validators,
+                                                                validators: eraStakersInfo.validators,
                                                                 chain: chain)
                         request.resultClosure(calculator)
                     }
+                case .failure(let error):
+                    self.logger.error("Era stakers info fetch error: \(error)")
+                case .none:
+                    self.logger.warning("Era stakers info fetch cancelled")
                 }
-            } }
+            }
+        }
 
         operationManager.enqueue(operations: [eraOperation],
                                  in: .transient)

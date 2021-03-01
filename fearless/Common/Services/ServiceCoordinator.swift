@@ -1,8 +1,6 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
-import RobinHood
-import IrohaCrypto
 
 protocol ServiceCoordinatorProtocol: ApplicationServiceProtocol {
     func updateOnAccountChange()
@@ -89,43 +87,6 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
 
         rewardCalculatorService.update(to: chain)
         rewardCalculatorService.setup()
-
-        let validatorsOperation = validatorService.fetchInfoOperation()
-        let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
-
-        let mapOperation: BaseOperation<[(String, Decimal)]> = ClosureOperation {
-            let info = try validatorsOperation.extractNoCancellableResultData()
-            let calculator = try calculatorOperation.extractNoCancellableResultData()
-
-            let factory = SS58AddressFactory()
-
-            let rewards: [(String, Decimal)] = try info.validators.map { validator in
-                let reward = calculator.calculateForValidator(accountId: validator.accountId)
-
-                let address = try factory.address(fromPublicKey: AccountIdWrapper(rawData: validator.accountId),
-                                                  type: chain.addressType)
-                return (address, reward * 100.0)
-            }
-
-            return rewards
-        }
-
-        mapOperation.addDependency(validatorsOperation)
-        mapOperation.addDependency(calculatorOperation)
-
-        mapOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let result = try mapOperation.extractNoCancellableResultData()
-                    Logger.shared.warning("Reward: \(result)")
-                } catch {
-                    Logger.shared.error("Did receive error: \(error)")
-                }
-            }
-        }
-
-        OperationManagerFacade.sharedManager.enqueue(operations: [validatorsOperation, calculatorOperation, mapOperation],
-                                                     in: .transient)
     }
 
     func throttle() {

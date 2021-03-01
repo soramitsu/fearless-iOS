@@ -718,6 +718,7 @@
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift */; };
+		AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF73FFD25DFAB9400407D41 /* CurrentEraSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */; };
 		AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */; };
@@ -1506,6 +1507,7 @@
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
 		AEE4E35125E945AA00D6DF31 /* RewardCalculatorServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceFactory.swift; sourceTree = "<group>"; };
+		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentEraSubscription.swift; sourceTree = "<group>"; };
 		AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalIssuanceSubscription.swift; sourceTree = "<group>"; };
@@ -2192,6 +2194,7 @@
 				8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */,
 				8438E1D324BFAAD2001BDB13 /* Info.plist */,
 				846AF83B2525AEE200868F37 /* SubscanTests.swift */,
+				AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */,
 			);
 			path = fearlessIntegrationTests;
 			sourceTree = "<group>";
@@ -4244,6 +4247,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				8438E1D224BFAAD2001BDB13 /* JSONRPCTests.swift in Sources */,
+				AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */,
 				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
