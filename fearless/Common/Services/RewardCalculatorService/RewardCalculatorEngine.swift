@@ -77,10 +77,9 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             return amount * dailyInterestRate * Decimal(daysInPeriod(period: period))
         }
 
-        let erasPerDay = try getErasPerDay()
-
-        return amount * pow(dailyInterestRate / Decimal(erasPerDay),
-                            erasPerDay * daysInPeriod(period: period))
+        return calculateCompoundReward(initialAmount: amount,
+                                       period: period,
+                                       dailyInterestRate: dailyInterestRate)
     }
 
     func calculateForValidator(accountId: Data) -> Decimal {
@@ -104,7 +103,28 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     // MARK: - Private
-    private func getErasPerDay() throws -> Int {
+    // Calculation formula: R = P(1 + r/n)^nt - P, where
+    // P – original amount
+    // r - daily interest rate
+    // n - number of eras in a day
+    // t - number of days
+    private func calculateCompoundReward(initialAmount: Decimal,
+                                         period: CalculationPeriod,
+                                         dailyInterestRate: Decimal) -> Decimal {
+        let numberOfDays = daysInPeriod(period: period)
+        let erasPerDay = getErasPerDay()
+
+        guard erasPerDay > 0 else {
+            return 0.0
+        }
+
+        let compoundedInterest = pow(1.0 + dailyInterestRate/Decimal(erasPerDay), erasPerDay * numberOfDays)
+        let finalAmount = initialAmount * compoundedInterest
+
+        return finalAmount - initialAmount
+    }
+
+    private func getErasPerDay() -> Int {
         switch chain.addressType {
         case .polkadotMain:
             return 1
