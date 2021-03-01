@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SoraFoundation
 
 final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
     static func createView(for state: PreparedNomination) -> StakingConfirmViewProtocol? {
@@ -52,10 +53,14 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
                                                 engine: connection,
                                                 operationManager: operationManager)
 
+        let signer = SigningWrapper(keystore: keystore,
+                                    settings: settings)
+
         let interactor = StakingConfirmInteractor(priceProvider: priceProvider,
                                                   balanceProvider: balanceProvider,
                                                   extrinsicService: extrinsicService,
-                                                  operationManager: operationManager)
+                                                  operationManager: operationManager,
+                                                  signer: signer)
         let wireframe = StakingConfirmWireframe()
 
         view.presenter = presenter
@@ -63,6 +68,8 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter
+
+        view.localizationManager = LocalizationManager.shared
 
         return view
     }

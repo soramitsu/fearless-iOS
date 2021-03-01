@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import BigInt
 
 final class StakingConfirmInteractor {
     weak var presenter: StakingConfirmInteractorOutputProtocol!
@@ -7,16 +8,19 @@ final class StakingConfirmInteractor {
     private let priceProvider: SingleValueProvider<PriceData>
     private let balanceProvider: DataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let signer: SigningWrapperProtocol
     private let operationManager: OperationManagerProtocol
 
     init(priceProvider: SingleValueProvider<PriceData>,
          balanceProvider: DataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,
-         operationManager: OperationManagerProtocol) {
+         operationManager: OperationManagerProtocol,
+         signer: SigningWrapperProtocol) {
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
         self.operationManager = operationManager
+        self.signer = signer
     }
 
     private func subscribeToPriceChanges() {
@@ -36,7 +40,7 @@ final class StakingConfirmInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
+            self?.presenter.didReceive(priceError: error)
             return
         }
 
@@ -66,7 +70,7 @@ final class StakingConfirmInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
+            self?.presenter.didReceive(balanceError: error)
             return
         }
 
@@ -84,5 +88,37 @@ extension StakingConfirmInteractor: StakingConfirmInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
+    }
+
+    func submitNomination(controller: AccountItem,
+                          amount: BigUInt,
+                          rewardDestination: RewardDestination,
+                          targets: [SelectedValidatorInfo]) {
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let callFactory = SubstrateCallFactory()
+
+            let bondCall = try callFactory.bond(amount: amount,
+                                            controller: controller.address,
+                                            rewardDestination: rewardDestination)
+
+            let nominateCall = try callFactory.nominate(targets: targets)
+
+            return try builder
+                .adding(call: bondCall)
+                .adding(call: nominateCall)
+        }
+
+        presenter.didStartNomination()
+
+        extrinsicService.submit(closure,
+                                signer: signer,
+                                runningIn: .main) { [weak self] result in
+            switch result {
+            case .success(let txHash):
+                self?.presenter.didCompleteNomination(txHash: txHash)
+            case .failure(let error):
+                self?.presenter.didFailNomination(error: error)
+            }
+        }
     }
 }

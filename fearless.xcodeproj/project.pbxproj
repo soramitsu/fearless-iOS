@@ -542,6 +542,7 @@
 		84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969733251CE9CD00C39524 /* ContactsConfigurator.swift */; };
 		849DEBD425ED015C00C64C19 /* StakingConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */; };
 		849DEBDC25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */; };
+		849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */; };
 		849E0CD025CFDDB700B33506 /* StorageUpdateData+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */; };
 		849E0CD525CFE60C00B33506 /* UpgradeV28Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */; };
 		849E0CDD25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */; };
@@ -1359,6 +1360,7 @@
 		84969733251CE9CD00C39524 /* ContactsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConfigurator.swift; sourceTree = "<group>"; };
 		849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModel.swift; sourceTree = "<group>"; };
 		849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModelFactory.swift; sourceTree = "<group>"; };
+		849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCallFactory.swift; sourceTree = "<group>"; };
 		849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageUpdateData+Decoding.swift"; sourceTree = "<group>"; };
 		849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeV28Subscription.swift; sourceTree = "<group>"; };
 		849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicFactoryProtocol.swift; sourceTree = "<group>"; };
@@ -2403,6 +2405,7 @@
 				8425EB1A25EADD8600C307C9 /* StakingConstants.swift */,
 				841E6AF525EC12100007DDFE /* PreparedNomination.swift */,
 				841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */,
+				849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -2873,7 +2876,7 @@
 				8490142624A935FE008F705E /* Protocols */,
 				8436EDE0258957B3004D9E97 /* PurchaseProvider */,
 				84155DF4253B252000A27058 /* Reachability */,
-				8490154E24ACD521008F705E /* Scale */,
+				8490154E24ACD521008F705E /* Substrate */,
 				84155DE8253980D700A27058 /* Services */,
 				8467FD4E24EFD0EC005D486C /* Storage */,
 				8467FCFA24E59C3E005D486C /* URLHandling */,
@@ -3387,13 +3390,13 @@
 			path = Wallet;
 			sourceTree = "<group>";
 		};
-		8490154E24ACD521008F705E /* Scale */ = {
+		8490154E24ACD521008F705E /* Substrate */ = {
 			isa = PBXGroup;
 			children = (
 				845BB8C725E45D0600E5FCDC /* Calls */,
 				8438E1DC24C18F11001BDB13 /* Types */,
 			);
-			path = Scale;
+			path = Substrate;
 			sourceTree = "<group>";
 		};
 		8490155424AD2F26008F705E /* Scale */ = {
@@ -4892,6 +4895,7 @@
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,
+				849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */,
 				849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */,
 				84155DEF2539832C00A27058 /* WebSocketEngineFactory.swift in Sources */,
 				9942034DCB680824831B0AC1 /* AccountCreatePresenter.swift in Sources */,

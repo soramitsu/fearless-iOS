@@ -251,3 +251,9 @@
 "staking.recommended.validators.counter" = "%@ з %@";
 "staking.recommended.custom.title" = "Виберіть власні валідатори";
 "staking.recommended.warning" = "Рекомендовані або вибрані на замовлення валідатори не гарантують, що один із валідаторів не може бути врізаний, і ви можете частково втратити свої маркери.";
+"fee.not.yet.loaded.title" = "Триває розрахунок комісії";
+"fee.not.yet.loaded.message" = "Будь ласка, зачекайте, поки плата не буде нарахована";
+"staking.setup.amount.too.low" = "Не можна робити ставку менше мінімального значення ( %s )";
+"staking.confirm.title" = "Підтвердження";
+"staking.reward.destination.title" = "Нагорода призначення";
+"staking.stash.title" = "Обліковий запис гаманця";

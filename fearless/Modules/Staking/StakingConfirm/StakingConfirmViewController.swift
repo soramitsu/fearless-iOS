@@ -34,6 +34,26 @@ final class StakingConfirmViewController: UIViewController {
     }
 
     private func setupLocalization() {
+        let languages = localizationManager?.selectedLocale.rLanguages
+
+        title = R.string.localizable.stakingConfirmTitle(preferredLanguages: languages)
+
+        accountView.title = R.string.localizable.stakingStashTitle(preferredLanguages: languages)
+
+        actionButton.imageWithTitleView?.title =
+            R.string.localizable.commonConfirm(preferredLanguages: languages)
+        actionButton.invalidateLayout()
+
+        balanceView.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: languages)
+
+        validatorsView.title = R.string.localizable
+            .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
+
+        rewardTitleLabel.text = R.string.localizable
+            .stakingRewardDestinationTitle(preferredLanguages: languages)
+        feeTitleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: languages)
+
         applyConfirmationViewModel()
         applyBalanceView()
         applyFeeViewModel()

@@ -52,6 +52,14 @@ final class StakingConfirmPresenter {
                                                                             priceData: priceData)
         view?.didReceive(assetViewModel: viewModel)
     }
+
+    private func handle(error: Error) {
+        let locale = view?.localizationManager?.selectedLocale
+
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            logger?.error("Did receive error: \(error)")
+        }
+    }
 }
 
 extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
@@ -72,7 +80,22 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func proceed() {
+        guard let balance = balance else {
+            return
+        }
 
+        guard state.amount + state.fee <= balance else {
+            return
+        }
+
+        guard let amount = state.amount.toSubstrateAmount(precision: asset.precision) else {
+            return
+        }
+
+        interactor.submitNomination(controller: walletAccount,
+                                    amount: amount,
+                                    rewardDestination: state.rewardDestination,
+                                    targets: state.targets)
     }
 }
 
@@ -81,6 +104,10 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
         self.priceData = price
         provideAsset()
         provideFee()
+    }
+
+    func didReceive(priceError: Error) {
+        handle(error: priceError)
     }
 
     func didReceive(balance: DyAccountData?) {
@@ -94,11 +121,23 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
         provideAsset()
     }
 
-    func didReceive(error: Error) {
-        let locale = view?.localizationManager?.selectedLocale
+    func didReceive(balanceError: Error) {
+        handle(error: balanceError)
+    }
 
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            logger?.error("Did receive error: \(error)")
-        }
+    func didStartNomination() {
+        view?.didStartLoading()
+    }
+
+    func didCompleteNomination(txHash: String) {
+        logger?.info("Did send nomination: \(txHash)")
+
+        view?.didStopLoading()
+    }
+
+    func didFailNomination(error: Error) {
+        view?.didStopLoading()
+
+        handle(error: error)
     }
 }
