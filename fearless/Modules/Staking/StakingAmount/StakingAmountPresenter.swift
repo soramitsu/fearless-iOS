@@ -183,6 +183,12 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             wireframe.presentNotEnoughFunds(from: view)
             return
         }
+
+        let stakingState = StartStakingResult(amount: amount,
+                                              rewardDestination: rewardDestination,
+                                              fee: fee)
+
+        wireframe.proceed(from: view, result: stakingState)
     }
 
     func close() {

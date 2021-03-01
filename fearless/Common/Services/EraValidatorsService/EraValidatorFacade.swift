@@ -1,7 +1,7 @@
 import Foundation
 
-final class EraValidatorFactory {
-    static func createService(runtime: RuntimeCodingServiceProtocol) -> EraValidatorServiceProtocol {
+final class EraValidatorFacade {
+    static let sharedService: EraValidatorServiceProtocol = {
         let storageFacade = SubstrateDataStorageFacade.shared
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
@@ -11,9 +11,9 @@ final class EraValidatorFactory {
                                                            logger: logger)
 
         return EraValidatorService(storageFacade: SubstrateDataStorageFacade.shared,
-                                   runtimeCodingService: runtime,
+                                   runtimeCodingService: RuntimeRegistryFacade.sharedService,
                                    providerFactory: providerFactory,
                                    operationManager: operationManager,
                                    logger: logger)
-    }
+    }()
 }

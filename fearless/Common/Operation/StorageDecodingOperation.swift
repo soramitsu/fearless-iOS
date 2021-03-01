@@ -95,3 +95,84 @@ final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
         }
     }
 }
+
+final class StorageConstantOperation<T: Decodable>: BaseOperation<T> {
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: ConstantCodingPath
+
+    init(path: ConstantCodingPath) {
+        self.path = path
+
+        super.init()
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        do {
+            guard let factory = codingFactory else {
+                throw StorageDecodingOperationError.missingRequiredParams
+            }
+
+            guard let entry = factory.metadata.getConstant(in: path.moduleName, constantName: path.constantName) else {
+                throw StorageDecodingOperationError.invalidStoragePath
+            }
+
+            let decoder = try factory.createDecoder(from: entry.value)
+            let item: T = try decoder.read(of: entry.type)
+            result = .success(item)
+        } catch {
+            result = .failure(error)
+        }
+    }
+}
+
+final class PrimitiveConstantOperation<T: LosslessStringConvertible>: BaseOperation<T> {
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: ConstantCodingPath
+
+    init(path: ConstantCodingPath) {
+        self.path = path
+
+        super.init()
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        do {
+            guard let factory = codingFactory else {
+                throw StorageDecodingOperationError.missingRequiredParams
+            }
+
+            guard let entry = factory.metadata
+                    .getConstant(in: path.moduleName, constantName: path.constantName) else {
+                throw StorageDecodingOperationError.invalidStoragePath
+            }
+
+            let decoder = try factory.createDecoder(from: entry.value)
+            let item: StringScaleMapper<T> = try decoder.read(of: entry.type)
+            result = .success(item.value)
+        } catch {
+            result = .failure(error)
+        }
+    }
+}

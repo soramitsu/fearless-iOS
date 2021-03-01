@@ -88,7 +88,7 @@ extension ServiceCoordinator {
         let webSocketService = WebSocketServiceFactory.createService()
         let runtimeService = RuntimeRegistryFacade.sharedService
         let gitHubPhishingAPIService = GitHubPhishingServiceFactory.createService()
-        let validatorService = EraValidatorFactory.createService(runtime: runtimeService)
+        let validatorService = EraValidatorFacade.sharedService
 
         return ServiceCoordinator(webSocketService: webSocketService,
                                   runtimeService: runtimeService,
