@@ -1122,19 +1122,19 @@ import Foundation
 import LocalAuthentication
 
 
-public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock {
+ class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock {
     
-    public typealias MocksType = BiometryAuthProtocol
+     typealias MocksType = BiometryAuthProtocol
     
-    public typealias Stubbing = __StubbingProxy_BiometryAuthProtocol
-    public typealias Verification = __VerificationProxy_BiometryAuthProtocol
+     typealias Stubbing = __StubbingProxy_BiometryAuthProtocol
+     typealias Verification = __VerificationProxy_BiometryAuthProtocol
 
-    public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
     private var __defaultImplStub: BiometryAuthProtocol?
 
-    public func enableDefaultImplementation(_ stub: BiometryAuthProtocol) {
+     func enableDefaultImplementation(_ stub: BiometryAuthProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -1143,7 +1143,7 @@ public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock
     
     
     
-    public var availableBiometryType: AvailableBiometryType {
+     var availableBiometryType: AvailableBiometryType {
         get {
             return cuckoo_manager.getter("availableBiometryType",
                 superclassCall:
@@ -1161,7 +1161,7 @@ public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock
     
     
     
-    public func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)  {
+     func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)  {
         
     return cuckoo_manager.call("authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)",
             parameters: (localizedReason, completionQueue, completionBlock),
@@ -1175,10 +1175,10 @@ public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock
     }
     
 
-	public struct __StubbingProxy_BiometryAuthProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_BiometryAuthProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
-	    public init(manager: Cuckoo.MockManager) {
+	     init(manager: Cuckoo.MockManager) {
 	        self.cuckoo_manager = manager
 	    }
 	    
@@ -1195,12 +1195,12 @@ public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock
 	    
 	}
 
-	public struct __VerificationProxy_BiometryAuthProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_BiometryAuthProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
 	
-	    public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
 	        self.cuckoo_manager = manager
 	        self.callMatcher = callMatcher
 	        self.sourceLocation = sourceLocation
@@ -1223,10 +1223,10 @@ public class MockBiometryAuthProtocol: BiometryAuthProtocol, Cuckoo.ProtocolMock
 	}
 }
 
-public class BiometryAuthProtocolStub: BiometryAuthProtocol {
+ class BiometryAuthProtocolStub: BiometryAuthProtocol {
     
     
-    public var availableBiometryType: AvailableBiometryType {
+     var availableBiometryType: AvailableBiometryType {
         get {
             return DefaultValueRegistry.defaultValue(for: (AvailableBiometryType).self)
         }
@@ -1237,7 +1237,7 @@ public class BiometryAuthProtocolStub: BiometryAuthProtocol {
     
 
     
-    public func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)   {
+     func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -1245,19 +1245,19 @@ public class BiometryAuthProtocolStub: BiometryAuthProtocol {
 
 
 
-public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
+ class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
     
-    public typealias MocksType = BiometryAuth
+     typealias MocksType = BiometryAuth
     
-    public typealias Stubbing = __StubbingProxy_BiometryAuth
-    public typealias Verification = __VerificationProxy_BiometryAuth
+     typealias Stubbing = __StubbingProxy_BiometryAuth
+     typealias Verification = __VerificationProxy_BiometryAuth
 
-    public let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: true)
 
     
     private var __defaultImplStub: BiometryAuth?
 
-    public func enableDefaultImplementation(_ stub: BiometryAuth) {
+     func enableDefaultImplementation(_ stub: BiometryAuth) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -1266,7 +1266,7 @@ public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
     
     
     
-    public override var availableBiometryType: AvailableBiometryType {
+     override var availableBiometryType: AvailableBiometryType {
         get {
             return cuckoo_manager.getter("availableBiometryType",
                 superclassCall:
@@ -1284,7 +1284,7 @@ public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
     
     
     
-    public override func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)  {
+     override func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)  {
         
     return cuckoo_manager.call("authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)",
             parameters: (localizedReason, completionQueue, completionBlock),
@@ -1298,10 +1298,10 @@ public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
     }
     
 
-	public struct __StubbingProxy_BiometryAuth: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_BiometryAuth: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
-	    public init(manager: Cuckoo.MockManager) {
+	     init(manager: Cuckoo.MockManager) {
 	        self.cuckoo_manager = manager
 	    }
 	    
@@ -1318,12 +1318,12 @@ public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
 	    
 	}
 
-	public struct __VerificationProxy_BiometryAuth: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_BiometryAuth: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
 	
-	    public init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
 	        self.cuckoo_manager = manager
 	        self.callMatcher = callMatcher
 	        self.sourceLocation = sourceLocation
@@ -1346,10 +1346,10 @@ public class MockBiometryAuth: BiometryAuth, Cuckoo.ClassMock {
 	}
 }
 
-public class BiometryAuthStub: BiometryAuth {
+ class BiometryAuthStub: BiometryAuth {
     
     
-    public override var availableBiometryType: AvailableBiometryType {
+     override var availableBiometryType: AvailableBiometryType {
         get {
             return DefaultValueRegistry.defaultValue(for: (AvailableBiometryType).self)
         }
@@ -1360,7 +1360,7 @@ public class BiometryAuthStub: BiometryAuth {
     
 
     
-    public override func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)   {
+     override func authenticate(localizedReason: String, completionQueue: DispatchQueue, completionBlock: @escaping (Bool) -> Void)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -1,8 +1,8 @@
 import UIKit
 
 class TextSharingSource: NSObject {
-    var message: String
-    var subject: String?
+    let message: String
+    let subject: String?
 
     init(message: String, subject: String? = nil) {
         self.message = message

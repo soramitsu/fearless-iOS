@@ -1,5 +1,5 @@
 import Foundation
 
-struct PriceInfo: Codable {
+struct PriceInfo: Encodable {
     let time: Int64
 }

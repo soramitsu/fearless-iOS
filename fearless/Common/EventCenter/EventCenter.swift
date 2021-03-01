@@ -3,9 +3,9 @@ import Foundation
 final class EventCenter {
     static let shared = EventCenter()
 
-    struct ObserverWrapper {
+    private struct ObserverWrapper {
         weak var observer: EventVisitorProtocol?
-        var dispatchQueue: DispatchQueue?
+        let dispatchQueue: DispatchQueue?
     }
 
     private let syncQueue: DispatchQueue

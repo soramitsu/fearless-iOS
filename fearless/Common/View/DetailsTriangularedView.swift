@@ -53,12 +53,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
         }
     }
 
-    override public init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configure()
     }

@@ -12,7 +12,7 @@ protocol ApplicationConfigProtocol {
     var version: String { get }
     var opensourceURL: URL { get }
     var appName: String { get }
-    var logoUrl: URL { get }
+    var logoURL: URL { get }
     var purchaseAppName: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
@@ -20,7 +20,7 @@ protocol ApplicationConfigProtocol {
 }
 
 final class ApplicationConfig {
-    static let shared: ApplicationConfig! = ApplicationConfig()
+    static let shared = ApplicationConfig()
 }
 
 extension ApplicationConfig: ApplicationConfigProtocol {
@@ -75,7 +75,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     // swiftlint:enable force_cast
 
     // swiftlint:disable line_length
-    var logoUrl: URL {
+    var logoURL: URL {
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }

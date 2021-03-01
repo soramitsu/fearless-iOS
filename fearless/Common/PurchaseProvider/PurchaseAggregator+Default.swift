@@ -8,7 +8,7 @@ extension PurchaseAggregator {
         ]
         return PurchaseAggregator(providers: purchaseProviders)
             .with(appName: config.purchaseAppName)
-            .with(logoUrl: config.logoUrl)
+            .with(logoUrl: config.logoURL)
             .with(callbackUrl: config.purchaseRedirect)
     }
 }

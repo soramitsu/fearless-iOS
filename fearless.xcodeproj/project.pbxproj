@@ -376,7 +376,7 @@
 		84754C942511EB2A00854599 /* ManagedConnectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C932511EB2A00854599 /* ManagedConnectionItem.swift */; };
 		84754C962511EF0D00854599 /* ManagedConnectionItemMapper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C952511EF0D00854599 /* ManagedConnectionItemMapper.swift */; };
 		84754C982511FC1F00854599 /* ManagedConnectionViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C972511FC1F00854599 /* ManagedConnectionViewModelFactory.swift */; };
-		84754C9A2513871300854599 /* CodableExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C992513871300854599 /* CodableExtensions.swift */; };
+		84754C9A2513871300854599 /* SNAddressType+Codable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C992513871300854599 /* SNAddressType+Codable.swift */; };
 		84754C9C2513B26000854599 /* AccountPickerTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C9B2513B26000854599 /* AccountPickerTableViewCell.swift */; };
 		84754C9E2513B46100854599 /* AccountPickerTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84754C9D2513B46100854599 /* AccountPickerTableViewCell.xib */; };
 		84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C9F2513D83E00854599 /* AccountPickerViewModel.swift */; };
@@ -1151,7 +1151,7 @@
 		84754C932511EB2A00854599 /* ManagedConnectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionItem.swift; sourceTree = "<group>"; };
 		84754C952511EF0D00854599 /* ManagedConnectionItemMapper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionItemMapper.swift; sourceTree = "<group>"; };
 		84754C972511FC1F00854599 /* ManagedConnectionViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionViewModelFactory.swift; sourceTree = "<group>"; };
-		84754C992513871300854599 /* CodableExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CodableExtensions.swift; sourceTree = "<group>"; };
+		84754C992513871300854599 /* SNAddressType+Codable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SNAddressType+Codable.swift"; sourceTree = "<group>"; };
 		84754C9B2513B26000854599 /* AccountPickerTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPickerTableViewCell.swift; sourceTree = "<group>"; };
 		84754C9D2513B46100854599 /* AccountPickerTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = AccountPickerTableViewCell.xib; sourceTree = "<group>"; };
 		84754C9F2513D83E00854599 /* AccountPickerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountPickerViewModel.swift; sourceTree = "<group>"; };
@@ -3529,7 +3529,7 @@
 				84D8F17024D856D300AF43E9 /* SNAddressType+ViewModel.swift */,
 				843C49E024DFFC9500B71DDA /* AccountImportSource+ViewModel.swift */,
 				84A2C90124E07E440020D3B7 /* CryptoType+Utils.swift */,
-				84754C992513871300854599 /* CodableExtensions.swift */,
+				84754C992513871300854599 /* SNAddressType+Codable.swift */,
 				8423B0E3251A774700B8687C /* SNAddressType+Chain.swift */,
 				84D97EC0251FEE1E00F07405 /* WalletAssetId+Display.swift */,
 				84CD356F252620FB0081BC0B /* CryptoType+Extrinsic.swift */,
@@ -4690,7 +4690,7 @@
 				84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */,
 				4083005E0DC01C9BB57BEBAE /* UsernameSetupViewFactory.swift in Sources */,
 				6B62E63FB9E379EA19A41464 /* AccountCreateProtocols.swift in Sources */,
-				84754C9A2513871300854599 /* CodableExtensions.swift in Sources */,
+				84754C9A2513871300854599 /* SNAddressType+Codable.swift in Sources */,
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,

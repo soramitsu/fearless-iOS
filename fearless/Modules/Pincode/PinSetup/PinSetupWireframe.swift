@@ -11,7 +11,7 @@ class PinSetupWireframe: PinSetupWireframeProtocol {
         rootAnimator.animateTransition(to: mainViewController)
     }
 
-    public func showSignup(from view: PinSetupViewProtocol?) {
+    func showSignup(from view: PinSetupViewProtocol?) {
         guard let signupViewController = OnboardingMainViewFactory.createViewForOnboarding()?.controller else {
             return
         }

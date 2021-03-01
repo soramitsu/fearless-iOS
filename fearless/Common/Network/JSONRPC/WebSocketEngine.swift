@@ -2,7 +2,7 @@ import Foundation
 import Starscream
 
 protocol WebSocketConnectionProtocol: WebSocketClient {
-    var callbackQueue: DispatchQueue { get set }
+    var callbackQueue: DispatchQueue { get }
     var delegate: WebSocketDelegate? { get set }
 }
 
@@ -43,10 +43,10 @@ final class WebSocketEngine {
         }
     }
 
-    private(set) var mutex: NSLock = NSLock()
-    private(set) var jsonEncoder = JSONEncoder()
-    private(set) var jsonDecoder = JSONDecoder()
-    private(set) var reconnectionStrategy: ReconnectionStrategyProtocol?
+    let mutex: NSLock = NSLock()
+    private let jsonEncoder = JSONEncoder()
+    private let jsonDecoder = JSONDecoder()
+    private let reconnectionStrategy: ReconnectionStrategyProtocol?
 
     private(set) lazy var reconnectionScheduler: SchedulerProtocol = {
         let scheduler = Scheduler(with: self, callbackQueue: connection.callbackQueue)
@@ -64,15 +64,15 @@ final class WebSocketEngine {
 
     weak var delegate: WebSocketEngineDelegate?
 
-    public init(url: URL,
-                reachabilityManager: ReachabilityManagerProtocol? = nil,
-                reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
-                version: String = "2.0",
-                processingQueue: DispatchQueue? = nil,
-                autoconnect: Bool = true,
-                connectionTimeout: TimeInterval = 10.0,
-                pingInterval: TimeInterval = 30,
-                logger: LoggerProtocol) {
+    init(url: URL,
+         reachabilityManager: ReachabilityManagerProtocol? = nil,
+         reconnectionStrategy: ReconnectionStrategyProtocol? = ExponentialReconnection(),
+         version: String = "2.0",
+         processingQueue: DispatchQueue? = nil,
+         autoconnect: Bool = true,
+         connectionTimeout: TimeInterval = 10.0,
+         pingInterval: TimeInterval = 30,
+         logger: LoggerProtocol) {
         self.version = version
         self.logger = logger
         self.reconnectionStrategy = reconnectionStrategy
@@ -131,7 +131,7 @@ final class WebSocketEngine {
         disconnectIfNeeded()
     }
 
-    public func connectIfNeeded() {
+    func connectIfNeeded() {
         mutex.lock()
 
         switch state {
@@ -152,7 +152,7 @@ final class WebSocketEngine {
         mutex.unlock()
     }
 
-    public func disconnectIfNeeded() {
+    func disconnectIfNeeded() {
         mutex.lock()
 
         switch state {

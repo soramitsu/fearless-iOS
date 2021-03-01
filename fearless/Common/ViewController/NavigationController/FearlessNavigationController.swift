@@ -44,8 +44,8 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
 
     // MARK: UINavigationControllerDelegate
 
-    public func navigationController(_ navigationController: UINavigationController,
-                                     willShow viewController: UIViewController, animated: Bool) {
+    func navigationController(_ navigationController: UINavigationController,
+                              willShow viewController: UIViewController, animated: Bool) {
         updateNavigationBarState(in: viewController)
         setupBackButtonItem(for: viewController)
     }
