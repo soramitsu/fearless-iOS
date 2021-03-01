@@ -14,7 +14,7 @@ final class ServiceCoordinator {
     let gitHubPhishingAPIService: ApplicationServiceProtocol
     let rewardCalculatorService: RewardCalculatorServiceProtocol
     let settings: SettingsManagerProtocol
-
+    
     init(webSocketService: WebSocketServiceProtocol,
          runtimeService: RuntimeRegistryServiceProtocol,
          validatorService: EraValidatorServiceProtocol,
@@ -28,29 +28,29 @@ final class ServiceCoordinator {
         self.rewardCalculatorService = rewardCalculatorService
         self.settings = settings
     }
-
+    
     private func updateWebSocketSettings() {
         let connectionItem = settings.selectedConnection
         let account = settings.selectedAccount
-
+        
         let settings = WebSocketServiceSettings(url: connectionItem.url,
                                                 addressType: connectionItem.type,
                                                 address: account?.address)
         webSocketService.update(settings: settings)
     }
-
+    
     private func updateRuntimeService() {
         let connectionItem = settings.selectedConnection
         runtimeService.update(to: connectionItem.type.chain)
     }
-
+    
     private func updateValidatorService() {
         if let engine = webSocketService.connection {
             let chain = settings.selectedConnection.type.chain
             validatorService.update(to: chain, engine: engine)
         }
     }
-
+    
     private func updateRewardCalculatorService() {
         let chain = settings.selectedConnection.type.chain
         rewardCalculatorService.update(to: chain)
@@ -64,31 +64,31 @@ extension ServiceCoordinator: ServiceCoordinatorProtocol {
         updateValidatorService()
         updateRewardCalculatorService()
     }
-
+    
     func updateOnNetworkChange() {
         updateWebSocketSettings()
         updateRuntimeService()
         updateValidatorService()
         updateRewardCalculatorService()
     }
-
+    
     func setup() {
         webSocketService.setup()
         runtimeService.setup()
-
+        
         let chain = settings.selectedConnection.type.chain
-
+        
         if let engine = webSocketService.connection {
             validatorService.update(to: chain, engine: engine)
             validatorService.setup()
         }
-
+        
         gitHubPhishingAPIService.setup()
-
+        
         rewardCalculatorService.update(to: chain)
         rewardCalculatorService.setup()
     }
-
+    
     func throttle() {
         webSocketService.throttle()
         runtimeService.throttle()
@@ -103,10 +103,10 @@ extension ServiceCoordinator {
         let webSocketService = WebSocketServiceFactory.createService()
         let runtimeService = RuntimeRegistryFacade.sharedService
         let gitHubPhishingAPIService = GitHubPhishingServiceFactory.createService()
-        let validatorService = EraValidatorFactory.createService(runtime: runtimeService)
+        let validatorService = EraValidatorFacade.sharedService
         let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService,
                                                                                    validators: validatorService)
-
+        
         return ServiceCoordinator(webSocketService: webSocketService,
                                   runtimeService: runtimeService,
                                   validatorService: validatorService,

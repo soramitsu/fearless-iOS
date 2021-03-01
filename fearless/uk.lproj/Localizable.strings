@@ -240,3 +240,14 @@
 "staking.payouts.learn.more" = "Дізнайтеся більше про виплати";
 "staking.reward.payout.account" = "Рахунок для виплат";
 "staking.amount.too.big.error" = "Вибачте, у вас недостатньо коштів для розміщення вказаної суми";
+"staking.recommended.title" = "Валідатори";
+"staking.recommended.section.title" = "Рекомендовані валідатори";
+"staking.recommended.section.desc" = "Алгоритм підготував список рекомендованих валідаторів на основі наступного:";
+"staking.recommended.hint1" = "Найвигідніше";
+"staking.recommended.hint2" = "Не переплачується";
+"staking.recommended.hint3" = "Маючи ідентичність ланцюга";
+"staking.recommended.hint4" = "Не порізаний";
+"staking.recommended.validators.title" = "Валідатори";
+"staking.recommended.validators.counter" = "%@ з %@";
+"staking.recommended.custom.title" = "Виберіть власні валідатори";
+"staking.recommended.warning" = "Рекомендовані або вибрані на замовлення валідатори не гарантують, що один із валідаторів не може бути врізаний, і ви можете частково втратити свої маркери.";

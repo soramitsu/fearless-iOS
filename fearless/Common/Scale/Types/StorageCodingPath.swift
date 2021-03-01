@@ -29,4 +29,20 @@ extension StorageCodingPath {
     static var totalIssuance: StorageCodingPath {
         StorageCodingPath(moduleName: "Balances", itemName: "TotalIssuance")
     }
+
+    static var identity: StorageCodingPath {
+        StorageCodingPath(moduleName: "Identity", itemName: "IdentityOf")
+    }
+
+    static var superIdentity: StorageCodingPath {
+        StorageCodingPath(moduleName: "Identity", itemName: "SuperOf")
+    }
+
+    static var slashingSpans: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "SlashingSpans")
+    }
+
+    static var unappliedSlashes: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
+    }
 }

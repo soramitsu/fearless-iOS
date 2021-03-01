@@ -17,7 +17,7 @@ extension Decimal {
         return BigUInt(valueString)
     }
 
-    static func fromSubstratePerbill(_ value: BigUInt) -> Decimal? {
+    static func fromSubstratePerbill(value: BigUInt) -> Decimal? {
         fromSubstrateAmount(value, precision: 9)
     }
 }

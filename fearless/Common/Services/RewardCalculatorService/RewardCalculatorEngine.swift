@@ -67,7 +67,7 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let stakePart = annualInflation * averageStake
 
         let median = findMedianCommission(commissions: validators.map { $0.prefs.commission })
-        let commission = Decimal.fromSubstratePerbill(median) ?? 0.0
+        let commission = Decimal.fromSubstratePerbill(value: median) ?? 0.0
 
         let annualInterestRate = stakePart * (1.0 - commission)
 
@@ -97,7 +97,7 @@ class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let exposure = Decimal.fromSubstrateAmount(validator.exposure.total,
                                                    precision: chain.addressType.precision) ?? 0.0
 
-        let commission = Decimal.fromSubstratePerbill(validator.prefs.commission) ?? 0.0
+        let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
 
         return (annualInflation * averageStake / (stakedPortion * exposure)) * (1.0 - commission)
     }

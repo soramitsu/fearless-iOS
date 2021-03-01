@@ -37,7 +37,7 @@ class StakingInfoTests: XCTestCase {
 
         let webSocketService = WebSocketServiceFactory.createService()
         let runtimeService = RuntimeRegistryFacade.sharedService
-        let validatorService = EraValidatorFactory.createService(runtime: runtimeService)
+        let validatorService = EraValidatorFacade.sharedService
         let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService,
                                                                                    validators: validatorService)
 

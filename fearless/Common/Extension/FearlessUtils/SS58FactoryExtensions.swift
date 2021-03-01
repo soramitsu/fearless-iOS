@@ -20,4 +20,9 @@ extension SS58AddressFactory {
         let addressType = try extractAddressType(from: address)
         return try accountId(fromAddress: address, type: addressType)
     }
+
+    func addressFromAccountId(data: Data, type: SNAddressType) throws -> String {
+        let accountId = try AccountIdWrapper(rawData: data)
+        return try address(fromPublicKey: accountId, type: type)
+    }
 }

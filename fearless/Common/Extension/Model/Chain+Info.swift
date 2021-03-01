@@ -84,7 +84,7 @@ extension Chain {
 
     // swiftlint:disable line_length
     func typeDefDefaultFileURL() -> URL? {
-        URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry/default.json")
+        URL(string: "https://raw.githubusercontent.com/ERussel/py-scale-codec/fix/unapplied-slashes/scalecodec/type_registry/default.json")
     }
 
     func typeDefNetworkFileURL() -> URL? {
