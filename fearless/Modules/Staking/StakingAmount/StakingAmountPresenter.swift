@@ -56,7 +56,7 @@ final class StakingAmountPresenter {
         do {
             switch rewardDestination {
             case .restake:
-                let viewModel = try rewardDestViewModelFactory.createRestake(from: calculatedReward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: calculatedReward)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
                 let viewModel = try rewardDestViewModelFactory
@@ -128,7 +128,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutDestination() {
-        rewardDestination = .payout(address: payoutAccount.address)
+        rewardDestination = .payout(account: payoutAccount)
         provideRewardDestination()
 
         scheduleFeeEstimation()
@@ -268,6 +268,11 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
         }
 
         payoutAccount = accounts[index]
+
+        if case .payout = rewardDestination {
+            rewardDestination = .payout(account: payoutAccount)
+        }
+
         provideRewardDestination()
     }
 }

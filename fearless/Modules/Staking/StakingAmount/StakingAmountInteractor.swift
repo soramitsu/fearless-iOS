@@ -66,7 +66,7 @@ final class StakingAmountInteractor {
                     case .insert(let wrapped), .update(let wrapped):
                         self?.presenter.didReceive(balance: wrapped.item.data)
                     case .delete:
-                        self?.presenter.didReceive(price: nil)
+                        self?.presenter.didReceive(balance: nil)
                     }
                 }
             }
@@ -119,8 +119,8 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
             switch rewardDestination {
             case .restake:
                 destArg = .staked
-            case .payout(let address):
-                let accountId = try addressFactory.accountId(from: address)
+            case .payout(let account):
+                let accountId = try addressFactory.accountId(from: account.address)
                 destArg = .account(accountId)
             }
 
