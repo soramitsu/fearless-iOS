@@ -54,7 +54,8 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         let confirmViewModelFactory = StakingConfirmViewModelFactory(asset: asset)
 
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                                              selectedAddressType: networkType)
+                                                              selectedAddressType: networkType,
+                                                              limit: StakingConstants.maxAmount)
 
         return StakingConfirmPresenter(state: state,
                                        asset: asset,

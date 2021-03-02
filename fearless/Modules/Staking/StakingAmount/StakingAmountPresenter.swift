@@ -11,7 +11,6 @@ final class StakingAmountPresenter {
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
-    let feeDebounce: TimeInterval
     let applicationConfig: ApplicationConfigProtocol
 
     private var calculator: RewardCalculatorEngineProtocol?
@@ -25,17 +24,10 @@ final class StakingAmountPresenter {
     private var payoutAccount: AccountItem
     private var loadingPayouts: Bool = false
 
-    private lazy var scheduler: SchedulerProtocol = Scheduler(with: self, callbackQueue: .main)
-
-    deinit {
-        scheduler.cancel()
-    }
-
     init(asset: WalletAsset,
          selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         feeDebounce: TimeInterval = 2.0,
          applicationConfig: ApplicationConfigProtocol,
          logger: LoggerProtocol) {
         self.asset = asset
@@ -43,7 +35,6 @@ final class StakingAmountPresenter {
         self.payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.feeDebounce = feeDebounce
         self.applicationConfig = applicationConfig
         self.logger = logger
     }
@@ -104,22 +95,17 @@ final class StakingAmountPresenter {
     }
 
     private func scheduleFeeEstimation() {
-        scheduler.cancel()
-
-        if !loadingFee {
-            loadingFee = true
+        if !loadingFee, fee == nil {
             estimateFee()
-        } else {
-            scheduler.notifyAfter(feeDebounce)
         }
     }
 
     private func estimateFee() {
-        if let amount = (amount ?? 0.0).toSubstrateAmount(precision: asset.precision) {
+        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
             loadingFee = true
             interactor.estimateFee(for: selectedAccount.address,
                                    amount: amount,
-                                   rewardDestination: rewardDestination)
+                                   rewardDestination: .payout(account: payoutAccount))
         }
     }
 }
@@ -209,6 +195,8 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 wireframe.presentBalanceTooHigh(from: view,
                                                 locale: view.localizationManager?.selectedLocale)
             }
+
+            scheduleFeeEstimation()
 
             return
         }

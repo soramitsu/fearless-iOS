@@ -16,6 +16,7 @@ protocol BalanceViewModelFactoryProtocol {
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     let walletPrimitiveFactory: WalletPrimitiveFactoryProtocol
     let selectedAddressType: SNAddressType
+    let limit: Decimal
 
     private lazy var formatterFactory = AmountFormatterFactory()
     private lazy var priceAsset = {
@@ -26,9 +27,12 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         walletPrimitiveFactory.createAssetForAddressType(selectedAddressType)
     }()
 
-    init(walletPrimitiveFactory: WalletPrimitiveFactoryProtocol, selectedAddressType: SNAddressType) {
+    init(walletPrimitiveFactory: WalletPrimitiveFactoryProtocol,
+         selectedAddressType: SNAddressType,
+         limit: Decimal) {
         self.walletPrimitiveFactory = walletPrimitiveFactory
         self.selectedAddressType = selectedAddressType
+        self.limit = limit
     }
 
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String> {
@@ -83,13 +87,14 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     -> LocalizableResource<AmountInputViewModelProtocol> {
         let localizableFormatter = formatterFactory.createInputFormatter(for: targetAsset)
         let symbol = targetAsset.symbol
-        let limit = pow(10, Int(targetAsset.precision))
+
+        let currentLimit = limit
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
             return AmountInputViewModel(symbol: symbol,
                                         amount: amount,
-                                        limit: limit,
+                                        limit: currentLimit,
                                         formatter: formatter,
                                         precision: Int16(formatter.maximumFractionDigits))
         }
