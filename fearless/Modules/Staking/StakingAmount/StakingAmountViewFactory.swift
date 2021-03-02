@@ -101,6 +101,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
                                                  balanceProvider: AnyDataProvider(balanceProvider),
                                                  extrinsicService: extrinsicService,
                                                  rewardService: RewardCalculatorFacade.sharedService,
+                                                 runtimeService: RuntimeRegistryFacade.sharedService,
                                                  operationManager: OperationManagerFacade.sharedManager)
 
         return interactor

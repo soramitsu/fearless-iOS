@@ -23,6 +23,7 @@ final class StakingAmountPresenter {
     private var rewardDestination: RewardDestination = .restake
     private var payoutAccount: AccountItem
     private var loadingPayouts: Bool = false
+    private var minimalAmount: Decimal?
 
     init(asset: WalletAsset,
          selectedAccount: AccountItem,
@@ -108,6 +109,32 @@ final class StakingAmountPresenter {
                                    rewardDestination: .payout(account: payoutAccount))
         }
     }
+
+    private func ensureMinimum(for amount: Decimal) -> Bool {
+        guard let minimum = minimalAmount else {
+            return false
+        }
+
+        return amount >= minimum
+    }
+
+    private func presentMinimumAmountViolation() {
+        guard let view = view else {
+            return
+        }
+
+        let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+        let value: String
+
+        if let amount = minimalAmount {
+            value = balanceViewModelFactory.amountFromValue(amount).value(for: locale)
+        } else {
+            value = ""
+        }
+
+        wireframe.presentAmountTooLow(value: value, from: view, locale: locale)
+    }
 }
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
@@ -144,7 +171,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 provideAmountInputViewModel()
                 provideAsset()
             } else if let view = view {
-                wireframe.presentBalanceTooHigh(from: view,
+                wireframe.presentAmountTooHigh(from: view,
                                                 locale: view.localizationManager?.selectedLocale)
             }
         }
@@ -192,12 +219,17 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
         guard amount + fee <= balance else {
             if let view = view {
-                wireframe.presentBalanceTooHigh(from: view,
-                                                locale: view.localizationManager?.selectedLocale)
+                wireframe.presentAmountTooHigh(from: view,
+                                               locale: view.localizationManager?.selectedLocale)
             }
 
             scheduleFeeEstimation()
 
+            return
+        }
+
+        guard ensureMinimum(for: amount) else {
+            presentMinimumAmountViolation()
             return
         }
 
@@ -283,6 +315,13 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         let locale = view?.localizationManager?.selectedLocale
         if !wireframe.present(error: calculatorError, from: view, locale: locale) {
             logger.error("Did receive error: \(calculatorError)")
+        }
+    }
+
+    func didReceive(minimalAmount: BigUInt) {
+        if let amount = Decimal.fromSubstrateAmount(minimalAmount, precision: asset.precision) {
+            logger.debug("Did receive minimun bonding amount: \(amount)")
+            self.minimalAmount = amount
         }
     }
 }

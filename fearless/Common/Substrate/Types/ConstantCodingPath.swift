@@ -13,4 +13,8 @@ extension ConstantCodingPath {
     static var maxNominatorRewardedPerValidator: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "MaxNominatorRewardedPerValidator")
     }
+
+    static var existentialDeposit: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
+    }
 }

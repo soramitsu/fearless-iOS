@@ -40,6 +40,7 @@ protocol StakingAmountInteractorOutputProtocol: class {
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
+    func didReceive(minimalAmount: BigUInt)
 }
 
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,

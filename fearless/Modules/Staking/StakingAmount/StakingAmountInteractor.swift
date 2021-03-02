@@ -12,6 +12,7 @@ final class StakingAmountInteractor {
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
     private let rewardService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
 
@@ -20,12 +21,14 @@ final class StakingAmountInteractor {
          balanceProvider: AnyDataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,
          rewardService: RewardCalculatorServiceProtocol,
+         runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol) {
         self.repository = repository
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
         self.rewardService = rewardService
+        self.runtimeService = runtimeService
         self.operationManager = operationManager
     }
 
@@ -106,6 +109,35 @@ final class StakingAmountInteractor {
         operationManager.enqueue(operations: [operation],
                                  in: .transient)
     }
+
+    private func provideMinimumAmount() {
+        let factoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let minimumOperation = PrimitiveConstantOperation<BigUInt>(path: .existentialDeposit)
+        minimumOperation.configurationBlock = {
+            do {
+                minimumOperation.codingFactory = try factoryOperation.extractNoCancellableResultData()
+            } catch {
+                minimumOperation.result = .failure(error)
+            }
+        }
+
+        minimumOperation.addDependency(factoryOperation)
+
+        minimumOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let value = try minimumOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(minimalAmount: value)
+                } catch {
+                    self?.presenter.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [factoryOperation, minimumOperation],
+                                 in: .transient)
+    }
 }
 
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
@@ -113,6 +145,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         provideRewardCalculator()
+        provideMinimumAmount()
     }
 
     func fetchAccounts() {
