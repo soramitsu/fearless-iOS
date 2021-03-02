@@ -5,7 +5,7 @@ import BigInt
 protocol StakingConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
     func didReceive(confirmationViewModel: LocalizableResource<StakingConfirmViewModelProtocol>)
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
-    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>)
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
 protocol StakingConfirmPresenterProtocol: class {
@@ -21,6 +21,10 @@ protocol StakingConfirmInteractorInputProtocol: class {
                           amount: BigUInt,
                           rewardDestination: RewardDestination,
                           targets: [SelectedValidatorInfo])
+    func estimateFee(controller: AccountItem,
+                     amount: BigUInt,
+                     rewardDestination: RewardDestination,
+                     targets: [SelectedValidatorInfo])
 }
 
 protocol StakingConfirmInteractorOutputProtocol: class {
@@ -33,6 +37,9 @@ protocol StakingConfirmInteractorOutputProtocol: class {
     func didStartNomination()
     func didCompleteNomination(txHash: String)
     func didFailNomination(error: Error)
+
+    func didReceive(paymentInfo: RuntimeDispatchInfo)
+    func didReceive(feeError: Error)
 }
 
 protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,

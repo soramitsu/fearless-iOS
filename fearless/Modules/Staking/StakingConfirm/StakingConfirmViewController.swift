@@ -16,6 +16,7 @@ final class StakingConfirmViewController: UIViewController {
     @IBOutlet private var feeTitleLabel: UILabel!
     @IBOutlet private var feeDetailsLabel: UILabel!
     @IBOutlet private var actionButton: TriangularedButton!
+    @IBOutlet private var activityIndicatorView: UIActivityIndicatorView!
 
     var uiFactory: UIFactoryProtocol!
 
@@ -172,26 +173,30 @@ final class StakingConfirmViewController: UIViewController {
 
     private func applyFeeViewModel() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        guard let viewModel = feeViewModel?.value(for: locale) else {
-            return
-        }
+        if let viewModel = feeViewModel?.value(for: locale) {
+            activityIndicatorView.stopAnimating()
+            feeDetailsLabel.isHidden = false
 
-        let amountAttributedString = NSMutableAttributedString(string: viewModel.amount + "  ",
+            let amountAttributedString = NSMutableAttributedString(string: viewModel.amount + "  ",
+                                                                   attributes: [
+                                                                        .foregroundColor: R.color.colorWhite()!,
+                                                                        .font: UIFont.p1Paragraph
+                                                                   ])
+
+            if let price = viewModel.price {
+                let priceAttributedString = NSAttributedString(string: price,
                                                                attributes: [
-                                                                    .foregroundColor: R.color.colorWhite()!,
-                                                                    .font: UIFont.p1Paragraph
+                                                                .foregroundColor: R.color.colorGray()!,
+                                                                .font: UIFont.p1Paragraph
                                                                ])
+                amountAttributedString.append(priceAttributedString)
+            }
 
-        if let price = viewModel.price {
-            let priceAttributedString = NSAttributedString(string: price,
-                                                           attributes: [
-                                                            .foregroundColor: R.color.colorGray()!,
-                                                            .font: UIFont.p1Paragraph
-                                                           ])
-            amountAttributedString.append(priceAttributedString)
+            feeDetailsLabel.attributedText = amountAttributedString
+        } else {
+            feeDetailsLabel.isHidden = true
+            activityIndicatorView.startAnimating()
         }
-
-        feeDetailsLabel.attributedText = amountAttributedString
     }
 
     // MARK: Action
@@ -220,7 +225,7 @@ extension StakingConfirmViewController: StakingConfirmViewProtocol {
         self.applyBalanceView()
     }
 
-    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>) {
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         self.feeViewModel = feeViewModel
         self.applyFeeViewModel()
     }

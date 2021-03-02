@@ -185,8 +185,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
         }
 
         let stakingState = StartStakingResult(amount: amount,
-                                              rewardDestination: rewardDestination,
-                                              fee: fee)
+                                              rewardDestination: rewardDestination)
 
         wireframe.proceed(from: view, result: stakingState)
     }

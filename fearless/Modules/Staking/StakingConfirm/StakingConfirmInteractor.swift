@@ -90,6 +90,34 @@ extension StakingConfirmInteractor: StakingConfirmInteractorInputProtocol {
         subscribeToAccountChanges()
     }
 
+    func estimateFee(controller: AccountItem,
+                     amount: BigUInt,
+                     rewardDestination: RewardDestination,
+                     targets: [SelectedValidatorInfo]) {
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let callFactory = SubstrateCallFactory()
+
+            let bondCall = try callFactory.bond(amount: amount,
+                                                controller: controller.address,
+                                                rewardDestination: rewardDestination)
+
+            let nominateCall = try callFactory.nominate(targets: targets)
+
+            return try builder
+                .adding(call: bondCall)
+                .adding(call: nominateCall)
+        }
+
+        extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
+            switch result {
+            case .success(let info):
+                self?.presenter.didReceive(paymentInfo: info)
+            case .failure(let error):
+                self?.presenter.didReceive(feeError: error)
+            }
+        }
+    }
+
     func submitNomination(controller: AccountItem,
                           amount: BigUInt,
                           rewardDestination: RewardDestination,

@@ -19,6 +19,7 @@
             <connections>
                 <outlet property="accountView" destination="Chg-52-s1u" id="F08-71-PLX"/>
                 <outlet property="actionButton" destination="V3J-ds-KHJ" id="eOc-DY-zx3"/>
+                <outlet property="activityIndicatorView" destination="Mew-v8-36L" id="0u5-9u-zDw"/>
                 <outlet property="balanceView" destination="YcM-pZ-xer" id="Kgu-GB-UJL"/>
                 <outlet property="feeDetailsLabel" destination="GvV-pO-xcm" id="khv-RT-bvV"/>
                 <outlet property="feeTitleLabel" destination="Q0F-EX-Kyl" id="dKr-3z-Lro"/>
@@ -210,13 +211,13 @@
                                     <rect key="frame" x="0.0" y="164" width="375" height="64"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Reward destination" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5jt-oC-joQ">
-                                            <rect key="frame" x="16" y="31" width="278.5" height="18"/>
+                                            <rect key="frame" x="16" y="32.5" width="284" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Restake" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="sjU-Fa-ygS">
-                                            <rect key="frame" x="302.5" y="31" width="56.5" height="18"/>
+                                            <rect key="frame" x="308" y="32.5" width="51" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -258,7 +259,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="5" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QBG-hJ-fxB">
-                                            <rect key="frame" x="326" y="15" width="9" height="18"/>
+                                            <rect key="frame" x="327" y="16" width="8" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -342,17 +343,21 @@
                             <rect key="frame" x="16" y="0.0" width="343" height="48"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Network fee" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Q0F-EX-Kyl">
-                                    <rect key="frame" x="0.0" y="15" width="87" height="18"/>
+                                    <rect key="frame" x="0.0" y="16" width="76" height="16.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorLightGray"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="0.1 KSM" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="GvV-pO-xcm">
-                                    <rect key="frame" x="95" y="15" width="248" height="18"/>
+                                    <rect key="frame" x="84" y="16" width="259" height="16.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
+                                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Mew-v8-36L">
+                                    <rect key="frame" x="323" y="14" width="20" height="20"/>
+                                    <color key="color" name="colorWhite"/>
+                                </activityIndicatorView>
                             </subviews>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <constraints>
@@ -360,6 +365,8 @@
                                 <constraint firstItem="Q0F-EX-Kyl" firstAttribute="leading" secondItem="uiD-43-JUn" secondAttribute="leading" id="MGM-3N-K7R"/>
                                 <constraint firstAttribute="height" constant="48" id="Ms5-SS-mHL"/>
                                 <constraint firstAttribute="trailing" secondItem="GvV-pO-xcm" secondAttribute="trailing" id="cij-gV-iLK"/>
+                                <constraint firstAttribute="trailing" secondItem="Mew-v8-36L" secondAttribute="trailing" id="ncr-fw-Oh3"/>
+                                <constraint firstItem="Mew-v8-36L" firstAttribute="centerY" secondItem="uiD-43-JUn" secondAttribute="centerY" id="oJX-UQ-H8O"/>
                                 <constraint firstItem="GvV-pO-xcm" firstAttribute="leading" secondItem="Q0F-EX-Kyl" secondAttribute="trailing" constant="8" id="p6v-pg-Qg7"/>
                                 <constraint firstItem="GvV-pO-xcm" firstAttribute="centerY" secondItem="uiD-43-JUn" secondAttribute="centerY" id="tK2-J6-bj6"/>
                             </constraints>

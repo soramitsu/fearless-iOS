@@ -47,7 +47,6 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
 
         let nomination = PreparedNomination(amount: state.amount,
                                             rewardDestination: state.rewardDestination,
-                                            fee: state.fee,
                                             targets: targets)
 
         wireframe.proceed(from: view, result: nomination)

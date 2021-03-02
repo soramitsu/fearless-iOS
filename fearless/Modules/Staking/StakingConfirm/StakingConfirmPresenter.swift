@@ -9,6 +9,7 @@ final class StakingConfirmPresenter {
 
     private var balance: Decimal?
     private var priceData: PriceData?
+    private var fee: Decimal?
 
     let state: PreparedNomination
     let asset: WalletAsset
@@ -42,8 +43,12 @@ final class StakingConfirmPresenter {
     }
 
     private func provideFee() {
-        let viewModel = balanceViewModelFactory.balanceFromPrice(state.fee, priceData: priceData)
-        view?.didReceive(feeViewModel: viewModel)
+        if let fee = fee {
+            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceive(feeViewModel: viewModel)
+        } else {
+
+        }
     }
 
     private func provideAsset() {
@@ -60,6 +65,17 @@ final class StakingConfirmPresenter {
             logger?.error("Did receive error: \(error)")
         }
     }
+
+    private func estimateFee() {
+        guard let amount = state.amount.toSubstrateAmount(precision: asset.precision) else {
+            return
+        }
+
+        interactor.estimateFee(controller: walletAccount,
+                               amount: amount,
+                               rewardDestination: state.rewardDestination,
+                               targets: state.targets)
+    }
 }
 
 extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
@@ -69,6 +85,7 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         provideFee()
 
         interactor.setup()
+        estimateFee()
     }
 
     func selectWalletAccount() {
@@ -100,7 +117,11 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
             return
         }
 
-        guard state.amount + state.fee <= balance else {
+        guard let fee = fee else {
+            return
+        }
+
+        guard state.amount + fee <= balance else {
             return
         }
 
@@ -157,5 +178,20 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
         view?.didStopLoading()
 
         handle(error: error)
+    }
+
+    func didReceive(paymentInfo: RuntimeDispatchInfo) {
+        if let feeValue = BigUInt(paymentInfo.fee),
+           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
+            self.fee = fee
+        } else {
+            self.fee = nil
+        }
+
+        provideFee()
+    }
+
+    func didReceive(feeError: Error) {
+        handle(error: feeError)
     }
 }
