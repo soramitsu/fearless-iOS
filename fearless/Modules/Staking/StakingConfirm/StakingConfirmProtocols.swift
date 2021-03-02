@@ -35,7 +35,10 @@ protocol StakingConfirmInteractorOutputProtocol: class {
     func didFailNomination(error: Error)
 }
 
-protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable {}
+protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
+                                          AddressOptionsPresentable {
+    func complete(from view: StakingConfirmViewProtocol?)
+}
 
 protocol StakingConfirmViewFactoryProtocol: class {
     static func createView(for state: PreparedNomination) -> StakingConfirmViewProtocol?

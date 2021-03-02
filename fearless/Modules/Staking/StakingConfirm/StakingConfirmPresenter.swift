@@ -72,11 +72,27 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func selectWalletAccount() {
+        if let view = view, let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
+            wireframe.presentAccountOptions(from: view,
+                                            address: walletAccount.address,
+                                            chain: chain,
+                                            locale: locale)
+        }
     }
 
     func selectPayoutAccount() {
+        if case .payout(let account) = state.rewardDestination,
+           let view = view,
+           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
+            let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
+            wireframe.presentAccountOptions(from: view,
+                                            address: account.address,
+                                            chain: chain,
+                                            locale: locale)
+        }
     }
 
     func proceed() {
@@ -133,6 +149,8 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
         logger?.info("Did send nomination: \(txHash)")
 
         view?.didStopLoading()
+
+        wireframe.complete(from: view)
     }
 
     func didFailNomination(error: Error) {

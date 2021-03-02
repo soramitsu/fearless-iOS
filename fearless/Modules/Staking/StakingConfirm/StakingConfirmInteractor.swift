@@ -98,8 +98,8 @@ extension StakingConfirmInteractor: StakingConfirmInteractorInputProtocol {
             let callFactory = SubstrateCallFactory()
 
             let bondCall = try callFactory.bond(amount: amount,
-                                            controller: controller.address,
-                                            rewardDestination: rewardDestination)
+                                                controller: controller.address,
+                                                rewardDestination: rewardDestination)
 
             let nominateCall = try callFactory.nominate(targets: targets)
 

@@ -543,6 +543,7 @@
 		849DEBD425ED015C00C64C19 /* StakingConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */; };
 		849DEBDC25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */; };
 		849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */; };
+		849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */; };
 		849E0CD025CFDDB700B33506 /* StorageUpdateData+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */; };
 		849E0CD525CFE60C00B33506 /* UpgradeV28Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */; };
 		849E0CDD25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */; };
@@ -1361,6 +1362,7 @@
 		849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModel.swift; sourceTree = "<group>"; };
 		849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCallFactory.swift; sourceTree = "<group>"; };
+		849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOptionsPresentable.swift; sourceTree = "<group>"; };
 		849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageUpdateData+Decoding.swift"; sourceTree = "<group>"; };
 		849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeV28Subscription.swift; sourceTree = "<group>"; };
 		849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicFactoryProtocol.swift; sourceTree = "<group>"; };
@@ -3057,6 +3059,7 @@
 				8490142B24A935FE008F705E /* AlertPresentable.swift */,
 				842D1E8324D197C900C30A7A /* KeyboardAdoptable.swift */,
 				84754C842510A1A400854599 /* ModalAlertPresenting.swift */,
+				849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -4551,6 +4554,7 @@
 				848FFE9025E6CF4300652AA5 /* StorageKeyEncodingOperation.swift in Sources */,
 				8443FDB6255540570092893D /* ExportMnemonicData.swift in Sources */,
 				84893C0724DA890F008F6A3F /* CommonError.swift in Sources */,
+				849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */,
 				843910B0253ED36C00E3C217 /* ChainStorageItem.swift in Sources */,
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				84D97EB5251FC58100F07405 /* TransferConfigurator.swift in Sources */,

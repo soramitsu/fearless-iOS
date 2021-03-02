@@ -111,30 +111,19 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
 
     func estimateFee(for address: String, amount: BigUInt, rewardDestination: RewardDestination) {
         let closure: ExtrinsicBuilderClosure = { builder in
-            let addressFactory = SS58AddressFactory()
-            let accountId = try addressFactory.accountId(from: address)
+            let callFactory = SubstrateCallFactory()
 
-            let destArg: RewardDestinationArg
+            let bondCall = try callFactory.bond(amount: amount,
+                                                controller: address,
+                                                rewardDestination: rewardDestination)
 
-            switch rewardDestination {
-            case .restake:
-                destArg = .staked
-            case .payout(let account):
-                let accountId = try addressFactory.accountId(from: account.address)
-                destArg = .account(accountId)
-            }
-
-            let bondCall = BondCall(controller: .accoundId(accountId),
-                                    value: amount,
-                                    payee: destArg)
-
-            let targets = Array(repeating: MultiAddress.accoundId(accountId),
+            let targets = Array(repeating: SelectedValidatorInfo(address: address, identity: nil),
                                 count: SubstrateConstants.maxNominations)
-            let nominateCall = NominateCall(targets: targets)
+            let nominateCall = try callFactory.nominate(targets: targets)
 
             return try builder
-                .adding(call: RuntimeCall<BondCall>.bond(bondCall))
-                .adding(call: RuntimeCall<NominateCall>.nominate(nominateCall))
+                .adding(call: bondCall)
+                .adding(call: nominateCall)
         }
 
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
