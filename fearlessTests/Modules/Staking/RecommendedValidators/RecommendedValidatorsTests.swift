@@ -5,8 +5,7 @@ import RobinHood
 
 class RecommendedValidatorsTests: XCTestCase {
     let nominationState = StartStakingResult(amount: 1.0,
-                                             rewardDestination: .restake,
-                                             fee: 0.1)
+                                             rewardDestination: .restake)
 
     let recommended: [ElectedValidatorInfo] = {
         let address = "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"

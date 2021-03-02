@@ -56,7 +56,7 @@ final class StakingAmountPresenter {
         do {
             switch rewardDestination {
             case .restake:
-                let viewModel = try rewardDestViewModelFactory.createRestake(from: calculatedReward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: calculatedReward)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
                 let viewModel = try rewardDestViewModelFactory
@@ -128,7 +128,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutDestination() {
-        rewardDestination = .payout(address: payoutAccount.address)
+        rewardDestination = .payout(account: payoutAccount)
         provideRewardDestination()
 
         scheduleFeeEstimation()
@@ -143,8 +143,9 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
                 provideAmountInputViewModel()
                 provideAsset()
-            } else {
-                wireframe.presentNotEnoughFunds(from: view)
+            } else if let view = view {
+                wireframe.presentBalanceTooHigh(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
             }
         }
     }
@@ -175,18 +176,30 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func proceed() {
-        guard let amount = amount, let fee = fee, let balance = balance else {
+        guard let amount = amount, let balance = balance else {
+            return
+        }
+
+        guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 
         guard amount + fee <= balance else {
-            wireframe.presentNotEnoughFunds(from: view)
+            if let view = view {
+                wireframe.presentBalanceTooHigh(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 
         let stakingState = StartStakingResult(amount: amount,
-                                              rewardDestination: rewardDestination,
-                                              fee: fee)
+                                              rewardDestination: rewardDestination)
 
         wireframe.proceed(from: view, result: stakingState)
     }
@@ -268,6 +281,11 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
         }
 
         payoutAccount = accounts[index]
+
+        if case .payout = rewardDestination {
+            rewardDestination = .payout(account: payoutAccount)
+        }
+
         provideRewardDestination()
     }
 }

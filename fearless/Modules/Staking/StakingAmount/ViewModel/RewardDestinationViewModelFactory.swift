@@ -4,7 +4,7 @@ import FearlessUtils
 import CommonWallet
 
 protocol RewardDestinationViewModelFactoryProtocol {
-    func createRestake(from model: CalculatedReward) throws
+    func createRestake(from model: CalculatedReward)
     -> LocalizableResource<RewardDestinationViewModelProtocol>
 
     func createPayout(from model: CalculatedReward, account: AccountItem) throws
@@ -21,7 +21,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         self.asset = asset
     }
 
-    func createRestake(from model: CalculatedReward) throws
+    func createRestake(from model: CalculatedReward)
     -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let amountFormatter = tokenFormatter.createTokenFormatter(for: asset)
 

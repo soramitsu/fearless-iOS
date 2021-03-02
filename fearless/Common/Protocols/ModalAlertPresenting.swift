@@ -14,7 +14,15 @@ extension ModalAlertPresenting {
     func presentSuccessNotification(_ title: String,
                                     from view: ControllerBackedProtocol?,
                                     completion closure: (() -> Void)?) {
+        presentSuccessNotification(title,
+                                   from: view?.controller,
+                                   completion: closure)
+    }
+
+    func presentSuccessNotification(_ title: String,
+                                    from presenter: UIViewController?,
+                                    completion closure: (() -> Void)?) {
         let controller = ModalAlertFactory.createSuccessAlert(title)
-        view?.controller.present(controller, animated: true, completion: closure)
+        presenter?.present(controller, animated: true, completion: closure)
     }
 }

@@ -2,7 +2,12 @@ import Foundation
 
 final class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtocol {
     func proceed(from view: RecommendedValidatorsViewProtocol?, result: PreparedNomination) {
-        // TODO: FLW-592
+        guard let confirmView = StakingConfirmViewFactory.createView(for: result) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(confirmView.controller,
+                                                                  animated: true)
     }
 
     func showRecommended(from view: RecommendedValidatorsViewProtocol?,

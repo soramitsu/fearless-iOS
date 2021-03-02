@@ -392,20 +392,6 @@
             <point key="canvasLocation" x="139" y="133"/>
         </view>
     </objects>
-    <designables>
-        <designable name="4DJ-9E-yEs">
-            <size key="intrinsicContentSize" width="23" height="15"/>
-        </designable>
-        <designable name="dND-pR-ncD">
-            <size key="intrinsicContentSize" width="23" height="15"/>
-        </designable>
-        <designable name="dj9-N6-aJv">
-            <size key="intrinsicContentSize" width="23" height="15"/>
-        </designable>
-        <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="159.5" height="20"/>
-        </designable>
-    </designables>
     <resources>
         <image name="iconExport" width="20" height="20"/>
         <image name="iconKsmSmallBg" width="24" height="24"/>

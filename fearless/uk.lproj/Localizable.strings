@@ -239,7 +239,15 @@
 "staking.payout.subtitle" = "Передача винагород";
 "staking.payouts.learn.more" = "Дізнайтеся більше про виплати";
 "staking.reward.payout.account" = "Рахунок для виплат";
+"staking.selected.accounts.mask" = "Рахунки ( %d )";
+"staking.recommended.validators.title" = "Рекомендовані валідатори";
+"staking.recommended.validators.description" = "Ці валідатори матимуть для вас максимальний прибуток і менше шансів на шахрайство або невдачу.";
+"staking.custom.validators.title" = "Виберіть власні валідатори";
+"staking.recommended.validators.apy" = "Орієнтовна винагорода, APY";
 "staking.amount.too.big.error" = "Вибачте, у вас недостатньо коштів для розміщення вказаної суми";
+"staking.estimate.earning.title" = "Оцініть свій заробіток";
+"staking.month.period.title" = "Щомісяця";
+"staking.year.period.title" = "Щорічно";
 "staking.recommended.title" = "Валідатори";
 "staking.recommended.section.title" = "Рекомендовані валідатори";
 "staking.recommended.section.desc" = "Алгоритм підготував список рекомендованих валідаторів на основі наступного:";
@@ -251,3 +259,11 @@
 "staking.recommended.validators.counter" = "%@ з %@";
 "staking.recommended.custom.title" = "Виберіть власні валідатори";
 "staking.recommended.warning" = "Рекомендовані або вибрані на замовлення валідатори не гарантують, що один із валідаторів не може бути врізаний, і ви можете частково втратити свої маркери.";
+"fee.not.yet.loaded.title" = "Триває розрахунок комісії";
+"fee.not.yet.loaded.message" = "Будь ласка, зачекайте, поки плата не буде нарахована";
+"staking.setup.amount.too.low" = "Не можна робити ставку менше мінімального значення ( %s )";
+"staking.confirm.title" = "Підтвердження";
+"staking.reward.destination.title" = "Нагорода призначення";
+"staking.stash.title" = "Обліковий запис гаманця";
+"staking.setup.sent.message" = "Транзакція налаштування ставки надіслана";
+"staking.setup.failed.message" = "Налаштування ставок несподівано не вдалося. Будь-ласка спробуйте пізніше.";

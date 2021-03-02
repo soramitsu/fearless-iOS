@@ -1,29 +1,26 @@
 import UIKit
 import RobinHood
-import SoraKeystore
-import IrohaCrypto
 import BigInt
-import FearlessUtils
 
-final class StakingAmountInteractor {
-    weak var presenter: StakingAmountInteractorOutputProtocol!
+final class StakingConfirmInteractor {
+    weak var presenter: StakingConfirmInteractorOutputProtocol!
 
-    private let repository: AnyDataProviderRepository<AccountItem>
-    private let priceProvider: SingleValueProvider<PriceData>
-    private let balanceProvider: DataProvider<DecodedAccountInfo>
+    private let priceProvider: AnySingleValueProvider<PriceData>
+    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let signer: SigningWrapperProtocol
     private let operationManager: OperationManagerProtocol
 
-    init(repository: AnyDataProviderRepository<AccountItem>,
-         priceProvider: SingleValueProvider<PriceData>,
-         balanceProvider: DataProvider<DecodedAccountInfo>,
+    init(priceProvider: AnySingleValueProvider<PriceData>,
+         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,
-         operationManager: OperationManagerProtocol) {
-        self.repository = repository
+         operationManager: OperationManagerProtocol,
+         signer: SigningWrapperProtocol) {
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
         self.operationManager = operationManager
+        self.signer = signer
     }
 
     private func subscribeToPriceChanges() {
@@ -43,7 +40,7 @@ final class StakingAmountInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
+            self?.presenter.didReceive(priceError: error)
             return
         }
 
@@ -73,7 +70,7 @@ final class StakingAmountInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
+            self?.presenter.didReceive(balanceError: error)
             return
         }
 
@@ -87,38 +84,23 @@ final class StakingAmountInteractor {
     }
 }
 
-extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
+extension StakingConfirmInteractor: StakingConfirmInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
     }
 
-    func fetchAccounts() {
-        let operation = repository.fetchAllOperation(with: RepositoryFetchOptions())
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let accounts = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(accounts: accounts)
-                } catch {
-                    self?.presenter.didReceive(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-    }
-
-    func estimateFee(for address: String, amount: BigUInt, rewardDestination: RewardDestination) {
+    func estimateFee(controller: AccountItem,
+                     amount: BigUInt,
+                     rewardDestination: RewardDestination,
+                     targets: [SelectedValidatorInfo]) {
         let closure: ExtrinsicBuilderClosure = { builder in
             let callFactory = SubstrateCallFactory()
 
             let bondCall = try callFactory.bond(amount: amount,
-                                                controller: address,
+                                                controller: controller.address,
                                                 rewardDestination: rewardDestination)
 
-            let targets = Array(repeating: SelectedValidatorInfo(address: address, identity: nil),
-                                count: SubstrateConstants.maxNominations)
             let nominateCall = try callFactory.nominate(targets: targets)
 
             return try builder
@@ -129,11 +111,41 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
             switch result {
             case .success(let info):
-                self?.presenter.didReceive(paymentInfo: info,
-                                           for: amount,
-                                           rewardDestination: rewardDestination)
+                self?.presenter.didReceive(paymentInfo: info)
             case .failure(let error):
-                self?.presenter.didReceive(error: error)
+                self?.presenter.didReceive(feeError: error)
+            }
+        }
+    }
+
+    func submitNomination(controller: AccountItem,
+                          amount: BigUInt,
+                          rewardDestination: RewardDestination,
+                          targets: [SelectedValidatorInfo]) {
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let callFactory = SubstrateCallFactory()
+
+            let bondCall = try callFactory.bond(amount: amount,
+                                                controller: controller.address,
+                                                rewardDestination: rewardDestination)
+
+            let nominateCall = try callFactory.nominate(targets: targets)
+
+            return try builder
+                .adding(call: bondCall)
+                .adding(call: nominateCall)
+        }
+
+        presenter.didStartNomination()
+
+        extrinsicService.submit(closure,
+                                signer: signer,
+                                runningIn: .main) { [weak self] result in
+            switch result {
+            case .success(let txHash):
+                self?.presenter.didCompleteNomination(txHash: txHash)
+            case .failure(let error):
+                self?.presenter.didFailNomination(error: error)
             }
         }
     }

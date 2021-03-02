@@ -40,14 +40,13 @@ protocol StakingAmountInteractorOutputProtocol: class {
     func didReceive(error: Error)
 }
 
-protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable {
+protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,
+                                         WebPresentable, StakingErrorPresentable {
     func presentAccountSelection(_ accounts: [AccountItem],
                                  selectedAccountItem: AccountItem,
                                  delegate: ModalPickerViewControllerDelegate,
                                  from view: StakingAmountViewProtocol?,
                                  context: AnyObject?)
-
-    func presentNotEnoughFunds(from view: StakingAmountViewProtocol?)
 
     func proceed(from view: StakingAmountViewProtocol?, result: StartStakingResult)
 
