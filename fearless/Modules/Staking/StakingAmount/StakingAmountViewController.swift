@@ -71,7 +71,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         accountView.title = R.string.localizable
             .stakingRewardPayoutAccount(preferredLanguages: languages)
 
-        accountView.actionImage = R.image.iconMore()
+        accountView.actionImage = R.image.iconSmallArrow()
 
         accountView.addTarget(self,
                               action: #selector(actionSelectPayoutAccount),
@@ -133,6 +133,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
                                              ])
 
         amountInputView.textField.attributedPlaceholder = placeholder
+        amountInputView.textField.keyboardType = .decimalPad
 
         amountInputView.textField.delegate = self
     }
