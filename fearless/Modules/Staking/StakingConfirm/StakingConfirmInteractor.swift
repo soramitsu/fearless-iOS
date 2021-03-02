@@ -5,14 +5,14 @@ import BigInt
 final class StakingConfirmInteractor {
     weak var presenter: StakingConfirmInteractorOutputProtocol!
 
-    private let priceProvider: SingleValueProvider<PriceData>
-    private let balanceProvider: DataProvider<DecodedAccountInfo>
+    private let priceProvider: AnySingleValueProvider<PriceData>
+    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
     private let signer: SigningWrapperProtocol
     private let operationManager: OperationManagerProtocol
 
-    init(priceProvider: SingleValueProvider<PriceData>,
-         balanceProvider: DataProvider<DecodedAccountInfo>,
+    init(priceProvider: AnySingleValueProvider<PriceData>,
+         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,
          operationManager: OperationManagerProtocol,
          signer: SigningWrapperProtocol) {

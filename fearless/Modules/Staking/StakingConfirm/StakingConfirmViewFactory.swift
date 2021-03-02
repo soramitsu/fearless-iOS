@@ -1,6 +1,7 @@
 import Foundation
 import SoraKeystore
 import SoraFoundation
+import RobinHood
 
 final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
     static func createView(for state: PreparedNomination) -> StakingConfirmViewProtocol? {
@@ -56,8 +57,8 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         let signer = SigningWrapper(keystore: keystore,
                                     settings: settings)
 
-        let interactor = StakingConfirmInteractor(priceProvider: priceProvider,
-                                                  balanceProvider: balanceProvider,
+        let interactor = StakingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
+                                                  balanceProvider: AnyDataProvider(balanceProvider),
                                                   extrinsicService: extrinsicService,
                                                   operationManager: operationManager,
                                                   signer: signer)

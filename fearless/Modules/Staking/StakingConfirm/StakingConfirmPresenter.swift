@@ -23,7 +23,7 @@ final class StakingConfirmPresenter {
          walletAccount: AccountItem,
          confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         logger: LoggerProtocol?) {
+         logger: LoggerProtocol? = nil) {
         self.state = state
         self.asset = asset
         self.walletAccount = walletAccount
@@ -47,7 +47,7 @@ final class StakingConfirmPresenter {
             let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
             view?.didReceive(feeViewModel: viewModel)
         } else {
-
+            view?.didReceive(feeViewModel: nil)
         }
     }
 
