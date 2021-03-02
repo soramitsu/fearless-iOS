@@ -143,8 +143,9 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
                 provideAmountInputViewModel()
                 provideAsset()
-            } else {
-                wireframe.presentNotEnoughFunds(from: view)
+            } else if let view = view {
+                wireframe.presentBalanceTooHigh(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
             }
         }
     }
@@ -175,12 +176,25 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func proceed() {
-        guard let amount = amount, let fee = fee, let balance = balance else {
+        guard let amount = amount, let balance = balance else {
+            return
+        }
+
+        guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 
         guard amount + fee <= balance else {
-            wireframe.presentNotEnoughFunds(from: view)
+            if let view = view {
+                wireframe.presentBalanceTooHigh(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 

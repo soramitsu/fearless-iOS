@@ -43,7 +43,7 @@ protocol StakingConfirmInteractorOutputProtocol: class {
 }
 
 protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
-                                          AddressOptionsPresentable {
+                                          AddressOptionsPresentable, StakingErrorPresentable {
     func complete(from view: StakingConfirmViewProtocol?)
 }
 

@@ -266,3 +266,4 @@
 "staking.reward.destination.title" = "Нагорода призначення";
 "staking.stash.title" = "Обліковий запис гаманця";
 "staking.setup.sent.message" = "Транзакція налаштування ставки надіслана";
+"staking.setup.failed.message" = "Налаштування ставок несподівано не вдалося. Будь-ласка спробуйте пізніше.";

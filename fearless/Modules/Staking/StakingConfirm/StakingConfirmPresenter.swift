@@ -118,10 +118,20 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         }
 
         guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 
         guard state.amount + fee <= balance else {
+            if let view = view {
+                wireframe.presentBalanceTooHigh(from: view,
+                                                locale: view.localizationManager?.selectedLocale)
+            }
+
             return
         }
 

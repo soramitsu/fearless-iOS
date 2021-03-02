@@ -265,3 +265,4 @@ Percorso di derivazione: %@";
 "staking.reward.destination.title" = "Destinazione premio";
 "staking.stash.title" = "Account Wallet";
 "staking.setup.sent.message" = "Transazione di impostazione picchettamento inviata";
+"staking.setup.failed.message" = "L'impostazione del picchettamento non è riuscita in modo imprevisto. Per favore riprova più tardi.";

@@ -266,3 +266,4 @@ a type of password.";
 "staking.reward.destination.title" = "Вознаграждение";
 "staking.stash.title" = "Управляющий аккаунт";
 "staking.setup.sent.message" = "Транзакция на установку стекинга отправлена";
+"staking.setup.failed.message" = "Произошла ошибка при установке стекинга. Пожалуйста, попробуйте позже.";

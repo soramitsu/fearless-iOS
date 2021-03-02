@@ -31,6 +31,8 @@ final class StakingConfirmViewController: UIViewController {
         super.viewDidLoad()
 
         setupLocalization()
+        updateActionButton()
+
         presenter.setup()
     }
 
@@ -97,6 +99,11 @@ final class StakingConfirmViewController: UIViewController {
 
         payoutView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
                                            constant: -12.0).isActive = true
+    }
+
+    private func updateActionButton() {
+        let isEnabled = (assetViewModel != nil)
+        actionButton.isEnabled = isEnabled
     }
 
     private func insertPayoutViewIfNeeded() {
@@ -222,7 +229,8 @@ extension StakingConfirmViewController: StakingConfirmViewProtocol {
 
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         self.assetViewModel = assetViewModel
-        self.applyBalanceView()
+        applyBalanceView()
+        updateActionButton()
     }
 
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
