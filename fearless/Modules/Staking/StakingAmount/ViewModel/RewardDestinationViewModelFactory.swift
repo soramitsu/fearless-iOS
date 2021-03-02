@@ -4,10 +4,10 @@ import FearlessUtils
 import CommonWallet
 
 protocol RewardDestinationViewModelFactoryProtocol {
-    func createRestake(from model: CalculatedReward)
+    func createRestake(from model: CalculatedReward?)
     -> LocalizableResource<RewardDestinationViewModelProtocol>
 
-    func createPayout(from model: CalculatedReward, account: AccountItem) throws
+    func createPayout(from model: CalculatedReward?, account: AccountItem) throws
     -> LocalizableResource<RewardDestinationViewModelProtocol>
 }
 
@@ -21,8 +21,12 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         self.asset = asset
     }
 
-    func createRestake(from model: CalculatedReward)
+    func createRestake(from model: CalculatedReward?)
     -> LocalizableResource<RewardDestinationViewModelProtocol> {
+        guard let model = model else {
+            return createEmptyReturnViewModel(from: .restake)
+        }
+
         let amountFormatter = tokenFormatter.createTokenFormatter(for: asset)
 
         return createViewModel(from: model,
@@ -30,17 +34,30 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
                                type: .restake)
     }
 
-    func createPayout(from model: CalculatedReward, account: AccountItem) throws
+    func createPayout(from model: CalculatedReward?, account: AccountItem) throws
     -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(account.address)
+
+        let type = RewardDestinationTypeViewModel.payout(icon: icon, title: account.username)
+
+        guard let model = model else {
+            return createEmptyReturnViewModel(from: type)
+        }
 
         let amountFormatter = tokenFormatter.createTokenFormatter(for: asset)
         return createViewModel(from: model,
                                amountFormatter: amountFormatter,
-                               type: .payout(icon: icon, title: account.username))
+                               type: type)
     }
 
     // MARK: Private
+
+    func createEmptyReturnViewModel(from type: RewardDestinationTypeViewModel)
+    -> LocalizableResource<RewardDestinationViewModelProtocol> {
+        LocalizableResource { _ in
+            RewardDestinationViewModel(rewardViewModel: nil, type: type)
+        }
+    }
 
     func createViewModel(from model: CalculatedReward,
                          amountFormatter: LocalizableResource<TokenAmountFormatter>,
@@ -50,17 +67,21 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
             let amountFormatter = amountFormatter.value(for: locale)
             let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
 
-            let restakeAmount = amountFormatter.string(from: model.restakeReturn)
+            let restakeAmount = model.restakeReturn > 0.0 ?
+                amountFormatter.string(from: model.restakeReturn) : nil
             let restakePercentage = percentageFormatter.string(from: model.restakeReturnPercentage as NSNumber)
 
-            let payoutAmount = amountFormatter.string(from: model.payoutReturn)
+            let payoutAmount = model.payoutReturn > 0.0 ?
+                amountFormatter.string(from: model.payoutReturn) : nil
             let payoutPercentage = percentageFormatter
                 .string(from: model.payoutReturnPercentage as NSNumber)
 
-            return RewardDestinationViewModel(restakeAmount: restakeAmount ?? "",
-                                              restakePercentage: restakePercentage ?? "",
-                                              payoutAmount: payoutAmount ?? "",
-                                              payoutPercentage: payoutPercentage ?? "",
+            let rewardViewModel = DestinationReturnViewModel(restakeAmount: restakeAmount ?? "",
+                                                             restakePercentage: restakePercentage ?? "",
+                                                             payoutAmount: payoutAmount ?? "",
+                                                             payoutPercentage: payoutPercentage ?? "")
+
+            return RewardDestinationViewModel(rewardViewModel: rewardViewModel,
                                               type: type)
         }
     }

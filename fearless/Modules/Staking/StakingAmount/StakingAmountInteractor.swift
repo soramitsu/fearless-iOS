@@ -9,20 +9,23 @@ final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol!
 
     private let repository: AnyDataProviderRepository<AccountItem>
-    private let priceProvider: SingleValueProvider<PriceData>
-    private let balanceProvider: DataProvider<DecodedAccountInfo>
+    private let priceProvider: AnySingleValueProvider<PriceData>
+    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let rewardService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
 
     init(repository: AnyDataProviderRepository<AccountItem>,
-         priceProvider: SingleValueProvider<PriceData>,
-         balanceProvider: DataProvider<DecodedAccountInfo>,
+         priceProvider: AnySingleValueProvider<PriceData>,
+         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
          extrinsicService: ExtrinsicServiceProtocol,
+         rewardService: RewardCalculatorServiceProtocol,
          operationManager: OperationManagerProtocol) {
         self.repository = repository
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
+        self.rewardService = rewardService
         self.operationManager = operationManager
     }
 
@@ -85,12 +88,31 @@ final class StakingAmountInteractor {
                                     failing: failureClosure,
                                     options: options)
     }
+
+    private func provideRewardCalculator() {
+        let operation = rewardService.fetchCalculatorOperation()
+
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let engine = try operation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(calculator: engine)
+                } catch {
+                    self?.presenter.didReceive(calculatorError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation],
+                                 in: .transient)
+    }
 }
 
 extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
+        provideRewardCalculator()
     }
 
     func fetchAccounts() {

@@ -23,6 +23,15 @@ extension Chain {
         }
     }
 
+    var erasPerDay: Int {
+        switch self {
+        case .polkadot:
+            return 1
+        case .kusama, .westend:
+            return 4
+        }
+    }
+
     func polkascanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
         case .polkadot:

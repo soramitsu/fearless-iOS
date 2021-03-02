@@ -28,12 +28,12 @@
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                 </imageView>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XiF-bI-eRb">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="57"/>
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="53.5"/>
                     <subviews>
                         <visualEffectView opaque="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="G6Z-u5-QrL">
-                            <rect key="frame" x="0.0" y="0.0" width="375" height="57"/>
+                            <rect key="frame" x="0.0" y="0.0" width="375" height="53.5"/>
                             <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="x14-yu-BL4">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="57"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="53.5"/>
                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             </view>
                             <blurEffect style="dark"/>
@@ -48,7 +48,7 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MvI-fr-D7E">
-                    <rect key="frame" x="123.5" y="-44" width="128" height="44"/>
+                    <rect key="frame" x="127.5" y="-44" width="120" height="44"/>
                     <subviews>
                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconKsmAsset" translatesAutoresizingMaskIntoConstraints="NO" id="YQT-cH-p8Y">
                             <rect key="frame" x="0.0" y="0.0" width="44" height="44"/>
@@ -58,7 +58,7 @@
                             </constraints>
                         </imageView>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Kusama" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fG9-KC-Bq2">
-                            <rect key="frame" x="54" y="10.5" width="74" height="23"/>
+                            <rect key="frame" x="54" y="11.5" width="66" height="21"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
@@ -75,32 +75,32 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5JS-T5-tOO">
-                    <rect key="frame" x="0.0" y="0.0" width="375" height="57"/>
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="53.5"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="a7Y-Re-tLd">
-                            <rect key="frame" x="146" y="31" width="83" height="18"/>
+                            <rect key="frame" x="151.5" y="29" width="72.5" height="16.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="lKX-kZ-DNE">
-                                    <rect key="frame" x="0.0" y="0.0" width="20" height="18"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="16" height="16.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EB0-RE-RYL">
-                                    <rect key="frame" x="23" y="0.0" width="19" height="18"/>
+                                    <rect key="frame" x="19" y="0.0" width="16.5" height="16.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorGreen"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="h9i-Iq-xQI">
-                                    <rect key="frame" x="52" y="0.0" width="1" height="18"/>
+                                    <rect key="frame" x="45.5" y="0.0" width="1" height="16.5"/>
                                     <color key="backgroundColor" name="colorGray"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="1" id="9d9-3C-2Ve"/>
                                     </constraints>
                                 </view>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$0" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YBm-za-3E9">
-                                    <rect key="frame" x="63" y="0.0" width="20" height="18"/>
+                                    <rect key="frame" x="56.5" y="0.0" width="16" height="16.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
@@ -122,7 +122,7 @@
                             </constraints>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0 KSM" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="evE-q1-4OE">
-                            <rect key="frame" x="16" y="0.0" width="343" height="23"/>
+                            <rect key="frame" x="16" y="0.0" width="343" height="21"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
@@ -139,16 +139,16 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cPb-FI-lMk">
-                    <rect key="frame" x="93" y="73" width="74.5" height="47.5"/>
+                    <rect key="frame" x="103.5" y="69.5" width="64" height="44"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="iV9-By-Epu">
-                            <rect key="frame" x="0.0" y="0.0" width="74.5" height="23"/>
+                            <rect key="frame" x="0.0" y="0.0" width="64" height="21"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Available" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="1cN-GB-a3Z">
-                            <rect key="frame" x="0.0" y="27" width="74.5" height="20.5"/>
+                            <rect key="frame" x="0.0" y="25" width="64" height="19"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
@@ -166,10 +166,10 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5Db-ZY-Ogw">
-                    <rect key="frame" x="207.5" y="73" width="76" height="47.5"/>
+                    <rect key="frame" x="207.5" y="69.5" width="71" height="44"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Q02-xY-F5G" customClass="RoundedButton" customModule="SoraUI">
-                            <rect key="frame" x="-8" y="-8" width="92" height="63.5"/>
+                            <rect key="frame" x="-8" y="-8" width="87" height="60"/>
                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
@@ -188,22 +188,22 @@
                             </connections>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="K95-3u-lmp">
-                            <rect key="frame" x="0.0" y="0.0" width="76" height="23"/>
+                            <rect key="frame" x="0.0" y="0.0" width="71" height="21"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="18"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WPK-hB-Znw">
-                            <rect key="frame" x="0.0" y="27" width="76" height="20.5"/>
+                            <rect key="frame" x="0.0" y="25" width="71" height="19"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Frozen" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000000000000004" translatesAutoresizingMaskIntoConstraints="NO" id="rpC-XM-879">
-                                    <rect key="frame" x="0.0" y="0.0" width="54" height="20.5"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="49" height="19"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconInfoSend" translatesAutoresizingMaskIntoConstraints="NO" id="dFc-Id-5j8">
-                                    <rect key="frame" x="60" y="2.5" width="16" height="16"/>
+                                    <rect key="frame" x="55" y="1.5" width="16" height="16"/>
                                 </imageView>
                             </subviews>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -233,7 +233,7 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="5WV-bu-ZuX">
-                    <rect key="frame" x="16" y="136.5" width="343" height="80"/>
+                    <rect key="frame" x="16" y="129.5" width="343" height="80"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="kJm-Iu-UQl" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
                             <rect key="frame" x="0.0" y="0.0" width="343" height="80"/>
@@ -481,13 +481,13 @@
     </objects>
     <designables>
         <designable name="BH9-GQ-WWi">
-            <size key="intrinsicContentSize" width="40" height="63.5"/>
+            <size key="intrinsicContentSize" width="40" height="61.5"/>
         </designable>
         <designable name="CZ1-mR-zue">
-            <size key="intrinsicContentSize" width="64" height="63.5"/>
+            <size key="intrinsicContentSize" width="55" height="61.5"/>
         </designable>
         <designable name="Fv6-uX-qxI">
-            <size key="intrinsicContentSize" width="48" height="63.5"/>
+            <size key="intrinsicContentSize" width="40" height="61.5"/>
         </designable>
         <designable name="Q02-xY-F5G">
             <size key="intrinsicContentSize" width="16" height="16"/>
@@ -501,7 +501,7 @@
         <image name="iconReceive" width="24" height="24"/>
         <image name="iconSend" width="24" height="24"/>
         <namedColor name="colorBlurSeparator">
-            <color red="1" green="1" blue="1" alpha="0.10000000000000001" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="1" blue="1" alpha="0.10000000149011612" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorCellSelection">
             <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="0.30000001192092896" colorSpace="custom" customColorSpace="sRGB"/>

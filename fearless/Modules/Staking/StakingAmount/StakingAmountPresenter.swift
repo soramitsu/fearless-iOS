@@ -14,6 +14,7 @@ final class StakingAmountPresenter {
     let feeDebounce: TimeInterval
     let applicationConfig: ApplicationConfigProtocol
 
+    private var calculator: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
@@ -25,11 +26,6 @@ final class StakingAmountPresenter {
     private var loadingPayouts: Bool = false
 
     private lazy var scheduler: SchedulerProtocol = Scheduler(with: self, callbackQueue: .main)
-
-    private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
-                                                    restakeReturnPercentage: 0.3551,
-                                                    payoutReturn: 2.15,
-                                                    payoutReturnPercentage: 0.2131)
 
     deinit {
         scheduler.cancel()
@@ -54,13 +50,31 @@ final class StakingAmountPresenter {
 
     private func provideRewardDestination() {
         do {
+            let reward: CalculatedReward?
+
+            if let calculator = calculator {
+                let restake =  try calculator.calculateNetworkReturn(isCompound: true,
+                                                                     period: .year)
+
+                let payout = try calculator.calculateNetworkReturn(isCompound: false,
+                                                                   period: .year)
+
+                let curAmount = amount ?? 0.0
+                reward = CalculatedReward(restakeReturn: restake * curAmount,
+                                          restakeReturnPercentage: restake,
+                                          payoutReturn: payout * curAmount,
+                                          payoutReturnPercentage: payout)
+            } else {
+                reward = nil
+            }
+
             switch rewardDestination {
             case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: calculatedReward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
                 let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: calculatedReward, account: payoutAccount)
+                    .createPayout(from: reward, account: payoutAccount)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             }
         } catch {
@@ -172,6 +186,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
         amount = newValue
 
         provideAsset()
+        provideRewardDestination()
         scheduleFeeEstimation()
     }
 
@@ -268,6 +283,18 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
         if !wireframe.present(error: error, from: view, locale: locale) {
             logger.error("Did receive error: \(error)")
+        }
+    }
+
+    func didReceive(calculator: RewardCalculatorEngineProtocol) {
+        self.calculator = calculator
+        provideRewardDestination()
+    }
+
+    func didReceive(calculatorError: Error) {
+        let locale = view?.localizationManager?.selectedLocale
+        if !wireframe.present(error: calculatorError, from: view, locale: locale) {
+            logger.error("Did receive error: \(calculatorError)")
         }
     }
 }
