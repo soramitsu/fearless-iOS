@@ -187,7 +187,10 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
     func didFailNomination(error: Error) {
         view?.didStopLoading()
 
-        handle(error: error)
+        if let view = view {
+            wireframe.presentExtrinsicFailed(from: view,
+                                             locale: view.localizationManager?.selectedLocale)
+        }
     }
 
     func didReceive(paymentInfo: RuntimeDispatchInfo) {
