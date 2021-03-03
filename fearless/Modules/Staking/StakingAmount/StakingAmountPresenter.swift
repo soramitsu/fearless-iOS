@@ -11,9 +11,9 @@ final class StakingAmountPresenter {
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
-    let feeDebounce: TimeInterval
     let applicationConfig: ApplicationConfigProtocol
 
+    private var calculator: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
@@ -23,23 +23,12 @@ final class StakingAmountPresenter {
     private var rewardDestination: RewardDestination = .restake
     private var payoutAccount: AccountItem
     private var loadingPayouts: Bool = false
-
-    private lazy var scheduler: SchedulerProtocol = Scheduler(with: self, callbackQueue: .main)
-
-    private var calculatedReward = CalculatedReward(restakeReturn: 4.12,
-                                                    restakeReturnPercentage: 0.3551,
-                                                    payoutReturn: 2.15,
-                                                    payoutReturnPercentage: 0.2131)
-
-    deinit {
-        scheduler.cancel()
-    }
+    private var minimalAmount: Decimal?
 
     init(asset: WalletAsset,
          selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         feeDebounce: TimeInterval = 2.0,
          applicationConfig: ApplicationConfigProtocol,
          logger: LoggerProtocol) {
         self.asset = asset
@@ -47,20 +36,37 @@ final class StakingAmountPresenter {
         self.payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.feeDebounce = feeDebounce
         self.applicationConfig = applicationConfig
         self.logger = logger
     }
 
     private func provideRewardDestination() {
         do {
+            let reward: CalculatedReward?
+
+            if let calculator = calculator {
+                let restake =  try calculator.calculateNetworkReturn(isCompound: true,
+                                                                     period: .year)
+
+                let payout = try calculator.calculateNetworkReturn(isCompound: false,
+                                                                   period: .year)
+
+                let curAmount = amount ?? 0.0
+                reward = CalculatedReward(restakeReturn: restake * curAmount,
+                                          restakeReturnPercentage: restake,
+                                          payoutReturn: payout * curAmount,
+                                          payoutReturnPercentage: payout)
+            } else {
+                reward = nil
+            }
+
             switch rewardDestination {
             case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: calculatedReward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
                 let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: calculatedReward, account: payoutAccount)
+                    .createPayout(from: reward, account: payoutAccount)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             }
         } catch {
@@ -90,23 +96,44 @@ final class StakingAmountPresenter {
     }
 
     private func scheduleFeeEstimation() {
-        scheduler.cancel()
-
-        if !loadingFee {
-            loadingFee = true
+        if !loadingFee, fee == nil {
             estimateFee()
-        } else {
-            scheduler.notifyAfter(feeDebounce)
         }
     }
 
     private func estimateFee() {
-        if let amount = (amount ?? 0.0).toSubstrateAmount(precision: asset.precision) {
+        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
             loadingFee = true
             interactor.estimateFee(for: selectedAccount.address,
                                    amount: amount,
-                                   rewardDestination: rewardDestination)
+                                   rewardDestination: .payout(account: payoutAccount))
         }
+    }
+
+    private func ensureMinimum(for amount: Decimal) -> Bool {
+        guard let minimum = minimalAmount else {
+            return false
+        }
+
+        return amount >= minimum
+    }
+
+    private func presentMinimumAmountViolation() {
+        guard let view = view else {
+            return
+        }
+
+        let locale = view.localizationManager?.selectedLocale ?? Locale.current
+
+        let value: String
+
+        if let amount = minimalAmount {
+            value = balanceViewModelFactory.amountFromValue(amount).value(for: locale)
+        } else {
+            value = ""
+        }
+
+        wireframe.presentAmountTooLow(value: value, from: view, locale: locale)
     }
 }
 
@@ -144,7 +171,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 provideAmountInputViewModel()
                 provideAsset()
             } else if let view = view {
-                wireframe.presentBalanceTooHigh(from: view,
+                wireframe.presentAmountTooHigh(from: view,
                                                 locale: view.localizationManager?.selectedLocale)
             }
         }
@@ -172,6 +199,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
         amount = newValue
 
         provideAsset()
+        provideRewardDestination()
         scheduleFeeEstimation()
     }
 
@@ -191,10 +219,17 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
         guard amount + fee <= balance else {
             if let view = view {
-                wireframe.presentBalanceTooHigh(from: view,
-                                                locale: view.localizationManager?.selectedLocale)
+                wireframe.presentAmountTooHigh(from: view,
+                                               locale: view.localizationManager?.selectedLocale)
             }
 
+            scheduleFeeEstimation()
+
+            return
+        }
+
+        guard ensureMinimum(for: amount) else {
+            presentMinimumAmountViolation()
             return
         }
 
@@ -268,6 +303,25 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
         if !wireframe.present(error: error, from: view, locale: locale) {
             logger.error("Did receive error: \(error)")
+        }
+    }
+
+    func didReceive(calculator: RewardCalculatorEngineProtocol) {
+        self.calculator = calculator
+        provideRewardDestination()
+    }
+
+    func didReceive(calculatorError: Error) {
+        let locale = view?.localizationManager?.selectedLocale
+        if !wireframe.present(error: calculatorError, from: view, locale: locale) {
+            logger.error("Did receive error: \(calculatorError)")
+        }
+    }
+
+    func didReceive(minimalAmount: BigUInt) {
+        if let amount = Decimal.fromSubstrateAmount(minimalAmount, precision: asset.precision) {
+            logger.debug("Did receive minimun bonding amount: \(amount)")
+            self.minimalAmount = amount
         }
     }
 }

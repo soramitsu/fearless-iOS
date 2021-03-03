@@ -60,7 +60,8 @@ class StakingConfirmTests: XCTestCase {
 
         let confirmViewModelFactory = StakingConfirmViewModelFactory(asset: asset)
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                                              selectedAddressType: addressType)
+                                                              selectedAddressType: addressType,
+                                                              limit: StakingConstants.maxAmount)
         let presenter = StakingConfirmPresenter(state: state,
                                                 asset: asset,
                                                 walletAccount: settings.selectedAccount!,

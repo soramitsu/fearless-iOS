@@ -38,8 +38,7 @@ class StakingInfoTests: XCTestCase {
         let webSocketService = WebSocketServiceFactory.createService()
         let runtimeService = RuntimeRegistryFacade.sharedService
         let validatorService = EraValidatorFacade.sharedService
-        let rewardCalculatorService = RewardCalculatorServiceFactory.createService(runtime: runtimeService,
-                                                                                   validators: validatorService)
+        let rewardCalculatorService = RewardCalculatorFacade.sharedService
 
         // when
         webSocketService.update(settings: settings)
@@ -67,7 +66,10 @@ class StakingInfoTests: XCTestCase {
             let factory = SS58AddressFactory()
 
             let rewards: [(String, Decimal)] = try info.validators.map { validator in
-                let reward = calculator.calculateForValidator(accountId: validator.accountId)
+                let reward = try calculator
+                    .calculateValidatorReturn(validatorAccountId: validator.accountId,
+                                              isCompound: false,
+                                              period: .year)
 
                 let address = try factory.address(fromPublicKey: AccountIdWrapper(rawData: validator.accountId),
                                                   type: chain.addressType)

@@ -71,7 +71,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         accountView.title = R.string.localizable
             .stakingRewardPayoutAccount(preferredLanguages: languages)
 
-        accountView.actionImage = R.image.iconMore()
+        accountView.actionImage = R.image.iconSmallArrow()
 
         accountView.addTarget(self,
                               action: #selector(actionSelectPayoutAccount),
@@ -133,6 +133,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
                                              ])
 
         amountInputView.textField.attributedPlaceholder = placeholder
+        amountInputView.textField.keyboardType = .decimalPad
 
         amountInputView.textField.delegate = self
     }
@@ -237,41 +238,48 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
     private func applyRewardDestinationContent(from viewModel: RewardDestinationViewModelProtocol) {
         let restakeColor = restakeView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
-
-        let restakeAmount = NSMutableAttributedString(string: viewModel.restakeAmount + "  ",
-                                                      attributes: [
-                                                        .foregroundColor: restakeColor,
-                                                        .font: UIFont.h6Title
-                                                      ])
-
-        let restakePercentage = NSAttributedString(string: viewModel.restakePercentage,
-                                                   attributes: [
-                                                    .foregroundColor: R.color.colorGreen()!,
-                                                    .font: UIFont.h6Title
-                                                   ])
-
-        restakeAmount.append(restakePercentage)
-
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
-        let payoutAmount = NSMutableAttributedString(string: viewModel.payoutAmount + "  ",
-                                                     attributes: [
-                                                        .foregroundColor: payoutColor,
+        if let reward = viewModel.rewardViewModel {
+            let restakeAmount = NSMutableAttributedString(string: reward.restakeAmount + "  ",
+                                                          attributes: [
+                                                            .foregroundColor: restakeColor,
+                                                            .font: UIFont.h6Title
+                                                          ])
+
+            let restakePercentage = NSAttributedString(string: reward.restakePercentage,
+                                                       attributes: [
+                                                        .foregroundColor: R.color.colorGreen()!,
                                                         .font: UIFont.h6Title
-                                                     ])
+                                                       ])
 
-        let payoutPercentage = NSAttributedString(string: viewModel.payoutPercentage,
-                                                  attributes: [
-                                                    .foregroundColor: R.color.colorGreen()!,
-                                                    .font: UIFont.h6Title
-                                                  ])
-        payoutAmount.append(payoutPercentage)
+            restakeAmount.append(restakePercentage)
 
-        restakeView.earningsTitleLabel.attributedText = restakeAmount
-        payoutView.earningsTitleLabel.attributedText = payoutAmount
+            let payoutAmount = NSMutableAttributedString(string: reward.payoutAmount + "  ",
+                                                         attributes: [
+                                                            .foregroundColor: payoutColor,
+                                                            .font: UIFont.h6Title
+                                                         ])
+
+            let payoutPercentage = NSAttributedString(string: reward.payoutPercentage,
+                                                      attributes: [
+                                                        .foregroundColor: R.color.colorGreen()!,
+                                                        .font: UIFont.h6Title
+                                                      ])
+            payoutAmount.append(payoutPercentage)
+
+            restakeView.earningsTitleLabel.attributedText = restakeAmount
+            payoutView.earningsTitleLabel.attributedText = payoutAmount
+        } else {
+            restakeView.earningsTitleLabel.attributedText = NSAttributedString()
+            payoutView.earningsTitleLabel.attributedText = NSAttributedString()
+        }
 
         restakeView.titleLabel.textColor = restakeColor
         payoutView.titleLabel.textColor = payoutColor
+
+        restakeView.setNeedsLayout()
+        payoutView.setNeedsLayout()
     }
 
     private func applyRewardDestinationType(from viewModel: RewardDestinationViewModelProtocol) {
