@@ -12,4 +12,14 @@ final class StakingConfirmWireframe: StakingConfirmWireframeProtocol, ModalAlert
             self.presentSuccessNotification(title, from: presenter, completion: nil)
         }
     }
+
+    func showSelectedValidator(from view: StakingConfirmViewProtocol?,
+                               validators: [SelectedValidatorInfo]) {
+        guard let validatorsView = SelectedValidatorsViewFactory.createView(for: validators) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(validatorsView.controller,
+                                                                  animated: true)
+    }
 }

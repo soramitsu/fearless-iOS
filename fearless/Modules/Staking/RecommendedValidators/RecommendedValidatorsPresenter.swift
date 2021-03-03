@@ -42,7 +42,9 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
         }
 
         let targets = recommended.map {
-            SelectedValidatorInfo(address: $0.address, identity: $0.identity)
+            SelectedValidatorInfo(address: $0.address,
+                                  identity: $0.identity,
+                                  stakeReturn: $0.stakeReturn)
         }
 
         let nomination = PreparedNomination(amount: state.amount,
@@ -75,7 +77,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
 
         let recommended = validators
             .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed}
-            .sorted(by: { $0.stakeReturnPer >= $1.stakeReturnPer })
+            .sorted(by: { $0.stakeReturn >= $1.stakeReturn })
             .prefix(StakingConstants.maxTargets)
         self.recommended = Array(recommended)
 

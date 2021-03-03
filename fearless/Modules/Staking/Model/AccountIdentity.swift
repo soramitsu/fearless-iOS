@@ -22,4 +22,12 @@ struct AccountIdentity: Equatable {
         self.image = identity?.image.dataValue
         self.twitter = identity?.twitter.stringValue
     }
+
+    var displayName: String {
+        if let parentName = parentName {
+            return parentName + " / " + name
+        } else {
+            return name
+        }
+    }
 }

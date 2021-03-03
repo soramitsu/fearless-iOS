@@ -15,7 +15,7 @@ class RecommendedValidatorsTests: XCTestCase {
                                              ownStake: 10.0,
                                              comission: 0.1,
                                              identity: AccountIdentity(name: "Test"),
-                                             stakeReturnPer: 10.0,
+                                             stakeReturn: 0.1,
                                              hasSlashes: false,
                                              oversubscribed: false)
         return [validator]
@@ -29,7 +29,7 @@ class RecommendedValidatorsTests: XCTestCase {
                                              ownStake: 5.0,
                                              comission: 0.1,
                                              identity: nil,
-                                             stakeReturnPer: 10.0,
+                                             stakeReturn: 0.1,
                                              hasSlashes: false,
                                              oversubscribed: true)
         return [validator]

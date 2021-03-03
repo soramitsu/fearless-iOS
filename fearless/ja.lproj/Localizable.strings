@@ -264,3 +264,5 @@ a type of password.";
 "staking.stash.title" = "ウォレットアカウント";
 "staking.setup.sent.message" = "ステーキングセットアップトランザクションが送信されました";
 "staking.setup.failed.message" = "ステーキングのセットアップが予期せず失敗しました。しばらくしてからもう一度お試しください。";
+"staking.selected.validators.title" = "選択されたバリデーター";
+"staking.selected.validators.count" = "%@から%@";

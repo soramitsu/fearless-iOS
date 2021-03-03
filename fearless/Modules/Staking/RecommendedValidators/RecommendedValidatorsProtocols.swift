@@ -24,7 +24,8 @@ protocol RecommendedValidatorsInteractorOutputProtocol: class {
 
 protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceed(from view: RecommendedValidatorsViewProtocol?, result: PreparedNomination)
-    func showRecommended(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
+    func showRecommended(from view: RecommendedValidatorsViewProtocol?,
+                         validators: [ElectedValidatorInfo])
     func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
 }
 

@@ -19,8 +19,10 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
 
         let chain = SettingsManager.shared.selectedConnection.type.chain
 
+        let rewardService = RewardCalculatorFacade.sharedService
         let operationFactory = ValidatorOperationFactory(chain: chain,
                                                          eraValidatorService: eraValidatorService,
+                                                         rewardService: rewardService,
                                                          storageRequestFactory: storageOperationFactory,
                                                          runtimeService: runtimeService,
                                                          engine: engine)

@@ -112,6 +112,10 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         }
     }
 
+    func selectValidators() {
+        wireframe.showSelectedValidator(from: view, validators: state.targets)
+    }
+
     func proceed() {
         guard let balance = balance else {
             return

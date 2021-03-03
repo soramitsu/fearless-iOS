@@ -307,6 +307,9 @@
                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Validators"/>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAccount"/>
                                             </userDefinedRuntimeAttributes>
+                                            <connections>
+                                                <action selector="actionSelectedValidators" destination="-1" eventType="touchUpInside" id="oJ4-3r-rUl"/>
+                                            </connections>
                                         </view>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -462,10 +465,10 @@
             <size key="intrinsicContentSize" width="23" height="15"/>
         </designable>
         <designable name="V3J-ds-KHJ">
-            <size key="intrinsicContentSize" width="75.5" height="34"/>
+            <size key="intrinsicContentSize" width="63.5" height="32"/>
         </designable>
         <designable name="YcM-pZ-xer">
-            <size key="intrinsicContentSize" width="-1" height="81"/>
+            <size key="intrinsicContentSize" width="-1" height="77"/>
         </designable>
         <designable name="hAq-0o-38g">
             <size key="intrinsicContentSize" width="55" height="15"/>
