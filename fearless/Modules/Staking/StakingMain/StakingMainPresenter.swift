@@ -13,7 +13,6 @@ final class StakingMainPresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
     private var amount: Decimal?
-    private var fee: Decimal?
     private var asset: WalletAsset
     private var reward: Decimal?
     private var increase: Decimal?
@@ -91,10 +90,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func selectAmountPercentage(_ percentage: Float) {
-        if let balance = balance, let fee = fee {
-            let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
+        if let balance = balance {
+            let newAmount = balance * Decimal(Double(percentage))
 
-            if newAmount > 0 {
+            if newAmount >= 0 {
                 amount = newAmount
 
                 provideAmountInputViewModel()
