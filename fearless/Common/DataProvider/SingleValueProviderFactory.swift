@@ -6,9 +6,9 @@ import FearlessUtils
 typealias DecodedAccountInfo = ChainStorageDecodedItem<DyAccountInfo>
 
 protocol SingleValueProviderFactoryProtocol {
-    func getPriceProvider(for assetId: WalletAssetId) -> SingleValueProvider<PriceData>
+    func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> DataProvider<DecodedAccountInfo>
+    -> AnyDataProvider<DecodedAccountInfo>
 }
 
 final class SingleValueProviderFactory {
@@ -38,13 +38,13 @@ final class SingleValueProviderFactory {
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
-    func getPriceProvider(for assetId: WalletAssetId) -> SingleValueProvider<PriceData> {
+    func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
         clearIfNeeded()
 
         let identifier = priceIdentifier(for: assetId)
 
         if let provider = providers[identifier]?.target as? SingleValueProvider<PriceData> {
-            return provider
+            return AnySingleValueProvider(provider)
         }
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
@@ -60,11 +60,11 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         providers[identifier] = WeakWrapper(target: provider)
 
-        return provider
+        return AnySingleValueProvider(provider)
     }
 
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> DataProvider<DecodedAccountInfo> {
+    -> AnyDataProvider<DecodedAccountInfo> {
         clearIfNeeded()
 
         let addressFactory = SS58AddressFactory()
@@ -78,7 +78,7 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let localKey = storageIdFactory.createIdentifier(for: remoteKey)
 
         if let dataProvider = providers[localKey]?.target as? DataProvider<DecodedAccountInfo> {
-            return dataProvider
+            return AnyDataProvider(dataProvider)
         }
 
         let repository = InMemoryDataProviderRepository<ChainStorageDecodedItem<DyAccountInfo>>()
@@ -102,6 +102,6 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         providers[localKey] = WeakWrapper(target: dataProvider)
 
-        return dataProvider
+        return AnyDataProvider(dataProvider)
     }
 }

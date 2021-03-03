@@ -95,7 +95,8 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         let currentCryptoType = cryptoType
 
         let signingClosure: (Data) throws -> Data = { data in
-            try DummySigner(cryptoType: currentCryptoType).sign(data).rawData()
+            let sigData = data.count < ExtrinsicConstants.maxNonHashLength ? data : try data.blake2b32()
+            return try DummySigner(cryptoType: currentCryptoType).sign(sigData).rawData()
         }
 
         let builderOperation = createExtrinsicOperation(dependingOn: nonceOperation,
@@ -141,7 +142,8 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
         let signingClosure: (Data) throws -> Data = { data in
-            try signer.sign(data).rawData()
+            let sigData = data.count < ExtrinsicConstants.maxNonHashLength ? data : try data.blake2b32()
+            return try signer.sign(sigData).rawData()
         }
 
         let builderOperation = createExtrinsicOperation(dependingOn: nonceOperation,

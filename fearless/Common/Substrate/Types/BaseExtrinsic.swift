@@ -4,6 +4,7 @@ struct ExtrinsicConstants {
     static let extrinsicVersion: UInt8 = 132
     static let signedExtrinsicInitialVersion: UInt8 = 128
     static let accountIdLength: UInt8 = 32
+    static let maxNonHashLength = 256
 }
 
 struct Call {
