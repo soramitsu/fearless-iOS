@@ -15,8 +15,8 @@ final class StakingMainInteractor {
     private let primitiveFactory: WalletPrimitiveFactoryProtocol
     private let logger: LoggerProtocol
 
-    private var priceProvider: SingleValueProvider<PriceData>?
-    private var balanceProvider: DataProvider<DecodedAccountInfo>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
 
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
