@@ -55,13 +55,7 @@ open class TriangularedBlurView: UIView {
             overlayView.shadowOpacity = 0.0
             overlayView.fillColor = .clear
             overlayView.highlightedFillColor = .clear
-
-            guard self.subviews.count > 0 else {
-                addSubview(overlayView)
-                return
-            }
-
-            insertSubview(overlayView, at: 1)
+            addSubview(overlayView)
         }
     }
 
