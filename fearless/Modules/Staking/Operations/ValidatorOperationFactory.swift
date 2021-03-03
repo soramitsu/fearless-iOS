@@ -9,17 +9,20 @@ protocol ValidatorOperationFactorProtocol {
 final class ValidatorOperationFactory {
     let chain: Chain
     let eraValidatorService: EraValidatorServiceProtocol
+    let rewardService: RewardCalculatorServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
 
     init(chain: Chain,
          eraValidatorService: EraValidatorServiceProtocol,
+         rewardService: RewardCalculatorServiceProtocol,
          storageRequestFactory: StorageRequestFactoryProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
          engine: JSONRPCEngine) {
         self.chain = chain
         self.eraValidatorService = eraValidatorService
+        self.rewardService = rewardService
         self.storageRequestFactory = storageRequestFactory
         self.runtimeService = runtimeService
         self.engine = engine
@@ -169,6 +172,7 @@ final class ValidatorOperationFactory {
     }
 
     private func createMapOperation(dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
+                                    rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
                                     maxNominatorsOperation: BaseOperation<UInt32>,
                                     slashesOperation: UnappliedSlashesOperation,
                                     identitiesOperation: BaseOperation<[String: AccountIdentity]>)
@@ -180,6 +184,7 @@ final class ValidatorOperationFactory {
             let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
             let slashings = try slashesOperation.extractNoCancellableResultData()
             let identities = try identitiesOperation.extractNoCancellableResultData()
+            let calculator = try rewardOperation.extractNoCancellableResultData()
 
             let addressFactory = SS58AddressFactory()
 
@@ -195,10 +200,14 @@ final class ValidatorOperationFactory {
                 let address = try addressFactory.addressFromAccountId(data: validator.accountId,
                                                                       type: addressType)
 
-                // TODO: Calculate stake return FLW-578
+                let validatorReturn = try calculator
+                    .calculateValidatorReturn(validatorAccountId: validator.accountId,
+                                              isCompound: false,
+                                              period: .year)
+
                 return try ElectedValidatorInfo(validator: validator,
                                                 identity: identities[address],
-                                                stakeReturnPer: 0.0,
+                                                stakeReturn: validatorReturn,
                                                 hasSlashes: hasSlashes,
                                                 maxNominatorsAllowed: maxNominators,
                                                 addressType: addressType)
@@ -247,7 +256,10 @@ extension ValidatorOperationFactory: ValidatorOperationFactorProtocol {
             $0.addDependency(slashDeferOperation)
         }
 
+        let rewardOperation = rewardService.fetchCalculatorOperation()
+
         let mapOperation = createMapOperation(dependingOn: eraValidatorsOperation,
+                                              rewardOperation: rewardOperation,
                                               maxNominatorsOperation: maxNominatorsOperation,
                                               slashesOperation: slashingsWrapper.targetOperation,
                                               identitiesOperation: identityWrapper.targetOperation)
@@ -255,12 +267,14 @@ extension ValidatorOperationFactory: ValidatorOperationFactorProtocol {
         mapOperation.addDependency(slashingsWrapper.targetOperation)
         mapOperation.addDependency(identityWrapper.targetOperation)
         mapOperation.addDependency(maxNominatorsOperation)
+        mapOperation.addDependency(rewardOperation)
 
         let baseOperations = [
             runtimeOperation,
             eraValidatorsOperation,
             slashDeferOperation,
-            maxNominatorsOperation
+            maxNominatorsOperation,
+            rewardOperation
         ]
 
         let dependencies = baseOperations  + superIdentityWrapper.allOperations +

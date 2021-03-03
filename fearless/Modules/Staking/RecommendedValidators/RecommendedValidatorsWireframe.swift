@@ -12,7 +12,16 @@ final class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtoc
 
     func showRecommended(from view: RecommendedValidatorsViewProtocol?,
                          validators: [ElectedValidatorInfo]) {
-        // TODO: FLW-590
+        let selected = validators.map { SelectedValidatorInfo(address: $0.address,
+                                                              identity: $0.identity,
+                                                              stakeReturn: $0.stakeReturn) }
+
+        guard let validatorsView = SelectedValidatorsViewFactory.createView(for: selected) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(validatorsView.controller,
+                                                                  animated: true)
     }
 
     func showCustom(from view: RecommendedValidatorsViewProtocol?,

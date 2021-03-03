@@ -172,7 +172,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
                                                 controller: address,
                                                 rewardDestination: rewardDestination)
 
-            let targets = Array(repeating: SelectedValidatorInfo(address: address, identity: nil),
+            let targets = Array(repeating: SelectedValidatorInfo(address: address),
                                 count: SubstrateConstants.maxNominations)
             let nominateCall = try callFactory.nominate(targets: targets)
 

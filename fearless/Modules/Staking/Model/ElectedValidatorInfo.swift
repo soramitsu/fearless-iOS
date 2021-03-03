@@ -8,7 +8,7 @@ struct ElectedValidatorInfo: Equatable {
     let ownStake: Decimal
     let comission: Decimal
     let identity: AccountIdentity?
-    let stakeReturnPer: Decimal
+    let stakeReturn: Decimal
     let hasSlashes: Bool
     let oversubscribed: Bool
 
@@ -25,14 +25,14 @@ struct NominatorInfo: Equatable {
 extension ElectedValidatorInfo {
     init(validator: EraValidatorInfo,
          identity: AccountIdentity?,
-         stakeReturnPer: Decimal,
+         stakeReturn: Decimal,
          hasSlashes: Bool,
          maxNominatorsAllowed: UInt32,
          addressType: SNAddressType) throws {
 
         self.hasSlashes = hasSlashes
         self.identity = identity
-        self.stakeReturnPer = stakeReturnPer
+        self.stakeReturn = stakeReturn
 
         let addressFactory = SS58AddressFactory()
 
