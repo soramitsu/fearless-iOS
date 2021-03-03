@@ -30,11 +30,11 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
     func didReceive(error: Error)
+    func didReceive(newChain: Chain)
 }
 
-protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?)
-    func presentNotEnoughFunds(from view: StakingMainViewProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

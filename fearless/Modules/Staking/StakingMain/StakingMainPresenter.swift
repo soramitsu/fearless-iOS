@@ -6,35 +6,40 @@ final class StakingMainPresenter {
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
 
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let rewardViewModelFactory: RewardViewModelFactoryProtocol
-    let logger: LoggerProtocol
+    private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
+    private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
+    let viewModelFacade: StakingViewModelFacadeProtocol
+    let logger: LoggerProtocol?
 
     private var priceData: PriceData?
     private var balance: Decimal?
     private var amount: Decimal?
-    private var asset: WalletAsset
     private var increase: Decimal?
     private var calculator: RewardCalculatorEngineProtocol?
 
-    init(logger: LoggerProtocol,
-         asset: WalletAsset,
-         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         rewardViewModelFactory: RewardViewModelFactoryProtocol) {
+    private var chain: Chain?
+
+    init(viewModelFacade: StakingViewModelFacadeProtocol, logger: LoggerProtocol?) {
+        self.viewModelFacade = viewModelFacade
         self.logger = logger
-        self.asset = asset
-        self.balanceViewModelFactory = balanceViewModelFactory
-        self.rewardViewModelFactory = rewardViewModelFactory
     }
 
     private func provideAsset() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(amount ?? 0.0,
-                                                                            balance: balance,
-                                                                            priceData: priceData)
+        guard let viewModelFactory = balanceViewModelFactory else {
+            return
+        }
+
+        let viewModel = viewModelFactory.createAssetBalanceViewModel(amount ?? 0.0,
+                                                                     balance: balance,
+                                                                     priceData: priceData)
         view?.didReceiveAsset(viewModel: viewModel)
     }
 
     private func provideReward() {
+        guard let viewModelFactory = rewardViewModelFactory else {
+            return
+        }
+
         var payoutPercentage: Decimal?
         do {
             if let calculator = calculator {
@@ -42,34 +47,36 @@ final class StakingMainPresenter {
                                                                              period: .year)
             }
         } catch {
-            logger.error("Can't calculate reward")
+            logger?.error("Can't calculate reward")
         }
 
         let curAmount = amount ?? 0.0
         let reward = curAmount * (payoutPercentage ?? 0.0)
 
-        let monthlyViewModel = rewardViewModelFactory.createMonthlyRewardViewModel(amount: curAmount,
-                                                                                   reward: reward,
-                                                                                   priceData: priceData)
+        let monthlyViewModel = viewModelFactory.createMonthlyRewardViewModel(amount: curAmount,
+                                                                             reward: reward,
+                                                                             priceData: priceData)
 
-        let yearlyViewModel = rewardViewModelFactory.createYearlyRewardViewModel(amount: curAmount,
-                                                                                 reward: reward,
-                                                                                 priceData: priceData)
+        let yearlyViewModel = viewModelFactory.createYearlyRewardViewModel(amount: curAmount,
+                                                                           reward: reward,
+                                                                           priceData: priceData)
 
         view?.didReceiveRewards(monthlyViewModel: monthlyViewModel,
                                 yearlyViewModel: yearlyViewModel)
     }
 
     private func provideAmountInputViewModel() {
-        let viewModel = balanceViewModelFactory.createBalanceInputViewModel(amount)
+        guard let viewModelFactory = balanceViewModelFactory else {
+            return
+        }
+
+        let viewModel = viewModelFactory.createBalanceInputViewModel(amount)
         view?.didReceiveInput(viewModel: viewModel)
     }
 }
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
-        provideReward()
-        provideAmountInputViewModel()
         interactor.setup()
     }
 
@@ -78,7 +85,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAccountAction() {
-        logger.debug("Did select account")
+        logger?.debug("Did select account")
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -97,8 +104,9 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 provideAmountInputViewModel()
                 provideAsset()
                 provideReward()
-            } else {
-                wireframe.presentNotEnoughFunds(from: view)
+            } else if let view = view {
+                wireframe.presentAmountTooHigh(from: view,
+                                               locale: view.localizationManager?.selectedLocale)
             }
         }
     }
@@ -112,9 +120,9 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(balance: DyAccountData?) {
-        if let availableValue = balance?.available {
+        if let availableValue = balance?.available, let chain = chain {
             self.balance = Decimal.fromSubstrateAmount(availableValue,
-                                                       precision: asset.precision)
+                                                       precision: chain.addressType.precision)
         } else {
             self.balance = 0.0
         }
@@ -132,7 +140,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         let locale = view?.localizationManager?.selectedLocale
 
         if !wireframe.present(error: error, from: view, locale: locale) {
-            logger.error("Did receive error: \(error)")
+            logger?.error("Did receive error: \(error)")
         }
     }
 
@@ -144,7 +152,22 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(calculatorError: Error) {
         let locale = view?.localizationManager?.selectedLocale
         if !wireframe.present(error: calculatorError, from: view, locale: locale) {
-            logger.error("Did receive error: \(calculatorError)")
+            logger?.error("Did receive error: \(calculatorError)")
         }
+    }
+
+    func didReceive(newChain: Chain) {
+        self.chain = newChain
+        self.balanceViewModelFactory = viewModelFacade.createBalanceViewModelFactory(for: newChain)
+        self.rewardViewModelFactory = viewModelFacade.createRewardViewModelFactory(for: newChain)
+
+        self.amount = nil
+        self.calculator = nil
+        self.priceData = nil
+        self.increase = nil
+
+        provideReward()
+        provideAsset()
+        provideAmountInputViewModel()
     }
 }

@@ -46,6 +46,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     @IBAction func actionMain() {
+        amountInputView.textField.resignFirstResponder()
+
         presenter.performMainAction()
     }
 

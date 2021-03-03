@@ -6,39 +6,53 @@ import FearlessUtils
 final class StakingMainInteractor {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
-    private let repository: AnyDataProviderRepository<AccountItem>
-    private let priceProvider: SingleValueProvider<PriceData>
-    private let balanceProvider: DataProvider<DecodedAccountInfo>
+    private let providerFactory: SingleValueProviderFactoryProtocol
     private let settings: SettingsManagerProtocol
     private let eventCenter: EventCenterProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
     private let calculatorService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
+    private let primitiveFactory: WalletPrimitiveFactoryProtocol
     private let logger: LoggerProtocol
 
-    init(repository: AnyDataProviderRepository<AccountItem>,
-         priceProvider: SingleValueProvider<PriceData>,
-         balanceProvider: DataProvider<DecodedAccountInfo>,
+    private var priceProvider: SingleValueProvider<PriceData>?
+    private var balanceProvider: DataProvider<DecodedAccountInfo>?
+
+    private var currentAccount: AccountItem?
+    private var currentConnection: ConnectionItem?
+
+    init(providerFactory: SingleValueProviderFactoryProtocol,
          settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol,
+         primitiveFactory: WalletPrimitiveFactoryProtocol,
          calculatorService: RewardCalculatorServiceProtocol,
+         runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol,
          logger: Logger) {
-        self.repository = repository
-        self.priceProvider = priceProvider
-        self.balanceProvider = balanceProvider
+        self.providerFactory = providerFactory
         self.settings = settings
         self.eventCenter = eventCenter
+        self.primitiveFactory = primitiveFactory
         self.calculatorService = calculatorService
+        self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.logger = logger
     }
 
-    private func updateSelectedAccount() {
-        guard let address = settings.selectedAccount?.address else {
+    private func provideSelectedAccount() {
+        guard let address = currentAccount?.address else {
             return
         }
 
         presenter.didReceive(selectedAddress: address)
+    }
+
+    private func provideNewChain() {
+        guard let chain = currentConnection?.type.chain else {
+            return
+        }
+
+        presenter.didReceive(newChain: chain)
     }
 
     private func provideRewardCalculator() {
@@ -59,7 +73,25 @@ final class StakingMainInteractor {
                                  in: .transient)
     }
 
+    private func clearPriceProvider() {
+        priceProvider?.removeObserver(self)
+        priceProvider = nil
+    }
+
     private func subscribeToPriceChanges() {
+        guard priceProvider == nil, let connection = currentConnection else {
+            return
+        }
+
+        let asset = primitiveFactory.createAssetForAddressType(connection.type)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            logger.error("Can't create asset id")
+            return
+        }
+
+        priceProvider = providerFactory.getPriceProvider(for: assetId)
+
         let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
             if changes.isEmpty {
                 self?.presenter.didReceive(price: nil)
@@ -82,14 +114,32 @@ final class StakingMainInteractor {
 
         let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
                                                   waitsInProgressSyncOnAdd: false)
-        priceProvider.addObserver(self,
+        priceProvider?.addObserver(self,
                                   deliverOn: .main,
                                   executing: updateClosure,
                                   failing: failureClosure,
                                   options: options)
     }
 
+    private func clearAccountProvider() {
+        balanceProvider?.removeObserver(self)
+        balanceProvider = nil
+    }
+
     private func subscribeToAccountChanges() {
+        guard priceProvider == nil, let selectedAccount = currentAccount else {
+            return
+        }
+
+        guard let balanceProvider = try? providerFactory
+                .getAccountProvider(for: selectedAccount.address,
+                                    runtimeService: runtimeService) else {
+            logger.error("Can't create balance provider")
+            return
+        }
+
+        self.balanceProvider = balanceProvider
+
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
             if changes.isEmpty {
                 self?.presenter.didReceive(balance: nil)
@@ -118,21 +168,58 @@ final class StakingMainInteractor {
                                     failing: failureClosure,
                                     options: options)
     }
+
+    private func updateAccountAndChainIfNeeded() -> Bool {
+        let hasChanges = (currentAccount != settings.selectedAccount) ||
+            (currentConnection != settings.selectedConnection)
+
+        if settings.selectedAccount != currentAccount {
+            self.currentAccount = settings.selectedAccount
+
+            clearAccountProvider()
+            subscribeToAccountChanges()
+
+            provideSelectedAccount()
+        }
+
+        if settings.selectedConnection != currentConnection {
+            self.currentConnection = settings.selectedConnection
+
+            clearPriceProvider()
+            subscribeToPriceChanges()
+
+            provideNewChain()
+        }
+
+        return hasChanges
+    }
 }
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
+        self.currentAccount = settings.selectedAccount
+        self.currentConnection = settings.selectedConnection
+
+        provideSelectedAccount()
+        provideNewChain()
+
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         provideRewardCalculator()
         eventCenter.add(observer: self, dispatchIn: .main)
-
-        updateSelectedAccount()
     }
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
-        updateSelectedAccount()
+        if updateAccountAndChainIfNeeded() {
+            provideRewardCalculator()
+        }
+    }
+
+    func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
+        if updateAccountAndChainIfNeeded() {
+            provideRewardCalculator()
+        }
     }
 }
