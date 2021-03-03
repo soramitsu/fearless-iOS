@@ -267,3 +267,5 @@ Derivation path: %@";
 "staking.stash.title" = "Wallet account";
 "staking.setup.sent.message" = "Staking setup transaction sent";
 "staking.setup.failed.message" = "Staking setup unexpectedly failed. Please, try again later.";
+"staking.selected.validators.title" = "Selected validators";
+"staking.selected.validators.count" = "selected %@ of %@";

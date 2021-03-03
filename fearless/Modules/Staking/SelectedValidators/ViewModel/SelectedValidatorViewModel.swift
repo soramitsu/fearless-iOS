@@ -7,7 +7,7 @@ protocol SelectedValidatorViewModelProtocol {
     var details: String { get }
 }
 
-struct SelectedValidatorViewModel: SelectedValidatorViewModelProtocol  {
+struct SelectedValidatorViewModel: SelectedValidatorViewModelProtocol {
     let icon: DrawableIcon
     let title: String
     let details: String

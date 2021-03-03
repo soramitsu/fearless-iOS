@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol {
     static func createView(for validators: [SelectedValidatorInfo]) -> SelectedValidatorsViewProtocol? {
@@ -10,6 +11,8 @@ final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol
         view.presenter = presenter
         presenter.view = view
         presenter.wireframe = wireframe
+
+        view.localizationManager = LocalizationManager.shared
 
         return view
     }

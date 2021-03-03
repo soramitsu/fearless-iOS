@@ -12,6 +12,7 @@ protocol StakingConfirmPresenterProtocol: class {
     func setup()
     func selectWalletAccount()
     func selectPayoutAccount()
+    func selectValidators()
     func proceed()
 }
 
@@ -44,6 +45,8 @@ protocol StakingConfirmInteractorOutputProtocol: class {
 
 protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
                                           AddressOptionsPresentable, StakingErrorPresentable {
+    func showSelectedValidator(from view: StakingConfirmViewProtocol?,
+                               validators: [SelectedValidatorInfo])
     func complete(from view: StakingConfirmViewProtocol?)
 }
 

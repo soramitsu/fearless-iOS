@@ -15,6 +15,8 @@ struct UIConstants {
     static let normalAddressIconSize: CGSize = CGSize(width: 32.0, height: 32.0)
     static let accessoryBarHeight: CGFloat = 44.0
     static let accessoryItemsSpacing: CGFloat = 12.0
+    static let cellHeight: CGFloat = 48
+    static let tableHeaderHeight: CGFloat = 40.0
 }
 
 protocol UIFactoryProtocol {

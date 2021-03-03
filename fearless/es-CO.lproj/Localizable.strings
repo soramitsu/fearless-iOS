@@ -264,3 +264,5 @@ Ruta de derivación: %@";
 "staking.stash.title" = "Cuenta de billetera";
 "staking.setup.sent.message" = "Transacción de configuración de replanteo enviada";
 "staking.setup.failed.message" = "La configuración de replanteo falló inesperadamente. Por favor, inténtelo de nuevo más tarde.";
+"staking.selected.validators.title" = "Validadores seleccionados";
+"staking.selected.validators.count" = "seleccionado %@ de %@";

@@ -7,6 +7,7 @@ final class SelectedValidatorsViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
 
     private var viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] = []
+    private weak var headerView: SelectedValidatorsHeaderView?
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -18,13 +19,33 @@ final class SelectedValidatorsViewController: UIViewController {
 
     private func setupTableView() {
         tableView.register(R.nib.selectedValidatorCell)
-        tableView.rowHeight = 48
+        tableView.rowHeight = UIConstants.cellHeight
+
+        if let headerView = R.nib.selectedValidatorsHeaderView.firstView(owner: nil) {
+            headerView.translatesAutoresizingMaskIntoConstraints = false
+            headerView.heightAnchor.constraint(equalToConstant: UIConstants.tableHeaderHeight)
+                .isActive = true
+            tableView.tableHeaderView = headerView
+
+            self.headerView = headerView
+        }
+    }
+
+    private func updateHeaderView() {
+        let languages = localizationManager?.selectedLocale.rLanguages
+        let title = R.string.localizable
+            .stakingSelectedValidatorsCount("\(viewModels.count)",
+                                            "\(StakingConstants.maxTargets)",
+                                            preferredLanguages: languages)
+        headerView?.bind(title: title.uppercased())
     }
 
     private func setupLocalization() {
         let languages = localizationManager?.selectedLocale.rLanguages
         title = R.string.localizable
-            .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
+            .stakingSelectedValidatorsTitle(preferredLanguages: languages)
+
+        updateHeaderView()
     }
 }
 
@@ -45,13 +66,15 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
     }
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
 extension SelectedValidatorsViewController: SelectedValidatorsViewProtocol {
     func didReceive(viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>]) {
         self.viewModels = viewModels
+        updateHeaderView()
+
         tableView.reloadData()
     }
 }

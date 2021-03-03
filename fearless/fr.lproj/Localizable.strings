@@ -266,3 +266,5 @@ Chemin de dérivation : %@";
 "staking.stash.title" = "Compte portefeuille";
 "staking.setup.sent.message" = "Transaction de configuration de jalonnement envoyée";
 "staking.setup.failed.message" = "La configuration du jalonnement a échoué de manière inattendue. Veuillez réessayer plus tard.";
+"staking.selected.validators.title" = "Validateurs sélectionnés";
+"staking.selected.validators.count" = "sélectionné %@ sur %@";

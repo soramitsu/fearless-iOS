@@ -16,22 +16,18 @@ final class SelectedValidatorsPresenter {
     }
 
     private func providerViewModel() {
-        let formatter = NumberFormatter.percent.localizableResource()
         let iconGenerator = PolkadotIconGenerator()
 
         do {
             let viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] =
                 try validators.map { validator in
                 let icon = try iconGenerator.generateFromAddress(validator.address)
-                return LocalizableResource { locale in
-
-                    let details = formatter.value(for: locale)
-                        .string(from: validator.stakeReturn as NSNumber) ?? ""
+                return LocalizableResource { _ in
                     let title = validator.identity?.displayName ?? validator.address
 
                     return SelectedValidatorViewModel(icon: icon,
                                                       title: title,
-                                                      details: details)
+                                                      details: "")
                 }
             }
 

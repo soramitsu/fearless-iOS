@@ -267,3 +267,5 @@
 "staking.stash.title" = "Обліковий запис гаманця";
 "staking.setup.sent.message" = "Транзакція налаштування ставки надіслана";
 "staking.setup.failed.message" = "Налаштування ставок несподівано не вдалося. Будь-ласка спробуйте пізніше.";
+"staking.selected.validators.title" = "Вибрані валідатори";
+"staking.selected.validators.count" = "вибрано %@ з %@";
