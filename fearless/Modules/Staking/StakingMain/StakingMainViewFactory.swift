@@ -8,6 +8,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
+        let logger = Logger.shared
 
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
@@ -42,22 +43,18 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
-        // TODO: FLW-580 Widget Estimate your earnings – Subscribe to calculator from interactor
         let rewardCalculatorService = RewardCalculatorServiceFacade.sharedService
 
-        let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
-        let operationQueue = OperationQueue()
-        operationQueue.addOperations([calculatorOperation],
-                                     waitUntilFinished: true)
-
-        let rewardCalculator = try? calculatorOperation.extractNoCancellableResultData()
+        let operationManager = OperationManager()
 
         let interactor = StakingMainInteractor(repository: AnyDataProviderRepository(accountRepository),
                                                priceProvider: priceProvider,
                                                balanceProvider: balanceProvider,
                                                settings: settings,
                                                eventCenter: EventCenter.shared,
-                                               rewardCalculator: rewardCalculator)
+                                               rewardCalculatorService: rewardCalculatorService,
+                                               operationManager: operationManager,
+                                               logger: logger)
 
         // MARK: - Presenter
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,

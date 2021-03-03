@@ -37,15 +37,18 @@ final class StakingMainPresenter {
     }
 
     private func provideReward() {
-        guard let calculator = self.rewardCalculator else { return }
-        do {
-            try
-                reward = calculator.calculateForNominator(amount: amount ?? 0.0,
-                                                               accountId: nil,
-                                                               isCompound: false,
-                                                               period: .year)
-        } catch {
-            reward = 0.0
+        reward = 0.0
+
+        if let calculator = rewardCalculator {
+            do {
+                try
+                    reward = calculator.calculateForNominator(amount: amount ?? 0.0,
+                                                              accountId: nil,
+                                                              isCompound: false,
+                                                              period: .year)
+            } catch {
+                logger.error("Error performing calculation: \(error)")
+            }
         }
 
         let monthlyViewModel = rewardViewModelFactory.createMonthlyRewardViewModel(amount: amount ?? 0.0,
@@ -68,6 +71,7 @@ final class StakingMainPresenter {
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
+        provideReward()
         provideAmountInputViewModel()
         interactor.setup()
     }

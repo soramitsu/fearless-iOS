@@ -10,20 +10,26 @@ final class StakingMainInteractor {
     private let balanceProvider: DataProvider<DecodedAccountInfo>
     private let settings: SettingsManagerProtocol
     private let eventCenter: EventCenterProtocol
-    private let rewardCalculator: RewardCalculatorEngineProtocol?
+    private let rewardCalculatorService: RewardCalculatorServiceProtocol
+    private let operationManager: OperationManagerProtocol
+    private let logger: LoggerProtocol
 
     init(repository: AnyDataProviderRepository<AccountItem>,
          priceProvider: SingleValueProvider<PriceData>,
          balanceProvider: DataProvider<DecodedAccountInfo>,
          settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol,
-         rewardCalculator: RewardCalculatorEngineProtocol?) {
+         rewardCalculatorService: RewardCalculatorServiceProtocol,
+         operationManager: OperationManagerProtocol,
+         logger: Logger) {
         self.repository = repository
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.settings = settings
         self.eventCenter = eventCenter
-        self.rewardCalculator = rewardCalculator
+        self.rewardCalculatorService = rewardCalculatorService
+        self.operationManager = operationManager
+        self.logger = logger
     }
 
     private func updateSelectedAccount() {
@@ -32,8 +38,26 @@ final class StakingMainInteractor {
         }
 
         presenter.didReceive(selectedAddress: address)
-        guard let calculator = rewardCalculator else { return }
-        presenter.didRecieve(calculator: calculator)
+    }
+
+    private func getCalculator() {
+        let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
+
+        calculatorOperation.completionBlock = {
+            DispatchQueue.main.async {
+                switch calculatorOperation.result {
+                case .success(let calculator):
+                    self.presenter.didRecieve(calculator: calculator)
+                case .failure(let error):
+                    self.logger.error("Calculator fetch error: \(error)")
+                case .none:
+                    self.logger.warning("Calculator info fetch cancelled")
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [calculatorOperation],
+                                 in: .transient)
     }
 
     private func subscribeToPriceChanges() {
@@ -101,6 +125,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
+        getCalculator()
         eventCenter.add(observer: self, dispatchIn: .main)
 
         updateSelectedAccount()
