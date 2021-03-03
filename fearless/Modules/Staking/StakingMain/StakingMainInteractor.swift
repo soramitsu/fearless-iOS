@@ -127,7 +127,7 @@ final class StakingMainInteractor {
     }
 
     private func subscribeToAccountChanges() {
-        guard priceProvider == nil, let selectedAccount = currentAccount else {
+        guard balanceProvider == nil, let selectedAccount = currentAccount else {
             return
         }
 
