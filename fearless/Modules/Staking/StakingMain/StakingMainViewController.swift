@@ -73,6 +73,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
                                              ])
 
         amountInputView.textField.attributedPlaceholder = placeholder
+        amountInputView.textField.keyboardType = .decimalPad
 
         amountInputView.textField.delegate = self
     }

@@ -5,12 +5,13 @@ import FearlessUtils
 
 final class StakingMainInteractor {
     weak var presenter: StakingMainInteractorOutputProtocol!
+
     private let repository: AnyDataProviderRepository<AccountItem>
     private let priceProvider: SingleValueProvider<PriceData>
     private let balanceProvider: DataProvider<DecodedAccountInfo>
     private let settings: SettingsManagerProtocol
     private let eventCenter: EventCenterProtocol
-    private let rewardCalculatorService: RewardCalculatorServiceProtocol
+    private let calculatorService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol
 
@@ -19,7 +20,7 @@ final class StakingMainInteractor {
          balanceProvider: DataProvider<DecodedAccountInfo>,
          settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol,
-         rewardCalculatorService: RewardCalculatorServiceProtocol,
+         calculatorService: RewardCalculatorServiceProtocol,
          operationManager: OperationManagerProtocol,
          logger: Logger) {
         self.repository = repository
@@ -27,7 +28,7 @@ final class StakingMainInteractor {
         self.balanceProvider = balanceProvider
         self.settings = settings
         self.eventCenter = eventCenter
-        self.rewardCalculatorService = rewardCalculatorService
+        self.calculatorService = calculatorService
         self.operationManager = operationManager
         self.logger = logger
     }
@@ -40,23 +41,21 @@ final class StakingMainInteractor {
         presenter.didReceive(selectedAddress: address)
     }
 
-    private func getCalculator() {
-        let calculatorOperation = rewardCalculatorService.fetchCalculatorOperation()
+    private func provideRewardCalculator() {
+        let operation = calculatorService.fetchCalculatorOperation()
 
-        calculatorOperation.completionBlock = {
-            DispatchQueue.main.async {
-                switch calculatorOperation.result {
-                case .success(let calculator):
-                    self.presenter.didRecieve(calculator: calculator)
-                case .failure(let error):
-                    self.logger.error("Calculator fetch error: \(error)")
-                case .none:
-                    self.logger.warning("Calculator info fetch cancelled")
+        operation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let engine = try operation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(calculator: engine)
+                } catch {
+                    self?.presenter.didReceive(calculatorError: error)
                 }
             }
         }
 
-        operationManager.enqueue(operations: [calculatorOperation],
+        operationManager.enqueue(operations: [operation],
                                  in: .transient)
     }
 
@@ -125,7 +124,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
-        getCalculator()
+        provideRewardCalculator()
         eventCenter.add(observer: self, dispatchIn: .main)
 
         updateSelectedAccount()

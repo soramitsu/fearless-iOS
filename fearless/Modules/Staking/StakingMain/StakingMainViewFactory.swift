@@ -43,22 +43,19 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
-        let rewardCalculatorService = RewardCalculatorServiceFacade.sharedService
-
-        let operationManager = OperationManager()
-
         let interactor = StakingMainInteractor(repository: AnyDataProviderRepository(accountRepository),
                                                priceProvider: priceProvider,
                                                balanceProvider: balanceProvider,
                                                settings: settings,
                                                eventCenter: EventCenter.shared,
-                                               rewardCalculatorService: rewardCalculatorService,
-                                               operationManager: operationManager,
+                                               calculatorService: RewardCalculatorFacade.sharedService,
+                                               operationManager: OperationManagerFacade.sharedManager,
                                                logger: logger)
 
         // MARK: - Presenter
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                                              selectedAddressType: networkType)
+                                                              selectedAddressType: networkType,
+                                                              limit: StakingConstants.maxAmount)
 
         let rewardViewModelFactory = RewardViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                             selectedAddressType: networkType)

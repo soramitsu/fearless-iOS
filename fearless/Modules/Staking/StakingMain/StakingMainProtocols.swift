@@ -27,7 +27,8 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(balance: DyAccountData?)
-    func didRecieve(calculator: RewardCalculatorEngineProtocol)
+    func didReceive(calculator: RewardCalculatorEngineProtocol)
+    func didReceive(calculatorError: Error)
     func didReceive(error: Error)
 }
 

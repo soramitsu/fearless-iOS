@@ -4000,6 +4000,14 @@
 			path = ViewModel;
 			sourceTree = "<group>";
 		};
+		AE2C849B25EF6AD800986716 /* Recovered References */ = {
+			isa = PBXGroup;
+			children = (
+				AE2C846925EEA88700986716 /* RewardCalculatorServiceFacade.swift */,
+			);
+			name = "Recovered References";
+			sourceTree = "<group>";
+		};
 		AEF7404C25E6DC6600407D41 /* RewardCalculatorService */ = {
 			isa = PBXGroup;
 			children = (

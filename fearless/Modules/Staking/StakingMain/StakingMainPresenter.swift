@@ -14,9 +14,8 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var amount: Decimal?
     private var asset: WalletAsset
-    private var reward: Decimal?
     private var increase: Decimal?
-    private var rewardCalculator: RewardCalculatorEngineProtocol?
+    private var calculator: RewardCalculatorEngineProtocol?
 
     init(logger: LoggerProtocol,
          asset: WalletAsset,
@@ -36,26 +35,25 @@ final class StakingMainPresenter {
     }
 
     private func provideReward() {
-        reward = 0.0
-
-        if let calculator = rewardCalculator {
-            do {
-                try
-                    reward = calculator.calculateForNominator(amount: amount ?? 0.0,
-                                                              accountId: nil,
-                                                              isCompound: false,
-                                                              period: .year)
-            } catch {
-                logger.error("Error performing calculation: \(error)")
+        var payoutPercentage: Decimal?
+        do {
+            if let calculator = calculator {
+                payoutPercentage = try calculator.calculateNetworkReturn(isCompound: false,
+                                                                             period: .year)
             }
+        } catch {
+            logger.error("Can't calculate reward")
         }
 
-        let monthlyViewModel = rewardViewModelFactory.createMonthlyRewardViewModel(amount: amount ?? 0.0,
-                                                                                   reward: reward ?? 0.0,
+        let curAmount = amount ?? 0.0
+        let reward = curAmount * (payoutPercentage ?? 0.0)
+
+        let monthlyViewModel = rewardViewModelFactory.createMonthlyRewardViewModel(amount: curAmount,
+                                                                                   reward: reward,
                                                                                    priceData: priceData)
 
-        let yearlyViewModel = rewardViewModelFactory.createYearlyRewardViewModel(amount: amount ?? 0.0,
-                                                                                 reward: reward ?? 0.0,
+        let yearlyViewModel = rewardViewModelFactory.createYearlyRewardViewModel(amount: curAmount,
+                                                                                 reward: reward,
                                                                                  priceData: priceData)
 
         view?.didReceiveRewards(monthlyViewModel: monthlyViewModel,
@@ -138,10 +136,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didRecieve(calculator: RewardCalculatorEngineProtocol) {
-        self.rewardCalculator = calculator
-
-        provideAsset()
+    func didReceive(calculator: RewardCalculatorEngineProtocol) {
+        self.calculator = calculator
         provideReward()
+    }
+
+    func didReceive(calculatorError: Error) {
+        let locale = view?.localizationManager?.selectedLocale
+        if !wireframe.present(error: calculatorError, from: view, locale: locale) {
+            logger.error("Did receive error: \(calculatorError)")
+        }
     }
 }
