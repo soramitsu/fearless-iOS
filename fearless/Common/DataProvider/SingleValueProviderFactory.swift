@@ -9,6 +9,12 @@ protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedAccountInfo>
+
+    func getControllerProvider(for address: String,
+                               runtimeService: RuntimeCodingServiceProtocol) -> AnyDataProvider<Data>
+
+    func getStakingLedgerProvider(for address: String,
+                                  runtimeService: RuntimeCodingServiceProtocol) -> AnyDataProvider<DyStakingLedger>
 }
 
 final class SingleValueProviderFactory {

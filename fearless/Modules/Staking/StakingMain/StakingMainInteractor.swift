@@ -11,6 +11,7 @@ final class StakingMainInteractor {
     private let eventCenter: EventCenterProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let calculatorService: RewardCalculatorServiceProtocol
+    private let eraValidationService: EraValidatorServiceProtocol
     private let operationManager: OperationManagerProtocol
     private let primitiveFactory: WalletPrimitiveFactoryProtocol
     private let logger: LoggerProtocol
@@ -27,6 +28,7 @@ final class StakingMainInteractor {
          primitiveFactory: WalletPrimitiveFactoryProtocol,
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
+         eraValidationService: EraValidatorServiceProtocol,
          operationManager: OperationManagerProtocol,
          logger: Logger) {
         self.providerFactory = providerFactory
@@ -34,6 +36,7 @@ final class StakingMainInteractor {
         self.eventCenter = eventCenter
         self.primitiveFactory = primitiveFactory
         self.calculatorService = calculatorService
+        self.eraValidationService = eraValidationService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.logger = logger
@@ -169,6 +172,22 @@ final class StakingMainInteractor {
                                     options: options)
     }
 
+    private func subscribeToStakingLedger() {
+        // TODO: FLW-119
+    }
+
+    private func subscribeToNominations() {
+        // TODO: FLW-119
+    }
+
+    private func subscribeToValidatorPrefs() {
+        // TODO: FLW-119
+    }
+
+    private func provideNominationStatus(for stashAccountId: AccountId) {
+        // TODO: FLW-119 form NomationStatus when both Staking Ledger and Nominations available
+    }
+
     private func updateAccountAndChainIfNeeded() -> Bool {
         let hasChanges = (currentAccount != settings.selectedAccount) ||
             (currentConnection != settings.selectedConnection)
@@ -193,6 +212,10 @@ final class StakingMainInteractor {
 
         return hasChanges
     }
+
+    func provideEraStakingInfo() {
+        // TODO: FRLS-121
+    }
 }
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
@@ -206,6 +229,9 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         provideRewardCalculator()
+
+        provideEraStakingInfo()
+
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 }

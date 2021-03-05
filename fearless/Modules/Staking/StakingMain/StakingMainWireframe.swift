@@ -11,6 +11,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
+    func showAccountSelection(from view: StakingMainViewProtocol?) {
+        // TODO: Create and present in navigation AccountManagement
+    }
+
     func presentNotEnoughFunds(from view: StakingMainViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let message = R.string.localizable

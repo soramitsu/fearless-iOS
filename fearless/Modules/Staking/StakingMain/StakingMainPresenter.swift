@@ -170,4 +170,24 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         provideAsset()
         provideAmountInputViewModel()
     }
+
+    func didReceive(eraStakingInfo: EraStakingInfo) {
+        // TODO: FLW-121
+    }
+
+    func didReceiveNomination() {
+        // TODO: FLW-119
+    }
+
+    func didReceiveValidatorPrefs() {
+        // TODO: FLW-119
+    }
+
+    func didReceiveStakingLedger() {
+        // TODO: FLW-119
+    }
+
+    func didReceiveStatus(isActive: Bool) {
+        // TODO: FLW-119
+    }
 }

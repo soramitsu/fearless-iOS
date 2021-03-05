@@ -212,4 +212,12 @@ extension StakingMainViewController: StakingMainViewProtocol {
         amountInputView.fieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
     }
+
+    func didReceive(stories: [StoryViewModelProtocol]) {
+        // TODO: FRLS-121
+    }
+
+    func didReceiveEraInfo(viewModel: EraStakingViewModelProtocol) {
+        // TODO: FRLS-121
+    }
 }

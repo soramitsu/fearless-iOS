@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import BigInt
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModelProtocol)
@@ -9,6 +10,9 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
                            yearlyViewModel: LocalizableResource<RewardViewModelProtocol>
     )
+
+    func didReceive(stories: [StoryViewModelProtocol])
+    func didReceiveEraInfo(viewModel: EraStakingViewModelProtocol)
 }
 
 protocol StakingMainPresenterProtocol: class {
@@ -31,10 +35,17 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(calculatorError: Error)
     func didReceive(error: Error)
     func didReceive(newChain: Chain)
+    func didReceive(eraStakingInfo: EraStakingInfo)
+    func didReceiveNomination()
+    func didReceiveValidatorPrefs()
+    func didReceiveStakingLedger()
+    func didReceive(nominationStatus: NominationStatus)
+    func didReceive(totalRewards: BigUInt?)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?)
+    func showAccountSelection(from view: StakingMainViewProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

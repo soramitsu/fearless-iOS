@@ -107,6 +107,8 @@ final class EraValidatorService {
                                       validators: validators)
         self.snapshot = snapshot
 
+        // TODO: Notify event center FRLS-121
+
         notifyPendingClosures(with: snapshot)
     }
 

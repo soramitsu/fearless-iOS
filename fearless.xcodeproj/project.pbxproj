@@ -416,6 +416,11 @@
 		8476C9E025EF94F2003EEAE1 /* StakingViewModelFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */; };
 		8476CA0625EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CA0525EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift */; };
 		8476CA0B25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CA0A25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift */; };
+		8476CB0625F24564003EEAE1 /* EraStakingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CB0525F24564003EEAE1 /* EraStakingInfo.swift */; };
+		8476CB0E25F24811003EEAE1 /* EraStakingViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CB0D25F24811003EEAE1 /* EraStakingViewModel.swift */; };
+		8476CB1325F24886003EEAE1 /* StoriesViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CB1225F24886003EEAE1 /* StoriesViewModel.swift */; };
+		8476CB1825F25759003EEAE1 /* DyStakingLedger.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CB1725F25759003EEAE1 /* DyStakingLedger.swift */; };
+		8476CB1D25F25FE6003EEAE1 /* NominationStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CB1C25F25FE6003EEAE1 /* NominationStatus.swift */; };
 		847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C961F255340F2002D288F /* ExportGenericViewController.swift */; };
 		847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962725534134002D288F /* ExportGenericProtocols.swift */; };
 		847C96302553426D002D288F /* ExportGenericViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962F2553426D002D288F /* ExportGenericViewModel.swift */; };
@@ -1248,6 +1253,11 @@
 		8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingViewModelFacade.swift; sourceTree = "<group>"; };
 		8476CA0525EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleValueProviderFactoryStub.swift; sourceTree = "<group>"; };
 		8476CA0A25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceStub.swift; sourceTree = "<group>"; };
+		8476CB0525F24564003EEAE1 /* EraStakingInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakingInfo.swift; sourceTree = "<group>"; };
+		8476CB0D25F24811003EEAE1 /* EraStakingViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakingViewModel.swift; sourceTree = "<group>"; };
+		8476CB1225F24886003EEAE1 /* StoriesViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModel.swift; sourceTree = "<group>"; };
+		8476CB1725F25759003EEAE1 /* DyStakingLedger.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DyStakingLedger.swift; sourceTree = "<group>"; };
+		8476CB1C25F25FE6003EEAE1 /* NominationStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominationStatus.swift; sourceTree = "<group>"; };
 		847C961F255340F2002D288F /* ExportGenericViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewController.swift; sourceTree = "<group>"; };
 		847C962725534134002D288F /* ExportGenericProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericProtocols.swift; sourceTree = "<group>"; };
 		847C962F2553426D002D288F /* ExportGenericViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewModel.swift; sourceTree = "<group>"; };
@@ -2415,6 +2425,7 @@
 				84DB4E5B25EA71C100A6DF41 /* StringScaleMapper.swift */,
 				8425EA8A25EA7AF200C307C9 /* UnappliedSlashes.swift */,
 				8425EA9925EA83FA00C307C9 /* ChainData+Value.swift */,
+				8476CB1725F25759003EEAE1 /* DyStakingLedger.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2832,6 +2843,15 @@
 				AE2C846925EEA88700986716 /* RewardCalculatorServiceFacade.swift */,
 			);
 			name = "Recovered References";
+			sourceTree = "<group>";
+		};
+		8476CB0425F24555003EEAE1 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				8476CB0525F24564003EEAE1 /* EraStakingInfo.swift */,
+				8476CB1C25F25FE6003EEAE1 /* NominationStatus.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 		847C961E255340CD002D288F /* ExportGenericView */ = {
@@ -4005,6 +4025,8 @@
 				AE2C845C25EE833A00986716 /* RewardViewModel.swift */,
 				AE2C846425EE884900986716 /* RewardViewModelFactory.swift */,
 				8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */,
+				8476CB0D25F24811003EEAE1 /* EraStakingViewModel.swift */,
+				8476CB1225F24886003EEAE1 /* StoriesViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4023,6 +4045,7 @@
 		B7B0681CCE8F8F0127E8676C /* StakingMain */ = {
 			isa = PBXGroup;
 			children = (
+				8476CB0425F24555003EEAE1 /* Model */,
 				AE2C845B25EE829E00986716 /* ViewModel */,
 				470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */,
 				96F09665083031502F9693F8 /* StakingMainWireframe.swift */,
@@ -4816,6 +4839,7 @@
 				84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */,
 				2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
+				8476CB0625F24564003EEAE1 /* EraStakingInfo.swift in Sources */,
 				84FAB072254366ED00319F74 /* ContactTableViewCell.swift in Sources */,
 				8419377F25441D5E00CFA50C /* ReceiveHeaderView.swift in Sources */,
 				843910AE253EC73D00E3C217 /* StakingInfoSubscription.swift in Sources */,
@@ -4857,6 +4881,7 @@
 				84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */,
 				8467FD4924ED64A5005D486C /* ProfileDetailsTableViewCell.swift in Sources */,
 				8494D87A2525350000614D8F /* SubscanStatusData.swift in Sources */,
+				8476CB1325F24886003EEAE1 /* StoriesViewModel.swift in Sources */,
 				842876A724AE049B00D91AD8 /* SelectionListProtocols.swift in Sources */,
 				849014DD24AA8F60008F705E /* MainTabBarViewFactory.swift in Sources */,
 				8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */,
@@ -4993,6 +5018,7 @@
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
+				8476CB1D25F25FE6003EEAE1 /* NominationStatus.swift in Sources */,
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				84364D6625325A8B00281F9A /* StakingLedger.swift in Sources */,
@@ -5133,6 +5159,7 @@
 				F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */,
 				5678BAE4B652C5C5E4284F28 /* AccountManagementViewFactory.swift in Sources */,
 				8B93366603CDF00918A1218A /* AccountInfoProtocols.swift in Sources */,
+				8476CB0E25F24811003EEAE1 /* EraStakingViewModel.swift in Sources */,
 				843910CE253F7E8000E3C217 /* SubstrateDataStorageFacade.swift in Sources */,
 				84644A0725670B03004EAA4B /* TriangularedBlurView.swift in Sources */,
 				153B25C7D48B571CFF0FA62C /* AccountInfoWireframe.swift in Sources */,
@@ -5217,6 +5244,7 @@
 				ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */,
 				9A6A55297F41DAE45071BF57 /* ExportSeedInteractor.swift in Sources */,
 				886E8CF81EF2566D98D9693E /* ExportSeedViewFactory.swift in Sources */,
+				8476CB1825F25759003EEAE1 /* DyStakingLedger.swift in Sources */,
 				C20ED4531583D0C8E38715E0 /* PurchaseProtocols.swift in Sources */,
 				3CA86739CB09801714B194BD /* PurchaseWireframe.swift in Sources */,
 				3D1FB0EF87D42F08D9250552 /* PurchasePresenter.swift in Sources */,
