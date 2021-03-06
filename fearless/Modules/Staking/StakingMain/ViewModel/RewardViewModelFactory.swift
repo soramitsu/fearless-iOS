@@ -65,7 +65,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
                 return RewardViewModel(amount: amountString, price: nil, increase: nil)
             }
 
-            let targetAmount = rate * amount / divisor
+            let targetAmount = rate * reward / divisor
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
             let priceString = priceFormatter.string(from: targetAmount) ?? ""
@@ -75,7 +75,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
             var rewardPercentage: Decimal = 0.0
 
             if amount > 0 {
-                rewardPercentage = reward / (amount * divisor * 100)
+                rewardPercentage = reward / (amount * divisor)
             }
 
             let rewardPercentageString = percentageFormatter.string(from: rewardPercentage as NSNumber)
