@@ -57,6 +57,6 @@ class PhishingCheckExecutor: WalletCommandProtocol {
             }
         }
 
-        OperationManagerFacade.sharedManager.enqueue(operations: [fetchOperation], in: .sync)
+        OperationManagerFacade.sharedManager.enqueue(operations: [fetchOperation], in: .transient)
     }
 }

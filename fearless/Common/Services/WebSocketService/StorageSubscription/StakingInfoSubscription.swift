@@ -147,7 +147,7 @@ final class StakingInfoSubscription: WebSocketSubscribing {
             }
 
             operationManager.enqueue(operations: [fetchOperation, processingOperation, saveOperation],
-                                     in: .sync)
+                                     in: .transient)
 
             logger.debug("Did receive staking ledger update")
         } catch {

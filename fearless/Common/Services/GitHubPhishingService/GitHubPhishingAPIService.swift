@@ -66,6 +66,6 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
         let operationWrapper = CompoundOperationWrapper(targetOperation: replaceOperation,
                                         dependencies: [networkOperation])
 
-        operationManager.enqueue(operations: operationWrapper.allOperations, in: .sync)
+        operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }
 }
