@@ -33,13 +33,13 @@ final class EraValidatorService {
     let providerFactory: SubstrateDataProviderFactoryProtocol
     private var pendingRequests: [PendingRequest] = []
     let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol
+    let logger: LoggerProtocol?
 
     init(storageFacade: StorageFacadeProtocol,
          runtimeCodingService: RuntimeCodingServiceProtocol,
          providerFactory: SubstrateDataProviderFactoryProtocol,
          operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol) {
+         logger: LoggerProtocol? = nil) {
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
         self.providerFactory = providerFactory
@@ -59,7 +59,7 @@ final class EraValidatorService {
     }
 
     private func notifyPendingClosures(with info: EraStakersInfo) {
-        logger.debug("Attempt fulfill pendings \(pendingRequests.count)")
+        logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
 
         guard !pendingRequests.isEmpty else {
             return
@@ -70,7 +70,7 @@ final class EraValidatorService {
 
         requests.forEach { deliver(snapshot: info, to: $0) }
 
-        logger.debug("Fulfilled pendings")
+        logger?.debug("Fulfilled pendings")
     }
 
     private func deliver(snapshot: EraStakersInfo, to request: PendingRequest) {
@@ -120,12 +120,12 @@ final class EraValidatorService {
         }
 
         guard !exposures.isEmpty else {
-            logger.warning("Tried to fetch prefs but era missing")
+            logger?.warning("Tried to fetch prefs but era missing")
             return
         }
 
         guard let engine = engine else {
-            logger.warning("Can't find connection")
+            logger?.warning("Can't find connection")
             return
         }
 
@@ -155,7 +155,7 @@ final class EraValidatorService {
                                            exposures: exposures,
                                            prefs: prefs)
                 } catch {
-                    self?.logger.error("Prefs fetching failed: \(error)")
+                    self?.logger?.error("Prefs fetching failed: \(error)")
                 }
             }
         }
@@ -183,9 +183,9 @@ final class EraValidatorService {
                                exposures: exposures,
                                codingFactory: codingFactory)
         case .failure(let error):
-            logger.error("Did receive remote update error: \(error)")
+            logger?.error("Did receive remote update error: \(error)")
         case .none:
-            logger.warning("Remote update cancelled")
+            logger?.warning("Remote update cancelled")
         }
 
     }
@@ -201,7 +201,7 @@ final class EraValidatorService {
         }
 
         guard let engine = engine else {
-            logger.warning("Can't find connection")
+            logger?.warning("Can't find connection")
             return
         }
 
@@ -338,7 +338,7 @@ final class EraValidatorService {
                                                  codingFactory: codingFactory)
                     }
                 } catch {
-                    self?.logger.error("Local fetch failed: \(error)")
+                    self?.logger?.error("Local fetch failed: \(error)")
                 }
             }
         }
@@ -380,12 +380,12 @@ final class EraValidatorService {
                                              prefixKey: prefixKey,
                                              codingFactory: factory)
                     } else {
-                        self?.logger.warning("Can't find coding factory or eras key")
+                        self?.logger?.warning("Can't find coding factory or eras key")
                     }
                 case .failure(let error):
-                    self?.logger.error("Prefix key encoding error: \(error)")
+                    self?.logger?.error("Prefix key encoding error: \(error)")
                 case .none:
-                    self?.logger.warning("Did cancel prefix key encoding")
+                    self?.logger?.warning("Did cancel prefix key encoding")
                 }
             }
         }
@@ -405,15 +405,15 @@ final class EraValidatorService {
             self.activeEra = era.index
             preparePrefixKeyAndUpdateIfNeeded(chain: chain, activeEra: era.index)
         case .failure(let error):
-            logger.error("Did receive era decoding error: \(error)")
+            logger?.error("Did receive era decoding error: \(error)")
         case .none:
-            logger.warning("Error decoding operation canceled")
+            logger?.warning("Error decoding operation canceled")
         }
     }
 
     private func didUpdateActiveEraItem(_ eraItem: ChainStorageItem?) {
         guard let chain = chain else {
-            logger.warning("Missing chain to proccess era")
+            logger?.warning("Missing chain to proccess era")
             return
         }
 
@@ -475,7 +475,7 @@ final class EraValidatorService {
             }
 
             let failureClosure: (Error) -> Void = { [weak self] (error) in
-                self?.logger.error("Did receive error: \(error)")
+                self?.logger?.error("Did receive error: \(error)")
             }
 
             eraDataProvider.addObserver(self,
@@ -486,7 +486,7 @@ final class EraValidatorService {
 
             self.eraDataProvider = eraDataProvider
         } catch {
-            logger.error("Can't make subscription")
+            logger?.error("Can't make subscription")
         }
     }
 
