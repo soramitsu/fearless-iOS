@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import BigInt
 
 final class StakingMainPresenter {
     weak var view: StakingMainViewProtocol?
@@ -14,7 +15,6 @@ final class StakingMainPresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
     private var amount: Decimal?
-    private var increase: Decimal?
     private var calculator: RewardCalculatorEngineProtocol?
 
     private var chain: Chain?
@@ -40,29 +40,37 @@ final class StakingMainPresenter {
             return
         }
 
-        var payoutPercentage: Decimal?
         do {
+
+            let monthlyReturn: Decimal
+            let yearlyReturn: Decimal
+
             if let calculator = calculator {
-                payoutPercentage = try calculator.calculateNetworkReturn(isCompound: false,
-                                                                             period: .year)
+                monthlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
+                                                                      period: .month)
+                yearlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
+                                                                     period: .year)
+            } else {
+                monthlyReturn = 0.0
+                yearlyReturn = 0.0
             }
+
+            let monthlyViewModel = viewModelFactory
+                .createRewardViewModel(reward: (amount ?? 0.0) * monthlyReturn,
+                                       targetReturn: monthlyReturn,
+                                       priceData: priceData)
+
+            let yearlyViewModel = viewModelFactory
+                .createRewardViewModel(reward: (amount ?? 0.0) * yearlyReturn,
+                                       targetReturn: yearlyReturn,
+                                       priceData: priceData)
+
+            view?.didReceiveRewards(monthlyViewModel: monthlyViewModel,
+                                    yearlyViewModel: yearlyViewModel)
+
         } catch {
             logger?.error("Can't calculate reward")
         }
-
-        let curAmount = amount ?? 0.0
-        let reward = curAmount * (payoutPercentage ?? 0.0)
-
-        let monthlyViewModel = viewModelFactory.createMonthlyRewardViewModel(amount: curAmount,
-                                                                             reward: reward,
-                                                                             priceData: priceData)
-
-        let yearlyViewModel = viewModelFactory.createYearlyRewardViewModel(amount: curAmount,
-                                                                           reward: reward,
-                                                                           priceData: priceData)
-
-        view?.didReceiveRewards(monthlyViewModel: monthlyViewModel,
-                                yearlyViewModel: yearlyViewModel)
     }
 
     private func provideAmountInputViewModel() {
@@ -81,7 +89,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        wireframe.showSetupAmount(from: view)
+        wireframe.showSetupAmount(from: view, amount: amount)
     }
 
     func performAccountAction() {
@@ -164,7 +172,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         self.amount = nil
         self.calculator = nil
         self.priceData = nil
-        self.increase = nil
 
         provideReward()
         provideAsset()

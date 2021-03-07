@@ -4,7 +4,7 @@ import RobinHood
 import SoraFoundation
 
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
-    static func createView() -> StakingAmountViewProtocol? {
+    static func createView(with amount: Decimal?) -> StakingAmountViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -12,7 +12,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        guard let presenter = createPresenter(settings: settings,
+        guard let presenter = createPresenter(amount: amount,
+                                              settings: settings,
                                               keystore: keystore) else {
             return nil
         }
@@ -38,7 +39,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return view
     }
 
-    static private func createPresenter(settings: SettingsManagerProtocol,
+    static private func createPresenter(amount: Decimal?,
+                                        settings: SettingsManagerProtocol,
                                         keystore: KeystoreProtocol) -> StakingAmountPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
@@ -52,7 +54,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: networkType,
                                                               limit: StakingConstants.maxAmount)
-        let presenter = StakingAmountPresenter(asset: asset,
+        let presenter = StakingAmountPresenter(amount: amount,
+                                               asset: asset,
                                                selectedAccount: selectedAccount,
                                                rewardDestViewModelFactory: rewardDestViewModelFactory,
                                                balanceViewModelFactory: balanceViewModelFactory,

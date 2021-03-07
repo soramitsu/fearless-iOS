@@ -25,12 +25,14 @@ final class StakingAmountPresenter {
     private var loadingPayouts: Bool = false
     private var minimalAmount: Decimal?
 
-    init(asset: WalletAsset,
+    init(amount: Decimal?,
+         asset: WalletAsset,
          selectedAccount: AccountItem,
          rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
          balanceViewModelFactory: BalanceViewModelFactoryProtocol,
          applicationConfig: ApplicationConfigProtocol,
          logger: LoggerProtocol) {
+        self.amount = amount
         self.asset = asset
         self.selectedAccount = selectedAccount
         self.payoutAccount = selectedAccount

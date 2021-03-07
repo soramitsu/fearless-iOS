@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 import CommonWallet
+import BigInt
 
 protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
