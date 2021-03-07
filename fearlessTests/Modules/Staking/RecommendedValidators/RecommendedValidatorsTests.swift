@@ -7,36 +7,6 @@ class RecommendedValidatorsTests: XCTestCase {
     let nominationState = StartStakingResult(amount: 1.0,
                                              rewardDestination: .restake)
 
-    let recommended: [ElectedValidatorInfo] = {
-        let address = "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
-        let validator = ElectedValidatorInfo(address: address,
-                                             nominators: [],
-                                             totalStake: 10.0,
-                                             ownStake: 10.0,
-                                             comission: 0.1,
-                                             identity: AccountIdentity(name: "Test"),
-                                             stakeReturn: 0.1,
-                                             hasSlashes: false,
-                                             oversubscribed: false)
-        return [validator]
-    }()
-
-    let others: [ElectedValidatorInfo] = {
-        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
-        let validator = ElectedValidatorInfo(address: address,
-                                             nominators: [],
-                                             totalStake: 5.0,
-                                             ownStake: 5.0,
-                                             comission: 0.1,
-                                             identity: nil,
-                                             stakeReturn: 0.1,
-                                             hasSlashes: false,
-                                             oversubscribed: true)
-        return [validator]
-    }()
-
-    var all: [ElectedValidatorInfo] { others + recommended }
-
     func testSetupAndOptionSelect() {
         // given
 
@@ -57,7 +27,7 @@ class RecommendedValidatorsTests: XCTestCase {
 
         stub(operationFactory) { stub in
             when(stub).allElectedOperation().then { _ in
-                CompoundOperationWrapper.createWithResult(self.all)
+                CompoundOperationWrapper.createWithResult(WestendStub.allValidators)
             }
         }
 
@@ -69,18 +39,21 @@ class RecommendedValidatorsTests: XCTestCase {
             }
         }
 
+        let recommended = WestendStub.recommendedValidators
+        let all = WestendStub.allValidators
+
         stub(wireframe) { stub in
             when(stub).proceed(from: any(), result: any()).then { (_, nomination) in
-                XCTAssertEqual(Set(self.recommended.map({ $0.address })),
+                XCTAssertEqual(Set(recommended.map({ $0.address })),
                                Set(nomination.targets.map({ $0.address })))
             }
 
             when(stub).showCustom(from: any(), validators: any()).then { (_ , validators) in
-                XCTAssertEqual(self.all, validators)
+                XCTAssertEqual(all, validators)
             }
 
             when(stub).showRecommended(from: any(), validators: any()).then { (_, validators) in
-                XCTAssertEqual(self.recommended, validators)
+                XCTAssertEqual(recommended, validators)
             }
         }
 

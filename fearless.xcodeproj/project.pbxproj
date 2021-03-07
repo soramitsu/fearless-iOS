@@ -718,6 +718,10 @@
 		84FAB076254378FC00319F74 /* ContactsListViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB075254378FC00319F74 /* ContactsListViewModelFactory.swift */; };
 		84FAB0782543791A00319F74 /* ContactContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0772543791A00319F74 /* ContactContext.swift */; };
 		84FAB0812543A7EE00319F74 /* ReceiveConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0802543A7EE00319F74 /* ReceiveConfigurator.swift */; };
+		84FACB1725F559F200F32ED4 /* WestendStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACB1625F559F200F32ED4 /* WestendStub.swift */; };
+		84FACB1F25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACB1E25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift */; };
+		84FACB2D25F562CB00F32ED4 /* westend-metadata in Resources */ = {isa = PBXBuildFile; fileRef = 84FACB2C25F562CB00F32ED4 /* westend-metadata */; };
+		84FACB3825F5630000F32ED4 /* RuntimeHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACB3725F5630000F32ED4 /* RuntimeHelper.swift */; };
 		84FB1F652526879200E0242B /* WalletSingleProviderIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */; };
 		84FB1F672526920B00E0242B /* SubscanHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F662526920B00E0242B /* SubscanHistoryData.swift */; };
 		84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F68252694B600E0242B /* HistoryInfo.swift */; };
@@ -1568,6 +1572,10 @@
 		84FAB075254378FC00319F74 /* ContactsListViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsListViewModelFactory.swift; sourceTree = "<group>"; };
 		84FAB0772543791A00319F74 /* ContactContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactContext.swift; sourceTree = "<group>"; };
 		84FAB0802543A7EE00319F74 /* ReceiveConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveConfigurator.swift; sourceTree = "<group>"; };
+		84FACB1625F559F200F32ED4 /* WestendStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WestendStub.swift; sourceTree = "<group>"; };
+		84FACB1E25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RuntimeCodingServiceStub.swift; sourceTree = "<group>"; };
+		84FACB2C25F562CB00F32ED4 /* westend-metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "westend-metadata"; sourceTree = "<group>"; };
+		84FACB3725F5630000F32ED4 /* RuntimeHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeHelper.swift; sourceTree = "<group>"; };
 		84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSingleProviderIdFactory.swift; sourceTree = "<group>"; };
 		84FB1F662526920B00E0242B /* SubscanHistoryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanHistoryData.swift; sourceTree = "<group>"; };
 		84FB1F68252694B600E0242B /* HistoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryInfo.swift; sourceTree = "<group>"; };
@@ -2533,6 +2541,7 @@
 				844D229D25EE79EA00C022F7 /* ExtrinsicServiceStub.swift */,
 				8476CA0525EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift */,
 				8476CA0A25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift */,
+				84FACB1E25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift */,
 			);
 			path = DataProviders;
 			sourceTree = "<group>";
@@ -2677,10 +2686,12 @@
 		8467FD3724EACDF8005D486C /* Helper */ = {
 			isa = PBXGroup;
 			children = (
+				84FACB3725F5630000F32ED4 /* RuntimeHelper.swift */,
 				8467FD3824EACE08005D486C /* AccountCreationHelper.swift */,
 				8467FD5B24EFDCC9005D486C /* UserDataStorageTestFacade.swift */,
 				84F4387E25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift */,
 				84F438B925DA565A00AEDA56 /* RuntimeMetadataCreationHelper.swift */,
+				84FACB1625F559F200F32ED4 /* WestendStub.swift */,
 			);
 			path = Helper;
 			sourceTree = "<group>";
@@ -2931,6 +2942,7 @@
 		849013C124A80986008F705E /* fearlessTests */ = {
 			isa = PBXGroup;
 			children = (
+				84FACB2B25F562CB00F32ED4 /* Resources */,
 				8467FD3724EACDF8005D486C /* Helper */,
 				8467FD0324E5E07D005D486C /* KeystoreDefinition */,
 				842D1E8A24D208AF00C30A7A /* Mocks */,
@@ -3853,20 +3865,11 @@
 		84F4388325DA4F2A00AEDA56 /* Network */ = {
 			isa = PBXGroup;
 			children = (
-				84F438B025DA548700AEDA56 /* Resources */,
 				84F4389125DA505300AEDA56 /* NetworkBaseTests.swift */,
 				84F4388425DA4F2A00AEDA56 /* NetworkMockManager.swift */,
 				84F4388C25DA4F4A00AEDA56 /* TypeDefFileMock.swift */,
 			);
 			path = Network;
-			sourceTree = "<group>";
-		};
-		84F438B025DA548700AEDA56 /* Resources */ = {
-			isa = PBXGroup;
-			children = (
-				84F438B125DA548700AEDA56 /* runtimeTestMetadata */,
-			);
-			path = Resources;
 			sourceTree = "<group>";
 		};
 		84F43B8725DE9F8500AEDA56 /* Staking */ = {
@@ -3943,6 +3946,15 @@
 				841937822544455C00CFA50C /* AccountShareFactory.swift */,
 			);
 			path = Receive;
+			sourceTree = "<group>";
+		};
+		84FACB2B25F562CB00F32ED4 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				84F438B125DA548700AEDA56 /* runtimeTestMetadata */,
+				84FACB2C25F562CB00F32ED4 /* westend-metadata */,
+			);
+			path = Resources;
 			sourceTree = "<group>";
 		};
 		84FB1F702526AB1200E0242B /* View */ = {
@@ -4357,6 +4369,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				84FACB2D25F562CB00F32ED4 /* westend-metadata in Resources */,
 				8467FD0624E5E0A5005D486C /* invalidKeystore.json in Resources */,
 				84F438B225DA548700AEDA56 /* runtimeTestMetadata in Resources */,
 				8467FD3F24EAD66F005D486C /* validEcdsaKeystore.json in Resources */,
@@ -5297,10 +5310,12 @@
 				846A2C54252A0FDF00731018 /* FilterTests.swift in Sources */,
 				CAA752294BCDA8F109F748E7 /* AccountConfirmTests.swift in Sources */,
 				0B3BC92678214517773B0539 /* AccountManagementTests.swift in Sources */,
+				84FACB1725F559F200F32ED4 /* WestendStub.swift in Sources */,
 				036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */,
 				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
 				84F43BB925DEFA0A00AEDA56 /* DefaultStub.swift in Sources */,
 				84155DF3253A1DBA00A27058 /* SchedulerTests.swift in Sources */,
+				84FACB1F25F55EC900F32ED4 /* RuntimeCodingServiceStub.swift in Sources */,
 				91986C1E07B1827BDD5DC82F /* NetworkInfoTests.swift in Sources */,
 				58F5836B372CF673E02DB071 /* AddConnectionTests.swift in Sources */,
 				84F4388D25DA4F4A00AEDA56 /* TypeDefFileMock.swift in Sources */,
@@ -5308,6 +5323,7 @@
 				844D229E25EE79EA00C022F7 /* ExtrinsicServiceStub.swift in Sources */,
 				84F4A910255001D2000CF0A3 /* KeystoreExportWrapperTests.swift in Sources */,
 				1F85759D01F2419CD938D33F /* AccountExportPasswordTests.swift in Sources */,
+				84FACB3825F5630000F32ED4 /* RuntimeHelper.swift in Sources */,
 				A565F118B7ED356099662F03 /* ExportMnemonicTests.swift in Sources */,
 				36139329003D9269E8D5C11C /* StakingMainTests.swift in Sources */,
 				6A895389D78655DD5EC55CDD /* RecommendedValidatorsTests.swift in Sources */,

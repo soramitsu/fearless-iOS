@@ -136,7 +136,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
 
         provideAsset()
-        provideReward()
     }
 
     func didReceive(selectedAddress: String) {

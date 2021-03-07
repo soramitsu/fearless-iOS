@@ -17,30 +17,6 @@ class StakingConfirmTests: XCTestCase {
                                   targets: [validator1, validator2])
     }()
 
-    let price: PriceData = {
-        PriceData(price: "0.3",
-                  time: Int64(Date().timeIntervalSince1970),
-                  height: 1,
-                  records: [])
-    }()
-
-    let accountInfo: DecodedAccountInfo = {
-
-
-        let data = DyAccountData(free: BigUInt(1e+13),
-                                 reserved: BigUInt(0),
-                                 miscFrozen: BigUInt(0),
-                                 feeFrozen: BigUInt(0))
-
-        let info = DyAccountInfo(nonce: 1,
-                                 consumers: 0,
-                                 providers: 0,
-                                 data: data)
-
-        return DecodedAccountInfo(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
-                                  item: info)
-    }()
-
     func testSetupAndSendExtrinsic() throws {
         // given
 
@@ -70,8 +46,8 @@ class StakingConfirmTests: XCTestCase {
 
         let signer = try DummySigner(cryptoType: .sr25519)
 
-        let priceProvider = SingleValueProviderStub(item: price)
-        let balanceProvider = DataProviderStub(models: [accountInfo])
+        let priceProvider = SingleValueProviderStub(item: WestendStub.price)
+        let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let extrinsicService = ExtrinsicServiceStub.dummy()
         let interactor = StakingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
                                                   balanceProvider: AnyDataProvider(balanceProvider),
