@@ -5,6 +5,7 @@ import RobinHood
 import SoraFoundation
 
 class CalculatorServiceTests: XCTestCase {
+
     func testKusamaCalculatorSetupWithoutCache() throws {
         measure {
             do {
@@ -17,7 +18,7 @@ class CalculatorServiceTests: XCTestCase {
     }
 
     func testKusamaCalculatorSetupWithCache() throws {
-        let storageFacade = SubstrateStorageTestFacade()
+        let storageFacade = SubstrateDataStorageFacade.shared
         measure {
             do {
                 try performTest(for: .kusama, storageFacade: storageFacade)
@@ -60,7 +61,14 @@ class CalculatorServiceTests: XCTestCase {
 
         validatorService.setup()
 
-        let operation = validatorService.fetchInfoOperation()
+        let calculatorService = createCalculationService(storageFacade: storageFacade,
+                                                         eraValidatorService: validatorService,
+                                                         runtimeService: runtimeService,
+                                                         operationManager: operationManager)
+        calculatorService.update(to: chain)
+        calculatorService.setup()
+
+        let operation = calculatorService.fetchCalculatorOperation()
 
         let expectation = XCTestExpectation()
 
@@ -131,5 +139,19 @@ class CalculatorServiceTests: XCTestCase {
                                    providerFactory: factory,
                                    operationManager: operationManager,
                                    logger: logger)
+    }
+
+    private func createCalculationService(storageFacade: StorageFacadeProtocol,
+                                          eraValidatorService: EraValidatorServiceProtocol,
+                                          runtimeService: RuntimeCodingServiceProtocol,
+                                          operationManager: OperationManagerProtocol,
+                                          logger: LoggerProtocol? = nil) -> RewardCalculatorService {
+        let factory = SubstrateDataProviderFactory(facade: storageFacade, operationManager: operationManager)
+        return RewardCalculatorService(eraValidatorsService: eraValidatorService,
+                                       logger: logger,
+                                       operationManager: operationManager,
+                                       providerFactory: factory,
+                                       runtimeCodingService: runtimeService,
+                                       storageFacade: storageFacade)
     }
 }
