@@ -537,7 +537,8 @@ class JSONRPCTests: XCTestCase {
 
             let extrinsicData = try generateExtrinsicToAccount("5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn",
                                                                from: accountId,
-                                                               amount: Decimal(0.21).toSubstrateAmount()!,
+                                                               amount: Decimal(0.21)
+                                                                .toSubstrateAmount(precision: 12)!,
                                                                nonce: 0,
                                                                privateKey: privateKey)
             let operation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
@@ -574,7 +575,7 @@ class JSONRPCTests: XCTestCase {
 
         // when
 
-        guard let amount = Decimal(string: "1.01")?.toSubstrateAmount() else {
+        guard let amount = Decimal(string: "1.01")?.toSubstrateAmount(precision: 12) else {
             XCTFail("Unexpected nil amount")
             return
         }
