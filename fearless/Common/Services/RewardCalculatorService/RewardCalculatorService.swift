@@ -26,14 +26,14 @@ final class RewardCalculatorService {
     private var pendingRequests: [PendingRequest] = []
 
     let eraValidatorsService: EraValidatorServiceProtocol
-    let logger: LoggerProtocol
+    let logger: LoggerProtocol?
     let operationManager: OperationManagerProtocol
     let providerFactory: SubstrateDataProviderFactoryProtocol
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
 
     init(eraValidatorsService: EraValidatorServiceProtocol,
-         logger: LoggerProtocol,
+         logger: LoggerProtocol? = nil,
          operationManager: OperationManagerProtocol,
          providerFactory: SubstrateDataProviderFactoryProtocol,
          runtimeCodingService: RuntimeCodingServiceProtocol,
@@ -72,9 +72,9 @@ final class RewardCalculatorService {
                         request.resultClosure(calculator)
                     }
                 case .failure(let error):
-                    self.logger.error("Era stakers info fetch error: \(error)")
+                    self.logger?.error("Era stakers info fetch error: \(error)")
                 case .none:
-                    self.logger.warning("Era stakers info fetch cancelled")
+                    self.logger?.warning("Era stakers info fetch cancelled")
                 }
             }
         }
@@ -84,7 +84,7 @@ final class RewardCalculatorService {
     }
 
     private func notifyPendingClosures(with totalIssuance: BigUInt) {
-        logger.debug("Attempt fulfill pendings \(pendingRequests.count)")
+        logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
 
         guard !pendingRequests.isEmpty else {
             return
@@ -95,7 +95,7 @@ final class RewardCalculatorService {
 
         requests.forEach { deliver(snapshot: totalIssuance, to: $0) }
 
-        logger.debug("Fulfilled pendings")
+        logger?.debug("Fulfilled pendings")
     }
 
     private func handleTotalIssuanceDecodingResult(chain: Chain,
@@ -110,15 +110,15 @@ final class RewardCalculatorService {
             self.snapshot = totalIssuance.value
             notifyPendingClosures(with: totalIssuance.value)
         case .failure(let error):
-            logger.error("Did receive total issuance decoding error: \(error)")
+            logger?.error("Did receive total issuance decoding error: \(error)")
         case .none:
-            logger.warning("Error decoding operation canceled")
+            logger?.warning("Error decoding operation canceled")
         }
     }
 
     private func didUpdateTotalIssuanceItem(_ totalIssuanceItem: ChainStorageItem?) {
         guard let chain = chain else {
-            logger.warning("Missing chain to proccess total issuance")
+            logger?.warning("Missing chain to proccess total issuance")
             return
         }
 
@@ -181,7 +181,7 @@ final class RewardCalculatorService {
             }
 
             let failureClosure: (Error) -> Void = { [weak self] (error) in
-                self?.logger.error("Did receive error: \(error)")
+                self?.logger?.error("Did receive error: \(error)")
             }
 
             totalIssuanceDataProvider.addObserver(self,
@@ -192,7 +192,7 @@ final class RewardCalculatorService {
 
             self.totalIssuanceDataProvider = totalIssuanceDataProvider
         } catch {
-            logger.error("Can't make subscription")
+            logger?.error("Can't make subscription")
         }
     }
 

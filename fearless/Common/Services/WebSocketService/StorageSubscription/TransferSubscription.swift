@@ -138,7 +138,7 @@ final class TransferSubscription {
         let operations = upgradedOperation.allOperations + [fetchBlockOperation, parseOperation]
 
         operationManager.enqueue(operations: operations,
-                                 in: .sync)
+                                 in: .transient)
     }
 
     private func createUpgradedOperation() -> CompoundOperationWrapper<Bool?> {

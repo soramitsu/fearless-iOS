@@ -96,7 +96,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
         }
 
         operationManager.enqueue(operations: [fetchCurrentOperation, metaOperation, saveOperation],
-                                 in: .sync)
+                                 in: .transient)
     }
 
     private func createMetadataOperation(dependingOn localFetch: BaseOperation<RuntimeMetadataItem?>,

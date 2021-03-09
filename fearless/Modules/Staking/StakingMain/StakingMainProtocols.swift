@@ -34,7 +34,7 @@ protocol StakingMainInteractorOutputProtocol: class {
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showSetupAmount(from view: StakingMainViewProtocol?)
+    func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

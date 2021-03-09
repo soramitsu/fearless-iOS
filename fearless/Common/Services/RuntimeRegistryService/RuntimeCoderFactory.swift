@@ -16,7 +16,10 @@ final class RuntimeCoderFactory: RuntimeCoderFactoryProtocol {
     let txVersion: UInt32
     let metadata: RuntimeMetadata
 
-    init(catalog: TypeRegistryCatalogProtocol, specVersion: UInt32, txVersion: UInt32, metadata: RuntimeMetadata) {
+    init(catalog: TypeRegistryCatalogProtocol,
+         specVersion: UInt32,
+         txVersion: UInt32,
+         metadata: RuntimeMetadata) {
         self.catalog = catalog
         self.specVersion = specVersion
         self.txVersion = txVersion

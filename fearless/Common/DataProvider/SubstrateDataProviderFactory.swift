@@ -9,11 +9,11 @@ protocol SubstrateDataProviderFactoryProtocol {
 final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
     let facade: StorageFacadeProtocol
     let operationManager: OperationManagerProtocol
-    let logger: LoggerProtocol
+    let logger: LoggerProtocol?
 
     init(facade: StorageFacadeProtocol,
          operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol) {
+         logger: LoggerProtocol? = nil) {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
@@ -32,7 +32,7 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
 
         observable.start { error in
             if let error = error {
-                self.logger.error("Can't start storage observing: \(error)")
+                self.logger?.error("Can't start storage observing: \(error)")
             }
         }
 
@@ -53,7 +53,7 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
 
         observable.start { error in
             if let error = error {
-                self.logger.error("Can't start storage observing: \(error)")
+                self.logger?.error("Can't start storage observing: \(error)")
             }
         }
 

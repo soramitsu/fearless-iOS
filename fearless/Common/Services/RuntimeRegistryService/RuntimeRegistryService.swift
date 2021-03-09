@@ -38,7 +38,7 @@ final class RuntimeRegistryService {
     let filesOperationFacade: RuntimeFilesOperationFacadeProtocol
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
-    let logger: LoggerProtocol
+    let logger: LoggerProtocol?
 
     private var runtimeMetadata: RuntimeMetadataItem?
     private var snapshot: Snapshot?
@@ -54,7 +54,7 @@ final class RuntimeRegistryService {
          filesOperationFacade: RuntimeFilesOperationFacadeProtocol,
          operationManager: OperationManagerProtocol,
          eventCenter: EventCenterProtocol,
-         logger: LoggerProtocol) {
+         logger: LoggerProtocol? = nil) {
         self.chain = chain
         self.metadataProviderFactory = metadataProviderFactory
         self.metadataProvider = metadataProviderFactory.createRuntimeMetadataItemProvider(for: chain)
@@ -78,7 +78,7 @@ final class RuntimeRegistryService {
     }
 
     private func notifyPendingClosures(with snapshot: Snapshot) {
-        logger.debug("Attempt fulfill pendings \(pendingRequests.count)")
+        logger?.debug("Attempt fulfill pendings \(pendingRequests.count)")
 
         guard !pendingRequests.isEmpty else {
             return
@@ -89,7 +89,7 @@ final class RuntimeRegistryService {
 
         requests.forEach { deliver(snapshot: snapshot, to: $0) }
 
-        logger.debug("Fulfilled pendings")
+        logger?.debug("Fulfilled pendings")
     }
 
     private func deliver(snapshot: Snapshot, to request: PendingRequest) {
@@ -105,21 +105,21 @@ final class RuntimeRegistryService {
 
     private func subscribeMetadata() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<RuntimeMetadataItem>]) in
-            self?.logger.debug("Did receive changes \(changes.count)")
+            self?.logger?.debug("Did receive changes \(changes.count)")
             for change in changes {
                 if let item = change.item {
                     self?.runtimeMetadata = item
                     self?.updateTypeRegistryCatalog(shouldSyncFiles: true)
-                    self?.logger.debug("Did receive runtime metadata at version: \(item.version)")
+                    self?.logger?.debug("Did receive runtime metadata at version: \(item.version)")
                 } else {
                     self?.runtimeMetadata = nil
-                    self?.logger.warning("Did delete runtime metadata")
+                    self?.logger?.warning("Did delete runtime metadata")
                 }
             }
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.logger.error("Did receive runtime storage error: \(error)")
+            self?.logger?.error("Did receive runtime storage error: \(error)")
             return
         }
 
@@ -133,13 +133,13 @@ final class RuntimeRegistryService {
                                      failing: failureClosure,
                                      options: options)
 
-        logger.debug("Did subscribe to metadata")
+        logger?.debug("Did subscribe to metadata")
     }
 
     private func unsubscribeMetadata() {
         metadataProvider.removeObserver(self)
 
-        logger.debug("Did unsubscribe from metadata")
+        logger?.debug("Did unsubscribe from metadata")
     }
 
     private func loadTypeRegistryCatalog(hasher: StorageHasher, shouldSyncFiles: Bool) {
@@ -204,7 +204,7 @@ final class RuntimeRegistryService {
 
         operationManager.enqueue(operations: dependencies + [combiningOperation], in: .transient)
 
-        logger.debug("Did start loading snapshot")
+        logger?.debug("Did start loading snapshot")
     }
 
     private func updateTypeRegistryCatalog(shouldSyncFiles: Bool) {
@@ -222,7 +222,7 @@ final class RuntimeRegistryService {
 
         switch result {
         case .success(let snapshot):
-            logger.debug("Did complete loading snapshot version: \(snapshot.specVersion)")
+            logger?.debug("Did complete loading snapshot version: \(snapshot.specVersion)")
             self.snapshot = snapshot
 
             notifyPendingClosures(with: snapshot)
@@ -237,7 +237,7 @@ final class RuntimeRegistryService {
             }
 
         case .failure(let error):
-            logger.error("Loading runtime snapshot failed: \(error)")
+            logger?.error("Loading runtime snapshot failed: \(error)")
         }
     }
 
@@ -245,7 +245,7 @@ final class RuntimeRegistryService {
         if snapshotLoadingWrapper != nil {
             snapshotLoadingWrapper?.allOperations.forEach { $0.cancel() }
             snapshotLoadingWrapper = nil
-            logger.debug("Snapshot loading cancelled")
+            logger?.debug("Snapshot loading cancelled")
         }
     }
 
@@ -268,7 +268,7 @@ extension RuntimeRegistryService {
 
         cancelSyncTypesIfNeeded()
 
-        logger.debug("Starting update runtime types")
+        logger?.debug("Starting update runtime types")
 
         let baseTypeData = dataOperationFactory.fetchData(from: baseRemoteUrl)
         let networkTypeData = dataOperationFactory.fetchData(from: networkRemoteUrl)
@@ -318,10 +318,10 @@ extension RuntimeRegistryService {
         syncTypesWrapper = nil
 
         if case .success(let shouldUpdate) = result, shouldUpdate {
-            logger.debug("Did change runtime types. Updating catalog...")
+            logger?.debug("Did change runtime types. Updating catalog...")
             self.updateTypeRegistryCatalog(shouldSyncFiles: false)
         } else {
-            logger.debug("No changes in runtime types")
+            logger?.debug("No changes in runtime types")
         }
     }
 
@@ -389,7 +389,7 @@ extension RuntimeRegistryService {
         if syncTypesWrapper != nil {
             syncTypesWrapper?.allOperations.forEach { $0.cancel() }
             syncTypesWrapper = nil
-            logger.debug("Types wrapper sync cancelled")
+            logger?.debug("Types wrapper sync cancelled")
         }
     }
 }

@@ -4,6 +4,12 @@ import IrohaCrypto
 import RobinHood
 
 final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
+    let storageFacade: StorageFacadeProtocol
+
+    init(storageFacade: StorageFacadeProtocol) {
+        self.storageFacade = storageFacade
+    }
+
     func createSubscriptions(address: String,
                              type: SNAddressType,
                              engine: JSONRPCEngine) throws -> [WebSocketSubscribing] {
@@ -60,7 +66,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     }
 
     private func createGlobalSubscriptions(keyFactory: StorageKeyFactoryProtocol,
-                                           localStorageIdFactory: ChainStorageIdFactoryProtocol) throws -> [StorageChildSubscribing] {
+                                           localStorageIdFactory: ChainStorageIdFactoryProtocol)
+    throws -> [StorageChildSubscribing] {
         let upgradeV28Subscription = try createV28Subscription(
             storageKeyFactory: keyFactory,
             localStorageIdFactory: localStorageIdFactory)
@@ -97,7 +104,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let localStorageKey = localStorageIdFactory.createIdentifier(for: accountStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return AccountInfoSubscription(transferSubscription: transferSubscription,
                                        remoteStorageKey: accountStorageKey,
@@ -115,7 +122,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return ActiveEraSubscription(remoteStorageKey: remoteStorageKey,
                                      localStorageKey: localStorageKey,
@@ -132,7 +139,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return CurrentEraSubscription(remoteStorageKey: remoteStorageKey,
                                       localStorageKey: localStorageKey,
@@ -149,7 +156,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return TotalIssuanceSubscription(remoteStorageKey: remoteStorageKey,
                                          localStorageKey: localStorageKey,
@@ -165,7 +172,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     throws -> StakingInfoSubscription {
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return StakingInfoSubscription(engine: engine,
                                        stashId: accountId,
@@ -194,7 +201,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         return UpgradeV28Subscription(remoteStorageKey: remoteStorageKey,
                                       localStorageKey: localStorageKey,
@@ -210,14 +217,12 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                             addressFactory: SS58AddressFactoryProtocol,
                                             localStorageIdFactory: ChainStorageIdFactoryProtocol)
     -> TransferSubscription {
-        let storageFacade = SubstrateDataStorageFacade.shared
-
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             storageFacade.createRepository(filter: filter)
 
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            SubstrateDataStorageFacade.shared.createRepository()
+            storageFacade.createRepository()
 
         let contactOperationFactory = WalletContactOperationFactory(storageFacade: storageFacade,
                                                                     targetAddress: address)
@@ -239,7 +244,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                   networkType: SNAddressType)
     -> RuntimeVersionSubscription {
         let chain = networkType.chain
-        let storageFacade = SubstrateDataStorageFacade.shared
 
         let filter = NSPredicate.filterRuntimeMetadataItemsBy(identifier: chain.genesisHash)
         let storage: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =

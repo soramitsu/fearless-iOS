@@ -17834,16 +17834,16 @@ import SoraFoundation
     
     
     
-     func showSetupAmount(from view: StakingMainViewProtocol?)  {
+     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)  {
         
-    return cuckoo_manager.call("showSetupAmount(from: StakingMainViewProtocol?)",
-            parameters: (view),
-            escapingParameters: (view),
+    return cuckoo_manager.call("showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?)",
+            parameters: (view, amount),
+            escapingParameters: (view, amount),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showSetupAmount(from: view))
+            defaultCall: __defaultImplStub!.showSetupAmount(from: view, amount: amount))
         
     }
     
@@ -17886,9 +17886,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func showSetupAmount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?)> where M1.OptionalMatchedType == StakingMainViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showSetupAmount(from: StakingMainViewProtocol?)", parameterMatchers: matchers))
+	    func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable>(from view: M1, amount: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, Decimal?)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -17918,9 +17918,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func showSetupAmount<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return cuckoo_manager.verify("showSetupAmount(from: StakingMainViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showSetupAmount<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable>(from view: M1, amount: M2) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, Decimal?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.OptionalMatchedType == Decimal {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Decimal?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: amount) { $0.1 }]
+	        return cuckoo_manager.verify("showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -17944,7 +17944,7 @@ import SoraFoundation
     
 
     
-     func showSetupAmount(from view: StakingMainViewProtocol?)   {
+     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

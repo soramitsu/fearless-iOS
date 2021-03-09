@@ -57,5 +57,5 @@ protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,
 }
 
 protocol StakingAmountViewFactoryProtocol: class {
-	static func createView() -> StakingAmountViewProtocol?
+    static func createView(with amount: Decimal?) -> StakingAmountViewProtocol?
 }

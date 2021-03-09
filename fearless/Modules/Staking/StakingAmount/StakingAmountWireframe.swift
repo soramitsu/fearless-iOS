@@ -23,16 +23,6 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
         view?.controller.present(picker, animated: true, completion: nil)
     }
 
-    func presentNotEnoughFunds(from view: StakingAmountViewProtocol?) {
-        let languages = view?.localizationManager?.selectedLocale.rLanguages
-        let message = R.string.localizable
-            .stakingAmountTooBigError(preferredLanguages: languages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: languages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: languages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
-    }
-
     func proceed(from view: StakingAmountViewProtocol?, result: StartStakingResult) {
         guard let validatorsView = RecommendedValidatorsViewFactory.createView(with: result) else {
             return
