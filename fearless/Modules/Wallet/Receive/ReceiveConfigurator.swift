@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import SoraUI
 import SoraFoundation
+import SoraKeystore
 
 final class ReceiveConfigurator: AdaptiveDesignable {
     let receiveFactory: ReceiveViewFactory
@@ -18,11 +19,16 @@ final class ReceiveConfigurator: AdaptiveDesignable {
 
     let shareFactory: AccountShareFactoryProtocol
 
-    init(account: AccountItem, chain: Chain, assets: [WalletAsset], localizationManager: LocalizationManagerProtocol) {
-        receiveFactory = ReceiveViewFactory(account: account,
+    init(settings: SettingsManagerProtocol,
+         assets: [WalletAsset],
+         localizationManager: LocalizationManagerProtocol) {
+        let accountViewModel = ReceiveAccountViewModel(settings: settings)
+        let chain = settings.selectedConnection.type.chain
+
+        receiveFactory = ReceiveViewFactory(accountViewModel: accountViewModel,
                                             chain: chain,
                                             localizationManager: localizationManager)
-        shareFactory = AccountShareFactory(address: account.address,
+        shareFactory = AccountShareFactory(accountViewModel: accountViewModel,
                                            assets: assets,
                                            localizationManager: localizationManager)
     }
