@@ -95,8 +95,8 @@ extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
     func didReceive(validatorInfo: ValidatorInfoProtocol) {
         self.validatorInfo = validatorInfo
 
-        let accountViewModel = viewModelFactory.generateAccountViewModel(from: validatorInfo)
-        let extrasViewModel = viewModelFactory.generateExtrasViewModel(from: validatorInfo)
+        let accountViewModel = viewModelFactory.createAccountViewModel(from: validatorInfo)
+        let extrasViewModel = viewModelFactory.createExtrasViewModel(from: validatorInfo)
 
         self.view?.didReceive(accountViewModel: accountViewModel,
                               extrasViewModel: extrasViewModel)

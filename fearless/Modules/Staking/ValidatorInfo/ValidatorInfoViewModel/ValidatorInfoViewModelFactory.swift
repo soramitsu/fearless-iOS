@@ -4,9 +4,9 @@ import SoraFoundation
 import CommonWallet
 
 protocol ValidatorInfoViewModelFactoryProtocol {
-    func generateExtrasViewModel(
+    func createExtrasViewModel(
         from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Section]
-    func generateAccountViewModel(
+    func createAccountViewModel(
         from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol
 }
 
@@ -23,7 +23,7 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
         self.amountFormatterFactory = amountFormatterFactory
     }
 
-    func generateExtrasViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Section] {
+    func createExtrasViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Section] {
         var sections: [ValidatorInfoViewController.Section] = []
 
         if let stakingViewModel = generateStakingViewModel(from: validatorInfo) {
@@ -37,7 +37,7 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
         return sections
     }
 
-    func generateAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol {
+    func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol {
         let userIcon = try? iconGenerator.generateFromAddress(validatorInfo.address)
             .imageWithFillColor(.white,
                                 size: UIConstants.normalAddressIconSize,
