@@ -6,8 +6,12 @@ extension UIAlertController {
                                       locale: Locale,
                                       copyClosure: @escaping () -> Void,
                                       urlClosure: @escaping  (URL) -> Void) -> UIAlertController {
-        let title = R.string.localizable
-            .accountInfoTitle(preferredLanguages: locale.rLanguages)
+
+        var title = address
+
+        let offset = title.count / 2
+        title.insert("\n", at: title.index(title.startIndex, offsetBy: offset))
+        
         let alertController = UIAlertController(title: title,
                                                 message: nil,
                                                 preferredStyle: .actionSheet)
