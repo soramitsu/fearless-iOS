@@ -2,9 +2,10 @@ import Foundation
 import CommonWallet
 import SoraFoundation
 import FearlessUtils
+import SoraKeystore
 
 final class ReceiveViewFactory: ReceiveViewFactoryProtocol {
-    let account: AccountItem
+    let accountViewModel: ReceiveAccountViewModelProtocol
     let chain: Chain
     let localizationManager: LocalizationManagerProtocol
 
@@ -12,28 +13,33 @@ final class ReceiveViewFactory: ReceiveViewFactoryProtocol {
 
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(account: AccountItem, chain: Chain, localizationManager: LocalizationManagerProtocol) {
-        self.account = account
+    init(accountViewModel: ReceiveAccountViewModelProtocol,
+         chain: Chain,
+         localizationManager: LocalizationManagerProtocol) {
+        self.accountViewModel = accountViewModel
         self.chain = chain
         self.localizationManager = localizationManager
     }
 
     func createHeaderView() -> UIView? {
-        let icon = try? iconGenerator.generateFromAddress(account.address)
+        let address = accountViewModel.address
+        let username = accountViewModel.displayName
+
+        let icon = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(R.color.colorWhite()!,
                                 size: CGSize(width: 32.0, height: 32.0),
                                 contentScale: UIScreen.main.scale)
 
         let receiveView = R.nib.receiveHeaderView(owner: nil)
-        receiveView?.accountView.title = account.username
-        receiveView?.accountView.subtitle = account.address
+        receiveView?.accountView.title = username
+        receiveView?.accountView.subtitle = address
         receiveView?.accountView.iconImage = icon
         receiveView?.accountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
 
         let locale = localizationManager.selectedLocale
 
         if let commandFactory = commandFactory {
-            let command = WalletAccountOpenCommand(address: account.address,
+            let command = WalletAccountOpenCommand(address: address,
                                                    chain: chain,
                                                    commandFactory: commandFactory,
                                                    locale: locale)
