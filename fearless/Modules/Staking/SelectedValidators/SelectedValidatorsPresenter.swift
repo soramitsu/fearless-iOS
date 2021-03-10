@@ -46,5 +46,22 @@ extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
 
     func selectedValidatorAt(index: Int) {
         // TODO: FLW-593
+        let selectedValidator = validators[index]
+
+        let stakeInfo: ValidatorStakeInfoProtocol =
+            ValidatorStakeInfo(nominators: [],
+                               totalStake: 0.0,
+                               stakeReturn: selectedValidator.stakeReturn)
+
+        let validatorInfo: ValidatorInfoProtocol =
+            ValidatorInfo(address: selectedValidator.address,
+                          identity: selectedValidator.identity,
+                          stakeInfo: stakeInfo)
+
+        guard let validatorInfoView = ValidatorInfoViewFactory.createView(with: validatorInfo) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(validatorInfoView.controller, animated: true)
     }
 }

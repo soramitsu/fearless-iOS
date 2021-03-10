@@ -20,4 +20,12 @@ extension NumberFormatter {
         numberFormatter.positivePrefix = numberFormatter.plusSign
         return numberFormatter
     }
+
+    static var percentAPY: NumberFormatter {
+        let numberFormatter = NumberFormatter.percent
+        numberFormatter.minimumFractionDigits = 2
+        numberFormatter.positivePrefix = ""
+        numberFormatter.percentSymbol = "% APY"
+        return numberFormatter
+    }
 }
