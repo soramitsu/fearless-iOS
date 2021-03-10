@@ -11,7 +11,7 @@ extension UIAlertController {
 
         let offset = title.count / 2
         title.insert("\n", at: title.index(title.startIndex, offsetBy: offset))
-        
+
         let alertController = UIAlertController(title: title,
                                                 message: nil,
                                                 preferredStyle: .actionSheet)

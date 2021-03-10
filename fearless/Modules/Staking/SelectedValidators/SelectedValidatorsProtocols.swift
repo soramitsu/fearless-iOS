@@ -10,7 +10,10 @@ protocol SelectedValidatorsPresenterProtocol: class {
     func selectedValidatorAt(index: Int)
 }
 
-protocol SelectedValidatorsWireframeProtocol: class {}
+protocol SelectedValidatorsWireframeProtocol: class {
+    func showInformation(about validatorInfo: SelectedValidatorInfo,
+                         from view: SelectedValidatorsViewProtocol?)
+}
 
 protocol SelectedValidatorsViewFactoryProtocol: class {
     static func createView(for validators: [SelectedValidatorInfo]) -> SelectedValidatorsViewProtocol?
