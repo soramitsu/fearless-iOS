@@ -296,9 +296,11 @@ extension TransferSubscription {
             let upgraded = (try upgradedOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
 
-            let blockNumberData = try Data(hexString: block.header.number)
+            guard let blockNumberData = BigUInt.fromHexString(block.header.number) else {
+                throw BaseOperationError.unexpectedDependentResult
+            }
 
-            let blockNumber = UInt32(BigUInt(blockNumberData))
+            let blockNumber = UInt32(blockNumberData)
 
             return block.extrinsics.enumerated().compactMap { (index, hexExtrinsic) in
                 do {

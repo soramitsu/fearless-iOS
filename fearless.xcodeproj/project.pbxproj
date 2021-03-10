@@ -722,6 +722,8 @@
 		84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACB6525F56D5000F32ED4 /* CalculatorServiceTests.swift */; };
 		84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8467FD3824EACE08005D486C /* AccountCreationHelper.swift */; };
 		84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F4387E25D9D61300AEDA56 /* SubstrateStorageTestFacade.swift */; };
+		84FACCD425F8B07B00F32ED4 /* ReceiveAccountViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACCD325F8B07B00F32ED4 /* ReceiveAccountViewModel.swift */; };
+		84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FACCD825F8C22A00F32ED4 /* BigInt+Hex.swift */; };
 		84FB1F652526879200E0242B /* WalletSingleProviderIdFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */; };
 		84FB1F672526920B00E0242B /* SubscanHistoryData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F662526920B00E0242B /* SubscanHistoryData.swift */; };
 		84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F68252694B600E0242B /* HistoryInfo.swift */; };
@@ -1594,6 +1596,8 @@
 		84FACB2C25F562CB00F32ED4 /* westend-metadata */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = "westend-metadata"; sourceTree = "<group>"; };
 		84FACB3725F5630000F32ED4 /* RuntimeHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RuntimeHelper.swift; sourceTree = "<group>"; };
 		84FACB6525F56D5000F32ED4 /* CalculatorServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalculatorServiceTests.swift; sourceTree = "<group>"; };
+		84FACCD325F8B07B00F32ED4 /* ReceiveAccountViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReceiveAccountViewModel.swift; sourceTree = "<group>"; };
+		84FACCD825F8C22A00F32ED4 /* BigInt+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigInt+Hex.swift"; sourceTree = "<group>"; };
 		84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSingleProviderIdFactory.swift; sourceTree = "<group>"; };
 		84FB1F662526920B00E0242B /* SubscanHistoryData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanHistoryData.swift; sourceTree = "<group>"; };
 		84FB1F68252694B600E0242B /* HistoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryInfo.swift; sourceTree = "<group>"; };
@@ -3265,6 +3269,7 @@
 				846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */,
 				84F4386025D9A83100AEDA56 /* TimeInterval+Time.swift */,
 				84BE20A725E8D93E00B4748C /* Data+StorageKey.swift */,
+				84FACCD825F8C22A00F32ED4 /* BigInt+Hex.swift */,
 				AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */,
 			);
 			path = Foundation;
@@ -3975,6 +3980,7 @@
 				8419377925441C9C00CFA50C /* View */,
 				84FAB0802543A7EE00319F74 /* ReceiveConfigurator.swift */,
 				841937822544455C00CFA50C /* AccountShareFactory.swift */,
+				84FACCD325F8B07B00F32ED4 /* ReceiveAccountViewModel.swift */,
 			);
 			path = Receive;
 			sourceTree = "<group>";
@@ -4948,6 +4954,7 @@
 				8425EA9A25EA83FA00C307C9 /* ChainData+Value.swift in Sources */,
 				84585A2F251BFC8400390F7A /* TriangularedButton+Style.swift in Sources */,
 				84C6801A24D75E2A00006BF5 /* BorderedSubtitleActionView+Inspectable.swift in Sources */,
+				84FACCD425F8B07B00F32ED4 /* ReceiveAccountViewModel.swift in Sources */,
 				84CCBFBC2509709500180F4F /* UIBarButtonItem+Style.swift in Sources */,
 				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
 				8460E1192541FD1800826F55 /* TransactionDetailsAccessoryView.swift in Sources */,
@@ -5052,6 +5059,7 @@
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,
 				846AF8442525BE0100868F37 /* Price.swift in Sources */,
 				84CD357325264F640081BC0B /* WalletTotalPriceViewModel.swift in Sources */,
+				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */,
 				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
