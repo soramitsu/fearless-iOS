@@ -75,17 +75,17 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func activateTwitter() {
-        guard let twitterAccount = validatorInfo?.identity?.twitter else { return }
+        guard let account = validatorInfo?.identity?.twitter else { return }
 
-        if let url = URL(string: "https://twitter.com/\(twitterAccount)") {
+        if let url = URL.twitterAddress(for: account) {
             show(url)
         }
     }
 
     func activateRiotName() {
-        guard let riotName = validatorInfo?.identity?.riot else { return }
+        guard let name = validatorInfo?.identity?.riot else { return }
 
-        if let url = URL(string: "https://matrix.to/#/\(riotName)") {
+        if let url = URL.riotAddress(for: name) {
             show(url)
         }
     }

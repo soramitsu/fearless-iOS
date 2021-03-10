@@ -10,7 +10,8 @@ extension UIAlertController {
         var title = address
 
         let offset = title.count / 2
-        title.insert("\n", at: title.index(title.startIndex, offsetBy: offset))
+        title.insert(contentsOf: String.returnKey,
+                     at: title.index(title.startIndex, offsetBy: offset))
 
         let alertController = UIAlertController(title: title,
                                                 message: nil,
