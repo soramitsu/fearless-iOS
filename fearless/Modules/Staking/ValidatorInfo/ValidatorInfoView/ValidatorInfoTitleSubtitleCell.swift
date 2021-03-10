@@ -10,7 +10,7 @@ final class ValidatorInfoTitleSubtitleCell: UITableViewCell {
         super.awakeFromNib()
 
         let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorCellSelection()!
+        selectedBackgroundView.backgroundColor = R.color.colorHighlightedPink()
         self.selectedBackgroundView = selectedBackgroundView
     }
 
