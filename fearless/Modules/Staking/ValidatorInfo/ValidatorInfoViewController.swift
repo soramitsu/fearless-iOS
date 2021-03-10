@@ -157,6 +157,8 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId,
                                                      for: indexPath)!
 
+            cell.selectionStyle = .none
+            
             cell.bind(model: row.content.value(for: locale))
 
             return cell
