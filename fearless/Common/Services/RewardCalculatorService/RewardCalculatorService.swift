@@ -16,7 +16,8 @@ final class RewardCalculatorService {
         let queue: DispatchQueue?
     }
 
-    private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)")
+    private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
+                                          qos: .userInitiated)
 
     private var isActive: Bool = false
     private var chain: Chain?
@@ -101,7 +102,7 @@ final class RewardCalculatorService {
     private func handleTotalIssuanceDecodingResult(chain: Chain,
                                                    result: Result<StringScaleMapper<BigUInt>, Error>?) {
         guard chain == self.chain else {
-            Logger.shared.warning("Total Issuance decoding triggered but chain changed. Cancelled.")
+            logger?.warning("Total Issuance decoding triggered but chain changed. Cancelled.")
             return
         }
 
@@ -154,7 +155,7 @@ final class RewardCalculatorService {
     private func subscribe() {
         do {
             guard let chain = self.chain else {
-                Logger.shared.warning("Missing chain to subscribe")
+                logger?.warning("Missing chain to subscribe")
                 return
             }
 

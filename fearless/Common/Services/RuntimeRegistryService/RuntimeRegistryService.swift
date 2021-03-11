@@ -42,7 +42,8 @@ final class RuntimeRegistryService {
 
     private var runtimeMetadata: RuntimeMetadataItem?
     private var snapshot: Snapshot?
-    private var syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)")
+    private var syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
+                                          qos: .userInitiated)
     private var pendingRequests: [PendingRequest] = []
     private var dataHasher: StorageHasher = .twox256
     private var snapshotLoadingWrapper: CompoundOperationWrapper<Snapshot>?

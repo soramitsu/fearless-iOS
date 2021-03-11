@@ -415,6 +415,7 @@
 		8476C9E025EF94F2003EEAE1 /* StakingViewModelFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */; };
 		8476CA0625EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CA0525EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift */; };
 		8476CA0B25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8476CA0A25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift */; };
+		84786DA825F9F58E0089DFF7 /* EraValidatorService+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */; };
 		847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C961F255340F2002D288F /* ExportGenericViewController.swift */; };
 		847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962725534134002D288F /* ExportGenericProtocols.swift */; };
 		847C96302553426D002D288F /* ExportGenericViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962F2553426D002D288F /* ExportGenericViewModel.swift */; };
@@ -1273,6 +1274,7 @@
 		8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingViewModelFacade.swift; sourceTree = "<group>"; };
 		8476CA0525EFB072003EEAE1 /* SingleValueProviderFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleValueProviderFactoryStub.swift; sourceTree = "<group>"; };
 		8476CA0A25EFB17A003EEAE1 /* RewardCalculatorServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceStub.swift; sourceTree = "<group>"; };
+		84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "EraValidatorService+Fetch.swift"; sourceTree = "<group>"; };
 		847C961F255340F2002D288F /* ExportGenericViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewController.swift; sourceTree = "<group>"; };
 		847C962725534134002D288F /* ExportGenericProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericProtocols.swift; sourceTree = "<group>"; };
 		847C962F2553426D002D288F /* ExportGenericViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewModel.swift; sourceTree = "<group>"; };
@@ -2925,6 +2927,7 @@
 				848FFE6525E6742400652AA5 /* EraValidatorService.swift */,
 				848FFE8A25E69A6000652AA5 /* EraValidatorServiceProtocol.swift */,
 				84F2FF0E25E7D059008338D5 /* EraValidatorFacade.swift */,
+				84786DA725F9F58E0089DFF7 /* EraValidatorService+Fetch.swift */,
 			);
 			path = EraValidatorsService;
 			sourceTree = "<group>";
@@ -5045,6 +5048,7 @@
 				8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */,
+				84786DA825F9F58E0089DFF7 /* EraValidatorService+Fetch.swift in Sources */,
 				8428769324AE046300D91AD8 /* AboutWireframe.swift in Sources */,
 				84754CA22513DB8800854599 /* EmptyAccountIcon.swift in Sources */,
 				84CE69922565244700559427 /* WalletAccountOpenCommand.swift in Sources */,
