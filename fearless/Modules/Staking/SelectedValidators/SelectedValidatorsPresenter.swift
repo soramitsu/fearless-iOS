@@ -21,21 +21,20 @@ final class SelectedValidatorsPresenter {
         do {
             let viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] =
                 try validators.map { validator in
-                let icon = try iconGenerator.generateFromAddress(validator.address)
-                return LocalizableResource { _ in
-                    let title = validator.identity?.displayName ?? validator.address
+                    let icon = try iconGenerator.generateFromAddress(validator.address)
+                    return LocalizableResource { _ in
+                        let title = validator.identity?.displayName ?? validator.address
 
-                    return SelectedValidatorViewModel(icon: icon,
-                                                      title: title,
-                                                      details: "")
+                        return SelectedValidatorViewModel(icon: icon,
+                                                          title: title,
+                                                          details: "")
+                    }
                 }
-            }
 
             view?.didReceive(viewModels: viewModels)
         } catch {
             logger?.debug("Did receive error: \(error)")
         }
-
     }
 }
 
@@ -46,5 +45,8 @@ extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
 
     func selectedValidatorAt(index: Int) {
         // TODO: FLW-593
+        let selectedValidator = validators[index]
+        wireframe.showInformation(about: selectedValidator,
+                                  from: view)
     }
 }

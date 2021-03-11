@@ -44,7 +44,9 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
         let targets = recommended.map {
             SelectedValidatorInfo(address: $0.address,
                                   identity: $0.identity,
-                                  stakeReturn: $0.stakeReturn)
+                                  stakeInfo: ValidatorStakeInfo(nominators: $0.nominators,
+                                                                totalStake: $0.totalStake,
+                                                                stakeReturn: $0.stakeReturn))
         }
 
         let nomination = PreparedNomination(amount: state.amount,
