@@ -16,7 +16,8 @@ final class RewardCalculatorService {
         let queue: DispatchQueue?
     }
 
-    private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)")
+    private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
+                                          qos: .userInitiated)
 
     private var isActive: Bool = false
     private var chain: Chain?

@@ -262,6 +262,63 @@ class CalculatorServiceTests: XCTestCase {
         }
     }
 
+    func testSubscriptionToEra() {
+        measure {
+            do {
+                let chain = Chain.kusama
+                let storageFacade = SubstrateDataStorageFacade.shared
+                let syncQueue = DispatchQueue(label: "test.\(UUID().uuidString)")
+
+                let localFactory = try ChainStorageIdFactory(chain: chain)
+
+                let path = StorageCodingPath.activeEra
+                let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
+                                                                   storageName: path.itemName)
+
+                let localKey = localFactory.createIdentifier(for: key)
+                let eraDataProvider = SubstrateDataProviderFactory(facade: storageFacade,
+                                                                   operationManager: OperationManager())
+                    .createStorageProvider(for: localKey)
+
+                let expectation = XCTestExpectation()
+
+                let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { changes in
+                    let finalValue: ChainStorageItem? = changes.reduce(nil) { (_, item) in
+                        switch item {
+                        case .insert(let newItem), .update(let newItem):
+                            return newItem
+                        case .delete:
+                            return nil
+                        }
+                    }
+
+                    if finalValue != nil {
+                        expectation.fulfill()
+                    }
+                }
+
+                let failureClosure: (Error) -> Void = { (error) in
+                    XCTFail("Unexpected error: \(error)")
+                    expectation.fulfill()
+                }
+
+                let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
+                                                                waitsInProgressSyncOnAdd: false,
+                                                                initialSize: 0,
+                                                                refreshWhenEmpty: false)
+                eraDataProvider.addObserver(self,
+                                            deliverOn: syncQueue,
+                                            executing: updateClosure,
+                                            failing: failureClosure,
+                                            options: options)
+
+                wait(for: [expectation], timeout: 10.0)
+            } catch {
+                XCTFail("Unexpected error: \(error)")
+            }
+        }
+    }
+
     // MARK: Private
 
     private func performDatabaseTest(for chain: Chain,
