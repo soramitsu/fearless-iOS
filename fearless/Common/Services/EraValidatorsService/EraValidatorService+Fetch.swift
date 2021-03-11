@@ -10,7 +10,7 @@ extension EraValidatorService {
                                   exposures: [IdentifiableExposure],
                                   prefs: [StorageResponse<ValidatorPrefs>]) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Validators fetched but parameters changed. Cancelled.")
+            logger?.warning("Validators fetched but parameters changed. Cancelled.")
             return
         }
 
@@ -258,12 +258,12 @@ extension EraValidatorService {
                                 prefixKey: Data,
                                 codingFactory: RuntimeCoderFactoryProtocol) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Update triggered but parameters changed. Cancelled.")
+            logger?.warning("Update triggered but parameters changed. Cancelled.")
             return
         }
 
         guard let localFactory = try? ChainStorageIdFactory(chain: chain) else {
-            Logger.shared.error("Can't create local factory")
+            logger?.error("Can't create local factory")
             return
         }
 
@@ -304,7 +304,7 @@ extension EraValidatorService {
 
     private func preparePrefixKeyAndUpdateIfNeeded(chain: Chain, activeEra: UInt32) {
         guard activeEra == self.activeEra, chain == self.chain else {
-            Logger.shared.warning("Prefix key for formed but parameters changed. Cancelled.")
+            logger?.warning("Prefix key for formed but parameters changed. Cancelled.")
             return
         }
 
@@ -351,7 +351,7 @@ extension EraValidatorService {
 
     private func handleEraDecodingResult(chain: Chain, result: Result<ActiveEraInfo, Error>?) {
         guard chain == self.chain else {
-            Logger.shared.warning("Era decoding triggered but chain changed. Cancelled.")
+            logger?.warning("Era decoding triggered but chain changed. Cancelled.")
             return
         }
 
