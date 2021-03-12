@@ -278,3 +278,8 @@ Percorso di derivazione: %@";
 "identity.email.title" = "E-mail";
 "identity.web.title" = "Web";
 "identity.riot.name.title" = "Nome antisommossa";
+"staking.main.network.title" = "%@ rete";
+"staking.main.total.staked.title" = "Totale puntato";
+"staking.main.minimum.stake.title" = "Puntata minima";
+"staking.main.active.nominators.title" = "Nominatori attivi";
+"staking.main.lockup.period.title" = "Periodo di lock-up";

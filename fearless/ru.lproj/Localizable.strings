@@ -279,3 +279,8 @@ a type of password.";
 "identity.email.title" = "Почта";
 "identity.web.title" = "Сеть";
 "identity.riot.name.title" = "Имя Riot";
+"staking.main.network.title" = "Сеть %@";
+"staking.main.total.staked.title" = "Общая ставка";
+"staking.main.minimum.stake.title" = "Минимальная ставка";
+"staking.main.active.nominators.title" = "Активные номинаторы";
+"staking.main.lockup.period.title" = "Период блокировки";

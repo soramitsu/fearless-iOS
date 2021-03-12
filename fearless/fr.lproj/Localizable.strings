@@ -278,3 +278,8 @@ Chemin de dérivation : %@";
 "identity.email.title" = "E-mail";
 "identity.web.title" = "Web";
 "identity.riot.name.title" = "Nom de l'émeute";
+"staking.main.network.title" = "%@ réseau";
+"staking.main.total.staked.title" = "Total jalonné";
+"staking.main.minimum.stake.title" = "Mise minimum";
+"staking.main.active.nominators.title" = "Nominateurs actifs";
+"staking.main.lockup.period.title" = "Période de blocage";

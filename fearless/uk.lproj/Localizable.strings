@@ -279,3 +279,8 @@
 "identity.email.title" = "Пошта";
 "identity.web.title" = "Мережа";
 "identity.riot.name.title" = "Назва Riot";
+"staking.main.network.title" = "%@ мережа";
+"staking.main.total.staked.title" = "Загальна ставка";
+"staking.main.minimum.stake.title" = "Мінімальна ставка";
+"staking.main.active.nominators.title" = "Активні номінатори";
+"staking.main.lockup.period.title" = "Період блокування";
