@@ -39,8 +39,12 @@ extension NSPredicate {
         return NSPredicate(format: "%K BEGINSWITH %@", #keyPath(CDChainStorageItem.identifier), prefix)
     }
 
+    static func filterByStash(_ address: String) -> NSPredicate {
+        return NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
+    }
+
     static func filterByStashOrController(_ address: String) -> NSPredicate {
-        let stash = NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
+        let stash = filterByStash(address)
         let controller = NSPredicate(format: "%K == %@", #keyPath(CDStashItem.controller), address)
 
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])

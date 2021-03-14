@@ -1,6 +1,6 @@
 import Foundation
 
-struct StorageCodingPath {
+struct StorageCodingPath: Equatable {
     let moduleName: String
     let itemName: String
 }

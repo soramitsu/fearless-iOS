@@ -139,7 +139,15 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             mapOperation.completionBlock = { [weak self] in
                 do {
                     let keys = try mapOperation.extractNoCancellableResultData()
-                    self?.subscribeToRemote(with: keys)
+
+                    let ledgerKey: Data?
+                    if let ledgerOperation = codingOperations.first(where: { $0.path == .stakingLedger }) {
+                        ledgerKey = try ledgerOperation.extractNoCancellableResultData().first
+                    } else {
+                        ledgerKey = nil
+                    }
+
+                    self?.subscribeToRemote(with: keys, ledgerKey: ledgerKey)
                 } catch {
                     self?.logger?.error("Did receive error: \(error)")
                 }
@@ -154,7 +162,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
     }
 
-    private func subscribeToRemote(with keys: [Data]) {
+    private func subscribeToRemote(with keys: [Data], ledgerKey: Data?) {
         mutex.lock()
 
         defer {
@@ -177,7 +185,14 @@ final class StakingAccountSubscription: WebSocketSubscribing {
                                                       updateClosure: updateClosure,
                                                       failureClosure: failureClosure)
 
-            let handlers = keys.map { childSubscriptionFactory.createEmptyHandlingSubscription(remoteKey: $0) }
+            let handlers: [StorageChildSubscribing] = keys.map { key in
+                if key == ledgerKey {
+                    return childSubscriptionFactory
+                        .createEventEmittingSubscription(remoteKey: key) { _ in WalletStakingInfoChanged() }
+                } else {
+                    return childSubscriptionFactory.createEmptyHandlingSubscription(remoteKey: key)
+                }
+            }
             subscription = Subscription(handlers: handlers, subscriptionId: subscriptionId)
 
         } catch {

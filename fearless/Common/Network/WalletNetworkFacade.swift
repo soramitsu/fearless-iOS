@@ -4,6 +4,7 @@ import IrohaCrypto
 import RobinHood
 
 final class WalletNetworkFacade {
+    let storageFacade: StorageFacadeProtocol
     let accountSettings: WalletAccountSettingsProtocol
     let nodeOperationFactory: WalletNetworkOperationFactoryProtocol
     let subscanOperationFactory: SubscanOperationFactoryProtocol
@@ -16,7 +17,8 @@ final class WalletNetworkFacade {
     let contactsOperationFactory: WalletContactOperationFactoryProtocol
     let accountsRepository: AnyDataProviderRepository<ManagedAccountItem>
 
-    init(accountSettings: WalletAccountSettingsProtocol,
+    init(storageFacade: StorageFacadeProtocol,
+         accountSettings: WalletAccountSettingsProtocol,
          nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
          subscanOperationFactory: SubscanOperationFactoryProtocol,
          chainStorage: AnyDataProviderRepository<ChainStorageItem>,
@@ -27,6 +29,7 @@ final class WalletNetworkFacade {
          address: String,
          networkType: SNAddressType,
          totalPriceAssetId: WalletAssetId) {
+        self.storageFacade = storageFacade
         self.accountSettings = accountSettings
         self.nodeOperationFactory = nodeOperationFactory
         self.subscanOperationFactory = subscanOperationFactory
