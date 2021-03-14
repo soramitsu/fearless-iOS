@@ -6,25 +6,29 @@ import RobinHood
 final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     let storageFacade: StorageFacadeProtocol
 
+    let storageKeyFactory = StorageKeyFactory()
+    let addressFactory = SS58AddressFactory()
+    let operationManager = OperationManagerFacade.sharedManager
+    let eventCenter = EventCenter.shared
+    let logger = Logger.shared
+
+    let runtimeService = RuntimeRegistryFacade.sharedService
+    let providerFactory: SubstrateDataProviderFactoryProtocol
+
     init(storageFacade: StorageFacadeProtocol) {
         self.storageFacade = storageFacade
+
+        providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                       operationManager: operationManager)
     }
 
     func createSubscriptions(address: String,
                              type: SNAddressType,
                              engine: JSONRPCEngine) throws -> [WebSocketSubscribing] {
-        let addressFactory = SS58AddressFactory()
+
         let accountId = try addressFactory.accountId(fromAddress: address, type: type)
 
-        let keyFactory = StorageKeyFactory()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: type.chain)
-        let operationManager = OperationManagerFacade.sharedManager
-        let eventCenter = EventCenter.shared
-        let logger = Logger.shared
-
-        let runtimeService = RuntimeRegistryFacade.sharedService
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager)
 
         let childSubscriptionFactory = ChildSubscriptionFactory(storageFacade: storageFacade,
                                                                 operationManager: operationManager,
@@ -35,22 +39,18 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let transferSubscription = createTransferSubscription(address: address,
                                                               engine: engine,
                                                               networkType: type,
-                                                              addressFactory: addressFactory,
                                                               localStorageIdFactory: localStorageIdFactory)
 
-        let accountSubscription = try createAccountInfoSubscription(transferSubscription: transferSubscription,
-                                                                    accountId: accountId,
-                                                                    storageKeyFactory: keyFactory,
-                                                                    localStorageIdFactory:
-                                                                        localStorageIdFactory)
+        let accountSubscription =
+            try createAccountInfoSubscription(transferSubscription: transferSubscription,
+                                              accountId: accountId,
+                                              localStorageIdFactory: localStorageIdFactory)
 
         let accountSubscriptions: [StorageChildSubscribing] = [
             accountSubscription
         ]
 
-        let globalSubscriptions: [StorageChildSubscribing] = try createGlobalSubscriptions(
-            keyFactory: keyFactory,
-            localStorageIdFactory: localStorageIdFactory)
+        let globalSubscriptions = try createGlobalSubscriptions(childSubscriptionFactory)
 
         let globalSubscriptionContainer = StorageSubscriptionContainer(engine: engine,
                                                                        children: globalSubscriptions,
@@ -65,18 +65,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let stakingResolver = createStakingResolver(address: address,
                                                     childSubscriptionFactory: childSubscriptionFactory,
-                                                    runtimeService: runtimeService,
                                                     engine: engine,
-                                                    networkType: type,
-                                                    addressFactory: addressFactory)
+                                                    networkType: type)
 
-        let stakingSubscription = createStakingSubscription(address: address,
-                                                            engine: engine,
-                                                            dataProviderFactory: providerFactory,
-                                                            childSubscriptionFactory: childSubscriptionFactory,
-                                                            runtimeService: runtimeService,
-                                                            networkType: type,
-                                                            addressFactory: addressFactory)
+        let stakingSubscription =
+            createStakingSubscription(address: address,
+                                      engine: engine,
+                                      childSubscriptionFactory: childSubscriptionFactory,
+                                      networkType: type)
 
         return [globalSubscriptionContainer,
                 accountSubscriptionContainer,
@@ -85,24 +81,15 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 stakingSubscription]
     }
 
-    private func createGlobalSubscriptions(keyFactory: StorageKeyFactoryProtocol,
-                                           localStorageIdFactory: ChainStorageIdFactoryProtocol)
+    private func createGlobalSubscriptions(_ factory: ChildSubscriptionFactoryProtocol)
     throws -> [StorageChildSubscribing] {
-        let upgradeV28Subscription = try createV28Subscription(
-            storageKeyFactory: keyFactory,
-            localStorageIdFactory: localStorageIdFactory)
+        let upgradeV28Subscription = try createV28Subscription(factory)
 
-        let activeEraSubscription = try createActiveEraSubscription(
-            storageKeyFactory: keyFactory,
-            localStorageIdFactory: localStorageIdFactory)
+        let activeEraSubscription = try createActiveEraSubscription(factory)
 
-        let currentEraSubscription = try createCurrentEraSubscription(
-            storageKeyFactory: keyFactory,
-            localStorageIdFactory: localStorageIdFactory)
+        let currentEraSubscription = try createCurrentEraSubscription(factory)
 
-        let totalIssuanceSubscription = try createTotalIssuanceSubscription(
-            storageKeyFactory: keyFactory,
-            localStorageIdFactory: localStorageIdFactory)
+        let totalIssuanceSubscription = try createTotalIssuanceSubscription(factory)
 
         let subscriptions: [StorageChildSubscribing] = [
             upgradeV28Subscription,
@@ -116,7 +103,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
     private func createAccountInfoSubscription(transferSubscription: TransferSubscription,
                                                accountId: Data,
-                                               storageKeyFactory: StorageKeyFactoryProtocol,
                                                localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> AccountInfoSubscription {
         let accountStorageKey = try storageKeyFactory.accountInfoKeyForId(accountId)
@@ -135,78 +121,38 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                        eventCenter: EventCenter.shared)
     }
 
-    private func createActiveEraSubscription(storageKeyFactory: StorageKeyFactoryProtocol,
-                                             localStorageIdFactory: ChainStorageIdFactoryProtocol)
-    throws -> ActiveEraSubscription {
+    private func createActiveEraSubscription(_ factory: ChildSubscriptionFactoryProtocol)
+    throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.activeEra()
-        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
-
-        return ActiveEraSubscription(remoteStorageKey: remoteStorageKey,
-                                     localStorageKey: localStorageKey,
-                                     storage: AnyDataProviderRepository(storage),
-                                     operationManager: OperationManagerFacade.sharedManager,
-                                     logger: Logger.shared,
-                                     eventCenter: EventCenter.shared)
+        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createCurrentEraSubscription(storageKeyFactory: StorageKeyFactoryProtocol,
-                                              localStorageIdFactory: ChainStorageIdFactoryProtocol)
-    throws -> CurrentEraSubscription {
+    private func createCurrentEraSubscription(_ childFactory: ChildSubscriptionFactoryProtocol)
+    throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.currentEra()
-        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
-
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
-
-        return CurrentEraSubscription(remoteStorageKey: remoteStorageKey,
-                                      localStorageKey: localStorageKey,
-                                      storage: AnyDataProviderRepository(storage),
-                                      operationManager: OperationManagerFacade.sharedManager,
-                                      logger: Logger.shared,
-                                      eventCenter: EventCenter.shared)
+        return childFactory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createTotalIssuanceSubscription(storageKeyFactory: StorageKeyFactoryProtocol,
-                                                 localStorageIdFactory: ChainStorageIdFactoryProtocol)
-    throws -> TotalIssuanceSubscription {
+    private func createTotalIssuanceSubscription(_ factory: ChildSubscriptionFactoryProtocol)
+    throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.totalIssuance()
-        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
-
-        return TotalIssuanceSubscription(remoteStorageKey: remoteStorageKey,
-                                         localStorageKey: localStorageKey,
-                                         storage: AnyDataProviderRepository(storage),
-                                         operationManager: OperationManagerFacade.sharedManager,
-                                         logger: Logger.shared,
-                                         eventCenter: EventCenter.shared)
+        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createV28Subscription(storageKeyFactory: StorageKeyFactoryProtocol,
-                                       localStorageIdFactory: ChainStorageIdFactoryProtocol)
-    throws -> UpgradeV28Subscription {
+    private func createV28Subscription(_ factory: ChildSubscriptionFactoryProtocol)
+    throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.updatedDualRefCount()
-        let localStorageKey = localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
-
-        return UpgradeV28Subscription(remoteStorageKey: remoteStorageKey,
-                                      localStorageKey: localStorageKey,
-                                      storage: AnyDataProviderRepository(storage),
-                                      operationManager: OperationManagerFacade.sharedManager,
-                                      logger: Logger.shared,
-                                      eventCenter: EventCenter.shared)
+        return factory.createEventEmittingSubscription(remoteKey: remoteStorageKey) { _ in
+            WalletBalanceChanged()
+        }
     }
 
     private func createTransferSubscription(address: String,
                                             engine: JSONRPCEngine,
                                             networkType: SNAddressType,
-                                            addressFactory: SS58AddressFactoryProtocol,
                                             localStorageIdFactory: ChainStorageIdFactoryProtocol)
     -> TransferSubscription {
         let filter = NSPredicate.filterTransactionsBy(address: address)
@@ -244,16 +190,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return RuntimeVersionSubscription(chain: chain,
                                           storage: AnyDataProviderRepository(storage),
                                           engine: engine,
-                                          operationManager: OperationManagerFacade.sharedManager,
-                                          logger: Logger.shared)
+                                          operationManager: operationManager,
+                                          logger: logger)
     }
 
     private func createStakingResolver(address: String,
                                        childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-                                       runtimeService: RuntimeCodingServiceProtocol,
                                        engine: JSONRPCEngine,
-                                       networkType: SNAddressType,
-                                       addressFactory: SS58AddressFactoryProtocol) -> StakingAccountResolver {
+                                       networkType: SNAddressType) -> StakingAccountResolver {
 
         let mapper: CodableCoreDataMapper<StashItem, CDStashItem> =
             CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDStashItem.stash))
@@ -271,20 +215,17 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                       repository: AnyDataProviderRepository(repository),
                                       childSubscriptionFactory: childSubscriptionFactory,
                                       addressFactory: addressFactory,
-                                      operationManager: OperationManagerFacade.sharedManager,
-                                      logger: Logger.shared)
+                                      operationManager: operationManager,
+                                      logger: logger)
     }
 
     private func createStakingSubscription(address: String,
                                            engine: JSONRPCEngine,
-                                           dataProviderFactory: SubstrateDataProviderFactoryProtocol,
                                            childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-                                           runtimeService: RuntimeCodingServiceProtocol,
-                                           networkType: SNAddressType,
-                                           addressFactory: SS58AddressFactoryProtocol)
+                                           networkType: SNAddressType)
     -> StakingAccountSubscription {
 
-        let provider = dataProviderFactory.createStashItemProvider(for: address)
+        let provider = providerFactory.createStashItemProvider(for: address)
 
         return StakingAccountSubscription(address: address,
                                           chain: networkType.chain,
@@ -292,8 +233,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                           provider: provider,
                                           runtimeService: runtimeService,
                                           childSubscriptionFactory: childSubscriptionFactory,
-                                          operationManager: OperationManagerFacade.sharedManager,
+                                          operationManager: operationManager,
                                           addressFactory: addressFactory,
-                                          logger: Logger.shared)
+                                          logger: logger)
     }
 }
