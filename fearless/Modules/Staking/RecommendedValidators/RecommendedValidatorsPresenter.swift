@@ -37,9 +37,11 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
     }
 
     func proceed() {
-        guard let recommended = recommended else {
+        guard let all = allValidators, let recommended = recommended else {
             return
         }
+
+        let totalCount = min(all.count, StakingConstants.maxTargets)
 
         let targets = recommended.map {
             SelectedValidatorInfo(address: $0.address,
@@ -51,17 +53,20 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
 
         let nomination = PreparedNomination(amount: state.amount,
                                             rewardDestination: state.rewardDestination,
-                                            targets: targets)
+                                            targets: targets,
+                                            maxTargets: totalCount)
 
         wireframe.proceed(from: view, result: nomination)
     }
 
     func selectRecommendedValidators() {
-        guard let recommended = recommended else {
+        guard let all = allValidators, let recommended = recommended else {
             return
         }
 
-        wireframe.showRecommended(from: view, validators: recommended)
+        let totalCount = min(all.count, StakingConstants.maxTargets)
+
+        wireframe.showRecommended(from: view, validators: recommended, maxTargets: totalCount)
     }
 
     func selectCustomValidators() {

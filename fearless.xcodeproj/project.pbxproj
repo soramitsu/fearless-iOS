@@ -619,7 +619,7 @@
 		84CE69E82566750D00559427 /* ByteLengthProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69E72566750D00559427 /* ByteLengthProcessor.swift */; };
 		84CE69ED25667A5600559427 /* ByteLengthEncodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */; };
 		84CE6A312566800000559427 /* ByteLengthProcessor+Username.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */; };
-		84D2F45425EF044B008B914D /* SelectedValidatorViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D2F45325EF044B008B914D /* SelectedValidatorViewModel.swift */; };
+		84D2F45425EF044B008B914D /* SelectedValidatorsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D2F45325EF044B008B914D /* SelectedValidatorsViewModel.swift */; };
 		84D2F45A25EF0556008B914D /* SelectedValidatorCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D2F45925EF0556008B914D /* SelectedValidatorCell.xib */; };
 		84D2F45F25EF0599008B914D /* SelectedValidatorCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84D2F45E25EF0599008B914D /* SelectedValidatorCell.swift */; };
 		84D2F46425EF6A5A008B914D /* SelectedValidatorsHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84D2F46325EF6A5A008B914D /* SelectedValidatorsHeaderView.xib */; };
@@ -1498,7 +1498,7 @@
 		84CE69E72566750D00559427 /* ByteLengthProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteLengthProcessor.swift; sourceTree = "<group>"; };
 		84CE69EC25667A5600559427 /* ByteLengthEncodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ByteLengthEncodingTests.swift; sourceTree = "<group>"; };
 		84CE6A302566800000559427 /* ByteLengthProcessor+Username.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ByteLengthProcessor+Username.swift"; sourceTree = "<group>"; };
-		84D2F45325EF044B008B914D /* SelectedValidatorViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorViewModel.swift; sourceTree = "<group>"; };
+		84D2F45325EF044B008B914D /* SelectedValidatorsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorsViewModel.swift; sourceTree = "<group>"; };
 		84D2F45925EF0556008B914D /* SelectedValidatorCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SelectedValidatorCell.xib; sourceTree = "<group>"; };
 		84D2F45E25EF0599008B914D /* SelectedValidatorCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorCell.swift; sourceTree = "<group>"; };
 		84D2F46325EF6A5A008B914D /* SelectedValidatorsHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = SelectedValidatorsHeaderView.xib; sourceTree = "<group>"; };
@@ -3742,7 +3742,7 @@
 		84D2F45225EF043C008B914D /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
-				84D2F45325EF044B008B914D /* SelectedValidatorViewModel.swift */,
+				84D2F45325EF044B008B914D /* SelectedValidatorsViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4724,7 +4724,7 @@
 				840882B62514A5ED00177E20 /* ConnectionUsernameWireframe.swift in Sources */,
 				84C74361251E4B5E009576C6 /* FeeType.swift in Sources */,
 				8428765224ADDE0200D91AD8 /* ProfilePresenter.swift in Sources */,
-				84D2F45425EF044B008B914D /* SelectedValidatorViewModel.swift in Sources */,
+				84D2F45425EF044B008B914D /* SelectedValidatorsViewModel.swift in Sources */,
 				84FD3DB52540ED0900A234E3 /* Block.swift in Sources */,
 				843C49DD24DF397800B71DDA /* AccountImportSource.swift in Sources */,
 				84DA3B0E24C5AEB600B5E27F /* TransferCallV27.swift in Sources */,

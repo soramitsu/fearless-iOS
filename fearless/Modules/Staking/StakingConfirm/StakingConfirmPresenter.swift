@@ -113,7 +113,9 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func selectValidators() {
-        wireframe.showSelectedValidator(from: view, validators: state.targets)
+        wireframe.showSelectedValidator(from: view,
+                                        validators: state.targets,
+                                        maxTargets: state.maxTargets)
     }
 
     func proceed() {

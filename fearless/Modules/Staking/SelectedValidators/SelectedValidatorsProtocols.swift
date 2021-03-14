@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol SelectedValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>])
+    func didReceive(viewModel: SelectedValidatorsViewModelProtocol)
 }
 
 protocol SelectedValidatorsPresenterProtocol: class {
@@ -16,5 +16,6 @@ protocol SelectedValidatorsWireframeProtocol: class {
 }
 
 protocol SelectedValidatorsViewFactoryProtocol: class {
-    static func createView(for validators: [SelectedValidatorInfo]) -> SelectedValidatorsViewProtocol?
+    static func createView(for validators: [SelectedValidatorInfo],
+                           maxTargets: Int) -> SelectedValidatorsViewProtocol?
 }

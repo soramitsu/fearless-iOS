@@ -14,8 +14,10 @@ final class StakingConfirmWireframe: StakingConfirmWireframeProtocol, ModalAlert
     }
 
     func showSelectedValidator(from view: StakingConfirmViewProtocol?,
-                               validators: [SelectedValidatorInfo]) {
-        guard let validatorsView = SelectedValidatorsViewFactory.createView(for: validators) else {
+                               validators: [SelectedValidatorInfo],
+                               maxTargets: Int) {
+        guard let validatorsView = SelectedValidatorsViewFactory
+                .createView(for: validators, maxTargets: maxTargets) else {
             return
         }
 
