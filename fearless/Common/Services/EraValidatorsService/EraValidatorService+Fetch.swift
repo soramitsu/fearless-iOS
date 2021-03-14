@@ -376,8 +376,6 @@ extension EraValidatorService {
             return
         }
 
-        logger?.warning("Did receive era")
-
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let decodingOperation = StorageDecodingOperation<ActiveEraInfo>(path: .activeEra,
                                                                         data: eraItem.data)

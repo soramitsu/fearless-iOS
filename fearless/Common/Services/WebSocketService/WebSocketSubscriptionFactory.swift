@@ -18,10 +18,19 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let keyFactory = StorageKeyFactory()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: type.chain)
+        let operationManager = OperationManagerFacade.sharedManager
+        let eventCenter = EventCenter.shared
+        let logger = Logger.shared
 
-        let stakingSubscription = try createStakingSubscription(engine: engine,
-                                                                accountId: accountId,
-                                                                localStorageIdFactory: localStorageIdFactory)
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                           operationManager: operationManager)
+
+        let childSubscriptionFactory = ChildSubscriptionFactory(storageFacade: storageFacade,
+                                                                operationManager: operationManager,
+                                                                eventCenter: eventCenter,
+                                                                localKeyFactory: localStorageIdFactory,
+                                                                logger: logger)
 
         let transferSubscription = createTransferSubscription(address: address,
                                                               engine: engine,
@@ -35,13 +44,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                                     localStorageIdFactory:
                                                                         localStorageIdFactory)
 
-        let bondedSubscription = try createBondedSubscription(accountId: accountId,
-                                                              stakingSubscription: stakingSubscription,
-                                                              storageKeyFactory: keyFactory)
-
         let accountSubscriptions: [StorageChildSubscribing] = [
-            accountSubscription,
-            bondedSubscription
+            accountSubscription
         ]
 
         let globalSubscriptions: [StorageChildSubscribing] = try createGlobalSubscriptions(
@@ -59,10 +63,26 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let runtimeSubscription = createRuntimeVersionSubscription(engine: engine,
                                                                    networkType: type)
 
+        let stakingResolver = createStakingResolver(address: address,
+                                                    childSubscriptionFactory: childSubscriptionFactory,
+                                                    runtimeService: runtimeService,
+                                                    engine: engine,
+                                                    networkType: type,
+                                                    addressFactory: addressFactory)
+
+        let stakingSubscription = createStakingSubscription(address: address,
+                                                            engine: engine,
+                                                            dataProviderFactory: providerFactory,
+                                                            childSubscriptionFactory: childSubscriptionFactory,
+                                                            runtimeService: runtimeService,
+                                                            networkType: type,
+                                                            addressFactory: addressFactory)
+
         return [globalSubscriptionContainer,
                 accountSubscriptionContainer,
-                stakingSubscription,
-                runtimeSubscription]
+                runtimeSubscription,
+                stakingResolver,
+                stakingSubscription]
     }
 
     private func createGlobalSubscriptions(keyFactory: StorageKeyFactoryProtocol,
@@ -166,34 +186,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                          eventCenter: EventCenter.shared)
     }
 
-    private func createStakingSubscription(engine: JSONRPCEngine,
-                                           accountId: Data,
-                                           localStorageIdFactory: ChainStorageIdFactoryProtocol)
-    throws -> StakingInfoSubscription {
-
-        let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
-
-        return StakingInfoSubscription(engine: engine,
-                                       stashId: accountId,
-                                       storage: AnyDataProviderRepository(storage),
-                                       localStorageIdFactory: localStorageIdFactory,
-                                       operationManager: OperationManagerFacade.sharedManager,
-                                       eventCenter: EventCenter.shared,
-                                       logger: Logger.shared)
-    }
-
-    private func createBondedSubscription(accountId: Data,
-                                          stakingSubscription: StakingInfoSubscription,
-                                          storageKeyFactory: StorageKeyFactoryProtocol)
-    throws -> BondedSubscription {
-        let storageKey = try storageKeyFactory.bondedKeyForId(accountId)
-
-        return BondedSubscription(remoteStorageKey: storageKey,
-                                  stakingSubscription: stakingSubscription,
-                                  logger: Logger.shared)
-    }
-
     private func createV28Subscription(storageKeyFactory: StorageKeyFactoryProtocol,
                                        localStorageIdFactory: ChainStorageIdFactoryProtocol)
     throws -> UpgradeV28Subscription {
@@ -253,6 +245,55 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                           storage: AnyDataProviderRepository(storage),
                                           engine: engine,
                                           operationManager: OperationManagerFacade.sharedManager,
+                                          logger: Logger.shared)
+    }
+
+    private func createStakingResolver(address: String,
+                                       childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
+                                       runtimeService: RuntimeCodingServiceProtocol,
+                                       engine: JSONRPCEngine,
+                                       networkType: SNAddressType,
+                                       addressFactory: SS58AddressFactoryProtocol) -> StakingAccountResolver {
+
+        let mapper: CodableCoreDataMapper<StashItem, CDStashItem> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDStashItem.stash))
+
+        let filter = NSPredicate.filterByStashOrController(address)
+        let repository: CoreDataRepository<StashItem, CDStashItem> = storageFacade
+            .createRepository(filter: filter,
+                              sortDescriptors: [],
+                              mapper: AnyCoreDataMapper(mapper))
+
+        return StakingAccountResolver(address: address,
+                                      chain: networkType.chain,
+                                      engine: engine,
+                                      runtimeService: runtimeService,
+                                      repository: AnyDataProviderRepository(repository),
+                                      childSubscriptionFactory: childSubscriptionFactory,
+                                      addressFactory: addressFactory,
+                                      operationManager: OperationManagerFacade.sharedManager,
+                                      logger: Logger.shared)
+    }
+
+    private func createStakingSubscription(address: String,
+                                           engine: JSONRPCEngine,
+                                           dataProviderFactory: SubstrateDataProviderFactoryProtocol,
+                                           childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
+                                           runtimeService: RuntimeCodingServiceProtocol,
+                                           networkType: SNAddressType,
+                                           addressFactory: SS58AddressFactoryProtocol)
+    -> StakingAccountSubscription {
+
+        let provider = dataProviderFactory.createStashItemProvider(for: address)
+
+        return StakingAccountSubscription(address: address,
+                                          chain: networkType.chain,
+                                          engine: engine,
+                                          provider: provider,
+                                          runtimeService: runtimeService,
+                                          childSubscriptionFactory: childSubscriptionFactory,
+                                          operationManager: OperationManagerFacade.sharedManager,
+                                          addressFactory: addressFactory,
                                           logger: Logger.shared)
     }
 }

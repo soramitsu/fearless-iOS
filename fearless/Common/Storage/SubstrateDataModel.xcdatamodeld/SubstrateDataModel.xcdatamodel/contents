@@ -26,6 +26,10 @@
         <attribute name="identifier" attributeType="String"/>
         <attribute name="payload" attributeType="Binary"/>
     </entity>
+    <entity name="CDStashItem" representedClassName="CDStashItem" syncable="YES" codeGenerationType="class">
+        <attribute name="controller" optional="YES" attributeType="String"/>
+        <attribute name="stash" optional="YES" attributeType="String"/>
+    </entity>
     <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
         <attribute name="amount" optional="YES" attributeType="String"/>
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
@@ -44,5 +48,6 @@
         <element name="CDRuntimeMetadataItem" positionX="-45" positionY="81" width="128" height="89"/>
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
         <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="178"/>
+        <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
     </elements>
 </model>
