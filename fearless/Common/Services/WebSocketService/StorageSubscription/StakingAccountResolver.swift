@@ -197,9 +197,12 @@ final class StakingAccountResolver: WebSocketSubscribing {
             subscription.processUpdate(change.value, blockHash: update.blockHash)
         }
     }
+}
 
+extension StakingAccountResolver {
     private func createDecodingWrapper(from updateData: StorageUpdateData,
-                                       subscription: Subscription) -> CompoundOperationWrapper<DecodedChanges> {
+                                       subscription: Subscription)
+    -> CompoundOperationWrapper<DecodedChanges> {
         let codingFactory = runtimeService.fetchCoderFactoryOperation()
 
         let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(for: subscription.controller,

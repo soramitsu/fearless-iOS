@@ -555,7 +555,6 @@
 		849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */; };
 		849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */; };
 		849E0CD025CFDDB700B33506 /* StorageUpdateData+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */; };
-		849E0CD525CFE60C00B33506 /* UpgradeV28Subscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */; };
 		849E0CDD25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */; };
 		849E0CE525D01AEE00B33506 /* ExtrinsicFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CE425D01AEE00B33506 /* ExtrinsicFactory.swift */; };
 		849E0CEA25D01B5E00B33506 /* BaseExtrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CE925D01B5E00B33506 /* BaseExtrinsic.swift */; };
@@ -803,9 +802,6 @@
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
 		AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
-		AEF73FFD25DFAB9400407D41 /* CurrentEraSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */; };
-		AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */; };
-		AEF7401225E57F6D00407D41 /* StakingOverviewSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */; };
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
 		AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
@@ -1430,7 +1426,6 @@
 		849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCallFactory.swift; sourceTree = "<group>"; };
 		849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOptionsPresentable.swift; sourceTree = "<group>"; };
 		849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageUpdateData+Decoding.swift"; sourceTree = "<group>"; };
-		849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpgradeV28Subscription.swift; sourceTree = "<group>"; };
 		849E0CDC25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicFactoryProtocol.swift; sourceTree = "<group>"; };
 		849E0CE425D01AEE00B33506 /* ExtrinsicFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicFactory.swift; sourceTree = "<group>"; };
 		849E0CE925D01B5E00B33506 /* BaseExtrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseExtrinsic.swift; sourceTree = "<group>"; };
@@ -1682,9 +1677,6 @@
 		AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFacade.swift; sourceTree = "<group>"; };
 		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
-		AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CurrentEraSubscription.swift; sourceTree = "<group>"; };
-		AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalIssuanceSubscription.swift; sourceTree = "<group>"; };
-		AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOverviewSubscription.swift; sourceTree = "<group>"; };
 		AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		AEFED3DAA18BCEF0BFA15728 /* RecommendedValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorsInteractor.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
@@ -2843,15 +2835,11 @@
 			children = (
 				8470D6CC253E3170009E9A5D /* AccountInfoSubscription.swift */,
 				843910C0253F36F300E3C217 /* BaseStorageChildSubscription.swift */,
-				AEF73FFC25DFAB9400407D41 /* CurrentEraSubscription.swift */,
 				84452F9725D6728B00F47EC5 /* RuntimeVersionSubscription.swift */,
 				8470D6D1253E3382009E9A5D /* StorageSubscriptionContainer.swift */,
 				8470D6CF253E321C009E9A5D /* StorageSubscriptionProtocols.swift */,
 				8470D6D3253E35F0009E9A5D /* StorageUpdate.swift */,
-				AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */,
 				84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */,
-				849E0CD425CFE60C00B33506 /* UpgradeV28Subscription.swift */,
-				AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */,
 				84786E0F25FA20D30089DFF7 /* StakingAccountResolver.swift */,
 				84786E2325FBA2A50089DFF7 /* StakingAccountSubscription.swift */,
 				84F30E9625FD3C5300039D09 /* EventEmittingStorageSubscription.swift */,
@@ -4859,7 +4847,6 @@
 				8400F0BD252BC0A200E6B4CB /* AssetTransactionData+HistoryItemData.swift in Sources */,
 				84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */,
 				8434C9F02540B845009E4191 /* SubstrateAccountId.swift in Sources */,
-				AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				8460E1232542160800826F55 /* TransactionDetailsAccessoryViewFactory.swift in Sources */,
 				84CE69DD2565BB6400559427 /* AboutViewModel.swift in Sources */,
@@ -5038,7 +5025,6 @@
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				849E0D1825D01FD000B33506 /* Multiaddress.swift in Sources */,
-				AEF7401225E57F6D00407D41 /* StakingOverviewSubscription.swift in Sources */,
 				843910CC253F7E6500E3C217 /* SubstrateDataModel.xcdatamodeld in Sources */,
 				849014E024AA8F60008F705E /* MainTabBarWireframe.swift in Sources */,
 				8492448F2514CB9E00477C1B /* ConnectionAccountCreateInteractor.swift in Sources */,
@@ -5097,7 +5083,6 @@
 				843910B4253EE52100E3C217 /* WalletBalanceChanged.swift in Sources */,
 				84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */,
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
-				AEF73FFD25DFAB9400407D41 /* CurrentEraSubscription.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
@@ -5262,7 +5247,6 @@
 				06590486EED4050BADDD32C5 /* AccountManagementPresenter.swift in Sources */,
 				21322B4A297840739C389F17 /* AccountManagementInteractor.swift in Sources */,
 				84452F4E25D5BB1C00F47EC5 /* RuntimeCoderFactory.swift in Sources */,
-				849E0CD525CFE60C00B33506 /* UpgradeV28Subscription.swift in Sources */,
 				84452A6025D037AE00F47EC5 /* ChainStorage+Decodable.swift in Sources */,
 				847C963525534E41002D288F /* UIFactory.swift in Sources */,
 				84585A34251CE2E300390F7A /* ContactsLocalSearchEngine.swift in Sources */,
