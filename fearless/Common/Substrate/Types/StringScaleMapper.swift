@@ -1,6 +1,6 @@
 import Foundation
 
-struct StringScaleMapper<T: LosslessStringConvertible>: Decodable {
+struct StringScaleMapper<T: LosslessStringConvertible & Equatable>: Decodable, Equatable {
     let value: T
 
     init(from decoder: Decoder) throws {

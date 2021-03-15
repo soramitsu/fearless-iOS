@@ -2,6 +2,6 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct ValidatorPrefs: Codable {
+struct ValidatorPrefs: Codable, Equatable {
     @StringCodable var commission: BigUInt
 }

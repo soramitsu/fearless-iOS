@@ -24,6 +24,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     let runtimeService: RuntimeCodingServiceProtocol
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
+    let shouldUseFallback: Bool
 
     private var lastSeenResult: LastSeen = .waiting
     private var lastSeenError: Error?
@@ -34,12 +35,14 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
          codingPath: StorageCodingPath,
          runtimeService: RuntimeCodingServiceProtocol,
          provider: StreamableProvider<ChainStorageItem>,
-         trigger: DataProviderTriggerProtocol) {
+         trigger: DataProviderTriggerProtocol,
+         shouldUseFallback: Bool) {
         self.itemIdentifier = itemIdentifier
         self.codingPath = codingPath
         self.runtimeService = runtimeService
         self.provider = provider
         self.trigger = trigger
+        self.shouldUseFallback = shouldUseFallback
 
         subscribe()
     }
@@ -97,7 +100,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
                              options: StreamableProviderObserverOptions.substrateSource())
     }
 
-    private func prepareBaseOperation() -> CompoundOperationWrapper<T?> {
+    private func prepareFallbackBaseOperation() -> CompoundOperationWrapper<T?> {
         if let error = lastSeenError {
             return CompoundOperationWrapper<T?>.createWithError(error)
         }
@@ -106,6 +109,38 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         let decodingOperation = StorageFallbackDecodingOperation<T>(path: codingPath,
                                                                     data: lastSeenResult.data)
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
+
+        decodingOperation.addDependency(codingFactoryOperation)
+
+        let mappingOperation: BaseOperation<T?> = ClosureOperation {
+            try decodingOperation.extractNoCancellableResultData()
+        }
+
+        mappingOperation.addDependency(decodingOperation)
+
+        return CompoundOperationWrapper(targetOperation: mappingOperation,
+                                        dependencies: [codingFactoryOperation, decodingOperation])
+    }
+
+    private func prepareOptionalBaseOperation() -> CompoundOperationWrapper<T?> {
+        if let error = lastSeenError {
+            return CompoundOperationWrapper<T?>.createWithError(error)
+        }
+
+        guard let data = lastSeenResult.data else {
+            return CompoundOperationWrapper.createWithResult(nil)
+        }
+
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let decodingOperation = StorageDecodingOperation<T>(path: codingPath, data: data)
         decodingOperation.configurationBlock = {
             do {
                 decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
@@ -139,7 +174,8 @@ extension StorageProviderSource {
             return CompoundOperationWrapper<Model?>.createWithResult(nil)
         }
 
-        let baseOperationWrapper = prepareBaseOperation()
+        let baseOperationWrapper = shouldUseFallback ? prepareFallbackBaseOperation() :
+            prepareOptionalBaseOperation()
         let mappingOperation: BaseOperation<Model?> = ClosureOperation {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return ChainStorageDecodedItem(identifier: modelId, item: item)
@@ -164,7 +200,8 @@ extension StorageProviderSource {
 
         let currentId = itemIdentifier
 
-        let baseOperationWrapper = prepareBaseOperation()
+        let baseOperationWrapper = shouldUseFallback ? prepareFallbackBaseOperation() :
+            prepareOptionalBaseOperation()
         let mappingOperation: BaseOperation<[Model]> = ClosureOperation {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return [ChainStorageDecodedItem(identifier: currentId, item: item)]

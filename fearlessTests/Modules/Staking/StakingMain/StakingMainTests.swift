@@ -26,10 +26,17 @@ class StakingMainTests: XCTestCase {
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let electionStatusProvider = DataProviderStub(models: [WestendStub.electionStatus])
+        let nominationProvider = DataProviderStub(models: [WestendStub.nomination])
+        let validatorProvider = DataProviderStub<DecodedValidator>(models: [])
+        let ledgerProvider = DataProviderStub(models: [WestendStub.ledgerInfo])
+
         let providerFactory =
             SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                            balance: AnyDataProvider(balanceProvider),
-                                           electionStatus: AnyDataProvider(electionStatusProvider))
+                                           electionStatus: AnyDataProvider(electionStatusProvider),
+                                           nomination: AnyDataProvider(nominationProvider),
+                                           validatorPrefs: AnyDataProvider(validatorProvider),
+                                           ledgerInfo: AnyDataProvider(ledgerProvider))
 
         let calculatorService = RewardCalculatorServiceStub(engine: WestendStub.rewardCalculator)
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()

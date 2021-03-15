@@ -1,6 +1,7 @@
 import Foundation
 @testable import fearless
 import BigInt
+import IrohaCrypto
 
 struct WestendStub {
     static let price: PriceData = {
@@ -29,6 +30,33 @@ struct WestendStub {
     static let electionStatus: DecodedElectionStatus = {
         DecodedElectionStatus(identifier: Chain.westend.genesisHash,
                               item: .close)
+    }()
+
+    static let nomination: DecodedNomination = {
+        let nomination = Nomination(targets: [],
+                                    submittedIn: 0)
+
+        return DecodedNomination(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
+                                 item: nomination)
+    }()
+
+    static let ledgerInfo: DecodedLedgerInfo = {
+        let address = "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
+        let accountId = try! SS58AddressFactory().accountId(from: address)
+        let info = DyStakingLedger(stash: accountId,
+                                   total: BigUInt(1e+12),
+                                   active: BigUInt(1e+12),
+                                   unlocking: [],
+                                   claimedRewards: [])
+
+        return DecodedLedgerInfo(identifier: address, item: info)
+    }()
+
+    static let validator: DecodedValidator = {
+        let prefs = ValidatorPrefs(commission: BigUInt(1e+8))
+
+        return DecodedValidator(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
+                                item: prefs)
     }()
 
     static let recommendedValidators: [ElectedValidatorInfo] = {
