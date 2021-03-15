@@ -24,6 +24,13 @@ final class StakingMainPresenter {
         self.logger = logger
     }
 
+    private func provideChain() {
+        guard let chain = self.chain else { return }
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        view?.didReceiveChainName(chainName: chain.titleForLocale(locale))
+    }
+
     private func provideAsset() {
         guard let viewModelFactory = balanceViewModelFactory else {
             return
@@ -175,5 +182,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         provideReward()
         provideAsset()
         provideAmountInputViewModel()
+        provideChain()
     }
 }

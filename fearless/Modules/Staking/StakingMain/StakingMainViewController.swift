@@ -14,6 +14,19 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var actionButton: TriangularedButton!
     @IBOutlet weak var amountInputView: AmountInputView!
 
+    @IBOutlet weak var networkInfoContainer: UIView!
+    @IBOutlet weak var networkTitleLabel: UILabel!
+    @IBOutlet weak var totalStakedTitleLabel: UILabel!
+    @IBOutlet weak var totalStakedAmountLabel: UILabel!
+    @IBOutlet weak var totalStakedFiatAmountLabel: UILabel!
+    @IBOutlet weak var minimumStakeTitleLabel: UILabel!
+    @IBOutlet weak var minimumStakeAmountLabel: UILabel!
+    @IBOutlet weak var minimumStakeFiatAmountLabel: UILabel!
+    @IBOutlet weak var activeNominatorsTitleLabel: UILabel!
+    @IBOutlet weak var activeNominatorsLabel: UILabel!
+    @IBOutlet weak var lockupPeriodTitleLabel: UILabel!
+    @IBOutlet weak var lockupPeriodLabel: UILabel!
+
     @IBOutlet weak var estimateWidgetTitleLabel: UILabel!
 
     @IBOutlet weak var monthlyTitleLabel: UILabel!
@@ -35,6 +48,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var monthlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
     private var yearlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
 
+    private var chainName: String = ""
+
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -53,6 +68,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     @IBAction func actionIcon() {
         presenter.performAccountAction()
+    }
+
+    @IBAction func collapseButtonTouch() {
+
     }
 
     // MARK: - Private functions
@@ -117,6 +136,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             yearlyFiatAmountLabel.text = viewModel.price
             yearlyPercentageLabel.text = viewModel.increase
         }
+        applyChainName()
+    }
+
+    private func applyChainName() {
+        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
+        networkTitleLabel.text = R.string.localizable
+            .stakingMainNetworkTitle(chainName,
+                                     preferredLanguages: languages)
     }
 }
 
@@ -126,10 +153,20 @@ extension StakingMainViewController: Localizable {
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
+        totalStakedTitleLabel.text = R.string.localizable
+            .stakingMainTotalStakedTitle(preferredLanguages: languages)
+        minimumStakeTitleLabel.text = R.string.localizable
+            .stakingMainMinimumStakeTitle(preferredLanguages: languages)
+        activeNominatorsTitleLabel.text = R.string.localizable
+            .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
+        lockupPeriodTitleLabel.text = R.string.localizable
+            .stakingMainLockupPeriodTitle(preferredLanguages: languages)
 
         estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle(preferredLanguages: languages)
-        monthlyTitleLabel.text = R.string.localizable.stakingMonthPeriodTitle(preferredLanguages: languages)
-        yearlyTitleLabel.text = R.string.localizable.stakingYearPeriodTitle(preferredLanguages: languages)
+        monthlyTitleLabel.text = R.string.localizable
+            .stakingMonthPeriodTitle(preferredLanguages: languages)
+        yearlyTitleLabel.text = R.string.localizable
+            .stakingYearPeriodTitle(preferredLanguages: languages)
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
@@ -179,6 +216,11 @@ extension StakingMainViewController: AmountInputAccessoryViewDelegate {
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
+    func didReceiveChainName(chainName newChainName: String) {
+        self.chainName = newChainName
+        applyChainName()
+    }
+
     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
                            yearlyViewModel: LocalizableResource<RewardViewModelProtocol>) {
         self.monthlyRewardViewModel = monthlyViewModel
