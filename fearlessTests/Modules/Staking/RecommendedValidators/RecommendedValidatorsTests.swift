@@ -52,7 +52,7 @@ class RecommendedValidatorsTests: XCTestCase {
                 XCTAssertEqual(all, validators)
             }
 
-            when(stub).showRecommended(from: any(), validators: any()).then { (_, validators) in
+            when(stub).showRecommended(from: any(), validators: any(), maxTargets: any()).then { (_, validators, _) in
                 XCTAssertEqual(recommended, validators)
             }
         }
@@ -68,7 +68,7 @@ class RecommendedValidatorsTests: XCTestCase {
         presenter.proceed()
 
         verify(wireframe, times(1)).showCustom(from: any(), validators: any())
-        verify(wireframe, times(1)).showRecommended(from: any(), validators: any())
+        verify(wireframe, times(1)).showRecommended(from: any(), validators: any(), maxTargets: any())
         verify(wireframe, times(1)).proceed(from: any(), result: any())
     }
 }
