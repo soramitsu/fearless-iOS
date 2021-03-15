@@ -3,14 +3,14 @@ import Foundation
 import BigInt
 
 struct WestendStub {
-    static var price: PriceData = {
+    static let price: PriceData = {
         PriceData(price: "0.3",
                   time: Int64(Date().timeIntervalSince1970),
                   height: 1,
                   records: [])
     }()
 
-    static var accountInfo: DecodedAccountInfo = {
+    static let accountInfo: DecodedAccountInfo = {
 
         let data = DyAccountData(free: BigUInt(1e+13),
                                  reserved: BigUInt(0),
@@ -26,7 +26,12 @@ struct WestendStub {
                                   item: info)
     }()
 
-    static var recommendedValidators: [ElectedValidatorInfo] = {
+    static let electionStatus: DecodedElectionStatus = {
+        DecodedElectionStatus(identifier: Chain.westend.genesisHash,
+                              item: .close)
+    }()
+
+    static let recommendedValidators: [ElectedValidatorInfo] = {
         let address = "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
         let validator = ElectedValidatorInfo(address: address,
                                              nominators: [],
@@ -40,7 +45,7 @@ struct WestendStub {
         return [validator]
     }()
 
-    static var otherValidators: [ElectedValidatorInfo] = {
+    static let otherValidators: [ElectedValidatorInfo] = {
         let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
         let validator = ElectedValidatorInfo(address: address,
                                              nominators: [],
@@ -56,7 +61,7 @@ struct WestendStub {
 
     static var allValidators: [ElectedValidatorInfo] { otherValidators + recommendedValidators }
 
-    static var eraValidators: [EraValidatorInfo] = {
+    static let eraValidators: [EraValidatorInfo] = {
         let validator = EraValidatorInfo(accountId: Data(repeating: 0, count: 32),
                                          exposure: ValidatorExposure(total: BigUInt(1e+13),
                                                                      own: BigUInt(1e+13),
@@ -66,7 +71,7 @@ struct WestendStub {
         return [validator]
     }()
 
-    static var rewardCalculator: RewardCalculatorEngineProtocol = {
+    static let rewardCalculator: RewardCalculatorEngineProtocol = {
         let total = eraValidators.reduce(BigUInt(0)) { $0 + $1.exposure.total }
         return RewardCalculatorEngine(totalIssuance: total,
                                       validators: eraValidators,

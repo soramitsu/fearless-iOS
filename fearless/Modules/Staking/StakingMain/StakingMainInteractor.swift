@@ -7,6 +7,7 @@ final class StakingMainInteractor {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
     private let providerFactory: SingleValueProviderFactoryProtocol
+    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     private let settings: SettingsManagerProtocol
     private let eventCenter: EventCenterProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
@@ -17,11 +18,14 @@ final class StakingMainInteractor {
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var stashControllerProvider: StreamableProvider<StashItem>?
+    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
 
     private var currentAccount: AccountItem?
     private var currentConnection: ConnectionItem?
 
     init(providerFactory: SingleValueProviderFactoryProtocol,
+         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
          settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol,
          primitiveFactory: WalletPrimitiveFactoryProtocol,
@@ -30,6 +34,7 @@ final class StakingMainInteractor {
          operationManager: OperationManagerProtocol,
          logger: Logger) {
         self.providerFactory = providerFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.settings = settings
         self.eventCenter = eventCenter
         self.primitiveFactory = primitiveFactory
@@ -71,6 +76,25 @@ final class StakingMainInteractor {
 
         operationManager.enqueue(operations: [operation],
                                  in: .transient)
+    }
+
+    private func didReceive(electionStatus: ElectionStatus) {
+        switch electionStatus {
+        case .close:
+            logger.debug("Election status: close")
+        case .open(let blockNumber):
+            logger.debug("Election status: open from \(blockNumber)")
+        }
+
+    }
+
+    private func didReceive(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            logger.debug("Stash: \(stashItem.stash)")
+            logger.debug("Controller: \(stashItem.controller)")
+        } else {
+            logger.debug("No stash found")
+        }
     }
 
     private func clearPriceProvider() {
@@ -193,6 +217,88 @@ final class StakingMainInteractor {
 
         return hasChanges
     }
+
+    private func clearStashControllerProvider() {
+        stashControllerProvider?.removeObserver(self)
+        stashControllerProvider = nil
+    }
+
+    private func subscribeToStashControllerProvider() {
+        guard stashControllerProvider == nil, let selectedAccount = currentAccount else {
+            return
+        }
+
+        let provider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
+
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] (changes) in
+            let stashItem: StashItem? = changes.reduce(nil) { (_, change) in
+                switch change {
+                case .insert(let newItem), .update(let newItem):
+                    return newItem
+                case .delete:
+                    return nil
+                }
+            }
+
+            self?.didReceive(stashItem: stashItem)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] (error) in
+            self?.presenter.didReceive(error: error)
+            return
+        }
+
+        provider.addObserver(self,
+                             deliverOn: .main,
+                             executing: changesClosure,
+                             failing: failureClosure,
+                             options: StreamableProviderObserverOptions.substrateSource())
+
+        self.stashControllerProvider = provider
+    }
+
+    private func clearElectionStatusProvider() {
+        electionStatusProvider?.removeObserver(self)
+        electionStatusProvider = nil
+    }
+
+    private func subscribeToElectionStatus() {
+        guard electionStatusProvider == nil, let chain = currentConnection?.type.chain else {
+            return
+        }
+
+        guard let electionStatusProvider = try? providerFactory
+                .getElectionStatusProvider(chain: chain, runtimeService: runtimeService) else {
+            logger.error("Can't create election status provider")
+            return
+        }
+
+        self.electionStatusProvider = electionStatusProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
+            for change in changes {
+                switch change {
+                case .insert(let wrapped), .update(let wrapped):
+                    self?.didReceive(electionStatus: wrapped.item)
+                case .delete:
+                    break
+                }
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(error: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
+                                                  waitsInProgressSyncOnAdd: false)
+        electionStatusProvider.addObserver(self,
+                                           deliverOn: .main,
+                                           executing: updateClosure,
+                                           failing: failureClosure,
+                                           options: options)
+    }
 }
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
@@ -205,7 +311,10 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         subscribeToPriceChanges()
         subscribeToAccountChanges()
+        subscribeToStashControllerProvider()
+        subscribeToElectionStatus()
         provideRewardCalculator()
+
         eventCenter.add(observer: self, dispatchIn: .main)
     }
 }
@@ -213,12 +322,21 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 extension StakingMainInteractor: EventVisitorProtocol {
     func processSelectedAccountChanged(event: SelectedAccountChanged) {
         if updateAccountAndChainIfNeeded() {
+            clearStashControllerProvider()
+            subscribeToStashControllerProvider()
+
             provideRewardCalculator()
         }
     }
 
     func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
         if updateAccountAndChainIfNeeded() {
+            clearElectionStatusProvider()
+            subscribeToElectionStatus()
+
+            clearStashControllerProvider()
+            subscribeToStashControllerProvider()
+
             provideRewardCalculator()
         }
     }

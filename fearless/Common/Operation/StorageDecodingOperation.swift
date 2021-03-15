@@ -50,6 +50,63 @@ final class StorageDecodingOperation<T: Decodable>: BaseOperation<T> {
     }
 }
 
+final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?> {
+    var data: Data?
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: StorageCodingPath
+
+    init(path: StorageCodingPath, data: Data? = nil) {
+        self.path = path
+        self.data = data
+
+        super.init()
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        do {
+            guard let factory = codingFactory else {
+                throw StorageDecodingOperationError.missingRequiredParams
+            }
+
+            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
+                                                                  storageName: path.itemName) else {
+                throw StorageDecodingOperationError.invalidStoragePath
+            }
+
+            let decodingData: Data?
+
+            switch entry.modifier {
+            case .defaultModifier:
+                decodingData = data ?? entry.defaultValue
+            case .optional:
+                decodingData = data
+            }
+
+            if let data = decodingData {
+                let decoder = try factory.createDecoder(from: data)
+                let item: T = try decoder.read(of: entry.type.typeName)
+                result = .success(item)
+            } else {
+                result = .success(nil)
+            }
+
+        } catch {
+            result = .failure(error)
+        }
+    }
+}
+
 final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
     var dataList: [Data]?
     var codingFactory: RuntimeCoderFactoryProtocol?

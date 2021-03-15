@@ -4,11 +4,14 @@ import IrohaCrypto
 import FearlessUtils
 
 typealias DecodedAccountInfo = ChainStorageDecodedItem<DyAccountInfo>
+typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedAccountInfo>
+    func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedElectionStatus>
 }
 
 final class SingleValueProviderFactory {
@@ -21,11 +24,15 @@ final class SingleValueProviderFactory {
     let facade: StorageFacadeProtocol
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol
+    let stremableProviderFactory: SubstrateDataProviderFactoryProtocol
 
     init(facade: StorageFacadeProtocol, operationManager: OperationManagerProtocol, logger: LoggerProtocol) {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
+        self.stremableProviderFactory = SubstrateDataProviderFactory(facade: facade,
+                                                                     operationManager: operationManager,
+                                                                     logger: logger)
     }
 
     private func priceIdentifier(for assetId: WalletAssetId) -> String {
@@ -34,6 +41,39 @@ final class SingleValueProviderFactory {
 
     private func clearIfNeeded() {
         providers = providers.filter { $0.value.target != nil }
+    }
+
+    private func getDataProvider<T>(for remoteKey: Data,
+                                    path: StorageCodingPath,
+                                    runtimeService: RuntimeCodingServiceProtocol,
+                                    localKeyFactory: ChainStorageIdFactoryProtocol)
+    -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
+
+        let localKey = localKeyFactory.createIdentifier(for: remoteKey)
+
+        if let dataProvider = providers[localKey]?.target as? DataProvider<ChainStorageDecodedItem<T>> {
+            return AnyDataProvider(dataProvider)
+        }
+
+        let repository = InMemoryDataProviderRepository<ChainStorageDecodedItem<T>>()
+
+        let streamableProvider = stremableProviderFactory.createStorageProvider(for: localKey)
+
+        let trigger = DataProviderProxyTrigger()
+        let source: StorageProviderSource<T> =
+            StorageProviderSource(itemIdentifier: localKey,
+                                  codingPath: path,
+                                  runtimeService: runtimeService,
+                                  provider: streamableProvider,
+                                  trigger: trigger)
+
+        let dataProvider = DataProvider(source: AnyDataProviderSource(source),
+                                        repository: AnyDataProviderRepository(repository),
+                                        updateTrigger: trigger)
+
+        providers[localKey] = WeakWrapper(target: dataProvider)
+
+        return AnyDataProvider(dataProvider)
     }
 }
 
@@ -63,7 +103,8 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         return AnySingleValueProvider(provider)
     }
 
-    func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
+    func getAccountProvider(for address: String,
+                            runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedAccountInfo> {
         clearIfNeeded()
 
@@ -75,33 +116,26 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let storageIdFactory = try ChainStorageIdFactory(chain: addressType.chain)
 
         let remoteKey = try StorageKeyFactory().accountInfoKeyForId(accountId)
-        let localKey = storageIdFactory.createIdentifier(for: remoteKey)
+        let path = StorageCodingPath.account
 
-        if let dataProvider = providers[localKey]?.target as? DataProvider<DecodedAccountInfo> {
-            return AnyDataProvider(dataProvider)
-        }
+        return getDataProvider(for: remoteKey,
+                               path: path,
+                               runtimeService: runtimeService,
+                               localKeyFactory: storageIdFactory)
+    }
 
-        let repository = InMemoryDataProviderRepository<ChainStorageDecodedItem<DyAccountInfo>>()
+    func getElectionStatusProvider(chain: Chain,
+                                   runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedElectionStatus> {
+        clearIfNeeded()
 
-        let streamableProviderFactory = SubstrateDataProviderFactory(facade: facade,
-                                                                     operationManager: operationManager,
-                                                                     logger: logger)
-        let streamableProvider = streamableProviderFactory.createStorageProvider(for: localKey)
+        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
+        let remoteKey = try StorageKeyFactory().electionStatus()
+        let path = StorageCodingPath.electionStatus
 
-        let trigger = DataProviderProxyTrigger()
-        let source: StorageProviderSource<DyAccountInfo> =
-            StorageProviderSource(itemIdentifier: localKey,
-                                  codingPath: .account,
-                                  runtimeService: runtimeService,
-                                  provider: streamableProvider,
-                                  trigger: trigger)
-
-        let dataProvider = DataProvider(source: AnyDataProviderSource(source),
-                                        repository: AnyDataProviderRepository(repository),
-                                        updateTrigger: trigger)
-
-        providers[localKey] = WeakWrapper(target: dataProvider)
-
-        return AnyDataProvider(dataProvider)
+        return getDataProvider(for: remoteKey,
+                               path: path,
+                               runtimeService: runtimeService,
+                               localKeyFactory: storageIdFactory)
     }
 }

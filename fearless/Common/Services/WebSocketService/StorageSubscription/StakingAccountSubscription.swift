@@ -71,15 +71,11 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             self?.logger?.error("Did receive error: \(error)")
         }
 
-        let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                        waitsInProgressSyncOnAdd: false,
-                                                        initialSize: 0,
-                                                        refreshWhenEmpty: false)
         provider.addObserver(self,
                              deliverOn: .global(qos: .userInitiated),
                              executing: changesClosure,
                              failing: failureClosure,
-                             options: options)
+                             options: StreamableProviderObserverOptions.substrateSource())
     }
 
     private func unsubscribeRemote() {

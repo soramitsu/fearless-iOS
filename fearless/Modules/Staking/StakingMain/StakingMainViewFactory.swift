@@ -19,8 +19,12 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         view.uiFactory = UIFactory()
 
         // MARK: - Interactor
+        let substrateProviderFactory =
+            SubstrateDataProviderFactory(facade: SubstrateDataStorageFacade.shared,
+                                         operationManager: OperationManagerFacade.sharedManager)
 
         let interactor = StakingMainInteractor(providerFactory: SingleValueProviderFactory.shared,
+                                               substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
                                                eventCenter: EventCenter.shared,
                                                primitiveFactory: primitiveFactory,

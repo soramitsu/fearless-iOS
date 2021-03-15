@@ -18,13 +18,18 @@ class StakingMainTests: XCTestCase {
 
         let eventCenter = MockEventCenterProtocol().applyingDefaultStub()
 
+        let operationManager = OperationManager()
+
         let view = MockStakingMainViewProtocol()
         let wireframe = MockStakingMainWireframeProtocol()
 
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
-        let providerFactory = SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
-                                                             balance: AnyDataProvider(balanceProvider))
+        let electionStatusProvider = DataProviderStub(models: [WestendStub.electionStatus])
+        let providerFactory =
+            SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
+                                           balance: AnyDataProvider(balanceProvider),
+                                           electionStatus: AnyDataProvider(electionStatusProvider))
 
         let calculatorService = RewardCalculatorServiceStub(engine: WestendStub.rewardCalculator)
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
@@ -35,13 +40,16 @@ class StakingMainTests: XCTestCase {
         let presenter = StakingMainPresenter(viewModelFacade: viewModelFacade,
                                              logger: Logger.shared)
 
+        let substrateProviderFactory = SubstrateDataProviderFactory(facade: SubstrateStorageTestFacade(),
+                                                                    operationManager: operationManager)
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
+                                               substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
                                                eventCenter: eventCenter,
                                                primitiveFactory: primitiveFactory,
                                                calculatorService: calculatorService,
                                                runtimeService: runtimeCodingService,
-                                               operationManager: OperationManager(),
+                                               operationManager: operationManager,
                                                logger: Logger.shared)
 
         presenter.view = view

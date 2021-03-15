@@ -3,6 +3,20 @@ import RobinHood
 import FearlessUtils
 
 final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
+    enum LastSeen: Equatable {
+        case waiting
+        case received(value: ChainStorageItem?)
+
+        var data: Data? {
+            switch self {
+            case .waiting:
+                return nil
+            case .received(let item):
+                return item?.data
+            }
+        }
+    }
+
     typealias Model = ChainStorageDecodedItem<T>
 
     let itemIdentifier: String
@@ -11,7 +25,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
 
-    private var lastSeenResult: ChainStorageItem?
+    private var lastSeenResult: LastSeen = .waiting
     private var lastSeenError: Error?
 
     private var lock = NSLock()
@@ -33,11 +47,12 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     // MARK: Private
 
     private func replaceAndNotifyIfNeeded(_ newItem: ChainStorageItem?) {
-        if newItem != lastSeenResult || lastSeenError != nil {
+        let newValue = LastSeen.received(value: newItem)
+        if newValue != lastSeenResult || lastSeenError != nil {
             lock.lock()
 
             lastSeenError = nil
-            lastSeenResult = newItem
+            lastSeenResult = newValue
 
             lock.unlock()
 
@@ -48,7 +63,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     private func replaceAndNotifyError(_ error: Error) {
         lock.lock()
 
-        lastSeenResult = nil
+        lastSeenResult = .waiting
         lastSeenError = error
 
         lock.unlock()
@@ -75,15 +90,11 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
             return
         }
 
-        let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                        waitsInProgressSyncOnAdd: false,
-                                                        initialSize: 0,
-                                                        refreshWhenEmpty: false)
         provider.addObserver(self,
                              deliverOn: DispatchQueue.global(qos: .default),
                              executing: updateClosure,
                              failing: failure,
-                             options: options)
+                             options: StreamableProviderObserverOptions.substrateSource())
     }
 
     private func prepareBaseOperation() -> CompoundOperationWrapper<T?> {
@@ -91,13 +102,10 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
             return CompoundOperationWrapper<T?>.createWithError(error)
         }
 
-        guard let data = lastSeenResult?.data else {
-            return CompoundOperationWrapper<T?>.createWithResult(nil)
-        }
-
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let decodingOperation = StorageDecodingOperation<T>(path: codingPath, data: data)
+        let decodingOperation = StorageFallbackDecodingOperation<T>(path: codingPath,
+                                                                    data: lastSeenResult.data)
         decodingOperation.configurationBlock = {
             do {
                 decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
