@@ -16,7 +16,7 @@ class SelectedValidatorsTests: XCTestCase {
         let view = MockSelectedValidatorsViewProtocol()
         let wireframe = MockSelectedValidatorsWireframeProtocol()
 
-        let presenter = SelectedValidatorsPresenter(validators: validators)
+        let presenter = SelectedValidatorsPresenter(validators: validators, maxTargets: 16)
 
         presenter.view = view
         presenter.wireframe = wireframe
@@ -26,8 +26,8 @@ class SelectedValidatorsTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceive(viewModels: any()).then { viewModels in
-                XCTAssertEqual(self.validators.count, viewModels.count)
+            when(stub).didReceive(viewModel: any()).then { viewModel in
+                XCTAssertEqual(self.validators.count, viewModel.itemViewModels.count)
                 expectation.fulfill()
             }
         }

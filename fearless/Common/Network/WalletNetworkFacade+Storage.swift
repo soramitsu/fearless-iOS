@@ -17,15 +17,15 @@ extension WalletNetworkFacade {
             let accountInfoKey = try storageKeyFactory.accountInfoKeyForId(accountId)
             let upgradeKey = try storageKeyFactory.updatedDualRefCount()
             let activeEraKey = try storageKeyFactory.activeEra()
-            let stakingInfoKey = try storageKeyFactory.stakingInfoForControllerId(accountId)
 
             let upgradeCheckOperation: CompoundOperationWrapper<Bool?> = queryStorageByKey(upgradeKey)
 
             let accountInfoOperation: CompoundOperationWrapper<AccountInfo?> =
                 queryAccountInfoByKey(accountInfoKey, dependingOn: upgradeCheckOperation)
 
-            let stakingLedgerOperation: CompoundOperationWrapper<StakingLedger?> =
-                queryStorageByKey(stakingInfoKey)
+            let stakingLedgerOperation =
+                StakingLedgerLocalOperation(stashAddress: address,
+                                            storageService: storageFacade.databaseService)
 
             let activeEraOperation: CompoundOperationWrapper<UInt32?> =
                 queryStorageByKey(activeEraKey)
@@ -43,8 +43,8 @@ extension WalletNetworkFacade {
                             let activeEra = try? activeEraOperation
                                 .targetOperation.extractResultData(throwing:
                                     BaseOperationError.parentOperationCancelled),
-                            let stakingLedger = try? stakingLedgerOperation.targetOperation
-                                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) {
+                            let stakingLedger = try? stakingLedgerOperation
+                                .extractNoCancellableResultData() {
 
                             context = context.byChangingStakingInfo(stakingLedger,
                                                                     activeEra: activeEra,
@@ -66,7 +66,7 @@ extension WalletNetworkFacade {
             }
 
             let dependencies = upgradeCheckOperation.allOperations + accountInfoOperation.allOperations +
-                activeEraOperation.allOperations + stakingLedgerOperation.allOperations
+                activeEraOperation.allOperations + [stakingLedgerOperation]
 
             dependencies.forEach { mappingOperation.addDependency($0) }
 

@@ -6,7 +6,7 @@ final class SelectedValidatorsViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
 
-    private var viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] = []
+    private var viewModel: SelectedValidatorsViewModelProtocol?
     private weak var headerView: SelectedValidatorsHeaderView?
 
     override func viewDidLoad() {
@@ -18,6 +18,8 @@ final class SelectedValidatorsViewController: UIViewController {
     }
 
     private func setupTableView() {
+        tableView.tableFooterView = UIView()
+
         tableView.register(R.nib.selectedValidatorCell)
         tableView.rowHeight = UIConstants.cellHeight
 
@@ -32,12 +34,14 @@ final class SelectedValidatorsViewController: UIViewController {
     }
 
     private func updateHeaderView() {
-        let languages = localizationManager?.selectedLocale.rLanguages
-        let title = R.string.localizable
-            .stakingSelectedValidatorsCount("\(viewModels.count)",
-                                            "\(StakingConstants.maxTargets)",
-                                            preferredLanguages: languages)
-        headerView?.bind(title: title.uppercased())
+        if let viewModel = viewModel {
+            let languages = localizationManager?.selectedLocale.rLanguages
+            let title = R.string.localizable
+                .stakingSelectedValidatorsCount("\(viewModel.itemViewModels.count)",
+                                                "\(viewModel.maxTargets)",
+                                                preferredLanguages: languages)
+            headerView?.bind(title: title.uppercased())
+        }
     }
 
     private func setupLocalization() {
@@ -51,7 +55,7 @@ final class SelectedValidatorsViewController: UIViewController {
 
 extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModels.count
+        viewModel?.itemViewModels.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
@@ -59,8 +63,8 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
             .dequeueReusableCell(withIdentifier: R.reuseIdentifier.selectedValidatorCellId,
                                  for: indexPath)!
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        cell.bind(viewModel: viewModels[indexPath.row].value(for: locale))
+        let items = viewModel?.itemViewModels ?? []
+        cell.bind(viewModel: items[indexPath.row])
 
         return cell
     }
@@ -72,8 +76,8 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
 }
 
 extension SelectedValidatorsViewController: SelectedValidatorsViewProtocol {
-    func didReceive(viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>]) {
-        self.viewModels = viewModels
+    func didReceive(viewModel: SelectedValidatorsViewModelProtocol) {
+        self.viewModel = viewModel
         updateHeaderView()
 
         tableView.reloadData()

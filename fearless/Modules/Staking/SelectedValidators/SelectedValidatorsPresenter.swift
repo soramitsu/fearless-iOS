@@ -7,11 +7,14 @@ final class SelectedValidatorsPresenter {
     var wireframe: SelectedValidatorsWireframeProtocol!
 
     let validators: [SelectedValidatorInfo]
+    let maxTargets: Int
     let logger: LoggerProtocol?
 
     init(validators: [SelectedValidatorInfo],
+         maxTargets: Int,
          logger: LoggerProtocol? = nil) {
         self.validators = validators
+        self.maxTargets = maxTargets
         self.logger = logger
     }
 
@@ -19,19 +22,20 @@ final class SelectedValidatorsPresenter {
         let iconGenerator = PolkadotIconGenerator()
 
         do {
-            let viewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] =
+            let items: [SelectedValidatorViewModelProtocol] =
                 try validators.map { validator in
                     let icon = try iconGenerator.generateFromAddress(validator.address)
-                    return LocalizableResource { _ in
-                        let title = validator.identity?.displayName ?? validator.address
+                    let title = validator.identity?.displayName ?? validator.address
 
-                        return SelectedValidatorViewModel(icon: icon,
-                                                          title: title,
-                                                          details: "")
-                    }
+                    return SelectedValidatorViewModel(icon: icon,
+                                                      title: title,
+                                                      details: "")
                 }
 
-            view?.didReceive(viewModels: viewModels)
+            let viewModel = SelectedValidatorsViewModel(maxTargets: maxTargets,
+                                                        itemViewModels: items)
+
+            view?.didReceive(viewModel: viewModel)
         } catch {
             logger?.debug("Did receive error: \(error)")
         }
