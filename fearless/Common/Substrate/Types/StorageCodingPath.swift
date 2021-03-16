@@ -1,6 +1,6 @@
 import Foundation
 
-struct StorageCodingPath {
+struct StorageCodingPath: Equatable {
     let moduleName: String
     let itemName: String
 }
@@ -20,6 +20,18 @@ extension StorageCodingPath {
 
     static var erasPrefs: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorPrefs")
+    }
+
+    static var controller: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "Bonded")
+    }
+
+    static var stakingLedger: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "Ledger")
+    }
+
+    static var nominators: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "Nominators")
     }
 
     static var validatorPrefs: StorageCodingPath {

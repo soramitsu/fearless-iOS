@@ -107,7 +107,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
                               sortDescriptors: [NSSortDescriptor.accountsByOrder],
                               mapper: AnyCoreDataMapper(ManagedAccountItemMapper()))
 
-        let networkFacade = WalletNetworkFacade(accountSettings: accountSettings,
+        let networkFacade = WalletNetworkFacade(storageFacade: SubstrateDataStorageFacade.shared,
+                                                accountSettings: accountSettings,
                                                 nodeOperationFactory: nodeOperationFactory,
                                                 subscanOperationFactory: subscanOperationFactory,
                                                 chainStorage: AnyDataProviderRepository(chainStorage),

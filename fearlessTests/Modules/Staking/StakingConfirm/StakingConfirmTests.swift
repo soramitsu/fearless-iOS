@@ -14,7 +14,8 @@ class StakingConfirmTests: XCTestCase {
                                                identity: nil)
         return PreparedNomination(amount: 1.0,
                                   rewardDestination: .restake,
-                                  targets: [validator1, validator2])
+                                  targets: [validator1, validator2],
+                                  maxTargets: 16)
     }()
 
     func testSetupAndSendExtrinsic() throws {

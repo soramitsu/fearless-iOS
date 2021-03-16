@@ -1,16 +1,22 @@
 import Foundation
 import RobinHood
 
-class StakingOverviewSubscription: BaseStorageChildSubscription {
+typealias EventEmittingFactoryClosure = (DataProviderChange<ChainStorageItem>) -> EventProtocol
+
+final class EventEmittingStorageSubscription: BaseStorageChildSubscription {
     let eventCenter: EventCenterProtocol
+
+    let eventFactory: EventEmittingFactoryClosure
 
     init(remoteStorageKey: Data,
          localStorageKey: String,
          storage: AnyDataProviderRepository<ChainStorageItem>,
          operationManager: OperationManagerProtocol,
          logger: LoggerProtocol,
-         eventCenter: EventCenterProtocol) {
+         eventCenter: EventCenterProtocol,
+         eventFactory: @escaping EventEmittingFactoryClosure) {
         self.eventCenter = eventCenter
+        self.eventFactory = eventFactory
 
         super.init(remoteStorageKey: remoteStorageKey,
                    localStorageKey: localStorageKey,
@@ -20,9 +26,10 @@ class StakingOverviewSubscription: BaseStorageChildSubscription {
     }
 
     override func handle(result: Result<DataProviderChange<ChainStorageItem>?, Error>, blockHash: Data?) {
-        if case .success(let optionalChange) = result, optionalChange != nil {
+        if case .success(let optionalChange) = result, let change = optionalChange {
             DispatchQueue.main.async {
-                self.eventCenter.notify(with: WalletStakingInfoChanged())
+                let event = self.eventFactory(change)
+                self.eventCenter.notify(with: event)
             }
         }
     }

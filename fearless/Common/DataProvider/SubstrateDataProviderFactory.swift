@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 
 protocol SubstrateDataProviderFactoryProtocol {
+    func createStashItemProvider(for address: String) -> StreamableProvider<StashItem>
     func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem>
     func createStorageProvider(for key: String) -> StreamableProvider<ChainStorageItem>
 }
@@ -17,6 +18,32 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
+    }
+
+    func createStashItemProvider(for address: String) -> StreamableProvider<StashItem> {
+        let mapper: CodableCoreDataMapper<StashItem, CDStashItem> =
+            CodableCoreDataMapper(entityIdentifierFieldName: #keyPath(CDStashItem.stash))
+
+        let filter = NSPredicate.filterByStashOrController(address)
+        let repository: CoreDataRepository<StashItem, CDStashItem> = facade
+            .createRepository(filter: filter,
+                              sortDescriptors: [],
+                              mapper: AnyCoreDataMapper(mapper))
+
+        let observable = CoreDataContextObservable(service: facade.databaseService,
+                                                   mapper: AnyCoreDataMapper(mapper),
+                                                   predicate: { $0.stash == address})
+
+        observable.start { [weak self] (error) in
+            if let error = error {
+                self?.logger?.error("Did receive error: \(error)")
+            }
+        }
+
+        return StreamableProvider<StashItem>(source: AnyStreamableSource(EmptyStreamableSource()),
+                                             repository: AnyDataProviderRepository(repository),
+                                             observable: AnyDataProviderRepositoryObservable(observable),
+                                             operationManager: operationManager)
     }
 
     func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem> {

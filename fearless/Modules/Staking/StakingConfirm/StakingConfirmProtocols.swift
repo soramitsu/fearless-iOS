@@ -46,7 +46,8 @@ protocol StakingConfirmInteractorOutputProtocol: class {
 protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
                                           AddressOptionsPresentable, StakingErrorPresentable {
     func showSelectedValidator(from view: StakingConfirmViewProtocol?,
-                               validators: [SelectedValidatorInfo])
+                               validators: [SelectedValidatorInfo],
+                               maxTargets: Int)
     func complete(from view: StakingConfirmViewProtocol?)
 }
 

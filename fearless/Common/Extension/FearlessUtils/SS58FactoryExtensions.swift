@@ -5,7 +5,7 @@ enum SS58AddressFactoryError: Error {
     case unexpectedAddress
 }
 
-extension SS58AddressFactory {
+extension SS58AddressFactoryProtocol {
     func extractAddressType(from address: String) throws -> SNAddressType {
         let addressTypeValue = try type(fromAddress: address)
 

@@ -11,7 +11,8 @@ final class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtoc
     }
 
     func showRecommended(from view: RecommendedValidatorsViewProtocol?,
-                         validators: [ElectedValidatorInfo]) {
+                         validators: [ElectedValidatorInfo],
+                         maxTargets: Int) {
         let selected = validators.map {
             SelectedValidatorInfo(address: $0.address,
                                   identity: $0.identity,
@@ -19,7 +20,8 @@ final class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtoc
                                                                 totalStake: $0.totalStake,
                                                                 stakeReturn: $0.stakeReturn)) }
 
-        guard let validatorsView = SelectedValidatorsViewFactory.createView(for: selected) else {
+        guard let validatorsView = SelectedValidatorsViewFactory.createView(for: selected,
+                                                                            maxTargets: maxTargets) else {
             return
         }
 
