@@ -158,7 +158,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
                                                      for: indexPath)!
 
             cell.selectionStyle = .none
-            
+
             cell.bind(model: row.content.value(for: locale))
 
             return cell

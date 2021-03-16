@@ -9,7 +9,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
                            yearlyViewModel: LocalizableResource<RewardViewModelProtocol>
     )
-    func didReceiveChainName(chainName newChainName: String)
+    func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
 }
 
 protocol StakingMainPresenterProtocol: class {

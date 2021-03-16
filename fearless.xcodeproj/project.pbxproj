@@ -802,6 +802,9 @@
 		AEF7400225DFC4DF00407D41 /* TotalIssuanceSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */; };
 		AEF7401225E57F6D00407D41 /* StakingOverviewSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */; };
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
+		AEFC6D622600A772000BD310 /* StoriesCollectionItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */; };
+		AEFC6D672600A808000BD310 /* StoriesCollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */; };
+		AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */; };
 		AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
 		B02EAF42C91E069FE6872EE0 /* StakingConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */; };
@@ -1684,6 +1687,9 @@
 		AEF7400125DFC4DF00407D41 /* TotalIssuanceSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TotalIssuanceSubscription.swift; sourceTree = "<group>"; };
 		AEF7401125E57F6D00407D41 /* StakingOverviewSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingOverviewSubscription.swift; sourceTree = "<group>"; };
 		AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesCollectionItem.xib; sourceTree = "<group>"; };
+		AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesCollectionItem.swift; sourceTree = "<group>"; };
+		AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AEFED3DAA18BCEF0BFA15728 /* RecommendedValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorsInteractor.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
@@ -4067,6 +4073,7 @@
 				AE2C845C25EE833A00986716 /* RewardViewModel.swift */,
 				AE2C846425EE884900986716 /* RewardViewModelFactory.swift */,
 				8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */,
+				AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4131,9 +4138,19 @@
 			path = RewardCalculatorService;
 			sourceTree = "<group>";
 		};
+		AEFC6D602600A754000BD310 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */,
+				AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		B7B0681CCE8F8F0127E8676C /* StakingMain */ = {
 			isa = PBXGroup;
 			children = (
+				AEFC6D602600A754000BD310 /* View */,
 				AE2C845B25EE829E00986716 /* ViewModel */,
 				470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */,
 				96F09665083031502F9693F8 /* StakingMainWireframe.swift */,
@@ -4404,6 +4421,7 @@
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
 				AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */,
 				84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */,
+				AEFC6D622600A772000BD310 /* StoriesCollectionItem.xib in Resources */,
 				842876AC24AE049B00D91AD8 /* SelectionTitleTableViewCell.xib in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
@@ -4719,6 +4737,7 @@
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
 				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
+				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
@@ -4821,6 +4840,7 @@
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				84D97EB5251FC58100F07405 /* TransferConfigurator.swift in Sources */,
 				AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */,
+				AEFC6D672600A808000BD310 /* StoriesCollectionItem.swift in Sources */,
 				84FAB076254378FC00319F74 /* ContactsListViewModelFactory.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
