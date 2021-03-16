@@ -8,6 +8,7 @@ typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<DyStakingLedger>
+typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -21,6 +22,8 @@ protocol SingleValueProviderFactoryProtocol {
     -> AnyDataProvider<DecodedValidator>
     func getLedgerInfoProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedLedgerInfo>
+    func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedActiveEra>
 }
 
 final class SingleValueProviderFactory {
@@ -113,6 +116,22 @@ final class SingleValueProviderFactory {
                                localKeyFactory: storageIdFactory,
                                shouldUseFallback: shouldUseFallback)
     }
+
+    private func getProviderForChain<T>(_ chain: Chain,
+                                        path: StorageCodingPath,
+                                        runtimeService: RuntimeCodingServiceProtocol,
+                                        shouldUseFallback: Bool) throws
+    -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
+        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
+        let remoteKey = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
+                                                                 storageName: path.itemName)
+
+        return getDataProvider(for: remoteKey,
+                               path: path,
+                               runtimeService: runtimeService,
+                               localKeyFactory: storageIdFactory,
+                               shouldUseFallback: true)
+    }
 }
 
 extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
@@ -154,15 +173,10 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     func getElectionStatusProvider(chain: Chain,
                                    runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedElectionStatus> {
-        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
-        let remoteKey = try StorageKeyFactory().electionStatus()
-        let path = StorageCodingPath.electionStatus
-
-        return getDataProvider(for: remoteKey,
-                               path: path,
-                               runtimeService: runtimeService,
-                               localKeyFactory: storageIdFactory,
-                               shouldUseFallback: true)
+        try getProviderForChain(chain,
+                                path: .electionStatus,
+                                runtimeService: runtimeService,
+                                shouldUseFallback: true)
     }
 
     func getNominationProvider(for address: String,
@@ -192,5 +206,13 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
                                       hasher: .blake128Concat,
                                       runtimeService: runtimeService,
                                       shouldUseFallback: false)
+    }
+
+    func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedActiveEra> {
+        try getProviderForChain(chain,
+                                path: .activeEra,
+                                runtimeService: runtimeService,
+                                shouldUseFallback: true)
     }
 }

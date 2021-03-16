@@ -67,6 +67,8 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
     }
 
     func select(item: ManagedAccountItem) {
+        let connectionChanged: Bool
+
         if item.networkType != settings.selectedConnection.type {
             guard let newConnection = ConnectionItem
                 .supportedConnections.first(where: { $0.type == item.networkType }) else {
@@ -74,6 +76,10 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
             }
 
             settings.selectedConnection = newConnection
+
+            connectionChanged = true
+        } else {
+            connectionChanged = false
         }
 
         let newSelectedAccountItem = AccountItem(address: item.address,
@@ -83,6 +89,10 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
 
         settings.selectedAccount = newSelectedAccountItem
         presenter?.didReceiveSelected(item: newSelectedAccountItem)
+
+        if connectionChanged {
+            eventCenter.notify(with: SelectedConnectionChanged())
+        }
 
         eventCenter.notify(with: SelectedAccountChanged())
     }

@@ -11,6 +11,12 @@ struct WestendStub {
                   records: [])
     }()
 
+    static let activeEra: DecodedActiveEra = {
+        let era = ActiveEraInfo(index: 777)
+        return DecodedActiveEra(identifier: Chain.westend.genesisHash + "_active_era",
+                                item: era)
+    }()
+
     static let accountInfo: DecodedAccountInfo = {
 
         let data = DyAccountData(free: BigUInt(1e+13),
@@ -28,7 +34,7 @@ struct WestendStub {
     }()
 
     static let electionStatus: DecodedElectionStatus = {
-        DecodedElectionStatus(identifier: Chain.westend.genesisHash,
+        DecodedElectionStatus(identifier: Chain.westend.genesisHash + "_election",
                               item: .close)
     }()
 
@@ -41,7 +47,7 @@ struct WestendStub {
     }()
 
     static let ledgerInfo: DecodedLedgerInfo = {
-        let address = "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
+        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
         let accountId = try! SS58AddressFactory().accountId(from: address)
         let info = DyStakingLedger(stash: accountId,
                                    total: BigUInt(1e+12),

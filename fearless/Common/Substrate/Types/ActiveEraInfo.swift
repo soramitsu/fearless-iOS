@@ -1,6 +1,6 @@
 import Foundation
 import FearlessUtils
 
-struct ActiveEraInfo: Codable {
+struct ActiveEraInfo: Codable, Equatable {
     @StringCodable var index: UInt32
 }
