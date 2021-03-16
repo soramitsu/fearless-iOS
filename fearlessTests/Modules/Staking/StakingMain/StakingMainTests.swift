@@ -53,6 +53,7 @@ class StakingMainTests: XCTestCase {
 
         let accountExpectation = XCTestExpectation()
         let assetExpectation = XCTestExpectation()
+        let chainExpectation = XCTestExpectation()
 
         // reloads on: balance change, price change, new chain
         assetExpectation.expectedFulfillmentCount = 3
@@ -80,6 +81,10 @@ class StakingMainTests: XCTestCase {
             stub.didReceiveRewards(monthlyViewModel: any(), yearlyViewModel: any()).then { _ in
                 rewardExpectation.fulfill()
             }
+
+            stub.didReceiveChainName(chainName: any()).then { _ in
+                chainExpectation.fulfill()
+            }
         }
 
         presenter.setup()
@@ -90,7 +95,8 @@ class StakingMainTests: XCTestCase {
             accountExpectation,
             assetExpectation,
             inputExpectation,
-            rewardExpectation
+            rewardExpectation,
+            chainExpectation
         ]
 
         wait(for: expectations, timeout: Constants.defaultExpectationDuration)
