@@ -64,18 +64,8 @@ final class StakingAmountInteractor {
 
     private func subscribeToAccountChanges() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(balance: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case .insert(let wrapped), .update(let wrapped):
-                        self?.presenter.didReceive(balance: wrapped.item.data)
-                    case .delete:
-                        self?.presenter.didReceive(balance: nil)
-                    }
-                }
-            }
+            let balanceItem = changes.reduceToLastChange()?.item?.data
+            self?.presenter.didReceive(balance: balanceItem)
         }
 
         let failureClosure = { [weak self] (error: Error) in

@@ -198,18 +198,8 @@ final class StakingMainInteractor {
         self.balanceProvider = balanceProvider
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(balance: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case .insert(let wrapped), .update(let wrapped):
-                        self?.presenter.didReceive(balance: wrapped.item.data)
-                    case .delete:
-                        self?.presenter.didReceive(price: nil)
-                    }
-                }
-            }
+            let balanceItem = changes.reduceToLastChange()?.item
+            self?.presenter.didReceive(balance: balanceItem?.data)
         }
 
         let failureClosure = { [weak self] (error: Error) in
@@ -333,7 +323,7 @@ final class StakingMainInteractor {
         guard nominatorProvider == nil else {
             return
         }
-
+        
         guard let nominatorProvider = try? providerFactory
                 .getNominationProvider(for: address, runtimeService: runtimeService) else {
             logger.error("Can't create nominator provider")

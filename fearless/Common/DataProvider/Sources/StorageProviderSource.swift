@@ -171,7 +171,8 @@ extension StorageProviderSource {
         }
 
         guard modelId == itemIdentifier else {
-            return CompoundOperationWrapper<Model?>.createWithResult(nil)
+            let value = ChainStorageDecodedItem<T>(identifier: modelId, item: nil)
+            return CompoundOperationWrapper<Model?>.createWithResult(value)
         }
 
         let baseOperationWrapper = shouldUseFallback ? prepareFallbackBaseOperation() :
@@ -180,7 +181,7 @@ extension StorageProviderSource {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return ChainStorageDecodedItem(identifier: modelId, item: item)
             } else {
-                return nil
+                return ChainStorageDecodedItem(identifier: modelId, item: nil)
             }
         }
 
@@ -206,7 +207,7 @@ extension StorageProviderSource {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return [ChainStorageDecodedItem(identifier: currentId, item: item)]
             } else {
-                return []
+                return [ChainStorageDecodedItem(identifier: currentId, item: nil)]
             }
         }
 
