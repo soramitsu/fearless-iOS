@@ -86,7 +86,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             animations: {
                 self.view.layoutIfNeeded()
                 self.networkInfoContainer.isHidden = sender.isActivated
-                self.view.layoutIfNeeded()
             })
     }
 
