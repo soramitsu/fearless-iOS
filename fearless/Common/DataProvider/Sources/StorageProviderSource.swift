@@ -76,15 +76,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
     private func subscribe() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<ChainStorageItem>]) in
-            let finalItem: ChainStorageItem? = changes.reduce(nil) { (_, item) in
-                switch item {
-                case .insert(let newItem), .update(let newItem):
-                    return newItem
-                case .delete:
-                    return nil
-                }
-            }
-
+            let finalItem: ChainStorageItem? = changes.reduceToLastChange()
             self?.replaceAndNotifyIfNeeded(finalItem)
         }
 

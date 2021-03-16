@@ -94,11 +94,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let electionStatusSubscription = try createElectionStatusSubscription(factory)
 
         let subscriptions: [StorageChildSubscribing] = [
+            electionStatusSubscription,
             upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
-            totalIssuanceSubscription,
-            electionStatusSubscription
+            totalIssuanceSubscription
         ]
 
         return subscriptions
