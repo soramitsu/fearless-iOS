@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-struct StashItem: Codable {
+struct StashItem: Codable, Equatable {
     let stash: String
     let controller: String
 }
