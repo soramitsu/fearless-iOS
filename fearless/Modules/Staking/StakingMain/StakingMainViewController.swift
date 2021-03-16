@@ -14,6 +14,22 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet private var actionButton: TriangularedButton!
     @IBOutlet weak var amountInputView: AmountInputView!
 
+    @IBOutlet weak var networkInfoContainer: UIView!
+    @IBOutlet weak var titleControl: ActionTitleControl!
+    @IBOutlet weak var storiesView: UICollectionView!
+    @IBOutlet weak var storiesViewZeroHeightConstraint: NSLayoutConstraint!
+
+    @IBOutlet weak var totalStakedTitleLabel: UILabel!
+    @IBOutlet weak var totalStakedAmountLabel: UILabel!
+    @IBOutlet weak var totalStakedFiatAmountLabel: UILabel!
+    @IBOutlet weak var minimumStakeTitleLabel: UILabel!
+    @IBOutlet weak var minimumStakeAmountLabel: UILabel!
+    @IBOutlet weak var minimumStakeFiatAmountLabel: UILabel!
+    @IBOutlet weak var activeNominatorsTitleLabel: UILabel!
+    @IBOutlet weak var activeNominatorsLabel: UILabel!
+    @IBOutlet weak var lockupPeriodTitleLabel: UILabel!
+    @IBOutlet weak var lockupPeriodLabel: UILabel!
+
     @IBOutlet weak var estimateWidgetTitleLabel: UILabel!
 
     @IBOutlet weak var monthlyTitleLabel: UILabel!
@@ -35,6 +51,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var monthlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
     private var yearlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
 
+    private var chainName: String = ""
+
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -43,6 +61,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupInitRewardView()
         setupLocalization()
         presenter.setup()
+        configureCollectionView()
     }
 
     @IBAction func actionMain() {
@@ -55,7 +74,30 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         presenter.performAccountAction()
     }
 
+    @IBAction func toggleNetworkWidgetVisibility(sender: ActionTitleControl) {
+        amountInputView.textField.resignFirstResponder()
+        let animationOptions: UIView.AnimationOptions = sender.isActivated ? .curveEaseIn : .curveEaseOut
+
+        self.storiesViewZeroHeightConstraint?.isActive = sender.isActivated
+        UIView.animate(
+            withDuration: 0.35,
+            delay: 0.0,
+            options: [animationOptions],
+            animations: {
+                self.view.layoutIfNeeded()
+                self.networkInfoContainer.isHidden = sender.isActivated
+            })
+    }
+
     // MARK: - Private functions
+    private func configureCollectionView() {
+        storiesView.backgroundView = nil
+        storiesView.backgroundColor = UIColor.clear
+
+        storiesView.register(UINib(resource: R.nib.storiesCollectionItem),
+                             forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
+    }
+
     private func setupBalanceAccessoryView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let accessoryView = uiFactory.createAmountAccessoryView(for: self, locale: locale)
@@ -117,6 +159,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
             yearlyFiatAmountLabel.text = viewModel.price
             yearlyPercentageLabel.text = viewModel.increase
         }
+        applyChainName()
+    }
+
+    private func applyChainName() {
+        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
+
+        titleControl.titleLabel.text = R.string.localizable
+            .stakingMainNetworkTitle(chainName,
+                                     preferredLanguages: languages)
     }
 }
 
@@ -126,10 +177,20 @@ extension StakingMainViewController: Localizable {
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
+        totalStakedTitleLabel.text = R.string.localizable
+            .stakingMainTotalStakedTitle(preferredLanguages: languages)
+        minimumStakeTitleLabel.text = R.string.localizable
+            .stakingMainMinimumStakeTitle(preferredLanguages: languages)
+        activeNominatorsTitleLabel.text = R.string.localizable
+            .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
+        lockupPeriodTitleLabel.text = R.string.localizable
+            .stakingMainLockupPeriodTitle(preferredLanguages: languages)
 
         estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle(preferredLanguages: languages)
-        monthlyTitleLabel.text = R.string.localizable.stakingMonthPeriodTitle(preferredLanguages: languages)
-        yearlyTitleLabel.text = R.string.localizable.stakingYearPeriodTitle(preferredLanguages: languages)
+        monthlyTitleLabel.text = R.string.localizable
+            .stakingMonthPeriodTitle(preferredLanguages: languages)
+        yearlyTitleLabel.text = R.string.localizable
+            .stakingYearPeriodTitle(preferredLanguages: languages)
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .stakingStartTitle(preferredLanguages: languages)
@@ -179,6 +240,13 @@ extension StakingMainViewController: AmountInputAccessoryViewDelegate {
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
+    func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        self.chainName = newChainName.value(for: locale)
+        applyChainName()
+    }
+
     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
                            yearlyViewModel: LocalizableResource<RewardViewModelProtocol>) {
         self.monthlyRewardViewModel = monthlyViewModel
@@ -212,4 +280,26 @@ extension StakingMainViewController: StakingMainViewProtocol {
         amountInputView.fieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
     }
+}
+
+// MARK: Collection View Data Source -
+extension StakingMainViewController: UICollectionViewDataSource {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        // TODO: FLW-635
+        return 4
+    }
+
+    func collectionView(_ collectionView: UICollectionView,
+                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(
+            withReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId,
+            for: indexPath)!
+
+        return cell
+    }
+}
+
+// MARK: Collection View Delegate -
+extension StakingMainViewController: UICollectionViewDelegate {
+    // TODO: FLW-635
 }

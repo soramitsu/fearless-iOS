@@ -9,6 +9,7 @@ final class StakingMainPresenter {
 
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
+    private var networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol?
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
 
@@ -22,6 +23,16 @@ final class StakingMainPresenter {
     init(viewModelFacade: StakingViewModelFacadeProtocol, logger: LoggerProtocol?) {
         self.viewModelFacade = viewModelFacade
         self.logger = logger
+    }
+
+    private func provideChain() {
+        guard let viewModelFactory = networkInfoViewModelFactory else {
+            return
+        }
+
+        let chainModel = viewModelFactory.createChainViewModel()
+
+        view?.didReceiveChainName(chainName: chainModel)
     }
 
     private func provideAsset() {
@@ -167,6 +178,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         self.chain = newChain
         self.balanceViewModelFactory = viewModelFacade.createBalanceViewModelFactory(for: newChain)
         self.rewardViewModelFactory = viewModelFacade.createRewardViewModelFactory(for: newChain)
+        self.networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
 
         self.amount = nil
         self.calculator = nil
@@ -175,5 +187,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         provideReward()
         provideAsset()
         provideAmountInputViewModel()
+        provideChain()
     }
 }

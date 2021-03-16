@@ -788,6 +788,7 @@
 		AE74EB5725F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EB5625F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift */; };
 		AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */; };
 		AE74EBD025F911E700C494E7 /* ValidatorInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */; };
+		AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */; };
 		AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */; };
 		AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */; };
 		AE89723F25F16B93008EC414 /* ValidatorInfoAccountCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */; };
@@ -803,6 +804,9 @@
 		AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
+		AEFC6D622600A772000BD310 /* StoriesCollectionItem.xib in Resources */ = {isa = PBXBuildFile; fileRef = AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */; };
+		AEFC6D672600A808000BD310 /* StoriesCollectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */; };
+		AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */; };
 		AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */; };
 		AFBBFF3DE4E264C656739B13 /* NetworkManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C71E80E988D0B177691A155 /* NetworkManagementWireframe.swift */; };
 		B02EAF42C91E069FE6872EE0 /* StakingConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */; };
@@ -1662,6 +1666,14 @@
 		AE74EB5625F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoTitleSubtitleCell.swift; sourceTree = "<group>"; };
 		AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Helpers.swift"; sourceTree = "<group>"; };
 		AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoTests.swift; sourceTree = "<group>"; };
+		AE74EC1625FCF09000C494E7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE74EC1B25FCF09800C494E7 /* ba-RU */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "ba-RU"; path = "ba-RU.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		AE74EC1C25FCF09D00C494E7 /* fr */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = fr; path = fr.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE74EC1D25FCF0A000C494E7 /* it */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = it; path = it.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE74EC1E25FCF0A300C494E7 /* ja */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ja; path = ja.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE74EC1F25FCF0A600C494E7 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE74EC2025FCF0A900C494E7 /* es-CO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "es-CO"; path = "es-CO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
+		AE74EC2125FCF0AD00C494E7 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = uk; path = uk.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModel.swift; sourceTree = "<group>"; };
 		AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoAccountCell.xib; sourceTree = "<group>"; };
@@ -1678,6 +1690,9 @@
 		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorEngine.swift; sourceTree = "<group>"; };
+		AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesCollectionItem.xib; sourceTree = "<group>"; };
+		AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesCollectionItem.swift; sourceTree = "<group>"; };
+		AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AEFED3DAA18BCEF0BFA15728 /* RecommendedValidatorsInteractor.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RecommendedValidatorsInteractor.swift; sourceTree = "<group>"; };
 		B15285B4F46DBA7EFF4FC8E5 /* NetworkManagementViewController.xib */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = file.xib; path = NetworkManagementViewController.xib; sourceTree = "<group>"; };
 		B29514E516CEAAB159851D95 /* AccountImportProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountImportProtocols.swift; sourceTree = "<group>"; };
@@ -2965,6 +2980,7 @@
 				849013B924A80986008F705E /* Info.plist */,
 				84C07EDA24AF1924008FC35B /* InfoPlist.strings */,
 				8490146024A94373008F705E /* Localizable.strings */,
+				AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */,
 			);
 			path = fearless;
 			sourceTree = "<group>";
@@ -3016,31 +3032,31 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
-				84F43B8725DE9F8500AEDA56 /* Staking */,
-				843910CF253F8DAD00E3C217 /* NetworkAvailabilityLayer */,
-				840882B12514133500177E20 /* ConnectionSelectAddingAccount */,
-				8468B86824F63C8400B76BC6 /* AddAccount */,
 				8428767524AE046300D91AD8 /* About */,
-				8428766C24AE046200D91AD8 /* LanguageSelection */,
-				8428764224ADDE0200D91AD8 /* Profile */,
-				849014FD24AB698B008F705E /* Wallet */,
-				849014CC24AA8F60008F705E /* MainTabBar */,
-				849014A724AA87E3008F705E /* Pincode */,
-				8490146E24A94A37008F705E /* Root */,
-				8490143124A9373E008F705E /* LoadingView */,
-				8490140124A92F6D008F705E /* OnbordingMain */,
-				C7AEDB8341B78EC46F6F98DC /* UsernameSetup */,
+				0D927CDE29F5C9F4CA537F8F /* AccountConfirm */,
 				4C5888389F25B5C82454F92D /* AccountCreate */,
 				BF6F50DD15230CADAC713359 /* AccountImport */,
-				0D927CDE29F5C9F4CA537F8F /* AccountConfirm */,
-				26F53332B25039CD43301CAF /* AccountManagement */,
 				E0365BD2CD56E133B3EB6AC2 /* AccountInfo */,
-				81B4F8399E320644C4CD5637 /* NetworkManagement */,
-				0D3E297DAEAAF14373239578 /* NetworkInfo */,
+				26F53332B25039CD43301CAF /* AccountManagement */,
+				8468B86824F63C8400B76BC6 /* AddAccount */,
 				C0B57C186CACF856E5AF65AC /* AddConnection */,
 				F2AA2B660A3092CF54C55742 /* CommingSoon */,
+				840882B12514133500177E20 /* ConnectionSelectAddingAccount */,
 				84F4A9DC2551EC7D000CF0A3 /* Export */,
+				8428766C24AE046200D91AD8 /* LanguageSelection */,
+				8490143124A9373E008F705E /* LoadingView */,
+				849014CC24AA8F60008F705E /* MainTabBar */,
+				843910CF253F8DAD00E3C217 /* NetworkAvailabilityLayer */,
+				0D3E297DAEAAF14373239578 /* NetworkInfo */,
+				81B4F8399E320644C4CD5637 /* NetworkManagement */,
+				8490140124A92F6D008F705E /* OnbordingMain */,
+				849014A724AA87E3008F705E /* Pincode */,
+				8428764224ADDE0200D91AD8 /* Profile */,
 				F1A9198B13888515D787A6C1 /* Purchase */,
+				8490146E24A94A37008F705E /* Root */,
+				84F43B8725DE9F8500AEDA56 /* Staking */,
+				C7AEDB8341B78EC46F6F98DC /* UsernameSetup */,
+				849014FD24AB698B008F705E /* Wallet */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -4053,6 +4069,7 @@
 				AE2C845C25EE833A00986716 /* RewardViewModel.swift */,
 				AE2C846425EE884900986716 /* RewardViewModelFactory.swift */,
 				8476C9DF25EF94F2003EEAE1 /* StakingViewModelFacade.swift */,
+				AEFC6D6E2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4117,9 +4134,19 @@
 			path = RewardCalculatorService;
 			sourceTree = "<group>";
 		};
+		AEFC6D602600A754000BD310 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				AEFC6D612600A772000BD310 /* StoriesCollectionItem.xib */,
+				AEFC6D662600A808000BD310 /* StoriesCollectionItem.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		B7B0681CCE8F8F0127E8676C /* StakingMain */ = {
 			isa = PBXGroup;
 			children = (
+				AEFC6D602600A754000BD310 /* View */,
 				AE2C845B25EE829E00986716 /* ViewModel */,
 				470B64C45E547C25FCCCFC33 /* StakingMainProtocols.swift */,
 				96F09665083031502F9693F8 /* StakingMainWireframe.swift */,
@@ -4388,7 +4415,9 @@
 				849013FC24A92A05008F705E /* fearless.release.xcconfig in Resources */,
 				8467FD4724ED6496005D486C /* ProfileDetailsTableViewCell.xib in Resources */,
 				8490145E24A94373008F705E /* Localizable.strings in Resources */,
+				AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */,
 				84C07EDC24AF1924008FC35B /* InfoPlist.strings in Resources */,
+				AEFC6D622600A772000BD310 /* StoriesCollectionItem.xib in Resources */,
 				842876AC24AE049B00D91AD8 /* SelectionTitleTableViewCell.xib in Resources */,
 				849013B824A80986008F705E /* LaunchScreen.storyboard in Resources */,
 				842876AE24AE049B00D91AD8 /* SelectionListViewController.xib in Resources */,
@@ -4704,6 +4733,7 @@
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
 				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
+				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
 				8490147424A94A37008F705E /* RootProtocol.swift in Sources */,
 				842876A424AE049B00D91AD8 /* SelectableSubtitleListViewModel.swift in Sources */,
@@ -4807,6 +4837,7 @@
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
 				84D97EB5251FC58100F07405 /* TransferConfigurator.swift in Sources */,
 				AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */,
+				AEFC6D672600A808000BD310 /* StoriesCollectionItem.swift in Sources */,
 				84FAB076254378FC00319F74 /* ContactsListViewModelFactory.swift in Sources */,
 				8490143024A935FE008F705E /* AlertPresentable.swift in Sources */,
 				AE2C84D525EF989A00986716 /* ValidatorInfoWireframe.swift in Sources */,
@@ -5518,6 +5549,21 @@
 				84C07EE624AF1998008FC35B /* uk */,
 			);
 			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */ = {
+			isa = PBXVariantGroup;
+			children = (
+				AE74EC1625FCF09000C494E7 /* en */,
+				AE74EC1B25FCF09800C494E7 /* ba-RU */,
+				AE74EC1C25FCF09D00C494E7 /* fr */,
+				AE74EC1D25FCF0A000C494E7 /* it */,
+				AE74EC1E25FCF0A300C494E7 /* ja */,
+				AE74EC1F25FCF0A600C494E7 /* ru */,
+				AE74EC2025FCF0A900C494E7 /* es-CO */,
+				AE74EC2125FCF0AD00C494E7 /* uk */,
+			);
+			name = Localizable.stringsdict;
 			sourceTree = "<group>";
 		};
 /* End PBXVariantGroup section */

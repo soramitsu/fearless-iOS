@@ -276,3 +276,8 @@ a type of password.";
 "identity.email.title" = "Eメール";
 "identity.web.title" = "ウェブ";
 "identity.riot.name.title" = "暴動の名前";
+"staking.main.network.title" = "%@ネットワーク";
+"staking.main.total.staked.title" = "合計賭け金";
+"staking.main.minimum.stake.title" = "最小ステーク";
+"staking.main.active.nominators.title" = "アクティブな推薦者";
+"staking.main.lockup.period.title" = "ロックアップ期間";

@@ -4,6 +4,7 @@ import SoraKeystore
 protocol StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol
+    func createNetworkInfoViewModelFactory(for chain: Chain) -> NetworkInfoViewModelFactoryProtocol
 }
 
 final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
@@ -22,5 +23,9 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol {
         return RewardViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                       selectedAddressType: chain.addressType)
+    }
+
+    func createNetworkInfoViewModelFactory(for chain: Chain) -> NetworkInfoViewModelFactoryProtocol {
+        return NetworkInfoViewModelFactory(with: chain)
     }
 }

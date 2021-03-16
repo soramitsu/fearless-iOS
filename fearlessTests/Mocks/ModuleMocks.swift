@@ -17084,6 +17084,21 @@ import SoraFoundation
     
     
     
+     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)  {
+        
+    return cuckoo_manager.call("didReceiveChainName(chainName: LocalizableResource<String>)",
+            parameters: (newChainName),
+            escapingParameters: (newChainName),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveChainName(chainName: newChainName))
+        
+    }
+    
+    
+    
     public func applyLocalization()  {
         
     return cuckoo_manager.call("applyLocalization()",
@@ -17139,6 +17154,11 @@ import SoraFoundation
 	    func didReceiveRewards<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(monthlyViewModel: M1, yearlyViewModel: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>)> where M1.MatchedType == LocalizableResource<RewardViewModelProtocol>, M2.MatchedType == LocalizableResource<RewardViewModelProtocol> {
 	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>)>] = [wrap(matchable: monthlyViewModel) { $0.0 }, wrap(matchable: yearlyViewModel) { $0.1 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveChainName<M1: Cuckoo.Matchable>(chainName newChainName: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<String>)> where M1.MatchedType == LocalizableResource<String> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<String>)>] = [wrap(matchable: newChainName) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveChainName(chainName: LocalizableResource<String>)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -17202,6 +17222,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveChainName<M1: Cuckoo.Matchable>(chainName newChainName: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<String>), Void> where M1.MatchedType == LocalizableResource<String> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<String>)>] = [wrap(matchable: newChainName) { $0 }]
+	        return cuckoo_manager.verify("didReceiveChainName(chainName: LocalizableResource<String>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -17255,6 +17281,10 @@ import SoraFoundation
     }
     
      func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
