@@ -42,4 +42,9 @@ extension StorageKeyFactoryProtocol {
         try createStorageKey(moduleName: "Balances",
                              storageName: "TotalIssuance")
     }
+
+    func electionStatus() throws -> Data {
+        try createStorageKey(moduleName: "Staking",
+                             storageName: "ElectionStatus")
+    }
  }

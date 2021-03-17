@@ -288,7 +288,11 @@ extension StakingAccountResolver {
         let currentItemsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let saveOperation = repository.saveOperation({
-            if let newStashItem = try operation.extractNoCancellableResultData() {
+            let currentItem = try currentItemsOperation.extractNoCancellableResultData()
+                    .first
+
+            if let newStashItem = try operation.extractNoCancellableResultData(),
+               currentItem != newStashItem {
                 return [newStashItem]
             } else {
                 return []

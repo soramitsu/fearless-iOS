@@ -3,7 +3,7 @@ import RobinHood
 
 struct ChainStorageDecodedItem<T: Equatable & Decodable>: Equatable {
     let identifier: String
-    let item: T
+    let item: T?
 }
 
 extension ChainStorageDecodedItem: Identifiable {}

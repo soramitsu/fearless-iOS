@@ -91,7 +91,10 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let totalIssuanceSubscription = try createTotalIssuanceSubscription(factory)
 
+        let electionStatusSubscription = try createElectionStatusSubscription(factory)
+
         let subscriptions: [StorageChildSubscribing] = [
+            electionStatusSubscription,
             upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
@@ -138,6 +141,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.totalIssuance()
 
+        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
+    }
+
+    private func createElectionStatusSubscription(_ factory: ChildSubscriptionFactoryProtocol)
+    throws -> StorageChildSubscribing {
+        let path = StorageCodingPath.electionStatus
+        let remoteStorageKey = try storageKeyFactory.createStorageKey(moduleName: path.moduleName,
+                                                                      storageName: path.itemName)
         return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 

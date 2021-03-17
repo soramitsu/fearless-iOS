@@ -124,15 +124,11 @@ final class RuntimeRegistryService {
             return
         }
 
-        let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                        waitsInProgressSyncOnAdd: false,
-                                                        initialSize: 1,
-                                                        refreshWhenEmpty: true)
         metadataProvider.addObserver(self,
                                      deliverOn: syncQueue,
                                      executing: updateClosure,
                                      failing: failureClosure,
-                                     options: options)
+                                     options: StreamableProviderObserverOptions.substrateSource(for: 1))
 
         logger?.debug("Did subscribe to metadata")
     }

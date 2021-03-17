@@ -168,6 +168,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         titleControl.titleLabel.text = R.string.localizable
             .stakingMainNetworkTitle(chainName,
                                      preferredLanguages: languages)
+        titleControl.invalidateLayout()
     }
 }
 

@@ -3,6 +3,20 @@ import RobinHood
 import FearlessUtils
 
 final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceProtocol {
+    enum LastSeen: Equatable {
+        case waiting
+        case received(value: ChainStorageItem?)
+
+        var data: Data? {
+            switch self {
+            case .waiting:
+                return nil
+            case .received(let item):
+                return item?.data
+            }
+        }
+    }
+
     typealias Model = ChainStorageDecodedItem<T>
 
     let itemIdentifier: String
@@ -10,8 +24,9 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     let runtimeService: RuntimeCodingServiceProtocol
     let provider: StreamableProvider<ChainStorageItem>
     let trigger: DataProviderTriggerProtocol
+    let shouldUseFallback: Bool
 
-    private var lastSeenResult: ChainStorageItem?
+    private var lastSeenResult: LastSeen = .waiting
     private var lastSeenError: Error?
 
     private var lock = NSLock()
@@ -20,12 +35,14 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
          codingPath: StorageCodingPath,
          runtimeService: RuntimeCodingServiceProtocol,
          provider: StreamableProvider<ChainStorageItem>,
-         trigger: DataProviderTriggerProtocol) {
+         trigger: DataProviderTriggerProtocol,
+         shouldUseFallback: Bool) {
         self.itemIdentifier = itemIdentifier
         self.codingPath = codingPath
         self.runtimeService = runtimeService
         self.provider = provider
         self.trigger = trigger
+        self.shouldUseFallback = shouldUseFallback
 
         subscribe()
     }
@@ -33,11 +50,12 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     // MARK: Private
 
     private func replaceAndNotifyIfNeeded(_ newItem: ChainStorageItem?) {
-        if newItem != lastSeenResult || lastSeenError != nil {
+        let newValue = LastSeen.received(value: newItem)
+        if newValue != lastSeenResult || lastSeenError != nil {
             lock.lock()
 
             lastSeenError = nil
-            lastSeenResult = newItem
+            lastSeenResult = newValue
 
             lock.unlock()
 
@@ -48,7 +66,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
     private func replaceAndNotifyError(_ error: Error) {
         lock.lock()
 
-        lastSeenResult = nil
+        lastSeenResult = .waiting
         lastSeenError = error
 
         lock.unlock()
@@ -58,15 +76,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
     private func subscribe() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<ChainStorageItem>]) in
-            let finalItem: ChainStorageItem? = changes.reduce(nil) { (_, item) in
-                switch item {
-                case .insert(let newItem), .update(let newItem):
-                    return newItem
-                case .delete:
-                    return nil
-                }
-            }
-
+            let finalItem: ChainStorageItem? = changes.reduceToLastChange()
             self?.replaceAndNotifyIfNeeded(finalItem)
         }
 
@@ -75,24 +85,49 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
             return
         }
 
-        let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                        waitsInProgressSyncOnAdd: false,
-                                                        initialSize: 0,
-                                                        refreshWhenEmpty: false)
         provider.addObserver(self,
                              deliverOn: DispatchQueue.global(qos: .default),
                              executing: updateClosure,
                              failing: failure,
-                             options: options)
+                             options: StreamableProviderObserverOptions.substrateSource())
     }
 
-    private func prepareBaseOperation() -> CompoundOperationWrapper<T?> {
+    private func prepareFallbackBaseOperation() -> CompoundOperationWrapper<T?> {
         if let error = lastSeenError {
             return CompoundOperationWrapper<T?>.createWithError(error)
         }
 
-        guard let data = lastSeenResult?.data else {
-            return CompoundOperationWrapper<T?>.createWithResult(nil)
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let decodingOperation = StorageFallbackDecodingOperation<T>(path: codingPath,
+                                                                    data: lastSeenResult.data)
+        decodingOperation.configurationBlock = {
+            do {
+                decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
+
+        decodingOperation.addDependency(codingFactoryOperation)
+
+        let mappingOperation: BaseOperation<T?> = ClosureOperation {
+            try decodingOperation.extractNoCancellableResultData()
+        }
+
+        mappingOperation.addDependency(decodingOperation)
+
+        return CompoundOperationWrapper(targetOperation: mappingOperation,
+                                        dependencies: [codingFactoryOperation, decodingOperation])
+    }
+
+    private func prepareOptionalBaseOperation() -> CompoundOperationWrapper<T?> {
+        if let error = lastSeenError {
+            return CompoundOperationWrapper<T?>.createWithError(error)
+        }
+
+        guard let data = lastSeenResult.data else {
+            return CompoundOperationWrapper.createWithResult(nil)
         }
 
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
@@ -128,15 +163,17 @@ extension StorageProviderSource {
         }
 
         guard modelId == itemIdentifier else {
-            return CompoundOperationWrapper<Model?>.createWithResult(nil)
+            let value = ChainStorageDecodedItem<T>(identifier: modelId, item: nil)
+            return CompoundOperationWrapper<Model?>.createWithResult(value)
         }
 
-        let baseOperationWrapper = prepareBaseOperation()
+        let baseOperationWrapper = shouldUseFallback ? prepareFallbackBaseOperation() :
+            prepareOptionalBaseOperation()
         let mappingOperation: BaseOperation<Model?> = ClosureOperation {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return ChainStorageDecodedItem(identifier: modelId, item: item)
             } else {
-                return nil
+                return ChainStorageDecodedItem(identifier: modelId, item: nil)
             }
         }
 
@@ -156,12 +193,13 @@ extension StorageProviderSource {
 
         let currentId = itemIdentifier
 
-        let baseOperationWrapper = prepareBaseOperation()
+        let baseOperationWrapper = shouldUseFallback ? prepareFallbackBaseOperation() :
+            prepareOptionalBaseOperation()
         let mappingOperation: BaseOperation<[Model]> = ClosureOperation {
             if let item = try baseOperationWrapper.targetOperation.extractNoCancellableResultData() {
                 return [ChainStorageDecodedItem(identifier: currentId, item: item)]
             } else {
-                return []
+                return [ChainStorageDecodedItem(identifier: currentId, item: nil)]
             }
         }
 

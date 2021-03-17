@@ -98,7 +98,7 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `29518e70c1a386405c19f2f335eaeef6d500c4ad`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `1814f0c17bde805549eb1b90977ce81909730684`)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7`)
   - FireMock
   - R.swift
   - ReachabilitySwift
@@ -137,7 +137,7 @@ EXTERNAL SOURCES:
     :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 1814f0c17bde805549eb1b90977ce81909730684
+    :commit: e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -148,7 +148,7 @@ CHECKOUT OPTIONS:
     :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
-    :commit: 1814f0c17bde805549eb1b90977ce81909730684
+    :commit: e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -158,7 +158,7 @@ SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: c7d06c122997f01ea343c2d5fdd8c8022bf48961
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
-  FearlessUtils: ac16885b717f0a91e2f99fc631030e2289d6561b
+  FearlessUtils: 8c05cb6cf737943f343e6a1fb4be2ac6fafebb9d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 6944fc5fea160cebd1219b5f76539ed72908de71
   R.swift: 56ec7e3aef34b9eee47a659e42462db2c1cc5ac3
@@ -177,6 +177,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 4690c461cfc11a403b4a8c4018fe93fc93b1b576
+PODFILE CHECKSUM: 30edc35ffe57eeb962899d62ebe4cb99cacbea60
 
 COCOAPODS: 1.10.1

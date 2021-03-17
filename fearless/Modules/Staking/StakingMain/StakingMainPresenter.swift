@@ -132,10 +132,22 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 }
 
 extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
+    private func handle(error: Error) {
+        let locale = view?.localizationManager?.selectedLocale
+
+        if !wireframe.present(error: error, from: view, locale: locale) {
+            logger?.error("Did receive error: \(error)")
+        }
+    }
+
     func didReceive(price: PriceData?) {
         self.priceData = price
         provideAsset()
         provideReward()
+    }
+
+    func didReceive(priceError: Error) {
+        handle(error: priceError)
     }
 
     func didReceive(balance: DyAccountData?) {
@@ -149,17 +161,13 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         provideAsset()
     }
 
+    func didReceive(balanceError: Error) {
+        handle(error: balanceError)
+    }
+
     func didReceive(selectedAddress: String) {
         let viewModel = StakingMainViewModel(address: selectedAddress)
         view?.didReceive(viewModel: viewModel)
-    }
-
-    func didReceive(error: Error) {
-        let locale = view?.localizationManager?.selectedLocale
-
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            logger?.error("Did receive error: \(error)")
-        }
     }
 
     func didReceive(calculator: RewardCalculatorEngineProtocol) {
@@ -168,10 +176,83 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(calculatorError: Error) {
-        let locale = view?.localizationManager?.selectedLocale
-        if !wireframe.present(error: calculatorError, from: view, locale: locale) {
-            logger?.error("Did receive error: \(calculatorError)")
+        handle(error: calculatorError)
+    }
+
+    func didReceive(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            logger?.debug("Stash: \(stashItem.stash)")
+            logger?.debug("Controller: \(stashItem.controller)")
+        } else {
+            logger?.debug("No stash found")
         }
+    }
+
+    func didReceive(stashItemError: Error) {
+        handle(error: stashItemError)
+    }
+
+    func didReceive(ledgerInfo: DyStakingLedger?) {
+        if let ledgerInfo = ledgerInfo {
+            logger?.debug("Did receive ledger info: \(ledgerInfo)")
+        } else {
+            logger?.debug("No ledger info received")
+        }
+    }
+
+    func didReceive(ledgerInfoError: Error) {
+        handle(error: ledgerInfoError)
+    }
+
+    func didReceive(nomination: Nomination?) {
+        if let nomination = nomination {
+            logger?.debug("Did receive nomination: \(nomination)")
+        } else {
+            logger?.debug("No nomination received")
+        }
+    }
+
+    func didReceive(nominationError: Error) {
+        handle(error: nominationError)
+    }
+
+    func didReceive(validator: ValidatorPrefs?) {
+        if let validator = validator {
+            logger?.debug("Did receive validator: \(validator)")
+        } else {
+            logger?.debug("No validator received")
+        }
+    }
+
+    func didReceive(validatorError: Error) {
+        handle(error: validatorError)
+    }
+
+    func didReceive(electionStatus: ElectionStatus?) {
+        switch electionStatus {
+        case .close:
+            logger?.debug("Election status: close")
+        case .open(let blockNumber):
+            logger?.debug("Election status: open from \(blockNumber)")
+        case .none:
+            logger?.debug("No election status set")
+        }
+    }
+
+    func didReceive(electionStatusError: Error) {
+        handle(error: electionStatusError)
+    }
+
+    func didReceive(activeEra: ActiveEraInfo?) {
+        if let activeEra = activeEra {
+            logger?.debug("Did receive active era: \(activeEra)")
+        } else {
+            logger?.debug("No active era found")
+        }
+    }
+
+    func didReceive(activeEraError: Error) {
+        handle(error: activeEraError)
     }
 
     func didReceive(newChain: Chain) {

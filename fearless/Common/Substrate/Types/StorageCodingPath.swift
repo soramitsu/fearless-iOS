@@ -57,4 +57,8 @@ extension StorageCodingPath {
     static var unappliedSlashes: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
     }
+
+    static var electionStatus: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "EraElectionStatus")
+    }
 }

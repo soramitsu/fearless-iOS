@@ -118,16 +118,11 @@ final class EraValidatorService {
                 self?.logger?.error("Did receive error: \(error)")
             }
 
-            let options = StreamableProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                            waitsInProgressSyncOnAdd: false,
-                                                            initialSize: 0,
-                                                            refreshWhenEmpty: false)
-
             eraDataProvider.addObserver(self,
                                         deliverOn: syncQueue,
                                         executing: updateClosure,
                                         failing: failureClosure,
-                                        options: options)
+                                        options: StreamableProviderObserverOptions.substrateSource())
 
             self.eraDataProvider = eraDataProvider
         } catch {
