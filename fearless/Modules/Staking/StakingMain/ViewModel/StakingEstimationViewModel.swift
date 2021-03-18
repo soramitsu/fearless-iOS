@@ -3,15 +3,19 @@ import CommonWallet
 import SoraFoundation
 
 protocol StakingEstimationViewModelProtocol {
-    var assetBalance: AssetBalanceViewModelProtocol { get }
-    var monthlyReward: RewardViewModelProtocol { get }
-    var yearlyReward: RewardViewModelProtocol { get }
+    var assetBalance: LocalizableResource<AssetBalanceViewModelProtocol> { get }
+    var monthlyReward: LocalizableResource<RewardViewModelProtocol> { get }
+    var yearlyReward: LocalizableResource<RewardViewModelProtocol> { get }
     var asset: WalletAsset { get }
+    var inputLimit: Decimal { get }
+    var amountFormatterFactory: NumberFormatterFactoryProtocol { get }
 }
 
 struct StakingEstimationViewModel: StakingEstimationViewModelProtocol {
-    let assetBalance: AssetBalanceViewModelProtocol
-    let monthlyReward: RewardViewModelProtocol
-    let yearlyReward: RewardViewModelProtocol
+    let assetBalance: LocalizableResource<AssetBalanceViewModelProtocol>
+    let monthlyReward: LocalizableResource<RewardViewModelProtocol>
+    let yearlyReward: LocalizableResource<RewardViewModelProtocol>
     let asset: WalletAsset
+    let inputLimit: Decimal
+    let amountFormatterFactory: NumberFormatterFactoryProtocol
 }

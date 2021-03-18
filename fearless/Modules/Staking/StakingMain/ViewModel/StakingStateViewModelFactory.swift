@@ -19,6 +19,7 @@ final class StakingStateViewModelFactory {
     private var cachedChain: Chain?
 
     private lazy var addressFactory = SS58AddressFactory()
+    private lazy var amountFormatterFactory = AmountFormatterFactory()
 
     init(primitiveFactory: WalletPrimitiveFactoryProtocol, logger: LoggerProtocol? = nil) {
         self.primitiveFactory = primitiveFactory
@@ -149,7 +150,7 @@ final class StakingStateViewModelFactory {
     private func createEstimationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
                                            amount: Decimal)
-    throws -> LocalizableResource<StakingEstimationViewModelProtocol> {
+    throws -> StakingEstimationViewModelProtocol {
         let monthlyReturn: Decimal
         let yearlyReturn: Decimal
 
@@ -185,12 +186,12 @@ final class StakingStateViewModelFactory {
 
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
-        return LocalizableResource { locale in
-            StakingEstimationViewModel(assetBalance: balanceViewModel.value(for: locale),
-                                       monthlyReward: monthlyViewModel.value(for: locale),
-                                       yearlyReward: yearlyViewModel.value(for: locale),
-                                       asset: asset)
-        }
+        return StakingEstimationViewModel(assetBalance: balanceViewModel,
+                                          monthlyReward: monthlyViewModel,
+                                          yearlyReward: yearlyViewModel,
+                                          asset: asset,
+                                          inputLimit: StakingConstants.maxAmount,
+                                          amountFormatterFactory: amountFormatterFactory)
     }
 }
 

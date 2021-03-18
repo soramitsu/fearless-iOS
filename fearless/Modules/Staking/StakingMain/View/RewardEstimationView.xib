@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Bold.otf">
+            <string>sora-rc004-0417-Bold</string>
+        </array>
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="1jb-Db-BEU" userLabel="Staking widget" customClass="RewardEstimationView" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="296"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="VtY-xS-eUr" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="236"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_overlayFillColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                            <integer key="value" value="2"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Estimate your earning" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="myC-5u-uc4">
+                    <rect key="frame" x="16" y="15" width="343" height="16.5"/>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="14"/>
+                    <color key="textColor" name="colorWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="iAa-ON-VRL">
+                    <rect key="frame" x="16" y="53.5" width="343" height="54.5"/>
+                    <subviews>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="AlB-bA-lr2">
+                            <rect key="frame" x="0.0" y="0.0" width="171.5" height="51"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Monthly" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="YYL-EZ-wi8">
+                                    <rect key="frame" x="0.0" y="0.0" width="43.5" height="14"/>
+                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.164 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="3nV-gc-IyG">
+                                    <rect key="frame" x="0.0" y="16" width="79.5" height="19"/>
+                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                                    <color key="textColor" name="colorWhite"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="0E4-r7-J0M">
+                                    <rect key="frame" x="0.0" y="37" width="84" height="14"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$24.92" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Qhc-rB-Oh5">
+                                            <rect key="frame" x="0.0" y="0.0" width="37" height="14"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                            <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+1.75%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jbh-9l-FGh">
+                                            <rect key="frame" x="41" y="0.0" width="43" height="14"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                            <color key="textColor" red="0.054901960780000002" green="0.82745098039999998" blue="0.23137254900000001" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </stackView>
+                            </subviews>
+                        </stackView>
+                        <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="Cx0-Hi-LXl">
+                            <rect key="frame" x="171.5" y="0.0" width="171.5" height="51"/>
+                            <subviews>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Yearly" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="e3f-R1-5gs">
+                                    <rect key="frame" x="0.0" y="0.0" width="32" height="14"/>
+                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                    <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2.151 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2xC-LX-L1O">
+                                    <rect key="frame" x="0.0" y="16" width="79.5" height="19"/>
+                                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                                    <color key="textColor" name="colorWhite"/>
+                                    <nil key="highlightedColor"/>
+                                </label>
+                                <stackView opaque="NO" contentMode="scaleToFill" spacing="4" translatesAutoresizingMaskIntoConstraints="NO" id="h4U-7e-cuD">
+                                    <rect key="frame" x="0.0" y="37" width="90.5" height="14"/>
+                                    <subviews>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$326.9" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Eux-FQ-Q6o">
+                                            <rect key="frame" x="0.0" y="0.0" width="37" height="14"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                            <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="+21.25%" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dnw-Hr-y2a">
+                                            <rect key="frame" x="41" y="0.0" width="49.5" height="14"/>
+                                            <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                            <color key="textColor" red="0.054901960780000002" green="0.82745098039999998" blue="0.23137254900000001" alpha="1" colorSpace="calibratedRGB"/>
+                                            <nil key="highlightedColor"/>
+                                        </label>
+                                    </subviews>
+                                </stackView>
+                            </subviews>
+                        </stackView>
+                    </subviews>
+                </stackView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="new-yP-LVA" customClass="AmountInputView" customModule="fearless">
+                    <rect key="frame" x="16" y="132" width="343" height="80"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="80" id="jN5-iW-muE"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
+                            <color key="value" red="0.0" green="0.0" blue="0.0" alpha="0.40000000000000002" colorSpace="custom" customColorSpace="calibratedRGB"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="borderWidth">
+                            <real key="value" value="1"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                            <color key="value" name="colorGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                            <color key="value" name="colorLightGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="title" value="Amount"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                            <real key="value" value="12"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_priceFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_priceFontSize">
+                            <real key="value" value="12"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="priceText" value="$4,818"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="balanceText" value="Balance: 100 KSM"/>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_balanceFontName" value="sora-rc004-0417-Regular"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_balanceFontSize">
+                            <real key="value" value="12"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="symbol" value="KSM"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="priceColor">
+                            <color key="value" name="colorLightGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="balanceColor">
+                            <color key="value" name="colorLightGray"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="symbolColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_symbolFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_symbolFontSize">
+                            <real key="value" value="16"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="fieldText" value="99.999"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="fieldColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_filedFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_fieldFontSize">
+                            <real key="value" value="16"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_horizontalSpacing">
+                            <real key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_verticalSpacing">
+                            <real key="value" value="5"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_inputIndicatorColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="image" keyPath="assetIcon" value="iconKsmSmallBg"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_iconRadius">
+                            <real key="value" value="12"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_bottom">
+                            <real key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_top">
+                            <real key="value" value="8"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_left">
+                            <real key="value" value="16"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_right">
+                            <real key="value" value="16"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Pyb-Il-ysA" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="244" width="375" height="52"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="52" id="epA-km-cMx"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                            <color key="value" name="colorPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                            <color key="value" name="colorHighlightedPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Start staking"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                            <real key="value" value="14"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="actionTouchUpInside" destination="1jb-Db-BEU" eventType="touchUpInside" id="UEK-vx-Qes"/>
+                    </connections>
+                </view>
+            </subviews>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="iAa-ON-VRL" secondAttribute="trailing" constant="16" id="1GA-Tw-VLz"/>
+                <constraint firstAttribute="trailing" secondItem="new-yP-LVA" secondAttribute="trailing" constant="16" id="4wU-Xq-s1j"/>
+                <constraint firstItem="iAa-ON-VRL" firstAttribute="top" secondItem="myC-5u-uc4" secondAttribute="bottom" constant="22" id="6FN-5T-puo"/>
+                <constraint firstAttribute="trailing" secondItem="VtY-xS-eUr" secondAttribute="trailing" id="6iJ-15-LAq"/>
+                <constraint firstItem="new-yP-LVA" firstAttribute="top" secondItem="iAa-ON-VRL" secondAttribute="bottom" constant="24" id="7Sn-Uk-WZl"/>
+                <constraint firstAttribute="bottom" secondItem="Pyb-Il-ysA" secondAttribute="bottom" id="EvS-WT-Wiz"/>
+                <constraint firstItem="VtY-xS-eUr" firstAttribute="top" secondItem="1jb-Db-BEU" secondAttribute="top" id="Mun-ew-k6C"/>
+                <constraint firstItem="myC-5u-uc4" firstAttribute="top" secondItem="1jb-Db-BEU" secondAttribute="top" constant="15" id="NCk-Ma-rqp"/>
+                <constraint firstAttribute="trailing" secondItem="Pyb-Il-ysA" secondAttribute="trailing" id="Vgp-rx-XlA"/>
+                <constraint firstItem="new-yP-LVA" firstAttribute="leading" secondItem="1jb-Db-BEU" secondAttribute="leading" constant="16" id="XDz-R2-Ny9"/>
+                <constraint firstItem="VtY-xS-eUr" firstAttribute="leading" secondItem="1jb-Db-BEU" secondAttribute="leading" id="ZsE-sv-fmc"/>
+                <constraint firstItem="Pyb-Il-ysA" firstAttribute="leading" secondItem="1jb-Db-BEU" secondAttribute="leading" id="e1L-cf-Nfv"/>
+                <constraint firstItem="iAa-ON-VRL" firstAttribute="leading" secondItem="1jb-Db-BEU" secondAttribute="leading" constant="16" id="jDF-f9-sg1"/>
+                <constraint firstAttribute="trailing" secondItem="myC-5u-uc4" secondAttribute="trailing" constant="16" id="mDr-kt-nOC"/>
+                <constraint firstItem="myC-5u-uc4" firstAttribute="leading" secondItem="1jb-Db-BEU" secondAttribute="leading" constant="16" id="pld-P6-dmJ"/>
+                <constraint firstItem="Pyb-Il-ysA" firstAttribute="top" secondItem="VtY-xS-eUr" secondAttribute="bottom" constant="8" id="weg-0l-ewz"/>
+                <constraint firstItem="VtY-xS-eUr" firstAttribute="bottom" secondItem="new-yP-LVA" secondAttribute="bottom" constant="24" id="xEe-1R-y1g"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <connections>
+                <outlet property="actionButton" destination="Pyb-Il-ysA" id="zTU-4D-5ph"/>
+                <outlet property="amountInputView" destination="new-yP-LVA" id="JfY-T1-ZTD"/>
+                <outlet property="estimateWidgetTitleLabel" destination="myC-5u-uc4" id="YZ6-vd-vjZ"/>
+                <outlet property="monthlyAmountLabel" destination="3nV-gc-IyG" id="hI7-UQ-2Du"/>
+                <outlet property="monthlyFiatAmountLabel" destination="Qhc-rB-Oh5" id="a0M-0B-eC1"/>
+                <outlet property="monthlyPercentageLabel" destination="jbh-9l-FGh" id="H1g-8L-Von"/>
+                <outlet property="monthlyTitleLabel" destination="YYL-EZ-wi8" id="DlH-rZ-wm6"/>
+                <outlet property="yearlyAmountLabel" destination="2xC-LX-L1O" id="bcw-Pz-LGg"/>
+                <outlet property="yearlyFiatAmountLabel" destination="Eux-FQ-Q6o" id="kVB-Nx-bQY"/>
+                <outlet property="yearlyPercentageLabel" destination="dnw-Hr-y2a" id="lwj-Di-mZi"/>
+                <outlet property="yearlyTitleLabel" destination="e3f-R1-5gs" id="wOs-eK-cMR"/>
+            </connections>
+            <point key="canvasLocation" x="-522" y="103"/>
+        </view>
+    </objects>
+    <designables>
+        <designable name="new-yP-LVA">
+            <size key="intrinsicContentSize" width="-1" height="77"/>
+        </designable>
+    </designables>
+    <resources>
+        <image name="iconKsmSmallBg" width="24" height="24"/>
+        <namedColor name="colorGray">
+            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorHighlightedPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorLightGray">
+            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

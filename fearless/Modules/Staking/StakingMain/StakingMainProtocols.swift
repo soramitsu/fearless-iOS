@@ -3,12 +3,7 @@ import SoraFoundation
 import CommonWallet
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModelProtocol)
-    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
-    func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
-                           yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)
-    
+    func didReceive(viewModel: StakingMainViewModelProtocol)    
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
 
     func didReceiveStakingState(viewModel: StakingViewState)

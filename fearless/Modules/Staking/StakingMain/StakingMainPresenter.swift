@@ -7,8 +7,6 @@ final class StakingMainPresenter {
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
 
-    private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
-    private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol?
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
@@ -16,10 +14,8 @@ final class StakingMainPresenter {
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
 
-    private var priceData: PriceData?
     private var balance: Decimal?
     private var amount: Decimal?
-    private var calculator: RewardCalculatorEngineProtocol?
 
     private var chain: Chain?
 
@@ -50,64 +46,6 @@ final class StakingMainPresenter {
 
         view?.didReceiveChainName(chainName: chainModel)
     }
-
-    private func provideAsset() {
-        guard let viewModelFactory = balanceViewModelFactory else {
-            return
-        }
-
-        let viewModel = viewModelFactory.createAssetBalanceViewModel(amount ?? 0.0,
-                                                                     balance: balance,
-                                                                     priceData: priceData)
-        view?.didReceiveAsset(viewModel: viewModel)
-    }
-
-    private func provideReward() {
-        guard let viewModelFactory = rewardViewModelFactory else {
-            return
-        }
-
-        do {
-
-            let monthlyReturn: Decimal
-            let yearlyReturn: Decimal
-
-            if let calculator = calculator {
-                monthlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
-                                                                      period: .month)
-                yearlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
-                                                                     period: .year)
-            } else {
-                monthlyReturn = 0.0
-                yearlyReturn = 0.0
-            }
-
-            let monthlyViewModel = viewModelFactory
-                .createRewardViewModel(reward: (amount ?? 0.0) * monthlyReturn,
-                                       targetReturn: monthlyReturn,
-                                       priceData: priceData)
-
-            let yearlyViewModel = viewModelFactory
-                .createRewardViewModel(reward: (amount ?? 0.0) * yearlyReturn,
-                                       targetReturn: yearlyReturn,
-                                       priceData: priceData)
-
-            view?.didReceiveRewards(monthlyViewModel: monthlyViewModel,
-                                    yearlyViewModel: yearlyViewModel)
-
-        } catch {
-            logger?.error("Can't calculate reward")
-        }
-    }
-
-    private func provideAmountInputViewModel() {
-        guard let viewModelFactory = balanceViewModelFactory else {
-            return
-        }
-
-        let viewModel = viewModelFactory.createBalanceInputViewModel(amount)
-        view?.didReceiveInput(viewModel: viewModel)
-    }
 }
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
@@ -126,8 +64,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func updateAmount(_ newValue: Decimal) {
         amount = newValue
-        provideAsset()
-        provideReward()
+        stateMachine.state.process(rewardEstimationAmount: newValue)
     }
 
     func selectAmountPercentage(_ percentage: Float) {
@@ -137,9 +74,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             if newAmount >= 0 {
                 amount = newAmount
 
-                provideAmountInputViewModel()
-                provideAsset()
-                provideReward()
+                stateMachine.state.process(rewardEstimationAmount: newAmount)
             } else if let view = view {
                 wireframe.presentAmountTooHigh(from: view,
                                                locale: view.localizationManager?.selectedLocale)
@@ -165,10 +100,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(price: PriceData?) {
         stateMachine.state.process(price: price)
-
-        self.priceData = price
-        provideAsset()
-        provideReward()
     }
 
     func didReceive(priceError: Error) {
@@ -176,8 +107,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(accountInfo: DyAccountInfo?) {
-        stateMachine.state.process(accountInfo: accountInfo)
-
         if let availableValue = accountInfo?.data.available, let chain = chain {
             self.balance = Decimal.fromSubstrateAmount(availableValue,
                                                        precision: chain.addressType.precision)
@@ -185,7 +114,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
             self.balance = 0.0
         }
 
-        provideAsset()
+        stateMachine.state.process(accountInfo: accountInfo)
     }
 
     func didReceive(balanceError: Error) {
@@ -201,9 +130,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(calculator: RewardCalculatorEngineProtocol) {
         stateMachine.state.process(calculator: calculator)
-
-        self.calculator = calculator
-        provideReward()
     }
 
     func didReceive(calculatorError: Error) {
@@ -298,17 +224,9 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(chain: newChain)
 
         self.chain = newChain
-        self.balanceViewModelFactory = viewModelFacade.createBalanceViewModelFactory(for: newChain)
-        self.rewardViewModelFactory = viewModelFacade.createRewardViewModelFactory(for: newChain)
         self.networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
 
         self.amount = nil
-        self.calculator = nil
-        self.priceData = nil
-
-        provideReward()
-        provideAsset()
-        provideAmountInputViewModel()
         provideChain()
     }
 }
