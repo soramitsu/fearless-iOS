@@ -62,7 +62,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
 }
 
 extension SingleValueProviderFactoryStub {
-    static func westendStub() -> SingleValueProviderFactoryStub {
+    static func westendNominatorStub() -> SingleValueProviderFactoryStub {
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let electionStatusProvider = DataProviderStub(models: [WestendStub.electionStatus])

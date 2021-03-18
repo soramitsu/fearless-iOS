@@ -17039,51 +17039,6 @@ import SoraFoundation
     
     
     
-     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)  {
-        
-    return cuckoo_manager.call("didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceiveAsset(viewModel: viewModel))
-        
-    }
-    
-    
-    
-     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)  {
-        
-    return cuckoo_manager.call("didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceiveInput(viewModel: viewModel))
-        
-    }
-    
-    
-    
-     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)  {
-        
-    return cuckoo_manager.call("didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)",
-            parameters: (monthlyViewModel, yearlyViewModel),
-            escapingParameters: (monthlyViewModel, yearlyViewModel),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceiveRewards(monthlyViewModel: monthlyViewModel, yearlyViewModel: yearlyViewModel))
-        
-    }
-    
-    
-    
      func didReceiveChainName(chainName newChainName: LocalizableResource<String>)  {
         
     return cuckoo_manager.call("didReceiveChainName(chainName: LocalizableResource<String>)",
@@ -17156,21 +17111,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceive(viewModel: StakingMainViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceiveAsset<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<AssetBalanceViewModelProtocol>)> where M1.MatchedType == LocalizableResource<AssetBalanceViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<AssetBalanceViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)", parameterMatchers: matchers))
-	    }
-	    
-	    func didReceiveInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<AmountInputViewModelProtocol>)> where M1.MatchedType == LocalizableResource<AmountInputViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<AmountInputViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)", parameterMatchers: matchers))
-	    }
-	    
-	    func didReceiveRewards<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(monthlyViewModel: M1, yearlyViewModel: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>)> where M1.MatchedType == LocalizableResource<RewardViewModelProtocol>, M2.MatchedType == LocalizableResource<RewardViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>)>] = [wrap(matchable: monthlyViewModel) { $0.0 }, wrap(matchable: yearlyViewModel) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)", parameterMatchers: matchers))
-	    }
-	    
 	    func didReceiveChainName<M1: Cuckoo.Matchable>(chainName newChainName: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<String>)> where M1.MatchedType == LocalizableResource<String> {
 	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<String>)>] = [wrap(matchable: newChainName) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveChainName(chainName: LocalizableResource<String>)", parameterMatchers: matchers))
@@ -17221,24 +17161,6 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(StakingMainViewModelProtocol), Void> where M1.MatchedType == StakingMainViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
 	        return cuckoo_manager.verify("didReceive(viewModel: StakingMainViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didReceiveAsset<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<AssetBalanceViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<AssetBalanceViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<AssetBalanceViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didReceiveInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<AmountInputViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<AmountInputViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<AmountInputViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didReceiveRewards<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(monthlyViewModel: M1, yearlyViewModel: M2) -> Cuckoo.__DoNotUse<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<RewardViewModelProtocol>, M2.MatchedType == LocalizableResource<RewardViewModelProtocol> {
-	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<RewardViewModelProtocol>, LocalizableResource<RewardViewModelProtocol>)>] = [wrap(matchable: monthlyViewModel) { $0.0 }, wrap(matchable: yearlyViewModel) { $0.1 }]
-	        return cuckoo_manager.verify("didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -17295,18 +17217,6 @@ import SoraFoundation
 
     
      func didReceive(viewModel: StakingMainViewModelProtocol)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>, yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
