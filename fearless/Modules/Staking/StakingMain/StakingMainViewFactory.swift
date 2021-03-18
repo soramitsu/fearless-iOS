@@ -17,6 +17,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         view.localizationManager = LocalizationManager.shared
         view.iconGenerator = PolkadotIconGenerator()
         view.uiFactory = UIFactory()
+        view.amountFormatterFactory = AmountFormatterFactory()
 
         // MARK: - Interactor
         let substrateProviderFactory =

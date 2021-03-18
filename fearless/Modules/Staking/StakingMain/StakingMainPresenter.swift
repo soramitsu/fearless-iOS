@@ -69,16 +69,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func selectAmountPercentage(_ percentage: Float) {
         if let balance = balance {
-            let newAmount = balance * Decimal(Double(percentage))
-
-            if newAmount >= 0 {
-                amount = newAmount
-
-                stateMachine.state.process(rewardEstimationAmount: newAmount)
-            } else if let view = view {
-                wireframe.presentAmountTooHigh(from: view,
-                                               locale: view.localizationManager?.selectedLocale)
-            }
+            amount = balance * Decimal(Double(percentage))
+            stateMachine.state.process(rewardEstimationAmount: amount)
         }
     }
 }
@@ -221,12 +213,13 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(newChain: Chain) {
-        stateMachine.state.process(chain: newChain)
-
         self.chain = newChain
         self.networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
 
         self.amount = nil
+
+        stateMachine.state.process(chain: newChain)
+        
         provideChain()
     }
 }

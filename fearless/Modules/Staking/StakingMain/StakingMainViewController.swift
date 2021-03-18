@@ -36,6 +36,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
+    var amountFormatterFactory: NumberFormatterFactoryProtocol?
 
     var keyboardHandler: KeyboardHandler?
 
@@ -112,7 +113,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyConstraints(for containerView: UIView, stateView: UIView) {
-        let verticalSpacing: CGFloat = 8.0
+        let verticalSpacing: CGFloat = 0.0
+        let bottomInset: CGFloat = 8.0
 
         stateView.translatesAutoresizingMaskIntoConstraints = false
         stateView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
@@ -123,7 +125,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
                                        constant: verticalSpacing).isActive = true
 
         containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor,
-                                              constant: verticalSpacing).isActive = true
+                                              constant: bottomInset).isActive = true
     }
 
     private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
@@ -161,6 +163,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
         stateView?.uiFactory = uiFactory
+        stateView?.amountFormatterFactory = amountFormatterFactory
         stateView?.delegate = self
 
         return stateView

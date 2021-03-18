@@ -19,7 +19,6 @@ final class StakingStateViewModelFactory {
     private var cachedChain: Chain?
 
     private lazy var addressFactory = SS58AddressFactory()
-    private lazy var amountFormatterFactory = AmountFormatterFactory()
 
     init(primitiveFactory: WalletPrimitiveFactoryProtocol, logger: LoggerProtocol? = nil) {
         self.primitiveFactory = primitiveFactory
@@ -138,7 +137,7 @@ final class StakingStateViewModelFactory {
 
     private func createEstimationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
-                                           amount: Decimal)
+                                           amount: Decimal?)
     throws -> StakingEstimationViewModelProtocol {
         let monthlyReturn: Decimal
         let yearlyReturn: Decimal
@@ -161,17 +160,17 @@ final class StakingStateViewModelFactory {
                                     defaultValue: 0.0)
 
         let balanceViewModel = balanceViewModelFactory
-            .createAssetBalanceViewModel(amount,
+            .createAssetBalanceViewModel(amount ?? 0.0,
                                          balance: balance,
                                          priceData: commonData.price)
 
         let monthlyViewModel = rewardViewModelFactory
-            .createRewardViewModel(reward: amount * monthlyReturn,
+            .createRewardViewModel(reward: (amount ?? 0.0) * monthlyReturn,
                                    targetReturn: monthlyReturn,
                                    priceData: commonData.price)
 
         let yearlyViewModel = rewardViewModelFactory
-            .createRewardViewModel(reward: amount * yearlyReturn,
+            .createRewardViewModel(reward: (amount ?? 0.0) * yearlyReturn,
                                    targetReturn: yearlyReturn,
                                    priceData: commonData.price)
 
@@ -182,7 +181,7 @@ final class StakingStateViewModelFactory {
                                           yearlyReward: yearlyViewModel,
                                           asset: asset,
                                           inputLimit: StakingConstants.maxAmount,
-                                          amountFormatterFactory: amountFormatterFactory)
+                                          amount: amount)
     }
 }
 
@@ -213,7 +212,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         do {
             let viewModel = try createEstimationViewModel(for: chain,
                                                           commonData: state.commonData,
-                                                          amount: state.rewardEstimationAmount ?? 0.0)
+                                                          amount: state.rewardEstimationAmount)
 
             lastViewModel = .noStash(viewModel: viewModel)
         } catch {

@@ -269,6 +269,9 @@
         </view>
     </objects>
     <designables>
+        <designable name="Pyb-Il-ysA">
+            <size key="intrinsicContentSize" width="86.5" height="32"/>
+        </designable>
         <designable name="new-yP-LVA">
             <size key="intrinsicContentSize" width="-1" height="77"/>
         </designable>

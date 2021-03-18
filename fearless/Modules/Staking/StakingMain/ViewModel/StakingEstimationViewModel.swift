@@ -8,7 +8,7 @@ protocol StakingEstimationViewModelProtocol {
     var yearlyReward: LocalizableResource<RewardViewModelProtocol> { get }
     var asset: WalletAsset { get }
     var inputLimit: Decimal { get }
-    var amountFormatterFactory: NumberFormatterFactoryProtocol { get }
+    var amount: Decimal? { get }
 }
 
 struct StakingEstimationViewModel: StakingEstimationViewModelProtocol {
@@ -17,5 +17,5 @@ struct StakingEstimationViewModel: StakingEstimationViewModelProtocol {
     let yearlyReward: LocalizableResource<RewardViewModelProtocol>
     let asset: WalletAsset
     let inputLimit: Decimal
-    let amountFormatterFactory: NumberFormatterFactoryProtocol
+    let amount: Decimal?
 }

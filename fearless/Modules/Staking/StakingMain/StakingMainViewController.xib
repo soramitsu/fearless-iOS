@@ -373,6 +373,14 @@
             <point key="canvasLocation" x="-108.69565217391305" y="111.83035714285714"/>
         </view>
     </objects>
+    <designables>
+        <designable name="FbN-Vm-EC2">
+            <size key="intrinsicContentSize" width="32" height="26"/>
+        </designable>
+        <designable name="dlG-3s-4mu">
+            <size key="intrinsicContentSize" width="142.33333333333331" height="20.333333333333332"/>
+        </designable>
+    </designables>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
         <image name="iconArrowUp" width="16" height="16"/>

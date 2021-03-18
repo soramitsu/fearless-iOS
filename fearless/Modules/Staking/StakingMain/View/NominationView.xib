@@ -78,6 +78,9 @@
                                 </userDefinedRuntimeAttribute>
                                 <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
                             </userDefinedRuntimeAttributes>
+                            <connections>
+                                <action selector="actionOnMore" destination="iN0-l3-epB" eventType="touchUpInside" id="zUq-hm-bzI"/>
+                            </connections>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$812" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fhk-jh-pW9">
                             <rect key="frame" x="16" y="92" width="191" height="14"/>
@@ -144,7 +147,35 @@
                         <constraint firstItem="twS-ZJ-9RP" firstAttribute="trailing" secondItem="4pA-EK-QHl" secondAttribute="trailing" id="xqt-mS-51m"/>
                     </constraints>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fMa-jf-RbY" customClass="BorderedContainerView" customModule="SoraUI">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eSO-sw-XgP" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="131" width="414" height="44"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                            <color key="value" name="colorPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedStrokeColor">
+                            <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                            <integer key="value" value="2"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="actionOnStatus" destination="iN0-l3-epB" eventType="touchUpInside" id="Q30-XV-Cpy"/>
+                    </connections>
+                </view>
+                <view userInteractionEnabled="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="fMa-jf-RbY" customClass="BorderedContainerView" customModule="SoraUI">
                     <rect key="frame" x="16" y="131" width="382" height="44"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="dWB-k1-miH" customClass="RoundedView" customModule="SoraUI">
@@ -228,11 +259,15 @@
                 <constraint firstItem="qHg-H6-Zvj" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="7wm-Xj-FoD"/>
                 <constraint firstAttribute="trailing" secondItem="fMa-jf-RbY" secondAttribute="trailing" constant="16" id="86r-LM-mVn"/>
                 <constraint firstAttribute="trailing" secondItem="qHg-H6-Zvj" secondAttribute="trailing" id="8Nn-6M-vZR"/>
+                <constraint firstItem="eSO-sw-XgP" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bk8-CY-e5S"/>
+                <constraint firstItem="eSO-sw-XgP" firstAttribute="top" secondItem="fMa-jf-RbY" secondAttribute="top" id="HA3-eX-uOG"/>
                 <constraint firstItem="GlX-Gb-MJn" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="OLL-K3-dSn"/>
                 <constraint firstItem="fMa-jf-RbY" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="Rhd-pV-m6y"/>
+                <constraint firstAttribute="bottom" secondItem="eSO-sw-XgP" secondAttribute="bottom" id="Zn2-qo-k76"/>
                 <constraint firstItem="qHg-H6-Zvj" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="cvw-cC-kaB"/>
                 <constraint firstItem="fMa-jf-RbY" firstAttribute="top" secondItem="GlX-Gb-MJn" secondAttribute="bottom" id="jgT-eH-Z2G"/>
                 <constraint firstAttribute="bottom" secondItem="qHg-H6-Zvj" secondAttribute="bottom" id="mNc-Cm-Deq"/>
+                <constraint firstAttribute="trailing" secondItem="eSO-sw-XgP" secondAttribute="trailing" id="wLr-VT-Rny"/>
                 <constraint firstAttribute="bottom" secondItem="fMa-jf-RbY" secondAttribute="bottom" id="yY2-jr-qqC"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
@@ -243,8 +278,10 @@
                 <outlet property="stakedAmountLabel" destination="4pA-EK-QHl" id="fwn-oO-8gb"/>
                 <outlet property="stakedPriceLabel" destination="Fhk-jh-pW9" id="AUu-jY-je0"/>
                 <outlet property="stakedTitleLabel" destination="twS-ZJ-9RP" id="QJp-lD-uG8"/>
+                <outlet property="statusButton" destination="eSO-sw-XgP" id="iug-JZ-LuL"/>
                 <outlet property="statusDetailsLabel" destination="dJM-N2-P95" id="sbg-RR-4VT"/>
                 <outlet property="statusIndicatorView" destination="dWB-k1-miH" id="aU2-YM-UB5"/>
+                <outlet property="statusNavigationView" destination="76R-Oj-nF6" id="4KZ-cd-eDr"/>
                 <outlet property="statusTitleLabel" destination="6Yr-ex-mku" id="jT7-Ju-Jhu"/>
                 <outlet property="titleLabel" destination="qWM-dm-mLK" id="wut-Ug-bDb"/>
             </connections>
@@ -252,6 +289,9 @@
         </view>
     </objects>
     <designables>
+        <designable name="eSO-sw-XgP">
+            <size key="intrinsicContentSize" width="16" height="16"/>
+        </designable>
         <designable name="hsh-WU-SOM">
             <size key="intrinsicContentSize" width="56" height="56"/>
         </designable>
@@ -261,6 +301,9 @@
         <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorGreen">
             <color red="0.054999999701976776" green="0.82700002193450928" blue="0.23100000619888306" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorTransparentText">
             <color red="1" green="1" blue="1" alpha="0.63999998569488525" colorSpace="custom" customColorSpace="sRGB"/>

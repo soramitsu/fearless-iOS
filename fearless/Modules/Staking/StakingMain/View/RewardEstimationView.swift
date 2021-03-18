@@ -25,6 +25,8 @@ final class RewardEstimationView: LocalizableView {
 
     @IBOutlet private var actionButton: TriangularedButton!
 
+    var amountFormatterFactory: NumberFormatterFactoryProtocol?
+
     var actionTitle: LocalizableResource<String> = LocalizableResource { locale in
         R.string.localizable.stakingStartTitle(preferredLanguages: locale.rLanguages)
     } {
@@ -44,7 +46,7 @@ final class RewardEstimationView: LocalizableView {
     var locale: Locale = Locale.current {
         didSet {
             applyLocalization()
-            applyInputViewModel(false)
+            applyInputViewModel()
             applyWidgetViewModel()
         }
     }
@@ -63,12 +65,10 @@ final class RewardEstimationView: LocalizableView {
     }
 
     func bind(viewModel: StakingEstimationViewModelProtocol) {
-        let oldAsset = widgetViewModel?.asset
-
         widgetViewModel = viewModel
 
-        if oldAsset != viewModel.asset {
-            applyInputViewModel(true)
+        if inputViewModel == nil || (inputViewModel?.decimalAmount != widgetViewModel?.amount) {
+            applyInputViewModel()
         }
 
         applyWidgetViewModel()
@@ -98,18 +98,17 @@ final class RewardEstimationView: LocalizableView {
         }
     }
 
-    private func applyInputViewModel(_ shouldResetAmount: Bool) {
-        guard let widgetViewModel = widgetViewModel else {
+    private func applyInputViewModel() {
+        guard let widgetViewModel = widgetViewModel, let amountFormatterFactory = amountFormatterFactory else {
             return
         }
 
         let asset = widgetViewModel.asset
-        let previousAmount = shouldResetAmount ? nil : inputViewModel?.decimalAmount
 
-        let formatter = widgetViewModel.amountFormatterFactory
+        let formatter = amountFormatterFactory
             .createInputFormatter(for: widgetViewModel.asset).value(for: locale)
         let newInputViewModel = AmountInputViewModel(symbol: asset.symbol,
-                                                     amount: previousAmount,
+                                                     amount: widgetViewModel.amount,
                                                      limit: widgetViewModel.inputLimit,
                                                      formatter: formatter,
                                                      inputLocale: locale,
@@ -166,6 +165,8 @@ final class RewardEstimationView: LocalizableView {
     }
 
     @IBAction private func actionTouchUpInside() {
+        amountInputView.textField.resignFirstResponder()
+
         delegate?.rewardEstimationDidStartAction(self)
     }
 }
