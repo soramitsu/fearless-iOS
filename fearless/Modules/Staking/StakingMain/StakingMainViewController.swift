@@ -258,7 +258,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
     func didReceiveStakingState(viewModel: StakingViewState) {
         switch viewModel {
         case .undefined:
-            break
+            clearStateView()
         case .bonded(let viewModel):
             applyBonded(viewModel: viewModel)
         case .noStash(let viewModel):
@@ -266,7 +266,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case .nominator(let viewModel):
             applyNomination(viewModel: viewModel)
         case .validator:
-            break
+            clearStateView()
         }
     }
 }
