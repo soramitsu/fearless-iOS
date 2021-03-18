@@ -52,10 +52,10 @@ final class NominatorState: BaseStashNextState {
 
             newState = self
         } else {
-            newState = PendingValidatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: ledgerInfo)
+            newState = BondedState(stateMachine: stateMachine,
+                                   commonData: commonData,
+                                   stashItem: stashItem,
+                                   ledgerInfo: ledgerInfo)
         }
 
         stateMachine.transit(to: newState)
