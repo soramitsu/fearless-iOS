@@ -6,10 +6,10 @@ import IrohaCrypto
 final class RecommendedValidatorsInteractor {
     weak var presenter: RecommendedValidatorsInteractorOutputProtocol!
 
-    let operationFactory: ValidatorOperationFactorProtocol
+    let operationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
 
-    init(operationFactory: ValidatorOperationFactorProtocol,
+    init(operationFactory: ValidatorOperationFactoryProtocol,
          operationManager: OperationManagerProtocol) {
         self.operationFactory = operationFactory
         self.operationManager = operationManager

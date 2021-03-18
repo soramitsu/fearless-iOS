@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 
-protocol ValidatorOperationFactorProtocol {
+protocol ValidatorOperationFactoryProtocol {
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>
 }
 
@@ -216,7 +216,7 @@ final class ValidatorOperationFactory {
     }
 }
 
-extension ValidatorOperationFactory: ValidatorOperationFactorProtocol {
+extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 

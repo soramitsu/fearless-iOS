@@ -284,7 +284,7 @@ Derivation path: %@";
 "staking.main.minimum.stake.title" = "Minimum stake";
 "staking.main.active.nominators.title" = "Active nominators";
 "staking.main.lockup.period.title" = "Lock-Up period";
-"staking_stake" = "Stake";
+"staking.stake" = "Stake";
 "staking.total.rewards" = "Total rewards";
 "staking.nominator.status.election" = "Election period";
 "staking.nominator.status.active" = "Active";

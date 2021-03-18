@@ -284,7 +284,7 @@ a type of password.";
 "staking.main.minimum.stake.title" = "Минимальная ставка";
 "staking.main.active.nominators.title" = "Активные номинаторы";
 "staking.main.lockup.period.title" = "Период блокировки";
-"staking_stake" = "";
+"staking.stake" = "";
 "staking.total.rewards" = "";
 "staking.nominator.status.election" = "";
 "staking.nominator.status.active" = "";

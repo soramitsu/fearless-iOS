@@ -3,7 +3,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class NominationView: UIView {
+final class NominationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var stakedTitleLabel: UILabel!
     @IBOutlet private var stakedAmountLabel: UILabel!
@@ -17,8 +17,15 @@ final class NominationView: UIView {
 
     var locale: Locale = Locale.current {
         didSet {
+            applyLocalization()
             applyViewModel()
         }
+    }
+
+    override func awakeFromNib() {
+        super.awakeFromNib()
+
+        applyLocalization()
     }
 
     private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
@@ -27,6 +34,15 @@ final class NominationView: UIView {
         self.localizableViewModel = viewModel
 
         applyViewModel()
+    }
+
+    private func applyLocalization() {
+        titleLabel.text = R.string.localizable
+            .stakingStake(preferredLanguages: locale.rLanguages)
+        stakedTitleLabel.text = R.string.localizable
+            .stakingMainTotalStakedTitle(preferredLanguages: locale.rLanguages)
+        rewardTitleLabel.text = R.string.localizable
+            .stakingTotalRewards(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {
@@ -47,18 +63,40 @@ final class NominationView: UIView {
 
             statusIndicatorView.fillColor = R.color.colorGreen()!
             statusTitleLabel.textColor = R.color.colorGreen()!
-            statusDetailsLabel.text = "ERA #\(era)"
+
+            statusTitleLabel.text = R.string.localizable
+                .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
+            statusDetailsLabel.text = R.string.localizable
+                .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
         case .inactive(let era):
             toggleStatus(true)
 
             statusIndicatorView.fillColor = R.color.colorRed()!
             statusTitleLabel.textColor = R.color.colorRed()!
-            statusDetailsLabel.text = "ERA #\(era)"
-        case .election, .waiting:
+
+            statusTitleLabel.text = R.string.localizable
+                .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
+            statusDetailsLabel.text = R.string.localizable
+                .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
+
+        case .waiting:
             toggleStatus(true)
 
             statusIndicatorView.fillColor = R.color.colorTransparentText()!
             statusTitleLabel.textColor = R.color.colorTransparentText()!
+
+            statusTitleLabel.text = R.string.localizable
+                .stakingNominatorStatusWaiting(preferredLanguages: locale.rLanguages).uppercased()
+            statusDetailsLabel.text = ""
+
+        case .election:
+            toggleStatus(true)
+
+            statusIndicatorView.fillColor = R.color.colorTransparentText()!
+            statusTitleLabel.textColor = R.color.colorTransparentText()!
+
+            statusTitleLabel.text = R.string.localizable
+                .stakingNominatorStatusElection(preferredLanguages: locale.rLanguages).uppercased()
             statusDetailsLabel.text = ""
         }
     }

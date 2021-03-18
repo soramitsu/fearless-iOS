@@ -281,7 +281,7 @@
 "staking.main.minimum.stake.title" = "Минималь стейк";
 "staking.main.active.nominators.title" = "Актив номинаторҙар";
 "staking.main.lockup.period.title" = "Ҡамау ваҡыты";
-"staking_stake" = "";
+"staking.stake" = "";
 "staking.total.rewards" = "";
 "staking.nominator.status.election" = "";
 "staking.nominator.status.active" = "";

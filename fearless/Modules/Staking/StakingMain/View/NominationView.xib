@@ -39,13 +39,13 @@
                     <rect key="frame" x="0.0" y="0.0" width="414" height="131"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qWM-dm-mLK">
-                            <rect key="frame" x="16" y="15" width="47.5" height="16.5"/>
+                            <rect key="frame" x="16" y="15" width="47.5" height="22.5"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="14"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="hsh-WU-SOM" customClass="RoundedButton" customModule="SoraUI">
-                            <rect key="frame" x="358" y="-4" width="56" height="56"/>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hsh-WU-SOM" customClass="RoundedButton" customModule="SoraUI">
+                            <rect key="frame" x="358" y="-2" width="56" height="56.5"/>
                             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="image" keyPath="_iconImage" value="iconHorMore"/>
@@ -76,6 +76,7 @@
                                 <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                                     <real key="value" value="16"/>
                                 </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="YES"/>
                             </userDefinedRuntimeAttributes>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$812" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fhk-jh-pW9">
@@ -125,11 +126,13 @@
                         <constraint firstItem="rFT-3I-w8w" firstAttribute="leading" secondItem="utf-CN-3GC" secondAttribute="leading" id="KN1-Gg-TZx"/>
                         <constraint firstItem="qWM-dm-mLK" firstAttribute="leading" secondItem="GlX-Gb-MJn" secondAttribute="leading" constant="16" id="KXv-WB-I8h"/>
                         <constraint firstItem="4pA-EK-QHl" firstAttribute="trailing" secondItem="Fhk-jh-pW9" secondAttribute="trailing" id="NBK-kP-4Ua"/>
+                        <constraint firstItem="ABS-p6-AK0" firstAttribute="top" secondItem="qWM-dm-mLK" secondAttribute="bottom" constant="15.5" id="NLL-Ej-F5F"/>
                         <constraint firstItem="twS-ZJ-9RP" firstAttribute="leading" secondItem="4pA-EK-QHl" secondAttribute="leading" id="Vvl-EQ-aJ3"/>
                         <constraint firstAttribute="bottom" secondItem="Fhk-jh-pW9" secondAttribute="bottom" constant="25" id="Wp0-Md-EgC"/>
                         <constraint firstItem="rFT-3I-w8w" firstAttribute="trailing" secondItem="utf-CN-3GC" secondAttribute="trailing" id="XCb-ul-Wbs"/>
                         <constraint firstAttribute="bottom" secondItem="utf-CN-3GC" secondAttribute="bottom" constant="25" id="Z5C-mL-ilU"/>
                         <constraint firstItem="Fhk-jh-pW9" firstAttribute="trailing" secondItem="GlX-Gb-MJn" secondAttribute="centerX" id="d2l-4a-IvE"/>
+                        <constraint firstItem="twS-ZJ-9RP" firstAttribute="top" secondItem="qWM-dm-mLK" secondAttribute="bottom" constant="15.5" id="eHA-5M-24Z"/>
                         <constraint firstItem="hsh-WU-SOM" firstAttribute="centerY" secondItem="qWM-dm-mLK" secondAttribute="centerY" id="gOq-Ne-bVx"/>
                         <constraint firstItem="ABS-p6-AK0" firstAttribute="trailing" secondItem="rFT-3I-w8w" secondAttribute="trailing" id="giV-Pi-Shj"/>
                         <constraint firstAttribute="trailing" secondItem="utf-CN-3GC" secondAttribute="trailing" constant="16" id="mMc-Hp-Mk8"/>
@@ -248,6 +251,11 @@
             <point key="canvasLocation" x="76.811594202898561" y="133.59375"/>
         </view>
     </objects>
+    <designables>
+        <designable name="hsh-WU-SOM">
+            <size key="intrinsicContentSize" width="56" height="56"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconHorMore" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>

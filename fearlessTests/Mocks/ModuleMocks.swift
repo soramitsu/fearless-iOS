@@ -14270,19 +14270,19 @@ import IrohaCrypto
 import RobinHood
 
 
- class MockValidatorOperationFactorProtocol: ValidatorOperationFactorProtocol, Cuckoo.ProtocolMock {
+ class MockValidatorOperationFactoryProtocol: ValidatorOperationFactoryProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = ValidatorOperationFactorProtocol
+     typealias MocksType = ValidatorOperationFactoryProtocol
     
-     typealias Stubbing = __StubbingProxy_ValidatorOperationFactorProtocol
-     typealias Verification = __VerificationProxy_ValidatorOperationFactorProtocol
+     typealias Stubbing = __StubbingProxy_ValidatorOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_ValidatorOperationFactoryProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: ValidatorOperationFactorProtocol?
+    private var __defaultImplStub: ValidatorOperationFactoryProtocol?
 
-     func enableDefaultImplementation(_ stub: ValidatorOperationFactorProtocol) {
+     func enableDefaultImplementation(_ stub: ValidatorOperationFactoryProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -14309,7 +14309,7 @@ import RobinHood
     }
     
 
-	 struct __StubbingProxy_ValidatorOperationFactorProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_ValidatorOperationFactoryProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -14319,12 +14319,12 @@ import RobinHood
 	    
 	    func allElectedOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<[ElectedValidatorInfo]>> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactorProtocol.self, method: "allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactoryProtocol.self, method: "allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_ValidatorOperationFactorProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_ValidatorOperationFactoryProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -14347,7 +14347,7 @@ import RobinHood
 	}
 }
 
- class ValidatorOperationFactorProtocolStub: ValidatorOperationFactorProtocol {
+ class ValidatorOperationFactoryProtocolStub: ValidatorOperationFactoryProtocol {
     
 
     

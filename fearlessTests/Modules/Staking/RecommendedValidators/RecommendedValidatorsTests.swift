@@ -12,7 +12,7 @@ class RecommendedValidatorsTests: XCTestCase {
 
         let view = MockRecommendedValidatorsViewProtocol()
         let wireframe = MockRecommendedValidatorsWireframeProtocol()
-        let operationFactory = MockValidatorOperationFactorProtocol()
+        let operationFactory = MockValidatorOperationFactoryProtocol()
 
         let presenter = RecommendedValidatorsPresenter(state: nominationState)
         let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,

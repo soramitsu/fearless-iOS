@@ -46,7 +46,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet weak var yearlyPercentageLabel: UILabel!
 
     private var stateContainerView: UIView?
-    private var stateView: UIView?
+    private var stateView: LocalizableView?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol!
@@ -215,8 +215,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateView.topAnchor.constraint(equalTo: containerView.topAnchor,
                                        constant: 8.0).isActive = true
 
-        stateView.heightAnchor.constraint(equalToConstant: 175.0).isActive = true
-
         containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor).isActive = true
 
         stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
@@ -235,7 +233,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
 extension StakingMainViewController: Localizable {
     private func setupLocalization() {
-        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let languages = locale.rLanguages
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
@@ -259,6 +258,8 @@ extension StakingMainViewController: Localizable {
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
+
+        stateView?.locale = locale
 
         applyAsset()
         setupBalanceAccessoryView()

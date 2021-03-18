@@ -284,7 +284,7 @@ Cід: %@";
 "staking.main.minimum.stake.title" = "Мінімальна ставка";
 "staking.main.active.nominators.title" = "Активні номінатори";
 "staking.main.lockup.period.title" = "Період блокування";
-"staking_stake" = "";
+"staking.stake" = "";
 "staking.total.rewards" = "";
 "staking.nominator.status.election" = "";
 "staking.nominator.status.active" = "";
