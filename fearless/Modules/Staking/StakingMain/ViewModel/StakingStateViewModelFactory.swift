@@ -74,9 +74,9 @@ final class StakingStateViewModelFactory {
 
     private func createNominationStatus(for chain: Chain,
                                         commonData: StakingStateCommonData,
+                                        stashItem: StashItem,
                                         nomination: Nomination) -> NominationViewStatus {
         guard
-            let address = commonData.address,
             let eraStakers = commonData.eraStakersInfo,
             let electionStatus = commonData.electionStatus else {
             return .undefined
@@ -87,7 +87,7 @@ final class StakingStateViewModelFactory {
         }
 
         do {
-            let accountId = try addressFactory.accountId(from: address)
+            let accountId = try addressFactory.accountId(from: stashItem.stash)
 
             if eraStakers.validators
                 .first(where: { $0.exposure.others.contains(where: { $0.who == accountId})}) != nil {
@@ -107,6 +107,7 @@ final class StakingStateViewModelFactory {
 
     private func createNominationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
+                                           stashItem: StashItem,
                                            ledgerInfo: DyStakingLedger,
                                            nomination: Nomination)
     -> LocalizableResource<NominationViewModelProtocol> {
@@ -121,6 +122,7 @@ final class StakingStateViewModelFactory {
 
         let nominationStatus = createNominationStatus(for: chain,
                                                       commonData: commonData,
+                                                      stashItem: stashItem,
                                                       nomination: nomination)
 
         return LocalizableResource { locale in
@@ -292,6 +294,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         let viewModel = createNominationViewModel(for: chain,
                                                   commonData: state.commonData,
+                                                  stashItem: state.stashItem,
                                                   ledgerInfo: state.ledgerInfo,
                                                   nomination: state.nomination)
 
