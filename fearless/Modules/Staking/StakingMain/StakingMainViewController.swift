@@ -37,6 +37,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
 
+    var keyboardHandler: KeyboardHandler?
+
     // MARK: - Private declarations
 
     private var chainName: String = ""
@@ -48,6 +50,20 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         setupLocalization()
         presenter.setup()
         configureCollectionView()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        clearKeyboardHandler()
     }
 
     @IBAction func actionIcon() {
@@ -239,13 +255,6 @@ extension StakingMainViewController: StakingMainViewProtocol {
         iconButton.invalidateLayout()
     }
 
-    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
-    }
-
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
-
-    }
-
     func didReceiveStakingState(viewModel: StakingViewState) {
         switch viewModel {
         case .undefined:
@@ -258,6 +267,25 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyNomination(viewModel: viewModel)
         case .validator:
             break
+        }
+    }
+}
+
+extension StakingMainViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
+
+        var contentInsets = scrollView.contentInset
+        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
+        scrollView.contentInset = contentInsets
+
+        if contentInsets.bottom > 0.0, let firstResponderView = stateView {
+            let fieldFrame = scrollView.convert(firstResponderView.frame,
+                                                from: firstResponderView.superview)
+
+            scrollView.scrollRectToVisible(fieldFrame, animated: true)
         }
     }
 }

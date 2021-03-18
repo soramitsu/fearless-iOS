@@ -35,17 +35,6 @@ final class StakingStateViewModelFactory {
     }
 
     private func convertAmount(_ amount: BigUInt?,
-                               for chain: Chain) -> Decimal? {
-        if let amount = amount {
-            return Decimal.fromSubstrateAmount(amount,
-                                               precision: chain.addressType.precision)
-        } else {
-            return nil
-        }
-
-    }
-
-    private func convertAmount(_ amount: BigUInt?,
                                for chain: Chain,
                                defaultValue: Decimal) -> Decimal {
         if let amount = amount {
@@ -167,7 +156,9 @@ final class StakingStateViewModelFactory {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
         let rewardViewModelFactory = getRewardViewModelFactory(for: chain)
 
-        let balance = convertAmount(commonData.accountInfo?.data.available, for: chain)
+        let balance = convertAmount(commonData.accountInfo?.data.available,
+                                    for: chain,
+                                    defaultValue: 0.0)
 
         let balanceViewModel = balanceViewModelFactory
             .createAssetBalanceViewModel(amount,
