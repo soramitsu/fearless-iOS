@@ -7,9 +7,11 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
     func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
-                           yearlyViewModel: LocalizableResource<RewardViewModelProtocol>
-    )
+                           yearlyViewModel: LocalizableResource<RewardViewModelProtocol>)
+    
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
+
+    func didReceiveStakingState(viewModel: StakingViewState)
 }
 
 protocol StakingMainPresenterProtocol: class {
@@ -28,7 +30,7 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
-    func didReceive(balance: DyAccountData?)
+    func didReceive(accountInfo: DyAccountInfo?)
     func didReceive(balanceError: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
@@ -38,12 +40,12 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(ledgerInfoError: Error)
     func didReceive(nomination: Nomination?)
     func didReceive(nominationError: Error)
-    func didReceive(validator: ValidatorPrefs?)
+    func didReceive(validatorPrefs: ValidatorPrefs?)
     func didReceive(validatorError: Error)
     func didReceive(electionStatus: ElectionStatus?)
     func didReceive(electionStatusError: Error)
-    func didReceive(activeEra: ActiveEraInfo?)
-    func didReceive(activeEraError: Error)
+    func didReceive(eraStakersInfo: EraStakersInfo)
+    func didReceive(eraStakersInfoError: Error)
     func didReceive(newChain: Chain)
 }
 

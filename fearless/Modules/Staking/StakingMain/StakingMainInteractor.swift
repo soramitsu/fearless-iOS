@@ -12,6 +12,7 @@ final class StakingMainInteractor {
     let eventCenter: EventCenterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let calculatorService: RewardCalculatorServiceProtocol
+    let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let primitiveFactory: WalletPrimitiveFactoryProtocol
     let logger: LoggerProtocol
@@ -23,7 +24,6 @@ final class StakingMainInteractor {
     var validatorProvider: AnyDataProvider<DecodedValidator>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
-    var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?
@@ -33,6 +33,7 @@ final class StakingMainInteractor {
          settings: SettingsManagerProtocol,
          eventCenter: EventCenterProtocol,
          primitiveFactory: WalletPrimitiveFactoryProtocol,
+         eraValidatorService: EraValidatorServiceProtocol,
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol,
@@ -42,6 +43,7 @@ final class StakingMainInteractor {
         self.settings = settings
         self.eventCenter = eventCenter
         self.primitiveFactory = primitiveFactory
+        self.eraValidatorService = eraValidatorService
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
@@ -72,6 +74,24 @@ final class StakingMainInteractor {
                 do {
                     let engine = try operation.extractNoCancellableResultData()
                     self?.presenter.didReceive(calculator: engine)
+                } catch {
+                    self?.presenter.didReceive(calculatorError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation],
+                                 in: .transient)
+    }
+
+    func provideEraStakersInfo() {
+        let operation = eraValidatorService.fetchInfoOperation()
+
+        operation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try operation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(eraStakersInfo: info)
                 } catch {
                     self?.presenter.didReceive(calculatorError: error)
                 }

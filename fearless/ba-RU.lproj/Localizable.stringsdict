@@ -1,30 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
-	<dict>
-		<key>staking.main.lockup.period.value</key>
-		<dict>
-			<key>NSStringLocalizedFormatKey</key>
-			<string>%#@format@</string>
-			<key>format</key>
-			<dict>
-				<key>NSStringFormatSpecTypeKey</key>
-				<string>NSStringPluralRuleType</string>
-				<key>NSStringFormatValueTypeKey</key>
-				<string>li</string>
-				<key>zero</key>
-				<string>%li дн.</string>
-				<key>one</key>
-				<string>%li дн.</string>
-				<key>two</key>
-				<string>%li дн.</string>
-				<key>few</key>
-				<string>%li дн.</string>
-				<key>many</key>
-				<string>%li дн.</string>
-				<key>other</key>
-				<string>%li дн.</string>
-			</dict>
-		</dict>
-	</dict>
+  <dict>
+    <key>staking.main.lockup.period.value</key>
+    <dict>
+      <key>NSStringLocalizedFormatKey</key>
+      <string>%#@format@</string>
+      <key>format</key>
+      <dict>
+        <key>NSStringFormatSpecTypeKey</key>
+        <string>NSStringPluralRuleType</string>
+        <key>NSStringFormatValueTypeKey</key>
+        <string>li</string>
+        <key>zero</key>
+        <string>%li көн</string>
+        <key>one</key>
+        <string>%li көн</string>
+        <key>two</key>
+        <string>%li көн</string>
+        <key>few</key>
+        <string>%li көн</string>
+        <key>many</key>
+        <string>%li көн</string>
+        <key>other</key>
+        <string>%li көн</string>
+      </dict>
+    </dict>
+  </dict>
 </plist>

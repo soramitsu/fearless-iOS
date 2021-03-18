@@ -1,0 +1,89 @@
+import Foundation
+
+final class BondedState: BaseStashNextState {
+    private(set) var ledgerInfo: DyStakingLedger
+
+    private(set) var rewardEstimationAmount: Decimal?
+
+    init(stateMachine: StakingStateMachineProtocol,
+         commonData: StakingStateCommonData,
+         stashItem: StashItem,
+         ledgerInfo: DyStakingLedger,
+         rewardEstimationAmount: Decimal? = nil) {
+        self.ledgerInfo = ledgerInfo
+        self.rewardEstimationAmount = rewardEstimationAmount
+
+        super.init(stateMachine: stateMachine, commonData: commonData, stashItem: stashItem)
+    }
+
+    override func accept(visitor: StakingStateVisitorProtocol) {
+        visitor.visit(state: self)
+    }
+
+    override func process(rewardEstimationAmount: Decimal?) {
+        self.rewardEstimationAmount = rewardEstimationAmount
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(ledgerInfo: DyStakingLedger?) {
+        guard let stateMachine = stateMachine else {
+            return
+        }
+
+        let newState: StakingStateProtocol
+
+        if let ledgerInfo = ledgerInfo {
+            self.ledgerInfo = ledgerInfo
+
+            newState = self
+        } else {
+            newState = StashState(stateMachine: stateMachine,
+                                  commonData: commonData,
+                                  stashItem: stashItem,
+                                  ledgerInfo: nil)
+        }
+
+        stateMachine.transit(to: newState)
+    }
+
+    override func process(nomination: Nomination?) {
+        guard let stateMachine = stateMachine else {
+            return
+        }
+
+        let newState: StakingStateProtocol
+
+        if let nomination = nomination {
+            newState = NominatorState(stateMachine: stateMachine,
+                                      commonData: commonData,
+                                      stashItem: stashItem,
+                                      ledgerInfo: ledgerInfo,
+                                      nomination: nomination)
+        } else {
+            newState = self
+        }
+
+        stateMachine.transit(to: newState)
+    }
+
+    override func process(validatorPrefs: ValidatorPrefs?) {
+        guard let stateMachine = stateMachine else {
+            return
+        }
+
+        let newState: StakingStateProtocol
+
+        if let prefs = validatorPrefs {
+            newState = ValidatorState(stateMachine: stateMachine,
+                                      commonData: commonData,
+                                      stashItem: stashItem,
+                                      ledgerInfo: ledgerInfo,
+                                      prefs: prefs)
+        } else {
+            newState = self
+        }
+
+        stateMachine.transit(to: newState)
+    }
+}

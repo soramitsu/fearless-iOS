@@ -70,8 +70,8 @@ extension StakingMainInteractor {
         self.balanceProvider = balanceProvider
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            let balanceItem = changes.reduceToLastChange()?.item
-            self?.presenter.didReceive(balance: balanceItem?.data)
+            let accountInfo = changes.reduceToLastChange()?.item
+            self?.presenter.didReceive(accountInfo: accountInfo)
         }
 
         let failureClosure = { [weak self] (error: Error) in
@@ -92,15 +92,6 @@ extension StakingMainInteractor {
         let hasChanges = (currentAccount != settings.selectedAccount) ||
             (currentConnection != settings.selectedConnection)
 
-        if settings.selectedAccount != currentAccount {
-            self.currentAccount = settings.selectedAccount
-
-            clearAccountProvider()
-            subscribeToAccountChanges()
-
-            provideSelectedAccount()
-        }
-
         if settings.selectedConnection != currentConnection {
             self.currentConnection = settings.selectedConnection
 
@@ -108,6 +99,15 @@ extension StakingMainInteractor {
             subscribeToPriceChanges()
 
             provideNewChain()
+        }
+
+        if settings.selectedAccount != currentAccount {
+            self.currentAccount = settings.selectedAccount
+
+            clearAccountProvider()
+            subscribeToAccountChanges()
+
+            provideSelectedAccount()
         }
 
         return hasChanges
@@ -254,7 +254,7 @@ extension StakingMainInteractor {
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedValidator>]) in
             if let validator = changes.reduceToLastChange() {
-                self?.presenter.didReceive(validator: validator.item)
+                self?.presenter.didReceive(validatorPrefs: validator.item)
             }
         }
 
@@ -266,44 +266,6 @@ extension StakingMainInteractor {
         let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
                                                   waitsInProgressSyncOnAdd: false)
         validatorProvider.addObserver(self,
-                                      deliverOn: .main,
-                                      executing: updateClosure,
-                                      failing: failureClosure,
-                                      options: options)
-    }
-
-    func clearActiveEraProvider() {
-        activeEraProvider?.removeObserver(self)
-        activeEraProvider = nil
-    }
-
-    func subscribeToActiveEra() {
-        guard activeEraProvider == nil, let chain = currentConnection?.type.chain else {
-            return
-        }
-
-        guard let activeEraProvider = try? providerFactory
-                .getActiveEra(for: chain, runtimeService: runtimeService) else {
-            logger.error("Can't create validator provider")
-            return
-        }
-
-        self.activeEraProvider = activeEraProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedActiveEra>]) in
-            if let activeEra = changes.reduceToLastChange() {
-                self?.presenter.didReceive(activeEra: activeEra.item)
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(activeEraError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        activeEraProvider.addObserver(self,
                                       deliverOn: .main,
                                       executing: updateClosure,
                                       failing: failureClosure,

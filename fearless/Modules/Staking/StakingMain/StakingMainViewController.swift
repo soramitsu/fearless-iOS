@@ -8,11 +8,14 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingMainPresenterProtocol!
 
     @IBOutlet private var scrollView: UIScrollView!
+    @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
     @IBOutlet private var actionButton: TriangularedButton!
     @IBOutlet weak var amountInputView: AmountInputView!
+
+    @IBOutlet weak var networkView: UIView!
 
     @IBOutlet weak var networkInfoContainer: UIView!
     @IBOutlet weak var titleControl: ActionTitleControl!
@@ -41,6 +44,9 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet weak var yearlyAmountLabel: UILabel!
     @IBOutlet weak var yearlyFiatAmountLabel: UILabel!
     @IBOutlet weak var yearlyPercentageLabel: UILabel!
+
+    private var stateContainerView: UIView?
+    private var stateView: UIView?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol!
@@ -170,6 +176,61 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
                                      preferredLanguages: languages)
         titleControl.invalidateLayout()
     }
+
+    private func clearStateView() {
+        if let containerView = stateContainerView {
+            stackView.removeArrangedSubview(containerView)
+            containerView.removeFromSuperview()
+        }
+
+        stateContainerView = nil
+        stateView = nil
+    }
+
+    private func setupNominationViewIfNeeded() -> NominationView? {
+        if let nominationView = stateView as? NominationView {
+            return nominationView
+        }
+
+        clearStateView()
+
+        guard let prevViewIndex = stackView.arrangedSubviews.firstIndex(of: networkView) else {
+            return nil
+        }
+
+        let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+
+        guard let stateView = R.nib.nominationView(owner: nil) else {
+            return nil
+        }
+
+        containerView.addSubview(stateView)
+
+        stateView.translatesAutoresizingMaskIntoConstraints = false
+        stateView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
+                                           constant: UIConstants.horizontalInset).isActive = true
+        stateView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
+                                            constant: -UIConstants.horizontalInset).isActive = true
+        stateView.topAnchor.constraint(equalTo: containerView.topAnchor,
+                                       constant: 8.0).isActive = true
+
+        stateView.heightAnchor.constraint(equalToConstant: 175.0).isActive = true
+
+        containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor).isActive = true
+
+        stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
+
+        self.stateContainerView = containerView
+        self.stateView = stateView
+
+        return stateView
+    }
+
+    private func apply(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+        let nominationView = setupNominationViewIfNeeded()
+        nominationView?.bind(viewModel: viewModel)
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -280,6 +341,23 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
         amountInputView.fieldText = concreteViewModel.displayAmount
         concreteViewModel.observable.add(observer: self)
+    }
+
+    func didReceiveStakingState(viewModel: StakingViewState) {
+        clearStateView()
+
+        switch viewModel {
+        case .undefined:
+            break
+        case .bonded(let viewModel):
+            break
+        case .noStash(let viewModel):
+            break
+        case .nominator(let viewModel):
+            apply(viewModel: viewModel)
+        case .validator:
+            break
+        }
     }
 }
 
