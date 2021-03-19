@@ -32,7 +32,7 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
 
         let observable = CoreDataContextObservable(service: facade.databaseService,
                                                    mapper: AnyCoreDataMapper(mapper),
-                                                   predicate: { $0.stash == address})
+                                                   predicate: { $0.stash == address || $0.controller == address })
 
         observable.start { [weak self] (error) in
             if let error = error {

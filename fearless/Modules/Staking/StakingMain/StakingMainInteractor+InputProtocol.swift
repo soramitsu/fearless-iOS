@@ -5,15 +5,15 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         self.currentAccount = settings.selectedAccount
         self.currentConnection = settings.selectedConnection
 
-        provideSelectedAccount()
         provideNewChain()
+        provideSelectedAccount()
 
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         subscribeToStashControllerProvider()
         subscribeToElectionStatus()
-        subscribeToActiveEra()
         provideRewardCalculator()
+        provideEraStakersInfo()
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -24,8 +24,6 @@ extension StakingMainInteractor: EventVisitorProtocol {
         if updateAccountAndChainIfNeeded() {
             clearStashControllerProvider()
             subscribeToStashControllerProvider()
-
-            provideRewardCalculator()
         }
     }
 
@@ -34,13 +32,12 @@ extension StakingMainInteractor: EventVisitorProtocol {
             clearElectionStatusProvider()
             subscribeToElectionStatus()
 
-            clearActiveEraProvider()
-            subscribeToActiveEra()
-
             clearStashControllerProvider()
             subscribeToStashControllerProvider()
 
             provideRewardCalculator()
+
+            provideEraStakersInfo()
         }
     }
 }

@@ -17,6 +17,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         view.localizationManager = LocalizationManager.shared
         view.iconGenerator = PolkadotIconGenerator()
         view.uiFactory = UIFactory()
+        view.amountFormatterFactory = AmountFormatterFactory()
 
         // MARK: - Interactor
         let substrateProviderFactory =
@@ -28,6 +29,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
                                                settings: settings,
                                                eventCenter: EventCenter.shared,
                                                primitiveFactory: primitiveFactory,
+                                               eraValidatorService: EraValidatorFacade.sharedService,
                                                calculatorService: RewardCalculatorFacade.sharedService,
                                                runtimeService: RuntimeRegistryFacade.sharedService,
                                                operationManager: OperationManagerFacade.sharedManager,
@@ -36,7 +38,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         // MARK: - Presenter
 
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
-        let presenter = StakingMainPresenter(viewModelFacade: viewModelFacade,
+        let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
+                                                                 logger: logger)
+        let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
+                                             viewModelFacade: viewModelFacade,
                                              logger: logger)
 
         // MARK: - Router

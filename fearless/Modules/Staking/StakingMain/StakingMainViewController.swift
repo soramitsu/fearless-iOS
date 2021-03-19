@@ -8,11 +8,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingMainPresenterProtocol!
 
     @IBOutlet private var scrollView: UIScrollView!
+    @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
-    @IBOutlet private var actionButton: TriangularedButton!
-    @IBOutlet weak var amountInputView: AmountInputView!
+
+    @IBOutlet weak var networkView: UIView!
 
     @IBOutlet weak var networkInfoContainer: UIView!
     @IBOutlet weak var titleControl: ActionTitleControl!
@@ -30,26 +31,16 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet weak var lockupPeriodTitleLabel: UILabel!
     @IBOutlet weak var lockupPeriodLabel: UILabel!
 
-    @IBOutlet weak var estimateWidgetTitleLabel: UILabel!
-
-    @IBOutlet weak var monthlyTitleLabel: UILabel!
-    @IBOutlet weak var monthlyAmountLabel: UILabel!
-    @IBOutlet weak var monthlyFiatAmountLabel: UILabel!
-    @IBOutlet weak var monthlyPercentageLabel: UILabel!
-
-    @IBOutlet weak var yearlyTitleLabel: UILabel!
-    @IBOutlet weak var yearlyAmountLabel: UILabel!
-    @IBOutlet weak var yearlyFiatAmountLabel: UILabel!
-    @IBOutlet weak var yearlyPercentageLabel: UILabel!
+    private var stateContainerView: UIView?
+    private var stateView: LocalizableView?
 
     var iconGenerator: IconGenerating?
-    var uiFactory: UIFactoryProtocol!
+    var uiFactory: UIFactoryProtocol?
+    var amountFormatterFactory: NumberFormatterFactoryProtocol?
+
+    var keyboardHandler: KeyboardHandler?
 
     // MARK: - Private declarations
-    private var amountInputViewModel: AmountInputViewModelProtocol?
-    private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
-    private var monthlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
-    private var yearlyRewardViewModel: LocalizableResource<RewardViewModelProtocol>?
 
     private var chainName: String = ""
 
@@ -57,17 +48,23 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupInitBalanceView()
-        setupInitRewardView()
         setupLocalization()
         presenter.setup()
         configureCollectionView()
     }
 
-    @IBAction func actionMain() {
-        amountInputView.textField.resignFirstResponder()
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
 
-        presenter.performMainAction()
+        if keyboardHandler == nil {
+            setupKeyboardHandler()
+        }
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        clearKeyboardHandler()
     }
 
     @IBAction func actionIcon() {
@@ -75,7 +72,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     @IBAction func toggleNetworkWidgetVisibility(sender: ActionTitleControl) {
-        amountInputView.textField.resignFirstResponder()
         let animationOptions: UIView.AnimationOptions = sender.isActivated ? .curveEaseIn : .curveEaseOut
 
         self.storiesViewZeroHeightConstraint?.isActive = sender.isActivated
@@ -98,83 +94,113 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
                              forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
     }
 
-    private func setupBalanceAccessoryView() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = uiFactory.createAmountAccessoryView(for: self, locale: locale)
-
-        amountInputView.textField.inputAccessoryView = accessoryView
-    }
-
-    private func setupInitBalanceView() {
-        amountInputView.priceText = ""
-        amountInputView.balanceText = ""
-
-        let textColor = R.color.colorWhite()!
-        let placeholder = NSAttributedString(string: "0",
-                                             attributes: [
-                                                .foregroundColor: textColor.withAlphaComponent(0.5),
-                                                .font: UIFont.h4Title
-                                             ])
-
-        amountInputView.textField.attributedPlaceholder = placeholder
-        amountInputView.textField.keyboardType = .decimalPad
-
-        amountInputView.textField.delegate = self
-    }
-
-    private func setupInitRewardView() {
-        monthlyAmountLabel.text = ""
-        monthlyPercentageLabel.text = ""
-        monthlyFiatAmountLabel.text = ""
-
-        yearlyAmountLabel.text = ""
-        yearlyPercentageLabel.text = ""
-        yearlyFiatAmountLabel.text = ""
-    }
-
-    private func applyAsset() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let viewModel = assetViewModel?.value(for: locale) {
-            amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(viewModel.balance ?? "",
-                                     preferredLanguages: locale.rLanguages)
-            amountInputView.priceText = viewModel.price
-
-            amountInputView.assetIcon = viewModel.icon
-            amountInputView.symbol = viewModel.symbol
-        }
-        applyReward()
-    }
-
-    private func applyReward() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let viewModel = monthlyRewardViewModel?.value(for: locale) {
-            monthlyAmountLabel.text = viewModel.amount
-            monthlyFiatAmountLabel.text = viewModel.price
-            monthlyPercentageLabel.text = viewModel.increase
-        }
-
-        if let viewModel = yearlyRewardViewModel?.value(for: locale) {
-            yearlyAmountLabel.text = viewModel.amount
-            yearlyFiatAmountLabel.text = viewModel.price
-            yearlyPercentageLabel.text = viewModel.increase
-        }
-        applyChainName()
-    }
-
     private func applyChainName() {
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
 
         titleControl.titleLabel.text = R.string.localizable
-            .stakingMainNetworkTitle(chainName,
-                                     preferredLanguages: languages)
+            .stakingMainNetworkTitle(chainName, preferredLanguages: languages)
         titleControl.invalidateLayout()
+    }
+
+    private func clearStateView() {
+        if let containerView = stateContainerView {
+            stackView.removeArrangedSubview(containerView)
+            containerView.removeFromSuperview()
+        }
+
+        stateContainerView = nil
+        stateView = nil
+    }
+
+    private func applyConstraints(for containerView: UIView, stateView: UIView) {
+        let verticalSpacing: CGFloat = 0.0
+        let bottomInset: CGFloat = 8.0
+
+        stateView.translatesAutoresizingMaskIntoConstraints = false
+        stateView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
+                                           constant: UIConstants.horizontalInset).isActive = true
+        stateView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
+                                            constant: -UIConstants.horizontalInset).isActive = true
+        stateView.topAnchor.constraint(equalTo: containerView.topAnchor,
+                                       constant: verticalSpacing).isActive = true
+
+        containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor,
+                                              constant: bottomInset).isActive = true
+    }
+
+    private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
+        clearStateView()
+
+        guard let prevViewIndex = stackView.arrangedSubviews.firstIndex(of: networkView) else {
+            return nil
+        }
+
+        let containerView = UIView()
+        containerView.translatesAutoresizingMaskIntoConstraints = false
+
+        guard let stateView = viewFactory() else {
+            return nil
+        }
+
+        containerView.addSubview(stateView)
+
+        applyConstraints(for: containerView, stateView: stateView)
+
+        stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
+
+        self.stateContainerView = containerView
+        self.stateView = stateView
+
+        return stateView
+    }
+
+    private func setupRewardEstimationViewIfNeeded() -> RewardEstimationView? {
+        if let rewardView = stateView as? RewardEstimationView {
+            return rewardView
+        }
+
+        let stateView = setupNibStateView { R.nib.rewardEstimationView(owner: nil) }
+
+        stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
+        stateView?.uiFactory = uiFactory
+        stateView?.amountFormatterFactory = amountFormatterFactory
+        stateView?.delegate = self
+
+        return stateView
+    }
+
+    private func setupNominationViewIfNeeded() -> NominationView? {
+        if let nominationView = stateView as? NominationView {
+            return nominationView
+        }
+
+        let stateView = setupNibStateView { R.nib.nominationView(owner: nil) }
+
+        stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
+
+        return stateView
+    }
+
+    private func applyNomination(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+        let nominationView = setupNominationViewIfNeeded()
+        nominationView?.bind(viewModel: viewModel)
+    }
+
+    private func applyBonded(viewModel: StakingEstimationViewModelProtocol) {
+        let rewardView = setupRewardEstimationViewIfNeeded()
+        rewardView?.bind(viewModel: viewModel)
+    }
+
+    private func applyNoStash(viewModel: StakingEstimationViewModelProtocol) {
+        let rewardView = setupRewardEstimationViewIfNeeded()
+        rewardView?.bind(viewModel: viewModel)
     }
 }
 
 extension StakingMainViewController: Localizable {
     private func setupLocalization() {
-        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let languages = locale.rLanguages
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
@@ -187,20 +213,9 @@ extension StakingMainViewController: Localizable {
         lockupPeriodTitleLabel.text = R.string.localizable
             .stakingMainLockupPeriodTitle(preferredLanguages: languages)
 
-        estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle(preferredLanguages: languages)
-        monthlyTitleLabel.text = R.string.localizable
-            .stakingMonthPeriodTitle(preferredLanguages: languages)
-        yearlyTitleLabel.text = R.string.localizable
-            .stakingYearPeriodTitle(preferredLanguages: languages)
+        stateView?.locale = locale
 
-        actionButton.imageWithTitleView?.title = R.string.localizable
-            .stakingStartTitle(preferredLanguages: languages)
-
-        amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: languages)
-
-        applyAsset()
-        setupBalanceAccessoryView()
+        applyChainName()
     }
 
     func applyLocalization() {
@@ -211,32 +226,17 @@ extension StakingMainViewController: Localizable {
     }
 }
 
-extension StakingMainViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
-        return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+extension StakingMainViewController: RewardEstimationViewDelegate {
+    func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?) {
+        presenter.updateAmount(amount ?? 0.0)
     }
-}
 
-extension StakingMainViewController: AmountInputViewModelObserver {
-    func amountInputDidChange() {
-        amountInputView.fieldText = amountInputViewModel?.displayAmount
-
-        let amount = amountInputViewModel?.decimalAmount ?? 0.0
-        presenter.updateAmount(amount)
-    }
-}
-
-extension StakingMainViewController: AmountInputAccessoryViewDelegate {
-    func didSelect(on view: AmountInputAccessoryView, percentage: Float) {
-        amountInputView.textField.resignFirstResponder()
-
+    func rewardEstimationView(_ view: RewardEstimationView, didSelect percentage: Float) {
         presenter.selectAmountPercentage(percentage)
     }
 
-    func didSelectDone(on view: AmountInputAccessoryView) {
-        amountInputView.textField.resignFirstResponder()
+    func rewardEstimationDidStartAction(_ view: RewardEstimationView) {
+        presenter.performMainAction()
     }
 }
 
@@ -246,13 +246,6 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
         self.chainName = newChainName.value(for: locale)
         applyChainName()
-    }
-
-    func didReceiveRewards(monthlyViewModel: LocalizableResource<RewardViewModelProtocol>,
-                           yearlyViewModel: LocalizableResource<RewardViewModelProtocol>) {
-        self.monthlyRewardViewModel = monthlyViewModel
-        self.yearlyRewardViewModel = yearlyViewModel
-        applyReward()
     }
 
     func didReceive(viewModel: StakingMainViewModelProtocol) {
@@ -265,21 +258,38 @@ extension StakingMainViewController: StakingMainViewProtocol {
         iconButton.invalidateLayout()
     }
 
-    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
-        assetViewModel = viewModel
-        applyAsset()
+    func didReceiveStakingState(viewModel: StakingViewState) {
+        switch viewModel {
+        case .undefined:
+            clearStateView()
+        case .bonded(let viewModel):
+            applyBonded(viewModel: viewModel)
+        case .noStash(let viewModel):
+            applyNoStash(viewModel: viewModel)
+        case .nominator(let viewModel):
+            applyNomination(viewModel: viewModel)
+        case .validator:
+            clearStateView()
+        }
     }
+}
 
-    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let concreteViewModel = viewModel.value(for: locale)
+extension StakingMainViewController: KeyboardAdoptable {
+    func updateWhileKeyboardFrameChanging(_ frame: CGRect) {
+        let localKeyboardFrame = view.convert(frame, from: nil)
+        let bottomInset = view.bounds.height - localKeyboardFrame.minY
+        let scrollViewOffset = view.bounds.height - scrollView.frame.maxY
 
-        amountInputViewModel?.observable.remove(observer: self)
+        var contentInsets = scrollView.contentInset
+        contentInsets.bottom = max(0.0, bottomInset - scrollViewOffset)
+        scrollView.contentInset = contentInsets
 
-        amountInputViewModel = concreteViewModel
+        if contentInsets.bottom > 0.0, let firstResponderView = stateView {
+            let fieldFrame = scrollView.convert(firstResponderView.frame,
+                                                from: firstResponderView.superview)
 
-        amountInputView.fieldText = concreteViewModel.displayAmount
-        concreteViewModel.observable.add(observer: self)
+            scrollView.scrollRectToVisible(fieldFrame, animated: true)
+        }
     }
 }
 
