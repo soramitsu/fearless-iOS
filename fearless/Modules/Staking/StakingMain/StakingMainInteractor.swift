@@ -24,6 +24,7 @@ final class StakingMainInteractor {
     var validatorProvider: AnyDataProvider<DecodedValidator>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    var totalRewardProvider: AnySingleValueProvider<TotalRewardItem>?
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?

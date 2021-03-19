@@ -2,6 +2,7 @@ import Foundation
 @testable import fearless
 import BigInt
 import IrohaCrypto
+import CommonWallet
 
 struct WestendStub {
     static let price: PriceData = {
@@ -9,6 +10,13 @@ struct WestendStub {
                   time: Int64(Date().timeIntervalSince1970),
                   height: 1,
                   records: [])
+    }()
+
+    static let totalReward: TotalRewardItem = {
+        TotalRewardItem(address: "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq",
+                        blockNumber: 777,
+                        extrinsicIndex: 0,
+                        amount: AmountDecimal(value: 777))
     }()
 
     static let activeEra: DecodedActiveEra = {

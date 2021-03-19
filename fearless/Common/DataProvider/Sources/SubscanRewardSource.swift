@@ -59,6 +59,8 @@ final class SubscanRewardSource {
         self.operationManager = operationManager
         self.pageSize = pageSize
         self.logger = logger
+
+        sync()
     }
 
     private func createLocalFetchWrapper() -> CompoundOperationWrapper<TotalRewardItem?> {
@@ -98,23 +100,14 @@ final class SubscanRewardSource {
     }
 
     private func fetch(page: Int) {
-        guard let url = assetId.subscanUrl else {
-            lastSyncError = SubscanRewardSourceError.unsupportedAsset
-
-            DispatchQueue.global().async {
-                self.trigger.delegate?.didTrigger()
-            }
-
+        guard let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.reward) else {
+            finalize(with: SubscanRewardSourceError.unsupportedAsset)
             return
         }
 
         let localWrapper: CompoundOperationWrapper<TotalRewardItem?>
 
-        if let reward = totalReward {
-            localWrapper = CompoundOperationWrapper.createWithResult(reward)
-        } else {
-            localWrapper = createLocalFetchWrapper()
-        }
+        localWrapper = createLocalFetchWrapper()
 
         let info = RewardInfo(address: address,
                               row: pageSize,
@@ -150,20 +143,17 @@ final class SubscanRewardSource {
                                    remoteOperation: BaseOperation<SubscanRewardData>,
                                    page: Int) {
         do {
-            let totalRewards = try localOperation.extractNoCancellableResultData()
+            let totalReward = try localOperation.extractNoCancellableResultData()
             let remoteData = try remoteOperation.extractNoCancellableResultData()
 
             if let expectedCount = syncing?.totalCount, expectedCount != remoteData.count {
-                syncing = nil
-
-                DispatchQueue.global().async {
-                    self.sync()
-                }
+                restartSync()
+                return
             }
 
             let endIndex: Int?
 
-            if let reward = totalRewards {
+            if let reward = totalReward {
                 endIndex = remoteData.items.firstIndex {
                     $0.blockNumber == reward.blockNumber && $0.extrinsicIndex == reward.extrinsicIndex
                 }
@@ -173,14 +163,14 @@ final class SubscanRewardSource {
 
             let count = endIndex ?? remoteData.items.count
 
-            let remoteItems = remoteData.items
-            let pageReward = calculateReward(from: remoteItems, count: count)
+            let newRemoteItems = Array(remoteData.items[0..<count])
+            let pageReward = calculateReward(from: newRemoteItems)
 
-            let newBlockNum = (syncing?.blockNumber == nil) ? syncing?.blockNumber :
-                remoteItems.first?.blockNumber
-            let newExtrinsicIndex = (syncing?.extrinsicIndex == nil) ? syncing?.extrinsicIndex :
-                remoteItems.first?.extrinsicIndex
-            let receivedCount = (syncing?.receivedCount ?? 0) + remoteItems.count
+            let newBlockNum = (syncing?.blockNumber != nil) ? syncing?.blockNumber :
+                newRemoteItems.first?.blockNumber
+            let newExtrinsicIndex = (syncing?.extrinsicIndex != nil) ? syncing?.extrinsicIndex :
+                newRemoteItems.first?.extrinsicIndex
+            let receivedCount = (syncing?.receivedCount ?? 0) + newRemoteItems.count
 
             syncing = SyncState(blockNumber: newBlockNum,
                                 extrinsicIndex: newExtrinsicIndex,
@@ -188,26 +178,31 @@ final class SubscanRewardSource {
                                 receivedCount: receivedCount,
                                 reward: (syncing?.reward ?? 0.0) + pageReward)
 
+            logger?.debug("Did complete sync of \(receivedCount) of \(remoteData.count)")
+            logger?.debug("Block number: \(String(describing: newBlockNum))")
+            logger?.debug("Extrinsic index: \(String(describing: newExtrinsicIndex))")
+            logger?.debug("Page reward: \(pageReward)")
+
             if endIndex != nil || receivedCount >= remoteData.count {
-                finalize()
+                finalize(with: totalReward)
             } else {
                 fetch(page: page + 1)
             }
 
         } catch {
-            lastSyncError = error
-            syncing = nil
-
-            DispatchQueue.global().async {
-                self.trigger.delegate?.didTrigger()
-            }
+            finalize(with: error)
         }
     }
 
-    private func finalize() {
-        if let blockNum = syncing?.blockNumber,
-           let extrinsicIndex = syncing?.extrinsicIndex,
-           let reward = syncing?.reward {
+    private func finalize(with previousReward: TotalRewardItem?) {
+        guard let syncState = syncing else {
+            logger?.warning("Can't finalize sync because of nil")
+            return
+        }
+
+        if let blockNum = syncState.blockNumber,
+           let extrinsicIndex = syncState.extrinsicIndex,
+           let reward = syncState.reward {
 
             let newAmount = reward + (totalReward?.amount.decimalValue ?? 0.0)
             totalReward = TotalRewardItem(address: address,
@@ -217,22 +212,55 @@ final class SubscanRewardSource {
 
             syncing = nil
 
-            DispatchQueue.global().async {
-                self.trigger.delegate?.didTrigger()
-            }
+            logger?.debug("Did receive new reward: \(reward)")
         } else {
+            logger?.debug("Sync completed: nothing changed")
+
+            totalReward = TotalRewardItem(address: address,
+                                          blockNumber: previousReward?.blockNumber,
+                                          extrinsicIndex: previousReward?.extrinsicIndex,
+                                          amount: previousReward?.amount ?? AmountDecimal(value: 0.0))
+
             syncing = nil
+        }
+
+        DispatchQueue.global().async {
+            self.trigger.delegate?.didTrigger()
         }
     }
 
-    private func calculateReward(from remoteItems: [SubscanRewardItemData], count: Int) -> Decimal {
-        (0..<count).reduce(Decimal(0.0)) { (amount, index) in
-            let remoteItem = remoteItems[index]
+    private func restartSync() {
+        syncing = nil
+        totalReward = nil
+        lastSyncError = nil
+
+        logger?.warning("Reward count changed during sync: restarting")
+
+        DispatchQueue.global().async {
+            self.sync()
+        }
+    }
+
+    private func finalize(with error: Error) {
+        totalReward = nil
+        lastSyncError = error
+        syncing = nil
+
+        logger?.error("Did receive sync error: \(error)")
+
+        DispatchQueue.global().async {
+            self.trigger.delegate?.didTrigger()
+        }
+    }
+
+    private func calculateReward(from remoteItems: [SubscanRewardItemData]) -> Decimal {
+        remoteItems.reduce(Decimal(0.0)) { (amount, remoteItem) in
             guard
                 let nextAmount = BigUInt(remoteItem.amount),
                 let nextAmountDecimal = Decimal
                     .fromSubstrateAmount(nextAmount, precision: chain.addressType.precision),
                 let change = RewardChange(rawValue: remoteItem.eventId) else {
+                logger?.error("Broken reward: \(remoteItem)")
                 return amount
             }
 
@@ -262,7 +290,6 @@ extension SubscanRewardSource: SingleValueProviderSourceProtocol {
             return CompoundOperationWrapper.createWithError(error)
         } else {
             sync()
-
             return createLocalFetchWrapper()
         }
     }

@@ -27,6 +27,7 @@ protocol StakingStateProtocol {
     func process(validatorPrefs: ValidatorPrefs?)
     func process(electionStatus: ElectionStatus?)
     func process(eraStakersInfo: EraStakersInfo?)
+    func process(totalReward: TotalRewardItem?)
 }
 
 protocol StakingStateMachineProtocol: class {

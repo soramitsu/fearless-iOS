@@ -12,6 +12,8 @@ typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
+    func getTotalReward(for address: String, assetId: WalletAssetId) throws
+    -> AnySingleValueProvider<TotalRewardItem>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedAccountInfo>
     func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -49,6 +51,10 @@ final class SingleValueProviderFactory {
 
     private func priceIdentifier(for assetId: WalletAssetId) -> String {
         assetId.rawValue + "PriceId"
+    }
+
+    private func totalRewardIdentifier(for address: String, assetId: WalletAssetId) -> String {
+        assetId.rawValue + address + "TotalReward"
     }
 
     private func clearIfNeeded() {
@@ -150,6 +156,44 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let source = SubscanPriceSource(assetId: assetId)
 
         let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
+        let provider = SingleValueProvider(targetIdentifier: identifier,
+                                           source: AnySingleValueProviderSource(source),
+                                           repository: AnyDataProviderRepository(repository),
+                                           updateTrigger: trigger)
+
+        providers[identifier] = WeakWrapper(target: provider)
+
+        return AnySingleValueProvider(provider)
+    }
+
+    func getTotalReward(for address: String,
+                        assetId: WalletAssetId) throws -> AnySingleValueProvider<TotalRewardItem> {
+        clearIfNeeded()
+
+        let identifier = totalRewardIdentifier(for: address, assetId: assetId)
+
+        if let provider = providers[identifier]?.target as? SingleValueProvider<TotalRewardItem> {
+            return AnySingleValueProvider(provider)
+        }
+
+        let addressFactory = SS58AddressFactory()
+        let type = try addressFactory.extractAddressType(from: address)
+
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
+            facade.createRepository()
+
+        let trigger = DataProviderProxyTrigger()
+
+        let source = SubscanRewardSource(address: address,
+                                         assetId: assetId,
+                                         chain: type.chain,
+                                         targetIdentifier: identifier,
+                                         repository: AnyDataProviderRepository(repository),
+                                         operationFactory: SubscanOperationFactory(),
+                                         trigger: trigger,
+                                         operationManager: operationManager,
+                                         logger: logger)
+
         let provider = SingleValueProvider(targetIdentifier: identifier,
                                            source: AnySingleValueProviderSource(source),
                                            repository: AnyDataProviderRepository(repository),

@@ -8,11 +8,15 @@ final class NominatorState: BaseStashNextState {
          commonData: StakingStateCommonData,
          stashItem: StashItem,
          ledgerInfo: DyStakingLedger,
-         nomination: Nomination) {
+         nomination: Nomination,
+         totalReward: TotalRewardItem?) {
         self.ledgerInfo = ledgerInfo
         self.nomination = nomination
 
-        super.init(stateMachine: stateMachine, commonData: commonData, stashItem: stashItem)
+        super.init(stateMachine: stateMachine,
+                   commonData: commonData,
+                   stashItem: stashItem,
+                   totalReward: totalReward)
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -34,7 +38,8 @@ final class NominatorState: BaseStashNextState {
             newState = StashState(stateMachine: stateMachine,
                                   commonData: commonData,
                                   stashItem: stashItem,
-                                  ledgerInfo: nil)
+                                  ledgerInfo: nil,
+                                  totalReward: totalReward)
         }
 
         stateMachine.transit(to: newState)
@@ -55,7 +60,8 @@ final class NominatorState: BaseStashNextState {
             newState = BondedState(stateMachine: stateMachine,
                                    commonData: commonData,
                                    stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo)
+                                   ledgerInfo: ledgerInfo,
+                                   totalReward: totalReward)
         }
 
         stateMachine.transit(to: newState)
@@ -73,7 +79,8 @@ final class NominatorState: BaseStashNextState {
                                       commonData: commonData,
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
-                                      prefs: prefs)
+                                      prefs: prefs,
+                                      totalReward: totalReward)
         } else {
             newState = self
         }
