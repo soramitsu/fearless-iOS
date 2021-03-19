@@ -291,3 +291,5 @@ Cід: %@";
 "staking.nominator.status.inactive" = "";
 "staking.nominator.status.waiting" = "";
 "staking.era.title" = "";
+"staking.validator.summary.title" = "";
+"staking.validator.summary.description" = "";
