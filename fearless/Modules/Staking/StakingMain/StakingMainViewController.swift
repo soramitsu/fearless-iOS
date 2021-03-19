@@ -5,6 +5,11 @@ import SoraUI
 import CommonWallet
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
+    private struct Constants {
+        static let verticalSpacing: CGFloat = 0.0
+        static let bottomInset: CGFloat = 8.0
+    }
+
     var presenter: StakingMainPresenterProtocol!
 
     @IBOutlet private var scrollView: UIScrollView!
@@ -113,19 +118,16 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyConstraints(for containerView: UIView, stateView: UIView) {
-        let verticalSpacing: CGFloat = 0.0
-        let bottomInset: CGFloat = 8.0
-
         stateView.translatesAutoresizingMaskIntoConstraints = false
         stateView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
                                            constant: UIConstants.horizontalInset).isActive = true
         stateView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
                                             constant: -UIConstants.horizontalInset).isActive = true
         stateView.topAnchor.constraint(equalTo: containerView.topAnchor,
-                                       constant: verticalSpacing).isActive = true
+                                       constant: Constants.verticalSpacing).isActive = true
 
         containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor,
-                                              constant: bottomInset).isActive = true
+                                              constant: Constants.bottomInset).isActive = true
     }
 
     private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
@@ -181,6 +183,18 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
+    private func setupValidatorViewIfNeeded() -> ValidationView? {
+        if let validationView = stateView as? ValidationView {
+            return validationView
+        }
+
+        let stateView = setupNibStateView { R.nib.validationView(owner: nil) }
+
+        stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
+
+        return stateView
+    }
+
     private func applyNomination(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         let nominationView = setupNominationViewIfNeeded()
         nominationView?.bind(viewModel: viewModel)
@@ -194,6 +208,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func applyNoStash(viewModel: StakingEstimationViewModelProtocol) {
         let rewardView = setupRewardEstimationViewIfNeeded()
         rewardView?.bind(viewModel: viewModel)
+    }
+
+    private func applyValidator() {
+        _ = setupValidatorViewIfNeeded()
     }
 }
 
@@ -269,7 +287,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case .nominator(let viewModel):
             applyNomination(viewModel: viewModel)
         case .validator:
-            clearStateView()
+            applyValidator()
         }
     }
 }
