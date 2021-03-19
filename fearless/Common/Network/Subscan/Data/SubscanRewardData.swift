@@ -26,8 +26,8 @@ struct SubscanRewardItemData: Codable {
     }
 
     let recordId: String
-    let blockNumber: Int64
-    let extrinsicIndex: Int
+    let blockNumber: UInt64
+    let extrinsicIndex: UInt16
     let extrinsicHash: String
     let moduleId: String
     let params: String
