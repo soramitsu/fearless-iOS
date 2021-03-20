@@ -5,6 +5,8 @@ import IrohaCrypto
 import CommonWallet
 
 struct WestendStub {
+    static let address: String = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+
     static let price: PriceData = {
         PriceData(price: "0.3",
                   time: Int64(Date().timeIntervalSince1970),

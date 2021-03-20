@@ -54,7 +54,7 @@ final class SingleValueProviderFactory {
     }
 
     private func totalRewardIdentifier(for address: String, assetId: WalletAssetId) -> String {
-        assetId.rawValue + address + "TotalReward"
+        assetId.rawValue + address + "Reward"
     }
 
     private func clearIfNeeded() {

@@ -204,7 +204,7 @@ final class SubscanRewardSource {
            let extrinsicIndex = syncState.extrinsicIndex,
            let reward = syncState.reward {
 
-            let newAmount = reward + (totalReward?.amount.decimalValue ?? 0.0)
+            let newAmount = reward + (previousReward?.amount.decimalValue ?? 0.0)
             totalReward = TotalRewardItem(address: address,
                                           blockNumber: blockNum,
                                           extrinsicIndex: extrinsicIndex,
