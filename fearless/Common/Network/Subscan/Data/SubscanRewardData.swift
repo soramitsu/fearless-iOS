@@ -7,7 +7,7 @@ struct SubscanRewardData: Codable {
     }
 
     let count: Int
-    let items: [SubscanRewardItemData]
+    let items: [SubscanRewardItemData]?
 }
 
 struct SubscanRewardItemData: Codable {

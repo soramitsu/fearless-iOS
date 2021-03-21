@@ -154,16 +154,17 @@ final class SubscanRewardSource {
             let endIndex: Int?
 
             if let reward = totalReward {
-                endIndex = remoteData.items.firstIndex {
+                endIndex = remoteData.items?.firstIndex {
                     $0.blockNumber == reward.blockNumber && $0.extrinsicIndex == reward.extrinsicIndex
                 }
             } else {
                 endIndex = nil
             }
 
-            let count = endIndex ?? remoteData.items.count
+            let allRemoteItems = remoteData.items ?? []
+            let count = endIndex ?? allRemoteItems.count
 
-            let newRemoteItems = Array(remoteData.items[0..<count])
+            let newRemoteItems = Array(allRemoteItems[0..<count])
             let pageReward = calculateReward(from: newRemoteItems)
 
             let newBlockNum = (syncing?.blockNumber != nil) ? syncing?.blockNumber :
