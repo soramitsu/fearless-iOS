@@ -16,7 +16,8 @@ final class PendingBondedState: BaseStashNextState {
             newState = BondedState(stateMachine: stateMachine,
                                    commonData: commonData,
                                    stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo)
+                                   ledgerInfo: ledgerInfo,
+                                   totalReward: totalReward)
         } else {
             newState = self
         }
@@ -36,7 +37,8 @@ final class PendingBondedState: BaseStashNextState {
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: nil,
-                                             nomination: nomination)
+                                             nomination: nomination,
+                                             totalReward: totalReward)
         } else {
             newState = self
         }
@@ -56,7 +58,8 @@ final class PendingBondedState: BaseStashNextState {
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: nil,
-                                             prefs: prefs)
+                                             prefs: prefs,
+                                             totalReward: totalReward)
         } else {
             newState = self
         }

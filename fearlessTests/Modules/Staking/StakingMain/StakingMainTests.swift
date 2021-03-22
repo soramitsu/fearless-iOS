@@ -4,6 +4,7 @@ import SoraKeystore
 import Cuckoo
 import RobinHood
 import IrohaCrypto
+import SoraFoundation
 
 class StakingMainTests: XCTestCase {
     func testNominatorStateSetup() throws {
@@ -42,6 +43,7 @@ class StakingMainTests: XCTestCase {
 
         let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
                                                                     operationManager: operationManager)
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
@@ -51,6 +53,7 @@ class StakingMainTests: XCTestCase {
                                                calculatorService: calculatorService,
                                                runtimeService: runtimeCodingService,
                                                operationManager: operationManager,
+                                               applicationHandler: ApplicationHandler(),
                                                logger: Logger.shared)
 
         presenter.view = view

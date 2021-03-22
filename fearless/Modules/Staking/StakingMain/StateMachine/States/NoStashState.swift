@@ -23,7 +23,9 @@ final class NoStashState: BaseStakingState {
 
             let newState = StashState(stateMachine: stateMachine,
                                       commonData: commonData,
-                                      stashItem: stashItem)
+                                      stashItem: stashItem,
+                                      ledgerInfo: nil,
+                                      totalReward: nil)
 
             stateMachine.transit(to: newState)
         } else {

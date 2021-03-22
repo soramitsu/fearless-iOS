@@ -107,32 +107,35 @@ final class StakingStateViewModelFactory {
 
     private func createNominationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
-                                           stashItem: StashItem,
-                                           ledgerInfo: DyStakingLedger,
-                                           nomination: Nomination)
+                                           state: NominatorState)
     -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let stakedAmount = convertAmount(ledgerInfo.active, for: chain, defaultValue: 0.0)
+        let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(stakedAmount,
                                                               priceData: commonData.price)
 
-        let rewards = balanceViewModelFactory.balanceFromPrice(0.0,
-                                                               priceData: commonData.price)
+        let reward: LocalizableResource<BalanceViewModelProtocol>?
+        if let totalReward = state.totalReward {
+            reward = balanceViewModelFactory.balanceFromPrice(totalReward.amount.decimalValue,
+                                                                       priceData: commonData.price)
+        } else {
+            reward = nil
+        }
 
         let nominationStatus = createNominationStatus(for: chain,
                                                       commonData: commonData,
-                                                      stashItem: stashItem,
-                                                      nomination: nomination)
+                                                      stashItem: state.stashItem,
+                                                      nomination: state.nomination)
 
         return LocalizableResource { locale in
             let stakedViewModel = staked.value(for: locale)
-            let rewardsViewModel = rewards.value(for: locale)
+            let rewardViewModel = reward?.value(for: locale)
 
             return NominationViewModel(totalStakedAmount: stakedViewModel.amount,
                                        totalStakedPrice: stakedViewModel.price ?? "",
-                                       totalRewardAmount: rewardsViewModel.amount,
-                                       totalRewardPrice: rewardsViewModel.price ?? "",
+                                       totalRewardAmount: rewardViewModel?.amount ?? "",
+                                       totalRewardPrice: rewardViewModel?.price ?? "",
                                        status: nominationStatus)
         }
     }
@@ -294,9 +297,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         let viewModel = createNominationViewModel(for: chain,
                                                   commonData: state.commonData,
-                                                  stashItem: state.stashItem,
-                                                  ledgerInfo: state.ledgerInfo,
-                                                  nomination: state.nomination)
+                                                  state: state)
 
         lastViewModel = .nominator(viewModel: viewModel)
     }

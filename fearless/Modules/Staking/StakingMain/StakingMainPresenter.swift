@@ -98,6 +98,14 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: priceError)
     }
 
+    func didReceive(totalReward: TotalRewardItem) {
+        stateMachine.state.process(totalReward: totalReward)
+    }
+
+    func didReceive(totalReward: Error) {
+        handle(error: totalReward)
+    }
+
     func didReceive(accountInfo: DyAccountInfo?) {
         if let availableValue = accountInfo?.data.available, let chain = chain {
             self.balance = Decimal.fromSubstrateAmount(availableValue,
@@ -219,7 +227,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         self.amount = nil
 
         stateMachine.state.process(chain: newChain)
-        
+
         provideChain()
     }
 }

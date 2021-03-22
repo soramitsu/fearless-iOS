@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import RobinHood
 import FearlessUtils
+import SoraFoundation
 
 final class StakingMainInteractor {
     weak var presenter: StakingMainInteractorOutputProtocol!
@@ -15,6 +16,7 @@ final class StakingMainInteractor {
     let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let applicationHandler: ApplicationHandlerProtocol
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -24,6 +26,7 @@ final class StakingMainInteractor {
     var validatorProvider: AnyDataProvider<DecodedValidator>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    var totalRewardProvider: AnySingleValueProvider<TotalRewardItem>?
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?
@@ -37,6 +40,7 @@ final class StakingMainInteractor {
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol,
+         applicationHandler: ApplicationHandlerProtocol,
          logger: Logger) {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
@@ -47,6 +51,7 @@ final class StakingMainInteractor {
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.applicationHandler = applicationHandler
         self.logger = logger
     }
 
