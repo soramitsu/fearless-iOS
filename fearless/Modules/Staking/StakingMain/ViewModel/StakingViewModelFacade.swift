@@ -26,6 +26,7 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     }
 
     func createNetworkInfoViewModelFactory(for chain: Chain) -> NetworkInfoViewModelFactoryProtocol {
-        return NetworkInfoViewModelFactory(with: chain)
+        return NetworkInfoViewModelFactory(with: chain,
+                                           primitiveFactory: primitiveFactory)
     }
 }

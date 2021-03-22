@@ -7,15 +7,18 @@ final class StakingMainPresenter {
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
 
-    private var networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol?
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
 
+    private var networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol?
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
 
     private var balance: Decimal?
     private var amount: Decimal?
+    private var eraStakersInfo: EraStakersInfo?
+    private var priceData: PriceData?
+    private var lockUpPeriodInEras: UInt32?
 
     private var chain: Chain?
 
@@ -32,6 +35,14 @@ final class StakingMainPresenter {
         stateMachine.delegate = self
     }
 
+    private func provideLockUpPeriod() {
+        guard let factory = networkInfoViewModelFactory else { return }
+
+        let lockUpPeriodViewModel = factory.createEraLockUpPeriodViewModel(with: lockUpPeriodInEras ?? 0)
+
+        view?.didReceiveLockupPeriod(lockUpPeriodViewModel)
+    }
+
     private func provideState() {
         let state = stateViewModelFactory.createViewModel(from: stateMachine.state)
         view?.didReceiveStakingState(viewModel: state)
@@ -46,11 +57,25 @@ final class StakingMainPresenter {
 
         view?.didReceiveChainName(chainName: chainModel)
     }
+
+    private func provideEraStakersInfo() {
+        guard let viewModelFactory = self.networkInfoViewModelFactory,
+              let eraStakersInfo = self.eraStakersInfo else {
+            return
+        }
+
+        let eraStakingInfoViewModel = viewModelFactory.createEraStakingInfoViewModel(with: eraStakersInfo)
+        view?.didReceiveEraStakingInfo(viewModel: eraStakingInfoViewModel)
+    }
 }
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
     func setup() {
         provideState()
+        provideChain()
+        provideEraStakersInfo()
+        provideLockUpPeriod()
+        
         interactor.setup()
     }
 
@@ -92,6 +117,11 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(price: PriceData?) {
         stateMachine.state.process(price: price)
+
+        guard let newPriceData = price else { return }
+
+        networkInfoViewModelFactory?.updatePriceData(with: newPriceData)
+        provideEraStakersInfo()
     }
 
     func didReceive(priceError: Error) {
@@ -205,6 +235,9 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(eraStakersInfo: EraStakersInfo) {
         stateMachine.state.process(eraStakersInfo: eraStakersInfo)
 
+        self.eraStakersInfo = eraStakersInfo
+        provideEraStakersInfo()
+
         logger?.debug("Did receive era stakers info: \(eraStakersInfo.era)")
     }
 
@@ -213,13 +246,27 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(newChain: Chain) {
-        self.chain = newChain
-        self.networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
+        chain = newChain
+
+        if let factory = networkInfoViewModelFactory {
+            factory.updateChain(with: newChain)
+        } else {
+            networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
+        }
 
         self.amount = nil
 
         stateMachine.state.process(chain: newChain)
-        
+
         provideChain()
+    }
+
+    func didRecieve(lockUpPeriod: UInt32) {
+        lockUpPeriodInEras = lockUpPeriod
+        provideLockUpPeriod()
+    }
+
+    func didRecieve(lockUpPeriodError: Error) {
+        handle(error: lockUpPeriodError)
     }
 }

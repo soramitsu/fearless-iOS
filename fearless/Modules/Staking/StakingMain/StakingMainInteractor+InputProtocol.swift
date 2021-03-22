@@ -14,6 +14,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         subscribeToElectionStatus()
         provideRewardCalculator()
         provideEraStakersInfo()
+        provideLockupPeriod()
 
         eventCenter.add(observer: self, dispatchIn: .main)
     }
@@ -38,6 +39,7 @@ extension StakingMainInteractor: EventVisitorProtocol {
             provideRewardCalculator()
 
             provideEraStakersInfo()
+            provideLockupPeriod()
         }
     }
 }

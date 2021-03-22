@@ -3,8 +3,10 @@ import SoraFoundation
 import CommonWallet
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: StakingMainViewModelProtocol)    
+    func didReceive(viewModel: StakingMainViewModelProtocol)
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
+    func didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)
+    func didReceiveLockupPeriod(_ newPeriod: LocalizableResource<String>)
 
     func didReceiveStakingState(viewModel: StakingViewState)
 }
@@ -42,6 +44,8 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraStakersInfoError: Error)
     func didReceive(newChain: Chain)
+    func didRecieve(lockUpPeriod: UInt32)
+    func didRecieve(lockUpPeriodError: Error)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

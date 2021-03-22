@@ -101,4 +101,33 @@ final class StakingMainInteractor {
         operationManager.enqueue(operations: [operation],
                                  in: .transient)
     }
+
+    func provideLockupPeriod() {
+        let factoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let lockUpPeriodOperation = PrimitiveConstantOperation<UInt32>(path: .lockUpPeriodInEras)
+        lockUpPeriodOperation.configurationBlock = {
+            do {
+                lockUpPeriodOperation.codingFactory = try factoryOperation.extractNoCancellableResultData()
+            } catch {
+                lockUpPeriodOperation.result = .failure(error)
+            }
+        }
+
+        lockUpPeriodOperation.addDependency(factoryOperation)
+
+        lockUpPeriodOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let value = try lockUpPeriodOperation.extractNoCancellableResultData()
+                    self?.presenter.didRecieve(lockUpPeriod: value)
+                } catch {
+                    self?.presenter.didRecieve(lockUpPeriodError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [factoryOperation, lockUpPeriodOperation],
+                                 in: .transient)
+    }
 }

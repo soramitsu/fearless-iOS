@@ -48,6 +48,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     // MARK: - Private declarations
 
     private var chainName: String = ""
+    private var eraStakingInfo: LocalizableResource<EraStakingInfoViewModelProtocol>?
+    private var lockUpPeriod: LocalizableResource<String>?
 
     // MARK: - UIViewController
     override func viewDidLoad() {
@@ -97,6 +99,28 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         storiesView.register(UINib(resource: R.nib.storiesCollectionItem),
                              forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
+    }
+
+    private func applyLockUpPeriod() {
+        guard let viewModel = lockUpPeriod else { return }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        lockupPeriodLabel.text = viewModel.value(for: locale)
+    }
+
+    private func applyStakingInfo() {
+        guard let viewModel = eraStakingInfo else { return }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let localizedViewModel = viewModel.value(for: locale)
+
+        totalStakedAmountLabel.text = localizedViewModel.totalStake?.amount
+        totalStakedFiatAmountLabel.text = localizedViewModel.totalStake?.price
+        minimumStakeAmountLabel.text = localizedViewModel.minimalStake?.amount
+        minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
+        activeNominatorsLabel.text = localizedViewModel.activeNominators
     }
 
     private func applyChainName() {
@@ -234,6 +258,8 @@ extension StakingMainViewController: Localizable {
         stateView?.locale = locale
 
         applyChainName()
+        applyStakingInfo()
+        applyLockUpPeriod()
     }
 
     func applyLocalization() {
@@ -259,6 +285,16 @@ extension StakingMainViewController: RewardEstimationViewDelegate {
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
+    func didReceiveLockupPeriod(_ newPeriod: LocalizableResource<String>) {
+        lockUpPeriod = newPeriod
+        applyLockUpPeriod()
+    }
+
+    func didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>) {
+        eraStakingInfo = viewModel
+        applyStakingInfo()
+    }
+
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
