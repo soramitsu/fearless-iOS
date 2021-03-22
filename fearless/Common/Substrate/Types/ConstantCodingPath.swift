@@ -14,7 +14,7 @@ extension ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "MaxNominatorRewardedPerValidator")
     }
 
-    static var lockUpPeriodInEras: ConstantCodingPath {
+    static var lockUpPeriod: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Staking", constantName: "BondingDuration")
     }
 

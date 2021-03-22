@@ -16,6 +16,7 @@ final class StakingMainInteractor {
     let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let logger: LoggerProtocol
 
@@ -40,6 +41,7 @@ final class StakingMainInteractor {
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol,
+         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
          applicationHandler: ApplicationHandlerProtocol,
          logger: Logger) {
         self.providerFactory = providerFactory
@@ -51,6 +53,7 @@ final class StakingMainInteractor {
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.logger = logger
     }
@@ -107,32 +110,20 @@ final class StakingMainInteractor {
                                  in: .transient)
     }
 
-    func provideLockupPeriod() {
-        let factoryOperation = runtimeService.fetchCoderFactoryOperation()
+    func provideNetworkStakingInfo() {
+        let wrapper = eraInfoOperationFactory.networkStakingOperation()
 
-        let lockUpPeriodOperation = PrimitiveConstantOperation<UInt32>(path: .lockUpPeriodInEras)
-        lockUpPeriodOperation.configurationBlock = {
-            do {
-                lockUpPeriodOperation.codingFactory = try factoryOperation.extractNoCancellableResultData()
-            } catch {
-                lockUpPeriodOperation.result = .failure(error)
-            }
-        }
-
-        lockUpPeriodOperation.addDependency(factoryOperation)
-
-        lockUpPeriodOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
+        wrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
                 do {
-                    let value = try lockUpPeriodOperation.extractNoCancellableResultData()
-                    self?.presenter.didRecieve(lockUpPeriod: value)
+                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(networkStakingInfo: info)
                 } catch {
-                    self?.presenter.didRecieve(lockUpPeriodError: error)
+                    self?.presenter.didReceive(networkStakingInfoError: error)
                 }
             }
         }
 
-        operationManager.enqueue(operations: [factoryOperation, lockUpPeriodOperation],
-                                 in: .transient)
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 }

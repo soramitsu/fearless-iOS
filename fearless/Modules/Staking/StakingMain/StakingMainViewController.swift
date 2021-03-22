@@ -33,8 +33,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     @IBOutlet weak var minimumStakeFiatAmountLabel: UILabel!
     @IBOutlet weak var activeNominatorsTitleLabel: UILabel!
     @IBOutlet weak var activeNominatorsLabel: UILabel!
-    @IBOutlet weak var lockupPeriodTitleLabel: UILabel!
-    @IBOutlet weak var lockupPeriodLabel: UILabel!
+    @IBOutlet weak var lockUpPeriodTitleLabel: UILabel!
+    @IBOutlet weak var lockUpPeriodLabel: UILabel!
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -48,8 +48,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     // MARK: - Private declarations
 
     private var chainName: String = ""
-    private var eraStakingInfo: LocalizableResource<EraStakingInfoViewModelProtocol>?
-    private var lockUpPeriod: LocalizableResource<String>?
+    private var networkStakingInfo: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
 
     // MARK: - UIViewController
     override func viewDidLoad() {
@@ -101,16 +100,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
                              forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
     }
 
-    private func applyLockUpPeriod() {
-        guard let viewModel = lockUpPeriod else { return }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        lockupPeriodLabel.text = viewModel.value(for: locale)
-    }
-
     private func applyStakingInfo() {
-        guard let viewModel = eraStakingInfo else { return }
+        guard let viewModel = networkStakingInfo else { return }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
@@ -121,6 +112,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         minimumStakeAmountLabel.text = localizedViewModel.minimalStake?.amount
         minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
         activeNominatorsLabel.text = localizedViewModel.activeNominators
+        lockUpPeriodLabel.text = localizedViewModel.lockUpPeriod
     }
 
     private func applyChainName() {
@@ -252,14 +244,13 @@ extension StakingMainViewController: Localizable {
             .stakingMainMinimumStakeTitle(preferredLanguages: languages)
         activeNominatorsTitleLabel.text = R.string.localizable
             .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
-        lockupPeriodTitleLabel.text = R.string.localizable
+        lockUpPeriodTitleLabel.text = R.string.localizable
             .stakingMainLockupPeriodTitle(preferredLanguages: languages)
 
         stateView?.locale = locale
 
         applyChainName()
         applyStakingInfo()
-        applyLockUpPeriod()
     }
 
     func applyLocalization() {
@@ -285,13 +276,8 @@ extension StakingMainViewController: RewardEstimationViewDelegate {
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
-    func didReceiveLockupPeriod(_ newPeriod: LocalizableResource<String>) {
-        lockUpPeriod = newPeriod
-        applyLockUpPeriod()
-    }
-
-    func didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>) {
-        eraStakingInfo = viewModel
+    func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>) {
+        networkStakingInfo = viewModel
         applyStakingInfo()
     }
 

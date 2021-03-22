@@ -28,4 +28,13 @@ extension NumberFormatter {
         numberFormatter.percentSymbol = "% APY"
         return numberFormatter
     }
+
+    static var quantity: NumberFormatter {
+        let numberFormatter = NumberFormatter()
+        numberFormatter.numberStyle = .decimal
+        numberFormatter.maximumFractionDigits = 0
+        numberFormatter.alwaysShowsDecimalSeparator = false
+        numberFormatter.usesGroupingSeparator = true
+        return numberFormatter
+    }
 }

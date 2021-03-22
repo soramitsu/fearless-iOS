@@ -5,6 +5,7 @@ import Cuckoo
 import RobinHood
 import IrohaCrypto
 import SoraFoundation
+import BigInt
 
 class StakingMainTests: XCTestCase {
     func testNominatorStateSetup() throws {
@@ -44,6 +45,8 @@ class StakingMainTests: XCTestCase {
         let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
                                                                     operationManager: operationManager)
 
+        let operationFactory = MockNetworkStakingInfoOperationFactoryProtocol()
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
@@ -53,6 +56,7 @@ class StakingMainTests: XCTestCase {
                                                calculatorService: calculatorService,
                                                runtimeService: runtimeCodingService,
                                                operationManager: operationManager,
+                                               eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),
                                                logger: Logger.shared)
 
@@ -66,8 +70,16 @@ class StakingMainTests: XCTestCase {
         let accountExpectation = XCTestExpectation()
         let nominatorStateExpectation = XCTestExpectation()
         let chainExpectation = XCTestExpectation()
-        let lockupPeriodExpectation = XCTestExpectation()
-        let eraStakingInfoExpectation = XCTestExpectation()
+        let networkStakingInfoExpectation = XCTestExpectation()
+
+        stub(operationFactory) { stub in
+            when(stub).networkStakingOperation().then { _ in
+                CompoundOperationWrapper.createWithResult(NetworkStakingInfo(totalStake: BigUInt.zero,
+                                                                             minimalStake: BigUInt.zero,
+                                                                             activeNominatorsCount: 0,
+                                                                             lockUpPeriod: 0))
+            }
+        }
 
         stub(view) { stub in
             stub.didReceive(viewModel: any()).then { _ in
@@ -78,12 +90,8 @@ class StakingMainTests: XCTestCase {
                 chainExpectation.fulfill()
             }
 
-            stub.didReceiveLockupPeriod (any()).then { _ in
-                lockupPeriodExpectation.fulfill()
-            }
-
-            stub.didReceiveEraStakingInfo(viewModel: any()).then { _ in
-                eraStakingInfoExpectation.fulfill()
+            stub.didRecieveNetworkStakingInfo(viewModel: any()).then { _ in
+                networkStakingInfoExpectation.fulfill()
             }
 
             stub.didReceiveStakingState(viewModel: any()).then { state in
@@ -116,8 +124,7 @@ class StakingMainTests: XCTestCase {
             accountExpectation,
             nominatorStateExpectation,
             chainExpectation,
-            lockupPeriodExpectation,
-            eraStakingInfoExpectation
+            networkStakingInfoExpectation
         ]
 
         wait(for: expectations, timeout: 5)

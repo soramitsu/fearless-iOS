@@ -4,9 +4,8 @@ import BigInt
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel() -> LocalizableResource<String>
-    func createEraStakingInfoViewModel(with eraStakersInfo: EraStakersInfo) ->
-    LocalizableResource<EraStakingInfoViewModelProtocol>
-    func createEraLockUpPeriodViewModel(with eraLockUpPeriodInEras: UInt32) -> LocalizableResource<String>
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?) ->
+    LocalizableResource<NetworkStakingInfoViewModelProtocol>
 
     func updateChain(with newChain: Chain)
     func updatePriceData(with newPriceData: PriceData)
@@ -46,38 +45,42 @@ final class NetworkInfoViewModelFactory {
         let stakedAmount = Decimal.fromSubstrateAmount(stake,
                                                        precision: chain.addressType.precision) ?? 0.0
 
-        let staked = balanceViewModelFactory.balanceFromPrice(stakedAmount,
-                                                              priceData: priceData)
+        let stakedPair = balanceViewModelFactory.balanceFromPrice(stakedAmount,
+                                                                  priceData: priceData)
 
         return LocalizableResource { locale in
-            staked.value(for: locale)
+            stakedPair.value(for: locale)
         }
     }
 
-    private func createTotalStakeViewModel(with eraStakersInfo: EraStakersInfo) ->
+    private func createTotalStakeViewModel(with networkStakingInfo: NetworkStakingInfo) ->
     LocalizableResource<BalanceViewModelProtocol> {
-        let totalStake = eraStakersInfo.validators
-            .map({$0.exposure.total})
-            .reduce(0, +)
-
-        return createStakeViewModel(stake: totalStake)
+        createStakeViewModel(stake: networkStakingInfo.totalStake)
     }
 
-    private func createMinimalStakeViewModel(with eraStakersInfo: EraStakersInfo) ->
+    private func createMinimalStakeViewModel(with networkStakingInfo: NetworkStakingInfo) ->
     LocalizableResource<BalanceViewModelProtocol> {
-        let minimalStake = eraStakersInfo.validators
-            .flatMap({$0.exposure.others})
-            .compactMap({$0.value})
-            .min() ?? BigUInt.zero
-
-        return createStakeViewModel(stake: minimalStake)
+        createStakeViewModel(stake: networkStakingInfo.minimalStake)
     }
 
-    private func createActiveNominatorsViewModel(with eraStakersInfo: EraStakersInfo) -> String {
-        let nominatorsCount = eraStakersInfo.validators
-            .flatMap({$0.exposure.others}).count
+    private func createActiveNominatorsViewModel(
+        with networkStakingInfo: NetworkStakingInfo) -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
-        return String(nominatorsCount)
+            return quantityFormatter
+                .string(from: networkStakingInfo.activeNominatorsCount as NSNumber) ?? ""
+        }
+    }
+
+    private func createLockUpPeriodViewModel(
+        with networkStakingInfo: NetworkStakingInfo) -> LocalizableResource<String> {
+        let lockUpPeriodInDays = Int(networkStakingInfo.lockUpPeriod) / chain.erasPerDay
+
+        return LocalizableResource { locale in
+            R.string.localizable.stakingMainLockupPeriodValue(format: lockUpPeriodInDays,
+                                                              preferredLanguages: locale.rLanguages)
+        }
     }
 }
 
@@ -98,27 +101,26 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         }
     }
 
-    func createEraStakingInfoViewModel(with eraStakersInfo: EraStakersInfo) ->
-    LocalizableResource<EraStakingInfoViewModelProtocol> {
-        let localizedTotalStake = createTotalStakeViewModel(with: eraStakersInfo)
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?) ->
+    LocalizableResource<NetworkStakingInfoViewModelProtocol> {
+        let stakingInfo = networkStakingInfo ?? NetworkStakingInfo(totalStake: BigUInt.zero,
+                                                                   minimalStake: BigUInt.zero,
+                                                                   activeNominatorsCount: 0,
+                                                                   lockUpPeriod: 0)
 
-        let localizedMinimalStake = createMinimalStakeViewModel(with: eraStakersInfo)
+        let localizedTotalStake = createTotalStakeViewModel(with: stakingInfo)
 
-        let nominatorsCount = createActiveNominatorsViewModel(with: eraStakersInfo)
+        let localizedMinimalStake = createMinimalStakeViewModel(with: stakingInfo)
+
+        let nominatorsCount = createActiveNominatorsViewModel(with: stakingInfo)
+
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: stakingInfo)
 
         return LocalizableResource { locale in
-            EraStakingInfoViewModel(totalStake: localizedTotalStake.value(for: locale),
+            NetworkStakingInfoViewModel(totalStake: localizedTotalStake.value(for: locale),
                                     minimalStake: localizedMinimalStake.value(for: locale),
-                                    activeNominators: nominatorsCount)
-        }
-    }
-
-    func createEraLockUpPeriodViewModel(with eraLockUpPeriodInEras: UInt32) -> LocalizableResource<String> {
-        let lockUpPeriodInDays = Int(eraLockUpPeriodInEras) / chain.erasPerDay
-
-        return LocalizableResource { locale in
-            R.string.localizable.stakingMainLockupPeriodValue(format: lockUpPeriodInDays,
-                                                              preferredLanguages: locale.rLanguages)
+                                    activeNominators: nominatorsCount.value(for: locale),
+                                    lockUpPeriod: localizedLockUpPeriod.value(for: locale))
         }
     }
 }
