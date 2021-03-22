@@ -45,6 +45,10 @@ extension StakingMainInteractor: EventVisitorProtocol {
             provideLockupPeriod()
         }
     }
+
+    func processEraStakersInfoChanged(event: EraStakersInfoChanged) {
+        provideEraStakersInfo()
+    }
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {

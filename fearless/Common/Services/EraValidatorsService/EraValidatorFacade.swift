@@ -14,6 +14,7 @@ final class EraValidatorFacade {
                                    runtimeCodingService: RuntimeRegistryFacade.sharedService,
                                    providerFactory: providerFactory,
                                    operationManager: operationManager,
+                                   eventCenter: EventCenter.shared,
                                    logger: logger)
     }()
 }

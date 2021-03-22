@@ -645,6 +645,7 @@ class CalculatorServiceTests: XCTestCase {
                                    runtimeCodingService: runtimeService,
                                    providerFactory: factory,
                                    operationManager: operationManager,
+                                   eventCenter: EventCenter.shared,
                                    logger: logger)
     }
 
