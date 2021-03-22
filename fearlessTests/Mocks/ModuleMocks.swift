@@ -17054,6 +17054,36 @@ import SoraFoundation
     
     
     
+     func didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)  {
+        
+    return cuckoo_manager.call("didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)",
+            parameters: (viewModel),
+            escapingParameters: (viewModel),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveEraStakingInfo(viewModel: viewModel))
+        
+    }
+    
+    
+    
+     func didReceiveLockupPeriod(_ newPeriod: LocalizableResource<String>)  {
+        
+    return cuckoo_manager.call("didReceiveLockupPeriod(_: LocalizableResource<String>)",
+            parameters: (newPeriod),
+            escapingParameters: (newPeriod),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveLockupPeriod(newPeriod))
+        
+    }
+    
+    
+    
      func didReceiveStakingState(viewModel: StakingViewState)  {
         
     return cuckoo_manager.call("didReceiveStakingState(viewModel: StakingViewState)",
@@ -17116,6 +17146,16 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveChainName(chainName: LocalizableResource<String>)", parameterMatchers: matchers))
 	    }
 	    
+	    func didReceiveEraStakingInfo<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<EraStakingInfoViewModelProtocol>)> where M1.MatchedType == LocalizableResource<EraStakingInfoViewModelProtocol> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<EraStakingInfoViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveLockupPeriod<M1: Cuckoo.Matchable>(_ newPeriod: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<String>)> where M1.MatchedType == LocalizableResource<String> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<String>)>] = [wrap(matchable: newPeriod) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveLockupPeriod(_: LocalizableResource<String>)", parameterMatchers: matchers))
+	    }
+	    
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingViewState)> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveStakingState(viewModel: StakingViewState)", parameterMatchers: matchers))
@@ -17170,6 +17210,18 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveEraStakingInfo<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<EraStakingInfoViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<EraStakingInfoViewModelProtocol> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<EraStakingInfoViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceiveLockupPeriod<M1: Cuckoo.Matchable>(_ newPeriod: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<String>), Void> where M1.MatchedType == LocalizableResource<String> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<String>)>] = [wrap(matchable: newPeriod) { $0 }]
+	        return cuckoo_manager.verify("didReceiveLockupPeriod(_: LocalizableResource<String>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(StakingViewState), Void> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return cuckoo_manager.verify("didReceiveStakingState(viewModel: StakingViewState)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -17221,6 +17273,14 @@ import SoraFoundation
     }
     
      func didReceiveChainName(chainName newChainName: LocalizableResource<String>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveEraStakingInfo(viewModel: LocalizableResource<EraStakingInfoViewModelProtocol>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveLockupPeriod(_ newPeriod: LocalizableResource<String>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -17861,6 +17921,36 @@ import SoraFoundation
         
     }
     
+    
+    
+     func didRecieve(lockUpPeriod: UInt32)  {
+        
+    return cuckoo_manager.call("didRecieve(lockUpPeriod: UInt32)",
+            parameters: (lockUpPeriod),
+            escapingParameters: (lockUpPeriod),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didRecieve(lockUpPeriod: lockUpPeriod))
+        
+    }
+    
+    
+    
+     func didRecieve(lockUpPeriodError: Error)  {
+        
+    return cuckoo_manager.call("didRecieve(lockUpPeriodError: Error)",
+            parameters: (lockUpPeriodError),
+            escapingParameters: (lockUpPeriodError),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didRecieve(lockUpPeriodError: lockUpPeriodError))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingMainInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -17968,6 +18058,16 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
 	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
+	    }
+	    
+	    func didRecieve<M1: Cuckoo.Matchable>(lockUpPeriod: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt32)> where M1.MatchedType == UInt32 {
+	        let matchers: [Cuckoo.ParameterMatcher<(UInt32)>] = [wrap(matchable: lockUpPeriod) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didRecieve(lockUpPeriod: UInt32)", parameterMatchers: matchers))
+	    }
+	    
+	    func didRecieve<M1: Cuckoo.Matchable>(lockUpPeriodError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: lockUpPeriodError) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didRecieve(lockUpPeriodError: Error)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -18106,6 +18206,18 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceive(newChain: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func didRecieve<M1: Cuckoo.Matchable>(lockUpPeriod: M1) -> Cuckoo.__DoNotUse<(UInt32), Void> where M1.MatchedType == UInt32 {
+	        let matchers: [Cuckoo.ParameterMatcher<(UInt32)>] = [wrap(matchable: lockUpPeriod) { $0 }]
+	        return cuckoo_manager.verify("didRecieve(lockUpPeriod: UInt32)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didRecieve<M1: Cuckoo.Matchable>(lockUpPeriodError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: lockUpPeriodError) { $0 }]
+	        return cuckoo_manager.verify("didRecieve(lockUpPeriodError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -18192,6 +18304,14 @@ import SoraFoundation
     }
     
      func didReceive(newChain: Chain)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didRecieve(lockUpPeriod: UInt32)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didRecieve(lockUpPeriodError: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

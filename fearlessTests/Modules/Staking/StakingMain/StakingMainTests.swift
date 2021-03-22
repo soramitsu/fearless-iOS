@@ -63,7 +63,8 @@ class StakingMainTests: XCTestCase {
         let accountExpectation = XCTestExpectation()
         let nominatorStateExpectation = XCTestExpectation()
         let chainExpectation = XCTestExpectation()
-
+        let lockupPeriodExpectation = XCTestExpectation()
+        let eraStakingInfoExpectation = XCTestExpectation()
 
         stub(view) { stub in
             stub.didReceive(viewModel: any()).then { _ in
@@ -72,6 +73,14 @@ class StakingMainTests: XCTestCase {
 
             stub.didReceiveChainName(chainName: any()).then { _ in
                 chainExpectation.fulfill()
+            }
+
+            stub.didReceiveLockupPeriod (any()).then { _ in
+                lockupPeriodExpectation.fulfill()
+            }
+
+            stub.didReceiveEraStakingInfo(viewModel: any()).then { _ in
+                eraStakingInfoExpectation.fulfill()
             }
 
             stub.didReceiveStakingState(viewModel: any()).then { state in
@@ -103,7 +112,9 @@ class StakingMainTests: XCTestCase {
         let expectations = [
             accountExpectation,
             nominatorStateExpectation,
-            chainExpectation
+            chainExpectation,
+            lockupPeriodExpectation,
+            eraStakingInfoExpectation
         ]
 
         wait(for: expectations, timeout: 5)
