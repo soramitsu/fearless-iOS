@@ -80,4 +80,5 @@ class BaseStakingState: StakingStateProtocol {
     func process(ledgerInfo: DyStakingLedger?) {}
     func process(nomination: Nomination?) {}
     func process(validatorPrefs: ValidatorPrefs?) {}
+    func process(totalReward: TotalRewardItem?) {}
 }

@@ -33,6 +33,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
                                                calculatorService: RewardCalculatorFacade.sharedService,
                                                runtimeService: RuntimeRegistryFacade.sharedService,
                                                operationManager: OperationManagerFacade.sharedManager,
+                                               applicationHandler: ApplicationHandler(),
                                                logger: logger)
 
         // MARK: - Presenter

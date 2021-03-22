@@ -118,6 +118,7 @@ extension StakingMainInteractor {
             subscribeToLedger(address: stashItem.controller)
             subscribeToNominator(address: stashItem.stash)
             subscribeToValidator(address: stashItem.stash)
+            subscribeToTotalReward(address: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -127,6 +128,7 @@ extension StakingMainInteractor {
         clearLedgerProvider()
         clearNominatorProvider()
         clearValidatorProvider()
+        clearTotalRewardProvider()
 
         stashControllerProvider?.removeObserver(self)
         stashControllerProvider = nil
@@ -270,6 +272,53 @@ extension StakingMainInteractor {
                                       executing: updateClosure,
                                       failing: failureClosure,
                                       options: options)
+    }
+
+    func clearTotalRewardProvider() {
+        totalRewardProvider?.removeObserver(self)
+        totalRewardProvider = nil
+    }
+
+    func subscribeToTotalReward(address: String) {
+        guard totalRewardProvider == nil, let type = currentConnection?.type  else {
+            return
+        }
+
+        let asset = primitiveFactory.createAssetForAddressType(type)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            logger.error("Can't create asset id for reward provider")
+            return
+        }
+
+        guard let totalRewardProvider = try? providerFactory
+                .getTotalReward(for: address, assetId: assetId) else {
+            logger.error("Can't create total reward provider")
+            return
+        }
+
+        self.totalRewardProvider = totalRewardProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<TotalRewardItem>]) in
+            if let totalReward = changes.reduceToLastChange() {
+                self?.presenter.didReceive(totalReward: totalReward)
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(totalReward: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true,
+                                                  waitsInProgressSyncOnAdd: false)
+        totalRewardProvider.addObserver(self,
+                                      deliverOn: .main,
+                                      executing: updateClosure,
+                                      failing: failureClosure,
+                                      options: options)
+
+        totalRewardProvider.refresh()
     }
 
     func clearElectionStatusProvider() {

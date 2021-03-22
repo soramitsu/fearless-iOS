@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
@@ -17,6 +18,8 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         provideLockupPeriod()
 
         eventCenter.add(observer: self, dispatchIn: .main)
+
+        applicationHandler.delegate = self
     }
 }
 
@@ -41,5 +44,12 @@ extension StakingMainInteractor: EventVisitorProtocol {
             provideEraStakersInfo()
             provideLockupPeriod()
         }
+    }
+}
+
+extension StakingMainInteractor: ApplicationHandlerDelegate {
+    func didReceiveDidBecomeActive(notification: Notification) {
+        priceProvider?.refresh()
+        totalRewardProvider?.refresh()
     }
 }

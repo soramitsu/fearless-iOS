@@ -8,11 +8,15 @@ final class ValidatorState: BaseStashNextState {
          commonData: StakingStateCommonData,
          stashItem: StashItem,
          ledgerInfo: DyStakingLedger,
-         prefs: ValidatorPrefs) {
+         prefs: ValidatorPrefs,
+         totalReward: TotalRewardItem?) {
         self.ledgerInfo = ledgerInfo
         self.prefs = prefs
 
-        super.init(stateMachine: stateMachine, commonData: commonData, stashItem: stashItem)
+        super.init(stateMachine: stateMachine,
+                   commonData: commonData,
+                   stashItem: stashItem,
+                   totalReward: totalReward)
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -34,7 +38,8 @@ final class ValidatorState: BaseStashNextState {
             newState = StashState(stateMachine: stateMachine,
                                   commonData: commonData,
                                   stashItem: stashItem,
-                                  ledgerInfo: nil)
+                                  ledgerInfo: nil,
+                                  totalReward: totalReward)
         }
 
         stateMachine.transit(to: newState)
@@ -52,7 +57,8 @@ final class ValidatorState: BaseStashNextState {
                                       commonData: commonData,
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
-                                      nomination: nomination)
+                                      nomination: nomination,
+                                      totalReward: totalReward)
         } else {
             newState = self
         }
@@ -75,7 +81,8 @@ final class ValidatorState: BaseStashNextState {
             newState = BondedState(stateMachine: stateMachine,
                                    commonData: commonData,
                                    stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo)
+                                   ledgerInfo: ledgerInfo,
+                                   totalReward: totalReward)
         }
 
         stateMachine.transit(to: newState)

@@ -15,7 +15,9 @@ final class InitialStakingState: BaseStakingState {
         if let stashItem = stashItem {
             newState = StashState(stateMachine: stateMachine,
                                   commonData: commonData,
-                                  stashItem: stashItem)
+                                  stashItem: stashItem,
+                                  ledgerInfo: nil,
+                                  totalReward: nil)
         } else {
             newState = NoStashState(stateMachine: stateMachine,
                                     commonData: commonData)

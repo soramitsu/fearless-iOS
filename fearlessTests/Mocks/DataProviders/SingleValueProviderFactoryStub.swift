@@ -4,6 +4,7 @@ import RobinHood
 
 final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let price: AnySingleValueProvider<PriceData>
+    let totalReward: AnySingleValueProvider<TotalRewardItem>
     let balance: AnyDataProvider<DecodedAccountInfo>
     let electionStatus: AnyDataProvider<DecodedElectionStatus>
     let nomination: AnyDataProvider<DecodedNomination>
@@ -12,6 +13,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let activeEra: AnyDataProvider<DecodedActiveEra>
 
     init(price: AnySingleValueProvider<PriceData>,
+         totalReward: AnySingleValueProvider<TotalRewardItem>,
          balance: AnyDataProvider<DecodedAccountInfo>,
          electionStatus: AnyDataProvider<DecodedElectionStatus>,
          nomination: AnyDataProvider<DecodedNomination>,
@@ -19,6 +21,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          ledgerInfo: AnyDataProvider<DecodedLedgerInfo>,
          activeEra: AnyDataProvider<DecodedActiveEra>) {
         self.price = price
+        self.totalReward = totalReward
         self.balance = balance
         self.electionStatus = electionStatus
         self.nomination = nomination
@@ -29,6 +32,11 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
 
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
         price
+    }
+
+    func getTotalReward(for address: String,
+                        assetId: WalletAssetId) throws -> AnySingleValueProvider<TotalRewardItem> {
+        totalReward
     }
 
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -64,6 +72,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
 extension SingleValueProviderFactoryStub {
     static func westendNominatorStub() -> SingleValueProviderFactoryStub {
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
+        let totalRewardProvider = SingleValueProviderStub(item: WestendStub.totalReward)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let electionStatusProvider = DataProviderStub(models: [WestendStub.electionStatus])
         let nominationProvider = DataProviderStub(models: [WestendStub.nomination])
@@ -72,6 +81,7 @@ extension SingleValueProviderFactoryStub {
         let activeEra = DataProviderStub(models: [WestendStub.activeEra])
 
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
+                                              totalReward: AnySingleValueProvider(totalRewardProvider),
                                               balance: AnyDataProvider(balanceProvider),
                                               electionStatus: AnyDataProvider(electionStatusProvider),
                                               nomination: AnyDataProvider(nominationProvider),

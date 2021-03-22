@@ -7,12 +7,16 @@ final class PendingValidatorState: BaseStashNextState {
     init(stateMachine: StakingStateMachineProtocol,
          commonData: StakingStateCommonData,
          stashItem: StashItem,
-         ledgerInfo: DyStakingLedger? = nil,
-         prefs: ValidatorPrefs? = nil) {
+         ledgerInfo: DyStakingLedger?,
+         prefs: ValidatorPrefs?,
+         totalReward: TotalRewardItem?) {
         self.ledgerInfo = ledgerInfo
         self.prefs = prefs
 
-        super.init(stateMachine: stateMachine, commonData: commonData, stashItem: stashItem)
+        super.init(stateMachine: stateMachine,
+                   commonData: commonData,
+                   stashItem: stashItem,
+                   totalReward: totalReward)
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -31,7 +35,8 @@ final class PendingValidatorState: BaseStashNextState {
                                           commonData: commonData,
                                           stashItem: stashItem,
                                           ledgerInfo: ledgerInfo,
-                                          prefs: prefs)
+                                          prefs: prefs,
+                                          totalReward: totalReward)
 
             stateMachine.transit(to: newState)
         } else {
@@ -51,12 +56,14 @@ final class PendingValidatorState: BaseStashNextState {
                                       commonData: commonData,
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
-                                      prefs: prefs)
+                                      prefs: prefs,
+                                      totalReward: totalReward)
         } else if let ledgerInfo = ledgerInfo {
             newState = BondedState(stateMachine: stateMachine,
                                    commonData: commonData,
                                    stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo)
+                                   ledgerInfo: ledgerInfo,
+                                   totalReward: totalReward)
         } else if let prefs = validatorPrefs {
             self.prefs = prefs
 
@@ -64,7 +71,8 @@ final class PendingValidatorState: BaseStashNextState {
         } else {
             newState = PendingBondedState(stateMachine: stateMachine,
                                           commonData: commonData,
-                                          stashItem: stashItem)
+                                          stashItem: stashItem,
+                                          totalReward: totalReward)
         }
 
         stateMachine.transit(to: newState)
@@ -82,13 +90,15 @@ final class PendingValidatorState: BaseStashNextState {
                                       commonData: commonData,
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
-                                      nomination: nomination)
+                                      nomination: nomination,
+                                      totalReward: totalReward)
         } else if let nomination = nomination {
             newState = PendingNominatorState(stateMachine: stateMachine,
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: ledgerInfo,
-                                             nomination: nomination)
+                                             nomination: nomination,
+                                             totalReward: totalReward)
         } else {
             newState = self
         }

@@ -17668,6 +17668,36 @@ import SoraFoundation
     
     
     
+     func didReceive(totalReward: TotalRewardItem)  {
+        
+    return cuckoo_manager.call("didReceive(totalReward: TotalRewardItem)",
+            parameters: (totalReward),
+            escapingParameters: (totalReward),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(totalReward: totalReward))
+        
+    }
+    
+    
+    
+     func didReceive(totalReward: Error)  {
+        
+    return cuckoo_manager.call("didReceive(totalReward: Error)",
+            parameters: (totalReward),
+            escapingParameters: (totalReward),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(totalReward: totalReward))
+        
+    }
+    
+    
+    
      func didReceive(accountInfo: DyAccountInfo?)  {
         
     return cuckoo_manager.call("didReceive(accountInfo: DyAccountInfo?)",
@@ -17975,6 +18005,16 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(priceError: Error)", parameterMatchers: matchers))
 	    }
 	    
+	    func didReceive<M1: Cuckoo.Matchable>(totalReward: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(TotalRewardItem)> where M1.MatchedType == TotalRewardItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(TotalRewardItem)>] = [wrap(matchable: totalReward) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(totalReward: TotalRewardItem)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(totalReward: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: totalReward) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(totalReward: Error)", parameterMatchers: matchers))
+	    }
+	    
 	    func didReceive<M1: Cuckoo.OptionalMatchable>(accountInfo: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(DyAccountInfo?)> where M1.OptionalMatchedType == DyAccountInfo {
 	        let matchers: [Cuckoo.ParameterMatcher<(DyAccountInfo?)>] = [wrap(matchable: accountInfo) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(accountInfo: DyAccountInfo?)", parameterMatchers: matchers))
@@ -18102,6 +18142,18 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(priceError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
 	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: priceError) { $0 }]
 	        return cuckoo_manager.verify("didReceive(priceError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(totalReward: M1) -> Cuckoo.__DoNotUse<(TotalRewardItem), Void> where M1.MatchedType == TotalRewardItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(TotalRewardItem)>] = [wrap(matchable: totalReward) { $0 }]
+	        return cuckoo_manager.verify("didReceive(totalReward: TotalRewardItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(totalReward: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: totalReward) { $0 }]
+	        return cuckoo_manager.verify("didReceive(totalReward: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -18236,6 +18288,14 @@ import SoraFoundation
     }
     
      func didReceive(priceError: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(totalReward: TotalRewardItem)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(totalReward: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
