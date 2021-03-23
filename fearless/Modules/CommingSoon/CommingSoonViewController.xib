@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17156" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17126"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -35,7 +35,7 @@
                     <rect key="frame" x="64.5" y="134.5" width="246" height="158"/>
                 </imageView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Comming Soon..." textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ldd-c1-jg1">
-                    <rect key="frame" x="16" y="334.5" width="343" height="26"/>
+                    <rect key="frame" x="16" y="334.5" width="343" height="28"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="22"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
@@ -48,7 +48,7 @@
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorDarkBlue"/>
+                            <color key="value" name="colorAccent"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
                             <real key="value" value="0.0"/>
@@ -74,7 +74,7 @@
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedBlue"/>
+                            <color key="value" name="colorHighlightedAccent"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
@@ -104,10 +104,10 @@
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Check Roadmap"/>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorDarkBlue"/>
+                            <color key="value" name="colorAccent"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedBlue"/>
+                            <color key="value" name="colorHighlightedAccent"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -170,14 +170,22 @@
             <point key="canvasLocation" x="139" y="134"/>
         </view>
     </objects>
+    <designables>
+        <designable name="hzk-06-evr">
+            <size key="intrinsicContentSize" width="127" height="18"/>
+        </designable>
+        <designable name="zF7-iA-1zR">
+            <size key="intrinsicContentSize" width="119.5" height="18"/>
+        </designable>
+    </designables>
     <resources>
-        <image name="backgroundImage" width="414" height="896"/>
+        <image name="backgroundImage" width="375" height="812"/>
         <image name="logo" width="246" height="158"/>
-        <namedColor name="colorDarkBlue">
-            <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="colorAccent">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="colorHighlightedBlue">
-            <color red="0.0" green="0.21799999475479126" blue="0.71799999475479126" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="colorHighlightedAccent">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
