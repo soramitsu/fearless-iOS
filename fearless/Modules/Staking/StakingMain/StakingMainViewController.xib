@@ -24,8 +24,8 @@
                 <outlet property="activeNominatorsTitleLabel" destination="VFd-0X-QZa" id="Bps-BU-zoE"/>
                 <outlet property="iconButton" destination="FbN-Vm-EC2" id="nYL-YX-z7j"/>
                 <outlet property="iconButtonWidth" destination="1uz-BP-bV1" id="hIM-5z-fxc"/>
-                <outlet property="lockupPeriodLabel" destination="g0w-c2-wxp" id="pT4-p1-cAQ"/>
-                <outlet property="lockupPeriodTitleLabel" destination="ixd-BE-znP" id="DAX-br-muh"/>
+                <outlet property="lockUpPeriodLabel" destination="g0w-c2-wxp" id="pT4-p1-cAQ"/>
+                <outlet property="lockUpPeriodTitleLabel" destination="ixd-BE-znP" id="DAX-br-muh"/>
                 <outlet property="minimumStakeAmountLabel" destination="8pO-EF-aU5" id="fpy-XB-EqZ"/>
                 <outlet property="minimumStakeFiatAmountLabel" destination="oHU-rq-zi5" id="qLX-G7-zmO"/>
                 <outlet property="minimumStakeTitleLabel" destination="oN8-WK-rgs" id="LRu-0N-OAu"/>
@@ -61,7 +61,7 @@
                                     <rect key="frame" x="0.0" y="0.0" width="414" height="66"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ypp-bS-mpc">
-                                            <rect key="frame" x="16" y="15.666666666666664" width="310" height="35"/>
+                                            <rect key="frame" x="16" y="14" width="310" height="38"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -220,25 +220,25 @@
                                                             <rect key="frame" x="16" y="112" width="350" height="208"/>
                                                             <subviews>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="8CC-Mg-5UK">
-                                                                    <rect key="frame" x="0.0" y="0.0" width="350" height="153.33333333333334"/>
+                                                                    <rect key="frame" x="0.0" y="0.0" width="350" height="150.33333333333334"/>
                                                                     <subviews>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="QQs-L4-PLz">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="175" height="50.666666666666664"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="175" height="55"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Total staked" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hfZ-jo-CYM">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="65" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="73.666666666666671" height="15.333333333333334"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2.5M KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="geS-Me-pan">
-                                                                                    <rect key="frame" x="0.0" y="16" width="75.666666666666671" height="18.666666666666671"/>
+                                                                                    <rect key="frame" x="0.0" y="17.333333333333314" width="78.666666666666671" height="20.333333333333329"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                                                                     <color key="textColor" name="colorWhite"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$380.94M" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g8t-RQ-UU3">
-                                                                                    <rect key="frame" x="0.0" y="36.666666666666686" width="54" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="39.666666666666686" width="61.666666666666664" height="15.333333333333336"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
@@ -246,22 +246,22 @@
                                                                             </subviews>
                                                                         </stackView>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="hmi-o6-Ayp">
-                                                                            <rect key="frame" x="175" y="0.0" width="175" height="50.666666666666664"/>
+                                                                            <rect key="frame" x="175" y="0.0" width="175" height="55"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Minimum stake" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oN8-WK-rgs">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="82" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="92.333333333333329" height="15.333333333333334"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.015 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8pO-EF-aU5">
-                                                                                    <rect key="frame" x="0.0" y="16" width="79.666666666666671" height="18.666666666666671"/>
+                                                                                    <rect key="frame" x="0.0" y="17.333333333333314" width="84.666666666666671" height="20.333333333333329"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                                                                     <color key="textColor" name="colorWhite"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$3" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oHU-rq-zi5">
-                                                                                    <rect key="frame" x="0.0" y="36.666666666666686" width="13.666666666666666" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="39.666666666666686" width="15.333333333333334" height="15.333333333333336"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
@@ -269,21 +269,24 @@
                                                                             </subviews>
                                                                         </stackView>
                                                                     </subviews>
+                                                                    <constraints>
+                                                                        <constraint firstItem="8pO-EF-aU5" firstAttribute="leading" relation="greaterThanOrEqual" secondItem="geS-Me-pan" secondAttribute="trailing" constant="16" id="zwg-nG-LRk"/>
+                                                                    </constraints>
                                                                 </stackView>
                                                                 <stackView opaque="NO" contentMode="scaleToFill" distribution="fillEqually" alignment="top" translatesAutoresizingMaskIntoConstraints="NO" id="AUW-rL-bUR">
-                                                                    <rect key="frame" x="0.0" y="173.33333333333331" width="350" height="34.666666666666657"/>
+                                                                    <rect key="frame" x="0.0" y="170.33333333333331" width="350" height="37.666666666666657"/>
                                                                     <subviews>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="koW-uE-OQ0">
-                                                                            <rect key="frame" x="0.0" y="0.0" width="175" height="34.666666666666664"/>
+                                                                            <rect key="frame" x="0.0" y="0.0" width="175" height="37.666666666666664"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Active nominators" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="VFd-0X-QZa">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="97" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="112.33333333333333" height="15.333333333333334"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="2,694" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="oYg-sX-jaI">
-                                                                                    <rect key="frame" x="0.0" y="16" width="40.333333333333336" height="18.666666666666671"/>
+                                                                                    <rect key="frame" x="0.0" y="17.333333333333371" width="45.666666666666664" height="20.333333333333329"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                                                                     <color key="textColor" name="colorWhite"/>
                                                                                     <nil key="highlightedColor"/>
@@ -291,16 +294,16 @@
                                                                             </subviews>
                                                                         </stackView>
                                                                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" alignment="top" spacing="2" translatesAutoresizingMaskIntoConstraints="NO" id="DtG-XM-cAd">
-                                                                            <rect key="frame" x="175" y="0.0" width="175" height="34.666666666666664"/>
+                                                                            <rect key="frame" x="175" y="0.0" width="175" height="37.666666666666664"/>
                                                                             <subviews>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Lock-Up period" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ixd-BE-znP">
-                                                                                    <rect key="frame" x="0.0" y="0.0" width="84.333333333333329" height="14"/>
+                                                                                    <rect key="frame" x="0.0" y="0.0" width="95.666666666666671" height="15.333333333333334"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                                                                     <color key="textColor" white="0.64000000000000001" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                                                                     <nil key="highlightedColor"/>
                                                                                 </label>
                                                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="7 days" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="g0w-c2-wxp">
-                                                                                    <rect key="frame" x="0.0" y="16" width="47.666666666666664" height="18.666666666666671"/>
+                                                                                    <rect key="frame" x="0.0" y="17.333333333333371" width="50.333333333333336" height="20.333333333333329"/>
                                                                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                                                                                     <color key="textColor" name="colorWhite"/>
                                                                                     <nil key="highlightedColor"/>
@@ -315,7 +318,7 @@
                                                     <constraints>
                                                         <constraint firstAttribute="bottom" secondItem="AhS-Mm-CyC" secondAttribute="bottom" constant="25" id="Bbp-zf-Lrb"/>
                                                         <constraint firstItem="bXe-mI-UoH" firstAttribute="top" secondItem="UAQ-94-tU8" secondAttribute="top" id="aYm-pB-nE2"/>
-                                                        <constraint firstItem="AhS-Mm-CyC" firstAttribute="leading" secondItem="UAQ-94-tU8" secondAttribute="leading" constant="15.999999999999986" id="hDa-h8-FbS"/>
+                                                        <constraint firstItem="AhS-Mm-CyC" firstAttribute="leading" secondItem="UAQ-94-tU8" secondAttribute="leading" constant="16" id="hDa-h8-FbS"/>
                                                         <constraint firstAttribute="trailing" secondItem="bXe-mI-UoH" secondAttribute="trailing" id="rHF-7B-SgC"/>
                                                         <constraint firstAttribute="trailing" secondItem="AhS-Mm-CyC" secondAttribute="trailing" constant="16" id="sk0-r1-fET"/>
                                                         <constraint firstItem="AhS-Mm-CyC" firstAttribute="top" secondItem="bXe-mI-UoH" secondAttribute="bottom" constant="24" id="uYv-TD-C19"/>
@@ -378,7 +381,7 @@
             <size key="intrinsicContentSize" width="32" height="26"/>
         </designable>
         <designable name="dlG-3s-4mu">
-            <size key="intrinsicContentSize" width="142.33333333333331" height="20.333333333333332"/>
+            <size key="intrinsicContentSize" width="137.33333333333331" height="17.666666666666668"/>
         </designable>
     </designables>
     <resources>

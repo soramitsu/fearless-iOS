@@ -24,6 +24,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             SubstrateDataProviderFactory(facade: SubstrateDataStorageFacade.shared,
                                          operationManager: OperationManagerFacade.sharedManager)
 
+        let operationFactory = NetworkStakingInfoOperationFactory(eraValidatorService: EraValidatorFacade.sharedService,
+                                                              runtimeService: RuntimeRegistryFacade.sharedService)
+
         let interactor = StakingMainInteractor(providerFactory: SingleValueProviderFactory.shared,
                                                substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
@@ -33,6 +36,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
                                                calculatorService: RewardCalculatorFacade.sharedService,
                                                runtimeService: RuntimeRegistryFacade.sharedService,
                                                operationManager: OperationManagerFacade.sharedManager,
+                                               eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),
                                                logger: logger)
 

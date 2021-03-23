@@ -14265,6 +14265,104 @@ import UIKit
 import Cuckoo
 @testable import fearless
 
+import BigInt
+import Foundation
+import RobinHood
+
+
+ class MockNetworkStakingInfoOperationFactoryProtocol: NetworkStakingInfoOperationFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = NetworkStakingInfoOperationFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_NetworkStakingInfoOperationFactoryProtocol
+     typealias Verification = __VerificationProxy_NetworkStakingInfoOperationFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: NetworkStakingInfoOperationFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: NetworkStakingInfoOperationFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo> {
+        
+    return cuckoo_manager.call("networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.networkStakingOperation())
+        
+    }
+    
+
+	 struct __StubbingProxy_NetworkStakingInfoOperationFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func networkStakingOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<NetworkStakingInfo>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockNetworkStakingInfoOperationFactoryProtocol.self, method: "networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_NetworkStakingInfoOperationFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func networkStakingOperation() -> Cuckoo.__DoNotUse<(), CompoundOperationWrapper<NetworkStakingInfo>> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class NetworkStakingInfoOperationFactoryProtocolStub: NetworkStakingInfoOperationFactoryProtocol {
+    
+
+    
+
+    
+     func networkStakingOperation() -> CompoundOperationWrapper<NetworkStakingInfo>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<NetworkStakingInfo>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+
 import Foundation
 import IrohaCrypto
 import RobinHood
@@ -17054,6 +17152,21 @@ import SoraFoundation
     
     
     
+     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)  {
+        
+    return cuckoo_manager.call("didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)",
+            parameters: (viewModel),
+            escapingParameters: (viewModel),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didRecieveNetworkStakingInfo(viewModel: viewModel))
+        
+    }
+    
+    
+    
      func didReceiveStakingState(viewModel: StakingViewState)  {
         
     return cuckoo_manager.call("didReceiveStakingState(viewModel: StakingViewState)",
@@ -17116,6 +17229,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveChainName(chainName: LocalizableResource<String>)", parameterMatchers: matchers))
 	    }
 	    
+	    func didRecieveNetworkStakingInfo<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<NetworkStakingInfoViewModelProtocol>)> where M1.MatchedType == LocalizableResource<NetworkStakingInfoViewModelProtocol> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<NetworkStakingInfoViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)", parameterMatchers: matchers))
+	    }
+	    
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingViewState)> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainViewProtocol.self, method: "didReceiveStakingState(viewModel: StakingViewState)", parameterMatchers: matchers))
@@ -17170,6 +17288,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didRecieveNetworkStakingInfo<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(LocalizableResource<NetworkStakingInfoViewModelProtocol>), Void> where M1.MatchedType == LocalizableResource<NetworkStakingInfoViewModelProtocol> {
+	        let matchers: [Cuckoo.ParameterMatcher<(LocalizableResource<NetworkStakingInfoViewModelProtocol>)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceiveStakingState<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(StakingViewState), Void> where M1.MatchedType == StakingViewState {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingViewState)>] = [wrap(matchable: viewModel) { $0 }]
 	        return cuckoo_manager.verify("didReceiveStakingState(viewModel: StakingViewState)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -17221,6 +17345,10 @@ import SoraFoundation
     }
     
      func didReceiveChainName(chainName newChainName: LocalizableResource<String>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -17878,6 +18006,36 @@ import SoraFoundation
     
     
     
+     func didReceive(networkStakingInfo: NetworkStakingInfo)  {
+        
+    return cuckoo_manager.call("didReceive(networkStakingInfo: NetworkStakingInfo)",
+            parameters: (networkStakingInfo),
+            escapingParameters: (networkStakingInfo),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(networkStakingInfo: networkStakingInfo))
+        
+    }
+    
+    
+    
+     func didReceive(networkStakingInfoError: Error)  {
+        
+    return cuckoo_manager.call("didReceive(networkStakingInfoError: Error)",
+            parameters: (networkStakingInfoError),
+            escapingParameters: (networkStakingInfoError),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(networkStakingInfoError: networkStakingInfoError))
+        
+    }
+    
+    
+    
      func didReceive(newChain: Chain)  {
         
     return cuckoo_manager.call("didReceive(newChain: Chain)",
@@ -18003,6 +18161,16 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(eraStakersInfoError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
 	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: eraStakersInfoError) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(eraStakersInfoError: Error)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(networkStakingInfo: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(NetworkStakingInfo)> where M1.MatchedType == NetworkStakingInfo {
+	        let matchers: [Cuckoo.ParameterMatcher<(NetworkStakingInfo)>] = [wrap(matchable: networkStakingInfo) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(networkStakingInfo: NetworkStakingInfo)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(networkStakingInfoError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: networkStakingInfoError) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(networkStakingInfoError: Error)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
@@ -18153,6 +18321,18 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(networkStakingInfo: M1) -> Cuckoo.__DoNotUse<(NetworkStakingInfo), Void> where M1.MatchedType == NetworkStakingInfo {
+	        let matchers: [Cuckoo.ParameterMatcher<(NetworkStakingInfo)>] = [wrap(matchable: networkStakingInfo) { $0 }]
+	        return cuckoo_manager.verify("didReceive(networkStakingInfo: NetworkStakingInfo)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(networkStakingInfoError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: networkStakingInfoError) { $0 }]
+	        return cuckoo_manager.verify("didReceive(networkStakingInfoError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.__DoNotUse<(Chain), Void> where M1.MatchedType == Chain {
 	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
 	        return cuckoo_manager.verify("didReceive(newChain: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -18248,6 +18428,14 @@ import SoraFoundation
     }
     
      func didReceive(eraStakersInfoError: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(networkStakingInfo: NetworkStakingInfo)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(networkStakingInfoError: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

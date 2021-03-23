@@ -9,6 +9,7 @@ protocol EventVisitorProtocol: class {
     func processNewTransaction(event: WalletNewTransactionInserted)
     func processPurchaseCompletion(event: PurchaseCompleted)
     func processTypeRegistryPrepared(event: TypeRegistryPrepared)
+    func processEraStakersInfoChanged(event: EraStakersInfoChanged)
 }
 
 extension EventVisitorProtocol {
@@ -20,4 +21,5 @@ extension EventVisitorProtocol {
     func processSelectedUsernameChanged(event: SelectedUsernameChanged) {}
     func processPurchaseCompletion(event: PurchaseCompleted) {}
     func processTypeRegistryPrepared(event: TypeRegistryPrepared) {}
+    func processEraStakersInfoChanged(event: EraStakersInfoChanged) {}
 }

@@ -33,17 +33,20 @@ final class EraValidatorService {
     let providerFactory: SubstrateDataProviderFactoryProtocol
     private var pendingRequests: [PendingRequest] = []
     let operationManager: OperationManagerProtocol
+    let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol?
 
     init(storageFacade: StorageFacadeProtocol,
          runtimeCodingService: RuntimeCodingServiceProtocol,
          providerFactory: SubstrateDataProviderFactoryProtocol,
          operationManager: OperationManagerProtocol,
+         eventCenter: EventCenterProtocol,
          logger: LoggerProtocol? = nil) {
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
         self.providerFactory = providerFactory
         self.operationManager = operationManager
+        self.eventCenter = eventCenter
         self.logger = logger
     }
 
@@ -60,6 +63,11 @@ final class EraValidatorService {
         pendingRequests = []
 
         requests.forEach { deliver(snapshot: snapshot, to: $0) }
+
+        DispatchQueue.main.async {
+            let event = EraStakersInfoChanged()
+            self.eventCenter.notify(with: event)
+        }
 
         logger?.debug("Fulfilled pendings")
     }

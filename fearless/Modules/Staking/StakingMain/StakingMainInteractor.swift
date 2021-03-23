@@ -16,6 +16,7 @@ final class StakingMainInteractor {
     let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let primitiveFactory: WalletPrimitiveFactoryProtocol
+    let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let logger: LoggerProtocol
 
@@ -40,6 +41,7 @@ final class StakingMainInteractor {
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
          operationManager: OperationManagerProtocol,
+         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
          applicationHandler: ApplicationHandlerProtocol,
          logger: Logger) {
         self.providerFactory = providerFactory
@@ -51,6 +53,7 @@ final class StakingMainInteractor {
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
         self.logger = logger
     }
@@ -105,5 +108,22 @@ final class StakingMainInteractor {
 
         operationManager.enqueue(operations: [operation],
                                  in: .transient)
+    }
+
+    func provideNetworkStakingInfo() {
+        let wrapper = eraInfoOperationFactory.networkStakingOperation()
+
+        wrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
+                do {
+                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(networkStakingInfo: info)
+                } catch {
+                    self?.presenter.didReceive(networkStakingInfoError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 }
