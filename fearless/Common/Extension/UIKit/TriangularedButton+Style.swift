@@ -4,8 +4,8 @@ import SoraUI
 extension TriangularedButton {
     func applyDefaultStyle() {
         triangularedView?.shadowOpacity = 0.0
-        triangularedView?.fillColor = R.color.colorDarkBlue()!
-        triangularedView?.highlightedFillColor = R.color.colorDarkBlue()!
+        triangularedView?.fillColor = R.color.colorPink()!
+        triangularedView?.highlightedFillColor = R.color.colorPink()!
         triangularedView?.strokeColor = .clear
         triangularedView?.highlightedStrokeColor = .clear
 
