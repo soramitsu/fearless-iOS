@@ -7,24 +7,39 @@ final class StakingMainPresenter {
     var wireframe: StakingMainWireframeProtocol!
     var interactor: StakingMainInteractorInputProtocol!
 
+    let networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
 
-    private var networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol?
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
 
+    var chain: Chain? {
+        stateMachine.viewState { (state: BaseStakingState) in state.commonData.chain }
+    }
+
+    var amount: Decimal? {
+        if let amount = stateMachine
+            .viewState(using: { (state: NoStashState) in state.rewardEstimationAmount }) {
+            return amount
+        }
+
+        return stateMachine.viewState { (state: BondedState) in state.rewardEstimationAmount }
+    }
+
+    var priceData: PriceData? {
+        stateMachine.viewState { (state: BaseStakingState) in state.commonData.price }
+    }
+
     private var balance: Decimal?
-    private var amount: Decimal?
-    private var priceData: PriceData?
     private var networkStakingInfo: NetworkStakingInfo?
 
-    private var chain: Chain?
-
     init(stateViewModelFactory: StakingStateViewModelFactoryProtocol,
+         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
          viewModelFacade: StakingViewModelFacadeProtocol,
          logger: LoggerProtocol?) {
         self.stateViewModelFactory = stateViewModelFactory
+        self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
         self.logger = logger
 
@@ -35,11 +50,16 @@ final class StakingMainPresenter {
     }
 
     private func provideStakingInfo() {
-        guard let viewModelFactory = self.networkInfoViewModelFactory else {
+        let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+
+        guard let chain = commonData?.chain else {
             return
         }
 
-        let networkStakingInfoViewModel = viewModelFactory.createNetworkStakingInfoViewModel(with: networkStakingInfo)
+        let networkStakingInfoViewModel = networkInfoViewModelFactory
+            .createNetworkStakingInfoViewModel(with: networkStakingInfo,
+                                               chain: chain,
+                                               priceData: commonData?.price)
         view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
     }
 
@@ -49,11 +69,13 @@ final class StakingMainPresenter {
     }
 
     private func provideChain() {
-        guard let viewModelFactory = networkInfoViewModelFactory else {
+        let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
+
+        guard let chain = commonData?.chain else {
             return
         }
 
-        let chainModel = viewModelFactory.createChainViewModel()
+        let chainModel = networkInfoViewModelFactory.createChainViewModel(for: chain)
 
         view?.didReceiveChainName(chainName: chainModel)
     }
@@ -69,7 +91,31 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        wireframe.showSetupAmount(from: view, amount: amount)
+        let bonded = stateMachine.viewState { (state: BondedState) in true } ?? false
+
+        if bonded {
+            let optStakingResult: StartStakingResult? = stateMachine.viewState { (state: BondedState) in
+                guard let chain = chain,
+                      let amount = Decimal.fromSubstrateAmount(state.ledgerInfo.active,
+                                                               precision: chain.addressType.precision),
+                      let payee = state.payee,
+                      let rewardDestination = try? RewardDestination(payee: payee,
+                                                                     stashItem: state.stashItem,
+                                                                     chain: chain) else {
+                    return nil
+                }
+
+                return StartStakingResult(amount: amount, rewardDestination: rewardDestination)
+            }
+
+            if let stakingResult = optStakingResult {
+
+            } else {
+                logger?.warning("Unexpected empty staking result")
+            }
+        } else {
+            wireframe.showSetupAmount(from: view, amount: amount)
+        }
     }
 
     func performAccountAction() {
@@ -77,14 +123,13 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func updateAmount(_ newValue: Decimal) {
-        amount = newValue
         stateMachine.state.process(rewardEstimationAmount: newValue)
     }
 
     func selectAmountPercentage(_ percentage: Float) {
         if let balance = balance {
-            amount = balance * Decimal(Double(percentage))
-            stateMachine.state.process(rewardEstimationAmount: amount)
+            let newAmount = balance * Decimal(Double(percentage))
+            stateMachine.state.process(rewardEstimationAmount: newAmount)
         }
     }
 }
@@ -106,10 +151,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(price: PriceData?) {
         stateMachine.state.process(price: price)
-
-        guard let newPriceData = price else { return }
-
-        networkInfoViewModelFactory?.updatePriceData(with: newPriceData)
         provideStakingInfo()
     }
 
@@ -240,18 +281,9 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(newChain: Chain) {
-        chain = newChain
-
-        self.amount = nil
         self.networkStakingInfo = nil
 
         stateMachine.state.process(chain: newChain)
-
-        if let factory = networkInfoViewModelFactory {
-            factory.updateChain(with: newChain)
-        } else {
-            networkInfoViewModelFactory = viewModelFacade.createNetworkInfoViewModelFactory(for: newChain)
-        }
 
         provideChain()
     }
@@ -263,5 +295,13 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfoError: Error) {
         handle(error: networkStakingInfoError)
+    }
+
+    func didReceive(payee: RewardDestinationArg?) {
+        stateMachine.state.process(payee: payee)
+    }
+
+    func didReceive(payeeError: Error) {
+        handle(error: payeeError)
     }
 }

@@ -108,7 +108,7 @@ final class StakingAmountPresenter {
             loadingFee = true
             interactor.estimateFee(for: selectedAccount.address,
                                    amount: amount,
-                                   rewardDestination: .payout(account: payoutAccount))
+                                   rewardDestination: .payout(address: payoutAccount.address))
         }
     }
 
@@ -157,7 +157,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutDestination() {
-        rewardDestination = .payout(account: payoutAccount)
+        rewardDestination = .payout(address: payoutAccount.address)
         provideRewardDestination()
 
         scheduleFeeEstimation()
@@ -340,7 +340,7 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
         payoutAccount = accounts[index]
 
         if case .payout = rewardDestination {
-            rewardDestination = .payout(account: payoutAccount)
+            rewardDestination = .payout(address: payoutAccount.address)
         }
 
         provideRewardDestination()

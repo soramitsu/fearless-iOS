@@ -3,29 +3,25 @@ import SoraFoundation
 import BigInt
 
 protocol NetworkInfoViewModelFactoryProtocol {
-    func createChainViewModel() -> LocalizableResource<String>
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?) ->
+    func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?,
+                                           chain: Chain,
+                                           priceData: PriceData?) ->
     LocalizableResource<NetworkStakingInfoViewModelProtocol>
-
-    func updateChain(with newChain: Chain)
-    func updatePriceData(with newPriceData: PriceData)
 }
 
 final class NetworkInfoViewModelFactory {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
 
-    private var chain: Chain
+    private var chain: Chain?
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
-    var priceData: PriceData?
 
-    init(with chain: Chain,
-         primitiveFactory: WalletPrimitiveFactoryProtocol) {
-        self.chain = chain
+    init(primitiveFactory: WalletPrimitiveFactoryProtocol) {
         self.primitiveFactory = primitiveFactory
     }
 
     private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
-        if let factory = balanceViewModelFactory {
+        if let factory = balanceViewModelFactory, self.chain == chain {
             return factory
         }
 
@@ -33,12 +29,13 @@ final class NetworkInfoViewModelFactory {
                                               selectedAddressType: chain.addressType,
                                               limit: StakingConstants.maxAmount)
 
+        self.chain = chain
         self.balanceViewModelFactory = factory
 
         return factory
     }
 
-    private func createStakeViewModel(stake: BigUInt) ->
+    private func createStakeViewModel(stake: BigUInt, chain: Chain, priceData: PriceData?) ->
     LocalizableResource<BalanceViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
@@ -53,14 +50,20 @@ final class NetworkInfoViewModelFactory {
         }
     }
 
-    private func createTotalStakeViewModel(with networkStakingInfo: NetworkStakingInfo) ->
+    private func createTotalStakeViewModel(with networkStakingInfo: NetworkStakingInfo,
+                                           chain: Chain,
+                                           priceData: PriceData?) ->
     LocalizableResource<BalanceViewModelProtocol> {
-        createStakeViewModel(stake: networkStakingInfo.totalStake)
+        createStakeViewModel(stake: networkStakingInfo.totalStake, chain: chain, priceData: priceData)
     }
 
-    private func createMinimalStakeViewModel(with networkStakingInfo: NetworkStakingInfo) ->
+    private func createMinimalStakeViewModel(with networkStakingInfo: NetworkStakingInfo,
+                                             chain: Chain,
+                                             priceData: PriceData?) ->
     LocalizableResource<BalanceViewModelProtocol> {
-        createStakeViewModel(stake: networkStakingInfo.minimalStake)
+        createStakeViewModel(stake: networkStakingInfo.minimalStake,
+                             chain: chain,
+                             priceData: priceData)
     }
 
     private func createActiveNominatorsViewModel(
@@ -73,8 +76,8 @@ final class NetworkInfoViewModelFactory {
         }
     }
 
-    private func createLockUpPeriodViewModel(
-        with networkStakingInfo: NetworkStakingInfo) -> LocalizableResource<String> {
+    private func createLockUpPeriodViewModel(with networkStakingInfo: NetworkStakingInfo,
+                                             chain: Chain) -> LocalizableResource<String> {
         let lockUpPeriodInDays = Int(networkStakingInfo.lockUpPeriod) / chain.erasPerDay
 
         return LocalizableResource { locale in
@@ -85,36 +88,33 @@ final class NetworkInfoViewModelFactory {
 }
 
 extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
-    func updateChain(with newChain: Chain) {
-        chain = newChain
-        balanceViewModelFactory = nil
-        priceData = nil
-    }
-
-    func updatePriceData(with newPriceData: PriceData) {
-        priceData = newPriceData
-    }
-
-    func createChainViewModel() -> LocalizableResource<String> {
+    func createChainViewModel(for chain: Chain) -> LocalizableResource<String> {
         LocalizableResource { locale in
-            return self.chain.addressType.titleForLocale(locale)
+            return chain.addressType.titleForLocale(locale)
         }
     }
 
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?) ->
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?,
+                                           chain: Chain,
+                                           priceData: PriceData?) ->
     LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let stakingInfo = networkStakingInfo ?? NetworkStakingInfo(totalStake: BigUInt.zero,
                                                                    minimalStake: BigUInt.zero,
                                                                    activeNominatorsCount: 0,
                                                                    lockUpPeriod: 0)
 
-        let localizedTotalStake = createTotalStakeViewModel(with: stakingInfo)
+        let localizedTotalStake = createTotalStakeViewModel(with: stakingInfo,
+                                                            chain: chain,
+                                                            priceData: priceData)
 
-        let localizedMinimalStake = createMinimalStakeViewModel(with: stakingInfo)
+        let localizedMinimalStake = createMinimalStakeViewModel(with: stakingInfo,
+                                                                chain: chain,
+                                                                priceData: priceData)
 
         let nominatorsCount = createActiveNominatorsViewModel(with: stakingInfo)
 
-        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: stakingInfo)
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: stakingInfo,
+                                                                chain: chain)
 
         return LocalizableResource { locale in
             NetworkStakingInfoViewModel(totalStake: localizedTotalStake.value(for: locale),

@@ -100,13 +100,13 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func selectPayoutAccount() {
-        if case .payout(let account) = state.rewardDestination,
+        if case .payout(let address) = state.rewardDestination,
            let view = view,
            let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
             let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
             wireframe.presentAccountOptions(from: view,
-                                            address: account.address,
+                                            address: address,
                                             chain: chain,
                                             locale: locale)
         }

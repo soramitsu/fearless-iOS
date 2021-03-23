@@ -38,7 +38,9 @@ class StakingMainTests: XCTestCase {
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: Logger.shared)
+        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
+                                             networkInfoViewModelFactory: networkViewModelFactory,
                                              viewModelFacade: viewModelFacade,
                                              logger: Logger.shared)
 

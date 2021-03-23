@@ -31,10 +31,10 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
         switch state.rewardDestination {
         case .restake:
             rewardViewModel = .restake
-        case .payout(let account):
-            let payoutIcon = try iconGenerator.generateFromAddress(account.address)
+        case .payout(let address):
+            let payoutIcon = try iconGenerator.generateFromAddress(address)
 
-            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
+            rewardViewModel = .payout(icon: payoutIcon, title: address)
         }
 
         return LocalizableResource { locale in

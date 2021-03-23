@@ -18036,6 +18036,36 @@ import SoraFoundation
     
     
     
+     func didReceive(payee: RewardDestinationArg?)  {
+        
+    return cuckoo_manager.call("didReceive(payee: RewardDestinationArg?)",
+            parameters: (payee),
+            escapingParameters: (payee),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(payee: payee))
+        
+    }
+    
+    
+    
+     func didReceive(payeeError: Error)  {
+        
+    return cuckoo_manager.call("didReceive(payeeError: Error)",
+            parameters: (payeeError),
+            escapingParameters: (payeeError),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(payeeError: payeeError))
+        
+    }
+    
+    
+    
      func didReceive(newChain: Chain)  {
         
     return cuckoo_manager.call("didReceive(newChain: Chain)",
@@ -18171,6 +18201,16 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(networkStakingInfoError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
 	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: networkStakingInfoError) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(networkStakingInfoError: Error)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.OptionalMatchable>(payee: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(RewardDestinationArg?)> where M1.OptionalMatchedType == RewardDestinationArg {
+	        let matchers: [Cuckoo.ParameterMatcher<(RewardDestinationArg?)>] = [wrap(matchable: payee) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(payee: RewardDestinationArg?)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(payeeError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: payeeError) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(payeeError: Error)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
@@ -18333,6 +18373,18 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceive<M1: Cuckoo.OptionalMatchable>(payee: M1) -> Cuckoo.__DoNotUse<(RewardDestinationArg?), Void> where M1.OptionalMatchedType == RewardDestinationArg {
+	        let matchers: [Cuckoo.ParameterMatcher<(RewardDestinationArg?)>] = [wrap(matchable: payee) { $0 }]
+	        return cuckoo_manager.verify("didReceive(payee: RewardDestinationArg?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(payeeError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: payeeError) { $0 }]
+	        return cuckoo_manager.verify("didReceive(payeeError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.__DoNotUse<(Chain), Void> where M1.MatchedType == Chain {
 	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
 	        return cuckoo_manager.verify("didReceive(newChain: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -18436,6 +18488,14 @@ import SoraFoundation
     }
     
      func didReceive(networkStakingInfoError: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(payee: RewardDestinationArg?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(payeeError: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

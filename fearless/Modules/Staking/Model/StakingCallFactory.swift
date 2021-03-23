@@ -24,8 +24,8 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         switch rewardDestination {
         case .restake:
             destArg = .staked
-        case .payout(let account):
-            let accountId = try addressFactory.accountId(from: account.address)
+        case .payout(let address):
+            let accountId = try addressFactory.accountId(from: address)
             destArg = .account(accountId)
         }
 

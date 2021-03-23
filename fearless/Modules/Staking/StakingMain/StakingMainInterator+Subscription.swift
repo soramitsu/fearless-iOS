@@ -119,6 +119,7 @@ extension StakingMainInteractor {
             subscribeToNominator(address: stashItem.stash)
             subscribeToValidator(address: stashItem.stash)
             subscribeToTotalReward(address: stashItem.stash)
+            subscribeToPayee(address: stashItem.stash)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -129,6 +130,7 @@ extension StakingMainInteractor {
         clearNominatorProvider()
         clearValidatorProvider()
         clearTotalRewardProvider()
+        clearPayeeProvider()
 
         stashControllerProvider?.removeObserver(self)
         stashControllerProvider = nil
@@ -319,6 +321,44 @@ extension StakingMainInteractor {
                                       options: options)
 
         totalRewardProvider.refresh()
+    }
+
+    func clearPayeeProvider() {
+        payeeProvider?.removeObserver(self)
+        payeeProvider = nil
+    }
+
+    func subscribeToPayee(address: String) {
+        guard payeeProvider == nil else {
+            return
+        }
+
+        guard let payeeProvider = try? providerFactory
+                .getPayee(for: address, runtimeService: runtimeService) else {
+            logger.error("Can't create payee provider")
+            return
+        }
+
+        self.payeeProvider = payeeProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
+            if let payee = changes.reduceToLastChange() {
+                self?.presenter.didReceive(payee: payee.item)
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(validatorError: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
+                                                  waitsInProgressSyncOnAdd: false)
+        payeeProvider.addObserver(self,
+                                  deliverOn: .main,
+                                  executing: updateClosure,
+                                  failing: failureClosure,
+                                  options: options)
     }
 
     func clearElectionStatusProvider() {
