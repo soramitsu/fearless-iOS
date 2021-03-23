@@ -10,8 +10,7 @@ final class AccountInfoViewController: UIViewController {
 
     var presenter: AccountInfoPresenterProtocol!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
 
     @IBOutlet private var usernameDetailsTextField: AnimatedTextField!
 
@@ -42,12 +41,6 @@ final class AccountInfoViewController: UIViewController {
         super.viewWillDisappear(animated)
 
         presenter.finalizeUsername()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
     }
 
     private func setupAddressView() {
@@ -85,6 +78,7 @@ final class AccountInfoViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .commonExport(preferredLanguages: locale?.rLanguages)
+        addActionControl.imageWithTitleView?.iconImage = nil
 
         navigationItem.rightBarButtonItem?.title = R.string.localizable
             .commonSave(preferredLanguages: locale?.rLanguages)
