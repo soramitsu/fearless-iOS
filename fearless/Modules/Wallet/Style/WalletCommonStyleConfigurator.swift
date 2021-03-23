@@ -18,7 +18,7 @@ struct WalletCommonStyleConfigurator {
         let buttonTitle = WalletTextStyle(font: UIFont.h5Title,
                                           color: R.color.colorWhite()!)
 
-        let buttonStyle = WalletRoundedButtonStyle(background: R.color.colorDarkBlue()!,
+        let buttonStyle = WalletRoundedButtonStyle(background: R.color.colorAccent()!,
                                                    title: buttonTitle)
 
         let separator = WalletStrokeStyle(color: .clear, lineWidth: 0.0)

@@ -56,13 +56,13 @@
                         </constraints>
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Russel" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QPI-de-wQ6">
-                        <rect key="frame" x="86" y="9" width="268" height="18"/>
+                        <rect key="frame" x="86" y="9" width="268" height="16.5"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="GybH55zsi5nAGybH55zsi5nA" textAlignment="natural" lineBreakMode="middleTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="18j-pV-YOn">
-                        <rect key="frame" x="86" y="25.5" width="268" height="15.5"/>
+                        <rect key="frame" x="86" y="27" width="268" height="14"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                         <color key="textColor" name="colorLightGray"/>
                         <nil key="highlightedColor"/>

@@ -189,10 +189,10 @@
     </objects>
     <designables>
         <designable name="JKh-WT-j8k">
-            <size key="intrinsicContentSize" width="113.5" height="18"/>
+            <size key="intrinsicContentSize" width="87" height="16"/>
         </designable>
         <designable name="bcI-vv-wu7">
-            <size key="intrinsicContentSize" width="114.5" height="18"/>
+            <size key="intrinsicContentSize" width="88.5" height="16"/>
         </designable>
     </designables>
     <resources>
