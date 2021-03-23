@@ -14,9 +14,7 @@ final class AccountManagementViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +24,6 @@ final class AccountManagementViewController: UIViewController {
         setupLocalization()
 
         presenter.setup()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
     }
 
     private func setupNavigationItem() {
@@ -58,6 +50,7 @@ final class AccountManagementViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .accountsAddAccount(preferredLanguages: locale?.rLanguages)
+        addActionControl.imageWithTitleView?.iconImage = nil
 
         updateRightItem()
     }
