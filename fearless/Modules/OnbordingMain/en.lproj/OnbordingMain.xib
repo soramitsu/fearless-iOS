@@ -43,7 +43,7 @@
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorDarkBlue"/>
+                            <color key="value" name="colorPink"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
                             <real key="value" value="0.0"/>
@@ -69,7 +69,7 @@
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedBlue"/>
+                            <color key="value" name="colorHighlightedPink"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
@@ -100,10 +100,10 @@
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Import Account"/>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorDarkBlue"/>
+                            <color key="value" name="colorPink"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedBlue"/>
+                            <color key="value" name="colorHighlightedPink"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -189,20 +189,20 @@
     </objects>
     <designables>
         <designable name="JKh-WT-j8k">
-            <size key="intrinsicContentSize" width="113.5" height="18"/>
+            <size key="intrinsicContentSize" width="87" height="16"/>
         </designable>
         <designable name="bcI-vv-wu7">
-            <size key="intrinsicContentSize" width="114.5" height="18"/>
+            <size key="intrinsicContentSize" width="88.5" height="16"/>
         </designable>
     </designables>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
         <image name="logo" width="246" height="158"/>
-        <namedColor name="colorDarkBlue">
-            <color red="0.0" green="0.29800000786781311" blue="0.71799999475479126" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="colorHighlightedPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
-        <namedColor name="colorHighlightedBlue">
-            <color red="0.0" green="0.21799999475479126" blue="0.71799999475479126" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        <namedColor name="colorPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
