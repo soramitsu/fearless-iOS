@@ -19,9 +19,7 @@ final class NetworkManagementViewController: UIViewController {
 
     @IBOutlet private var tableView: UITableView!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -31,12 +29,6 @@ final class NetworkManagementViewController: UIViewController {
         setupLocalization()
 
         presenter.setup()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
     }
 
     private func setupNavigationItem() {
@@ -64,6 +56,8 @@ final class NetworkManagementViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .connectionsAddConnection(preferredLanguages: locale?.rLanguages)
+        addActionControl.imageWithTitleView?.titleFont = .h5Title
+        addActionControl.imageWithTitleView?.iconImage = nil
 
         updateRightItem()
     }
