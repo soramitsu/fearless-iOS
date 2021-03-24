@@ -76,6 +76,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         logger?.debug("Did select account")
     }
 
+    func performManageStakingAction() {
+        wireframe.showManageStaking(from: view)
+    }
+
     func updateAmount(_ newValue: Decimal) {
         amount = newValue
         stateMachine.state.process(rewardEstimationAmount: newValue)

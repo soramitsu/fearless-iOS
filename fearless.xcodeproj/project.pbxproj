@@ -889,6 +889,7 @@
 		F20C8D17ABF18B7104E14394 /* StakingAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312DE7ADA5ABC3214AD3D4AD /* StakingAmountInteractor.swift */; };
 		F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FCA2DD3A8898D64CBC9F97 /* AccountManagementViewController.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
+		F4A12BF7260B61E900392C33 /* ManageStakingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		FAD122085BC1E3B872167AC3 /* StakingConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = A52B7D800BECB832C26C3D1B /* StakingConfirmInteractor.swift */; };
 		FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 04806331BF10F63A49326941 /* NetworkInfoWireframe.swift */; };
@@ -1828,6 +1829,7 @@
 		F12B2D844B474F810C807451 /* AccountManagementTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementTests.swift; sourceTree = "<group>"; };
 		F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementPresenter.swift; sourceTree = "<group>"; };
 		F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewFactory.swift; sourceTree = "<group>"; };
+		F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageStakingItem.swift; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F61D8973ADEB461DE2AD3E13 /* SelectedValidatorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorsViewController.swift; sourceTree = "<group>"; };
 		F88CBC20E9B3B35D29C88A91 /* Pods-fearlessAll-fearlessTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearlessTests.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearlessTests/Pods-fearlessAll-fearlessTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -4079,6 +4081,7 @@
 				7F32EC2D6AEE8391CDDDBFA8 /* RecommendedValidators */,
 				68DEED3BF634220D4BF7A9C8 /* StakingAmount */,
 				B7B0681CCE8F8F0127E8676C /* StakingMain */,
+				F453C1B1260B50450095E23F /* StakingManage */,
 				77D9A8552D1961A00A3683BE /* StakingConfirm */,
 				0A656E369FA382390634A30F /* SelectedValidators */,
 			);
@@ -4441,6 +4444,22 @@
 				D8DC5A3B75E294405D8868C9 /* CommingSoonViewFactory.swift */,
 			);
 			path = CommingSoon;
+			sourceTree = "<group>";
+		};
+		F453C1B1260B50450095E23F /* StakingManage */ = {
+			isa = PBXGroup;
+			children = (
+				F4A12BF5260B61D900392C33 /* Model */,
+			);
+			path = StakingManage;
+			sourceTree = "<group>";
+		};
+		F4A12BF5260B61D900392C33 /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */,
+			);
+			path = Model;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -5240,6 +5259,7 @@
 				84644B3325685915004EAA4B /* WalletHistoryBackgroundView.swift in Sources */,
 				8428768424AE046300D91AD8 /* LanguageSelectionInteractor.swift in Sources */,
 				84364D60252FD6B100281F9A /* AssetDetailsViewModelFactory.swift in Sources */,
+				F4A12BF7260B61E900392C33 /* ManageStakingItem.swift in Sources */,
 				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
