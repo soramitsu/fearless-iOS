@@ -18,12 +18,13 @@ protocol StakingConfirmPresenterProtocol: class {
 
 protocol StakingConfirmInteractorInputProtocol: class {
     func setup()
-    func submitNomination()
+    func submitNomination(for lastBalance: Decimal, lastFee: Decimal)
     func estimateFee()
 }
 
 protocol StakingConfirmInteractorOutputProtocol: class {
     func didReceive(model: StakingConfirmationModel)
+    func didReceive(modelError: Error)
 
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)

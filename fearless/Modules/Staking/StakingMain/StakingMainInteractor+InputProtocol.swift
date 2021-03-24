@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
@@ -20,6 +21,23 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
 
         applicationHandler.delegate = self
+    }
+
+    func fetchController(for address: String) {
+        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let accountItem = try operation.extractNoCancellableResultData()
+                    self.presenter.didFetchController(accountItem)
+                } catch {
+                    self.presenter.didReceive(fetchControllerError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }
 
