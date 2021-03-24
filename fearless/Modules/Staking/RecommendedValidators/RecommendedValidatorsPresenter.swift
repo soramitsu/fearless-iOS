@@ -6,15 +6,12 @@ final class RecommendedValidatorsPresenter {
     var wireframe: RecommendedValidatorsWireframeProtocol!
     var interactor: RecommendedValidatorsInteractorInputProtocol!
 
-    let state: StartStakingResult
     let logger: LoggerProtocol?
 
     var allValidators: [ElectedValidatorInfo]?
     var recommended: [ElectedValidatorInfo]?
 
-    init(state: StartStakingResult,
-         logger: LoggerProtocol? = nil) {
-        self.state = state
+    init(logger: LoggerProtocol? = nil) {
         self.logger = logger
     }
 
@@ -51,12 +48,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
                                                                 stakeReturn: $0.stakeReturn))
         }
 
-        let nomination = PreparedNomination(amount: state.amount,
-                                            rewardDestination: state.rewardDestination,
-                                            targets: targets,
-                                            maxTargets: totalCount)
-
-        wireframe.proceed(from: view, result: nomination)
+        wireframe.proceed(from: view, targets: targets, maxTargets: totalCount)
     }
 
     func selectRecommendedValidators() {

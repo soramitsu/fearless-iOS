@@ -4,8 +4,7 @@ import CommonWallet
 import SoraFoundation
 
 protocol StakingConfirmViewModelFactoryProtocol {
-    func createViewModel(from state: PreparedNomination,
-                         walletAccount: AccountItem) throws
+    func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
     -> LocalizableResource<StakingConfirmViewModelProtocol>
 }
 
@@ -13,16 +12,9 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
     private lazy var iconGenerator = PolkadotIconGenerator()
     private lazy var amountFactory = AmountFormatterFactory()
 
-    let asset: WalletAsset
-
-    init(asset: WalletAsset) {
-        self.asset = asset
-    }
-
-    func createViewModel(from state: PreparedNomination,
-                         walletAccount: AccountItem) throws
+    func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
     -> LocalizableResource<StakingConfirmViewModelProtocol> {
-        let icon = try iconGenerator.generateFromAddress(walletAccount.address)
+        let icon = try iconGenerator.generateFromAddress(state.stash.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset)
 
@@ -31,17 +23,17 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
         switch state.rewardDestination {
         case .restake:
             rewardViewModel = .restake
-        case .payout(let address):
-            let payoutIcon = try iconGenerator.generateFromAddress(address)
+        case .payout(let account):
+            let payoutIcon = try iconGenerator.generateFromAddress(account.address)
 
-            rewardViewModel = .payout(icon: payoutIcon, title: address)
+            rewardViewModel = .payout(icon: payoutIcon, title: account.username)
         }
 
         return LocalizableResource { locale in
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
             return StakingConfirmViewModel(senderIcon: icon,
-                                           senderName: walletAccount.username,
+                                           senderName: state.stash.username,
                                            amount: amount ?? "",
                                            rewardDestination: rewardViewModel,
                                            validatorsCount: state.targets.count)

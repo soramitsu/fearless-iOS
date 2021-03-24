@@ -1,24 +1,35 @@
 import Foundation
 import IrohaCrypto
 
-enum RewardDestination {
+enum RewardDestination<A> {
     case restake
-    case payout(address: String)
+    case payout(account: A)
 }
 
-extension RewardDestination {
+extension RewardDestination where A == String {
     init(payee: RewardDestinationArg, stashItem: StashItem, chain: Chain) throws {
         switch payee {
         case .staked:
             self = .restake
         case .stash:
-            self = .payout(address: stashItem.stash)
+            self = .payout(account: stashItem.stash)
         case .controller:
-            self = .payout(address: stashItem.controller)
+            self = .payout(account: stashItem.controller)
         case .account(let accountId):
             let address = try SS58AddressFactory().addressFromAccountId(data: accountId,
                                                                         type: chain.addressType)
-            self = .payout(address: address)
+            self = .payout(account: address)
+        }
+    }
+}
+
+extension RewardDestination where A == AccountItem {
+    var rawAddress: RewardDestination<String> {
+        switch self {
+        case .restake:
+            return .restake
+        case .payout(let account):
+            return .payout(account: account.address)
         }
     }
 }

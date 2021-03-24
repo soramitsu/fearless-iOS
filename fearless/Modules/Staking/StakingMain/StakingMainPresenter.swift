@@ -91,10 +91,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        let bonded = stateMachine.viewState { (state: BondedState) in true } ?? false
+        let bonded = stateMachine.viewState { (_ : BondedState) in true } ?? false
 
         if bonded {
-            let optStakingResult: StartStakingResult? = stateMachine.viewState { (state: BondedState) in
+            let optBonding: ExistingBonding? = stateMachine.viewState { (state: BondedState) in
                 guard let chain = chain,
                       let amount = Decimal.fromSubstrateAmount(state.ledgerInfo.active,
                                                                precision: chain.addressType.precision),
@@ -105,11 +105,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                     return nil
                 }
 
-                return StartStakingResult(amount: amount, rewardDestination: rewardDestination)
+                return ExistingBonding(resolvedStash: state.stashItem,
+                                       amount: amount,
+                                       rewardDestination: rewardDestination)
             }
 
-            if let stakingResult = optStakingResult {
-
+            if let existingBonding = optBonding {
+                wireframe.showRecommendedValidators(from: view,
+                                                    existingBonding: existingBonding)
             } else {
                 logger?.warning("Unexpected empty staking result")
             }

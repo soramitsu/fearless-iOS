@@ -6,7 +6,7 @@ import BigInt
 protocol SubstrateCallFactoryProtocol {
     func bond(amount: BigUInt,
               controller: String,
-              rewardDestination: RewardDestination) throws -> RuntimeCall<BondCall>
+              rewardDestination: RewardDestination<String>) throws -> RuntimeCall<BondCall>
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 }
@@ -16,7 +16,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func bond(amount: BigUInt,
               controller: String,
-              rewardDestination: RewardDestination) throws -> RuntimeCall<BondCall> {
+              rewardDestination: RewardDestination<String>) throws -> RuntimeCall<BondCall> {
         let controllerId = try addressFactory.accountId(from: controller)
 
         let destArg: RewardDestinationArg

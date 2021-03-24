@@ -154,13 +154,15 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func estimateFee(for address: String, amount: BigUInt, rewardDestination: RewardDestination) {
+    func estimateFee(for address: String,
+                     amount: BigUInt,
+                     rewardDestination: RewardDestination<AccountItem>) {
         let closure: ExtrinsicBuilderClosure = { builder in
             let callFactory = SubstrateCallFactory()
 
             let bondCall = try callFactory.bond(amount: amount,
                                                 controller: address,
-                                                rewardDestination: rewardDestination)
+                                                rewardDestination: rewardDestination.rawAddress)
 
             let targets = Array(repeating: SelectedValidatorInfo(address: address),
                                 count: SubstrateConstants.maxNominations)

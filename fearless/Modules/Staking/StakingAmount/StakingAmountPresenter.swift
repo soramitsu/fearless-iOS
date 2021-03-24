@@ -20,7 +20,7 @@ final class StakingAmountPresenter {
     private var loadingFee: Bool = false
     private var asset: WalletAsset
     private var amount: Decimal?
-    private var rewardDestination: RewardDestination = .restake
+    private var rewardDestination: RewardDestination<AccountItem> = .restake
     private var payoutAccount: AccountItem
     private var loadingPayouts: Bool = false
     private var minimalAmount: Decimal?
@@ -108,7 +108,7 @@ final class StakingAmountPresenter {
             loadingFee = true
             interactor.estimateFee(for: selectedAccount.address,
                                    amount: amount,
-                                   rewardDestination: .payout(address: payoutAccount.address))
+                                   rewardDestination: .payout(account: payoutAccount))
         }
     }
 
@@ -157,7 +157,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func selectPayoutDestination() {
-        rewardDestination = .payout(address: payoutAccount.address)
+        rewardDestination = .payout(account: payoutAccount)
         provideRewardDestination()
 
         scheduleFeeEstimation()
@@ -236,10 +236,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             return
         }
 
-        let stakingState = StartStakingResult(amount: amount,
-                                              rewardDestination: rewardDestination)
+        let stakingState = InitiatedBonding(amount: amount,
+                                            rewardDestination: rewardDestination)
 
-        wireframe.proceed(from: view, result: stakingState)
+        wireframe.proceed(from: view, state: stakingState)
     }
 
     func close() {
@@ -285,7 +285,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
     func didReceive(paymentInfo: RuntimeDispatchInfo,
                     for amount: BigUInt,
-                    rewardDestination: RewardDestination) {
+                    rewardDestination: RewardDestination<AccountItem>) {
         loadingFee = false
 
         if let feeValue = BigUInt(paymentInfo.fee),
@@ -340,7 +340,7 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
         payoutAccount = accounts[index]
 
         if case .payout = rewardDestination {
-            rewardDestination = .payout(address: payoutAccount.address)
+            rewardDestination = .payout(account: payoutAccount)
         }
 
         provideRewardDestination()

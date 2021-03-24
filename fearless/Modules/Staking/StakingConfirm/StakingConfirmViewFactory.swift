@@ -4,7 +4,8 @@ import SoraFoundation
 import RobinHood
 
 final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
-    static func createView(for state: PreparedNomination) -> StakingConfirmViewProtocol? {
+    static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
+    -> StakingConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -12,14 +13,14 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        guard let interactor = createInteractor(connection: connection,
-                                                settings: settings,
-                                                keystore: keystore) else {
+        guard let interactor = createInitiatedBondingInteractor(state,
+                                                                connection: connection,
+                                                                settings: settings,
+                                                                keystore: keystore) else {
             return nil
         }
 
-        guard let presenter = createPresenter(state: state,
-                                              settings: settings,
+        guard let presenter = createPresenter(settings: settings,
                                               keystore: keystore) else {
             return nil
         }
@@ -40,34 +41,33 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         return view
     }
 
-    static private func createPresenter(state: PreparedNomination,
-                                        settings: SettingsManagerProtocol,
+    static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
+    -> StakingConfirmViewProtocol? {
+        return nil
+    }
+
+    static private func createPresenter(settings: SettingsManagerProtocol,
                                         keystore: KeystoreProtocol) -> StakingConfirmPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
-
-        let confirmViewModelFactory = StakingConfirmViewModelFactory(asset: asset)
+        let confirmViewModelFactory = StakingConfirmViewModelFactory()
 
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: networkType,
                                                               limit: StakingConstants.maxAmount)
 
-        return StakingConfirmPresenter(state: state,
-                                       asset: asset,
-                                       walletAccount: selectedAccount,
-                                       confirmationViewModelFactory: confirmViewModelFactory,
+        return StakingConfirmPresenter(confirmationViewModelFactory: confirmViewModelFactory,
                                        balanceViewModelFactory: balanceViewModelFactory,
-                                       logger: Logger.shared)
+                                       asset: asset)
     }
 
-    static private func createInteractor(connection: JSONRPCEngine,
-                                         settings: SettingsManagerProtocol,
-                                         keystore: KeystoreProtocol) -> StakingConfirmInteractor? {
+    static private func createInitiatedBondingInteractor(_ nomation: PreparedNomination<InitiatedBonding>,
+                                                         connection: JSONRPCEngine,
+                                                         settings: SettingsManagerProtocol,
+                                                         keystore: KeystoreProtocol)
+    -> InitiatedBondingConfirmInteractor? {
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
@@ -96,10 +96,12 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
-        return StakingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
-                                        balanceProvider: AnyDataProvider(balanceProvider),
-                                        extrinsicService: extrinsicService,
-                                        operationManager: operationManager,
-                                        signer: signer)
+        return InitiatedBondingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
+                                                 balanceProvider: AnyDataProvider(balanceProvider),
+                                                 extrinsicService: extrinsicService,
+                                                 operationManager: operationManager,
+                                                 signer: signer,
+                                                 settings: settings,
+                                                 nomination: nomation)
     }
 }
