@@ -162,7 +162,7 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
 
             let bondCall = try callFactory.bond(amount: amount,
                                                 controller: address,
-                                                rewardDestination: rewardDestination.rawAddress)
+                                                rewardDestination: rewardDestination.accountAddress)
 
             let targets = Array(repeating: SelectedValidatorInfo(address: address),
                                 count: SubstrateConstants.maxNominations)
