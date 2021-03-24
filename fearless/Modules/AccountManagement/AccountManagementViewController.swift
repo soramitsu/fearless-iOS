@@ -51,6 +51,7 @@ final class AccountManagementViewController: UIViewController {
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .accountsAddAccount(preferredLanguages: locale?.rLanguages)
         addActionControl.imageWithTitleView?.iconImage = nil
+        addActionControl.imageWithTitleView?.titleFont = .h5Title
 
         updateRightItem()
     }
