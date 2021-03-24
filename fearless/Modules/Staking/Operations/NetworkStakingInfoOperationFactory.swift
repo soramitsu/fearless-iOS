@@ -42,17 +42,25 @@ final class NetworkStakingInfoOperationFactory {
 
     private func deriveMinimalStake(from eraStakersInfo: EraStakersInfo,
                                     limitedBy maxNominators: Int) -> BigUInt {
-        eraStakersInfo.validators.map({ $0.exposure.others.sorted { $0.value > $1.value } })
-            .flatMap({ Array($0.prefix(maxNominators)) })
+        eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
+            .flatMap { Array($0.prefix(maxNominators)) }
+            .reduce(into: [Data: BigUInt]()) { (result, item) in
+                if let stake = result[item.who] {
+                    result[item.who] = stake + item.value
+                } else {
+                    result[item.who] = item.value
+                }
+            }
             .compactMap { $0.value }
             .min() ?? BigUInt.zero
     }
 
     private func deriveActiveNominatorsCount(from eraStakersInfo: EraStakersInfo,
                                              limitedBy maxNominators: Int) -> Int {
-        eraStakersInfo.validators
-            .compactMap({min($0.exposure.others.count, maxNominators)})
-            .reduce(0, +)
+        eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
+            .flatMap { Array($0.prefix(maxNominators)) }
+            .reduce(into: Set<Data>()) { $0.insert($1.who) }
+            .count
     }
 
     private func createMapOperation(dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
