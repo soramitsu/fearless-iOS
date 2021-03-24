@@ -10,4 +10,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showManageStaking(from view: StakingMainViewProtocol?) {
+        Logger.shared.debug("present")
+    }
 }

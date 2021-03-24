@@ -77,7 +77,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
-        logger?.debug("Did select Manage staking")
+        wireframe.showManageStaking(from: view)
     }
 
     func updateAmount(_ newValue: Decimal) {
