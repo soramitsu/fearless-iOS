@@ -64,7 +64,7 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
         }
 
         let controllerAddress = selectedAccount.address
-        let rewardDestination = nomination.bonding.rewardDestination.rawAddress
+        let rewardDestination = nomination.bonding.rewardDestination.accountAddress
         let targets = nomination.targets
 
         let closure: ExtrinsicBuilderClosure = { builder in

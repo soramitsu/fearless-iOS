@@ -1,6 +1,6 @@
 import Foundation
 
 struct DisplayAddress {
-    let address: String
+    let address: AccountAddress
     let username: String
 }
