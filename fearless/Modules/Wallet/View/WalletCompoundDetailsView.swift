@@ -63,12 +63,12 @@ final class WalletCompoundDetailsView: WalletFormItemView {
             contentView.fillColor = .clear
             contentView.strokeColor = R.color.colorGray()!
             contentView.highlightedStrokeColor = R.color.colorGray()!
-            contentView.highlightedFillColor = R.color.colorHighlightedBlue()!
+            contentView.highlightedFillColor = R.color.colorHighlightedPink()!
         } else {
             contentView.fillColor = R.color.colorDarkGray()!
             contentView.strokeColor = R.color.colorDarkGray()!
             contentView.highlightedStrokeColor = R.color.colorDarkGray()!
-            contentView.highlightedFillColor = R.color.colorHighlightedBlue()!
+            contentView.highlightedFillColor = R.color.colorHighlightedPink()!
         }
     }
 
