@@ -38,6 +38,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
+    private var storiesModel: StoriesModel?
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -54,6 +55,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupStories()
         setupLocalization()
         presenter.setup()
         configureCollectionView()
@@ -92,6 +94,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     // MARK: - Private functions
+    private func setupStories() {
+        self.storiesModel = StoriesFactory.createModel()
+    }
+
     private func configureCollectionView() {
         storiesView.backgroundView = nil
         storiesView.backgroundColor = UIColor.clear
@@ -337,7 +343,7 @@ extension StakingMainViewController: KeyboardAdoptable {
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         // TODO: FLW-635
-        return 4
+        return self.storiesModel?.stories.count ?? 0
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -346,6 +352,9 @@ extension StakingMainViewController: UICollectionViewDataSource {
             withReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId,
             for: indexPath)!
 
+        let story = self.storiesModel?.stories[indexPath.row]
+
+        cell.bind(icon: story?.icon, caption: story?.title)
         return cell
     }
 }
