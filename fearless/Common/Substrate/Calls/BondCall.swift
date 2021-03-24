@@ -8,7 +8,7 @@ struct BondCall: Codable {
     var payee: RewardDestinationArg
 }
 
-enum RewardDestinationArg {
+enum RewardDestinationArg: Equatable {
     static let stakedField = "Staked"
     static let stashField = "Stash"
     static let controllerField = "Controller"

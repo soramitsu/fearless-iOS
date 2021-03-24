@@ -1,14 +1,9 @@
 import Foundation
 
-final class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtocol {
-    func proceed(from view: RecommendedValidatorsViewProtocol?, result: PreparedNomination) {
-        guard let confirmView = StakingConfirmViewFactory.createView(for: result) else {
-            return
-        }
-
-        view?.controller.navigationController?.pushViewController(confirmView.controller,
-                                                                  animated: true)
-    }
+class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtocol {
+    func proceed(from view: RecommendedValidatorsViewProtocol?,
+                 targets: [SelectedValidatorInfo],
+                 maxTargets: Int) {}
 
     func showRecommended(from view: RecommendedValidatorsViewProtocol?,
                          validators: [ElectedValidatorInfo],

@@ -9,14 +9,16 @@ final class ValidatorState: BaseStashNextState {
          stashItem: StashItem,
          ledgerInfo: DyStakingLedger,
          prefs: ValidatorPrefs,
-         totalReward: TotalRewardItem?) {
+         totalReward: TotalRewardItem?,
+         payee: RewardDestinationArg?) {
         self.ledgerInfo = ledgerInfo
         self.prefs = prefs
 
         super.init(stateMachine: stateMachine,
                    commonData: commonData,
                    stashItem: stashItem,
-                   totalReward: totalReward)
+                   totalReward: totalReward,
+                   payee: payee)
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -58,7 +60,8 @@ final class ValidatorState: BaseStashNextState {
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
                                       nomination: nomination,
-                                      totalReward: totalReward)
+                                      totalReward: totalReward,
+                                      payee: payee)
         } else {
             newState = self
         }
@@ -82,7 +85,8 @@ final class ValidatorState: BaseStashNextState {
                                    commonData: commonData,
                                    stashItem: stashItem,
                                    ledgerInfo: ledgerInfo,
-                                   totalReward: totalReward)
+                                   totalReward: totalReward,
+                                   payee: payee)
         }
 
         stateMachine.transit(to: newState)

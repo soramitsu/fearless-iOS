@@ -61,4 +61,8 @@ extension StorageCodingPath {
     static var electionStatus: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "EraElectionStatus")
     }
+
+    static var payee: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "Payee")
+    }
 }

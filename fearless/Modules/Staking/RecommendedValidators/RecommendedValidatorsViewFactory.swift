@@ -4,13 +4,26 @@ import SoraKeystore
 import SoraFoundation
 
 final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryProtocol {
-    static func createView(with stakingState: StartStakingResult) -> RecommendedValidatorsViewProtocol? {
+    static func createInitiatedBondingView(with state: InitiatedBonding)
+    -> RecommendedValidatorsViewProtocol? {
+        let wireframe = InitiatedBondingRecommendationsWireframe(state: state)
+        return createView(with: wireframe)
+    }
+
+    static func createChangeTargetsView(with state: ExistingBonding)
+    -> RecommendedValidatorsViewProtocol? {
+        let wireframe = ChangeTargetsRecommendationsWireframe(state: state)
+        return createView(with: wireframe)
+    }
+
+    private static func createView(with wireframe: RecommendedValidatorsWireframeProtocol)
+    -> RecommendedValidatorsViewProtocol? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
         }
 
         let view = RecommendedValidatorsViewController(nib: R.nib.recommendedValidatorsViewController)
-        let presenter = RecommendedValidatorsPresenter(state: stakingState, logger: Logger.shared)
+        let presenter = RecommendedValidatorsPresenter(logger: Logger.shared)
 
         let eraValidatorService = EraValidatorFacade.sharedService
         let runtimeService = RuntimeRegistryFacade.sharedService
@@ -29,7 +42,6 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
 
         let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
                                                          operationManager: operationManager)
-        let wireframe = RecommendedValidatorsWireframe()
 
         view.presenter = presenter
         presenter.view = view

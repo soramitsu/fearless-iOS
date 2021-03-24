@@ -1,8 +1,7 @@
 import Foundation
 
-struct PreparedNomination {
-    let amount: Decimal
-    let rewardDestination: RewardDestination
+struct PreparedNomination<T> {
+    let bonding: T
     let targets: [SelectedValidatorInfo]
     let maxTargets: Int
 }

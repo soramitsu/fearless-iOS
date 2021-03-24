@@ -26,7 +26,7 @@ protocol StakingAmountInteractorInputProtocol: class {
     func setup()
     func estimateFee(for address: String,
                      amount: BigUInt,
-                     rewardDestination: RewardDestination)
+                     rewardDestination: RewardDestination<AccountItem>)
     func fetchAccounts()
 }
 
@@ -36,7 +36,7 @@ protocol StakingAmountInteractorOutputProtocol: class {
     func didReceive(balance: DyAccountData?)
     func didReceive(paymentInfo: RuntimeDispatchInfo,
                     for amount: BigUInt,
-                    rewardDestination: RewardDestination)
+                    rewardDestination: RewardDestination<AccountItem>)
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
@@ -51,7 +51,7 @@ protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,
                                  from view: StakingAmountViewProtocol?,
                                  context: AnyObject?)
 
-    func proceed(from view: StakingAmountViewProtocol?, result: StartStakingResult)
+    func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding)
 
     func close(view: StakingAmountViewProtocol?)
 }

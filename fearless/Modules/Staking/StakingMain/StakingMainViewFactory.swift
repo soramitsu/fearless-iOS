@@ -45,7 +45,9 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: logger)
+        let networkInfoViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
+                                             networkInfoViewModelFactory: networkInfoViewModelFactory,
                                              viewModelFacade: viewModelFacade,
                                              logger: logger)
 

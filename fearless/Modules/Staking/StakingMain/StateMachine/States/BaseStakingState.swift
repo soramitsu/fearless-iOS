@@ -81,4 +81,5 @@ class BaseStakingState: StakingStateProtocol {
     func process(nomination: Nomination?) {}
     func process(validatorPrefs: ValidatorPrefs?) {}
     func process(totalReward: TotalRewardItem?) {}
+    func process(payee: RewardDestinationArg?) {}
 }
