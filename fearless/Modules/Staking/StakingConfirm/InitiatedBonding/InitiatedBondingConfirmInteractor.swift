@@ -106,7 +106,7 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
     }
 
     override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
-        guard nomination.bonding.amount >= lastBalance + lastFee else {
+        guard lastBalance >= nomination.bonding.amount  + lastFee else {
             presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
             return
         }
