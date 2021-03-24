@@ -1,7 +1,8 @@
 import Foundation
 
 struct ExistingBonding {
-    let resolvedStash: StashItem
+    let stashAddress: String
+    let controllerAccount: AccountItem
     let amount: Decimal
     let rewardDestination: RewardDestination<String>
 }

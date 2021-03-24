@@ -417,6 +417,7 @@
 		8472976C260B1CAD009B86D0 /* InitiatedBondingConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8472976B260B1CAD009B86D0 /* InitiatedBondingConfirmInteractor.swift */; };
 		8472979A260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84729799260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift */; };
 		847297A2260B3146009B86D0 /* ChangeTargetsRecommendationsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847297A1260B3146009B86D0 /* ChangeTargetsRecommendationsWireframe.swift */; };
+		847297CF260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847297CE260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift */; };
 		84754C852510A1A400854599 /* ModalAlertPresenting.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C842510A1A400854599 /* ModalAlertPresenting.swift */; };
 		84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C872510BAFE00854599 /* ModalAlertFactory.swift */; };
 		84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84754C8D2511539E00854599 /* ManagedConnectionViewModel.swift */; };
@@ -606,6 +607,7 @@
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
 		84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */; };
 		84A2CD5325685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */; };
+		84B71DDD260B64BE0003A100 /* StakingConfirmError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B71DDC260B64BE0003A100 /* StakingConfirmError.swift */; };
 		84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE207725E7D62100B4748C /* ActiveEraInfo.swift */; };
 		84BE209E25E85CCA00B4748C /* ServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */; };
 		84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */; };
@@ -1332,6 +1334,7 @@
 		8472976B260B1CAD009B86D0 /* InitiatedBondingConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiatedBondingConfirmInteractor.swift; sourceTree = "<group>"; };
 		84729799260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiatedBondingRecommendationsWireframe.swift; sourceTree = "<group>"; };
 		847297A1260B3146009B86D0 /* ChangeTargetsRecommendationsWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTargetsRecommendationsWireframe.swift; sourceTree = "<group>"; };
+		847297CE260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTargetConfirmInteractor.swift; sourceTree = "<group>"; };
 		84754C842510A1A400854599 /* ModalAlertPresenting.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalAlertPresenting.swift; sourceTree = "<group>"; };
 		84754C872510BAFE00854599 /* ModalAlertFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModalAlertFactory.swift; sourceTree = "<group>"; };
 		84754C8D2511539E00854599 /* ManagedConnectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedConnectionViewModel.swift; sourceTree = "<group>"; };
@@ -1531,6 +1534,7 @@
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
 		84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeAnimator.swift; sourceTree = "<group>"; };
 		84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryViewFactoryOverriding.swift; sourceTree = "<group>"; };
+		84B71DDC260B64BE0003A100 /* StakingConfirmError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmError.swift; sourceTree = "<group>"; };
 		84BE207725E7D62100B4748C /* ActiveEraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveEraInfo.swift; sourceTree = "<group>"; };
 		84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCoordinator.swift; sourceTree = "<group>"; };
 		84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServiceFactory.swift; sourceTree = "<group>"; };
@@ -2133,6 +2137,7 @@
 		77D9A8552D1961A00A3683BE /* StakingConfirm */ = {
 			isa = PBXGroup;
 			children = (
+				847297CD260B400C009B86D0 /* ChangeTargets */,
 				84729764260B1C11009B86D0 /* InitiatedBonding */,
 				8472974B260A9CAD009B86D0 /* Model */,
 				849DEBD225ED014000C64C19 /* ViewModel */,
@@ -2999,6 +3004,7 @@
 			isa = PBXGroup;
 			children = (
 				8472974C260A9CDF009B86D0 /* StakingConfirmationModel.swift */,
+				84B71DDC260B64BE0003A100 /* StakingConfirmError.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -3023,6 +3029,14 @@
 			isa = PBXGroup;
 			children = (
 				847297A1260B3146009B86D0 /* ChangeTargetsRecommendationsWireframe.swift */,
+			);
+			path = ChangeTargets;
+			sourceTree = "<group>";
+		};
+		847297CD260B400C009B86D0 /* ChangeTargets */ = {
+			isa = PBXGroup;
+			children = (
+				847297CE260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift */,
 			);
 			path = ChangeTargets;
 			sourceTree = "<group>";
@@ -5153,6 +5167,7 @@
 				8490150524AB6D25008F705E /* WalletPrimitiveFactory.swift in Sources */,
 				AE7129B4260872ED000AA3F5 /* EraStakersInfoChanged.swift in Sources */,
 				842D1E9624D2DD6700C30A7A /* MnemonicDisplayView.swift in Sources */,
+				84B71DDD260B64BE0003A100 /* StakingConfirmError.swift in Sources */,
 				842876B224AE059700D91AD8 /* SupportData.swift in Sources */,
 				84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */,
 				8463A70325E2FCD0003B8160 /* WeakWrapper.swift in Sources */,
@@ -5226,6 +5241,7 @@
 				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
 				8460E1192541FD1800826F55 /* TransactionDetailsAccessoryView.swift in Sources */,
 				847DD8DC26034B99003DE053 /* LocalizableViewProtocol.swift in Sources */,
+				847297CF260B4035009B86D0 /* ChangeTargetConfirmInteractor.swift in Sources */,
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */,
 				8423B0DE251A438F00B8687C /* AddConnectionError.swift in Sources */,

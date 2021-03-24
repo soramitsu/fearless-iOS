@@ -79,7 +79,7 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
         subscribeToPriceChanges()
     }
 
-    func submitNomination() {}
+    func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {}
 
     func estimateFee() {}
 }

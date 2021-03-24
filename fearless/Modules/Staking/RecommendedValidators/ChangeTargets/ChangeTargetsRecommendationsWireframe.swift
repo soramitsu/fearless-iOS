@@ -8,8 +8,8 @@ final class ChangeTargetsRecommendationsWireframe: RecommendedValidatorsWirefram
     }
 
     override func proceed(from view: RecommendedValidatorsViewProtocol?,
-                 targets: [SelectedValidatorInfo],
-                 maxTargets: Int) {
+                          targets: [SelectedValidatorInfo],
+                          maxTargets: Int) {
         let nomination = PreparedNomination(bonding: state,
                                             targets: targets,
                                             maxTargets: maxTargets)
