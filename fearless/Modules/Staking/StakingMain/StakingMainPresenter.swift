@@ -293,6 +293,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didFetchController(_ controller: AccountItem?) {
         guard let controller = controller else {
+
+            if let view = view {
+                let locale = view.localizationManager?.selectedLocale
+                wireframe.presentMissingController(from: view, locale: locale)
+            }
+
             return
         }
 

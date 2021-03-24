@@ -74,7 +74,9 @@ final class StakingConfirmPresenter {
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
             case .missingController:
-                break;
+                wireframe.presentMissingController(from: view, locale: locale)
+            case .extrinsicFailed:
+                wireframe.presentExtrinsicFailed(from: view, locale: locale)
             }
         } else {
             if !wireframe.present(error: error, from: view, locale: locale) {
@@ -200,10 +202,7 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
     func didFailNomination(error: Error) {
         view?.didStopLoading()
 
-        if let view = view {
-            wireframe.presentExtrinsicFailed(from: view,
-                                             locale: view.localizationManager?.selectedLocale)
-        }
+        handle(error: error)
     }
 
     func didReceive(paymentInfo: RuntimeDispatchInfo) {
