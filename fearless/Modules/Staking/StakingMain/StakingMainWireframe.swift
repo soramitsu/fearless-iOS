@@ -12,6 +12,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showManageStaking(from view: StakingMainViewProtocol?) {
-        Logger.shared.debug("present")
+        guard let manageView = ModalPickerFactory.createPickerForList(
+            [.rewardPayouts],
+            delegate: nil,
+            context: nil) else { return }
+        view?.controller.present(manageView, animated: true, completion: nil)
     }
 }

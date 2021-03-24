@@ -293,3 +293,4 @@ Derivation path: %@";
 "staking.era.title" = "era #%@";
 "staking.validator.summary.title" = "Staking for validator";
 "staking.validator.summary.description" = "In future updates, we will add staking features for the validators. \n \n #StayFearless";
+"staking.manage.title" = "Manage";
