@@ -11,7 +11,9 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="AccountManagementViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="addActionBottomConstraint" destination="KrW-aZ-6wQ" id="g9j-ak-W5r"/>
                 <outlet property="addActionControl" destination="VhF-jR-ils" id="gIY-MY-XQV"/>
+                <outlet property="addActionHeightConstraint" destination="3D8-ZW-H38" id="Un7-fb-nTr"/>
                 <outlet property="tableView" destination="gTN-mh-A7g" id="rt0-Gn-zYy"/>
                 <outlet property="view" destination="iN0-l3-epB" id="P6p-3u-XUL"/>
             </connections>
@@ -109,7 +111,7 @@
     </objects>
     <designables>
         <designable name="VhF-jR-ils">
-            <size key="intrinsicContentSize" width="146" height="24"/>
+            <size key="intrinsicContentSize" width="126.33333333333333" height="24"/>
         </designable>
     </designables>
     <resources>
