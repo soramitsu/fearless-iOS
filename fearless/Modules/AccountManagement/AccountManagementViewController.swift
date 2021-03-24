@@ -7,16 +7,16 @@ final class AccountManagementViewController: UIViewController {
         static let cellHeight: CGFloat = 48.0
         static let headerHeight: CGFloat = 33.0
         static let headerId = "accountHeaderId"
-        static let bottomContentHeight: CGFloat = 48
+        static let addActionVerticalInset: CGFloat = 16
     }
 
     var presenter: AccountManagementPresenterProtocol!
 
     @IBOutlet private var tableView: UITableView!
 
-    @IBOutlet private var bottomBarHeight: NSLayoutConstraint!
-
-    @IBOutlet private var addActionControl: IconCellControlView!
+    @IBOutlet private var addActionControl: TriangularedButton!
+    @IBOutlet private weak var addActionHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var addActionBottomConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +26,6 @@ final class AccountManagementViewController: UIViewController {
         setupLocalization()
 
         presenter.setup()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-
-        bottomBarHeight.constant = Constants.bottomContentHeight + view.safeAreaInsets.bottom
     }
 
     private func setupNavigationItem() {
@@ -58,6 +52,8 @@ final class AccountManagementViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .accountsAddAccount(preferredLanguages: locale?.rLanguages)
+        addActionControl.imageWithTitleView?.iconImage = nil
+        addActionControl.imageWithTitleView?.titleFont = .h5Title
 
         updateRightItem()
     }
@@ -76,6 +72,10 @@ final class AccountManagementViewController: UIViewController {
 
     private func setupTableView() {
         tableView.tableFooterView = UIView()
+        let bottomInset = addActionBottomConstraint.constant
+            + addActionHeightConstraint.constant
+            + Constants.addActionVerticalInset
+        tableView.contentInset = .init(top: 0, left: 0, bottom: bottomInset, right: 0)
 
         tableView.register(R.nib.accountTableViewCell)
         tableView.register(UINib(resource: R.nib.iconTitleHeaderView),
