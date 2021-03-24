@@ -850,6 +850,8 @@
 		AE9EF26E260A82D50026910A /* SlideViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF26D260A82D50026910A /* SlideViewModel.swift */; };
 		AE9EF273260A82FB0026910A /* Slide.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF272260A82FB0026910A /* Slide.swift */; };
 		AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF277260B2E160026910A /* StoriesFactory.swift */; };
+		AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF27C260B53130026910A /* StoriesViewFactory.swift */; };
+		AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE9EF281260B58250026910A /* StoriesViewController.xib */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
@@ -1787,6 +1789,8 @@
 		AE9EF26D260A82D50026910A /* SlideViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideViewModel.swift; sourceTree = "<group>"; };
 		AE9EF272260A82FB0026910A /* Slide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slide.swift; sourceTree = "<group>"; };
 		AE9EF277260B2E160026910A /* StoriesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesFactory.swift; sourceTree = "<group>"; };
+		AE9EF27C260B53130026910A /* StoriesViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewFactory.swift; sourceTree = "<group>"; };
+		AE9EF281260B58250026910A /* StoriesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesViewController.xib; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
@@ -4305,6 +4309,8 @@
 				AE9EF25E260A82A50026910A /* StoriesPresenter.swift */,
 				AE9EF263260A82B80026910A /* StoriesWireframe.swift */,
 				AE9EF268260A82C30026910A /* StoriesProtocols.swift */,
+				AE9EF27C260B53130026910A /* StoriesViewFactory.swift */,
+				AE9EF281260B58250026910A /* StoriesViewController.xib */,
 			);
 			path = Stories;
 			sourceTree = "<group>";
@@ -4653,6 +4659,7 @@
 				84452F7525D5E2B300F47EC5 /* runtime-polkadot.json in Resources */,
 				84754C9E2513B46100854599 /* AccountPickerTableViewCell.xib in Resources */,
 				8490142424A93027008F705E /* sora-ExtraBold.otf in Resources */,
+				AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */,
 				8490142524A93027008F705E /* sora-SemiBold.otf in Resources */,
 				84452F7425D5E2B300F47EC5 /* runtime-westend.json in Resources */,
 				AE8972AB25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib in Resources */,
@@ -5393,6 +5400,7 @@
 				AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
+				AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
 				84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */,
 				847C966325536455002D288F /* ExportRestoreJsonViewFactory.swift in Sources */,

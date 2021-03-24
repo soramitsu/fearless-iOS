@@ -87,6 +87,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             stateMachine.state.process(rewardEstimationAmount: amount)
         }
     }
+
+    func selectStory(at index: Int) {
+        wireframe.showStories(from: view, startingFrom: index)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {

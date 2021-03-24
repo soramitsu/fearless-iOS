@@ -362,4 +362,9 @@ extension StakingMainViewController: UICollectionViewDataSource {
 // MARK: Collection View Delegate -
 extension StakingMainViewController: UICollectionViewDelegate {
     // TODO: FLW-635
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+
+        presenter.selectStory(at: indexPath.row)
+    }
 }
