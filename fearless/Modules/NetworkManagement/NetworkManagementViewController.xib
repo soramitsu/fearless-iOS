@@ -11,7 +11,9 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="NetworkManagementViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="addActionBottomConstraint" destination="ZuU-vx-bJU" id="G07-VO-Q3S"/>
                 <outlet property="addActionControl" destination="Q7x-ZT-4hg" id="VCd-C8-zLZ"/>
+                <outlet property="addActionHeightConstraint" destination="20X-eT-c44" id="uhr-wh-nvU"/>
                 <outlet property="tableView" destination="R9Q-bV-x8F" id="XzN-zb-8XK"/>
                 <outlet property="view" destination="iN0-l3-epB" id="Rl9-QQ-Miz"/>
             </connections>
@@ -109,7 +111,7 @@
     </objects>
     <designables>
         <designable name="Q7x-ZT-4hg">
-            <size key="intrinsicContentSize" width="144.5" height="24"/>
+            <size key="intrinsicContentSize" width="169.5" height="24"/>
         </designable>
     </designables>
     <resources>

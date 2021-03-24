@@ -7,7 +7,7 @@ final class NetworkManagementViewController: UIViewController {
         static let cellHeight: CGFloat = 48.0
         static let headerHeight: CGFloat = 33.0
         static let headerId = "networkHeaderId"
-        static let bottomContentHeight: CGFloat = 48
+        static let addActionVerticalInset: CGFloat = 16
     }
 
     enum Section: Int {
@@ -20,6 +20,8 @@ final class NetworkManagementViewController: UIViewController {
     @IBOutlet private var tableView: UITableView!
 
     @IBOutlet private var addActionControl: TriangularedButton!
+    @IBOutlet private weak var addActionHeightConstraint: NSLayoutConstraint!
+    @IBOutlet private weak var addActionBottomConstraint: NSLayoutConstraint!
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -76,6 +78,10 @@ final class NetworkManagementViewController: UIViewController {
 
     private func setupTableView() {
         tableView.tableFooterView = UIView()
+        let bottomInset = addActionBottomConstraint.constant
+            + addActionHeightConstraint.constant
+            + Constants.addActionVerticalInset
+        tableView.contentInset = .init(top: 0, left: 0, bottom: bottomInset, right: 0)
 
         tableView.register(R.nib.connectionTableViewCell)
         tableView.register(UINib(resource: R.nib.iconTitleHeaderView),
