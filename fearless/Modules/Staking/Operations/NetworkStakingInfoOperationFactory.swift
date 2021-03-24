@@ -65,12 +65,14 @@ final class NetworkStakingInfoOperationFactory {
 
     private func createMapOperation(dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
                                     maxNominatorsOperation: BaseOperation<UInt32>,
-                                    lockUpPeriodOperation: BaseOperation<UInt32>)
+                                    lockUpPeriodOperation: BaseOperation<UInt32>,
+                                    minBalanceOperation: BaseOperation<BigUInt>)
     -> BaseOperation<NetworkStakingInfo> {
         return ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
             let maxNominators = try Int(maxNominatorsOperation.extractNoCancellableResultData())
             let lockUpPeriod = try lockUpPeriodOperation.extractNoCancellableResultData()
+            let minBalance = try minBalanceOperation.extractNoCancellableResultData()
 
             let totalStake = self.deriveTotalStake(from: eraStakersInfo)
 
@@ -81,9 +83,9 @@ final class NetworkStakingInfoOperationFactory {
                                                                          limitedBy: maxNominators)
 
             return NetworkStakingInfo(totalStake: totalStake,
-                                  minimalStake: minimalStake,
-                                  activeNominatorsCount: activeNominatorsCount,
-                                  lockUpPeriod: lockUpPeriod)
+                                      minimalStake: max(minimalStake, minBalance),
+                                      activeNominatorsCount: activeNominatorsCount,
+                                      lockUpPeriod: lockUpPeriod)
         }
     }
 }
@@ -102,24 +104,31 @@ extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactory
             createConstOperation(dependingOn: runtimeOperation,
                                  path: .lockUpPeriod)
 
+        let existentialDepositOperation: BaseOperation<BigUInt> = createConstOperation(dependingOn: runtimeOperation,
+                                                                                       path: .existentialDeposit)
+
         maxNominatorsOperation.addDependency(runtimeOperation)
         lockUpPeriodOperation.addDependency(runtimeOperation)
+        existentialDepositOperation.addDependency(runtimeOperation)
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
         let mapOperation = createMapOperation(dependingOn: eraValidatorsOperation,
                                               maxNominatorsOperation: maxNominatorsOperation,
-                                              lockUpPeriodOperation: lockUpPeriodOperation)
+                                              lockUpPeriodOperation: lockUpPeriodOperation,
+                                              minBalanceOperation: existentialDepositOperation)
 
         mapOperation.addDependency(eraValidatorsOperation)
         mapOperation.addDependency(maxNominatorsOperation)
         mapOperation.addDependency(lockUpPeriodOperation)
+        mapOperation.addDependency(existentialDepositOperation)
 
         let dependencies = [
             runtimeOperation,
             eraValidatorsOperation,
             maxNominatorsOperation,
-            lockUpPeriodOperation
+            lockUpPeriodOperation,
+            existentialDepositOperation
         ]
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
