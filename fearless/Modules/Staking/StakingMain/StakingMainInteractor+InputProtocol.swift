@@ -23,7 +23,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         applicationHandler.delegate = self
     }
 
-    func fetchController(for address: String) {
+    func fetchController(for address: AccountAddress) {
         let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
 
         operation.completionBlock = {

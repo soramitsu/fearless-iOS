@@ -97,7 +97,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
                                                          connection: JSONRPCEngine,
                                                          settings: SettingsManagerProtocol,
                                                          keystore: KeystoreProtocol)
-    -> InitiatedBondingConfirmInteractor? {
+    -> StakingBaseConfirmInteractor? {
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
@@ -140,7 +140,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
                                                       keystore: KeystoreProtocol,
                                                       assetId: WalletAssetId,
                                                       networkSettings: ConnectionItem)
-    -> ChangeTargetsConfirmInteractor? {
+    -> StakingBaseConfirmInteractor? {
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
                 .getAccountProvider(for: nomination.bonding.controllerAccount.address,
