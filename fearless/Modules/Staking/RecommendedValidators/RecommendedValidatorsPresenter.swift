@@ -75,7 +75,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
         allValidators = validators
 
         let recommended = validators
-            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed}
+            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked}
             .sorted(by: { $0.stakeReturn >= $1.stakeReturn })
             .prefix(StakingConstants.maxTargets)
         self.recommended = Array(recommended)
