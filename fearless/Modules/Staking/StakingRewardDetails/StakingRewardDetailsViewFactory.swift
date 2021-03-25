@@ -3,12 +3,11 @@ import Foundation
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
 
     static func createView() -> StakingRewardDetailsViewProtocol? {
-        let view = StakingRewardDetailsViewController()
         let presenter = StakingRewardDetailsPresenter()
+        let view = StakingRewardDetailsViewController(presenter: presenter)
         let interactor = StakingRewardDetailsInteractor()
         let wireframe = StakingRewardDetailsWireframe()
 
-        view.presenter = presenter
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
