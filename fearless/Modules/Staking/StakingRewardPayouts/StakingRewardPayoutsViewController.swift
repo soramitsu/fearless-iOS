@@ -1,7 +1,9 @@
 import UIKit
 import SoraFoundation
 
-final class StakingRewardPayoutsViewController: UIViewController {
+final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
+
+    typealias RootViewType = StakingRewardPayoutsViewLayout
 
     // MARK: Properties -
     let presenter: StakingRewardPayoutsPresenterProtocol
@@ -25,6 +27,7 @@ final class StakingRewardPayoutsViewController: UIViewController {
         super.viewDidLoad()
 
         setupLocalization()
+        setupTable()
         presenter.setup()
     }
 
@@ -32,6 +35,12 @@ final class StakingRewardPayoutsViewController: UIViewController {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         title = R.string.localizable.stakingRewardPayoutsTitle(preferredLanguages: locale.rLanguages)
+    }
+
+    private func setupTable() {
+        rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
+        rootView.tableView.delegate = self
+        rootView.tableView.dataSource = self
     }
 }
 
@@ -48,5 +57,27 @@ extension StakingRewardPayoutsViewController: Localizable {
             setupLocalization()
             view.setNeedsLayout()
         }
+    }
+}
+
+extension StakingRewardPayoutsViewController: UITableViewDelegate {
+
+}
+
+extension StakingRewardPayoutsViewController: UITableViewDataSource {
+
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        10
+    }
+
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = rootView.tableView.dequeueReusableCellWithType(StakingRewardHistoryTableCell.self)!
+        let model = StakingRewardHistoryTableCell.Model(
+            addressOrName: "SORAMITSU",
+            daysLeftText: "2 days left",
+            ksmAmountText: "+0.012 KSM",
+            usdAmountText: "$1.4")
+        cell.bind(model: model)
+        return cell
     }
 }

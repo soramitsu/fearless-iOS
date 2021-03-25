@@ -6,6 +6,7 @@ final class StakingRewardPayoutsViewLayout: UIView {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = R.color.colorBlack()
+        tableView.separatorStyle = .none
         return tableView
     }()
 
