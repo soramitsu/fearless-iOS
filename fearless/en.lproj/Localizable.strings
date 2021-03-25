@@ -305,3 +305,5 @@ Derivation path: %@";
 "staking.controller.missing.message" = "Controller account is unavailable to update staking setup";
 "staking.reward.payouts.title" = "Reward payouts";
 "staking.reward.payouts.payout.all" = "Payout all (%@)";
+"staking.reward.details.title" = "Reward details";
+"staking.reward.details.payout" = "Payout";
