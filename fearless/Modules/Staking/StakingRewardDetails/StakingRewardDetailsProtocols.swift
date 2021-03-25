@@ -1,4 +1,4 @@
-protocol StakingRewardDetailsViewProtocol: class {}
+protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol {}
 
 protocol StakingRewardDetailsPresenterProtocol: class {
     func setup()
