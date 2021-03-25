@@ -210,7 +210,8 @@ final class ValidatorOperationFactory {
                                                 stakeReturn: validatorReturn,
                                                 hasSlashes: hasSlashes,
                                                 maxNominatorsAllowed: maxNominators,
-                                                addressType: addressType)
+                                                addressType: addressType,
+                                                blocked: validator.prefs.blocked)
             }
         }
     }
