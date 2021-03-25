@@ -6,7 +6,9 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         static let verticalInset: CGFloat = 11
     }
 
-    private let transactionTypeView: UIView = UIImageView(image: UIImage(named: ""))
+    private let transactionTypeView: UIView = {
+        UIImageView(image: R.image.iconStakingTransactionType())
+    }()
 
     private let addressLabel: UILabel = {
         let label = UILabel()
