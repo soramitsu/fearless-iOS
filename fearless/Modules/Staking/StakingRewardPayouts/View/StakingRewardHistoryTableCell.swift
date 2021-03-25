@@ -4,6 +4,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
 
     private enum Constants {
         static let verticalInset: CGFloat = 11
+        static let iconSize: CGFloat = 32
     }
 
     private let transactionTypeView: UIView = {
@@ -56,7 +57,8 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
             transactionTypeView.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor,
                 constant: UIConstants.horizontalInset),
-            transactionTypeView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            transactionTypeView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+            transactionTypeView.widthAnchor.constraint(equalToConstant: Constants.iconSize)
         ])
 
         contentView.addSubview(addressLabel)
@@ -90,7 +92,10 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
                 constant: -UIConstants.horizontalInset),
             ksmAmountLabel.topAnchor.constraint(
                 equalTo: contentView.topAnchor,
-                constant: Constants.verticalInset)
+                constant: Constants.verticalInset),
+            addressLabel.trailingAnchor.constraint(
+                lessThanOrEqualTo: ksmAmountLabel.leadingAnchor,
+                constant: -UIConstants.horizontalInset)
         ])
 
         contentView.addSubview(usdAmountLabel)

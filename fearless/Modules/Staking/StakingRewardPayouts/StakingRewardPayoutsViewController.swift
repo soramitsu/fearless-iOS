@@ -37,6 +37,12 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
         title = R.string.localizable.stakingRewardPayoutsTitle(preferredLanguages: locale.rLanguages)
     }
 
+    private func setupButtonLocalization() {
+        // TODO
+        let title = R.string.localizable.stakingRewardPayoutsPayoutAll("0.00345 KSM")
+        rootView.payoutButton.imageWithTitleView?.title = title
+    }
+
     private func setupTable() {
         rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: StakingRewardHistoryHeaderView.self)
@@ -51,6 +57,7 @@ extension StakingRewardPayoutsViewController: Localizable {
 
     private func setupLocalization() {
         setupTitleLocalization()
+        setupButtonLocalization()
     }
 
     func applyLocalization() {
@@ -65,7 +72,7 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView: StakingRewardHistoryHeaderView = tableView.dequeueReusableHeaderFooterView()
-        let model = "FEB 1, 2021 (ERA #1,685)"
+        let model = stubCellData[section].0
         headerView.bind(model: model)
         return headerView
     }
@@ -73,21 +80,54 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
 
+    // TODO delete stub data
+    var stubCellData: [(String, [StakingRewardHistoryTableCell.Model])] {
+        [
+            ("DEC 15, 2021 (era #1,615)".uppercased(), [
+                .init(
+                    addressOrName: "SORAMITSU",
+                    daysLeftText: "2 days left",
+                    ksmAmountText: "+0.012 KSM",
+                    usdAmountText: "$1.4"
+                )
+            ]),
+            ("Feb 1, 2021 (era #1,685)".uppercased(), [
+                .init(
+                    addressOrName: "SORAMITSU",
+                    daysLeftText: "16 days left",
+                    ksmAmountText: "+0.012 KSM",
+                    usdAmountText: "$1.4"
+                )
+            ]),
+            ("Feb 2, 2021 (era #1,688)".uppercased(), [
+                .init(
+                    addressOrName: "✨👍✨ Day7 ✨👍✨",
+                    daysLeftText: "17 days left",
+                    ksmAmountText: "+0.002 KSM",
+                    usdAmountText: "$0.3"
+                ),
+                .init(
+                    addressOrName: "✨👍✨ Day7 ✨👍✨ aaaa aaaa aaaa aaa",
+                    daysLeftText: "17 days left",
+                    ksmAmountText: "+0.002 KSM",
+                    usdAmountText: "$0.3"
+                )
+            ])
+        ]
+    }
+
     func numberOfSections(in tableView: UITableView) -> Int {
-        return 2
+        return stubCellData.count
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        10
+        stubCellData[section].1.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = rootView.tableView.dequeueReusableCellWithType(StakingRewardHistoryTableCell.self)!
-        let model = StakingRewardHistoryTableCell.Model(
-            addressOrName: "SORAMITSU",
-            daysLeftText: "2 days left",
-            ksmAmountText: "+0.012 KSM",
-            usdAmountText: "$1.4")
+        let cell = rootView.tableView.dequeueReusableCellWithType(
+            StakingRewardHistoryTableCell.self)!
+        let model = stubCellData[indexPath.section].1[indexPath.row]
         cell.bind(model: model)
         return cell
     }
