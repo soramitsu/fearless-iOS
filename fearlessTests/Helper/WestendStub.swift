@@ -69,7 +69,7 @@ struct WestendStub {
     }()
 
     static let validator: DecodedValidator = {
-        let prefs = ValidatorPrefs(commission: BigUInt(1e+8))
+        let prefs = ValidatorPrefs(commission: BigUInt(1e+8), blocked: false)
 
         return DecodedValidator(identifier: "5EJQtTE1ZS9cBdqiuUcjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
                                 item: prefs)
@@ -85,7 +85,8 @@ struct WestendStub {
                                              identity: AccountIdentity(name: "Test"),
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
-                                             oversubscribed: false)
+                                             oversubscribed: false,
+                                             blocked: false)
         return [validator]
     }()
 
@@ -99,7 +100,8 @@ struct WestendStub {
                                              identity: nil,
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
-                                             oversubscribed: true)
+                                             oversubscribed: true,
+                                             blocked: false)
         return [validator]
     }()
 
@@ -110,7 +112,7 @@ struct WestendStub {
                                          exposure: ValidatorExposure(total: BigUInt(1e+13),
                                                                      own: BigUInt(1e+13),
                                                                      others: []),
-                                         prefs: ValidatorPrefs(commission: BigUInt(1e+8)))
+                                         prefs: ValidatorPrefs(commission: BigUInt(1e+8), blocked: false))
 
         return [validator]
     }()
