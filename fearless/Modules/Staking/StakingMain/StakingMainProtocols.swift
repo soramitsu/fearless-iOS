@@ -15,6 +15,7 @@ protocol StakingMainPresenterProtocol: class {
     func performMainAction()
     func performAccountAction()
     func performManageStakingAction()
+    func performNominationStatusAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
 }
