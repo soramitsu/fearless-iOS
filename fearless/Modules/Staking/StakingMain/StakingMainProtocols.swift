@@ -21,6 +21,7 @@ protocol StakingMainPresenterProtocol: class {
 
 protocol StakingMainInteractorInputProtocol: class {
     func setup()
+    func fetchController(for address: AccountAddress)
 }
 
 protocol StakingMainInteractorOutputProtocol: class {
@@ -50,6 +51,9 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
+
+    func didFetchController(_ controller: AccountItem?)
+    func didReceive(fetchControllerError: Error)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

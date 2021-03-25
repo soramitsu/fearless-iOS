@@ -18,6 +18,7 @@ final class StakingMainInteractor {
     let primitiveFactory: WalletPrimitiveFactoryProtocol
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
+    let accountRepository: AnyDataProviderRepository<AccountItem>
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -41,6 +42,7 @@ final class StakingMainInteractor {
          eraValidatorService: EraValidatorServiceProtocol,
          calculatorService: RewardCalculatorServiceProtocol,
          runtimeService: RuntimeCodingServiceProtocol,
+         accountRepository: AnyDataProviderRepository<AccountItem>,
          operationManager: OperationManagerProtocol,
          eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
          applicationHandler: ApplicationHandlerProtocol,
@@ -53,6 +55,7 @@ final class StakingMainInteractor {
         self.eraValidatorService = eraValidatorService
         self.calculatorService = calculatorService
         self.runtimeService = runtimeService
+        self.accountRepository = accountRepository
         self.operationManager = operationManager
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler

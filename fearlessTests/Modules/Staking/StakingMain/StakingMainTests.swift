@@ -49,6 +49,10 @@ class StakingMainTests: XCTestCase {
 
         let operationFactory = MockNetworkStakingInfoOperationFactoryProtocol()
 
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+        let anyAccountRepository = AnyDataProviderRepository(accountRepository)
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
                                                settings: settings,
@@ -57,6 +61,7 @@ class StakingMainTests: XCTestCase {
                                                eraValidatorService: eraValidatorService,
                                                calculatorService: calculatorService,
                                                runtimeService: runtimeCodingService,
+                                               accountRepository: anyAccountRepository,
                                                operationManager: operationManager,
                                                eraInfoOperationFactory: operationFactory,
                                                applicationHandler: ApplicationHandler(),

@@ -56,9 +56,6 @@
                         <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
                             <real key="value" value="16"/>
                         </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerRadius">
-                            <real key="value" value="0.0"/>
-                        </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                             <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
@@ -80,9 +77,6 @@
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_separatorWidth">
-                            <real key="value" value="0.0"/>
-                        </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="color" keyPath="_strokeColor">
                             <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         </userDefinedRuntimeAttribute>
@@ -111,7 +105,7 @@
     </objects>
     <designables>
         <designable name="Q7x-ZT-4hg">
-            <size key="intrinsicContentSize" width="169.5" height="24"/>
+            <size key="intrinsicContentSize" width="144.5" height="24"/>
         </designable>
     </designables>
     <resources>
