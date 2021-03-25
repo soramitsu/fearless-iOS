@@ -11,6 +11,7 @@ struct ElectedValidatorInfo: Equatable {
     let stakeReturn: Decimal
     let hasSlashes: Bool
     let oversubscribed: Bool
+    let blocked: Bool
 
     var hasIdentity: Bool {
         identity != nil
@@ -28,7 +29,8 @@ extension ElectedValidatorInfo {
          stakeReturn: Decimal,
          hasSlashes: Bool,
          maxNominatorsAllowed: UInt32,
-         addressType: SNAddressType) throws {
+         addressType: SNAddressType,
+         blocked: Bool) throws {
 
         self.hasSlashes = hasSlashes
         self.identity = identity
@@ -49,5 +51,7 @@ extension ElectedValidatorInfo {
         totalStake = Decimal.fromSubstrateAmount(validator.exposure.total, precision: addressType.precision) ?? 0.0
         ownStake = Decimal.fromSubstrateAmount(validator.exposure.own, precision: addressType.precision) ?? 0.0
         comission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
+
+        self.blocked = blocked
     }
 }

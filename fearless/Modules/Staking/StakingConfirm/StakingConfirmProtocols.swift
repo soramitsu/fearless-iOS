@@ -18,17 +18,14 @@ protocol StakingConfirmPresenterProtocol: class {
 
 protocol StakingConfirmInteractorInputProtocol: class {
     func setup()
-    func submitNomination(controller: AccountItem,
-                          amount: BigUInt,
-                          rewardDestination: RewardDestination,
-                          targets: [SelectedValidatorInfo])
-    func estimateFee(controller: AccountItem,
-                     amount: BigUInt,
-                     rewardDestination: RewardDestination,
-                     targets: [SelectedValidatorInfo])
+    func submitNomination(for lastBalance: Decimal, lastFee: Decimal)
+    func estimateFee()
 }
 
 protocol StakingConfirmInteractorOutputProtocol: class {
+    func didReceive(model: StakingConfirmationModel)
+    func didReceive(modelError: Error)
+
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
 
@@ -52,5 +49,9 @@ protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
 }
 
 protocol StakingConfirmViewFactoryProtocol: class {
-    static func createView(for state: PreparedNomination) -> StakingConfirmViewProtocol?
+    static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
+    -> StakingConfirmViewProtocol?
+
+    static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
+    -> StakingConfirmViewProtocol?
 }

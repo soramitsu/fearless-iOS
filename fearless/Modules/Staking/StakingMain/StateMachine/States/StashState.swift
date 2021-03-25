@@ -3,6 +3,7 @@ import Foundation
 final class StashState: BaseStakingState {
     private(set) var stashItem: StashItem
     private(set) var totalReward: TotalRewardItem?
+    private(set) var payee: RewardDestinationArg?
 
     private(set) var ledgerInfo: DyStakingLedger?
 
@@ -58,21 +59,24 @@ final class StashState: BaseStakingState {
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
                                       nomination: nomination,
-                                      totalReward: totalReward)
+                                      totalReward: totalReward,
+                                      payee: payee)
         } else if let nomination = nomination {
             newState = PendingNominatorState(stateMachine: stateMachine,
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: nil,
                                              nomination: nomination,
-                                             totalReward: totalReward)
+                                             totalReward: totalReward,
+                                             payee: payee)
         } else {
             newState = PendingValidatorState(stateMachine: stateMachine,
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: ledgerInfo,
                                              prefs: nil,
-                                             totalReward: totalReward)
+                                             totalReward: totalReward,
+                                             payee: payee)
         }
 
         stateMachine.transit(to: newState)
@@ -91,21 +95,24 @@ final class StashState: BaseStakingState {
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
                                       prefs: prefs,
-                                      totalReward: totalReward)
+                                      totalReward: totalReward,
+                                      payee: payee)
         } else if let prefs = validatorPrefs {
             newState = PendingValidatorState(stateMachine: stateMachine,
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: nil,
                                              prefs: prefs,
-                                             totalReward: totalReward)
+                                             totalReward: totalReward,
+                                             payee: payee)
         } else {
             newState = PendingNominatorState(stateMachine: stateMachine,
                                              commonData: commonData,
                                              stashItem: stashItem,
                                              ledgerInfo: ledgerInfo,
                                              nomination: nil,
-                                             totalReward: totalReward)
+                                             totalReward: totalReward,
+                                             payee: payee)
         }
 
         stateMachine.transit(to: newState)
@@ -113,6 +120,12 @@ final class StashState: BaseStakingState {
 
     override func process(totalReward: TotalRewardItem?) {
         self.totalReward = totalReward
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(payee: RewardDestinationArg?) {
+        self.payee = payee
 
         stateMachine?.transit(to: self)
     }

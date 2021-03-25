@@ -14,6 +14,7 @@ protocol StakingMainPresenterProtocol: class {
     func setup()
     func performMainAction()
     func performAccountAction()
+    func performNominationStatusAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
@@ -21,6 +22,7 @@ protocol StakingMainPresenterProtocol: class {
 
 protocol StakingMainInteractorInputProtocol: class {
     func setup()
+    func fetchController(for address: AccountAddress)
 }
 
 protocol StakingMainInteractorOutputProtocol: class {
@@ -47,11 +49,18 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(eraStakersInfoError: Error)
     func didReceive(networkStakingInfo: NetworkStakingInfo)
     func didReceive(networkStakingInfoError: Error)
+    func didReceive(payee: RewardDestinationArg?)
+    func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
+
+    func didFetchController(_ controller: AccountItem?)
+    func didReceive(fetchControllerError: Error)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
+    func showRecommendedValidators(from view: StakingMainViewProtocol?,
+                                   existingBonding: ExistingBonding)
     func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int)
 }
 

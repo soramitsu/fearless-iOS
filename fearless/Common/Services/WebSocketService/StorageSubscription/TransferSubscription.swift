@@ -189,7 +189,7 @@ final class TransferSubscription {
 
         let allOperations = contactDependencies + txDependencies + [saveOperation]
 
-        operationManager.enqueue(operations: allOperations, in: .sync)
+        operationManager.enqueue(operations: allOperations, in: .transient)
     }
 }
 

@@ -3,13 +3,16 @@ import Foundation
 class BaseStashNextState: BaseStakingState {
     let stashItem: StashItem
     private(set) var totalReward: TotalRewardItem?
+    private(set) var payee: RewardDestinationArg?
 
     init(stateMachine: StakingStateMachineProtocol,
          commonData: StakingStateCommonData,
          stashItem: StashItem,
-         totalReward: TotalRewardItem?) {
+         totalReward: TotalRewardItem?,
+         payee: RewardDestinationArg?) {
         self.stashItem = stashItem
         self.totalReward = totalReward
+        self.payee = payee
 
         super.init(stateMachine: stateMachine, commonData: commonData)
     }
@@ -42,6 +45,12 @@ class BaseStashNextState: BaseStakingState {
 
     override func process(totalReward: TotalRewardItem?) {
         self.totalReward = totalReward
+
+        stateMachine?.transit(to: self)
+    }
+
+    override func process(payee: RewardDestinationArg?) {
+        self.payee = payee
 
         stateMachine?.transit(to: self)
     }

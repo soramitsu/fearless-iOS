@@ -9,7 +9,7 @@ extension WalletFormCellStyle {
                                       color: R.color.colorWhite()!)
 
         let link = WalletLinkStyle(normal: R.color.colorWhite()!,
-                                        highlighted: R.color.colorDarkBlue()!)
+                                   highlighted: R.color.colorAccent()!)
 
         return WalletFormCellStyle(title: title,
                                    details: details,

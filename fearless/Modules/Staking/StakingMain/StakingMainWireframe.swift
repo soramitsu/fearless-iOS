@@ -11,6 +11,19 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
+    func showRecommendedValidators(from view: StakingMainViewProtocol?,
+                                   existingBonding: ExistingBonding) {
+        guard let recommendedView = RecommendedValidatorsViewFactory
+                .createChangeTargetsView(with: existingBonding) else {
+            return
+        }
+
+        let rootController = recommendedView.controller
+        let navigationController = FearlessNavigationController(rootViewController: rootController)
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
     func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int) {
         guard let storiesView = StoriesViewFactory.createView() else {
             return

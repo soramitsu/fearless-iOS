@@ -35,7 +35,7 @@ final class AccountTableViewCell: UITableViewCell {
         super.awakeFromNib()
 
         let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorDarkBlue()!.withAlphaComponent(0.3)
+        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
         self.selectedBackgroundView = selectedBackgroundView
 
         showsReorderControl = false

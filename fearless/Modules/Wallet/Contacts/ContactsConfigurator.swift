@@ -38,7 +38,7 @@ final class ContactsConfigurator {
                                 nameIcon: iconStyle,
                                 accessoryIcon: R.image.iconSmallArrow(),
                                 lineBreakMode: .byTruncatingMiddle,
-                                selectionColor: R.color.colorDarkBlue()!.withAlphaComponent(0.3))
+                                selectionColor: R.color.colorAccent()!.withAlphaComponent(0.3))
     }()
 
     private lazy var sectionHeaderStyle: ContactsSectionStyleProtocol = {

@@ -4,9 +4,6 @@ import Cuckoo
 import RobinHood
 
 class RecommendedValidatorsTests: XCTestCase {
-    let nominationState = StartStakingResult(amount: 1.0,
-                                             rewardDestination: .restake)
-
     func testSetupAndOptionSelect() {
         // given
 
@@ -14,7 +11,7 @@ class RecommendedValidatorsTests: XCTestCase {
         let wireframe = MockRecommendedValidatorsWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
-        let presenter = RecommendedValidatorsPresenter(state: nominationState)
+        let presenter = RecommendedValidatorsPresenter()
         let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
                                                          operationManager: OperationManager())
 
@@ -43,9 +40,9 @@ class RecommendedValidatorsTests: XCTestCase {
         let all = WestendStub.allValidators
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), result: any()).then { (_, nomination) in
+            when(stub).proceed(from: any(), targets: any(), maxTargets: any()).then { (_, targets, _) in
                 XCTAssertEqual(Set(recommended.map({ $0.address })),
-                               Set(nomination.targets.map({ $0.address })))
+                               Set(targets.map({ $0.address })))
             }
 
             when(stub).showCustom(from: any(), validators: any()).then { (_ , validators) in
@@ -69,6 +66,6 @@ class RecommendedValidatorsTests: XCTestCase {
 
         verify(wireframe, times(1)).showCustom(from: any(), validators: any())
         verify(wireframe, times(1)).showRecommended(from: any(), validators: any(), maxTargets: any())
-        verify(wireframe, times(1)).proceed(from: any(), result: any())
+        verify(wireframe, times(1)).proceed(from: any(), targets: any(), maxTargets: any())
     }
 }

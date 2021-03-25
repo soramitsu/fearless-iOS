@@ -20,32 +20,18 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         view.amountFormatterFactory = AmountFormatterFactory()
 
         // MARK: - Interactor
-        let substrateProviderFactory =
-            SubstrateDataProviderFactory(facade: SubstrateDataStorageFacade.shared,
-                                         operationManager: OperationManagerFacade.sharedManager)
 
-        let operationFactory = NetworkStakingInfoOperationFactory(eraValidatorService: EraValidatorFacade.sharedService,
-                                                              runtimeService: RuntimeRegistryFacade.sharedService)
-
-        let interactor = StakingMainInteractor(providerFactory: SingleValueProviderFactory.shared,
-                                               substrateProviderFactory: substrateProviderFactory,
-                                               settings: settings,
-                                               eventCenter: EventCenter.shared,
-                                               primitiveFactory: primitiveFactory,
-                                               eraValidatorService: EraValidatorFacade.sharedService,
-                                               calculatorService: RewardCalculatorFacade.sharedService,
-                                               runtimeService: RuntimeRegistryFacade.sharedService,
-                                               operationManager: OperationManagerFacade.sharedManager,
-                                               eraInfoOperationFactory: operationFactory,
-                                               applicationHandler: ApplicationHandler(),
-                                               logger: logger)
+        let interactor = createInteractor(settings: settings,
+                                          primitiveFactory: primitiveFactory)
 
         // MARK: - Presenter
 
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: logger)
+        let networkInfoViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
+                                             networkInfoViewModelFactory: networkInfoViewModelFactory,
                                              viewModelFacade: viewModelFacade,
                                              logger: logger)
 
@@ -59,5 +45,33 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         interactor.presenter = presenter
 
         return view
+    }
+
+    private static func createInteractor(settings: SettingsManagerProtocol,
+                                         primitiveFactory: WalletPrimitiveFactoryProtocol)
+    -> StakingMainInteractor {
+        let substrateProviderFactory =
+            SubstrateDataProviderFactory(facade: SubstrateDataStorageFacade.shared,
+                                         operationManager: OperationManagerFacade.sharedManager)
+
+        let operationFactory = NetworkStakingInfoOperationFactory(eraValidatorService: EraValidatorFacade.sharedService,
+                                                              runtimeService: RuntimeRegistryFacade.sharedService)
+
+        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
+        return StakingMainInteractor(providerFactory: SingleValueProviderFactory.shared,
+                                     substrateProviderFactory: substrateProviderFactory,
+                                     settings: settings,
+                                     eventCenter: EventCenter.shared,
+                                     primitiveFactory: primitiveFactory,
+                                     eraValidatorService: EraValidatorFacade.sharedService,
+                                     calculatorService: RewardCalculatorFacade.sharedService,
+                                     runtimeService: RuntimeRegistryFacade.sharedService,
+                                     accountRepository: AnyDataProviderRepository(repository),
+                                     operationManager: OperationManagerFacade.sharedManager,
+                                     eraInfoOperationFactory: operationFactory,
+                                     applicationHandler: ApplicationHandler(),
+                                     logger: Logger.shared)
     }
 }
