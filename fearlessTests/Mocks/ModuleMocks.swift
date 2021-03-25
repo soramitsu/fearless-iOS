@@ -17494,6 +17494,21 @@ import SoraFoundation
     
     
     
+     func performManageStakingAction()  {
+        
+    return cuckoo_manager.call("performManageStakingAction()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.performManageStakingAction())
+        
+    }
+    
+    
+    
      func updateAmount(_ newValue: Decimal)  {
         
     return cuckoo_manager.call("updateAmount(_: Decimal)",
@@ -17546,6 +17561,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performAccountAction()", parameterMatchers: matchers))
 	    }
 	    
+	    func performManageStakingAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performManageStakingAction()", parameterMatchers: matchers))
+	    }
+	    
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal)> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "updateAmount(_: Decimal)", parameterMatchers: matchers))
@@ -17591,6 +17611,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func performManageStakingAction() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("performManageStakingAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.__DoNotUse<(Decimal), Void> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return cuckoo_manager.verify("updateAmount(_: Decimal)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -17620,6 +17646,10 @@ import SoraFoundation
     }
     
      func performAccountAction()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func performManageStakingAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -18697,6 +18727,21 @@ import SoraFoundation
     
     
     
+     func showManageStaking(from view: StakingMainViewProtocol?, items: [ManageStakingItem], delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)  {
+        
+    return cuckoo_manager.call("showManageStaking(from: StakingMainViewProtocol?, items: [ManageStakingItem], delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)",
+            parameters: (view, items, delegate, context),
+            escapingParameters: (view, items, delegate, context),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showManageStaking(from: view, items: items, delegate: delegate, context: context))
+        
+    }
+    
+    
+    
      func showRecommendedValidators(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding)  {
         
     return cuckoo_manager.call("showRecommendedValidators(from: StakingMainViewProtocol?, existingBonding: ExistingBonding)",
@@ -18707,6 +18752,21 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.showRecommendedValidators(from: view, existingBonding: existingBonding))
+        
+    }
+    
+    
+    
+     func showRewardPayouts(from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("showRewardPayouts(from: ControllerBackedProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showRewardPayouts(from: view))
         
     }
     
@@ -18754,9 +18814,19 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showSetupAmount(from: StakingMainViewProtocol?, amount: Decimal?)", parameterMatchers: matchers))
 	    }
 	    
+	    func showManageStaking<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(from view: M1, items: M2, delegate: M3, context: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, [ManageStakingItem], ModalPickerViewControllerDelegate?, AnyObject?)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == [ManageStakingItem], M3.OptionalMatchedType == ModalPickerViewControllerDelegate, M4.OptionalMatchedType == AnyObject {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, [ManageStakingItem], ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: items) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: context) { $0.3 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showManageStaking(from: StakingMainViewProtocol?, items: [ManageStakingItem], delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", parameterMatchers: matchers))
+	    }
+	    
 	    func showRecommendedValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, existingBonding: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, ExistingBonding)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRecommendedValidators(from: StakingMainViewProtocol?, existingBonding: ExistingBonding)", parameterMatchers: matchers))
+	    }
+	    
+	    func showRewardPayouts<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRewardPayouts(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -18792,9 +18862,21 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showManageStaking<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(from view: M1, items: M2, delegate: M3, context: M4) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, [ManageStakingItem], ModalPickerViewControllerDelegate?, AnyObject?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == [ManageStakingItem], M3.OptionalMatchedType == ModalPickerViewControllerDelegate, M4.OptionalMatchedType == AnyObject {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, [ManageStakingItem], ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: items) { $0.1 }, wrap(matchable: delegate) { $0.2 }, wrap(matchable: context) { $0.3 }]
+	        return cuckoo_manager.verify("showManageStaking(from: StakingMainViewProtocol?, items: [ManageStakingItem], delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func showRecommendedValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, existingBonding: M2) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, ExistingBonding), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == ExistingBonding {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, ExistingBonding)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: existingBonding) { $0.1 }]
 	        return cuckoo_manager.verify("showRecommendedValidators(from: StakingMainViewProtocol?, existingBonding: ExistingBonding)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func showRewardPayouts<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showRewardPayouts(from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -18822,7 +18904,15 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
+     func showManageStaking(from view: StakingMainViewProtocol?, items: [ManageStakingItem], delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
      func showRecommendedValidators(from view: StakingMainViewProtocol?, existingBonding: ExistingBonding)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showRewardPayouts(from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
