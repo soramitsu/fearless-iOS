@@ -27,8 +27,20 @@ final class StakingRewardDetailsViewLayout: UIView {
     }
 
     private func setupLayout() {
+        let separator = UIView()
+        separator.backgroundColor = R.color.colorDarkGray()
+        addSubview(separator)
+        separator.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview()
+            make.height.equalTo(1 / UIScreen.main.scale)
+        }
+
         addSubview(tableView)
-        tableView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(separator.snp.bottom)
+            make.leading.bottom.trailing.equalToSuperview()
+        }
 
         addSubview(payoutButton)
         payoutButton.snp.makeConstraints { make in
