@@ -7,13 +7,14 @@ import BigInt
 import Cuckoo
 
 class StakingConfirmTests: XCTestCase {
-    let state: PreparedNomination = {
+    let initiatedBoding: PreparedNomination<InitiatedBonding> = {
         let validator1 = SelectedValidatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
                                                identity: nil)
         let validator2 = SelectedValidatorInfo(address: "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq",
                                                identity: nil)
-        return PreparedNomination(amount: 1.0,
-                                  rewardDestination: .restake,
+        let initiatedBonding = InitiatedBonding(amount: 1.0, rewardDestination: .restake)
+
+        return PreparedNomination(bonding: initiatedBonding,
                                   targets: [validator1, validator2],
                                   maxTargets: 16)
     }()
@@ -35,26 +36,28 @@ class StakingConfirmTests: XCTestCase {
         let view = MockStakingConfirmViewProtocol()
         let wireframe = MockStakingConfirmWireframeProtocol()
 
-        let confirmViewModelFactory = StakingConfirmViewModelFactory(asset: asset)
+        let confirmViewModelFactory = StakingConfirmViewModelFactory()
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: addressType,
                                                               limit: StakingConstants.maxAmount)
-        let presenter = StakingConfirmPresenter(state: state,
-                                                asset: asset,
-                                                walletAccount: settings.selectedAccount!,
-                                                confirmationViewModelFactory: confirmViewModelFactory,
-                                                balanceViewModelFactory: balanceViewModelFactory)
+        let presenter = StakingConfirmPresenter(confirmationViewModelFactory: confirmViewModelFactory,
+                                                balanceViewModelFactory: balanceViewModelFactory,
+                                                asset:asset)
 
         let signer = try DummySigner(cryptoType: .sr25519)
 
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let extrinsicService = ExtrinsicServiceStub.dummy()
-        let interactor = StakingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
-                                                  balanceProvider: AnyDataProvider(balanceProvider),
-                                                  extrinsicService: extrinsicService,
-                                                  operationManager: OperationManager(),
-                                                  signer: signer)
+
+        let interactor =
+            InitiatedBondingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
+                                              balanceProvider: AnyDataProvider(balanceProvider),
+                                              extrinsicService: extrinsicService,
+                                              operationManager: OperationManager(),
+                                              signer: signer,
+                                              settings: settings,
+                                              nomination: initiatedBoding)
 
         presenter.view = view
         presenter.wireframe = wireframe

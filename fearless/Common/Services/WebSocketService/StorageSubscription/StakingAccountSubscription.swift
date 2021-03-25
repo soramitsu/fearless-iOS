@@ -113,6 +113,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
             requests.append((.nominators, stashId))
             requests.append((.validatorPrefs, stashId))
+            requests.append((.payee, stashId))
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 

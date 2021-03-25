@@ -42,7 +42,7 @@ final class NetworkStakingInfoOperationFactory {
 
     private func deriveMinimalStake(from eraStakersInfo: EraStakersInfo,
                                     limitedBy maxNominators: Int) -> BigUInt {
-        eraStakersInfo.validators.map({ $0.exposure.others })
+        eraStakersInfo.validators.map({ $0.exposure.others.sorted { $0.value > $1.value } })
             .flatMap({ Array($0.prefix(maxNominators)) })
             .compactMap { $0.value }
             .min() ?? BigUInt.zero

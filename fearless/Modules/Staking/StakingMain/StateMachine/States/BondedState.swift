@@ -10,14 +10,16 @@ final class BondedState: BaseStashNextState {
          stashItem: StashItem,
          ledgerInfo: DyStakingLedger,
          totalReward: TotalRewardItem?,
-         rewardEstimationAmount: Decimal? = nil) {
+         rewardEstimationAmount: Decimal? = nil,
+         payee: RewardDestinationArg?) {
         self.ledgerInfo = ledgerInfo
         self.rewardEstimationAmount = rewardEstimationAmount
 
         super.init(stateMachine: stateMachine,
                    commonData: commonData,
                    stashItem: stashItem,
-                   totalReward: totalReward)
+                   totalReward: totalReward,
+                   payee: payee)
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -65,7 +67,8 @@ final class BondedState: BaseStashNextState {
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
                                       nomination: nomination,
-                                      totalReward: totalReward)
+                                      totalReward: totalReward,
+                                      payee: payee)
         } else {
             newState = self
         }
@@ -86,7 +89,8 @@ final class BondedState: BaseStashNextState {
                                       stashItem: stashItem,
                                       ledgerInfo: ledgerInfo,
                                       prefs: prefs,
-                                      totalReward: totalReward)
+                                      totalReward: totalReward,
+                                      payee: payee)
         } else {
             newState = self
         }

@@ -23,13 +23,21 @@ protocol RecommendedValidatorsInteractorOutputProtocol: class {
 }
 
 protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(from view: RecommendedValidatorsViewProtocol?, result: PreparedNomination)
+    func proceed(from view: RecommendedValidatorsViewProtocol?,
+                 targets: [SelectedValidatorInfo],
+                 maxTargets: Int)
+
     func showRecommended(from view: RecommendedValidatorsViewProtocol?,
                          validators: [ElectedValidatorInfo],
                          maxTargets: Int)
+
     func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
 }
 
 protocol RecommendedValidatorsViewFactoryProtocol: class {
-    static func createView(with stakingState: StartStakingResult) -> RecommendedValidatorsViewProtocol?
+    static func createInitiatedBondingView(with state: InitiatedBonding)
+    -> RecommendedValidatorsViewProtocol?
+
+    static func createChangeTargetsView(with state: ExistingBonding)
+    -> RecommendedValidatorsViewProtocol?
 }

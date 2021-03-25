@@ -9,6 +9,7 @@ typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<DyStakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
+typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -26,6 +27,8 @@ protocol SingleValueProviderFactoryProtocol {
     -> AnyDataProvider<DecodedLedgerInfo>
     func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
     -> AnyDataProvider<DecodedActiveEra>
+    func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
+    -> AnyDataProvider<DecodedPayee>
 }
 
 final class SingleValueProviderFactory {
@@ -258,5 +261,14 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
                                 path: .activeEra,
                                 runtimeService: runtimeService,
                                 shouldUseFallback: true)
+    }
+
+    func getPayee(for address: String,
+                  runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedPayee> {
+        try getAccountIdKeyedProvider(address: address,
+                                      path: .payee,
+                                      hasher: .twox64Concat,
+                                      runtimeService: runtimeService,
+                                      shouldUseFallback: false)
     }
 }
