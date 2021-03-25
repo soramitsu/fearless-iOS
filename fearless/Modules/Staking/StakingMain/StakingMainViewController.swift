@@ -213,6 +213,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private func applyNomination(viewModel: LocalizableResource<NominationViewModelProtocol>) {
         let nominationView = setupNominationViewIfNeeded()
+        nominationView?.delegate = self
         nominationView?.bind(viewModel: viewModel)
     }
 
@@ -353,4 +354,14 @@ extension StakingMainViewController: UICollectionViewDataSource {
 // MARK: Collection View Delegate -
 extension StakingMainViewController: UICollectionViewDelegate {
     // TODO: FLW-635
+}
+
+extension StakingMainViewController: NominationViewDelegate {
+    func nominationViewDidReceiveMoreAction(_ nominationView: NominationView) {
+        // TODO: FLW-674
+    }
+
+    func nominationViewDidReceiveStatusAction(_ nominationView: NominationView) {
+        presenter?.performNominationStatusAction()
+    }
 }

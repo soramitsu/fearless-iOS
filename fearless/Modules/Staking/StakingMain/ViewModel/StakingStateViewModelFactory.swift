@@ -107,7 +107,8 @@ final class StakingStateViewModelFactory {
 
     private func createNominationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
-                                           state: NominatorState)
+                                           state: NominatorState,
+                                           viewStatus: NominationViewStatus)
     -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
@@ -123,11 +124,6 @@ final class StakingStateViewModelFactory {
             reward = nil
         }
 
-        let nominationStatus = createNominationStatus(for: chain,
-                                                      commonData: commonData,
-                                                      stashItem: state.stashItem,
-                                                      nomination: state.nomination)
-
         return LocalizableResource { locale in
             let stakedViewModel = staked.value(for: locale)
             let rewardViewModel = reward?.value(for: locale)
@@ -136,7 +132,7 @@ final class StakingStateViewModelFactory {
                                        totalStakedPrice: stakedViewModel.price ?? "",
                                        totalRewardAmount: rewardViewModel?.amount ?? "",
                                        totalRewardPrice: rewardViewModel?.price ?? "",
-                                       status: nominationStatus)
+                                       status: viewStatus)
         }
     }
 
@@ -297,7 +293,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         let viewModel = createNominationViewModel(for: chain,
                                                   commonData: state.commonData,
-                                                  state: state)
+                                                  state: state,
+                                                  viewStatus: state.status)
 
         lastViewModel = .nominator(viewModel: viewModel)
     }

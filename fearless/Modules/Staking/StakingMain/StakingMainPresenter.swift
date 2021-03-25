@@ -104,6 +104,77 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
     }
 
+    func performNominationStatusAction() {
+        let optViewModel: AlertPresentableViewModel? =
+            stateMachine.viewState { (state: NominatorState) in
+            let languages = view?.localizationManager?.selectedLocale.rLanguages
+
+            let closeAction = R.string.localizable.commonClose(preferredLanguages: languages)
+
+            switch state.status {
+            case .active:
+                let title = R.string.localizable
+                    .stakingNominatorStatusAlertActiveTitle(preferredLanguages: languages)
+                let message = R.string.localizable
+                    .stakingNominatorStatusAlertActiveMessage(preferredLanguages: languages)
+
+                return AlertPresentableViewModel(title: title,
+                                                 message: message,
+                                                 actions: [],
+                                                 closeAction: closeAction)
+            case .waiting:
+                let title = R.string.localizable
+                    .stakingNominatorStatusWaiting(preferredLanguages: languages)
+                let message = R.string.localizable
+                    .stakingNominatorStatusAlertWaitingMessage(preferredLanguages: languages)
+
+                return AlertPresentableViewModel(title: title,
+                                                 message: message,
+                                                 actions: [],
+                                                 closeAction: closeAction)
+            case .election:
+                let title = R.string.localizable
+                    .stakingNominatorStatusElection(preferredLanguages: languages)
+                let message = R.string.localizable
+                    .stakingNominatorStatusAlertElectionMessage(preferredLanguages: languages)
+
+                return AlertPresentableViewModel(title: title,
+                                                 message: message,
+                                                 actions: [],
+                                                 closeAction: closeAction)
+            case .inactive:
+                guard let networkInfo = networkStakingInfo else {
+                    return nil
+                }
+
+                let title = R.string.localizable
+                    .stakingNominatorStatusAlertInactiveTitle(preferredLanguages: languages)
+                let message: String
+
+                if state.ledgerInfo.active < networkInfo.minimalStake {
+                    message = R.string.localizable
+                        .stakingNominatorStatusAlertLowStake(preferredLanguages: languages)
+                } else {
+                    message = R.string.localizable
+                        .stakingNominatorStatusAlertNoValidators(preferredLanguages: languages)
+                }
+
+                return AlertPresentableViewModel(title: title,
+                                                 message: message,
+                                                 actions: [],
+                                                 closeAction: closeAction)
+            case .undefined:
+                return nil
+            }
+        }
+
+        if let viewModel = optViewModel {
+            wireframe.present(viewModel: viewModel,
+                              style: .alert,
+                              from: view)
+        }
+    }
+
     func performAccountAction() {
         logger?.debug("Did select account")
     }
