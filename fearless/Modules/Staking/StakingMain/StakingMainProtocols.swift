@@ -47,12 +47,16 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(eraStakersInfoError: Error)
     func didReceive(networkStakingInfo: NetworkStakingInfo)
     func didReceive(networkStakingInfoError: Error)
+    func didReceive(payee: RewardDestinationArg?)
+    func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
     func showManageStaking(from view: StakingMainViewProtocol?)
+    func showRecommendedValidators(from view: StakingMainViewProtocol?,
+                                   existingBonding: ExistingBonding)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

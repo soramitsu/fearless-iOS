@@ -28,12 +28,23 @@ protocol StakingStateProtocol {
     func process(electionStatus: ElectionStatus?)
     func process(eraStakersInfo: EraStakersInfo?)
     func process(totalReward: TotalRewardItem?)
+    func process(payee: RewardDestinationArg?)
 }
 
 protocol StakingStateMachineProtocol: class {
     var state: StakingStateProtocol { get }
 
     func transit(to state: StakingStateProtocol)
+}
+
+extension StakingStateMachineProtocol {
+    func viewState<S: StakingStateProtocol, V>(using closure: (S) -> V?) -> V? {
+        if let concreteState = state as? S {
+            return closure(concreteState)
+        } else {
+            return nil
+        }
+    }
 }
 
 protocol StakingStateMachineDelegate: class {

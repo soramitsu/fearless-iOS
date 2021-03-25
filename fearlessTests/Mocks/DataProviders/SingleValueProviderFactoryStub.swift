@@ -11,6 +11,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let validatorPrefs: AnyDataProvider<DecodedValidator>
     let ledgerInfo: AnyDataProvider<DecodedLedgerInfo>
     let activeEra: AnyDataProvider<DecodedActiveEra>
+    let payee: AnyDataProvider<DecodedPayee>
 
     init(price: AnySingleValueProvider<PriceData>,
          totalReward: AnySingleValueProvider<TotalRewardItem>,
@@ -19,7 +20,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          nomination: AnyDataProvider<DecodedNomination>,
          validatorPrefs: AnyDataProvider<DecodedValidator>,
          ledgerInfo: AnyDataProvider<DecodedLedgerInfo>,
-         activeEra: AnyDataProvider<DecodedActiveEra>) {
+         activeEra: AnyDataProvider<DecodedActiveEra>,
+         payee: AnyDataProvider<DecodedPayee>) {
         self.price = price
         self.totalReward = totalReward
         self.balance = balance
@@ -28,6 +30,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         self.validatorPrefs = validatorPrefs
         self.ledgerInfo = ledgerInfo
         self.activeEra = activeEra
+        self.payee = payee
     }
 
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
@@ -67,6 +70,11 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     -> AnyDataProvider<DecodedActiveEra> {
         activeEra
     }
+
+    func getPayee(for address: String,
+                  runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedPayee> {
+        payee
+    }
 }
 
 extension SingleValueProviderFactoryStub {
@@ -80,6 +88,10 @@ extension SingleValueProviderFactoryStub {
         let ledgerProvider = DataProviderStub(models: [WestendStub.ledgerInfo])
         let activeEra = DataProviderStub(models: [WestendStub.activeEra])
 
+        let payeeId = (WestendStub.ledgerInfo.item?.stash.toHex() ?? "") + "_payee"
+        let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
+        let payee = DataProviderStub(models: [decodedPayee])
+
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                               totalReward: AnySingleValueProvider(totalRewardProvider),
                                               balance: AnyDataProvider(balanceProvider),
@@ -87,6 +99,7 @@ extension SingleValueProviderFactoryStub {
                                               nomination: AnyDataProvider(nominationProvider),
                                               validatorPrefs: AnyDataProvider(validatorProvider),
                                               ledgerInfo: AnyDataProvider(ledgerProvider),
-                                              activeEra: AnyDataProvider(activeEra))
+                                              activeEra: AnyDataProvider(activeEra),
+                                              payee: AnyDataProvider(payee))
     }
 }

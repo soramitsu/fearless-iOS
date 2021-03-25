@@ -39,16 +39,16 @@ extension StakingMainInteractor: EventVisitorProtocol {
             clearStashControllerProvider()
             subscribeToStashControllerProvider()
 
-            provideRewardCalculator()
-
             provideEraStakersInfo()
             provideNetworkStakingInfo()
+            provideRewardCalculator()
         }
     }
 
     func processEraStakersInfoChanged(event: EraStakersInfoChanged) {
         provideEraStakersInfo()
         provideNetworkStakingInfo()
+        provideRewardCalculator()
     }
 }
 
