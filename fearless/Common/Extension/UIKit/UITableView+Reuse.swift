@@ -34,7 +34,7 @@ extension UITableView {
     }
 }
 
-extension NSObject {
+extension UIView {
     static var reuseIdentifier: String {
         return NSStringFromClass(self)
     }

@@ -81,7 +81,7 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
 
     // TODO delete stub data
-    var stubCellData: [(String, [StakingRewardHistoryTableCell.Model])] {
+    var stubCellData: [(String, [StakingRewardHistoryTableCell.ViewModel])] {
         [
             ("DEC 15, 2021 (era #1,615)".uppercased(), [
                 .init(
