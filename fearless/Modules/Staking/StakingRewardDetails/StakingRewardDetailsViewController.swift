@@ -76,7 +76,7 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
 
     // TODO delete stub data
     var stubCellData: [RewardDetailsRow] {
-        [.status, .date("3 March 2020"), .era("era"), .reward]
+        [.status, .date("3 March 2020"), .era("#1,690"), .reward]
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {

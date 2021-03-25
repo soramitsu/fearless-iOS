@@ -15,6 +15,11 @@ final class StakingRewardDetailsTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .clear
+        separatorInset = .init(
+            top: 0,
+            left: UIConstants.horizontalInset,
+            bottom: 0,
+            right: UIConstants.horizontalInset)
         setupLayout()
     }
 
@@ -40,7 +45,7 @@ final class StakingRewardDetailsTableCell: UITableViewCell {
 
         switch model {
         case .status:
-            let valueView = LabelValueView(text: "Claimable")
+            let valueView = ClaimableStatusView()
             addValueView(valueView)
         case .date(let date):
             let valueView = LabelValueView(text: date)
@@ -74,6 +79,34 @@ private extension StakingRewardDetailsTableCell {
             label.text = text
             addSubview(label)
             label.snp.makeConstraints { $0.edges.equalToSuperview() }
+        }
+
+        required init?(coder: NSCoder) {
+            fatalError("init(coder:) has not been implemented")
+        }
+    }
+
+    class ClaimableStatusView: UIView {
+
+        override init(frame: CGRect) {
+            super.init(frame: frame)
+
+            let label = UILabel()
+            label.font = .p1Paragraph
+            label.textColor = R.color.colorWhite()
+            label.text = R.string.localizable.stakingRewardDetailsClaimable()
+            addSubview(label)
+            label.snp.makeConstraints { make in
+                make.leading.centerY.equalToSuperview()
+            }
+
+            let icon = UIImageView(image: R.image.iconTxPending())
+            addSubview(icon)
+            icon.snp.makeConstraints { make in
+                make.centerY.trailing.equalToSuperview()
+                make.leading.equalTo(label.snp.trailing).inset(-9)
+                make.size.equalTo(22)
+            }
         }
 
         required init?(coder: NSCoder) {

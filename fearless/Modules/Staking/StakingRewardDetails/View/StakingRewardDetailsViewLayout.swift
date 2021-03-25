@@ -7,7 +7,7 @@ final class StakingRewardDetailsViewLayout: UIView {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = R.color.colorBlack()
-        tableView.separatorStyle = .none
+        tableView.separatorColor = R.color.colorDarkGray()
         return tableView
     }()
 
