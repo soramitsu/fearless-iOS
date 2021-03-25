@@ -58,9 +58,18 @@ protocol StakingMainInteractorOutputProtocol: class {
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
-    func showManageStaking(from view: StakingMainViewProtocol?)
+
+    func showManageStaking(
+        from view: StakingMainViewProtocol?,
+        items: [ManageStakingItem],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
+
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding)
+
+    func showRewardPayouts(from view: ControllerBackedProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

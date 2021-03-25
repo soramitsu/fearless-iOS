@@ -109,7 +109,11 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
-        wireframe.showManageStaking(from: view)
+        wireframe.showManageStaking(
+            from: view,
+            items: [.rewardPayouts],
+            delegate: self,
+            context: nil)
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -333,5 +337,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(fetchControllerError: Error) {
         handle(error: fetchControllerError)
+    }
+}
+
+extension StakingMainPresenter: ModalPickerViewControllerDelegate {
+
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        wireframe.showRewardPayouts(from: view)
     }
 }

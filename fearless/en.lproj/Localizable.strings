@@ -303,3 +303,5 @@ Derivation path: %@";
 "staking.nominator.status.alert.no.validators" = "None of your validators have been elected by network.";
 "staking.nominator.status.alert.low.stake" = "Your staked amount is less than the minimum stake to get a reward.";
 "staking.controller.missing.message" = "Controller account is unavailable to update staking setup";
+"staking.reward.payouts.title" = "Reward payouts";
+"staking.reward.payouts.payout.all" = "Payout all (%@)";
