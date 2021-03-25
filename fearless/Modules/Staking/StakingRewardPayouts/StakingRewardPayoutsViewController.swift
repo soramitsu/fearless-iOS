@@ -39,6 +39,7 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
+        rootView.tableView.registerHeaderFooterView(withClass: StakingRewardHistoryHeaderView.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
@@ -62,9 +63,19 @@ extension StakingRewardPayoutsViewController: Localizable {
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
+    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+        let headerView: StakingRewardHistoryHeaderView = tableView.dequeueReusableHeaderFooterView()
+        let model = "FEB 1, 2021 (ERA #1,685)"
+        headerView.bind(model: model)
+        return headerView
+    }
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
+
+    func numberOfSections(in tableView: UITableView) -> Int {
+        return 2
+    }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         10

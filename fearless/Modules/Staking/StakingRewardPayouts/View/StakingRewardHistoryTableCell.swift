@@ -48,6 +48,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // swiftlint:disable function_body_length
     private func setupLayout() {
         contentView.addSubview(transactionTypeView)
         transactionTypeView.translatesAutoresizingMaskIntoConstraints = false
@@ -104,6 +105,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
                 constant: -Constants.verticalInset)
         ])
     }
+    // swiftlint:enable function_body_length
 }
 
 extension StakingRewardHistoryTableCell {
