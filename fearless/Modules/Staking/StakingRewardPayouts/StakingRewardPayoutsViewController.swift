@@ -17,6 +17,10 @@ final class StakingRewardPayoutsViewController: UIViewController {
     }
 
     // MARK: Lifecycle -
+    override func loadView() {
+        view = StakingRewardPayoutsViewLayout()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
