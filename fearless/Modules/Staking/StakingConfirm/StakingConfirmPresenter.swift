@@ -63,8 +63,25 @@ final class StakingConfirmPresenter {
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        if !wireframe.present(error: error, from: view, locale: locale) {
-            logger?.error("Did receive error: \(error)")
+        if let confirmError = error as? StakingConfirmError {
+            guard let view = view else {
+                return
+            }
+
+            switch confirmError {
+            case .notEnoughFunds:
+                wireframe.presentAmountTooHigh(from: view, locale: locale)
+            case .feeNotReceived:
+                wireframe.presentFeeNotReceived(from: view, locale: locale)
+            case .missingController:
+                wireframe.presentMissingController(from: view, locale: locale)
+            case .extrinsicFailed:
+                wireframe.presentExtrinsicFailed(from: view, locale: locale)
+            }
+        } else {
+            if !wireframe.present(error: error, from: view, locale: locale) {
+                logger?.error("Did receive error: \(error)")
+            }
         }
     }
 }
@@ -86,7 +103,7 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
             let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
             wireframe.presentAccountOptions(from: view,
-                                            address: state.stash.address,
+                                            address: state.wallet.address,
                                             chain: chain,
                                             locale: locale)
         }
@@ -120,10 +137,6 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func proceed() {
-        guard let balance = balance, let state = state else {
-            return
-        }
-
         guard let fee = fee else {
             if let view = view {
                 wireframe.presentFeeNotReceived(from: view,
@@ -133,16 +146,7 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
             return
         }
 
-        guard state.amount + fee <= balance else {
-            if let view = view {
-                wireframe.presentAmountTooHigh(from: view,
-                                               locale: view.localizationManager?.selectedLocale)
-            }
-
-            return
-        }
-
-        interactor.submitNomination()
+        interactor.submitNomination(for: balance ?? 0.0, lastFee: fee)
     }
 }
 
@@ -152,6 +156,10 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
 
         provideAsset()
         provideConfirmationState()
+    }
+
+    func didReceive(modelError: Error) {
+        handle(error: modelError)
     }
 
     func didReceive(price: PriceData?) {
@@ -194,10 +202,7 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
     func didFailNomination(error: Error) {
         view?.didStopLoading()
 
-        if let view = view {
-            wireframe.presentExtrinsicFailed(from: view,
-                                             locale: view.localizationManager?.selectedLocale)
-        }
+        handle(error: error)
     }
 
     func didReceive(paymentInfo: RuntimeDispatchInfo) {
