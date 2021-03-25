@@ -307,3 +307,8 @@ Derivation path: %@";
 "staking.reward.payouts.payout.all" = "Payout all (%@)";
 "staking.reward.details.title" = "Reward details";
 "staking.reward.details.payout" = "Payout";
+"staking.reward.details.status" = "Status";
+"staking.reward.details.claimable" = "Claimable";
+"staking.reward.details.date" = "Date";
+"staking.reward.details.era" = "Era";
+"staking.reward.details.reward" = "Reward";
