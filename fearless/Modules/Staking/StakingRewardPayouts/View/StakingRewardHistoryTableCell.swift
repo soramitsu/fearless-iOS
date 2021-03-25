@@ -81,6 +81,28 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
                 constant: -Constants.verticalInset)
         ])
 
+        contentView.addSubview(ksmAmountLabel)
+        ksmAmountLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            ksmAmountLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -UIConstants.horizontalInset),
+            ksmAmountLabel.topAnchor.constraint(
+                equalTo: contentView.topAnchor,
+                constant: Constants.verticalInset)
+        ])
+
+        contentView.addSubview(usdAmountLabel)
+        usdAmountLabel.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            usdAmountLabel.trailingAnchor.constraint(
+                equalTo: contentView.trailingAnchor,
+                constant: -UIConstants.horizontalInset),
+            usdAmountLabel.topAnchor.constraint(equalTo: ksmAmountLabel.bottomAnchor),
+            usdAmountLabel.bottomAnchor.constraint(
+                equalTo: contentView.bottomAnchor,
+                constant: -Constants.verticalInset)
+        ])
     }
 }
 
