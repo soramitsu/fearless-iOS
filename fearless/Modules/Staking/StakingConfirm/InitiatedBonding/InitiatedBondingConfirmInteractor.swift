@@ -42,7 +42,7 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
         let stash = DisplayAddress(address: selectedAccount.address,
                                    username: selectedAccount.username)
 
-        let confirmation = StakingConfirmationModel(stash: stash,
+        let confirmation = StakingConfirmationModel(wallet: stash,
                                                     amount: nomination.bonding.amount,
                                                     rewardDestination: rewardDestination,
                                                     targets: nomination.targets,
@@ -105,7 +105,12 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
         }
     }
 
-    override func submitNomination() {
+    override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
+        guard lastBalance >= nomination.bonding.amount  + lastFee else {
+            presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
+            return
+        }
+
         guard let closure = createExtrinsicBuilderClosure() else {
             return
         }

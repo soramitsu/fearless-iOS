@@ -14,7 +14,7 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
 
     func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
     -> LocalizableResource<StakingConfirmViewModelProtocol> {
-        let icon = try iconGenerator.generateFromAddress(state.stash.address)
+        let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset)
 
@@ -33,7 +33,7 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
             return StakingConfirmViewModel(senderIcon: icon,
-                                           senderName: state.stash.username,
+                                           senderName: state.wallet.username,
                                            amount: amount ?? "",
                                            rewardDestination: rewardViewModel,
                                            validatorsCount: state.targets.count)
