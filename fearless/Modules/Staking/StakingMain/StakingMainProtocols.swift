@@ -52,7 +52,13 @@ protocol StakingMainInteractorOutputProtocol: class {
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
-    func showManageStaking(from view: StakingMainViewProtocol?)
+
+    func showManageStaking(
+        from view: StakingMainViewProtocol?,
+        items: [ManageStakingItem],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
 }
 
 protocol StakingMainViewFactoryProtocol: class {
