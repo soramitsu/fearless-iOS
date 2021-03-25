@@ -247,6 +247,7 @@ struct ModalPickerFactory {
         viewController.delegate = delegate
         viewController.modalPresentationStyle = .custom
         viewController.context = context
+        viewController.selectedIndex = NSNotFound
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in

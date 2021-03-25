@@ -64,6 +64,8 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding)
+
+    func showRewardPayouts(from view: ControllerBackedProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

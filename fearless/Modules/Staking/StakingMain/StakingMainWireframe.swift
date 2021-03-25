@@ -38,4 +38,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showRewardPayouts(from view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: false, completion: nil)
+
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createView() else { return }
+
+        let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }

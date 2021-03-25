@@ -129,7 +129,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showManageStaking(
             from: view,
             items: [.rewardPayouts],
-            delegate: nil,
+            delegate: self,
             context: nil)
     }
 
@@ -314,5 +314,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(payeeError: Error) {
         handle(error: payeeError)
+    }
+}
+
+extension StakingMainPresenter: ModalPickerViewControllerDelegate {
+
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        wireframe.showRewardPayouts(from: view)
     }
 }
