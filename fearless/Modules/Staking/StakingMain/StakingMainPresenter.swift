@@ -104,6 +104,20 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         }
     }
 
+    func performNominationStatusAction() {
+        let optViewModel: AlertPresentableViewModel? = stateMachine.viewState { (state: NominatorState) in
+            let locale = view?.localizationManager?.selectedLocale
+            return state.createStatusPresentableViewModel(for: networkStakingInfo?.minimalStake,
+                                                          locale: locale)
+        }
+
+        if let viewModel = optViewModel {
+            wireframe.present(viewModel: viewModel,
+                              style: .alert,
+                              from: view)
+        }
+    }
+
     func performAccountAction() {
         logger?.debug("Did select account")
     }

@@ -147,6 +147,7 @@
 		841E6AF625EC12100007DDFE /* PreparedNomination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AF525EC12100007DDFE /* PreparedNomination.swift */; };
 		841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */; };
 		841E6B0A25EC1C140007DDFE /* ValidatorOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */; };
+		84205897260C795B007D26C6 /* NominatorState+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84205896260C795B007D26C6 /* NominatorState+Status.swift */; };
 		8423B0DE251A438F00B8687C /* AddConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0DD251A438F00B8687C /* AddConnectionError.swift */; };
 		8423B0E0251A759000B8687C /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0DF251A759000B8687C /* Chain.swift */; };
 		8423B0E2251A769300B8687C /* RPCMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0E1251A769300B8687C /* RPCMethod.swift */; };
@@ -607,8 +608,8 @@
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
 		84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */; };
 		84A2CD5325685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */; };
-		84B71DE5260B90270003A100 /* AccountAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B71DE4260B90270003A100 /* AccountAddress.swift */; };
 		84B71DDD260B64BE0003A100 /* StakingConfirmError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B71DDC260B64BE0003A100 /* StakingConfirmError.swift */; };
+		84B71DE5260B90270003A100 /* AccountAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84B71DE4260B90270003A100 /* AccountAddress.swift */; };
 		84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE207725E7D62100B4748C /* ActiveEraInfo.swift */; };
 		84BE209E25E85CCA00B4748C /* ServiceCoordinator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */; };
 		84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */; };
@@ -1063,6 +1064,7 @@
 		841E6AF525EC12100007DDFE /* PreparedNomination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparedNomination.swift; sourceTree = "<group>"; };
 		841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorInfo.swift; sourceTree = "<group>"; };
 		841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactory.swift; sourceTree = "<group>"; };
+		84205896260C795B007D26C6 /* NominatorState+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NominatorState+Status.swift"; sourceTree = "<group>"; };
 		8423B0DD251A438F00B8687C /* AddConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddConnectionError.swift; sourceTree = "<group>"; };
 		8423B0DF251A759000B8687C /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
 		8423B0E1251A769300B8687C /* RPCMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCMethod.swift; sourceTree = "<group>"; };
@@ -1535,8 +1537,8 @@
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
 		84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeAnimator.swift; sourceTree = "<group>"; };
 		84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryViewFactoryOverriding.swift; sourceTree = "<group>"; };
-		84B71DE4260B90270003A100 /* AccountAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAddress.swift; sourceTree = "<group>"; };
 		84B71DDC260B64BE0003A100 /* StakingConfirmError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmError.swift; sourceTree = "<group>"; };
+		84B71DE4260B90270003A100 /* AccountAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountAddress.swift; sourceTree = "<group>"; };
 		84BE207725E7D62100B4748C /* ActiveEraInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveEraInfo.swift; sourceTree = "<group>"; };
 		84BE209D25E85CCA00B4748C /* ServiceCoordinator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceCoordinator.swift; sourceTree = "<group>"; };
 		84BE20A225E860DC00B4748C /* WebSocketServiceFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WebSocketServiceFactory.swift; sourceTree = "<group>"; };
@@ -2521,6 +2523,7 @@
 				8430AAE826022F69005B1066 /* StashState.swift */,
 				8430AAF02602306A005B1066 /* BondedState.swift */,
 				8430AAF526023087005B1066 /* NominatorState.swift */,
+				84205896260C795B007D26C6 /* NominatorState+Status.swift */,
 				8430AAFA260230C5005B1066 /* ValidatorState.swift */,
 				8430AAFF2602338D005B1066 /* PendingNominatorState.swift */,
 				8430AB042602339B005B1066 /* PendingValidatorState.swift */,
@@ -5333,6 +5336,7 @@
 				8490148424AA27C1008F705E /* OperationManagerFacade.swift in Sources */,
 				2AD0A19025D3D1E100312428 /* GitHubPhishingServiceFactory.swift in Sources */,
 				84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */,
+				84205897260C795B007D26C6 /* NominatorState+Status.swift in Sources */,
 				842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */,
 				849E0CF825D01B9200B33506 /* Extrinsic.swift in Sources */,
 				AE2C84E925EF98D500986716 /* ValidatorInfoViewFactory.swift in Sources */,
