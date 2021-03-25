@@ -20,7 +20,7 @@ protocol StakingMainPresenterProtocol: class {
 
 protocol StakingMainInteractorInputProtocol: class {
     func setup()
-    func fetchController(for address: String)
+    func fetchController(for address: AccountAddress)
 }
 
 protocol StakingMainInteractorOutputProtocol: class {

@@ -17675,9 +17675,9 @@ import SoraFoundation
     
     
     
-     func fetchController(for address: String)  {
+     func fetchController(for address: AccountAddress)  {
         
-    return cuckoo_manager.call("fetchController(for: String)",
+    return cuckoo_manager.call("fetchController(for: AccountAddress)",
             parameters: (address),
             escapingParameters: (address),
             superclassCall:
@@ -17702,9 +17702,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func fetchController<M1: Cuckoo.Matchable>(for address: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "fetchController(for: String)", parameterMatchers: matchers))
+	    func fetchController<M1: Cuckoo.Matchable>(for address: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountAddress)> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: address) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorInputProtocol.self, method: "fetchController(for: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -17730,9 +17730,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func fetchController<M1: Cuckoo.Matchable>(for address: M1) -> Cuckoo.__DoNotUse<(String), Void> where M1.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: address) { $0 }]
-	        return cuckoo_manager.verify("fetchController(for: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func fetchController<M1: Cuckoo.Matchable>(for address: M1) -> Cuckoo.__DoNotUse<(AccountAddress), Void> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: address) { $0 }]
+	        return cuckoo_manager.verify("fetchController(for: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -17748,7 +17748,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func fetchController(for address: String)   {
+     func fetchController(for address: AccountAddress)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
