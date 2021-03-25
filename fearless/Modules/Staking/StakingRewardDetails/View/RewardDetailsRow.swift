@@ -1,5 +1,5 @@
 enum RewardDetailsRow {
-    case status
+    case status(StakingRewardStatus)
     case date(String)
     case era(String)
     case reward

@@ -44,8 +44,8 @@ final class StakingRewardDetailsTableCell: UITableViewCell {
         keyViewLabel.text = model.title
 
         switch model {
-        case .status:
-            let valueView = ClaimableStatusView()
+        case .status(let status):
+            let valueView = StakingRewardStatusView(status: status)
             addValueView(valueView)
         case .date(let date):
             let valueView = LabelValueView(text: date)
@@ -86,21 +86,21 @@ private extension StakingRewardDetailsTableCell {
         }
     }
 
-    class ClaimableStatusView: UIView {
+    class StakingRewardStatusView: UIView {
 
-        override init(frame: CGRect) {
-            super.init(frame: frame)
+        init(status: StakingRewardStatus) {
+            super.init(frame: .zero)
 
             let label = UILabel()
             label.font = .p1Paragraph
             label.textColor = R.color.colorWhite()
-            label.text = R.string.localizable.stakingRewardDetailsClaimable()
+            label.text = status.text
             addSubview(label)
             label.snp.makeConstraints { make in
                 make.leading.centerY.equalToSuperview()
             }
 
-            let icon = UIImageView(image: R.image.iconTxPending())
+            let icon = UIImageView(image: status.icon)
             addSubview(icon)
             icon.snp.makeConstraints { make in
                 make.centerY.trailing.equalToSuperview()
