@@ -76,6 +76,11 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
         headerView.bind(model: model)
         return headerView
     }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        presenter.handleSelectedHistory(at: indexPath)
+    }
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
