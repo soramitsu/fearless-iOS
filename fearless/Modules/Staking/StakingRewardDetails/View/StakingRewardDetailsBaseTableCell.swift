@@ -1,0 +1,34 @@
+import UIKit
+
+class StakingRewardDetailsBaseTableCell: UITableViewCell {
+
+    let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorLightGray()
+        return label
+    }()
+
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
+
+        backgroundColor = .clear
+        separatorInset = .init(
+            top: 0,
+            left: UIConstants.horizontalInset,
+            bottom: 0,
+            right: UIConstants.horizontalInset)
+        setupLayout()
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    func setupLayout() {
+        contentView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.top.bottom.equalToSuperview().inset(16)
+        }
+    }
+}

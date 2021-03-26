@@ -29,7 +29,11 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     }
 
     private func setupTable() {
-        rootView.tableView.registerClassForCell(StakingRewardDetailsTableCell.self)
+        rootView.tableView.registerClassesForCell([
+            StakingRewardDetailsStatusTableCell.self,
+            StakingRewardDetailsLabelTableCell.self,
+            StakingRewardDetailsRewardTableCell.self
+        ])
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
@@ -76,7 +80,16 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
 
     // TODO delete stub data
     var stubCellData: [RewardDetailsRow] {
-        [.status(.claimable), .date("3 March 2020"), .era("#1,690"), .reward]
+        return [
+            .status(.claimable),
+            .date(.init(
+                    titleText: R.string.localizable.stakingRewardDetailsDate(),
+                    valueText: "3 March 2020")),
+            .era(.init(
+                    titleText: R.string.localizable.stakingRewardDetailsEra(),
+                    valueText: "#1690")),
+            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
+        ]
     }
 
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -84,10 +97,27 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = rootView.tableView.dequeueReusableCellWithType(
-            StakingRewardDetailsTableCell.self)!
-        let model = stubCellData[indexPath.row]
-        cell.bind(model: model)
-        return cell
+        switch stubCellData[indexPath.row] {
+        case .status(let status):
+            let cell = tableView.dequeueReusableCellWithType(
+                StakingRewardDetailsStatusTableCell.self)!
+            cell.bind(model: status)
+            return cell
+        case .date(let dateViewModel):
+            let cell = tableView.dequeueReusableCellWithType(
+                StakingRewardDetailsLabelTableCell.self)!
+            cell.bind(model: dateViewModel)
+            return cell
+        case .era(let eraViewModel):
+            let cell = tableView.dequeueReusableCellWithType(
+                StakingRewardDetailsLabelTableCell.self)!
+            cell.bind(model: eraViewModel)
+            return cell
+        case .reward(let rewardViewModel):
+            let cell = tableView.dequeueReusableCellWithType(
+                StakingRewardDetailsRewardTableCell.self)!
+            cell.bind(model: rewardViewModel)
+            return cell
+        }
     }
 }

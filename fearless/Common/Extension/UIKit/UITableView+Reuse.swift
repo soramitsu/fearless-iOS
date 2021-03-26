@@ -6,6 +6,12 @@ extension UITableView {
         register(cellClass, forCellReuseIdentifier: cellClass.reuseIdentifier)
     }
 
+    func registerClassesForCell(_ cellClasses: [UITableViewCell.Type]) {
+        cellClasses.forEach { cellClass in
+            register(cellClass, forCellReuseIdentifier: cellClass.reuseIdentifier)
+        }
+    }
+
     func registerHeaderFooterView(withClass viewClass: UITableViewHeaderFooterView.Type) {
         register(viewClass, forHeaderFooterViewReuseIdentifier: viewClass.reuseIdentifier)
     }
