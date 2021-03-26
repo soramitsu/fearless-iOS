@@ -49,8 +49,12 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
 extension StakingPayoutConfirmationViewController: Localizable {
 
     private func setupLocalization() {
-        setupTitleLocalization()
-        setupButtonLocalization()
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        title = R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages)
+        rootView.confirmButton
+            .imageWithTitleView?
+            .title = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages)
     }
 
     func applyLocalization() {
@@ -59,16 +63,6 @@ extension StakingPayoutConfirmationViewController: Localizable {
             rootView.tableView.reloadData()
             view.setNeedsLayout()
         }
-    }
-
-    private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: locale.rLanguages)
-    }
-
-    private func setupButtonLocalization() {
-        let title = R.string.localizable.stakingRewardDetailsPayout()
-        rootView.confirmButton.imageWithTitleView?.title = title
     }
 }
 
