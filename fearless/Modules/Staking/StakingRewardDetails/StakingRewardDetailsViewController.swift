@@ -32,7 +32,8 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassesForCell([
             StakingRewardDetailsStatusTableCell.self,
             StakingRewardDetailsLabelTableCell.self,
-            StakingRewardDetailsRewardTableCell.self
+            StakingRewardDetailsRewardTableCell.self,
+            AccountInfoTableViewCell.self
         ])
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
@@ -57,7 +58,6 @@ extension StakingRewardDetailsViewController: Localizable {
 
     private func setupTitleLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
-
         title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: locale.rLanguages)
     }
 
@@ -88,7 +88,15 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
             .era(.init(
                     titleText: R.string.localizable.stakingRewardDetailsEra(),
                     valueText: "#1690")),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
+            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01")),
+            .validatorInfo(.init(
+                            name: "Validator",
+                            address: "✨👍✨ Day7 ✨👍✨",
+                            icon: R.image.iconAccount())),
+            .validatorInfo(.init(
+                            name: "Payout account",
+                            address: "🐟 ANDREY",
+                            icon: R.image.iconAccount()))
         ]
     }
 
@@ -117,6 +125,11 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsRewardTableCell.self)!
             cell.bind(model: rewardViewModel)
+            return cell
+        case .validatorInfo(let model):
+            let cell = tableView.dequeueReusableCellWithType(
+                AccountInfoTableViewCell.self)!
+            cell.bind(model: model)
             return cell
         }
     }
