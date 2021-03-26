@@ -7,12 +7,14 @@ enum StakingRewardStatus {
 
 extension StakingRewardStatus {
 
-    var text: String {
+    func titleForLocale(_ locale: Locale?) -> String {
         switch self {
         case .claimable:
-            return R.string.localizable.stakingRewardDetailsStatusClaimable()
+            return R.string.localizable
+                .stakingRewardDetailsStatusClaimable(preferredLanguages: locale?.rLanguages)
         case .received:
-            return R.string.localizable.stakingRewardDetailsStatusReceived()
+            return R.string.localizable
+                .stakingRewardDetailsStatusReceived(preferredLanguages: locale?.rLanguages)
         }
     }
 

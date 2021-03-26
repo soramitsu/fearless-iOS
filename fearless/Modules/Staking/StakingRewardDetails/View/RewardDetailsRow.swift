@@ -1,5 +1,5 @@
 enum RewardDetailsRow {
-    case status(StakingRewardStatus)
+    case status(StakingRewardStatusViewModel)
     case date(StakingRewardDetailsSimpleLabelViewModel)
     case era(StakingRewardDetailsSimpleLabelViewModel)
     case reward(StakingRewardKsmUsdViewModel)
