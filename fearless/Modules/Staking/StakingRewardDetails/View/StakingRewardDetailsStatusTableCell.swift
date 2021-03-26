@@ -28,9 +28,9 @@ final class StakingRewardDetailsStatusTableCell: StakingRewardDetailsBaseTableCe
         }
     }
 
-    func bind(model: StakingRewardStatus) {
-        statusLabel.text = model.text
+    func bind(model: StakingRewardStatusViewModel) {
+        titleLabel.text = model.title
+        statusLabel.text = model.statusText
         statusImageView.image = model.icon
-        titleLabel.text = R.string.localizable.stakingRewardDetailsStatus()
     }
 }

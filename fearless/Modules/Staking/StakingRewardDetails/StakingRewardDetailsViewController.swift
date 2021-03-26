@@ -81,7 +81,8 @@ extension StakingRewardDetailsViewController: Localizable {
     }
 
     private func setupButtonLocalization() {
-        let title = R.string.localizable.stakingRewardDetailsPayout()
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let title = R.string.localizable.stakingRewardDetailsPayout(preferredLanguages: locale.rLanguages)
         rootView.payoutButton.imageWithTitleView?.title = title
     }
 }
@@ -99,8 +100,15 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
 
     // TODO delete stub data
     var stubCellData: [RewardDetailsRow] {
+        let locale = localizationManager?.selectedLocale
+        let rewardStatus = StakingRewardStatus.claimable
+        let statusViewModel = StakingRewardStatusViewModel(
+            title: R.string.localizable.stakingRewardDetailsStatus(preferredLanguages: locale?.rLanguages),
+            statusText: rewardStatus.titleForLocale(locale),
+            icon: rewardStatus.icon)
+
         return [
-            .status(.claimable),
+            .status(statusViewModel),
             .date(.init(
                     titleText: R.string.localizable.stakingRewardDetailsDate(),
                     valueText: "3 March 2020")),
