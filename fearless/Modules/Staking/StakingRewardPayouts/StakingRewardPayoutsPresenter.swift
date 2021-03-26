@@ -8,7 +8,12 @@ final class StakingRewardPayoutsPresenter {
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {}
+
     func handleSelectedHistory() {
+        wireframe.showRewardDetails(from: view)
+    }
+
+    func handlePayoutAction() {
         wireframe.showRewardDetails(from: view)
     }
 }

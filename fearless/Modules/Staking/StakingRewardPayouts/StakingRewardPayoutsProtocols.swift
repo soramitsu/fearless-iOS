@@ -5,6 +5,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable
 protocol StakingRewardPayoutsPresenterProtocol: class {
     func setup()
     func handleSelectedHistory()
+    func handlePayoutAction()
 }
 
 protocol StakingRewardPayoutsInteractorInputProtocol: class {}

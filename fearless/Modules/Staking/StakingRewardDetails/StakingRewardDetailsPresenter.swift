@@ -8,6 +8,10 @@ final class StakingRewardDetailsPresenter {
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     func setup() {}
+
+    func handlePayoutAction() {
+        wireframe.showPayoutConfirmation(from: view)
+    }
 }
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {

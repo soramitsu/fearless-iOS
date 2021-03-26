@@ -1,4 +1,6 @@
-protocol StakingPayoutConfirmationViewProtocol: class {}
+import SoraFoundation
+
+protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable {}
 
 protocol StakingPayoutConfirmationPresenterProtocol: class {
     func setup()
