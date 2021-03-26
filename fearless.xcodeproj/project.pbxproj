@@ -715,6 +715,12 @@
 		84DF21B32536E666005454AE /* TransferChangeHandling.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B22536E666005454AE /* TransferChangeHandling.swift */; };
 		84DF21B525388B35005454AE /* Scheduler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B425388B35005454AE /* Scheduler.swift */; };
 		84DF21B72539039B005454AE /* ReconnectionStrategy.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84DF21B62539039B005454AE /* ReconnectionStrategy.swift */; };
+		84E1CCF5260DCB91001E81B5 /* ChangeAccountManagementWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CCF4260DCB91001E81B5 /* ChangeAccountManagementWireframe.swift */; };
+		84E1CCFA260DCBF9001E81B5 /* ChangeUsernameWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CCF9260DCBF9001E81B5 /* ChangeUsernameWireframe.swift */; };
+		84E1CD02260DCC62001E81B5 /* ChangeMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CD01260DCC62001E81B5 /* ChangeMainWireframe.swift */; };
+		84E1CD07260DCCE8001E81B5 /* ChangeCreationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CD06260DCCE8001E81B5 /* ChangeCreationWireframe.swift */; };
+		84E1CD0C260DCD23001E81B5 /* ChangeConfirmationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CD0B260DCD23001E81B5 /* ChangeConfirmationWireframe.swift */; };
+		84E1CD11260DCD44001E81B5 /* ChangeImportedWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84E1CD10260DCD44001E81B5 /* ChangeImportedWireframe.swift */; };
 		84EA0B2A25E579DF00AFB0DC /* AssetBalanceViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EA0B2925E579DF00AFB0DC /* AssetBalanceViewModel.swift */; };
 		84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */; };
 		84EBC54124F650F100459D15 /* BaseAccountConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */; };
@@ -1652,6 +1658,12 @@
 		84DF21B22536E666005454AE /* TransferChangeHandling.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferChangeHandling.swift; sourceTree = "<group>"; };
 		84DF21B425388B35005454AE /* Scheduler.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Scheduler.swift; sourceTree = "<group>"; };
 		84DF21B62539039B005454AE /* ReconnectionStrategy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReconnectionStrategy.swift; sourceTree = "<group>"; };
+		84E1CCF4260DCB91001E81B5 /* ChangeAccountManagementWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeAccountManagementWireframe.swift; sourceTree = "<group>"; };
+		84E1CCF9260DCBF9001E81B5 /* ChangeUsernameWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeUsernameWireframe.swift; sourceTree = "<group>"; };
+		84E1CD01260DCC62001E81B5 /* ChangeMainWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeMainWireframe.swift; sourceTree = "<group>"; };
+		84E1CD06260DCCE8001E81B5 /* ChangeCreationWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeCreationWireframe.swift; sourceTree = "<group>"; };
+		84E1CD0B260DCD23001E81B5 /* ChangeConfirmationWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeConfirmationWireframe.swift; sourceTree = "<group>"; };
+		84E1CD10260DCD44001E81B5 /* ChangeImportedWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeImportedWireframe.swift; sourceTree = "<group>"; };
 		84EA0B2925E579DF00AFB0DC /* AssetBalanceViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AssetBalanceViewModel.swift; sourceTree = "<group>"; };
 		84EBC53B24F6401F00459D15 /* BaseAccountImportInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountImportInteractor.swift; sourceTree = "<group>"; };
 		84EBC54024F650F100459D15 /* BaseAccountConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BaseAccountConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -3222,6 +3234,7 @@
 		849013D224A9268D008F705E /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				84E1CCF3260DC973001E81B5 /* AccountChange */,
 				8428767524AE046300D91AD8 /* About */,
 				0D927CDE29F5C9F4CA537F8F /* AccountConfirm */,
 				4C5888389F25B5C82454F92D /* AccountCreate */,
@@ -4090,6 +4103,19 @@
 				84A259F72555C8C9001E91BC /* CryptoType+Keystore.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		84E1CCF3260DC973001E81B5 /* AccountChange */ = {
+			isa = PBXGroup;
+			children = (
+				84E1CCF4260DCB91001E81B5 /* ChangeAccountManagementWireframe.swift */,
+				84E1CCF9260DCBF9001E81B5 /* ChangeUsernameWireframe.swift */,
+				84E1CD01260DCC62001E81B5 /* ChangeMainWireframe.swift */,
+				84E1CD06260DCCE8001E81B5 /* ChangeCreationWireframe.swift */,
+				84E1CD0B260DCD23001E81B5 /* ChangeConfirmationWireframe.swift */,
+				84E1CD10260DCD44001E81B5 /* ChangeImportedWireframe.swift */,
+			);
+			path = AccountChange;
 			sourceTree = "<group>";
 		};
 		84EBC54424F660A700459D15 /* EventCenter */ = {
@@ -5081,6 +5107,7 @@
 				84893C0724DA890F008F6A3F /* CommonError.swift in Sources */,
 				849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */,
 				84F30EF1260001A600039D09 /* DataProviderChange+Helper.swift in Sources */,
+				84E1CD07260DCCE8001E81B5 /* ChangeCreationWireframe.swift in Sources */,
 				843910B0253ED36C00E3C217 /* ChainStorageItem.swift in Sources */,
 				84B71DE5260B90270003A100 /* AccountAddress.swift in Sources */,
 				8443FDB12554B7640092893D /* TitledMnemonicView.swift in Sources */,
@@ -5320,6 +5347,7 @@
 				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
+				84E1CD11260DCD44001E81B5 /* ChangeImportedWireframe.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				849E0D1825D01FD000B33506 /* Multiaddress.swift in Sources */,
 				8430AB1726023D2D005B1066 /* BaseStashNextState.swift in Sources */,
@@ -5397,6 +5425,7 @@
 				AE89725B25F20794008EC414 /* ValidatorInfoHeaderView.swift in Sources */,
 				845BB8C025E4508800E5FCDC /* SS58FactoryExtensions.swift in Sources */,
 				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
+				84E1CD02260DCC62001E81B5 /* ChangeMainWireframe.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
 				AE74EB5725F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift in Sources */,
 				8494D860252470F400614D8F /* WalletFearlessFormDefining.swift in Sources */,
@@ -5415,6 +5444,7 @@
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
+				84E1CCF5260DCB91001E81B5 /* ChangeAccountManagementWireframe.swift in Sources */,
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				84364D6625325A8B00281F9A /* StakingLedger.swift in Sources */,
@@ -5449,6 +5479,7 @@
 				8488ECDF258CE118004591CC /* PurchaseCompleted.swift in Sources */,
 				843910C3253F39B100E3C217 /* WalletNetworkFacade+Storage.swift in Sources */,
 				7489BDA1D23D8DF73E7EB9BC /* UsernameSetupWireframe.swift in Sources */,
+				84E1CCFA260DCBF9001E81B5 /* ChangeUsernameWireframe.swift in Sources */,
 				3E480EEAF501AEB5D543506D /* UsernameSetupPresenter.swift in Sources */,
 				84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */,
 				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
@@ -5595,6 +5626,7 @@
 				84BEF601258938C1002A22E2 /* WalletActionsViewModel.swift in Sources */,
 				84F30EA125FD3EE700039D09 /* ChildSubscriptionFactory.swift in Sources */,
 				FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */,
+				84E1CD0C260DCD23001E81B5 /* ChangeConfirmationWireframe.swift in Sources */,
 				8430AAF626023087005B1066 /* NominatorState.swift in Sources */,
 				C044E792971B542B79B9A88F /* NetworkInfoPresenter.swift in Sources */,
 				0D6C27413F73190438306EC1 /* NetworkInfoInteractor.swift in Sources */,

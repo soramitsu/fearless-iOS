@@ -60,6 +60,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding)
+    func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {

@@ -6,7 +6,18 @@ import IrohaCrypto
 import SoraKeystore
 
 final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
-    static func createView() -> AccountManagementViewProtocol? {
+    static func createViewForSettings() -> AccountManagementViewProtocol? {
+        let wireframe = AccountManagementWireframe()
+        return createView(for: wireframe)
+    }
+
+    static func createViewForSwitch() -> AccountManagementViewProtocol? {
+        let wireframe = ChangeAccountManagementWireframe()
+        return createView(for: wireframe)
+    }
+
+    private static func createView(for wireframe: AccountManagementWireframeProtocol)
+    -> AccountManagementViewProtocol? {
 
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedAccountItemMapper()
@@ -32,7 +43,6 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
                                                      settings: SettingsManager.shared,
                                                      operationManager: OperationManagerFacade.sharedManager,
                                                      eventCenter: EventCenter.shared)
-        let wireframe = AccountManagementWireframe()
 
         view.presenter = presenter
         presenter.view = view
@@ -44,4 +54,6 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
 
         return view
     }
+
+
 }

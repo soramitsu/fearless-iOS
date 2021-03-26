@@ -6,79 +6,22 @@ import IrohaCrypto
 
 final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
     static func createViewForOnboarding() -> AccountImportViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService() else {
-            Logger.shared.error("Missing required keystore import service")
+        guard let interactor = createAccountImportInteractor() else {
             return nil
         }
 
-        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
-        let presenter = AccountImportPresenter()
-
-        let keystore = Keychain()
-        let settings = SettingsManager.shared
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
-
-        let interactor = AccountImportInteractor(accountOperationFactory: accountOperationFactory,
-                                                 accountRepository: AnyDataProviderRepository(accountRepository),
-                                                 operationManager: OperationManagerFacade.sharedManager,
-                                                 settings: settings,
-                                                 keystoreImportService: keystoreImportService)
-
         let wireframe = AccountImportWireframe()
-
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-
-        return view
+        return createView(for: interactor, wireframe: wireframe)
     }
 
     static func createViewForAdding() -> AccountImportViewProtocol? {
-        guard let keystoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService() else {
-            Logger.shared.error("Missing required keystore import service")
+        guard let interactor = createAddAccountImportInteractor() else {
             return nil
         }
 
-        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
-        let presenter = AccountImportPresenter()
-
-        let keystore = Keychain()
-        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
-
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
-            = UserDataStorageFacade.shared.createRepository()
-
-        let interactor = AddAccountImportInteractor(accountOperationFactory: accountOperationFactory,
-                                                    accountRepository: AnyDataProviderRepository(accountRepository),
-                                                    operationManager: OperationManagerFacade.sharedManager,
-                                                    settings: SettingsManager.shared,
-                                                    keystoreImportService: keystoreImportService,
-                                                    eventCenter: EventCenter.shared)
-
         let wireframe = AddImportedWireframe()
 
-        view.presenter = presenter
-        presenter.view = view
-        presenter.interactor = interactor
-        presenter.wireframe = wireframe
-        interactor.presenter = presenter
-
-        let localizationManager = LocalizationManager.shared
-        view.localizationManager = localizationManager
-        presenter.localizationManager = localizationManager
-
-        return view
+        return createView(for: interactor, wireframe: wireframe)
     }
 
     static func createViewForConnection(item: ConnectionItem) -> AccountImportViewProtocol? {
@@ -87,9 +30,6 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
             Logger.shared.error("Missing required keystore import service")
             return nil
         }
-
-        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
-        let presenter = AccountImportPresenter()
 
         let keystore = Keychain()
         let accountOperationFactory = AccountOperationFactory(keystore: keystore)
@@ -109,6 +49,23 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
         let wireframe = ConnectionAccountImportWireframe(connection: item)
 
+        return createView(for: interactor, wireframe: wireframe)
+    }
+
+    static func createViewForSwitch() -> AccountImportViewProtocol? {
+        guard let interactor = createAddAccountImportInteractor() else {
+            return nil
+        }
+
+        let wireframe = ChangeImportedWireframe()
+        return createView(for: interactor, wireframe: wireframe)
+    }
+
+    private static func createView(for interactor: BaseAccountImportInteractor,
+                                   wireframe: AccountImportWireframeProtocol) -> AccountImportViewProtocol? {
+        let view = AccountImportViewController(nib: R.nib.accountImportViewController)
+        let presenter = AccountImportPresenter()
+
         view.presenter = presenter
         presenter.view = view
         presenter.interactor = interactor
@@ -120,5 +77,53 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         presenter.localizationManager = localizationManager
 
         return view
+    }
+
+    private static func createAccountImportInteractor() -> BaseAccountImportInteractor? {
+        guard let keystoreImportService: KeystoreImportServiceProtocol =
+            URLHandlingService.shared.findService() else {
+            Logger.shared.error("Missing required keystore import service")
+            return nil
+        }
+
+        let keystore = Keychain()
+        let settings = SettingsManager.shared
+        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
+            = UserDataStorageFacade.shared.createRepository()
+
+        let anyRepository = AnyDataProviderRepository(accountRepository)
+
+        let interactor = AccountImportInteractor(accountOperationFactory: accountOperationFactory,
+                                                 accountRepository: anyRepository,
+                                                 operationManager: OperationManagerFacade.sharedManager,
+                                                 settings: settings,
+                                                 keystoreImportService: keystoreImportService)
+
+        return interactor
+    }
+
+    private static func createAddAccountImportInteractor() -> BaseAccountImportInteractor? {
+        guard let keystoreImportService: KeystoreImportServiceProtocol =
+            URLHandlingService.shared.findService() else {
+            Logger.shared.error("Missing required keystore import service")
+            return nil
+        }
+
+        let keystore = Keychain()
+        let accountOperationFactory = AccountOperationFactory(keystore: keystore)
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
+            = UserDataStorageFacade.shared.createRepository()
+
+        let interactor = AddAccountImportInteractor(accountOperationFactory: accountOperationFactory,
+                                                    accountRepository: AnyDataProviderRepository(accountRepository),
+                                                    operationManager: OperationManagerFacade.sharedManager,
+                                                    settings: SettingsManager.shared,
+                                                    keystoreImportService: keystoreImportService,
+                                                    eventCenter: EventCenter.shared)
+
+        return interactor
     }
 }

@@ -44,5 +44,6 @@ protocol AccountManagementWireframeProtocol: AlertPresentable, ErrorPresentable 
 }
 
 protocol AccountManagementViewFactoryProtocol: class {
-	static func createView() -> AccountManagementViewProtocol?
+	static func createViewForSettings() -> AccountManagementViewProtocol?
+    static func createViewForSwitch() -> AccountManagementViewProtocol?
 }

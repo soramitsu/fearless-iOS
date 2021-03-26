@@ -51,4 +51,5 @@ protocol AccountCreateViewFactoryProtocol: class {
     static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol?
     static func createViewForAdding(username: String) -> AccountCreateViewProtocol?
     static func createViewForConnection(item: ConnectionItem, username: String) -> AccountCreateViewProtocol?
+    static func createViewForSwitch(username: String) -> AccountCreateViewProtocol?
 }

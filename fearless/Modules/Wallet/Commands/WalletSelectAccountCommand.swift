@@ -80,7 +80,7 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        guard repository == nil else {
+        /*guard repository == nil else {
             return
         }
 
@@ -97,7 +97,20 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
         }
 
         repositoryFactory.operationManager.enqueue(operations: [fetchAllOperation],
-                                                   in: .transient)
+                                                   in: .transient)*/
+
+        guard let accountManagementView = AccountManagementViewFactory.createViewForSwitch() else {
+            return
+        }
+
+        guard let command = commandFactory?
+                .preparePresentationCommand(for: accountManagementView.controller) else {
+            return
+        }
+
+        command.presentationStyle = .push(hidesBottomBar: true)
+
+        try? command.execute()
     }
 }
 

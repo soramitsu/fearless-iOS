@@ -23,4 +23,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
+
+    func showAccountsSelection(from view: StakingMainViewProtocol?) {
+        guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
+            return
+        }
+
+        accountsView.controller.hidesBottomBarWhenPushed = true
+
+        view?.controller.navigationController?.pushViewController(accountsView.controller,
+                                                                  animated: true)
+    }
 }

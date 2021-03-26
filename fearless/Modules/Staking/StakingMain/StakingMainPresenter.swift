@@ -119,7 +119,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAccountAction() {
-        logger?.debug("Did select account")
+        wireframe.showAccountsSelection(from: view)
     }
 
     func updateAmount(_ newValue: Decimal) {
