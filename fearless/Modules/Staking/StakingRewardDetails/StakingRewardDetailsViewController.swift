@@ -6,9 +6,14 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRewardDetailsViewLayout
 
     let presenter: StakingRewardDetailsPresenterProtocol
+    let localizationManager: LocalizationManagerProtocol?
 
-    init(presenter: StakingRewardDetailsPresenterProtocol) {
+    init(
+        presenter: StakingRewardDetailsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -52,6 +57,7 @@ extension StakingRewardDetailsViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
+            rootView.tableView.reloadData()
             view.setNeedsLayout()
         }
     }
@@ -105,6 +111,7 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        // TODO handle current locale
         switch stubCellData[indexPath.row] {
         case .status(let status):
             let cell = tableView.dequeueReusableCellWithType(
