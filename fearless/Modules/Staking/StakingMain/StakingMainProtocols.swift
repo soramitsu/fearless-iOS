@@ -52,7 +52,7 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 
-    func didFetchController(_ controller: AccountItem?)
+    func didFetchController(_ controller: AccountItem?, for address: AccountAddress)
     func didReceive(fetchControllerError: Error)
 }
 
