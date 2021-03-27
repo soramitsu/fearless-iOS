@@ -21,7 +21,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
                                                  supportedNetworkTypes: Chain.allCases,
                                                  defaultNetwork: defaultAddressType.chain)
-        let wireframe = AddCreationWireframe()
+        let wireframe = AddAccount.AccountCreateWireframe()
 
         return createViewForUsername(username,
                                      interactor: interactor,
@@ -34,7 +34,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
                                                  supportedNetworkTypes: [item.type.chain],
                                                  defaultNetwork: item.type.chain)
 
-        let wireframe = ConnectionAccountCreateWireframe(connectionItem: item)
+        let wireframe = SelectConnection.AccountCreateWireframe(connectionItem: item)
 
         return createViewForUsername(username,
                                      interactor: interactor,
@@ -45,11 +45,8 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
                                                  supportedNetworkTypes: Chain.allCases,
                                                  defaultNetwork: ConnectionItem.defaultConnection.type.chain)
-        let wireframe = ChangeCreationWireframe()
-
-        return createViewForUsername(username,
-                                     interactor: interactor,
-                                     wireframe: wireframe)
+        let wireframe = SwitchAccount.AccountCreateWireframe()
+        return createViewForUsername(username, interactor: interactor, wireframe: wireframe)
     }
 
     static func createViewForUsername(_ username: String,

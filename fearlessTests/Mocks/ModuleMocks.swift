@@ -18201,9 +18201,9 @@ import SoraFoundation
     
     
     
-     func didFetchController(_ controller: AccountItem?, for address: String)  {
+     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)  {
         
-    return cuckoo_manager.call("didFetchController(_: AccountItem?, for: String)",
+    return cuckoo_manager.call("didFetchController(_: AccountItem?, for: AccountAddress)",
             parameters: (controller, address),
             escapingParameters: (controller, address),
             superclassCall:
@@ -18368,9 +18368,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
 	    }
 	    
-	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem?, String)> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, String)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didFetchController(_: AccountItem?, for: String)", parameterMatchers: matchers))
+	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem?, AccountAddress)> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, AccountAddress)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didFetchController(_: AccountItem?, for: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(fetchControllerError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
@@ -18551,9 +18551,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.__DoNotUse<(AccountItem?, String), Void> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, String)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
-	        return cuckoo_manager.verify("didFetchController(_: AccountItem?, for: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.__DoNotUse<(AccountItem?, AccountAddress), Void> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, AccountAddress)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return cuckoo_manager.verify("didFetchController(_: AccountItem?, for: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -18675,7 +18675,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didFetchController(_ controller: AccountItem?, for address: String)   {
+     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

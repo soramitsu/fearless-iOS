@@ -8,17 +8,17 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
     }
 
     static func createViewForAdding() -> UsernameSetupViewProtocol? {
-        let wireframe = AddUsernameWireframe()
+        let wireframe = AddAccount.UsernameSetupWireframe()
         return createView(for: wireframe)
     }
 
     static func createViewForConnection(item: ConnectionItem) -> UsernameSetupViewProtocol? {
-        let wireframe = ConnectionUsernameWireframe(connectionItem: item)
+        let wireframe = SelectConnection.UsernameSetupWireframe(connectionItem: item)
         return createView(for: wireframe)
     }
 
     static func createViewForSwitch() -> UsernameSetupViewProtocol? {
-        let wireframe = ChangeUsernameWireframe()
+        let wireframe = SwitchAccount.UsernameSetupWireframe()
         return createView(for: wireframe)
     }
 

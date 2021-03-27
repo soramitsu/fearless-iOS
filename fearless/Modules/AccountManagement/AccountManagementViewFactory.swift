@@ -12,7 +12,7 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
     }
 
     static func createViewForSwitch() -> AccountManagementViewProtocol? {
-        let wireframe = ChangeAccountManagementWireframe()
+        let wireframe = SwitchAccount.AccountManagementWireframe()
         return createView(for: wireframe)
     }
 
@@ -54,6 +54,4 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
 
         return view
     }
-
-
 }

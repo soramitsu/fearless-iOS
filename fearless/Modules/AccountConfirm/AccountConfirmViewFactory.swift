@@ -24,7 +24,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
             return nil
         }
 
-        let wireframe = AddConfirmationWireframe()
+        let wireframe = AddAccount.AccountConfirmWireframe()
 
         return createView(for: interactor, wireframe: wireframe)
     }
@@ -45,15 +45,16 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
 
         let operationManager = OperationManagerFacade.sharedManager
         let anyRepository = AnyDataProviderRepository(accountRepository)
-        let interactor = ConnectionAccountConfirmInteractor(connectionItem: item,
-                                                             request: request,
-                                                             mnemonic: mnemonic,
-                                                             accountOperationFactory: accountOperationFactory,
-                                                             accountRepository: anyRepository,
-                                                             settings: SettingsManager.shared,
-                                                             operationManager: operationManager,
-                                                             eventCenter: EventCenter.shared)
-        let wireframe = ConnectionAccountConfirmWireframe()
+        let interactor = SelectConnection
+            .AccountConfirmInteractor(connectionItem: item,
+                                      request: request,
+                                      mnemonic: mnemonic,
+                                      accountOperationFactory: accountOperationFactory,
+                                      accountRepository: anyRepository,
+                                      settings: SettingsManager.shared,
+                                      operationManager: operationManager,
+                                      eventCenter: EventCenter.shared)
+        let wireframe = SelectConnection.AccountConfirmWireframe()
 
         return createView(for: interactor, wireframe: wireframe)
     }
@@ -65,8 +66,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
             return nil
         }
 
-        let wireframe = ChangeConfirmationWireframe()
-
+        let wireframe = SwitchAccount.AccountConfirmWireframe()
         return createView(for: interactor, wireframe: wireframe)
     }
 
@@ -131,13 +131,14 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AddAccountConfirmInteractor(request: request,
-                                                     mnemonic: mnemonic,
-                                                     accountOperationFactory: accountOperationFactory,
-                                                     accountRepository: AnyDataProviderRepository(accountRepository),
-                                                     operationManager: OperationManagerFacade.sharedManager,
-                                                     settings: SettingsManager.shared,
-                                                     eventCenter: EventCenter.shared)
+        let interactor = AddAccount
+            .AccountConfirmInteractor(request: request,
+                                      mnemonic: mnemonic,
+                                      accountOperationFactory: accountOperationFactory,
+                                      accountRepository: AnyDataProviderRepository(accountRepository),
+                                      operationManager: OperationManagerFacade.sharedManager,
+                                      settings: SettingsManager.shared,
+                                      eventCenter: EventCenter.shared)
 
         return interactor
     }

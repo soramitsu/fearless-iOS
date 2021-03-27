@@ -19,7 +19,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
             return nil
         }
 
-        let wireframe = AddImportedWireframe()
+        let wireframe = AddAccount.AccountImportWireframe()
 
         return createView(for: interactor, wireframe: wireframe)
     }
@@ -39,15 +39,16 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
 
         let anyRepository = AnyDataProviderRepository(accountRepository)
         let operationManager = OperationManagerFacade.sharedManager
-        let interactor = ConnectionAccountImportInteractor(connectionItem: item,
-                                                             accountOperationFactory: accountOperationFactory,
-                                                             accountRepository: anyRepository,
-                                                             operationManager: operationManager,
-                                                             settings: SettingsManager.shared,
-                                                             keystoreImportService: keystoreImportService,
-                                                             eventCenter: EventCenter.shared)
+        let interactor = SelectConnection
+            .AccountImportInteractor(connectionItem: item,
+                                     accountOperationFactory: accountOperationFactory,
+                                     accountRepository: anyRepository,
+                                     operationManager: operationManager,
+                                     settings: SettingsManager.shared,
+                                     keystoreImportService: keystoreImportService,
+                                     eventCenter: EventCenter.shared)
 
-        let wireframe = ConnectionAccountImportWireframe(connection: item)
+        let wireframe = SelectConnection.AccountImportWireframe(connection: item)
 
         return createView(for: interactor, wireframe: wireframe)
     }
@@ -57,7 +58,7 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
             return nil
         }
 
-        let wireframe = ChangeImportedWireframe()
+        let wireframe = SwitchAccount.AccountImportWireframe()
         return createView(for: interactor, wireframe: wireframe)
     }
 
@@ -117,12 +118,13 @@ final class AccountImportViewFactory: AccountImportViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem>
             = UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AddAccountImportInteractor(accountOperationFactory: accountOperationFactory,
-                                                    accountRepository: AnyDataProviderRepository(accountRepository),
-                                                    operationManager: OperationManagerFacade.sharedManager,
-                                                    settings: SettingsManager.shared,
-                                                    keystoreImportService: keystoreImportService,
-                                                    eventCenter: EventCenter.shared)
+        let interactor = AddAccount
+            .AccountImportInteractor(accountOperationFactory: accountOperationFactory,
+                                     accountRepository: AnyDataProviderRepository(accountRepository),
+                                     operationManager: OperationManagerFacade.sharedManager,
+                                     settings: SettingsManager.shared,
+                                     keystoreImportService: keystoreImportService,
+                                     eventCenter: EventCenter.shared)
 
         return interactor
     }

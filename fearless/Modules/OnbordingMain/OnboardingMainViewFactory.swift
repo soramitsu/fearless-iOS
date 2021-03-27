@@ -9,17 +9,17 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
     }
 
     static func createViewForAdding() -> OnboardingMainViewProtocol? {
-        let wireframe = AddMainWireframe()
+        let wireframe = AddAccount.OnboardingMainWireframe()
         return createView(for: wireframe)
     }
 
     static func createViewForConnection(item: ConnectionItem) -> OnboardingMainViewProtocol? {
-        let wireframe = ConnectionMainWireframe(connectionItem: item)
+        let wireframe = SelectConnection.OnboardingMainWireframe(connectionItem: item)
         return createView(for: wireframe)
     }
 
     static func createViewForAccountSwitch() -> OnboardingMainViewProtocol? {
-        let wireframe = ChangeMainWireframe()
+        let wireframe = SwitchAccount.OnboardingMainWireframe()
         return createView(for: wireframe)
     }
 
