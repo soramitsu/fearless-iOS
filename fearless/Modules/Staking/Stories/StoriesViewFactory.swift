@@ -2,7 +2,7 @@ import Foundation
 import SoraFoundation
 
 final class StoriesViewFactory: StoriesViewFactoryProtocol {
-    static func createView() -> StoriesViewProtocol? {
+    static func createView(with index: Int) -> StoriesViewProtocol? {
 
         // MARK: - View
         let view = StoriesViewController(nib: R.nib.storiesViewController)
@@ -17,6 +17,7 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
 
         // And pass it to the initializer
         let presenter = StoriesPresenter()
+        presenter.selectedStoryIndex = index
 
         // MARK: - Router
         let wireframe = StoriesWireframe()

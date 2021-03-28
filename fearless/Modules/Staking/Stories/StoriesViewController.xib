@@ -4,13 +4,24 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Bold.otf">
+            <string>sora-rc004-0417-Bold</string>
+        </array>
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StoriesViewController" customModule="fearless" customModuleProvider="target">
             <connections>
+                <outlet property="contentLabel" destination="6Q8-bt-QvQ" id="4Fx-EI-vMb"/>
+                <outlet property="titleLabel" destination="X1J-zO-wC7" id="HZ9-fc-EJZ"/>
                 <outlet property="view" destination="iN0-l3-epB" id="iTs-Wb-lBP"/>
             </connections>
         </placeholder>
@@ -18,12 +29,126 @@
         <view contentMode="scaleToFill" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-            <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
+            <subviews>
+                <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="backgroundImage" translatesAutoresizingMaskIntoConstraints="NO" id="Dkq-u3-dRe">
+                    <rect key="frame" x="0.0" y="0.0" width="414" height="896"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yba-Jy-FTL" customClass="TriangularedBlurView" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="0.0" width="464" height="896"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_cornerCut">
+                            <integer key="value" value="0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_blurStyle">
+                            <integer key="value" value="2"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P6R-9T-9we" customClass="StoryProgressView" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="0.0" y="44" width="414" height="16"/>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="16" id="e8Z-Q6-syw"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sRK-lH-16C" userLabel="Close Button">
+                    <rect key="frame" x="16" y="68" width="20" height="22"/>
+                    <state key="normal" image="iconClose"/>
+                    <connections>
+                        <action selector="closeButtonTouched" destination="-1" eventType="touchUpInside" id="e8P-Ye-6L1"/>
+                    </connections>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
+                    <rect key="frame" x="16" y="109" width="382" height="38"/>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
+                    <color key="textColor" name="colorWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
+                    <rect key="frame" x="16" y="163" width="382" height="272.5"/>
+                    <gestureRecognizers/>
+                    <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
+                    <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
+                    <color key="textColor" name="colorWhite"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LmP-ld-yUb" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
+                    <rect key="frame" x="16" y="762" width="382" height="52"/>
+                    <viewLayoutGuide key="safeArea" id="RFf-0L-AkE"/>
+                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                    <gestureRecognizers/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="52" id="w2B-3H-fE1"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
+                            <color key="value" name="colorPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
+                            <color key="value" name="colorHighlightedPink"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
+                            <real key="value" value="0.0"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Learn more"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
+                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                            <real key="value" value="14"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
+                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
+                            <color key="value" name="colorWhite"/>
+                        </userDefinedRuntimeAttribute>
+                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
+                    </userDefinedRuntimeAttributes>
+                </view>
+            </subviews>
+            <viewLayoutGuide key="safeArea" id="VTH-7g-qrG"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-            <point key="canvasLocation" x="139" y="154"/>
+            <constraints>
+                <constraint firstAttribute="bottom" secondItem="Dkq-u3-dRe" secondAttribute="bottom" id="0Bf-5W-f3A"/>
+                <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="99m-rI-aPg"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
+                <constraint firstItem="Dkq-u3-dRe" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AaT-Zd-cGp"/>
+                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
+                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="8" id="GQ0-bO-eEw"/>
+                <constraint firstItem="LmP-ld-yUb" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="GYp-fH-Nzf"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="top" secondItem="VTH-7g-qrG" secondAttribute="top" id="Ins-YC-8eg"/>
+                <constraint firstAttribute="trailing" secondItem="Dkq-u3-dRe" secondAttribute="trailing" id="KrC-1u-neU"/>
+                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="P6R-9T-9we" secondAttribute="trailing" id="N75-MT-Vh0"/>
+                <constraint firstItem="LmP-ld-yUb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="6Q8-bt-QvQ" secondAttribute="bottom" constant="48" id="Nci-mk-Tq8"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="trailing" secondItem="Dkq-u3-dRe" secondAttribute="trailing" constant="50" id="Qvw-hN-euC"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="19" id="XZ3-L4-xBW"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="Dkq-u3-dRe" secondAttribute="leading" id="c1M-Ot-W5E"/>
+                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
+                <constraint firstItem="VTH-7g-qrG" firstAttribute="bottom" secondItem="LmP-ld-yUb" secondAttribute="bottom" constant="48" id="iv2-ZT-906"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="kkR-vb-Sxb"/>
+                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="top" secondItem="X1J-zO-wC7" secondAttribute="bottom" constant="16" id="nMv-p9-UMX"/>
+                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="6Q8-bt-QvQ" secondAttribute="trailing" constant="16" id="oqJ-zA-zFo"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" id="rdl-Q5-Y93"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="Dkq-u3-dRe" secondAttribute="bottom" id="tFF-1o-7UU"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="top" secondItem="Dkq-u3-dRe" secondAttribute="top" id="y7M-ud-pkY"/>
+            </constraints>
+            <point key="canvasLocation" x="137.68115942028987" y="153.34821428571428"/>
         </view>
     </objects>
     <resources>
+        <image name="backgroundImage" width="375" height="812"/>
+        <image name="iconClose" width="20" height="20"/>
+        <namedColor name="colorHighlightedPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorPink">
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>

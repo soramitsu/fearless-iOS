@@ -25,11 +25,11 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int) {
-        guard let storiesView = StoriesViewFactory.createView() else {
+        guard let storiesView = StoriesViewFactory.createView(with: index) else {
             return
         }
 
-        storiesView.controller.modalPresentationStyle = .fullScreen
+        storiesView.controller.modalPresentationStyle = .overFullScreen
         view?.controller.present(storiesView.controller, animated: true, completion: nil)
     }
 }

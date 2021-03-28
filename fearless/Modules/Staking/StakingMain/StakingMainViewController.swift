@@ -102,8 +102,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         storiesView.backgroundView = nil
         storiesView.backgroundColor = UIColor.clear
 
-        storiesView.register(UINib(resource: R.nib.storiesCollectionItem),
-                             forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
+        storiesView.register(UINib(resource: R.nib.storiesPreviewCollectionItem),
+                             forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier)
     }
 
     private func applyStakingInfo() {
@@ -350,7 +350,7 @@ extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId,
+            withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
             for: indexPath)!
 
         let story = self.storiesModel?.stories[indexPath.row]

@@ -3,6 +3,7 @@ import Foundation
 final class StoriesInteractor {
     weak var presenter: StoriesInteractorOutputProtocol!
 
+    private var storiesModel: StoriesModel?
     // Provide data to Presenter
     // func provideDataToPresenter() {
     //     presenter.didReceive(data: data)
@@ -11,8 +12,7 @@ final class StoriesInteractor {
 
 extension StoriesInteractor: StoriesInteractorInputProtocol {
     func setup() {
-        // Interactor setup
-        // Subscriptions
-        // Data provision
+        let model = StoriesFactory.createModel()
+        presenter.didReceive(storiesModel: model)
     }
 }
