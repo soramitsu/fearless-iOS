@@ -2,13 +2,21 @@ import UIKit
 import SoraFoundation
 
 enum SwipeDirection {
+    case swipeUp
+    case swipeDown
+    case swipeLeft
+    case swipeRight
+}
+
+enum PanDirection {
     case none
-    //    case swipeUp
-    //    case swipeDown
-    //    case swipeLeft
-    //    case swipeRight
     case horizontal
     case vertical
+}
+
+enum ScreenPart {
+    case left
+    case right
 }
 
 final class StoriesViewController: UIViewController, ControllerBackedProtocol {
@@ -23,7 +31,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     private var story: Story?
 
     private var initialTouchPoint: CGPoint = .init(x: 0, y: 0)
-    private var swipeDirection: SwipeDirection = .none
+    private var swipeDirection: PanDirection = .none
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,7 +83,9 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     @objc private func didRecieveLongPressGesture(gesture: UILongPressGestureRecognizer) {
+        // On press pause progress view
 
+        // On release resume progress view
     }
 
     private func moveView(to touchPoint: CGPoint) {
@@ -101,7 +111,8 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     @objc private func didRecievePanGesture(gesture: UITapGestureRecognizer) {
-        let touchPoint = gesture.location(in: self.view.window)
+        let touchPoint = gesture.location(in: view.window)
+        print(touchPoint)
 
         // If everything has just began, remember initial touch point
         switch gesture.state {
@@ -123,6 +134,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
             if touchPoint.y - initialTouchPoint.y > 150 {
                 // TODO: Stop timer completely
                 self.presenter.activateClose()
+
             } else {
 
                 // Perform action
@@ -131,8 +143,10 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
                                              y: 0,
                                              width: self.view.frame.size.width,
                                              height: self.view.frame.size.height)
+
                     // TODO: Resume timer
                 })
+                initialTouchPoint = CGPoint(x: 0, y: 0)
             }
         default:
             break
@@ -140,16 +154,26 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     @objc private func didRecieveTapGesture(gesture: UITapGestureRecognizer) {
+        guard let size = view.window?.frame.size else { return  }
+        guard size.width != 0 else { return }
 
+        let touchPoint = gesture.location(ofTouch: 0, in: view.window)
+        print(touchPoint)
+
+        if touchPoint.x <= size.width / 2.0 {
+            presenter.proceedToPreviousStory() // TODO: Change to slide instead of story
+        } else {
+            presenter.proceedToNextStory() // TODO: Change to slide instead of story
+        }
     }
 
-    private func detectSwipeDirection(by firstPoint: CGPoint, and secondPoint: CGPoint) -> SwipeDirection {
+    private func detectSwipeDirection(by firstPoint: CGPoint, and secondPoint: CGPoint) -> PanDirection {
         guard firstPoint != secondPoint else { return .none }
+        guard let size = view.window?.frame.size else { return .none }
+        guard size.width != 0, size.height != 0 else { return .none }
+
         let deltaX = firstPoint.x - secondPoint.x
         let deltaY = firstPoint.y - secondPoint.y
-
-        guard let size = view.window?.frame.size else { return .none }
-        guard size.width != 0, size.height != 0 else { return .none}
 
         if abs(deltaX) / size.width >= abs(deltaY) / size.height {
             return .horizontal
@@ -199,4 +223,43 @@ extension StoriesViewController: StoriesProgressViewDataSource {
     func slidesCount() -> Int {
         return story?.slides.count ?? 0
     }
+}
+
+extension StoriesViewController: StoriesViewDelegate {
+    func didTap(in part: ScreenPart) {
+        switch part {
+        case .left:
+            break
+        case .right:
+            break
+        }
+    }
+
+    func didSwipe(distance: CGFloat, direction: SwipeDirection) {
+        switch direction {
+        case .swipeDown:
+            presenter.activateClose()
+        case .swipeLeft:
+            presenter.proceedToNextStory()
+        case .swipeRight:
+            presenter.proceedToPreviousStory()
+        default:
+            break
+        }
+    }
+
+    func didLongPress() {
+        // TODO: Pause something
+    }
+
+    func didRelease() {
+        // TODO: Resume something
+    }
+}
+
+protocol StoriesViewDelegate  {
+    func didTap(in part: ScreenPart)
+    func didSwipe(distance: CGFloat, direction: SwipeDirection)
+    func didLongPress()
+    func didRelease()
 }

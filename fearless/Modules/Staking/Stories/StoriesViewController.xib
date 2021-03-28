@@ -117,7 +117,7 @@
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="99m-rI-aPg"/>
                 <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AaT-Zd-cGp"/>
-                <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" id="Bsa-bm-63v"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bsa-bm-63v"/>
                 <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
                 <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
                 <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="8" id="GQ0-bO-eEw"/>
@@ -127,15 +127,15 @@
                 <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="P6R-9T-9we" secondAttribute="trailing" id="N75-MT-Vh0"/>
                 <constraint firstItem="LmP-ld-yUb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="6Q8-bt-QvQ" secondAttribute="bottom" constant="48" id="Nci-mk-Tq8"/>
                 <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="19" id="XZ3-L4-xBW"/>
-                <constraint firstItem="VTH-7g-qrG" firstAttribute="top" secondItem="yba-Jy-FTL" secondAttribute="top" id="cuQ-0N-ZLt"/>
-                <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="VTH-7g-qrG" secondAttribute="bottom" id="fRi-rE-bUx"/>
+                <constraint firstAttribute="top" secondItem="yba-Jy-FTL" secondAttribute="top" id="cuQ-0N-ZLt"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="fRi-rE-bUx"/>
                 <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
                 <constraint firstItem="VTH-7g-qrG" firstAttribute="bottom" secondItem="LmP-ld-yUb" secondAttribute="bottom" constant="48" id="iv2-ZT-906"/>
                 <constraint firstItem="sRK-lH-16C" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="kkR-vb-Sxb"/>
                 <constraint firstItem="6Q8-bt-QvQ" firstAttribute="top" secondItem="X1J-zO-wC7" secondAttribute="bottom" constant="16" id="nMv-p9-UMX"/>
                 <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="6Q8-bt-QvQ" secondAttribute="trailing" constant="16" id="oqJ-zA-zFo"/>
                 <constraint firstItem="P6R-9T-9we" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" id="rdl-Q5-Y93"/>
-                <constraint firstItem="yba-Jy-FTL" firstAttribute="trailing" secondItem="VTH-7g-qrG" secondAttribute="trailing" id="wVk-qi-mFB"/>
+                <constraint firstItem="yba-Jy-FTL" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="wVk-qi-mFB"/>
             </constraints>
             <point key="canvasLocation" x="137.68115942028987" y="153.34821428571428"/>
         </view>
