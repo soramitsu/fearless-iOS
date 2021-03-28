@@ -24,8 +24,8 @@ extension StoriesPresenter: StoriesPresenterProtocol {
         wireframe.close(view: view)
     }
 
-    func activateWeb() {
-        let urlString = "https://wiki.polkadot.network/docs/en/learn-staking"
+    func activateWeb(slideIndex: Int) {
+        guard let urlString = model?.stories[selectedStoryIndex].slides[slideIndex].urlString else { return }
 
         if let url = URL(string: urlString) {
             show(url)

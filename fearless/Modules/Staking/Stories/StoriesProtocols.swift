@@ -12,7 +12,7 @@ protocol StoriesPresenterProtocol: class {
 
     func activateClose()
 
-    func activateWeb()
+    func activateWeb(slideIndex: Int)
     // From View to Presenter actions
     // func viewAction()
 }

@@ -3,12 +3,12 @@ import UIKit
 
 struct Slide {
     var description: String
-    var buttonLink: URL?
+    var urlString: String?
 
     init(description: String,
-         buttonLink: URL? = nil) {
+         urlString: String? = nil) {
         self.description = description
-        self.buttonLink = buttonLink
+        self.urlString = urlString
     }
 }
 

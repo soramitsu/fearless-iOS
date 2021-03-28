@@ -30,6 +30,10 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         presenter.activateClose()
     }
 
+    @IBAction func learMoreButtonTouched() {
+        presenter.activateWeb(slideIndex: currentStoryIndex)
+    }
+
     // MARK: - Private functions
     private func configureGestureRecognizers() {
         let longRecognizer: UILongPressGestureRecognizer = .init(target: self,

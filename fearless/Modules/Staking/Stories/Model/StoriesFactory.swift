@@ -12,29 +12,29 @@ extension StoriesFactory: StoriesFactoryProtocol {
         // swiftlint:disable line_length
         let slides1 = [
             Slide(description: "Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.",
-                   buttonLink: URL(string: "https://unsplash.com/s/photos/arctic")),
+                  urlString: "https://unsplash.com/s/photos/arctic"),
 
             Slide(description:
                    "On August, I spent about two weeks in Iceland and Greenland. This glacier was the first astonishment as we arrived in Iceland. The first time in my life sitting so close to the glacier and touch the cold water. Not just cold but extremely freezing. Still, an unbelievably beautiful scenery with no doubt.",
-                   buttonLink: URL(string: "https://unsplash.com/s/photos/arctic"))
+                  urlString: "https://unsplash.com/s/photos/arctic")
         ]
 
         let slides2 = [
             Slide(description: "Iceland ",
-                   buttonLink: URL(string: "https://unsplash.com/s/photos/arctic"))
+                  urlString: "https://unsplash.com/s/photos/arctic")
         ]
 
         let slides3 = [
             Slide(description: "A hiker with his dog. On top of Untersberg in Salzburg, Austria.",
-                   buttonLink: URL(string: "https://unsplash.com/s/photos/arctic")),
+                  urlString: "https://unsplash.com/s/photos/arctic"),
 
             Slide(description: "White Sands National Monument in New Mexico, USA has been on my wishlist for years. Seeing photographers take some of the most stunning images I have ever seen, I knew when I had the chance I had to visit.",
-                  buttonLink: URL(string: "https://unsplash.com/s/photos/arctic"))
+                  urlString: "https://unsplash.com/s/photos/arctic")
         ]
 
         let slides4 = [
             Slide(description: "Aerial (drone) view of Arctic Icebergs",
-                  buttonLink: URL(string: "https://unsplash.com/s/photos/arctic"))
+                  urlString: "https://unsplash.com/s/photos/arctic")
         ]
         // swiftlint:enable line_length
 

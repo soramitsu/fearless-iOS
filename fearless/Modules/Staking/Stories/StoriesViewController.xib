@@ -60,13 +60,13 @@
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
-                    <rect key="frame" x="16" y="109" width="382" height="38"/>
+                    <rect key="frame" x="16" y="109" width="382" height="35"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
-                    <rect key="frame" x="16" y="163" width="382" height="272.5"/>
+                    <rect key="frame" x="16" y="160" width="382" height="210"/>
                     <gestureRecognizers/>
                     <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
@@ -105,6 +105,9 @@
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
                     </userDefinedRuntimeAttributes>
+                    <connections>
+                        <action selector="learMoreButtonTouched" destination="-1" eventType="touchUpInside" id="zDg-Mf-2cy"/>
+                    </connections>
                 </view>
             </subviews>
             <viewLayoutGuide key="safeArea" id="VTH-7g-qrG"/>
