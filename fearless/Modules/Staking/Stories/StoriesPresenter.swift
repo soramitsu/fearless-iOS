@@ -32,6 +32,28 @@ extension StoriesPresenter: StoriesPresenterProtocol {
         }
     }
 
+    func proceedToNextStory() {
+        guard let model = self.model else { return }
+        guard selectedStoryIndex + 1 < model.stories.count else {
+            activateClose()
+            return
+        }
+
+        selectedStoryIndex += 1
+        view?.didRecieve(story: model.stories[selectedStoryIndex])
+    }
+
+    func proceedToPreviousStory() {
+        guard let model = self.model else { return }
+        guard selectedStoryIndex - 1 >= 0 else {
+            activateClose()
+            return
+        }
+
+        selectedStoryIndex -= 1
+        view?.didRecieve(story: model.stories[selectedStoryIndex])
+    }
+
     func setup() {
         interactor.setup()
     }

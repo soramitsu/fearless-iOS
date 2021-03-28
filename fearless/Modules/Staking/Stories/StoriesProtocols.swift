@@ -11,8 +11,10 @@ protocol StoriesPresenterProtocol: class {
     func setup()
 
     func activateClose()
-
     func activateWeb(slideIndex: Int)
+    func proceedToNextStory()
+    func proceedToPreviousStory()
+
     // From View to Presenter actions
     // func viewAction()
 }
