@@ -30,7 +30,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
             DispatchQueue.main.async {
                 do {
                     let accountItem = try operation.extractNoCancellableResultData()
-                    self.presenter.didFetchController(accountItem)
+                    self.presenter.didFetchController(accountItem, for: address)
                 } catch {
                     self.presenter.didReceive(fetchControllerError: error)
                 }

@@ -365,3 +365,5 @@ extension StakingMainViewController: NominationViewDelegate {
         presenter?.performNominationStatusAction()
     }
 }
+
+extension StakingMainViewController: HiddableBarWhenPushed {}
