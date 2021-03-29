@@ -11,10 +11,9 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         return tableView
     }()
 
-    let confirmButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyDefaultStyle()
-        return button
+    let transferConfirmView: TransferConfirmAccessoryView! = {
+        UINib(resource: R.nib.transferConfirmAccessoryView)
+            .instantiate(withOwner: nil, options: nil)[0] as? TransferConfirmAccessoryView
     }()
 
     override init(frame: CGRect) {
@@ -42,11 +41,11 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.leading.bottom.trailing.equalToSuperview()
         }
 
-        addSubview(confirmButton)
-        confirmButton.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
-            make.height.equalTo(UIConstants.actionHeight)
+        let transferHeight = 136 - safeAreaInsets.bottom
+        addSubview(transferConfirmView)
+        transferConfirmView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
+            make.height.equalTo(transferHeight)
         }
     }
 }

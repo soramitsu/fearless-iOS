@@ -51,10 +51,24 @@ extension StakingPayoutConfirmationViewController: Localizable {
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
+        setupTitleLocalization(locale)
+        setupTranformViewLocalization(locale)
+    }
+
+    private func setupTitleLocalization(_ locale: Locale) {
         title = R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages)
-        rootView.confirmButton
-            .imageWithTitleView?
-            .title = R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages)
+    }
+
+    private func setupTranformViewLocalization(_ locale: Locale) {
+        // TODO get viewModel from presenter
+        let viewModel = TransferConfirmAccessoryViewModel(
+            title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            icon: nil,
+            action: R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages),
+            numberOfLines: 1,
+            amount: "0.001 KSM",
+            shouldAllowAction: true)
+        rootView.transferConfirmView.bind(viewModel: viewModel)
     }
 
     func applyLocalization() {
