@@ -73,8 +73,8 @@ final class StakingConfirmPresenter {
                 wireframe.presentAmountTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
-            case .missingController:
-                wireframe.presentMissingController(from: view, locale: locale)
+            case .missingController(let address):
+                wireframe.presentMissingController(from: view, address: address, locale: locale)
             case .extrinsicFailed:
                 wireframe.presentExtrinsicFailed(from: view, locale: locale)
             }

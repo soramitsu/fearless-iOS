@@ -18231,16 +18231,16 @@ import SoraFoundation
     
     
     
-     func didFetchController(_ controller: AccountItem?)  {
+     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)  {
         
-    return cuckoo_manager.call("didFetchController(_: AccountItem?)",
-            parameters: (controller),
-            escapingParameters: (controller),
+    return cuckoo_manager.call("didFetchController(_: AccountItem?, for: AccountAddress)",
+            parameters: (controller, address),
+            escapingParameters: (controller, address),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.didFetchController(controller))
+            defaultCall: __defaultImplStub!.didFetchController(controller, for: address))
         
     }
     
@@ -18398,9 +18398,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
 	    }
 	    
-	    func didFetchController<M1: Cuckoo.OptionalMatchable>(_ controller: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem?)> where M1.OptionalMatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?)>] = [wrap(matchable: controller) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didFetchController(_: AccountItem?)", parameterMatchers: matchers))
+	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem?, AccountAddress)> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, AccountAddress)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didFetchController(_: AccountItem?, for: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.Matchable>(fetchControllerError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
@@ -18581,9 +18581,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didFetchController<M1: Cuckoo.OptionalMatchable>(_ controller: M1) -> Cuckoo.__DoNotUse<(AccountItem?), Void> where M1.OptionalMatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?)>] = [wrap(matchable: controller) { $0 }]
-	        return cuckoo_manager.verify("didFetchController(_: AccountItem?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.__DoNotUse<(AccountItem?, AccountAddress), Void> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, AccountAddress)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
+	        return cuckoo_manager.verify("didFetchController(_: AccountItem?, for: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -18705,7 +18705,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didFetchController(_ controller: AccountItem?)   {
+     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -18802,6 +18802,21 @@ import SoraFoundation
     
     
     
+     func showAccountsSelection(from view: StakingMainViewProtocol?)  {
+        
+    return cuckoo_manager.call("showAccountsSelection(from: StakingMainViewProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showAccountsSelection(from: view))
+        
+    }
+    
+    
+    
      func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
@@ -18859,6 +18874,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRewardPayouts(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
+	    func showAccountsSelection<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?)> where M1.OptionalMatchedType == StakingMainViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showAccountsSelection(from: StakingMainViewProtocol?)", parameterMatchers: matchers))
+	    }
+	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
@@ -18910,6 +18930,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showAccountsSelection<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showAccountsSelection(from: StakingMainViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -18943,6 +18969,10 @@ import SoraFoundation
     }
     
      func showRewardPayouts(from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showAccountsSelection(from view: StakingMainViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

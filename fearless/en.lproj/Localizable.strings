@@ -313,3 +313,4 @@ Derivation path: %@";
 "staking.reward.details.date" = "Date";
 "staking.reward.details.era" = "Era";
 "staking.reward.details.reward" = "Reward";
+"staking.controller.missing.message" = "Controller account %@ is unavailable to update staking setup.";

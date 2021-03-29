@@ -3,7 +3,7 @@ import UIKit
 
 final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable {
     func showAccountDetails(from view: ProfileViewProtocol?) {
-        guard let accountManagement = AccountManagementViewFactory.createView() else {
+        guard let accountManagement = AccountManagementViewFactory.createViewForSettings() else {
             return
         }
 
@@ -22,7 +22,7 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
     }
 
     func showAccountSelection(from view: ProfileViewProtocol?) {
-        guard let accountManagement = AccountManagementViewFactory.createView() else {
+        guard let accountManagement = AccountManagementViewFactory.createViewForSettings() else {
             return
         }
 

@@ -119,7 +119,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAccountAction() {
-        logger?.debug("Did select account")
+        wireframe.showAccountsSelection(from: view)
     }
 
     func performManageStakingAction() {
@@ -313,12 +313,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didFetchController(_ controller: AccountItem?) {
+    func didFetchController(_ controller: AccountItem?, for address: AccountAddress) {
         guard let controller = controller else {
 
             if let view = view {
                 let locale = view.localizationManager?.selectedLocale
-                wireframe.presentMissingController(from: view, locale: locale)
+                wireframe.presentMissingController(from: view, address: address, locale: locale)
             }
 
             return

@@ -53,7 +53,7 @@ protocol StakingMainInteractorOutputProtocol: class {
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 
-    func didFetchController(_ controller: AccountItem?)
+    func didFetchController(_ controller: AccountItem?, for address: AccountAddress)
     func didReceive(fetchControllerError: Error)
 }
 
@@ -71,6 +71,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
                                    existingBonding: ExistingBonding)
 
     func showRewardPayouts(from view: ControllerBackedProtocol?)
+    func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: class {
