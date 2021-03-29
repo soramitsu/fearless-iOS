@@ -6,9 +6,14 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     typealias RootViewType = StakingPayoutConfirmationViewLayout
 
     let presenter: StakingPayoutConfirmationPresenterProtocol
+    let localizationManager: LocalizationManagerProtocol?
 
-    init(presenter: StakingPayoutConfirmationPresenterProtocol) {
+    init(
+        presenter: StakingPayoutConfirmationPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 

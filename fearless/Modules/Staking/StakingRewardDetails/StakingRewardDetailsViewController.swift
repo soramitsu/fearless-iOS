@@ -6,9 +6,14 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRewardDetailsViewLayout
 
     let presenter: StakingRewardDetailsPresenterProtocol
+    let localizationManager: LocalizationManagerProtocol?
 
-    init(presenter: StakingRewardDetailsPresenterProtocol) {
+    init(
+        presenter: StakingRewardDetailsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 

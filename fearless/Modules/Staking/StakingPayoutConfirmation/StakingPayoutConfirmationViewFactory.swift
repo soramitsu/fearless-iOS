@@ -5,7 +5,9 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
     static func createView() -> StakingPayoutConfirmationViewProtocol? {
         let presenter = StakingPayoutConfirmationPresenter()
-        let view = StakingPayoutConfirmationViewController(presenter: presenter)
+        let view = StakingPayoutConfirmationViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared)
 
         let interactor = StakingPayoutConfirmationInteractor()
         let wireframe = StakingPayoutConfirmationWireframe()
