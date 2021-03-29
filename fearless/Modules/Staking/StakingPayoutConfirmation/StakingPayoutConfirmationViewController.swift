@@ -95,12 +95,12 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
     var stubCellData: [RewardDetailsRow] {
         return [
             .validatorInfo(.init(
-                            name: "Validator",
-                            address: "✨👍✨ Day7 ✨👍✨",
-                            icon: R.image.iconAccount())),
-            .validatorInfo(.init(
                             name: "Payout account",
                             address: "🐟 ANDREY",
+                            icon: R.image.iconAccount())),
+            .validatorInfo(.init(
+                            name: "Validator",
+                            address: "✨👍✨ Day7 ✨👍✨",
                             icon: R.image.iconAccount())),
             .destination(.init(
                             titleText: R.string.localizable.stakingRewardDestinationTitle(),
