@@ -189,7 +189,7 @@ final class RewardCalculatorService {
                                                   deliverOn: syncQueue,
                                                   executing: updateClosure,
                                                   failing: failureClosure,
-                                                  options: StreamableProviderObserverOptions())
+                                                  options: StreamableProviderObserverOptions.substrateSource())
 
             self.totalIssuanceDataProvider = totalIssuanceDataProvider
         } catch {
