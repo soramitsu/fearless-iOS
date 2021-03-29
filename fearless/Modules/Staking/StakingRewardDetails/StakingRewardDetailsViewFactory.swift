@@ -5,9 +5,7 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
 
     static func createView() -> StakingRewardDetailsViewProtocol? {
         let presenter = StakingRewardDetailsPresenter()
-        let view = StakingRewardDetailsViewController(
-            presenter: presenter,
-            localizationManager: LocalizationManager.shared)
+        let view = StakingRewardDetailsViewController(presenter: presenter)
         let interactor = StakingRewardDetailsInteractor()
         let wireframe = StakingRewardDetailsWireframe()
 
