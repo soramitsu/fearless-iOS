@@ -11,6 +11,21 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
+    func showManageStaking(
+        from view: StakingMainViewProtocol?,
+        items: [ManageStakingItem],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) {
+        let maybeManageView = ModalPickerFactory.createPickerForList(
+            items,
+            delegate: delegate,
+            context: context)
+        guard let manageView = maybeManageView else { return }
+
+        view?.controller.present(manageView, animated: true, completion: nil)
+    }
+
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding) {
         guard let recommendedView = RecommendedValidatorsViewFactory
@@ -21,6 +36,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         let rootController = recommendedView.controller
         let navigationController = FearlessNavigationController(rootViewController: rootController)
 
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showRewardPayouts(from view: ControllerBackedProtocol?) {
+        view?.controller.dismiss(animated: false, completion: nil)
+
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createView() else { return }
+
+        let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 

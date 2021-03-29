@@ -14,6 +14,7 @@ protocol StakingMainPresenterProtocol: class {
     func setup()
     func performMainAction()
     func performAccountAction()
+    func performManageStakingAction()
     func performNominationStatusAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
@@ -58,8 +59,18 @@ protocol StakingMainInteractorOutputProtocol: class {
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showSetupAmount(from view: StakingMainViewProtocol?, amount: Decimal?)
+
+    func showManageStaking(
+        from view: StakingMainViewProtocol?,
+        items: [ManageStakingItem],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
+
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding)
+
+    func showRewardPayouts(from view: ControllerBackedProtocol?)
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
 

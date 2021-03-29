@@ -356,13 +356,15 @@ extension StakingMainViewController: UICollectionViewDelegate {
     // TODO: FLW-635
 }
 
+// MARK: Nomination View Delegate -
 extension StakingMainViewController: NominationViewDelegate {
+
     func nominationViewDidReceiveMoreAction(_ nominationView: NominationView) {
-        // TODO: FLW-674
+        presenter.performManageStakingAction()
     }
 
     func nominationViewDidReceiveStatusAction(_ nominationView: NominationView) {
-        presenter?.performNominationStatusAction()
+        presenter.performNominationStatusAction()
     }
 }
 
