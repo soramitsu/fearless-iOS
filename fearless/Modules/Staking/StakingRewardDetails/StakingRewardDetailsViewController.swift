@@ -6,15 +6,14 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRewardDetailsViewLayout
 
     let presenter: StakingRewardDetailsPresenterProtocol
-    let localizationManager: LocalizationManagerProtocol?
 
     init(
         presenter: StakingRewardDetailsPresenterProtocol,
         localizationManager: LocalizationManagerProtocol?
     ) {
         self.presenter = presenter
-        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
+        self.localizationManager = localizationManager
     }
 
     required init?(coder: NSCoder) {
@@ -30,6 +29,7 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
 
         applyLocalization()
         setupTable()
+        setupPayoutButtonAction()
         presenter.setup()
     }
 
@@ -42,6 +42,18 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
         ])
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+    }
+
+    private func setupPayoutButtonAction() {
+        rootView.payoutButton.addTarget(
+            self,
+            action: #selector(handlePayoutButtonAction),
+            for: .touchUpInside)
+    }
+
+    @objc
+    private func handlePayoutButtonAction() {
+        presenter.handlePayoutAction()
     }
 }
 
@@ -146,6 +158,8 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
                 AccountInfoTableViewCell.self)!
             cell.bind(model: model)
             return cell
+        default:
+            return UITableViewCell()
         }
     }
 }

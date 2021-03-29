@@ -28,6 +28,7 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 
         setupLocalization()
         setupTable()
+        setupPayoutButtonAction()
         presenter.setup()
     }
 
@@ -48,6 +49,18 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
         rootView.tableView.registerHeaderFooterView(withClass: StakingRewardHistoryHeaderView.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
+    }
+
+    private func setupPayoutButtonAction() {
+        rootView.payoutButton.addTarget(
+            self,
+            action: #selector(handlePayoutButtonAction),
+            for: .touchUpInside)
+    }
+
+    @objc
+    private func handlePayoutButtonAction() {
+        presenter.handlePayoutAction()
     }
 }
 

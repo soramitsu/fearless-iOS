@@ -14,6 +14,10 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         // TODO get model by indexPath -> pass to wireframe
         wireframe.showRewardDetails(from: view)
     }
+
+    func handlePayoutAction() {
+        wireframe.showRewardDetails(from: view)
+    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
