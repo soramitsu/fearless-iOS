@@ -49,7 +49,7 @@ final class NetworkManagementInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     private func provideSelectedItem() {
@@ -122,7 +122,7 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
                 }
             }
 
-            operationManager.enqueue(operations: [fetchOperation], in: .sync)
+            operationManager.enqueue(operations: [fetchOperation], in: .transient)
         }
     }
 
@@ -138,11 +138,11 @@ extension NetworkManagementInteractor: NetworkManagementInteractorInputProtocol 
 
     func save(items: [ManagedConnectionItem]) {
         let operation = connectionsRepository.saveOperation({ items }, { [] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func remove(item: ManagedConnectionItem) {
         let operation = connectionsRepository.saveOperation({ [] }, { [item.identifier] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }

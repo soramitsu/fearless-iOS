@@ -91,7 +91,7 @@ extension AddAccount {
             }
 
             operationManager.enqueue(operations: [checkOperation, persistentOperation, connectionOperation],
-                                     in: .sync)
+                                     in: .transient)
         }
 
         override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -109,7 +109,7 @@ extension AddAccount {
                 }
             }
 
-            operationManager.enqueue(operations: [importOperation], in: .sync)
+            operationManager.enqueue(operations: [importOperation], in: .transient)
         }
     }
 
