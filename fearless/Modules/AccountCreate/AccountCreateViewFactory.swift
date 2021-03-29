@@ -42,9 +42,11 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
     }
 
     static func createViewForSwitch(username: String) -> AccountCreateViewProtocol? {
+        let defaultAddressType = SettingsManager.shared.selectedConnection.type
+
         let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator(),
                                                  supportedNetworkTypes: Chain.allCases,
-                                                 defaultNetwork: ConnectionItem.defaultConnection.type.chain)
+                                                 defaultNetwork: defaultAddressType.chain)
         let wireframe = SwitchAccount.AccountCreateWireframe()
         return createViewForUsername(username, interactor: interactor, wireframe: wireframe)
     }

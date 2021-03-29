@@ -102,7 +102,7 @@ final class AccountInfoInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .sync)
+        operationManager.enqueue(operations: [fetchOperation, saveOperation], in: .transient)
     }
 
     private func performUsernameFinalizationIfNeeded() {
@@ -125,7 +125,7 @@ extension AccountInfoInteractor: AccountInfoInteractorInputProtocol {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func save(username: String, address: String) {

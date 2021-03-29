@@ -41,7 +41,7 @@ final class AccountManagementInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }
 
@@ -99,11 +99,11 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
 
     func save(items: [ManagedAccountItem]) {
         let operation = repository.saveOperation({ items }, { [] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 
     func remove(item: ManagedAccountItem) {
         let operation = repository.saveOperation({ [] }, { [item.address] })
-        operationManager.enqueue(operations: [operation], in: .sync)
+        operationManager.enqueue(operations: [operation], in: .transient)
     }
 }

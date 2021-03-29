@@ -65,6 +65,6 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
         }
 
         operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                 in: .sync)
+                                 in: .transient)
     }
 }
