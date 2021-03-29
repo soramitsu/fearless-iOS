@@ -4,4 +4,5 @@ enum RewardDetailsRow {
     case era(StakingRewardDetailsSimpleLabelViewModel)
     case reward(StakingRewardKsmUsdViewModel)
     case validatorInfo(ValidatorInfoAccountViewModel)
+    case destination(StakingRewardDetailsSimpleLabelViewModel)
 }

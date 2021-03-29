@@ -159,6 +159,8 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
                 AccountInfoTableViewCell.self)!
             cell.bind(model: model)
             return cell
+        default:
+            return UITableViewCell()
         }
     }
 }

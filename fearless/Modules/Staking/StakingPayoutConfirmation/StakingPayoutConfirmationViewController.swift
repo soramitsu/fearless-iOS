@@ -102,11 +102,13 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
                             name: "Payout account",
                             address: "🐟 ANDREY",
                             icon: R.image.iconAccount())),
+            .destination(.init(
+                            titleText: R.string.localizable.stakingRewardDestinationTitle(),
+                            valueText: R.string.localizable.stakingRestakeTitle())),
             .era(.init(
                     titleText: R.string.localizable.stakingRewardDetailsEra(),
                     valueText: "#1690")),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01")),
-
+            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
         ]
     }
 
@@ -117,10 +119,10 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO handle current locale
         switch stubCellData[indexPath.row] {
-        case .date(let dateViewModel):
+        case .destination(let viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsLabelTableCell.self)!
-            cell.bind(model: dateViewModel)
+            cell.bind(model: viewModel)
             return cell
         case .era(let eraViewModel):
             let cell = tableView.dequeueReusableCellWithType(
