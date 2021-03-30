@@ -65,4 +65,8 @@ extension StorageCodingPath {
     static var payee: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Payee")
     }
+
+    static var historyDepth: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "HistoryDepth")
+    }
 }

@@ -93,12 +93,15 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let electionStatusSubscription = try createElectionStatusSubscription(factory)
 
+        let historyDepthSubscription = try createHistoryDepthSubscription(factory)
+
         let subscriptions: [StorageChildSubscribing] = [
             electionStatusSubscription,
             upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
-            totalIssuanceSubscription
+            totalIssuanceSubscription,
+            historyDepthSubscription
         ]
 
         return subscriptions
@@ -247,5 +250,12 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                           operationManager: operationManager,
                                           addressFactory: addressFactory,
                                           logger: logger)
+    }
+
+    private func createHistoryDepthSubscription(
+        _ factory: ChildSubscriptionFactoryProtocol
+    ) throws -> StorageChildSubscribing {
+        let remoteStorageKey = try storageKeyFactory.historyDepth()
+        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 }
