@@ -21,6 +21,7 @@
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StoriesViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="contentLabel" destination="6Q8-bt-QvQ" id="4Fx-EI-vMb"/>
+                <outlet property="loadMoreButton" destination="LmP-ld-yUb" id="uf7-LE-7Jc"/>
                 <outlet property="titleLabel" destination="X1J-zO-wC7" id="HZ9-fc-EJZ"/>
                 <outlet property="view" destination="iN0-l3-epB" id="iTs-Wb-lBP"/>
             </connections>
@@ -45,7 +46,7 @@
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P6R-9T-9we" customClass="StoryProgressView" customModule="fearless" customModuleProvider="target">
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="P6R-9T-9we" customClass="SegmentedProgressBar" customModule="fearless" customModuleProvider="target">
                     <rect key="frame" x="0.0" y="44" width="414" height="16"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>

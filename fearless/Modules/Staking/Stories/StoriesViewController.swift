@@ -19,16 +19,30 @@ enum ScreenPart {
     case right
 }
 
+enum StaringIndex {
+    case first
+    case last(array: [Slide])
+
+    var index: Int {
+        switch self {
+        case .first:
+            return 0
+        case let .last(value):
+            return value.count - 1
+        }
+    }
+}
+
 final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     var presenter: StoriesPresenterProtocol!
     private var currentStoryIndex = 0
+    private var currentSlideIndex = 0
 
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var contentLabel: UILabel!
-    @IBOutlet weak var progressView: StoryProgressView!
+    @IBOutlet weak var loadMoreButton: TriangularedButton!
 
-    //    private var model = StoriesFactory.createModel()
-    private var story: Story?
+    private var viewModel: [SlideViewModel] = []
 
     private var initialTouchPoint: CGPoint = .init(x: 0, y: 0)
     private var swipeDirection: PanDirection = .none
@@ -37,12 +51,8 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         super.viewDidLoad()
 
         setupLocalization()
-        configureGestureRecognizers()
+        setupGestureRecognizers()
         presenter.setup()
-    }
-
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
     }
 
     @IBAction func closeButtonTouched() {
@@ -50,7 +60,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     @IBAction func learMoreButtonTouched() {
-        presenter.activateWeb(slideIndex: currentStoryIndex)
+        presenter.activateWeb()
     }
 
     // MARK: - Private functions
@@ -73,10 +83,11 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
                                                           action: #selector(didRecieveTapGesture))
         tapRecognizer.cancelsTouchesInView = false
         tapRecognizer.numberOfTapsRequired = 1
+        tapRecognizer.delegate = self
         view.addGestureRecognizer(tapRecognizer)
     }
 
-    private func configureGestureRecognizers() {
+    private func setupGestureRecognizers() {
         configureLongPressRecognizer()
         configureSwipeRecognizer()
         configureTapRecognizer()
@@ -90,20 +101,14 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
     private func moveView(to touchPoint: CGPoint) {
         switch swipeDirection {
-        case .horizontal:
-            view.frame = CGRect(x: touchPoint.x - initialTouchPoint.x,
-                                y: 0,
-                                width: view.frame.size.width,
-                                height: view.frame.size.height)
-
         case .vertical:
             guard touchPoint.y > initialTouchPoint.y else { break }
-
             view.frame = CGRect(x: 0,
                                 y: touchPoint.y - initialTouchPoint.y,
                                 width: view.frame.size.width,
                                 height: view.frame.size.height)
-
+        case .horizontal:
+            break // Add animation here
         default:
             break
         }
@@ -129,8 +134,24 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
         case .ended,
              .cancelled:
-            swipeDirection = .none
+
             // If ended || cancelled and threshold is not exceeded, get frame back
+            switch swipeDirection {
+            case .horizontal:
+                if touchPoint.x - initialTouchPoint.x > 150 {
+                    // TODO: Stop timer completely
+                    self.presenter.proceedToPreviousStory(startingFrom: .first)
+                } else if touchPoint.x - initialTouchPoint.x < -150 {
+                    self.presenter.proceedToNextStory()
+                }
+            case .vertical:
+                if touchPoint.y - initialTouchPoint.y > 150 {
+                    // TODO: Stop timer completely
+                    self.presenter.activateClose()
+                }
+            default:
+                break
+            }
             if touchPoint.y - initialTouchPoint.y > 150 {
                 // TODO: Stop timer completely
                 self.presenter.activateClose()
@@ -146,6 +167,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
                     // TODO: Resume timer
                 })
+                swipeDirection = .none
                 initialTouchPoint = CGPoint(x: 0, y: 0)
             }
         default:
@@ -161,9 +183,9 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         print(touchPoint)
 
         if touchPoint.x <= size.width / 2.0 {
-            presenter.proceedToPreviousStory() // TODO: Change to slide instead of story
+            presenter.proceedToPreviousSlide()
         } else {
-            presenter.proceedToNextStory() // TODO: Change to slide instead of story
+            presenter.proceedToNextSlide()
         }
     }
 
@@ -183,12 +205,18 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     private func setupInitialSlide() {
-        guard let story = self.story,
-              let slide = self.story?.slides[0] else {return }
+        guard viewModel.count > 0 else { return }
 
-        self.titleLabel.text = "\(story.icon) \(story.title)"
-        self.contentLabel.text = slide.description
-        currentStoryIndex = 0
+        self.titleLabel.text = viewModel[0].title
+        self.contentLabel.text = viewModel[0].content
+//        currentStoryIndex = 0
+    }
+
+    private func bindViewModel() {
+        let slideModel = viewModel[currentSlideIndex]
+
+        titleLabel.text = slideModel.title
+        contentLabel.text = slideModel.content
     }
 }
 
@@ -209,19 +237,22 @@ extension StoriesViewController: Localizable {
 }
 
 extension StoriesViewController: StoriesViewProtocol {
-    func didRecieve(story: Story) {
-        self.story = story
-        setupInitialSlide()
+    func didRecieve(viewModel: [SlideViewModel],
+                    startingFrom slide: StaringIndex = .first) {
+        self.viewModel = viewModel
+        currentSlideIndex = slide.index
+        bindViewModel()
+    }
 
-        // setup progress view
-
-        // start progress view
+    func didRecieve(newSlideIndex index: Int) {
+        currentSlideIndex = index
+        bindViewModel()
     }
 }
 
 extension StoriesViewController: StoriesProgressViewDataSource {
     func slidesCount() -> Int {
-        return story?.slides.count ?? 0
+        return viewModel.count
     }
 }
 
@@ -229,9 +260,9 @@ extension StoriesViewController: StoriesViewDelegate {
     func didTap(in part: ScreenPart) {
         switch part {
         case .left:
-            break
+            presenter.proceedToPreviousSlide()
         case .right:
-            break
+            presenter.proceedToNextSlide()
         }
     }
 
@@ -242,7 +273,7 @@ extension StoriesViewController: StoriesViewDelegate {
         case .swipeLeft:
             presenter.proceedToNextStory()
         case .swipeRight:
-            presenter.proceedToPreviousStory()
+            presenter.proceedToPreviousStory(startingFrom: .first)
         default:
             break
         }
@@ -257,9 +288,35 @@ extension StoriesViewController: StoriesViewDelegate {
     }
 }
 
-protocol StoriesViewDelegate  {
+protocol StoriesViewDelegate: class {
     func didTap(in part: ScreenPart)
     func didSwipe(distance: CGFloat, direction: SwipeDirection)
     func didLongPress()
     func didRelease()
+}
+
+extension StoriesViewController: SegmentedProgressBarDelegate {
+    func segmentedProgressBarChangedIndex(index: Int) {
+        presenter.proceedToNextSlide()
+    }
+
+    func segmentedProgressBarFinished() {
+        presenter.proceedToNextStory()
+    }
+}
+
+extension StoriesViewController: SegmentedProgressBarDataSource {
+    func segmentDuration() -> TimeInterval {
+        return 5.0
+    }
+
+    func numberOfSegments() -> Int {
+        return viewModel.count
+    }
+}
+
+extension StoriesViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        return touch.view != loadMoreButton
+    }
 }

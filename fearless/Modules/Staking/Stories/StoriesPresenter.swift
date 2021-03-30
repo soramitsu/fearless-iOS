@@ -5,17 +5,38 @@ final class StoriesPresenter {
     var wireframe: StoriesWireframeProtocol!
     var interactor: StoriesInteractorInputProtocol!
 
-    var selectedStoryIndex = 0
+    private var viewModelFactory: StoryViewModelFactoryProtocol?
+    private var selectedStoryIndex = 0
+    private var selectedSlideIndex = 0
 
     private var model: StoriesModel?
 
-    init() {
+    init(selectedStoryIndex: Int,
+         viewModelFactory: StoryViewModelFactoryProtocol) {
+        self.selectedStoryIndex = selectedStoryIndex
+        self.viewModelFactory = viewModelFactory
     }
 
     private func show(_ url: URL) {
         if let view = view {
             wireframe.showWeb(url: url, from: view, style: .automatic)
         }
+    }
+
+    private func advanceStoriesBy(_ shift: Int, startingFrom slide: StaringIndex = .first) {
+        guard let model = self.model else { return }
+        guard selectedStoryIndex + shift < model.stories.count &&
+              selectedStoryIndex + shift >= 0 else {
+            activateClose()
+            return
+        }
+
+        selectedStoryIndex += shift
+        selectedSlideIndex = slide.index
+
+        guard let factory = viewModelFactory else { return }
+        let viewModel = factory.createStoryViewModel(from: model.stories[selectedStoryIndex])
+        view?.didRecieve(viewModel: viewModel, startingFrom: slide)
     }
 }
 
@@ -24,8 +45,10 @@ extension StoriesPresenter: StoriesPresenterProtocol {
         wireframe.close(view: view)
     }
 
-    func activateWeb(slideIndex: Int) {
-        guard let urlString = model?.stories[selectedStoryIndex].slides[slideIndex].urlString else { return }
+    func activateWeb() {
+        guard let urlString = model?
+                .stories[selectedStoryIndex]
+                .slides[selectedSlideIndex].urlString else { return }
 
         if let url = URL(string: urlString) {
             show(url)
@@ -33,25 +56,40 @@ extension StoriesPresenter: StoriesPresenterProtocol {
     }
 
     func proceedToNextStory() {
-        guard let model = self.model else { return }
-        guard selectedStoryIndex + 1 < model.stories.count else {
-            activateClose()
-            return
-        }
-
-        selectedStoryIndex += 1
-        view?.didRecieve(story: model.stories[selectedStoryIndex])
+        advanceStoriesBy(1)
     }
 
-    func proceedToPreviousStory() {
+    func proceedToPreviousStory(startingFrom index: StaringIndex = .first) {
+        advanceStoriesBy(-1, startingFrom: index)
+    }
+
+    func proceedToNextSlide() {
         guard let model = self.model else { return }
-        guard selectedStoryIndex - 1 >= 0 else {
-            activateClose()
+        guard selectedSlideIndex + 1 < model.stories[selectedStoryIndex].slides.count
+        else {
+            proceedToNextStory()
             return
         }
 
-        selectedStoryIndex -= 1
-        view?.didRecieve(story: model.stories[selectedStoryIndex])
+        selectedSlideIndex += 1
+        view?.didRecieve(newSlideIndex: selectedSlideIndex)
+    }
+
+    func proceedToPreviousSlide() {
+        guard selectedSlideIndex - 1 >= 0
+        else {
+            guard let model = self.model else { return }
+            guard selectedStoryIndex > 0 else {
+                proceedToPreviousStory()
+                return
+            }
+
+            proceedToPreviousStory(startingFrom: .last(array: model.stories[selectedStoryIndex - 1].slides))
+            return
+        }
+
+        selectedSlideIndex -= 1
+        view?.didRecieve(newSlideIndex: selectedSlideIndex)
     }
 
     func setup() {
@@ -61,7 +99,11 @@ extension StoriesPresenter: StoriesPresenterProtocol {
 
 extension StoriesPresenter: StoriesInteractorOutputProtocol {
     func didReceive(storiesModel: StoriesModel) {
+        selectedSlideIndex = 0
         model = storiesModel
-        view?.didRecieve(story: storiesModel.stories[selectedStoryIndex])
+
+        guard let factory = viewModelFactory else { return }
+        let viewModel = factory.createStoryViewModel(from: storiesModel.stories[selectedStoryIndex])
+        view?.didRecieve(viewModel: viewModel, startingFrom: .first)
     }
 }

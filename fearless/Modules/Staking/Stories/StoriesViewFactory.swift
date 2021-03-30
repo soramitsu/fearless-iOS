@@ -16,8 +16,9 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
         // let viewModelFactory = ...
 
         // And pass it to the initializer
-        let presenter = StoriesPresenter()
-        presenter.selectedStoryIndex = index
+        let viewModelFactory = StoryViewModelFactory()
+        let presenter = StoriesPresenter(selectedStoryIndex: index,
+                                         viewModelFactory: viewModelFactory)
 
         // MARK: - Router
         let wireframe = StoriesWireframe()

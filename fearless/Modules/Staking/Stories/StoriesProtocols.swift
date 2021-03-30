@@ -4,16 +4,21 @@ import SoraFoundation
 protocol StoriesViewProtocol: ControllerBackedProtocol, Localizable {
     // From Interactor through Presenter to View actions
     // func didReceive(value: Type)
-    func didRecieve(story: Story)
+    func didRecieve(viewModel: [SlideViewModel],
+                    startingFrom slide: StaringIndex)
+    func didRecieve(newSlideIndex index: Int)
+//    func didRecieve(viewModel: SlideViewModel)
 }
 
 protocol StoriesPresenterProtocol: class {
     func setup()
 
     func activateClose()
-    func activateWeb(slideIndex: Int)
+    func activateWeb()
     func proceedToNextStory()
-    func proceedToPreviousStory()
+    func proceedToPreviousStory(startingFrom slide: StaringIndex)
+    func proceedToNextSlide()
+    func proceedToPreviousSlide()
 
     // From View to Presenter actions
     // func viewAction()
@@ -37,10 +42,10 @@ protocol StoriesViewFactoryProtocol: class {
     static func createView(with index: Int) -> StoriesViewProtocol?
 }
 
-protocol StoriesProgressViewDataSource {
+protocol StoriesProgressViewDataSource: class {
     func slidesCount() -> Int
 }
 
-protocol StoriesProgressViewDelegate {
+protocol StoriesProgressViewDelegate: class {
 
 }
