@@ -14,27 +14,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     @IBOutlet private var scrollView: UIScrollView!
     @IBOutlet private var stackView: UIStackView!
+    @IBOutlet private var headerView: UIView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var iconButton: RoundedButton!
     @IBOutlet private var iconButtonWidth: NSLayoutConstraint!
 
-    @IBOutlet weak var networkView: UIView!
-
-    @IBOutlet weak var networkInfoContainer: UIView!
-    @IBOutlet weak var titleControl: ActionTitleControl!
-    @IBOutlet weak var storiesView: UICollectionView!
-    @IBOutlet weak var storiesViewZeroHeightConstraint: NSLayoutConstraint!
-
-    @IBOutlet weak var totalStakedTitleLabel: UILabel!
-    @IBOutlet weak var totalStakedAmountLabel: UILabel!
-    @IBOutlet weak var totalStakedFiatAmountLabel: UILabel!
-    @IBOutlet weak var minimumStakeTitleLabel: UILabel!
-    @IBOutlet weak var minimumStakeAmountLabel: UILabel!
-    @IBOutlet weak var minimumStakeFiatAmountLabel: UILabel!
-    @IBOutlet weak var activeNominatorsTitleLabel: UILabel!
-    @IBOutlet weak var activeNominatorsLabel: UILabel!
-    @IBOutlet weak var lockUpPeriodTitleLabel: UILabel!
-    @IBOutlet weak var lockUpPeriodLabel: UILabel!
+    private var networkInfoContainerView: UIView!
+    private var networkInfoView: NetworkInfoView!
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -45,18 +31,13 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     var keyboardHandler: KeyboardHandler?
 
-    // MARK: - Private declarations
-
-    private var chainName: String = ""
-    private var networkStakingInfo: LocalizableResource<NetworkStakingInfoViewModelProtocol>?
-
     // MARK: - UIViewController
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupNetworkInfoView()
         setupLocalization()
         presenter.setup()
-        configureCollectionView()
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -77,50 +58,39 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         presenter.performAccountAction()
     }
 
-    @IBAction func toggleNetworkWidgetVisibility(sender: ActionTitleControl) {
-        let animationOptions: UIView.AnimationOptions = sender.isActivated ? .curveEaseIn : .curveEaseOut
-
-        self.storiesViewZeroHeightConstraint?.isActive = sender.isActivated
-        UIView.animate(
-            withDuration: 0.35,
-            delay: 0.0,
-            options: [animationOptions],
-            animations: {
-                self.view.layoutIfNeeded()
-                self.networkInfoContainer.isHidden = sender.isActivated
-            })
-    }
-
     // MARK: - Private functions
-    private func configureCollectionView() {
-        storiesView.backgroundView = nil
-        storiesView.backgroundColor = UIColor.clear
 
-        storiesView.register(UINib(resource: R.nib.storiesCollectionItem),
-                             forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
+    private func setupNetworkInfoView() {
+        guard
+            let networkInfoView = R.nib.networkInfoView(owner: self),
+            let headerIndex = stackView.arrangedSubviews.firstIndex(of: headerView) else { return }
+
+        self.networkInfoView = networkInfoView
+
+        networkInfoView.delegate = self
+
+        networkInfoContainerView = UIView()
+        networkInfoContainerView.translatesAutoresizingMaskIntoConstraints = false
+
+        networkInfoContainerView.addSubview(networkInfoView)
+
+        applyConstraints(for: networkInfoContainerView, innerView: networkInfoView)
+
+        stackView.insertArrangedSubview(networkInfoContainerView, at: headerIndex + 1)
+
+        configureStoriesView()
     }
 
-    private func applyStakingInfo() {
-        guard let viewModel = networkStakingInfo else { return }
+    private func configureStoriesView() {
+        networkInfoView.collectionView.backgroundView = nil
+        networkInfoView.collectionView.backgroundColor = UIColor.clear
 
-        let locale = localizationManager?.selectedLocale ?? Locale.current
+        networkInfoView.collectionView.dataSource = self
+        networkInfoView.collectionView.delegate = self
 
-        let localizedViewModel = viewModel.value(for: locale)
-
-        totalStakedAmountLabel.text = localizedViewModel.totalStake?.amount
-        totalStakedFiatAmountLabel.text = localizedViewModel.totalStake?.price
-        minimumStakeAmountLabel.text = localizedViewModel.minimalStake?.amount
-        minimumStakeFiatAmountLabel.text = localizedViewModel.minimalStake?.price
-        activeNominatorsLabel.text = localizedViewModel.activeNominators
-        lockUpPeriodLabel.text = localizedViewModel.lockUpPeriod
-    }
-
-    private func applyChainName() {
-        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
-
-        titleControl.titleLabel.text = R.string.localizable
-            .stakingMainNetworkTitle(chainName, preferredLanguages: languages)
-        titleControl.invalidateLayout()
+        networkInfoView.collectionView.register(
+            UINib(resource: R.nib.storiesCollectionItem),
+            forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
     }
 
     private func clearStateView() {
@@ -133,23 +103,24 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateView = nil
     }
 
-    private func applyConstraints(for containerView: UIView, stateView: UIView) {
-        stateView.translatesAutoresizingMaskIntoConstraints = false
-        stateView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
+    private func applyConstraints(for containerView: UIView, innerView: UIView) {
+        innerView.translatesAutoresizingMaskIntoConstraints = false
+        innerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
                                            constant: UIConstants.horizontalInset).isActive = true
-        stateView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
+        innerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
                                             constant: -UIConstants.horizontalInset).isActive = true
-        stateView.topAnchor.constraint(equalTo: containerView.topAnchor,
+        innerView.topAnchor.constraint(equalTo: containerView.topAnchor,
                                        constant: Constants.verticalSpacing).isActive = true
 
-        containerView.bottomAnchor.constraint(equalTo: stateView.bottomAnchor,
+        containerView.bottomAnchor.constraint(equalTo: innerView.bottomAnchor,
                                               constant: Constants.bottomInset).isActive = true
     }
 
     private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
         clearStateView()
 
-        guard let prevViewIndex = stackView.arrangedSubviews.firstIndex(of: networkView) else {
+        guard let prevViewIndex = stackView.arrangedSubviews
+                .firstIndex(of: networkInfoContainerView) else {
             return nil
         }
 
@@ -162,7 +133,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         containerView.addSubview(stateView)
 
-        applyConstraints(for: containerView, stateView: stateView)
+        applyConstraints(for: containerView, innerView: stateView)
 
         stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
 
@@ -239,19 +210,9 @@ extension StakingMainViewController: Localizable {
 
         titleLabel.text = R.string.localizable
             .tabbarStakingTitle(preferredLanguages: languages)
-        totalStakedTitleLabel.text = R.string.localizable
-            .stakingMainTotalStakedTitle(preferredLanguages: languages)
-        minimumStakeTitleLabel.text = R.string.localizable
-            .stakingMainMinimumStakeTitle(preferredLanguages: languages)
-        activeNominatorsTitleLabel.text = R.string.localizable
-            .stakingMainActiveNominatorsTitle(preferredLanguages: languages)
-        lockUpPeriodTitleLabel.text = R.string.localizable
-            .stakingMainLockupPeriodTitle(preferredLanguages: languages)
 
+        networkInfoView.locale = locale
         stateView?.locale = locale
-
-        applyChainName()
-        applyStakingInfo()
     }
 
     func applyLocalization() {
@@ -278,15 +239,11 @@ extension StakingMainViewController: RewardEstimationViewDelegate {
 
 extension StakingMainViewController: StakingMainViewProtocol {
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>) {
-        networkStakingInfo = viewModel
-        applyStakingInfo()
+        networkInfoView.bind(viewModel: viewModel)
     }
 
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        self.chainName = newChainName.value(for: locale)
-        applyChainName()
+        networkInfoView.bind(chainName: newChainName)
     }
 
     func didReceive(viewModel: StakingMainViewModelProtocol) {
@@ -312,6 +269,12 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case .validator:
             applyValidator()
         }
+    }
+}
+
+extension StakingMainViewController: NetworkInfoViewDelegate {
+    func animateAlongsideWithInfo(view: NetworkInfoView) {
+        scrollView.layoutIfNeeded()
     }
 }
 
