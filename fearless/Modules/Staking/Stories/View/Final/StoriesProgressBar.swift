@@ -2,13 +2,20 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
+enum ProgressBarAnimationState {
+    case stopped
+    case animating
+    case paused
+    case interrupted
+}
+
 protocol StoriesProgressBarDataSource: class {
     func numberOfSegments() -> Int
     func segmentDuration() -> TimeInterval
 }
 
 protocol StoriesProgressBarDelegate: class {
-    func didFinishAnimation(index: Int)
+    func didFinishAnimation()
 }
 
 @IBDesignable
@@ -30,6 +37,8 @@ class StoriesProgressBar: UIView {
     private(set) var stackView: UIStackView!
     private(set) var currentIndex: Int = 0
     private var timer: CountdownTimerProtocol?
+    private var remainingAnimationTime: TimeInterval = 0
+    private var animationState: ProgressBarAnimationState = .stopped
 
     private struct Constants {
         static let padding: CGFloat = 8
@@ -40,16 +49,15 @@ class StoriesProgressBar: UIView {
     private var animationDuration: TimeInterval = 5
 
     weak var dataSource: StoriesProgressBarDataSource?
+    weak var delegate: StoriesProgressBarDelegate?
 
     // MARK: - Overrides
     public override init(frame: CGRect) {
-        print("Init [frame]")
         super.init(frame: frame)
         configure()
     }
 
     public required init?(coder aDecoder: NSCoder) {
-        print("Init [coder]")
         super.init(coder: aDecoder)
         configure()
     }
@@ -61,7 +69,6 @@ class StoriesProgressBar: UIView {
     }
 
     public override func layoutSubviews() {
-        print("layoutSubviews")
         super.layoutSubviews()
 
         stackView.frame = bounds
@@ -70,7 +77,6 @@ class StoriesProgressBar: UIView {
 
     // MARK: - Private functions
     private func configure() {
-        print("configure")
         backgroundColor = .clear
 
         configureTimer()
@@ -142,66 +148,69 @@ class StoriesProgressBar: UIView {
 }
 
 extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
-    func setCurrentIndex(newIndex: Int) {
-        guard newIndex < segments.count else { return }
-
-        // segments[currentIndex].setProgress(1, animated: false)
-        // TODO: This is for case when animation is in progress
-//        segments[newIndex].setProgress(0, animated: false)
-//        segments[newIndex].setProgress(1, animated: true)
-        // newIndex > currentIndex
-        // If we are moving forward, fill current segment
-        // newIndex < currentIndex
-        // If we are moving backward, empty current segment
-
-        stop()
-        if newIndex > currentIndex {
-            segments[currentIndex].setProgress(1, animated: false)
-        } else {
-            segments[currentIndex].setProgress(0, animated: false)
-            segments[newIndex].setProgress(0, animated: false)
-        }
-        currentIndex = newIndex
-    }
-
     func redrawSegments(startingPosition: Int) {
         configureSegments(startingPosition: startingPosition)
         setNeedsLayout()
         layoutIfNeeded()
     }
 
+    func setCurrentIndex(newIndex: Int) {
+        guard newIndex < segments.count else { return }
+
+        stop()
+        if newIndex > currentIndex {
+            segments[currentIndex].setProgress(1, animated: false)
+        } else if newIndex < currentIndex {
+            segments[currentIndex].setProgress(0, animated: false)
+            segments[newIndex].setProgress(0, animated: false)
+        }
+
+        currentIndex = newIndex
+    }
+
     func start() {
-        segments[currentIndex].setProgress(1, animated: true)
+        timer?.start(with: animationDuration)
     }
 
     func pause() {
-        segments[currentIndex].pause()
+        timer?.stop()
     }
 
     func resume() {
-        segments[currentIndex].resume()
+        timer?.start(with: remainingAnimationTime)
     }
 
     func stop() {
         segments[currentIndex].stop()
     }
-
-    func reset() {
-
-    }
 }
 
 extension StoriesProgressBar: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
+        switch animationState {
+        case .stopped:
+            segments[currentIndex].setProgress(1, animated: true)
+        case .paused:
+            segments[currentIndex].resume()
+        default:
+            break
+        }
 
+        animationState = .animating
     }
 
-    func didCountdown(remainedInterval: TimeInterval) {
-
-    }
+    func didCountdown(remainedInterval: TimeInterval) { }
 
     func didStop(with remainedInterval: TimeInterval) {
+        guard remainedInterval > 0.0 else { // stopped
+            animationState = .stopped
+            delegate?.didFinishAnimation()
+            return
+        }
 
+        animationState = .paused
+        segments[currentIndex].pause()
+        remainingAnimationTime = remainedInterval
     }
 }
 
@@ -218,7 +227,6 @@ extension ProgressView {
         let pausedTime: CFTimeInterval = pLayer.convertTime(CACurrentMediaTime(), from: nil)
         pLayer.speed = 0.0
         pLayer.timeOffset = pausedTime
-
     }
 
     func resume() {
@@ -232,4 +240,3 @@ extension ProgressView {
         pLayer.beginTime = timeSincePause
     }
 }
-

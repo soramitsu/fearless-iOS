@@ -85,6 +85,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     // MARK: - Private functions
     private func setupProgressBar() {
         progressBar.dataSource = self
+        progressBar.delegate = self
     }
 
     private func configureLongPressRecognizer() {
@@ -324,7 +325,7 @@ protocol StoriesViewDelegate: class {
 }
 
 extension StoriesViewController: StoriesProgressBarDelegate {
-    func didFinishAnimation(index: Int) {
+    func didFinishAnimation() {
         presenter.proceedToNextSlide()
     }
 }

@@ -8,27 +8,4 @@ protocol StoriesProgressAnimatorProtocol {
     func resume()
     func pause()
     func stop()
-    func reset()
-}
-
-extension ViewAnimator where Self: ProgressView {
-    func start() {
-
-    }
-
-    func resume() {
-
-    }
-
-    func pause() {
-
-    }
-
-    func stop() {
-
-    }
-
-    func reset() {
-
-    }
 }
