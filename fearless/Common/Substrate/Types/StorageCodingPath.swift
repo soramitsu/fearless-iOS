@@ -73,4 +73,8 @@ extension StorageCodingPath {
     static var totalValidatorReward: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorReward")
     }
+
+    static var rewardPointsPerValidator: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "ErasRewardPoints")
+    }
 }

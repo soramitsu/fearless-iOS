@@ -150,8 +150,72 @@ class RewardPayoutsServiceTests: XCTestCase {
         }
     }
 
-    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
-                                        settings: SettingsManagerProtocol) -> WebSocketServiceProtocol {
+    func testRewardPointsPerValidator() {
+        do {
+            let settings = InMemorySettingsManager()
+            let chain = Chain.kusama
+            let storageFacade = SubstrateDataStorageFacade.shared
+
+            try AccountCreationHelper.createAccountFromMnemonic(
+                cryptoType: .sr25519,
+                networkType: chain,
+                keychain: InMemoryKeychain(),
+                settings: settings)
+
+            let runtimeService = try createRuntimeService(
+                from: storageFacade,
+                operationManager: OperationManagerFacade.sharedManager,
+                chain: chain)
+
+            runtimeService.setup()
+
+            let webSocketService = createWebSocketService(
+                storageFacade: storageFacade,
+                settings: settings)
+            webSocketService.setup()
+
+            guard let engine = webSocketService.connection else {
+                XCTFail("No engine")
+                return
+            }
+
+            let factory = try fetchCoderFactory(runtimeService: runtimeService, storageFacade: storageFacade)
+
+            guard let activeEra = try fetchActiveEra(
+                    for: chain,
+                    storageFacade: storageFacade,
+                    codingFactory: factory) else {
+                XCTFail("No era")
+                return
+            }
+
+            let previousEra = activeEra - 1
+
+            do {
+                let rewardPoints = try fetchRewardPointsPerValidator(
+                    forEra: previousEra,
+                    engine: engine,
+                    codingFactory: factory)
+
+                guard let reward = rewardPoints.first?.value else {
+                    XCTFail("RewardPoints is empty ")
+                    return
+                }
+                XCTAssert(reward.total > 0)
+                XCTAssert(reward.individual.count > 0)
+            } catch {
+                XCTFail("Unexpected error: \(error)")
+            }
+
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    private func createWebSocketService(
+        storageFacade: StorageFacadeProtocol,
+        settings: SettingsManagerProtocol
+    ) -> WebSocketServiceProtocol {
         let connectionItem = settings.selectedConnection
         let address = settings.selectedAccount?.address
 
@@ -266,6 +330,29 @@ class RewardPayoutsServiceTests: XCTestCase {
 
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
 
+        return try queryWrapper.targetOperation.extractNoCancellableResultData()
+    }
+
+    private func fetchRewardPointsPerValidator(
+        forEra era: UInt32,
+        engine: JSONRPCEngine,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        queue: OperationQueue = OperationQueue()
+    ) throws -> [StorageResponse<EraRewardPoints>] {
+        let params: () throws -> [String] = {
+            [String(era)]
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<EraRewardPoints>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keyParams: params,
+                factory: { codingFactory },
+                storagePath: .rewardPointsPerValidator)
+
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
     }
 }
