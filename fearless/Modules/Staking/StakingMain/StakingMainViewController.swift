@@ -48,16 +48,36 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         }
     }
 
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        networkInfoView.didAppearSkeleton()
+
+        if let skeletonState = stateView as? SkeletonLoadable {
+            skeletonState.didAppearSkeleton()
+        }
+    }
+
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
 
         clearKeyboardHandler()
+
+        networkInfoView.didDisappearSkeleton()
+
+        if let skeletonState = stateView as? SkeletonLoadable {
+            skeletonState.didDisappearSkeleton()
+        }
     }
 
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
 
-        networkInfoView.reloadSkeletonIfNeeded()
+        networkInfoView.didUpdateSkeletonLayout()
+
+        if let skeletonState = stateView as? SkeletonLoadable {
+            skeletonState.didUpdateSkeletonLayout()
+        }
     }
 
     @IBAction func actionIcon() {
@@ -194,14 +214,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         nominationView?.bind(viewModel: viewModel)
     }
 
-    private func applyBonded(viewModel: StakingEstimationViewModelProtocol) {
+    private func applyBonded(viewModel: StakingEstimationViewModel) {
         let rewardView = setupRewardEstimationViewIfNeeded()
         rewardView?.bind(viewModel: viewModel)
     }
 
-    private func applyNoStash(viewModel: StakingEstimationViewModelProtocol) {
+    private func applyNoStash(viewModel: StakingEstimationViewModel) {
         let rewardView = setupRewardEstimationViewIfNeeded()
         rewardView?.bind(viewModel: viewModel)
+        scrollView.layoutIfNeeded()
     }
 
     private func applyValidator() {

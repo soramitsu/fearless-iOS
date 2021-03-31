@@ -255,6 +255,7 @@
             <connections>
                 <outlet property="actionButton" destination="Pyb-Il-ysA" id="zTU-4D-5ph"/>
                 <outlet property="amountInputView" destination="new-yP-LVA" id="JfY-T1-ZTD"/>
+                <outlet property="backgroundView" destination="VtY-xS-eUr" id="cX8-E8-kuB"/>
                 <outlet property="estimateWidgetTitleLabel" destination="myC-5u-uc4" id="YZ6-vd-vjZ"/>
                 <outlet property="monthlyAmountLabel" destination="3nV-gc-IyG" id="hI7-UQ-2Du"/>
                 <outlet property="monthlyFiatAmountLabel" destination="Qhc-rB-Oh5" id="a0M-0B-eC1"/>

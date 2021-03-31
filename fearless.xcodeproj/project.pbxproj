@@ -161,6 +161,7 @@
 		841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */; };
 		841E6B0A25EC1C140007DDFE /* ValidatorOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */; };
 		84205897260C795B007D26C6 /* NominatorState+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84205896260C795B007D26C6 /* NominatorState+Status.swift */; };
+		842348E92614F6EA002127AF /* SkeletonLoadable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842348E82614F6EA002127AF /* SkeletonLoadable.swift */; };
 		8423B0DE251A438F00B8687C /* AddConnectionError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0DD251A438F00B8687C /* AddConnectionError.swift */; };
 		8423B0E0251A759000B8687C /* Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0DF251A759000B8687C /* Chain.swift */; };
 		8423B0E2251A769300B8687C /* RPCMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0E1251A769300B8687C /* RPCMethod.swift */; };
@@ -1129,6 +1130,7 @@
 		841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorInfo.swift; sourceTree = "<group>"; };
 		841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactory.swift; sourceTree = "<group>"; };
 		84205896260C795B007D26C6 /* NominatorState+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NominatorState+Status.swift"; sourceTree = "<group>"; };
+		842348E82614F6EA002127AF /* SkeletonLoadable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkeletonLoadable.swift; sourceTree = "<group>"; };
 		8423B0DD251A438F00B8687C /* AddConnectionError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddConnectionError.swift; sourceTree = "<group>"; };
 		8423B0DF251A759000B8687C /* Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Chain.swift; sourceTree = "<group>"; };
 		8423B0E1251A769300B8687C /* RPCMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCMethod.swift; sourceTree = "<group>"; };
@@ -3538,6 +3540,7 @@
 				84754C842510A1A400854599 /* ModalAlertPresenting.swift */,
 				849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */,
 				847DD8DB26034B99003DE053 /* LocalizableViewProtocol.swift */,
+				842348E82614F6EA002127AF /* SkeletonLoadable.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -5413,6 +5416,7 @@
 				84C6801024D6EE4500006BF5 /* PlusIndicatorView.swift in Sources */,
 				8428765A24ADDE0200D91AD8 /* ProfileViewFactory.swift in Sources */,
 				8490141624A92F6D008F705E /* OnboardingMainViewFactory.swift in Sources */,
+				842348E92614F6EA002127AF /* SkeletonLoadable.swift in Sources */,
 				8490147724A94A37008F705E /* RootPresenter.swift in Sources */,
 				84F30EDE25FF978D00039D09 /* ElectionStatus.swift in Sources */,
 				8428765724ADDE0200D91AD8 /* ProfileTableViewCell.swift in Sources */,
