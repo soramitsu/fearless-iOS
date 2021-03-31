@@ -37,10 +37,12 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     var presenter: StoriesPresenterProtocol!
     private var currentStoryIndex = 0
     private var currentSlideIndex = 0
+    private var uiIsSetUp: Bool = false
 
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var contentLabel: UILabel!
-    @IBOutlet weak var loadMoreButton: TriangularedButton!
+    @IBOutlet weak var learnMoreButton: TriangularedButton!
+    @IBOutlet weak var progressBar: StoriesProgressBar!
 
     private var viewModel: [SlideViewModel] = []
 
@@ -50,20 +52,41 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupProgressBar()
         setupLocalization()
         setupGestureRecognizers()
-        presenter.setup()
+    }
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        // TODO: fix learn more button press:
+        // Pause
+        // Save state
+        // Raise "will continue" flag
+        // If raised, then do nothing\
+        if !uiIsSetUp { presenter.setup() }
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        if !uiIsSetUp {
+            progressBar.start()
+            uiIsSetUp = true
+        }
     }
 
     @IBAction func closeButtonTouched() {
         presenter.activateClose()
     }
 
-    @IBAction func learMoreButtonTouched() {
+    @IBAction func learnMoreButtonTouched() {
         presenter.activateWeb()
     }
 
     // MARK: - Private functions
+    private func setupProgressBar() {
+        progressBar.dataSource = self
+    }
+
     private func configureLongPressRecognizer() {
         let longPressRecognizer: UILongPressGestureRecognizer = .init(target: self,
                                                                       action: #selector(didRecieveLongPressGesture))
@@ -94,9 +117,14 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     }
 
     @objc private func didRecieveLongPressGesture(gesture: UILongPressGestureRecognizer) {
-        // On press pause progress view
-
-        // On release resume progress view
+        switch gesture.state {
+        case .began:
+            progressBar.pause()
+        case .ended, .cancelled:
+            progressBar.resume()
+        default:
+            break
+        }
     }
 
     private func moveView(to touchPoint: CGPoint) {
@@ -117,13 +145,12 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
     @objc private func didRecievePanGesture(gesture: UITapGestureRecognizer) {
         let touchPoint = gesture.location(in: view.window)
-        print(touchPoint)
 
         // If everything has just began, remember initial touch point
         switch gesture.state {
         case .began:
             initialTouchPoint = touchPoint
-        // TODO: Pause timer
+            progressBar.pause()
 
         case .changed:
             if swipeDirection == .none {
@@ -139,33 +166,31 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
             switch swipeDirection {
             case .horizontal:
                 if touchPoint.x - initialTouchPoint.x > 150 {
-                    // TODO: Stop timer completely
+                    progressBar.stop()
                     self.presenter.proceedToPreviousStory(startingFrom: .first)
                 } else if touchPoint.x - initialTouchPoint.x < -150 {
                     self.presenter.proceedToNextStory()
                 }
             case .vertical:
                 if touchPoint.y - initialTouchPoint.y > 150 {
-                    // TODO: Stop timer completely
+                    progressBar.stop()
                     self.presenter.activateClose()
                 }
             default:
                 break
             }
+
             if touchPoint.y - initialTouchPoint.y > 150 {
-                // TODO: Stop timer completely
+                progressBar.stop()
                 self.presenter.activateClose()
-
             } else {
-
-                // Perform action
                 UIView.animate(withDuration: 0.3, animations: {
                     self.view.frame = CGRect(x: 0,
                                              y: 0,
                                              width: self.view.frame.size.width,
                                              height: self.view.frame.size.height)
 
-                    // TODO: Resume timer
+                    self.progressBar.resume()
                 })
                 swipeDirection = .none
                 initialTouchPoint = CGPoint(x: 0, y: 0)
@@ -204,14 +229,6 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
         return .vertical
     }
 
-    private func setupInitialSlide() {
-        guard viewModel.count > 0 else { return }
-
-        self.titleLabel.text = viewModel[0].title
-        self.contentLabel.text = viewModel[0].content
-//        currentStoryIndex = 0
-    }
-
     private func bindViewModel() {
         let slideModel = viewModel[currentSlideIndex]
 
@@ -225,7 +242,10 @@ extension StoriesViewController: Localizable {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         let languages = locale.rLanguages
 
-        // Localize static UI elements here
+        learnMoreButton.imageWithTitleView?.title = R.string.localizable
+            .commonLearnMore(preferredLanguages: languages)
+        learnMoreButton.imageWithTitleView?.titleFont = .h5Title
+        learnMoreButton.imageWithTitleView?.iconImage = nil
     }
 
     func applyLocalization() {
@@ -236,17 +256,25 @@ extension StoriesViewController: Localizable {
     }
 }
 
+// MARK: - StoriesViewProtocol
 extension StoriesViewController: StoriesViewProtocol {
     func didRecieve(viewModel: [SlideViewModel],
                     startingFrom slide: StaringIndex = .first) {
         self.viewModel = viewModel
         currentSlideIndex = slide.index
         bindViewModel()
+
+        progressBar.redrawSegments(startingPosition: currentSlideIndex)
+        progressBar.setCurrentIndex(newIndex: currentSlideIndex)
+
+        if uiIsSetUp { progressBar.start() }
     }
 
     func didRecieve(newSlideIndex index: Int) {
         currentSlideIndex = index
         bindViewModel()
+        progressBar.setCurrentIndex(newIndex: index)
+        progressBar.start()
     }
 }
 
@@ -280,11 +308,11 @@ extension StoriesViewController: StoriesViewDelegate {
     }
 
     func didLongPress() {
-        // TODO: Pause something
+        progressBar.pause()
     }
 
     func didRelease() {
-        // TODO: Resume something
+        progressBar.resume()
     }
 }
 
@@ -295,17 +323,13 @@ protocol StoriesViewDelegate: class {
     func didRelease()
 }
 
-extension StoriesViewController: SegmentedProgressBarDelegate {
-    func segmentedProgressBarChangedIndex(index: Int) {
+extension StoriesViewController: StoriesProgressBarDelegate {
+    func didFinishAnimation(index: Int) {
         presenter.proceedToNextSlide()
-    }
-
-    func segmentedProgressBarFinished() {
-        presenter.proceedToNextStory()
     }
 }
 
-extension StoriesViewController: SegmentedProgressBarDataSource {
+extension StoriesViewController: StoriesProgressBarDataSource {
     func segmentDuration() -> TimeInterval {
         return 5.0
     }
@@ -317,6 +341,6 @@ extension StoriesViewController: SegmentedProgressBarDataSource {
 
 extension StoriesViewController: UIGestureRecognizerDelegate {
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        return touch.view != loadMoreButton
+        return touch.view != learnMoreButton
     }
 }

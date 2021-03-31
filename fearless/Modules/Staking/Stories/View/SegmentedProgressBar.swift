@@ -12,6 +12,12 @@ protocol SegmentedProgressBarDataSource: class {
 }
 
 class SegmentedProgressBar: UIView {
+    private class Segment {
+        let bottomSegmentView = UIView()
+        let topSegmentView = UIView()
+        init() {
+        }
+    }
 
     weak var delegate: SegmentedProgressBarDelegate?
     weak var dataSource: SegmentedProgressBarDataSource?
@@ -153,9 +159,4 @@ class SegmentedProgressBar: UIView {
     }
 }
 
-private class Segment {
-    let bottomSegmentView = UIView()
-    let topSegmentView = UIView()
-    init() {
-    }
-}
+
