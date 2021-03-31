@@ -32,6 +32,8 @@ final class NetworkInfoView: UIView {
 
     var expanded: Bool { titleControl.isActivated }
 
+    private var skeletonView: SkrullableView?
+
     var locale = Locale.current {
         didSet {
             applyLocalization()
@@ -50,6 +52,18 @@ final class NetworkInfoView: UIView {
         titleControl.activate(animated: false)
     }
 
+    func reloadSkeletonIfNeeded() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != networkInfoContainer.frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
+    }
+
     func setExpanded(_ value: Bool, animated: Bool) {
         guard value != expanded else {
             return
@@ -64,10 +78,16 @@ final class NetworkInfoView: UIView {
         applyExpansion(animated: animated)
     }
 
-    func bind(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>) {
+    func bind(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?) {
         localizableViewModel = viewModel
 
-        applyViewModel()
+        if viewModel != nil {
+            stopLoading()
+
+            applyViewModel()
+        } else {
+            startLoading()
+        }
     }
 
     func bind(chainName: LocalizableResource<String>) {
@@ -144,6 +164,106 @@ final class NetworkInfoView: UIView {
             contentTop.constant = -self.contentHeight.constant
             networkInfoContainer.alpha = 0.0
         }
+    }
+
+    func startLoading() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        totalStakedAmountLabel.alpha = 0.0
+        totalStakedFiatAmountLabel.alpha = 0.0
+        minimumStakeAmountLabel.alpha = 0.0
+        minimumStakeFiatAmountLabel.alpha = 0.0
+        activeNominatorsLabel.alpha = 0.0
+        lockUpPeriodLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoading() {
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        totalStakedAmountLabel.alpha = 1.0
+        totalStakedFiatAmountLabel.alpha = 1.0
+        minimumStakeAmountLabel.alpha = 1.0
+        minimumStakeFiatAmountLabel.alpha = 1.0
+        activeNominatorsLabel.alpha = 1.0
+        lockUpPeriodLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        let itemSize = networkInfoContainer.frame.size
+
+        let bigRowSize = CGSize(width: 72.0, height: 12.0)
+        let smallRowSize = CGSize(width: 57.0, height: 6.0)
+
+        let skeletonView = Skrull(size: networkInfoContainer.frame.size,
+                                  decorations: [], skeletons: [
+                                    createSkeletoRow(
+                                        under: totalStakedTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0),
+                                        size: bigRowSize),
+
+                                    createSkeletoRow(
+                                        under: totalStakedTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0 + bigRowSize.height + 10.0),
+                                        size: smallRowSize),
+
+                                    createSkeletoRow(
+                                        under: minimumStakeTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0),
+                                        size: bigRowSize),
+
+                                    createSkeletoRow(
+                                        under: minimumStakeTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0 + bigRowSize.height + 10.0),
+                                        size: smallRowSize),
+
+                                    createSkeletoRow(
+                                        under: activeNominatorsTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0),
+                                        size: bigRowSize),
+
+                                    createSkeletoRow(
+                                        under: lockUpPeriodTitleLabel,
+                                        in: itemSize,
+                                        offset: CGPoint(x: 0.0, y: 7.0),
+                                        size: bigRowSize)
+                                  ])
+            .fillSkeletonStart(UIColor.white.withAlphaComponent(0.2))
+            .fillSkeletonEnd(color: UIColor.white.withAlphaComponent(0.4))
+            .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: itemSize)
+        skeletonView.autoresizingMask = []
+        networkInfoContainer.insertSubview(skeletonView, at: 0)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletoRow(under targetView: UIView,
+                                  in spaceSize: CGSize,
+                                  offset: CGPoint,
+                                  size: CGSize) -> SingleSkeleton {
+        let targetFrame = targetView.convert(targetView.bounds, to: networkInfoContainer)
+
+        let position = CGPoint(x: targetFrame.minX + offset.x + size.width / 2.0,
+                               y: targetFrame.maxY + offset.y + size.height / 2.0)
+
+        let mappedSize = CGSize(width: spaceSize.skrullMapX(size.width),
+                                height: spaceSize.skrullMapY(size.height))
+
+        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }
 
     // MARK: Action

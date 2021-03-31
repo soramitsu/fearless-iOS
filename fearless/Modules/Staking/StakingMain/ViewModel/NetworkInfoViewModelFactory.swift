@@ -4,7 +4,7 @@ import BigInt
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?,
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo,
                                            chain: Chain,
                                            priceData: PriceData?) ->
     LocalizableResource<NetworkStakingInfoViewModelProtocol>
@@ -94,26 +94,21 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         }
     }
 
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo?,
+    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo,
                                            chain: Chain,
                                            priceData: PriceData?) ->
     LocalizableResource<NetworkStakingInfoViewModelProtocol> {
-        let stakingInfo = networkStakingInfo ?? NetworkStakingInfo(totalStake: BigUInt.zero,
-                                                                   minimalStake: BigUInt.zero,
-                                                                   activeNominatorsCount: 0,
-                                                                   lockUpPeriod: 0)
-
-        let localizedTotalStake = createTotalStakeViewModel(with: stakingInfo,
+        let localizedTotalStake = createTotalStakeViewModel(with: networkStakingInfo,
                                                             chain: chain,
                                                             priceData: priceData)
 
-        let localizedMinimalStake = createMinimalStakeViewModel(with: stakingInfo,
+        let localizedMinimalStake = createMinimalStakeViewModel(with: networkStakingInfo,
                                                                 chain: chain,
                                                                 priceData: priceData)
 
-        let nominatorsCount = createActiveNominatorsViewModel(with: stakingInfo)
+        let nominatorsCount = createActiveNominatorsViewModel(with: networkStakingInfo)
 
-        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: stakingInfo,
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: networkStakingInfo,
                                                                 chain: chain)
 
         return LocalizableResource { locale in

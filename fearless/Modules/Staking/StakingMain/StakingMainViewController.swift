@@ -54,6 +54,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         clearKeyboardHandler()
     }
 
+    override func viewDidLayoutSubviews() {
+        super.viewDidLayoutSubviews()
+
+        networkInfoView.reloadSkeletonIfNeeded()
+    }
+
     @IBAction func actionIcon() {
         presenter.performAccountAction()
     }
@@ -238,7 +244,7 @@ extension StakingMainViewController: RewardEstimationViewDelegate {
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {
-    func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>) {
+    func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?) {
         networkInfoView.bind(viewModel: viewModel)
     }
 
