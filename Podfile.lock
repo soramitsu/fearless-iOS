@@ -2,10 +2,10 @@ PODS:
   - BigInt (5.2.0)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.5.0)
-    - SoraFoundation/DateProcessing (~> 0.8.0)
-    - SoraFoundation/Localization (~> 0.8.0)
-    - SoraFoundation/NotificationHandlers (~> 0.8.0)
-    - SoraUI (~> 1.9.3)
+    - SoraFoundation/DateProcessing (~> 0.9.0)
+    - SoraFoundation/Localization (~> 0.9.0)
+    - SoraFoundation/NotificationHandlers (~> 0.9.0)
+    - SoraUI (~> 1.10.0)
   - Cuckoo (1.4.0):
     - Cuckoo/Swift (= 1.4.0)
   - Cuckoo/Swift (1.4.0)
@@ -42,53 +42,57 @@ PODS:
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
-  - SoraFoundation (0.8.0):
-    - SoraFoundation/DateProcessing (= 0.8.0)
-    - SoraFoundation/Localization (= 0.8.0)
-    - SoraFoundation/NotificationHandlers (= 0.8.0)
-    - SoraFoundation/QueryProcessing (= 0.8.0)
-    - SoraFoundation/Timer (= 0.8.0)
-    - SoraFoundation/ViewModel (= 0.8.0)
-  - SoraFoundation/DateProcessing (0.8.0):
+  - SoraFoundation (0.9.1):
+    - SoraFoundation/DateProcessing (= 0.9.1)
+    - SoraFoundation/Localization (= 0.9.1)
+    - SoraFoundation/NotificationHandlers (= 0.9.1)
+    - SoraFoundation/NumberProcessing (= 0.9.1)
+    - SoraFoundation/QueryProcessing (= 0.9.1)
+    - SoraFoundation/Timer (= 0.9.1)
+    - SoraFoundation/ViewModel (= 0.9.1)
+  - SoraFoundation/DateProcessing (0.9.1):
     - SoraFoundation/Localization
-  - SoraFoundation/Localization (0.8.0):
+  - SoraFoundation/Localization (0.9.1):
     - SoraKeystore (~> 0.1.5)
-  - SoraFoundation/NotificationHandlers (0.8.0)
-  - SoraFoundation/QueryProcessing (0.8.0)
-  - SoraFoundation/Timer (0.8.0):
+  - SoraFoundation/NotificationHandlers (0.9.1)
+  - SoraFoundation/NumberProcessing (0.9.1)
+  - SoraFoundation/QueryProcessing (0.9.1)
+  - SoraFoundation/Timer (0.9.1):
     - SoraFoundation/NotificationHandlers
-  - SoraFoundation/ViewModel (0.8.0)
+  - SoraFoundation/ViewModel (0.9.1)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.9.3):
-    - SoraUI/AdaptiveDesign (= 1.9.3)
-    - SoraUI/Animator (= 1.9.3)
-    - SoraUI/Camera (= 1.9.3)
-    - SoraUI/Controls (= 1.9.3)
-    - SoraUI/DetailsView (= 1.9.3)
-    - SoraUI/EmptyState (= 1.9.3)
-    - SoraUI/LoadingView (= 1.9.3)
-    - SoraUI/ModalPresentation (= 1.9.3)
-    - SoraUI/PageLoader (= 1.9.3)
-    - SoraUI/PinView (= 1.9.3)
-    - SoraUI/Skrull (= 1.9.3)
-  - SoraUI/AdaptiveDesign (1.9.3)
-  - SoraUI/Animator (1.9.3)
-  - SoraUI/Camera (1.9.3)
-  - SoraUI/Controls (1.9.3):
+  - SoraUI (1.10.0):
+    - SoraUI/AdaptiveDesign (= 1.10.0)
+    - SoraUI/Animator (= 1.10.0)
+    - SoraUI/Camera (= 1.10.0)
+    - SoraUI/Controls (= 1.10.0)
+    - SoraUI/DetailsView (= 1.10.0)
+    - SoraUI/EmptyState (= 1.10.0)
+    - SoraUI/Helpers (= 1.10.0)
+    - SoraUI/LoadingView (= 1.10.0)
+    - SoraUI/ModalPresentation (= 1.10.0)
+    - SoraUI/PageLoader (= 1.10.0)
+    - SoraUI/PinView (= 1.10.0)
+    - SoraUI/Skrull (= 1.10.0)
+  - SoraUI/AdaptiveDesign (1.10.0)
+  - SoraUI/Animator (1.10.0)
+  - SoraUI/Camera (1.10.0)
+  - SoraUI/Controls (1.10.0):
     - SoraUI/Animator
-  - SoraUI/DetailsView (1.9.3):
+  - SoraUI/DetailsView (1.10.0):
     - SoraUI/Controls
-  - SoraUI/EmptyState (1.9.3):
+  - SoraUI/EmptyState (1.10.0):
     - SoraUI/Animator
-  - SoraUI/LoadingView (1.9.3):
+  - SoraUI/Helpers (1.10.0)
+  - SoraUI/LoadingView (1.10.0):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.9.3):
+  - SoraUI/ModalPresentation (1.10.0):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.9.3)
-  - SoraUI/PinView (1.9.3):
+  - SoraUI/PageLoader (1.10.0)
+  - SoraUI/PinView (1.10.0):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.9.3)
+  - SoraUI/Skrull (1.10.0)
   - Starscream (4.0.4)
   - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.42.0)
@@ -97,7 +101,7 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `29518e70c1a386405c19f2f335eaeef6d500c4ad`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `d54624c72eaf6e3960674a6eea7d7f7dabb19d2d`)
   - Cuckoo
   - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7`)
   - FireMock
@@ -105,9 +109,9 @@ DEPENDENCIES:
   - ReachabilitySwift
   - RobinHood
   - SnapKit (~> 5.0.0)
-  - SoraFoundation (~> 0.8.0)
+  - SoraFoundation (~> 0.9.0)
   - SoraKeystore
-  - SoraUI (= 1.9.3)
+  - SoraUI (= 1.10.0)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
@@ -137,7 +141,7 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
+    :commit: d54624c72eaf6e3960674a6eea7d7f7dabb19d2d
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
     :commit: e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7
@@ -148,7 +152,7 @@ EXTERNAL SOURCES:
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 29518e70c1a386405c19f2f335eaeef6d500c4ad
+    :commit: d54624c72eaf6e3960674a6eea7d7f7dabb19d2d
     :git: https://github.com/soramitsu/Capital-iOS.git
   FearlessUtils:
     :commit: e2b891e1b20b5b3289fc3394cba0f2d4c30f53c7
@@ -159,7 +163,7 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  CommonWallet: c7d06c122997f01ea343c2d5fdd8c8022bf48961
+  CommonWallet: 28eeefdc1448d591ae70aee9adde97ae30710380
   Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
   FearlessUtils: 8c05cb6cf737943f343e6a1fb4be2ac6fafebb9d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -171,9 +175,9 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SoraFoundation: 191f65cb04fd82f32c8e4e00156a7c979dd2c7e2
+  SoraFoundation: 664b374247c33b5498bdb77ec3e308c3bf5be7af
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 52634f6c7d42f648c6576d62ac5dc963e24fbcae
+  SoraUI: 00d6c45c2c9dbcae54517cbfc2e5836a7c8101a7
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 4fa9579c63416865179bc416f0a92d55f009600d
@@ -181,6 +185,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 451d05d581378f8832ca2b830f41ad3212346327
+PODFILE CHECKSUM: 0090ee6d28bf011f87d0cc4c7f7f5790fe66656f
 
 COCOAPODS: 1.10.1
