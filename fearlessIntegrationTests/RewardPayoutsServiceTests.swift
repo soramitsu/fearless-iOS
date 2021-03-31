@@ -212,6 +212,31 @@ class RewardPayoutsServiceTests: XCTestCase {
         }
     }
 
+    func testFetchNominationHistory() {
+        let subscanOperationFactory = SubscanOperationFactory()
+        let extrinsicsInfo = ExtrinsicsInfo(
+            row: 100,
+            page: 0,
+            address: nil,
+            moduleName: nil,
+            callName: nil)
+
+        let url = WalletAssetId.kusama.subscanUrl?
+            .appendingPathComponent(SubscanApi.extrinsics)
+        let fetchOperation = subscanOperationFactory.fetchExtrinsics(url!, info: extrinsicsInfo)
+
+        let queue = OperationQueue()
+        let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+
+        do {
+            let resultData = try queryWrapper.targetOperation.extractNoCancellableResultData()
+            XCTAssert(resultData.count > 0)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     private func createWebSocketService(
         storageFacade: StorageFacadeProtocol,
         settings: SettingsManagerProtocol
