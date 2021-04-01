@@ -1,6 +1,7 @@
 import UIKit
 import CommonWallet
 import SoraFoundation
+import SoraUI
 
 protocol RewardEstimationViewDelegate: class {
     func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?)
@@ -9,6 +10,7 @@ protocol RewardEstimationViewDelegate: class {
 }
 
 final class RewardEstimationView: LocalizableView {
+    @IBOutlet weak var backgroundView: TriangularedBlurView!
     @IBOutlet weak var amountInputView: AmountInputView!
 
     @IBOutlet weak var estimateWidgetTitleLabel: UILabel!
@@ -24,6 +26,8 @@ final class RewardEstimationView: LocalizableView {
     @IBOutlet weak var yearlyPercentageLabel: UILabel!
 
     @IBOutlet private var actionButton: TriangularedButton!
+
+    private var skeletonView: SkrullableView?
 
     var amountFormatterFactory: NumberFormatterFactoryProtocol?
 
@@ -47,12 +51,15 @@ final class RewardEstimationView: LocalizableView {
         didSet {
             applyLocalization()
             applyInputViewModel()
-            applyWidgetViewModel()
+
+            if widgetViewModel != nil {
+                applyWidgetViewModel()
+            }
         }
     }
 
     private var inputViewModel: AmountInputViewModelProtocol?
-    private var widgetViewModel: StakingEstimationViewModelProtocol?
+    private var widgetViewModel: StakingEstimationViewModel?
 
     override func awakeFromNib() {
         super.awakeFromNib()
@@ -64,7 +71,7 @@ final class RewardEstimationView: LocalizableView {
         setupAmountField()
     }
 
-    func bind(viewModel: StakingEstimationViewModelProtocol) {
+    func bind(viewModel: StakingEstimationViewModel) {
         widgetViewModel = viewModel
 
         if inputViewModel == nil || (inputViewModel?.decimalAmount != widgetViewModel?.amount) {
@@ -85,16 +92,18 @@ final class RewardEstimationView: LocalizableView {
             amountInputView.symbol = viewModel.symbol
         }
 
-        if let viewModel = widgetViewModel?.monthlyReward.value(for: locale) {
-            monthlyAmountLabel.text = viewModel.amount
-            monthlyFiatAmountLabel.text = viewModel.price
-            monthlyPercentageLabel.text = viewModel.increase
-        }
+        if let viewModel = widgetViewModel?.rewardViewModel?.value(for: locale) {
+            stopLoadingIfNeeded()
 
-        if let viewModel = widgetViewModel?.yearlyReward.value(for: locale) {
-            yearlyAmountLabel.text = viewModel.amount
-            yearlyFiatAmountLabel.text = viewModel.price
-            yearlyPercentageLabel.text = viewModel.increase
+            monthlyAmountLabel.text = viewModel.monthlyReward.amount
+            monthlyFiatAmountLabel.text = viewModel.monthlyReward.price
+            monthlyPercentageLabel.text = viewModel.monthlyReward.increase
+
+            yearlyAmountLabel.text = viewModel.yearlyReward.amount
+            yearlyFiatAmountLabel.text = viewModel.yearlyReward.price
+            yearlyPercentageLabel.text = viewModel.yearlyReward.increase
+        } else {
+            startLoadingIfNeeded()
         }
     }
 
@@ -164,6 +173,108 @@ final class RewardEstimationView: LocalizableView {
         amountInputView.textField.keyboardType = .decimalPad
     }
 
+    func startLoadingIfNeeded() {
+        guard skeletonView == nil else {
+            return
+        }
+
+        monthlyAmountLabel.alpha = 0.0
+        monthlyPercentageLabel.alpha = 0.0
+        monthlyFiatAmountLabel.alpha = 0.0
+
+        yearlyAmountLabel.alpha = 0.0
+        yearlyPercentageLabel.alpha = 0.0
+        yearlyFiatAmountLabel.alpha = 0.0
+
+        setupSkeleton()
+    }
+
+    func stopLoadingIfNeeded() {
+        guard skeletonView != nil else {
+            return
+        }
+
+        skeletonView?.stopSkrulling()
+        skeletonView?.removeFromSuperview()
+        skeletonView = nil
+
+        monthlyAmountLabel.alpha = 1.0
+        monthlyPercentageLabel.alpha = 1.0
+        monthlyFiatAmountLabel.alpha = 1.0
+
+        yearlyAmountLabel.alpha = 1.0
+        yearlyPercentageLabel.alpha = 1.0
+        yearlyFiatAmountLabel.alpha = 1.0
+    }
+
+    private func setupSkeleton() {
+        let spaceSize = frame.size
+
+        let skeletonView = Skrull(
+            size: spaceSize,
+            decorations: [],
+            skeletons: createSkeletons(for: spaceSize))
+            .fillSkeletonStart(R.color.colorSkeletonStart()!)
+            .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+            .build()
+
+        skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
+        skeletonView.autoresizingMask = []
+        insertSubview(skeletonView, aboveSubview: backgroundView)
+
+        self.skeletonView = skeletonView
+
+        skeletonView.startSkrulling()
+    }
+
+    private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
+        let bigRowSize = CGSize(width: 72.0, height: 12.0)
+        let smallRowSize = CGSize(width: 57.0, height: 6.0)
+        let topInset: CGFloat = 7.0
+        let verticalSpacing: CGFloat = 10.0
+
+        return [
+            createSkeletoRow(
+                under: monthlyTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize),
+
+            createSkeletoRow(
+                under: monthlyTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                size: smallRowSize),
+
+            createSkeletoRow(
+                under: yearlyTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize),
+
+            createSkeletoRow(
+                under: yearlyTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                size: smallRowSize)
+          ]
+    }
+
+    private func createSkeletoRow(under targetView: UIView,
+                                  in spaceSize: CGSize,
+                                  offset: CGPoint,
+                                  size: CGSize) -> SingleSkeleton {
+        let targetFrame = targetView.convert(targetView.bounds, to: self)
+
+        let position = CGPoint(x: targetFrame.minX + offset.x + size.width / 2.0,
+                               y: targetFrame.maxY + offset.y + size.height / 2.0)
+
+        let mappedSize = CGSize(width: spaceSize.skrullMapX(size.width),
+                                height: spaceSize.skrullMapY(size.height))
+
+        return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
+    }
+
     @IBAction private func actionTouchUpInside() {
         amountInputView.textField.resignFirstResponder()
 
@@ -202,5 +313,27 @@ extension RewardEstimationView: AmountInputViewModelObserver {
         let amount = inputViewModel.decimalAmount
 
         delegate?.rewardEstimationView(self, didChange: amount)
+    }
+}
+
+extension RewardEstimationView: SkeletonLoadable {
+    func didDisappearSkeleton() {
+        skeletonView?.stopSkrulling()
+    }
+
+    func didAppearSkeleton() {
+        skeletonView?.startSkrulling()
+    }
+
+    func didUpdateSkeletonLayout() {
+        guard let skeletonView = skeletonView else {
+            return
+        }
+
+        if skeletonView.frame.size != frame.size {
+            skeletonView.removeFromSuperview()
+            self.skeletonView = nil
+            setupSkeleton()
+        }
     }
 }

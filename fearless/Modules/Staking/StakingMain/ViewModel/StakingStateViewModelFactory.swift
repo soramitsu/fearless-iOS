@@ -136,25 +136,41 @@ final class StakingStateViewModelFactory {
         }
     }
 
+    private func createPeriodReward(for chain: Chain,
+                                    commonData: StakingStateCommonData,
+                                    amount: Decimal?) throws -> LocalizableResource<PeriodRewardViewModel>? {
+        guard let calculator = commonData.calculatorEngine else {
+            return nil
+        }
+
+        let rewardViewModelFactory = getRewardViewModelFactory(for: chain)
+
+        let monthlyReturn = try calculator.calculateNetworkReturn(isCompound: true, period: .month)
+
+        let yearlyReturn = try calculator.calculateNetworkReturn(isCompound: true, period: .year)
+
+        let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
+            reward: (amount ?? 0.0) * monthlyReturn,
+            targetReturn: monthlyReturn,
+            priceData: commonData.price)
+
+        let yearlyViewModel = rewardViewModelFactory.createRewardViewModel(
+            reward: (amount ?? 0.0) * yearlyReturn,
+            targetReturn: yearlyReturn,
+            priceData: commonData.price)
+
+        return LocalizableResource { locale in
+            PeriodRewardViewModel(
+                monthlyReward: monthlyViewModel.value(for: locale),
+                yearlyReward: yearlyViewModel.value(for: locale))
+        }
+    }
+
     private func createEstimationViewModel(for chain: Chain,
                                            commonData: StakingStateCommonData,
                                            amount: Decimal?)
-    throws -> StakingEstimationViewModelProtocol {
-        let monthlyReturn: Decimal
-        let yearlyReturn: Decimal
-
-        if let calculator = commonData.calculatorEngine {
-            monthlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
-                                                                  period: .month)
-            yearlyReturn = try calculator.calculateNetworkReturn(isCompound: true,
-                                                                 period: .year)
-        } else {
-            monthlyReturn = 0.0
-            yearlyReturn = 0.0
-        }
-
+    throws -> StakingEstimationViewModel {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
-        let rewardViewModelFactory = getRewardViewModelFactory(for: chain)
 
         let balance = convertAmount(commonData.accountInfo?.data.available,
                                     for: chain,
@@ -165,24 +181,19 @@ final class StakingStateViewModelFactory {
                                          balance: balance,
                                          priceData: commonData.price)
 
-        let monthlyViewModel = rewardViewModelFactory
-            .createRewardViewModel(reward: (amount ?? 0.0) * monthlyReturn,
-                                   targetReturn: monthlyReturn,
-                                   priceData: commonData.price)
-
-        let yearlyViewModel = rewardViewModelFactory
-            .createRewardViewModel(reward: (amount ?? 0.0) * yearlyReturn,
-                                   targetReturn: yearlyReturn,
-                                   priceData: commonData.price)
+        let reward: LocalizableResource<PeriodRewardViewModel>? = try createPeriodReward(
+            for: chain,
+            commonData: commonData,
+            amount: amount)
 
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
-        return StakingEstimationViewModel(assetBalance: balanceViewModel,
-                                          monthlyReward: monthlyViewModel,
-                                          yearlyReward: yearlyViewModel,
-                                          asset: asset,
-                                          inputLimit: StakingConstants.maxAmount,
-                                          amount: amount)
+        return StakingEstimationViewModel(
+            assetBalance: balanceViewModel,
+            rewardViewModel: reward,
+            asset: asset,
+            inputLimit: StakingConstants.maxAmount,
+            amount: amount)
     }
 }
 

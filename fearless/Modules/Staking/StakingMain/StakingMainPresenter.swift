@@ -52,15 +52,15 @@ final class StakingMainPresenter {
     private func provideStakingInfo() {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
-        guard let chain = commonData?.chain else {
-            return
+        if let chain = commonData?.chain, let networkStakingInfo = networkStakingInfo {
+            let networkStakingInfoViewModel = networkInfoViewModelFactory
+                .createNetworkStakingInfoViewModel(with: networkStakingInfo,
+                                                   chain: chain,
+                                                   priceData: commonData?.price)
+            view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
+        } else {
+            view?.didRecieveNetworkStakingInfo(viewModel: nil)
         }
-
-        let networkStakingInfoViewModel = networkInfoViewModelFactory
-            .createNetworkStakingInfoViewModel(with: networkStakingInfo,
-                                               chain: chain,
-                                               priceData: commonData?.price)
-        view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
     }
 
     private func provideState() {
@@ -294,6 +294,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(chain: newChain)
 
         provideChain()
+        provideStakingInfo()
     }
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {

@@ -5,7 +5,7 @@ import CommonWallet
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModelProtocol)
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>)
-    func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>)
+    func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
 
     func didReceiveStakingState(viewModel: StakingViewState)
 }
