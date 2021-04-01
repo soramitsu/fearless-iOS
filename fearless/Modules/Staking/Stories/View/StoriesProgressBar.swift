@@ -2,14 +2,6 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-enum ProgressBarAnimationState {
-    case stopped
-    case animating
-    case paused
-    case interrupted
-    case finished
-}
-
 protocol StoriesProgressBarDataSource: class {
     func numberOfSegments() -> Int
     func segmentDuration() -> TimeInterval
@@ -35,6 +27,13 @@ extension StoriesProgressBar {
 }
 
 class StoriesProgressBar: UIView {
+    private enum ProgressBarAnimationState {
+        case stopped
+        case animating
+        case paused
+        case interrupted
+    }
+
     private(set) var stackView: UIStackView!
     private(set) var currentIndex: Int = 0
     private var timer: CountdownTimerProtocol?
@@ -222,32 +221,5 @@ extension StoriesProgressBar: CountdownTimerDelegate {
         default:
             break
         }
-    }
-}
-
-extension ProgressView {
-    func stop() {
-        guard let pLayer = self.layer.sublayers?.last else { return }
-
-        pLayer.removeAllAnimations()
-    }
-
-    func pause() {
-        guard let pLayer = self.layer.sublayers?.last else { return }
-
-        let pausedTime: CFTimeInterval = pLayer.convertTime(CACurrentMediaTime(), from: nil)
-        pLayer.speed = 0.0
-        pLayer.timeOffset = pausedTime
-    }
-
-    func resume() {
-        guard let pLayer = self.layer.sublayers?.last else { return }
-
-        let pausedTime = pLayer.timeOffset
-        pLayer.speed = 1.0
-        pLayer.timeOffset = 0.0
-        pLayer.beginTime = 0.0
-        let timeSincePause = pLayer.convertTime(CACurrentMediaTime(), from: nil) - pausedTime
-        pLayer.beginTime = timeSincePause
     }
 }

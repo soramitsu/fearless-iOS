@@ -844,6 +844,7 @@
 		AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */; };
 		AE74EBD025F911E700C494E7 /* ValidatorInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */; };
 		AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */; };
+		AE7E5BFE2615D23A006D5637 /* ProgressView + Manage.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7E5BFD2615D23A006D5637 /* ProgressView + Manage.swift */; };
 		AE89720825F12143008EC414 /* ValidatorInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */; };
 		AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */; };
 		AE89723F25F16B93008EC414 /* ValidatorInfoAccountCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */; };
@@ -1795,6 +1796,7 @@
 		AE74EC1F25FCF0A600C494E7 /* ru */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = ru; path = ru.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
 		AE74EC2025FCF0A900C494E7 /* es-CO */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = "es-CO"; path = "es-CO.lproj/Localizable.stringsdict"; sourceTree = "<group>"; };
 		AE74EC2125FCF0AD00C494E7 /* uk */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = uk; path = uk.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
+		AE7E5BFD2615D23A006D5637 /* ProgressView + Manage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ProgressView + Manage.swift"; sourceTree = "<group>"; };
 		AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModel.swift; sourceTree = "<group>"; };
 		AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoViewModelFactory.swift; sourceTree = "<group>"; };
 		AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoAccountCell.xib; sourceTree = "<group>"; };
@@ -4415,6 +4417,7 @@
 			children = (
 				AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */,
 				AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */,
+				AE7E5BFD2615D23A006D5637 /* ProgressView + Manage.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5681,6 +5684,7 @@
 				8430AAF626023087005B1066 /* NominatorState.swift in Sources */,
 				C044E792971B542B79B9A88F /* NetworkInfoPresenter.swift in Sources */,
 				0D6C27413F73190438306EC1 /* NetworkInfoInteractor.swift in Sources */,
+				AE7E5BFE2615D23A006D5637 /* ProgressView + Manage.swift in Sources */,
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
 				607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */,
 				84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */,

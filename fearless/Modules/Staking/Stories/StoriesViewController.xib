@@ -48,7 +48,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" translatesAutoresizingMaskIntoConstraints="NO" id="P6R-9T-9we" customClass="StoriesProgressBar" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="44" width="343" height="2"/>
+                    <rect key="frame" x="16" y="52" width="343" height="2"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="2" id="e8Z-Q6-syw"/>
@@ -60,20 +60,20 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sRK-lH-16C" userLabel="Close Button">
-                    <rect key="frame" x="16" y="74" width="20" height="22"/>
+                    <rect key="frame" x="16" y="82" width="20" height="22"/>
                     <state key="normal" image="iconClose"/>
                     <connections>
                         <action selector="closeButtonTouched" destination="-1" eventType="touchUpInside" id="e8P-Ye-6L1"/>
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
-                    <rect key="frame" x="16" y="115" width="343" height="38"/>
+                    <rect key="frame" x="16" y="123" width="343" height="35"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
-                    <rect key="frame" x="16" y="169" width="343" height="295"/>
+                    <rect key="frame" x="16" y="174" width="343" height="231"/>
                     <gestureRecognizers/>
                     <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
@@ -121,7 +121,7 @@
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="Dkq-u3-dRe" secondAttribute="bottom" id="0Bf-5W-f3A"/>
-                <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="-46" id="2gl-vn-feI"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="top" secondItem="VTH-7g-qrG" secondAttribute="top" constant="8" id="226-bF-byJ"/>
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="99m-rI-aPg"/>
                 <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AaT-Zd-cGp"/>
@@ -147,6 +147,11 @@
             <point key="canvasLocation" x="137.68115942028987" y="153.34821428571428"/>
         </view>
     </objects>
+    <designables>
+        <designable name="LmP-ld-yUb">
+            <size key="intrinsicContentSize" width="81" height="31.666666666666664"/>
+        </designable>
+    </designables>
     <resources>
         <image name="backgroundImage" width="375" height="812"/>
         <image name="iconClose" width="20" height="20"/>

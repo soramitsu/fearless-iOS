@@ -12,10 +12,6 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
         let interactor = StoriesInteractor()
 
         // MARK: - Presenter
-        // Create View Model Factory here
-        // let viewModelFactory = ...
-
-        // And pass it to the initializer
         let viewModelFactory = StoryViewModelFactory()
         let presenter = StoriesPresenter(selectedStoryIndex: index,
                                          viewModelFactory: viewModelFactory)
