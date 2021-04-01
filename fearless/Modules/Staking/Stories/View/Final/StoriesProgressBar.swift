@@ -7,6 +7,7 @@ enum ProgressBarAnimationState {
     case animating
     case paused
     case interrupted
+    case finished
 }
 
 protocol StoriesProgressBarDataSource: class {
@@ -15,7 +16,7 @@ protocol StoriesProgressBarDataSource: class {
 }
 
 protocol StoriesProgressBarDelegate: class {
-    func didFinishAnimation()
+    func didFinishSegmentAnimation()
 }
 
 @IBDesignable
@@ -109,7 +110,17 @@ class StoriesProgressBar: UIView {
             heightConstraint.priority = .init(999)
             heightConstraint.isActive = true
         }
+    }
 
+    private func clear() {
+        segments = []
+
+        stackView.arrangedSubviews.forEach({
+            stackView.removeArrangedSubview($0)
+            $0.removeFromSuperview()
+        })
+
+        currentIndex = 0
     }
 
     private func configureSegments(startingPosition: Int) {
@@ -133,31 +144,24 @@ class StoriesProgressBar: UIView {
             stackView.addArrangedSubview(progressView)
             segments.append(progressView)
         }
-    }
 
-    private func clear() {
-        segments = []
-
-        stackView.arrangedSubviews.forEach({
-            stackView.removeArrangedSubview($0)
-            $0.removeFromSuperview()
-        })
-
-        currentIndex = 0
+        setNeedsLayout()
+        layoutIfNeeded()
     }
 }
 
 extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
     func redrawSegments(startingPosition: Int) {
+        stop()
         configureSegments(startingPosition: startingPosition)
-        setNeedsLayout()
-        layoutIfNeeded()
+        setCurrentSegment(newIndex: startingPosition)
     }
 
-    func setCurrentIndex(newIndex: Int) {
+    func setCurrentSegment(newIndex: Int) {
         guard newIndex < segments.count else { return }
 
         stop()
+
         if newIndex > currentIndex {
             segments[currentIndex].setProgress(1, animated: false)
         } else if newIndex < currentIndex {
@@ -173,6 +177,7 @@ extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
     }
 
     func pause() {
+        animationState = .paused
         timer?.stop()
     }
 
@@ -180,8 +185,14 @@ extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
         timer?.start(with: remainingAnimationTime)
     }
 
+    // Stop current animation
+    // Stop timer
     func stop() {
-        segments[currentIndex].stop()
+        if animationState == .animating {
+            animationState = .interrupted
+            segments[currentIndex].stop()
+            timer?.stop()
+        }
     }
 }
 
@@ -202,15 +213,18 @@ extension StoriesProgressBar: CountdownTimerDelegate {
     func didCountdown(remainedInterval: TimeInterval) { }
 
     func didStop(with remainedInterval: TimeInterval) {
-        guard remainedInterval > 0.0 else { // stopped
+        switch animationState {
+        case .animating: // Timer has expired
             animationState = .stopped
-            delegate?.didFinishAnimation()
-            return
+            delegate?.didFinishSegmentAnimation()
+        case .paused: // Paused
+            segments[currentIndex].pause()
+            remainingAnimationTime = remainedInterval
+        case .interrupted:
+            animationState = .stopped
+        default:
+            break
         }
-
-        animationState = .paused
-        segments[currentIndex].pause()
-        remainingAnimationTime = remainedInterval
     }
 }
 

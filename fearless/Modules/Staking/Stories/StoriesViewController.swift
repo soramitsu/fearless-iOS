@@ -35,9 +35,13 @@ enum StaringIndex {
 
 final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     var presenter: StoriesPresenterProtocol!
+
     private var currentStoryIndex = 0
     private var currentSlideIndex = 0
     private var uiIsSetUp: Bool = false
+    private struct Constants {
+        static let moveThreshold: CGFloat = 150.0
+    }
 
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var contentLabel: UILabel!
@@ -59,19 +63,26 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        // TODO: fix learn more button press:
-        // Pause
-        // Save state
-        // Raise "will continue" flag
-        // If raised, then do nothing\
-        if !uiIsSetUp { presenter.setup() }
+
+        guard !uiIsSetUp else { return }
+        presenter.setup()
     }
 
     override func viewDidAppear(_ animated: Bool) {
-        if !uiIsSetUp {
-            progressBar.start()
-            uiIsSetUp = true
+        super.viewDidAppear(animated)
+
+        guard !uiIsSetUp else {
+            progressBar.resume()
+            return
         }
+
+        progressBar.start()
+        uiIsSetUp = true
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        progressBar.pause()
     }
 
     @IBAction func closeButtonTouched() {
@@ -144,6 +155,31 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
     }
 
+    fileprivate func processSwipe(to touchPoint: CGPoint) {
+        // If ended || cancelled and threshold is not exceeded, get frame back
+        switch swipeDirection {
+        case .horizontal:
+            if touchPoint.x - initialTouchPoint.x > Constants.moveThreshold {
+                progressBar.stop()
+                self.presenter.proceedToPreviousStory(startingFrom: .first)
+            } else if touchPoint.x - initialTouchPoint.x < -Constants.moveThreshold {
+                progressBar.stop()
+                self.presenter.proceedToNextStory()
+            }
+
+        case .vertical:
+            if touchPoint.y - initialTouchPoint.y > Constants.moveThreshold {
+                progressBar.stop()
+                self.presenter.activateClose()
+                break
+            }
+
+            restoreViewPosition()
+        default:
+            break
+        }
+    }
+
     @objc private func didRecievePanGesture(gesture: UITapGestureRecognizer) {
         let touchPoint = gesture.location(in: view.window)
 
@@ -162,43 +198,25 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
 
         case .ended,
              .cancelled:
+            progressBar.resume()
+            processSwipe(to: touchPoint)
+            
+            swipeDirection = .none
+            initialTouchPoint = CGPoint(x: 0, y: 0)
 
-            // If ended || cancelled and threshold is not exceeded, get frame back
-            switch swipeDirection {
-            case .horizontal:
-                if touchPoint.x - initialTouchPoint.x > 150 {
-                    progressBar.stop()
-                    self.presenter.proceedToPreviousStory(startingFrom: .first)
-                } else if touchPoint.x - initialTouchPoint.x < -150 {
-                    self.presenter.proceedToNextStory()
-                }
-            case .vertical:
-                if touchPoint.y - initialTouchPoint.y > 150 {
-                    progressBar.stop()
-                    self.presenter.activateClose()
-                }
-            default:
-                break
-            }
-
-            if touchPoint.y - initialTouchPoint.y > 150 {
-                progressBar.stop()
-                self.presenter.activateClose()
-            } else {
-                UIView.animate(withDuration: 0.3, animations: {
-                    self.view.frame = CGRect(x: 0,
-                                             y: 0,
-                                             width: self.view.frame.size.width,
-                                             height: self.view.frame.size.height)
-
-                    self.progressBar.resume()
-                })
-                swipeDirection = .none
-                initialTouchPoint = CGPoint(x: 0, y: 0)
-            }
         default:
             break
         }
+    }
+
+    private func restoreViewPosition() {
+        UIView.animate(withDuration: 0.3, animations: {
+            self.view.frame = CGRect(x: 0,
+                                     y: 0,
+                                     width: self.view.frame.size.width,
+                                     height: self.view.frame.size.height)
+
+        })
     }
 
     @objc private func didRecieveTapGesture(gesture: UITapGestureRecognizer) {
@@ -266,15 +284,13 @@ extension StoriesViewController: StoriesViewProtocol {
         bindViewModel()
 
         progressBar.redrawSegments(startingPosition: currentSlideIndex)
-        progressBar.setCurrentIndex(newIndex: currentSlideIndex)
-
         if uiIsSetUp { progressBar.start() }
     }
 
     func didRecieve(newSlideIndex index: Int) {
         currentSlideIndex = index
         bindViewModel()
-        progressBar.setCurrentIndex(newIndex: index)
+        progressBar.setCurrentSegment(newIndex: index)
         progressBar.start()
     }
 }
@@ -285,47 +301,8 @@ extension StoriesViewController: StoriesProgressViewDataSource {
     }
 }
 
-extension StoriesViewController: StoriesViewDelegate {
-    func didTap(in part: ScreenPart) {
-        switch part {
-        case .left:
-            presenter.proceedToPreviousSlide()
-        case .right:
-            presenter.proceedToNextSlide()
-        }
-    }
-
-    func didSwipe(distance: CGFloat, direction: SwipeDirection) {
-        switch direction {
-        case .swipeDown:
-            presenter.activateClose()
-        case .swipeLeft:
-            presenter.proceedToNextStory()
-        case .swipeRight:
-            presenter.proceedToPreviousStory(startingFrom: .first)
-        default:
-            break
-        }
-    }
-
-    func didLongPress() {
-        progressBar.pause()
-    }
-
-    func didRelease() {
-        progressBar.resume()
-    }
-}
-
-protocol StoriesViewDelegate: class {
-    func didTap(in part: ScreenPart)
-    func didSwipe(distance: CGFloat, direction: SwipeDirection)
-    func didLongPress()
-    func didRelease()
-}
-
 extension StoriesViewController: StoriesProgressBarDelegate {
-    func didFinishAnimation() {
+    func didFinishSegmentAnimation() {
         presenter.proceedToNextSlide()
     }
 }
@@ -345,3 +322,42 @@ extension StoriesViewController: UIGestureRecognizerDelegate {
         return touch.view != learnMoreButton
     }
 }
+
+//extension StoriesViewController: StoriesViewDelegate {
+//    func didTap(in part: ScreenPart) {
+//        switch part {
+//        case .left:
+//            presenter.proceedToPreviousSlide()
+//        case .right:
+//            presenter.proceedToNextSlide()
+//        }
+//    }
+//
+//    func didSwipe(distance: CGFloat, direction: SwipeDirection) {
+//        switch direction {
+//        case .swipeDown:
+//            presenter.activateClose()
+//        case .swipeLeft:
+//            presenter.proceedToNextStory()
+//        case .swipeRight:
+//            presenter.proceedToPreviousStory(startingFrom: .first)
+//        default:
+//            break
+//        }
+//    }
+//
+//    func didLongPress() {
+//        progressBar.pause()
+//    }
+//
+//    func didRelease() {
+//        progressBar.resume()
+//    }
+//}
+
+//protocol StoriesViewDelegate: class {
+//    func didTap(in part: ScreenPart)
+//    func didSwipe(distance: CGFloat, direction: SwipeDirection)
+//    func didLongPress()
+//    func didRelease()
+//}
