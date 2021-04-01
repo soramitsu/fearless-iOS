@@ -88,21 +88,33 @@ extension EraValidatorService {
     }
 
     private func createValidatorsSave(for chain: Chain,
-                                      repository: AnyDataProviderRepository<ChainStorageItem>,
                                       exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>)
     -> BaseOperation<Void> {
-        repository.saveOperation({
+        do {
+            let path = StorageCodingPath.erasStakers
+            let remoteKey = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
+                                                                     storageName: path.itemName)
             let localFactory = try ChainStorageIdFactory(chain: chain)
-            let result = try exposures.extractNoCancellableResultData()
-            return result.compactMap { item in
-                    if let data = item.data {
-                        let localId = localFactory.createIdentifier(for: item.key)
-                        return ChainStorageItem(identifier: localId, data: data)
-                    } else {
-                        return nil
-                    }
+            let localKey = localFactory.createIdentifier(for: remoteKey)
+
+            let filter = NSPredicate.filterByIdPrefix(localKey)
+            let newRepository: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
+                storageFacade.createRepository(filter: filter)
+
+            return newRepository.replaceOperation {
+                let result = try exposures.extractNoCancellableResultData()
+                return result.compactMap { item in
+                        if let data = item.data {
+                            let localId = localFactory.createIdentifier(for: item.key)
+                            return ChainStorageItem(identifier: localId, data: data)
+                        } else {
+                            return nil
+                        }
                 }
-        }, { [] })
+            }
+        } catch {
+            return BaseOperation.createWithError(error)
+        }
     }
 
     private func handleRemoteUpdate(chain: Chain,
@@ -128,7 +140,6 @@ extension EraValidatorService {
     private func updateFromRemote(chain: Chain,
                                   activeEra: UInt32,
                                   prefixKey: Data,
-                                  repository: AnyDataProviderRepository<ChainStorageItem>,
                                   codingFactory: RuntimeCoderFactoryProtocol) {
         guard activeEra == self.activeEra, chain == self.chain else {
             logger?.warning("Wanted to fetch exposures but parameters changed. Cancelled.")
@@ -162,7 +173,6 @@ extension EraValidatorService {
         prefsWrapper.allOperations.forEach { $0.addDependency(remoteValidatorIdsOperation) }
 
         let saveOperation = createValidatorsSave(for: chain,
-                                                 repository: repository,
                                                  exposures: exposureWrapper.targetOperation)
 
         saveOperation.addDependency(exposureWrapper.targetOperation)
@@ -285,7 +295,6 @@ extension EraValidatorService {
                         self?.updateFromRemote(chain: chain,
                                                activeEra: activeEra,
                                                prefixKey: prefixKey,
-                                               repository: AnyDataProviderRepository(repository),
                                                codingFactory: codingFactory)
                     } else {
                         self?.updateFromLocal(validators: validators,
