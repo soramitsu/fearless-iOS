@@ -5,13 +5,16 @@ class StoriesPreviewCollectionItem: UICollectionViewCell {
 
     @IBOutlet private var iconLabel: UILabel!
     @IBOutlet private var captionLabel: UILabel!
+    @IBOutlet weak var strokeView: RoundedView!
 
     override func awakeFromNib() {
         super.awakeFromNib()
+    }
 
-        let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorHighlightedPink()
-        self.selectedBackgroundView = selectedBackgroundView
+    override var isHighlighted: Bool {
+        willSet {
+            strokeView.set(highlighted: newValue, animated: false)
+        }
     }
 
     func bind(icon: String?, caption: String?) {
