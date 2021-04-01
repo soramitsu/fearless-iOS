@@ -242,6 +242,7 @@ Cід: %@";
 "staking.selected.accounts.mask" = "Акаунти (%d)";
 "staking.recommended.validators.title" = "Рекомендовані валідатори";
 "staking.recommended.validators.description" = "Ці валідатори матимуть для вас максимальний прибуток і менше ймовірності на шахрайство або невдачу.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Виберіть валідаторів власноруч";
 "staking.recommended.validators.apy" = "Орієнтовна винагорода, APY";
 "staking.amount.too.big.error" = "Вибачте, у Вас недостатньо коштів для стекінгу вказаної суми";
