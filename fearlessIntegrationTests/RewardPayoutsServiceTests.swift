@@ -5,6 +5,7 @@ import RobinHood
 import SoraFoundation
 import BigInt
 import FearlessUtils
+import IrohaCrypto
 
 class RewardPayoutsServiceTests: XCTestCase {
 
@@ -214,27 +215,66 @@ class RewardPayoutsServiceTests: XCTestCase {
 
     func testFetchNominationHistory() {
         let subscanOperationFactory = SubscanOperationFactory()
-        let extrinsicsInfo = ExtrinsicsInfo(
-            row: 100,
-            page: 0,
-            address: nil,
-            moduleName: nil,
-            callName: nil)
-
-        let url = WalletAssetId.kusama.subscanUrl?
-            .appendingPathComponent(SubscanApi.extrinsics)
-        let fetchOperation = subscanOperationFactory.fetchExtrinsics(url!, info: extrinsicsInfo)
-
         let queue = OperationQueue()
-        let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
-        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+        let nominatorStachAccount = "F2GF2vuTCCmx8PnUNpWHTd5hTzjdbufa2uxdq2uT7PC5s9k"
 
         do {
-            let resultData = try queryWrapper.targetOperation.extractNoCancellableResultData()
-            XCTAssert(resultData.count > 0)
+            let bondControllers = try fetchControllers(
+                moduleName: "staking",
+                address: nominatorStachAccount,
+                callName: "bond",
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let setControllers = try fetchControllers(
+                moduleName: "staking",
+                address: nominatorStachAccount,
+                callName: "set_controller",
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let allControllers = bondControllers + setControllers
+
+//            let utilityControllers = try fetchControllers(
+//                moduleName: "utility",
+//                address: nominatorStachAccount,
+//                callName: "batch",
+//                subscanOperationFactory: subscanOperationFactory,
+//                queue: queue)
+
+            XCTAssert(allControllers.count > 0)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    private func fetchControllers(
+        moduleName: String,
+        address: String,
+        callName: String,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [String] {
+        let extrinsicsInfo = ExtrinsicsInfo(
+            row: 100,
+            page: 0,
+            address: address,
+            moduleName: moduleName,
+            callName: callName)
+
+        let url = WalletAssetId.kusama.subscanUrl!
+            .appendingPathComponent(SubscanApi.extrinsics)
+        let fetchOperation = subscanOperationFactory.fetchExtrinsics(url, info: extrinsicsInfo)
+
+        let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+        return try queryWrapper.targetOperation.extractNoCancellableResultData()
+            .extrinsics
+            .map { $0.params }
+            .map { params in
+                return params.compactMap { $0.controllerAddress }
+            }
+            .flatMap { $0 }
     }
 
     private func createWebSocketService(
