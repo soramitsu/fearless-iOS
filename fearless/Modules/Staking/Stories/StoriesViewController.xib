@@ -60,20 +60,24 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="sRK-lH-16C" userLabel="Close Button">
-                    <rect key="frame" x="16" y="82" width="20" height="22"/>
+                    <rect key="frame" x="16" y="78" width="24" height="24"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="24" id="HpO-lE-rzO"/>
+                        <constraint firstAttribute="width" constant="24" id="h5I-bf-Cgv"/>
+                    </constraints>
                     <state key="normal" image="iconClose"/>
                     <connections>
                         <action selector="closeButtonTouched" destination="-1" eventType="touchUpInside" id="e8P-Ye-6L1"/>
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
-                    <rect key="frame" x="16" y="123" width="343" height="38"/>
+                    <rect key="frame" x="16" y="134" width="343" height="38"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
-                    <rect key="frame" x="16" y="177" width="343" height="295"/>
+                    <rect key="frame" x="16" y="188" width="343" height="295"/>
                     <gestureRecognizers/>
                     <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
@@ -128,12 +132,12 @@
                 <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bsa-bm-63v"/>
                 <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
                 <constraint firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
-                <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="28" id="GQ0-bO-eEw"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="24" id="GQ0-bO-eEw"/>
                 <constraint firstItem="LmP-ld-yUb" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="GYp-fH-Nzf"/>
                 <constraint firstAttribute="trailing" secondItem="Dkq-u3-dRe" secondAttribute="trailing" id="KrC-1u-neU"/>
                 <constraint firstAttribute="trailing" secondItem="P6R-9T-9we" secondAttribute="trailing" constant="16" id="N75-MT-Vh0"/>
                 <constraint firstItem="LmP-ld-yUb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="6Q8-bt-QvQ" secondAttribute="bottom" constant="48" id="Nci-mk-Tq8"/>
-                <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="19" id="XZ3-L4-xBW"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="32" id="XZ3-L4-xBW"/>
                 <constraint firstAttribute="top" secondItem="yba-Jy-FTL" secondAttribute="top" id="cuQ-0N-ZLt"/>
                 <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="fRi-rE-bUx"/>
                 <constraint firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
