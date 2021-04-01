@@ -65,4 +65,16 @@ extension StorageCodingPath {
     static var payee: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Payee")
     }
+
+    static var historyDepth: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "HistoryDepth")
+    }
+
+    static var totalValidatorReward: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "ErasValidatorReward")
+    }
+
+    static var rewardPointsPerValidator: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "ErasRewardPoints")
+    }
 }

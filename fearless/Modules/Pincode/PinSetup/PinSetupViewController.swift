@@ -239,6 +239,8 @@ extension PinSetupViewController: PinSetupViewProtocol {
 }
 
 extension PinSetupViewController: PinViewDelegate {
+    func didFailConfirmation(pinView: PinView) {}
+
     func didCompleteInput(pinView: PinView, result: String) {
         presenter.submit(pin: result)
     }

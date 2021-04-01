@@ -8,7 +8,7 @@ protocol ValidatorInfoAccountViewModelProtocol {
 }
 
 struct ValidatorInfoAccountViewModel: ValidatorInfoAccountViewModelProtocol {
-    var name: String?
-    var address: String
-    var icon: UIImage?
+    let name: String?
+    let address: String
+    let icon: UIImage?
 }

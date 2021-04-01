@@ -52,15 +52,15 @@ final class StakingMainPresenter {
     private func provideStakingInfo() {
         let commonData = stateMachine.viewState { (state: BaseStakingState) in state.commonData }
 
-        guard let chain = commonData?.chain else {
-            return
+        if let chain = commonData?.chain, let networkStakingInfo = networkStakingInfo {
+            let networkStakingInfoViewModel = networkInfoViewModelFactory
+                .createNetworkStakingInfoViewModel(with: networkStakingInfo,
+                                                   chain: chain,
+                                                   priceData: commonData?.price)
+            view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
+        } else {
+            view?.didRecieveNetworkStakingInfo(viewModel: nil)
         }
-
-        let networkStakingInfoViewModel = networkInfoViewModelFactory
-            .createNetworkStakingInfoViewModel(with: networkStakingInfo,
-                                               chain: chain,
-                                               priceData: commonData?.price)
-        view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
     }
 
     private func provideState() {
@@ -119,7 +119,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performAccountAction() {
-        logger?.debug("Did select account")
+        wireframe.showAccountsSelection(from: view)
+    }
+
+    func performManageStakingAction() {
+        wireframe.showManageStaking(
+            from: view,
+            items: [.rewardPayouts],
+            delegate: self,
+            context: nil)
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -290,6 +298,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         stateMachine.state.process(chain: newChain)
 
         provideChain()
+        provideStakingInfo()
     }
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
@@ -309,12 +318,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didFetchController(_ controller: AccountItem?) {
+    func didFetchController(_ controller: AccountItem?, for address: AccountAddress) {
         guard let controller = controller else {
 
             if let view = view {
                 let locale = view.localizationManager?.selectedLocale
-                wireframe.presentMissingController(from: view, locale: locale)
+                wireframe.presentMissingController(from: view, address: address, locale: locale)
             }
 
             return
@@ -347,5 +356,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(fetchControllerError: Error) {
         handle(error: fetchControllerError)
+    }
+}
+
+extension StakingMainPresenter: ModalPickerViewControllerDelegate {
+
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        wireframe.showRewardPayouts(from: view)
     }
 }

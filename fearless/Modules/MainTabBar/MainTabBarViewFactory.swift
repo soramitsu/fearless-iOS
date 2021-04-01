@@ -143,7 +143,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             viewController?.tabBarItem.title = currentTitle
         }
 
-        return viewController
+        let navigationController = FearlessNavigationController(rootViewController: viewController)
+
+        return navigationController
     }
 
     static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)

@@ -5,6 +5,9 @@ protocol StakingErrorPresentable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
+    func presentMissingController(from view: ControllerBackedProtocol,
+                                  address: AccountAddress,
+                                  locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -41,9 +44,11 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
-    func presentMissingController(from view: ControllerBackedProtocol, locale: Locale?) {
+    func presentMissingController(from view: ControllerBackedProtocol,
+                                  address: AccountAddress,
+                                  locale: Locale?) {
         let message = R.string.localizable
-            .stakingControllerMissingMessage(preferredLanguages: locale?.rLanguages)
+            .stakingControllerMissingMessage(address, preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
