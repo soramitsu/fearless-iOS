@@ -9,7 +9,7 @@ struct TransactionHistoryMergeResult {
 
 enum TransactionHistoryMergeItem {
     case local(item: TransactionHistoryItem)
-    case remote(remote: SubscanHistoryItemData)
+    case remote(remote: SubscanTransferItemData)
 
     func compareWithItem(_ item: TransactionHistoryMergeItem) -> Bool {
         switch (self, item) {
@@ -98,7 +98,7 @@ final class TransactionHistoryMergeManager {
         self.addressFactory = addressFactory
     }
 
-    func merge(subscanItems: [SubscanHistoryItemData],
+    func merge(subscanItems: [SubscanTransferItemData],
                localItems: [TransactionHistoryItem]) -> TransactionHistoryMergeResult {
         let existingHashes = Set(subscanItems.map { $0.hash })
         let minSubscanItem = subscanItems.last

@@ -104,7 +104,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
 
         let info = HistoryInfo(address: address, row: pagination.count, page: historyContext.page)
 
-        let fetchOperation = subscanOperationFactory.fetchHistoryOperation(url, info: info)
+        let fetchOperation = subscanOperationFactory.fetchTransfersOperation(url, info: info)
 
         var dependencies: [Operation] = [fetchOperation]
 

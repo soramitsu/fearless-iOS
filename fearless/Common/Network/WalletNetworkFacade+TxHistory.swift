@@ -4,7 +4,7 @@ import CommonWallet
 import IrohaCrypto
 
 extension WalletNetworkFacade {
-    func createHistoryMergeOperation(dependingOn subscanOperation: BaseOperation<SubscanHistoryData>,
+    func createHistoryMergeOperation(dependingOn subscanOperation: BaseOperation<SubscanTransferData>,
                                      localOperation: BaseOperation<[TransactionHistoryItem]>?,
                                      asset: WalletAsset,
                                      info: HistoryInfo)
@@ -23,10 +23,10 @@ extension WalletNetworkFacade {
                                                              networkType: currentNetworkType,
                                                              asset: asset,
                                                              addressFactory: addressFactory)
-                return manager.merge(subscanItems: pageData.transactions ?? [],
+                return manager.merge(subscanItems: pageData.transfers ?? [],
                                      localItems: localTransactions)
             } else {
-                let transactions: [AssetTransactionData] = (pageData.transactions ?? []).map { item in
+                let transactions: [AssetTransactionData] = (pageData.transfers ?? []).map { item in
                     AssetTransactionData.createTransaction(from: item,
                                                            address: info.address,
                                                            networkType: currentNetworkType,
@@ -41,7 +41,7 @@ extension WalletNetworkFacade {
     }
 
     func createHistoryMapOperation(dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-                                   subscanOperation: BaseOperation<SubscanHistoryData>,
+                                   subscanOperation: BaseOperation<SubscanTransferData>,
                                    info: HistoryInfo) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let pageData = try subscanOperation

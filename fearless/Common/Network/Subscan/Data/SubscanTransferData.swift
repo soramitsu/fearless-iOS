@@ -1,16 +1,11 @@
 import Foundation
 
-struct SubscanHistoryData: Decodable {
-    enum CodingKeys: String, CodingKey {
-        case count
-        case transactions = "transfers"
-    }
-
+struct SubscanTransferData: Decodable {
     let count: Int
-    let transactions: [SubscanHistoryItemData]?
+    let transfers: [SubscanTransferItemData]?
 }
 
-struct SubscanHistoryItemData: Decodable {
+struct SubscanTransferItemData: Decodable {
     enum CodingKeys: String, CodingKey {
         case sender = "from"
         case receiver = "to"
