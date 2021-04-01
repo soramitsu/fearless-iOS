@@ -51,12 +51,12 @@ class StoriesProgressBar: UIView {
     weak var delegate: StoriesProgressBarDelegate?
 
     // MARK: - Overrides
-    public override init(frame: CGRect) {
+    override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
     }
 
-    public required init?(coder aDecoder: NSCoder) {
+    required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configure()
     }
@@ -66,7 +66,7 @@ class StoriesProgressBar: UIView {
         configure()
     }
 
-    public override func layoutSubviews() {
+    override func layoutSubviews() {
         super.layoutSubviews()
 
         stackView.frame = bounds
@@ -90,7 +90,6 @@ class StoriesProgressBar: UIView {
         guard stackView == nil else { return }
 
         let stackView = UIStackView()
-        stackView.axis = .horizontal
         stackView.alignment = .center
         stackView.distribution = .fillEqually
         stackView.spacing = 0

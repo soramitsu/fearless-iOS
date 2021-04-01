@@ -1,29 +1,12 @@
-import Foundation
-import UIKit
-
 struct Slide {
-    var description: String
-    var urlString: String?
-
-    init(description: String,
-         urlString: String? = nil) {
-        self.description = description
-        self.urlString = urlString
-    }
+    let description: String
+    let urlString: String?
 }
 
 struct Story {
     let icon: String
     let title: String
     let slides: [Slide]
-
-    init(icon: String,
-         title: String,
-         slides: [Slide]) {
-        self.icon = icon
-        self.title = title
-        self.slides = slides
-    }
 }
 
 struct StoriesModel {

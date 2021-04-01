@@ -3,7 +3,7 @@ import Foundation
 final class StoriesInteractor {
     weak var presenter: StoriesInteractorOutputProtocol!
 
-    private var storiesModel: StoriesModel
+    private let storiesModel: StoriesModel
 
     init(model: StoriesModel) {
         self.storiesModel = model

@@ -6,13 +6,11 @@ protocol StoriesViewModelFactoryProtocol {
 
 class StoriesViewModelFactory: StoriesViewModelFactoryProtocol {
     func createStoryViewModel(from story: Story) -> [SlideViewModel] {
-        var slides: [SlideViewModel] = []
-
-        story.slides.forEach { slide in
-            slides.append(SlideViewModel(title: "\(story.icon) \(story.title)",
-                                         content: slide.description))
-        }
-
+        let slides = story.slides.map { slide in
+            SlideViewModel(
+                title: "\(story.icon) \(story.title)",
+                content: slide.description)
+         }
         return slides
     }
 }

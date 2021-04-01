@@ -24,7 +24,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
-    private var storiesModel: StoriesModel?
+    private lazy var storiesModel: StoriesModel = StoriesFactory.createModel()
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -36,7 +36,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupStories()
         setupNetworkInfoView()
         setupLocalization()
         presenter.setup()
@@ -87,10 +86,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     // MARK: - Private functions
-    private func setupStories() {
-        self.storiesModel = StoriesFactory.createModel()
-    }
-
     private func setupNetworkInfoView() {
         guard
             let networkInfoView = R.nib.networkInfoView(owner: self),
@@ -119,8 +114,9 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         networkInfoView.collectionView.dataSource = self
         networkInfoView.collectionView.delegate = self
 
-        networkInfoView.collectionView.register(UINib(resource: R.nib.storiesPreviewCollectionItem),
-                                                forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier)
+        networkInfoView.collectionView.register(
+            UINib(resource: R.nib.storiesPreviewCollectionItem),
+            forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier)
     }
 
     private func clearStateView() {
@@ -331,7 +327,7 @@ extension StakingMainViewController: KeyboardAdoptable {
 // MARK: Collection View Data Source -
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return self.storiesModel?.stories.count ?? 0
+        return storiesModel.stories.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
@@ -340,9 +336,9 @@ extension StakingMainViewController: UICollectionViewDataSource {
             withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
             for: indexPath)!
 
-        let story = self.storiesModel?.stories[indexPath.row]
+        let story = storiesModel.stories[indexPath.row]
 
-        cell.bind(icon: story?.icon, caption: story?.title)
+        cell.bind(icon: story.icon, caption: story.title)
         return cell
     }
 }

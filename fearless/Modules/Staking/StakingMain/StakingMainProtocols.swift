@@ -71,9 +71,11 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showRecommendedValidators(from view: StakingMainViewProtocol?,
                                    existingBonding: ExistingBonding)
 
-    func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int)
+    func showStories(from view: ControllerBackedProtocol?,
+                     startingFrom index: Int)
 
     func showRewardPayouts(from view: ControllerBackedProtocol?)
+
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
 
