@@ -1,23 +1,24 @@
 {
-  "runtime_id": 26,
+  "runtime_id": 29,
   "types": {
-    "Address": "AccountIdAddress",
-    "LookupSource": "AccountIdAddress",
-    "AccountInfo": "AccountInfoWithRefCount",
+    "Address": "MultiAddress",
+    "LookupSource": "MultiAddress",
+    "AccountInfo": "AccountInfoWithDualRefCount",
     "BlockNumber": "U32",
     "LeasePeriod": "BlockNumber",
     "Weight": "u64",
-    "SessionKeysPolkadot": {
+    "Keys": {
       "type": "struct",
       "type_mapping": [
          ["grandpa", "AccountId"],
          ["babe", "AccountId"],
          ["im_online", "AccountId"],
-         ["authority_discovery", "AccountId"],
-         ["parachains", "AccountId"]
+         ["para_validator", "AccountId"],
+         ["para_assignment", "AccountId"],
+         ["authority_discovery", "AccountId"]
       ]
     },
-    "Keys": "SessionKeysPolkadot",
+    "ValidatorPrefs": "ValidatorPrefsWithBlocked",
     "DispatchInfo": {
       "type": "struct",
       "type_mapping": [
@@ -33,8 +34,9 @@
         "NonTransfer",
         "Governance",
         "Staking",
-        "SudoBalances",
-        "IdentityJudgement"
+        "DeprecatedSudoBalances",
+        "IdentityJudgement",
+        "CancelProxy"
       ]
     },
     "RefCount": "u32"
@@ -101,7 +103,18 @@
       "types": {
         "Address": "AccountIdAddress",
         "LookupSource": "AccountIdAddress",
-        "AccountInfo": "AccountInfoWithRefCount"
+        "AccountInfo": "AccountInfoWithRefCount",
+        "Keys": {
+          "type": "struct",
+          "type_mapping": [
+             ["grandpa", "AccountId"],
+             ["babe", "AccountId"],
+             ["im_online", "AccountId"],
+             ["authority_discovery", "AccountId"],
+             ["parachains", "AccountId"]
+          ]
+        },
+        "ValidatorPrefs": "ValidatorPrefsWithCommission"
       }
     },
     {
@@ -109,7 +122,19 @@
       "types": {
         "Address": "MultiAddress",
         "LookupSource": "MultiAddress",
-        "AccountInfo": "AccountInfoWithProviders"
+        "AccountInfo": "AccountInfoWithDualRefCount",
+        "Keys": {
+          "type": "struct",
+          "type_mapping": [
+             ["grandpa", "AccountId"],
+             ["babe", "AccountId"],
+             ["im_online", "AccountId"],
+             ["para_validator", "AccountId"],
+             ["para_assignment", "AccountId"],
+             ["authority_discovery", "AccountId"]
+          ]
+        },
+        "ValidatorPrefs": "ValidatorPrefsWithBlocked"
       }
     }
   ]
