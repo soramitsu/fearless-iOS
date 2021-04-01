@@ -1,10 +1,10 @@
 import Foundation
 
-protocol StoryViewModelFactoryProtocol {
+protocol StoriesViewModelFactoryProtocol {
     func createStoryViewModel(from story: Story) -> [SlideViewModel]
 }
 
-class StoryViewModelFactory: StoryViewModelFactoryProtocol {
+class StoriesViewModelFactory: StoriesViewModelFactoryProtocol {
     func createStoryViewModel(from story: Story) -> [SlideViewModel] {
         var slides: [SlideViewModel] = []
 

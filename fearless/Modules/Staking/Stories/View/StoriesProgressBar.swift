@@ -148,6 +148,7 @@ class StoriesProgressBar: UIView {
     }
 }
 
+// MARK: - StoriesProgressAnimatorProtocol
 extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
     func redrawSegments(startingPosition: Int) {
         stop()
@@ -192,6 +193,7 @@ extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
     }
 }
 
+// MARK: - CountdownTimerDelegate
 extension StoriesProgressBar: CountdownTimerDelegate {
     func didStart(with interval: TimeInterval) {
         switch animationState {

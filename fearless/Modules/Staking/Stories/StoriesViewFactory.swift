@@ -9,10 +9,10 @@ final class StoriesViewFactory: StoriesViewFactoryProtocol {
         view.localizationManager = LocalizationManager.shared
 
         // MARK: - Interactor
-        let interactor = StoriesInteractor()
+        let interactor = StoriesInteractor(model: StoriesFactory.createModel())
 
         // MARK: - Presenter
-        let viewModelFactory = StoryViewModelFactory()
+        let viewModelFactory = StoriesViewModelFactory()
         let presenter = StoriesPresenter(selectedStoryIndex: index,
                                          viewModelFactory: viewModelFactory)
 

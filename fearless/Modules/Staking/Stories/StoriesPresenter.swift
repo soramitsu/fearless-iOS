@@ -5,14 +5,14 @@ final class StoriesPresenter {
     var wireframe: StoriesWireframeProtocol!
     var interactor: StoriesInteractorInputProtocol!
 
-    private var viewModelFactory: StoryViewModelFactoryProtocol?
+    private var viewModelFactory: StoriesViewModelFactoryProtocol?
     private var selectedStoryIndex = 0
     private var selectedSlideIndex = 0
 
     private var model: StoriesModel?
 
     init(selectedStoryIndex: Int,
-         viewModelFactory: StoryViewModelFactoryProtocol) {
+         viewModelFactory: StoriesViewModelFactoryProtocol) {
         self.selectedStoryIndex = selectedStoryIndex
         self.viewModelFactory = viewModelFactory
     }
