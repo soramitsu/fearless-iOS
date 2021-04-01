@@ -1,4 +1,4 @@
-struct Slide {
+struct StorySlide {
     let description: String
     let urlString: String?
 }
@@ -6,7 +6,7 @@ struct Slide {
 struct Story {
     let icon: String
     let title: String
-    let slides: [Slide]
+    let slides: [StorySlide]
 }
 
 struct StoriesModel {

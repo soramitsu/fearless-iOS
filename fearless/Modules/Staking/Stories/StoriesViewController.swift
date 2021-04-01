@@ -3,7 +3,7 @@ import SoraFoundation
 
 enum StaringIndex {
     case first
-    case last(array: [Slide])
+    case last(array: [StorySlide])
 
     var index: Int {
         switch self {

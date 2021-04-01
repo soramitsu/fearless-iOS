@@ -889,7 +889,7 @@
 		AE9EF264260A82B80026910A /* StoriesWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF263260A82B80026910A /* StoriesWireframe.swift */; };
 		AE9EF269260A82C30026910A /* StoriesProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF268260A82C30026910A /* StoriesProtocols.swift */; };
 		AE9EF26E260A82D50026910A /* SlideViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF26D260A82D50026910A /* SlideViewModel.swift */; };
-		AE9EF273260A82FB0026910A /* Slide.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF272260A82FB0026910A /* Slide.swift */; };
+		AE9EF273260A82FB0026910A /* StorySlide.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF272260A82FB0026910A /* StorySlide.swift */; };
 		AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF277260B2E160026910A /* StoriesFactory.swift */; };
 		AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF27C260B53130026910A /* StoriesViewFactory.swift */; };
 		AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE9EF281260B58250026910A /* StoriesViewController.xib */; };
@@ -1893,7 +1893,7 @@
 		AE9EF263260A82B80026910A /* StoriesWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesWireframe.swift; sourceTree = "<group>"; };
 		AE9EF268260A82C30026910A /* StoriesProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProtocols.swift; sourceTree = "<group>"; };
 		AE9EF26D260A82D50026910A /* SlideViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SlideViewModel.swift; sourceTree = "<group>"; };
-		AE9EF272260A82FB0026910A /* Slide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Slide.swift; sourceTree = "<group>"; };
+		AE9EF272260A82FB0026910A /* StorySlide.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorySlide.swift; sourceTree = "<group>"; };
 		AE9EF277260B2E160026910A /* StoriesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesFactory.swift; sourceTree = "<group>"; };
 		AE9EF27C260B53130026910A /* StoriesViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewFactory.swift; sourceTree = "<group>"; };
 		AE9EF281260B58250026910A /* StoriesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesViewController.xib; sourceTree = "<group>"; };
@@ -4584,7 +4584,7 @@
 		AE9EF252260A821E0026910A /* Model */ = {
 			isa = PBXGroup;
 			children = (
-				AE9EF272260A82FB0026910A /* Slide.swift */,
+				AE9EF272260A82FB0026910A /* StorySlide.swift */,
 				AE9EF277260B2E160026910A /* StoriesFactory.swift */,
 			);
 			path = Model;
@@ -6016,7 +6016,7 @@
 				668141E18654C64F5023815A /* ModifyConnectionViewFactory.swift in Sources */,
 				4B9B7184914B75D9B0317953 /* CommingSoonProtocols.swift in Sources */,
 				596365A03768C86B620820A1 /* CommingSoonWireframe.swift in Sources */,
-				AE9EF273260A82FB0026910A /* Slide.swift in Sources */,
+				AE9EF273260A82FB0026910A /* StorySlide.swift in Sources */,
 				731EF71ACA427AC4E9D5F634 /* CommingSoonPresenter.swift in Sources */,
 				0C37E80C780DEBFA40F06911 /* CommingSoonInteractor.swift in Sources */,
 				8EA7A6E46E87886C2F0524C7 /* CommingSoonViewController.swift in Sources */,
