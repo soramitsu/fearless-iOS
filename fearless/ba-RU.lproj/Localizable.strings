@@ -239,6 +239,7 @@
 "staking.selected.accounts.mask" = "Аккаунттар(%d)";
 "staking.recommended.validators.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Валидаторҙарҙы һайлағыҙ";
 "staking.recommended.validators.apy" = "Иҫәпләнгән әжер, APY";
 "staking.amount.too.big.error" = "Ғәфү итегеҙ, кәрәккән сумманы стек өсөн етерлек аҡса юҡ";

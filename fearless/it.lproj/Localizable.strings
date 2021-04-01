@@ -241,6 +241,7 @@ Derivation path: %@";
 "staking.selected.accounts.mask" = "Account ( %d )";
 "staking.recommended.validators.title" = "Validatori consigliati";
 "staking.recommended.validators.description" = "Questi validatori avranno il massimo profitto per te e meno possibilità di truffa o fallimento.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Seleziona validatori personalizzati";
 "staking.recommended.validators.apy" = "Ricompensa stimata, APY";
 "staking.amount.too.big.error" = "Spiacenti, non hai fondi sufficienti per mettere in staking l'importo specificato";

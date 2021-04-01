@@ -242,6 +242,7 @@ a type of password.";
 "staking.selected.accounts.mask" = "Аккаунты ( %d )";
 "staking.recommended.validators.title" = "Рекомендуемые валидаторы";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Выберите валидаторов сами";
 "staking.recommended.validators.apy" = "Примерное вознаграждение, APY";
 "staking.amount.too.big.error" = "Извините, у Вас недостаточно средств для стекинга выбранной суммы";

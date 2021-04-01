@@ -24,6 +24,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
+    private lazy var storiesModel: StoriesModel = StoriesFactory.createModel()
 
     var iconGenerator: IconGenerating?
     var uiFactory: UIFactoryProtocol?
@@ -85,7 +86,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     // MARK: - Private functions
-
     private func setupNetworkInfoView() {
         guard
             let networkInfoView = R.nib.networkInfoView(owner: self),
@@ -115,8 +115,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         networkInfoView.collectionView.delegate = self
 
         networkInfoView.collectionView.register(
-            UINib(resource: R.nib.storiesCollectionItem),
-            forCellWithReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId.identifier)
+            UINib(resource: R.nib.storiesPreviewCollectionItem),
+            forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier)
     }
 
     private func clearStateView() {
@@ -327,23 +327,29 @@ extension StakingMainViewController: KeyboardAdoptable {
 // MARK: Collection View Data Source -
 extension StakingMainViewController: UICollectionViewDataSource {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        // TODO: FLW-635
-        return 4
+        return storiesModel.stories.count
     }
 
     func collectionView(_ collectionView: UICollectionView,
                         cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
-            withReuseIdentifier: R.reuseIdentifier.storiesCollectionItemId,
+            withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
             for: indexPath)!
 
+        let story = storiesModel.stories[indexPath.row]
+
+        cell.bind(icon: story.icon, caption: story.title)
         return cell
     }
 }
 
 // MARK: Collection View Delegate -
 extension StakingMainViewController: UICollectionViewDelegate {
-    // TODO: FLW-635
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+
+        presenter.selectStory(at: indexPath.row)
+    }
 }
 
 // MARK: Nomination View Delegate -

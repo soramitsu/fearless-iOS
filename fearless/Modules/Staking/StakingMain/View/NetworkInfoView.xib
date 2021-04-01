@@ -275,11 +275,6 @@
             <point key="canvasLocation" x="-684" y="51"/>
         </view>
     </objects>
-    <designables>
-        <designable name="99S-Ov-q5L">
-            <size key="intrinsicContentSize" width="174.5" height="20.5"/>
-        </designable>
-    </designables>
     <resources>
         <image name="iconArrowUp" width="16" height="16"/>
         <namedColor name="colorWhite">

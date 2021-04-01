@@ -39,6 +39,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
+    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int) {
+        guard let storiesView = StoriesViewFactory.createView(with: index) else {
+            return
+        }
+
+        storiesView.controller.modalPresentationStyle = .overFullScreen
+        view?.controller.present(storiesView.controller, animated: true, completion: nil)
+    }
+
     func showRewardPayouts(from view: ControllerBackedProtocol?) {
         view?.controller.dismiss(animated: false, completion: nil)
 

@@ -242,6 +242,7 @@ Derivation path: %@";
 "staking.selected.accounts.mask" = "Accounts(%d)";
 "staking.recommended.validators.title" = "Recommended validators";
 "staking.recommended.validators.description" = "These validators will have maximum profit for you and less chances of scam or fail.";
+"common.learn.more" = "Learn more";
 "staking.custom.validators.title" = "Select custom validators";
 "staking.recommended.validators.apy" = "Estimated reward, APY";
 "staking.amount.too.big.error" = "Sorry, you don't have enough funds to stake specified amount";

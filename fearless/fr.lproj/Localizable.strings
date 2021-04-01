@@ -241,6 +241,7 @@ Chemin de dérivation : %@";
 "staking.selected.accounts.mask" = "Comptes ( %d )";
 "staking.recommended.validators.title" = "Validateurs recommandés";
 "staking.recommended.validators.description" = "Ces validateurs auront un profit maximum pour vous et moins de chances d'escroquerie ou d'échec.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Sélectionnez des validateurs personnalisés";
 "staking.recommended.validators.apy" = "Récompense estimée, APY";
 "staking.amount.too.big.error" = "Désolé, vous ne disposez pas de suffisamment de fonds pour miser le montant spécifié";
