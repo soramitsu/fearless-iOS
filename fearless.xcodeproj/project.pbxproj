@@ -863,10 +863,7 @@
 		AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF277260B2E160026910A /* StoriesFactory.swift */; };
 		AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF27C260B53130026910A /* StoriesViewFactory.swift */; };
 		AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE9EF281260B58250026910A /* StoriesViewController.xib */; };
-		AE9EF28A260BBF4E0026910A /* StoriesIndicatorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF289260BBF4E0026910A /* StoriesIndicatorView.swift */; };
-		AE9EF2C0260C6F6C0026910A /* StoryProgressView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF2BF260C6F6C0026910A /* StoryProgressView.swift */; };
 		AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */; };
-		AEB9978B26111D17005C60A5 /* SegmentedProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978A26111D17005C60A5 /* SegmentedProgressBar.swift */; };
 		AEB9979026119E4D005C60A5 /* StoryViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoryViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
@@ -1817,10 +1814,7 @@
 		AE9EF277260B2E160026910A /* StoriesFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesFactory.swift; sourceTree = "<group>"; };
 		AE9EF27C260B53130026910A /* StoriesViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewFactory.swift; sourceTree = "<group>"; };
 		AE9EF281260B58250026910A /* StoriesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesViewController.xib; sourceTree = "<group>"; };
-		AE9EF289260BBF4E0026910A /* StoriesIndicatorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesIndicatorView.swift; sourceTree = "<group>"; };
-		AE9EF2BF260C6F6C0026910A /* StoryProgressView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryProgressView.swift; sourceTree = "<group>"; };
 		AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressAnimator.swift; sourceTree = "<group>"; };
-		AEB9978A26111D17005C60A5 /* SegmentedProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedProgressBar.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoryViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoryViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
@@ -4419,21 +4413,10 @@
 		AE9EF288260BBF1F0026910A /* View */ = {
 			isa = PBXGroup;
 			children = (
-				AEB9979C26131106005C60A5 /* Final */,
-				AE9EF289260BBF4E0026910A /* StoriesIndicatorView.swift */,
-				AE9EF2BF260C6F6C0026910A /* StoryProgressView.swift */,
-				AEB9978A26111D17005C60A5 /* SegmentedProgressBar.swift */,
-			);
-			path = View;
-			sourceTree = "<group>";
-		};
-		AEB9979C26131106005C60A5 /* Final */ = {
-			isa = PBXGroup;
-			children = (
 				AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */,
 				AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */,
 			);
-			path = Final;
+			path = View;
 			sourceTree = "<group>";
 		};
 		AEF7404C25E6DC6600407D41 /* RewardCalculatorService */ = {
@@ -5135,7 +5118,6 @@
 				84C7DA5425EE2DF000F8C318 /* StakingErrorPresentable.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8425EB1B25EADD8600C307C9 /* StakingConstants.swift in Sources */,
-				AE9EF28A260BBF4E0026910A /* StoriesIndicatorView.swift in Sources */,
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
 				849E0CDD25D01AB700B33506 /* ExtrinsicFactoryProtocol.swift in Sources */,
 				8472979A260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift in Sources */,
@@ -5212,7 +5194,6 @@
 				84364D6825325E0C00281F9A /* UnlockChunk.swift in Sources */,
 				84C4C2D1255CA9210045B582 /* Health.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
-				AEB9978B26111D17005C60A5 /* SegmentedProgressBar.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
 				845BB8D125E45F1300E5FCDC /* NominateCall.swift in Sources */,
@@ -5453,7 +5434,6 @@
 				8428763A24AD6AF000D91AD8 /* JSONRPCInfo.swift in Sources */,
 				849014BB24AA87E4008F705E /* PinSetupWireframe.swift in Sources */,
 				AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */,
-				AE9EF2C0260C6F6C0026910A /* StoryProgressView.swift in Sources */,
 				8490145824A9406D008F705E /* LegalData.swift in Sources */,
 				84155DF6253B252000A27058 /* ReachabilityManager.swift in Sources */,
 				8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */,

@@ -1,24 +1,6 @@
 import UIKit
 import SoraFoundation
 
-enum SwipeDirection {
-    case swipeUp
-    case swipeDown
-    case swipeLeft
-    case swipeRight
-}
-
-enum PanDirection {
-    case none
-    case horizontal
-    case vertical
-}
-
-enum ScreenPart {
-    case left
-    case right
-}
-
 enum StaringIndex {
     case first
     case last(array: [Slide])
@@ -34,24 +16,29 @@ enum StaringIndex {
 }
 
 final class StoriesViewController: UIViewController, ControllerBackedProtocol {
-    var presenter: StoriesPresenterProtocol!
+    private struct Constants {
+        static let moveThreshold: CGFloat = 150.0
+    }
+
+    private enum PanDirection {
+        case none
+        case horizontal
+        case vertical
+    }
 
     private var currentStoryIndex = 0
     private var currentSlideIndex = 0
     private var uiIsSetUp: Bool = false
-    private struct Constants {
-        static let moveThreshold: CGFloat = 150.0
-    }
+    private var viewModel: [SlideViewModel] = []
+    private var initialTouchPoint: CGPoint = .init(x: 0, y: 0)
+    private var swipeDirection: PanDirection = .none
+
+    var presenter: StoriesPresenterProtocol!
 
     @IBOutlet weak var titleLabel: UILabel!
     @IBOutlet weak var contentLabel: UILabel!
     @IBOutlet weak var learnMoreButton: TriangularedButton!
     @IBOutlet weak var progressBar: StoriesProgressBar!
-
-    private var viewModel: [SlideViewModel] = []
-
-    private var initialTouchPoint: CGPoint = .init(x: 0, y: 0)
-    private var swipeDirection: PanDirection = .none
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -200,7 +187,7 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
              .cancelled:
             progressBar.resume()
             processSwipe(to: touchPoint)
-            
+
             swipeDirection = .none
             initialTouchPoint = CGPoint(x: 0, y: 0)
 
@@ -284,7 +271,9 @@ extension StoriesViewController: StoriesViewProtocol {
         bindViewModel()
 
         progressBar.redrawSegments(startingPosition: currentSlideIndex)
-        if uiIsSetUp { progressBar.start() }
+        
+        guard uiIsSetUp else { return }
+        progressBar.start()
     }
 
     func didRecieve(newSlideIndex index: Int) {
@@ -322,42 +311,3 @@ extension StoriesViewController: UIGestureRecognizerDelegate {
         return touch.view != learnMoreButton
     }
 }
-
-//extension StoriesViewController: StoriesViewDelegate {
-//    func didTap(in part: ScreenPart) {
-//        switch part {
-//        case .left:
-//            presenter.proceedToPreviousSlide()
-//        case .right:
-//            presenter.proceedToNextSlide()
-//        }
-//    }
-//
-//    func didSwipe(distance: CGFloat, direction: SwipeDirection) {
-//        switch direction {
-//        case .swipeDown:
-//            presenter.activateClose()
-//        case .swipeLeft:
-//            presenter.proceedToNextStory()
-//        case .swipeRight:
-//            presenter.proceedToPreviousStory(startingFrom: .first)
-//        default:
-//            break
-//        }
-//    }
-//
-//    func didLongPress() {
-//        progressBar.pause()
-//    }
-//
-//    func didRelease() {
-//        progressBar.resume()
-//    }
-//}
-
-//protocol StoriesViewDelegate: class {
-//    func didTap(in part: ScreenPart)
-//    func didSwipe(distance: CGFloat, direction: SwipeDirection)
-//    func didLongPress()
-//    func didRelease()
-//}

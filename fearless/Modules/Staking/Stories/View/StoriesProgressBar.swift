@@ -42,7 +42,6 @@ class StoriesProgressBar: UIView {
     private var animationState: ProgressBarAnimationState = .stopped
 
     private struct Constants {
-        static let padding: CGFloat = 8
         static let height: CGFloat = 2
     }
 
@@ -65,7 +64,6 @@ class StoriesProgressBar: UIView {
 
     override func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
-
         configure()
     }
 
@@ -134,6 +132,7 @@ class StoriesProgressBar: UIView {
         for index in 0..<numberOfSegments {
             let progressView = ProgressView()
 
+            progressView.setProgress(0, animated: false)
             progressView.fillColor = UIColor.init(white: 1.0, alpha: 0.4)
             progressView.animationDuration = CGFloat(animationDuration)
 
@@ -185,14 +184,12 @@ extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
         timer?.start(with: remainingAnimationTime)
     }
 
-    // Stop current animation
-    // Stop timer
     func stop() {
-        if animationState == .animating {
-            animationState = .interrupted
-            segments[currentIndex].stop()
-            timer?.stop()
-        }
+        guard animationState == .animating else { return }
+
+        animationState = .interrupted
+        segments[currentIndex].stop()
+        timer?.stop()
     }
 }
 
