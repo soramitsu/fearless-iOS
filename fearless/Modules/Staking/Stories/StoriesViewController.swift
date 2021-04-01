@@ -97,9 +97,6 @@ final class StoriesViewController: UIViewController, ControllerBackedProtocol {
     private func setupContentVerticalFreeze() {
         progressBar.topAnchor.constraint(equalTo: view.topAnchor,
                                          constant: progressBar.frame.origin.y).isActive = true
-        learnMoreButton.bottomAnchor.constraint(equalTo: view.bottomAnchor,
-                                                constant: learnMoreButton.frame.origin.y +
-                                                    learnMoreButton.frame.size.height).isActive = true
     }
 
     // MARK: - Gesture recognizers setup

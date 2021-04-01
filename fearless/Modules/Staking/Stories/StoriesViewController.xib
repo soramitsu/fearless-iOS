@@ -28,7 +28,7 @@
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
-        <view contentMode="scaleToFill" id="iN0-l3-epB">
+        <view contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="iN0-l3-epB">
             <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
@@ -67,13 +67,13 @@
                     </connections>
                 </button>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰 What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="X1J-zO-wC7" userLabel="Title Label">
-                    <rect key="frame" x="16" y="123" width="343" height="35"/>
+                    <rect key="frame" x="16" y="123" width="343" height="38"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="30"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Q8-bt-QvQ" userLabel="Body Label">
-                    <rect key="frame" x="16" y="174" width="343" height="231"/>
+                    <rect key="frame" x="16" y="177" width="343" height="295"/>
                     <gestureRecognizers/>
                     <string key="text">Staking refers to the process of a Proof-of-Stake (PoS) token-holder locking a tokens in order to participate in the upkeep of the PoS network (e.g. validating transactions; composing new blocks). This increases the security and reliability of the network and is an alternative to mining in Proof-of-Work systems (e.g. Bitcoin). Token-holders who participate in staking are compensated through block rewards and transaction fees.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="18"/>
@@ -81,12 +81,12 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="LmP-ld-yUb" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="678" width="343" height="52"/>
+                    <rect key="frame" x="16" y="712" width="343" height="52"/>
                     <viewLayoutGuide key="safeArea" id="RFf-0L-AkE"/>
                     <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                     <gestureRecognizers/>
                     <constraints>
-                        <constraint firstAttribute="height" constant="52" id="w2B-3H-fE1"/>
+                        <constraint firstAttribute="height" priority="900" constant="52" id="w2B-3H-fE1"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
                         <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
@@ -117,31 +117,31 @@
                     </connections>
                 </view>
             </subviews>
-            <viewLayoutGuide key="safeArea" id="VTH-7g-qrG"/>
+            <viewLayoutGuide key="safeArea" id="mU8-WX-FPe"/>
             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
             <constraints>
                 <constraint firstAttribute="bottom" secondItem="Dkq-u3-dRe" secondAttribute="bottom" id="0Bf-5W-f3A"/>
-                <constraint firstItem="P6R-9T-9we" firstAttribute="top" secondItem="VTH-7g-qrG" secondAttribute="top" constant="8" id="226-bF-byJ"/>
+                <constraint firstItem="P6R-9T-9we" firstAttribute="top" secondItem="mU8-WX-FPe" secondAttribute="top" constant="8" id="1RP-fj-tdE"/>
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="99m-rI-aPg"/>
-                <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
+                <constraint firstItem="X1J-zO-wC7" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="9hI-dr-J8o"/>
                 <constraint firstItem="Dkq-u3-dRe" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="AaT-Zd-cGp"/>
                 <constraint firstItem="yba-Jy-FTL" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Bsa-bm-63v"/>
-                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
-                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
+                <constraint firstItem="6Q8-bt-QvQ" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="EWK-n7-1uZ"/>
+                <constraint firstAttribute="trailing" secondItem="LmP-ld-yUb" secondAttribute="trailing" constant="16" id="FDx-1H-ZHk"/>
                 <constraint firstItem="sRK-lH-16C" firstAttribute="top" secondItem="P6R-9T-9we" secondAttribute="bottom" constant="28" id="GQ0-bO-eEw"/>
-                <constraint firstItem="LmP-ld-yUb" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="GYp-fH-Nzf"/>
+                <constraint firstItem="LmP-ld-yUb" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="GYp-fH-Nzf"/>
                 <constraint firstAttribute="trailing" secondItem="Dkq-u3-dRe" secondAttribute="trailing" id="KrC-1u-neU"/>
                 <constraint firstAttribute="trailing" secondItem="P6R-9T-9we" secondAttribute="trailing" constant="16" id="N75-MT-Vh0"/>
                 <constraint firstItem="LmP-ld-yUb" firstAttribute="top" relation="greaterThanOrEqual" secondItem="6Q8-bt-QvQ" secondAttribute="bottom" constant="48" id="Nci-mk-Tq8"/>
                 <constraint firstItem="X1J-zO-wC7" firstAttribute="top" secondItem="sRK-lH-16C" secondAttribute="bottom" constant="19" id="XZ3-L4-xBW"/>
                 <constraint firstAttribute="top" secondItem="yba-Jy-FTL" secondAttribute="top" id="cuQ-0N-ZLt"/>
                 <constraint firstItem="yba-Jy-FTL" firstAttribute="bottom" secondItem="iN0-l3-epB" secondAttribute="bottom" id="fRi-rE-bUx"/>
-                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
-                <constraint firstItem="VTH-7g-qrG" firstAttribute="bottom" secondItem="LmP-ld-yUb" secondAttribute="bottom" constant="48" id="iv2-ZT-906"/>
-                <constraint firstItem="sRK-lH-16C" firstAttribute="leading" secondItem="VTH-7g-qrG" secondAttribute="leading" constant="16" id="kkR-vb-Sxb"/>
+                <constraint firstAttribute="trailing" secondItem="X1J-zO-wC7" secondAttribute="trailing" constant="16" id="gri-dR-IHP"/>
+                <constraint firstItem="sRK-lH-16C" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="kkR-vb-Sxb"/>
                 <constraint firstItem="6Q8-bt-QvQ" firstAttribute="top" secondItem="X1J-zO-wC7" secondAttribute="bottom" constant="16" id="nMv-p9-UMX"/>
-                <constraint firstItem="VTH-7g-qrG" firstAttribute="trailing" secondItem="6Q8-bt-QvQ" secondAttribute="trailing" constant="16" id="oqJ-zA-zFo"/>
+                <constraint firstAttribute="trailing" secondItem="6Q8-bt-QvQ" secondAttribute="trailing" constant="16" id="oqJ-zA-zFo"/>
                 <constraint firstItem="P6R-9T-9we" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="16" id="rdl-Q5-Y93"/>
+                <constraint firstAttribute="bottomMargin" secondItem="LmP-ld-yUb" secondAttribute="bottom" constant="48" id="vDM-ld-7aH"/>
                 <constraint firstItem="yba-Jy-FTL" firstAttribute="trailing" secondItem="iN0-l3-epB" secondAttribute="trailing" id="wVk-qi-mFB"/>
             </constraints>
             <point key="canvasLocation" x="137.68115942028987" y="153.34821428571428"/>
@@ -149,7 +149,7 @@
     </objects>
     <designables>
         <designable name="LmP-ld-yUb">
-            <size key="intrinsicContentSize" width="81" height="31.666666666666664"/>
+            <size key="intrinsicContentSize" width="96.666666666666671" height="33.666666666666671"/>
         </designable>
     </designables>
     <resources>
