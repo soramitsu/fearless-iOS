@@ -1,0 +1,55 @@
+{
+  "runtime_id": 2027,
+  "types": {
+    "Address": "AccountIdAddress",
+    "LookupSource": "AccountIdAddress",
+    "AccountInfo": "AccountInfoWithRefCount",
+    "BlockNumber": "U32",
+    "LeasePeriod": "BlockNumber",
+    "Weight": "u64",
+    "SessionKeysPolkadot": {
+      "type": "struct",
+      "type_mapping": [
+         ["grandpa", "AccountId"],
+         ["babe", "AccountId"],
+         ["im_online", "AccountId"],
+         ["authority_discovery", "AccountId"],
+         ["parachains", "AccountId"]
+      ]
+    },
+    "Keys": "SessionKeysPolkadot",
+    "DispatchInfo": {
+      "type": "struct",
+      "type_mapping": [
+         ["weight", "Weight"],
+         ["class", "DispatchClass"],
+         ["paysFee", "Pays"]
+      ]
+    },
+    "ProxyType": {
+      "type": "enum",
+      "value_list": [
+        "Any",
+        "NonTransfer",
+        "Governance",
+        "Staking",
+        "IdentityJudgement"
+      ]
+    },
+    "RefCount": "u32"
+  },
+  "versioning": [
+    {
+      "runtime_range": [1019, 1031],
+      "types": {
+        "DispatchError": {
+          "type": "struct",
+          "type_mapping": [
+            ["module", "Option<u8>"],
+            ["error", "u8"]
+          ]
+        }
+      }
+    }
+  ]
+}

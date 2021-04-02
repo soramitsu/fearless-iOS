@@ -32,6 +32,11 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
         let identifier: String
 
         switch addressType {
+        case .soraMain:
+            identifier = WalletAssetId.xor.rawValue
+            localizableName = LocalizableResource<String> { _ in "XOR" }
+            platformName = LocalizableResource<String> { _ in "SORA" }
+            symbol = "XOR"
         case .polkadotMain:
             identifier = WalletAssetId.dot.rawValue
             localizableName = LocalizableResource<String> { _ in "DOT" }

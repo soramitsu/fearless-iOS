@@ -3,6 +3,8 @@ import Foundation
 extension Chain {
     var genesisHash: String {
         switch self {
+        case .sora:
+            return "0x721a0251f63850bde5f895cf5c097e6003cbe1a7038ab94e56b7ae39d39c5286" //TODO: update
         case .polkadot:
             return "91b171bb158e2d3848fa23a9f1c25182fb8e20313b2c1eb49219da7a70ce90c3"
         case .kusama:
@@ -14,6 +16,8 @@ extension Chain {
 
     var existentialDeposit: Decimal {
         switch self {
+        case .sora:
+            return Decimal(string: "0.0000001")! //TODO: can we put zero here?
         case .polkadot:
             return Decimal(string: "1")!
         case .kusama:
@@ -25,6 +29,8 @@ extension Chain {
 
     var erasPerDay: Int {
         switch self {
+        case .sora:
+            return 48
         case .polkadot:
             return 1
         case .kusama, .westend:
@@ -34,6 +40,8 @@ extension Chain {
 
     func polkascanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
+        case .sora:
+            return nil
         case .polkadot:
             return URL(string: "https://polkascan.io/polkadot/extrinsic/\(hash)")
         case .kusama:
@@ -45,6 +53,8 @@ extension Chain {
 
     func polkascanAddressURL(_ address: String) -> URL? {
         switch self {
+        case .sora:
+            return nil
         case .polkadot:
             return URL(string: "https://polkascan.io/polkadot/account/\(address)")
         case .kusama:
@@ -56,6 +66,8 @@ extension Chain {
 
     func subscanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
+        case .sora:
+            return nil
         case .polkadot:
             return URL(string: "https://polkadot.subscan.io/extrinsic/\(hash)")
         case .kusama:
@@ -67,6 +79,8 @@ extension Chain {
 
     func subscanAddressURL(_ address: String) -> URL? {
         switch self {
+        case .sora:
+            return nil
         case .polkadot:
             return URL(string: "https://polkadot.subscan.io/account/\(address)")
         case .kusama:
@@ -82,6 +96,8 @@ extension Chain {
 
     func preparedNetworkTypeDefPath() -> String? {
         switch self {
+        case .sora:
+            return R.file.runtimeSoraJson.path()
         case .polkadot:
             return R.file.runtimePolkadotJson.path()
         case .kusama:
@@ -100,6 +116,8 @@ extension Chain {
         let base = URL(string: "https://raw.githubusercontent.com/polkascan/py-scale-codec/master/scalecodec/type_registry")
 
         switch self {
+        case .sora:
+            return base?.appendingPathComponent("sora.json")
         case .westend:
             return base?.appendingPathComponent("westend.json")
         case .kusama:

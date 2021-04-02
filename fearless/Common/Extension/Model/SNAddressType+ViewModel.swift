@@ -8,6 +8,8 @@ extension SNAddressType {
             return "Polkadot"
         case .kusamaMain, .kusamaSecondary:
             return "Kusama"
+        case .soraMain:
+            return "SORA"
         default:
             return "Westend"
         }
@@ -25,6 +27,6 @@ extension SNAddressType {
     }
 
     static var supported: [SNAddressType] {
-        [.kusamaMain, .polkadotMain, .genericSubstrate]
+        [.kusamaMain, .polkadotMain, .soraMain, .genericSubstrate]
     }
 }

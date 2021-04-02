@@ -2,6 +2,7 @@ import Foundation
 import IrohaCrypto
 
 enum Chain: String, Codable, CaseIterable {
+    case sora = "SORA"
     case kusama = "Kusama"
     case polkadot = "Polkadot"
     case westend = "Westend"
@@ -10,6 +11,8 @@ enum Chain: String, Codable, CaseIterable {
 extension Chain {
     var addressType: SNAddressType {
         switch self {
+        case .sora:
+            return .soraMain
         case .polkadot:
             return .polkadotMain
         case .kusama:

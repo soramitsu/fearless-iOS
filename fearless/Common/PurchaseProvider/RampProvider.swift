@@ -29,6 +29,8 @@ final class RampProvider: PurchaseProviderProtocol {
         let optionUrl: URL?
 
         switch chain {
+        case .sora:
+            optionUrl = buildURLForToken("XOR", address: address)
         case .polkadot:
             optionUrl = buildURLForToken("DOT", address: address)
         case .kusama:

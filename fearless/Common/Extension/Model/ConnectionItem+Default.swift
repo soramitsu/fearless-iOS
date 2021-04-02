@@ -22,6 +22,9 @@ extension ConnectionItem {
             ConnectionItem(title: "Polkadot, Web3 Foundation node",
                            url: URL(string: "wss://cc1-1.polkadot.network")!,
                            type: SNAddressType.polkadotMain),
+            ConnectionItem(title: "SORA, SORAMITSU node",
+                           url: URL(string: "wss://ws.stage.sora2.soramitsu.co.jp")!,
+                           type: SNAddressType.soraMain),
             ConnectionItem(title: "Westend, Parity node",
                            url: URL(string: "wss://westend-rpc.polkadot.io")!,
                            type: SNAddressType.genericSubstrate)
