@@ -94,7 +94,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         guard !historyContext.isComplete,
             let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
             let assetId = WalletAssetId(rawValue: asset.identifier),
-            let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.history) else {
+            let transferUrl = assetId.subscanUrl?.appendingPathComponent(SubscanApi.transfers),
+            let rewardUrl = assetId.subscanUrl?.appendingPathComponent(SubscanApi.rewards) else {
             let pageData = AssetTransactionPageData(transactions: [],
                                                     context: historyContext.toContext())
             let operation = BaseOperation<AssetTransactionPageData?>()
@@ -102,35 +103,54 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let info = HistoryInfo(address: address, row: pagination.count, page: historyContext.page)
+        let transferInfo = HistoryInfo(address: address, row: pagination.count, page: historyContext.transfersPage)
+        let rewardInfo = RewardInfo(address: address, row: pagination.count, page: historyContext.rewardsPage)
 
-        let fetchOperation = subscanOperationFactory.fetchTransfersOperation(url, info: info)
+        let transfersOperation = !historyContext.isTransfersComplete ?
+            subscanOperationFactory.fetchTransfersOperation(transferUrl, info: transferInfo) : nil
 
-        var dependencies: [Operation] = [fetchOperation]
+        let rewardsOperation = !historyContext.isRewardsComplete ? subscanOperationFactory.fetchRewardsAndSlashesOperation(rewardUrl, info: rewardInfo) : nil
+
+        let remoteOperations: [Operation] = {
+            var operations: [Operation] = []
+
+            if let operation = transfersOperation {
+                operations.append(operation)
+            }
+
+            if let operation = rewardsOperation {
+                operations.append(operation)
+            }
+
+            return operations
+        }()
+
+        var dependencies: [Operation] = remoteOperations
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 
-        if info.page == 0 {
+        if pagination.context == nil {
             let operation = txStorage.fetchAllOperation(with: RepositoryFetchOptions())
             dependencies.append(operation)
 
-            operation.addDependency(fetchOperation)
+            remoteOperations.forEach { operation.addDependency($0) }
 
             localFetchOperation = operation
         } else {
             localFetchOperation = nil
         }
 
-        let mergeOperation = createHistoryMergeOperation(dependingOn: fetchOperation,
+        let mergeOperation = createHistoryMergeOperation(dependingOn: transfersOperation,
+                                                         rewards: rewardsOperation,
                                                          localOperation: localFetchOperation,
                                                          asset: asset,
-                                                         info: info)
+                                                         address: address)
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
         dependencies.append(mergeOperation)
 
-        if info.page == 0 {
+        if pagination.context == nil {
             let clearOperation = txStorage.saveOperation({ [] }, {
                 let mergeResult = try mergeOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -142,8 +162,10 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         }
 
         let mapOperation = createHistoryMapOperation(dependingOn: mergeOperation,
-                                                     subscanOperation: fetchOperation,
-                                                     info: info)
+                                                     transferOperation: transfersOperation,
+                                                     rewardOperation: rewardsOperation,
+                                                     transferInfo: transferInfo,
+                                                     rewardInfo: rewardInfo)
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
