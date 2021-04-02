@@ -1,5 +1,6 @@
 import Foundation
 import FearlessUtils
+import IrohaCrypto
 
 struct SubscanExtrinsicsData: Decodable {
     let count: Int
@@ -8,37 +9,28 @@ struct SubscanExtrinsicsData: Decodable {
 
 struct SubscanExtrinsicsItemData: Decodable {
 
-    let params: [SubscanExtrinsicsParam]
-
-    private enum CodingKeys: String, CodingKey {
-        case params
-    }
-
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let string = try container.decode(String.self, forKey: .params)
-        guard let data = string.data(using: .utf8) else {
-            throw DecodingError.dataCorruptedError(
-                forKey: CodingKeys.params,
-                in: container,
-                debugDescription: "Unable to parse extrinsics params")
-        }
-        params = try JSONDecoder().decode([SubscanExtrinsicsParam].self, from: data)
-    }
+    let params: JSON?
 }
 
-struct SubscanExtrinsicsParam: Decodable {
-    let name: String
-    let type: String
-    let value: String
-}
+struct SubscanBondCall {
 
-extension SubscanExtrinsicsParam {
+    let controller: String
 
-    var controllerAddress: String? {
-        if name == "controller" && type == "Address" {
-            return value
-        }
-        return nil
+    private struct InnerRepresentation: Decodable {
+        let name: String
+        let type: String
+        let value: String
+    }
+
+    init?(callArgs: JSON, chain: Chain) {
+        guard let data = callArgs.stringValue?.data(using: .utf8) else { return nil }
+        guard let array = try? JSONDecoder().decode([InnerRepresentation].self, from: data) else { return nil }
+        guard let controller = array.first(
+                where: { $0.name == "controller" && $0.type == "Address"}) else { return nil }
+        guard let controllerAddressData = controller.value.data(using: .utf8) else { return nil }
+        guard let controllerAddress = try? SS58AddressFactory().addressFromAccountId(
+                data: controllerAddressData,
+                type: chain.addressType) else { return nil }
+        self.controller = controllerAddress
     }
 }

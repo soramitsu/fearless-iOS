@@ -233,7 +233,8 @@ class RewardPayoutsServiceTests: XCTestCase {
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
-            let allControllers = bondControllers + setControllers
+            let allControllers = (bondControllers + setControllers)
+                .map { SubscanBondCall(callArgs: $0, chain: .kusama) }
 
 //            let utilityControllers = try fetchControllers(
 //                moduleName: "utility",
@@ -254,7 +255,7 @@ class RewardPayoutsServiceTests: XCTestCase {
         callName: String,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         queue: OperationQueue
-    ) throws -> [String] {
+    ) throws -> [JSON] {
         let extrinsicsInfo = ExtrinsicsInfo(
             row: 100,
             page: 0,
@@ -270,11 +271,7 @@ class RewardPayoutsServiceTests: XCTestCase {
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
             .extrinsics
-            .map { $0.params }
-            .map { params in
-                return params.compactMap { $0.controllerAddress }
-            }
-            .flatMap { $0 }
+            .compactMap { $0.params }
     }
 
     private func createWebSocketService(
