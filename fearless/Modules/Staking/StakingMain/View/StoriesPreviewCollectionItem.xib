@@ -43,6 +43,12 @@
                             <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
                                 <real key="value" value="1"/>
                             </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
+                                <color key="value" red="1" green="0.0" blue="0.60399997230000002" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="highlightedStrokeColor">
+                                <color key="value" white="1" alpha="0.5" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </userDefinedRuntimeAttribute>
                         </userDefinedRuntimeAttributes>
                     </view>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="💰" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pjJ-cz-Cn5" userLabel="Icon Label">
@@ -55,7 +61,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="What is Staking?" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="bLR-dd-GkE" userLabel="Title Label">
-                        <rect key="frame" x="10" y="44" width="68" height="25.5"/>
+                        <rect key="frame" x="10" y="44" width="68" height="23.5"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="10"/>
                         <color key="textColor" name="colorWhite"/>
                         <nil key="highlightedColor"/>
@@ -94,6 +100,7 @@
             <connections>
                 <outlet property="captionLabel" destination="bLR-dd-GkE" id="ZhA-eS-BkO"/>
                 <outlet property="iconLabel" destination="pjJ-cz-Cn5" id="wHm-Dh-O9b"/>
+                <outlet property="strokeView" destination="tgb-KO-wgq" id="US1-oZ-cmJ"/>
             </connections>
             <point key="canvasLocation" x="-265" y="154"/>
         </collectionViewCell>
