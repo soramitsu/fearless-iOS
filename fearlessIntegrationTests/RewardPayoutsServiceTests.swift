@@ -216,37 +216,106 @@ class RewardPayoutsServiceTests: XCTestCase {
     func testFetchNominationHistory() {
         let subscanOperationFactory = SubscanOperationFactory()
         let queue = OperationQueue()
-        let nominatorStachAccount = "F2GF2vuTCCmx8PnUNpWHTd5hTzjdbufa2uxdq2uT7PC5s9k"
+        //let nominatorStachAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
+        //let nominatorStachAccount = "F2GF2vuTCCmx8PnUNpWHTd5hTzjdbufa2uxdq2uT7PC5s9k" // is validator
+        let nominatorStachAccount = "Gv6dFDomBYgLrPXmFA1hgKqCBHZwhwwb868tqgrrnVwpXkz"
+        let chain = Chain.kusama
 
         do {
-            let bondControllers = try fetchControllers(
-                moduleName: "staking",
-                address: nominatorStachAccount,
-                callName: "bond",
+
+            let controllersByStaking = try fetchControllersByStakingModule(
+                nominatorStachAccount: nominatorStachAccount,
+                chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
-            let setControllers = try fetchControllers(
-                moduleName: "staking",
-                address: nominatorStachAccount,
-                callName: "set_controller",
+            let controllersByUtility = try fetchControllersByUtilityModule(
+                nominatorStachAccount: nominatorStachAccount,
+                chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
-            let allControllers = (bondControllers + setControllers)
-                .map { SubscanBondCall(callArgs: $0, chain: .kusama) }
-
-//            let utilityControllers = try fetchControllers(
-//                moduleName: "utility",
-//                address: nominatorStachAccount,
-//                callName: "batch",
-//                subscanOperationFactory: subscanOperationFactory,
-//                queue: queue)
-
-            XCTAssert(allControllers.count > 0)
+            let allControllers = controllersByStaking + controllersByUtility
+            let nom = try fetchControllersForNominate(
+                controllers: allControllers,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+            print(nom)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    private func fetchControllersByStakingModule(
+        nominatorStachAccount: String,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [String] {
+        let bondControllers = try fetchControllers(
+            moduleName: "staking",
+            address: nominatorStachAccount,
+            callName: "bond",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let setControllers = try fetchControllers(
+            moduleName: "staking",
+            address: nominatorStachAccount,
+            callName: "set_controller",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        return (bondControllers + setControllers)
+            .compactMap { SubscanBondCall(callArgs: $0, chain: chain) }
+            .map { $0.controller }
+    }
+
+    private func fetchControllersByUtilityModule(
+        nominatorStachAccount: String,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [String] {
+        let batchControllers = try fetchControllers(
+            moduleName: "utility",
+            address: nominatorStachAccount,
+            callName: "batch",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let batchAllControllers = try fetchControllers(
+            moduleName: "utility",
+            address: nominatorStachAccount,
+            callName: "batch_all",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        return (batchControllers + batchAllControllers)
+            .compactMap { SubscanBatchCall(callArgs: $0, chain: chain) }
+            .flatMap { $0.controllers }
+    }
+
+    private func fetchControllersForNominate(
+        controllers: [String],
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [String] {
+        let res = controllers
+            .compactMap { address in
+                try? fetchControllers(
+                    moduleName: "staking",
+                    address: address,
+                    callName: "nominate",
+                    subscanOperationFactory: subscanOperationFactory,
+                    queue: queue)
+                    .compactMap { SubscanBondCall(callArgs: $0, chain: chain) }
+                    .map { $0.controller }
+            }
+            .flatMap { $0 }
+        return res
     }
 
     private func fetchControllers(
@@ -269,9 +338,10 @@ class RewardPayoutsServiceTests: XCTestCase {
 
         let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
-        return try queryWrapper.targetOperation.extractNoCancellableResultData()
-            .extrinsics
-            .compactMap { $0.params }
+
+        guard let extrinsics = try queryWrapper.targetOperation.extractNoCancellableResultData()
+                .extrinsics else { return [] }
+        return extrinsics.compactMap { $0.params }
     }
 
     private func createWebSocketService(
