@@ -60,9 +60,9 @@ final class WalletNetworkOperationFactory {
         }
     }
 
-    func createAccountInfoFetchOperation(_ accountId: Data)
-        -> CompoundOperationWrapper<AccountInfo?>
-    {
+    func createAccountInfoFetchOperation(
+        _ accountId: Data
+    ) -> CompoundOperationWrapper<AccountInfo?> {
         do {
             let storageKeyFactory = StorageKeyFactory()
             let accountIdKey = try storageKeyFactory.accountInfoKeyForId(accountId).toHex(includePrefix: true)

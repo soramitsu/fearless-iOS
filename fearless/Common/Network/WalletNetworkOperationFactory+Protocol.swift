@@ -161,9 +161,9 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
         CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
     }
 
-    func withdrawalMetadataOperation(_: WithdrawMetadataInfo)
-        -> CompoundOperationWrapper<WithdrawMetaData?>
-    {
+    func withdrawalMetadataOperation(
+        _: WithdrawMetadataInfo
+    ) -> CompoundOperationWrapper<WithdrawMetaData?> {
         CompoundOperationWrapper<WithdrawMetaData?>.createWithResult(nil)
     }
 

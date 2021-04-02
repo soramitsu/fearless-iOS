@@ -4,9 +4,9 @@ import RobinHood
 import FearlessUtils
 
 extension WalletNetworkFacade {
-    func fetchBalanceInfoForAsset(_ assets: [WalletAsset])
-        -> CompoundOperationWrapper<[BalanceData]?>
-    {
+    func fetchBalanceInfoForAsset(
+        _ assets: [WalletAsset]
+    ) -> CompoundOperationWrapper<[BalanceData]?> {
         do {
             guard let asset = assets.first else {
                 throw BaseOperationError.unexpectedDependentResult
