@@ -18,9 +18,9 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         self.operationManager = operationManager
     }
 
-    func createAccountRepository(for networkType: SNAddressType)
-        -> AnyDataProviderRepository<AccountItem>
-    {
+    func createAccountRepository(
+        for networkType: SNAddressType
+    ) -> AnyDataProviderRepository<AccountItem> {
         let mapper = CodableCoreDataMapper<AccountItem, CDAccountItem>()
         let repository = storageFacade
             .createRepository(

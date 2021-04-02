@@ -217,9 +217,7 @@ extension StakingAccountResolver {
     private func createDecodingWrapper(
         from updateData: StorageUpdateData,
         subscription: Subscription
-    )
-        -> CompoundOperationWrapper<DecodedChanges>
-    {
+    ) -> CompoundOperationWrapper<DecodedChanges> {
         let codingFactory = runtimeService.fetchCoderFactoryOperation()
 
         let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(
@@ -266,9 +264,7 @@ extension StakingAccountResolver {
         path: StorageCodingPath,
         updateData: StorageUpdateData,
         coderOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    )
-        -> BaseOperation<T>? where T: Decodable
-    {
+    ) -> BaseOperation<T>? where T: Decodable {
         if let ledgerValue = updateData.changes
             .first(where: { $0.key == subscription.remoteStorageKey })?.value {
             let operation = StorageDecodingOperation<T>(path: path, data: ledgerValue)
@@ -291,9 +287,7 @@ extension StakingAccountResolver {
         initAddress: String,
         type: SNAddressType,
         addressFactory: SS58AddressFactoryProtocol
-    )
-        -> BaseOperation<StashItem?>
-    {
+    ) -> BaseOperation<StashItem?> {
         ClosureOperation<StashItem?> {
             let changes = try decodinigOperation.extractNoCancellableResultData()
             if let controller = changes.controller {
@@ -310,9 +304,9 @@ extension StakingAccountResolver {
         }
     }
 
-    private func createSaveWrapper(dependingOn operation: BaseOperation<StashItem?>)
-        -> CompoundOperationWrapper<Void>
-    {
+    private func createSaveWrapper(
+        dependingOn operation: BaseOperation<StashItem?>
+    ) -> CompoundOperationWrapper<Void> {
         let currentItemsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let saveOperation = repository.saveOperation({

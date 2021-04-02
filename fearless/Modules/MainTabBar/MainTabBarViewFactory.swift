@@ -96,9 +96,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static func createWalletController(
         walletContext: CommonWalletContextProtocol,
         localizationManager: LocalizationManagerProtocol
-    )
-        -> UIViewController?
-    {
+    ) -> UIViewController? {
         do {
             let viewController = try walletContext.createRootController()
 
@@ -131,9 +129,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
     }
 
-    static func createStakingController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController?
-    {
+    static func createStakingController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = StakingMainViewFactory.createView()?.controller else {
             return nil
         }
@@ -164,9 +162,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController?
-    {
+    static func createGovernanceController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = CommingSoonViewFactory.createView()?.controller else {
             return nil
         }
@@ -195,9 +193,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController?
-    {
+    static func createPolkaswapController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = CommingSoonViewFactory.createView()?.controller else {
             return nil
         }
@@ -226,9 +224,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createProfileController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController?
-    {
+    static func createProfileController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let settingsView = ProfileViewFactory.createView() else {
             return nil
         }

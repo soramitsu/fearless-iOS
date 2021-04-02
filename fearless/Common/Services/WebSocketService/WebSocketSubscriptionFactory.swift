@@ -194,9 +194,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         engine: JSONRPCEngine,
         networkType: SNAddressType,
         localStorageIdFactory: ChainStorageIdFactoryProtocol
-    )
-        -> TransferSubscription
-    {
+    ) -> TransferSubscription {
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             storageFacade.createRepository(filter: filter)
@@ -227,9 +225,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     private func createRuntimeVersionSubscription(
         engine: JSONRPCEngine,
         networkType: SNAddressType
-    )
-        -> RuntimeVersionSubscription
-    {
+    ) -> RuntimeVersionSubscription {
         let chain = networkType.chain
 
         let filter = NSPredicate.filterRuntimeMetadataItemsBy(identifier: chain.genesisHash)
@@ -280,9 +276,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         engine: JSONRPCEngine,
         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
         networkType: SNAddressType
-    )
-        -> StakingAccountSubscription
-    {
+    ) -> StakingAccountSubscription {
         let provider = providerFactory.createStashItemProvider(for: address)
 
         return StakingAccountSubscription(

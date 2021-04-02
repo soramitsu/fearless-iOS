@@ -356,9 +356,7 @@ extension RuntimeRegistryService {
         dependingOn baseRemote: BaseOperation<Data>,
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
-    )
-        -> CompoundOperationWrapper<Void>
-    {
+    ) -> CompoundOperationWrapper<Void> {
         filesOperationFacade.saveDefaultOperation(for: chain) {
             let data = try baseRemote.extractNoCancellableResultData()
             _ = try networkRemote.extractNoCancellableResultData()
@@ -378,9 +376,7 @@ extension RuntimeRegistryService {
         dependingOn baseRemote: BaseOperation<Data>,
         networkRemote: BaseOperation<Data>,
         hasher: StorageHasher
-    )
-        -> CompoundOperationWrapper<Void>
-    {
+    ) -> CompoundOperationWrapper<Void> {
         filesOperationFacade.saveNetworkOperation(for: chain) {
             _ = try baseRemote.extractNoCancellableResultData()
             let data = try networkRemote.extractNoCancellableResultData()
@@ -398,9 +394,7 @@ extension RuntimeRegistryService {
     private func createSyncOperation(
         dependingOn baseSave: CompoundOperationWrapper<Void>,
         networkSave: CompoundOperationWrapper<Void>
-    )
-        -> ClosureOperation<Bool>
-    {
+    ) -> ClosureOperation<Bool> {
         ClosureOperation<Bool> {
             let baseSaved: Bool
             if case .success = baseSave.targetOperation.result {
@@ -473,9 +467,10 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
-    func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?)
-        -> BaseOperation<RuntimeCoderFactoryProtocol>
-    {
+    func fetchCoderFactoryOperation(
+        with timeout: TimeInterval,
+        closure: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation {
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 

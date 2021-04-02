@@ -84,9 +84,10 @@ class PinViewFactory: PinViewFactoryProtocol {
         return pinVerifyView
     }
 
-    static func createScreenAuthorizationView(with wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool)
-        -> PinSetupViewProtocol?
-    {
+    static func createScreenAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol? {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
         pinVerifyView.cancellable = cancellable
 

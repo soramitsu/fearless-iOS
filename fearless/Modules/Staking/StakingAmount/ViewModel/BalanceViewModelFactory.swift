@@ -63,9 +63,10 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
-        -> LocalizableResource<BalanceViewModelProtocol>
-    {
+    func balanceFromPrice(
+        _ amount: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 
@@ -87,9 +88,9 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func createBalanceInputViewModel(_ amount: Decimal?)
-        -> LocalizableResource<AmountInputViewModelProtocol>
-    {
+    func createBalanceInputViewModel(
+        _ amount: Decimal?
+    ) -> LocalizableResource<AmountInputViewModelProtocol> {
         let localizableFormatter = formatterFactory.createInputFormatter(for: targetAsset)
         let symbol = targetAsset.symbol
 
@@ -107,9 +108,11 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         }
     }
 
-    func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
-        -> LocalizableResource<AssetBalanceViewModelProtocol>
-    {
+    func createAssetBalanceViewModel(
+        _ amount: Decimal,
+        balance: Decimal?,
+        priceData: PriceData?
+    ) -> LocalizableResource<AssetBalanceViewModelProtocol> {
         let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 

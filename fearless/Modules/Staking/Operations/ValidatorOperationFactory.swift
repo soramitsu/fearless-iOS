@@ -33,9 +33,7 @@ final class ValidatorOperationFactory {
     private func createSuperIdentityOperation(
         dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         eraValidators: BaseOperation<EraStakersInfo>
-    )
-        -> SuperIdentityWrapper
-    {
+    ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
 
         let keyParams: () throws -> [Data] = {
@@ -60,9 +58,7 @@ final class ValidatorOperationFactory {
     private func createIdentityMapOperation(
         dependingOn superOperation: SuperIdentityOperation,
         identityOperation: IdentityOperation
-    )
-        -> BaseOperation<[String: AccountIdentity]>
-    {
+    ) -> BaseOperation<[String: AccountIdentity]> {
         let addressType = chain.addressType
 
         return ClosureOperation<[String: AccountIdentity]> {
@@ -121,9 +117,7 @@ final class ValidatorOperationFactory {
     private func createIdentityWrapper(
         dependingOn superIdentity: SuperIdentityOperation,
         runtime: BaseOperation<RuntimeCoderFactoryProtocol>
-    )
-        -> CompoundOperationWrapper<[String: AccountIdentity]>
-    {
+    ) -> CompoundOperationWrapper<[String: AccountIdentity]> {
         let path = StorageCodingPath.identity
 
         let keyParams: () throws -> [Data] = {
@@ -165,9 +159,7 @@ final class ValidatorOperationFactory {
         dependingOn validators: BaseOperation<EraStakersInfo>,
         runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         slashDefer: BaseOperation<UInt32>
-    )
-        -> UnappliedSlashesWrapper
-    {
+    ) -> UnappliedSlashesWrapper {
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
@@ -192,9 +184,7 @@ final class ValidatorOperationFactory {
     private func createConstOperation<T>(
         dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
         path: ConstantCodingPath
-    ) -> PrimitiveConstantOperation<T>
-        where T: LosslessStringConvertible
-    {
+    ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
         let operation = PrimitiveConstantOperation<T>(path: path)
 
         operation.configurationBlock = {
@@ -214,9 +204,7 @@ final class ValidatorOperationFactory {
         maxNominatorsOperation: BaseOperation<UInt32>,
         slashesOperation: UnappliedSlashesOperation,
         identitiesOperation: BaseOperation<[String: AccountIdentity]>
-    )
-        -> BaseOperation<[ElectedValidatorInfo]>
-    {
+    ) -> BaseOperation<[ElectedValidatorInfo]> {
         let addressType = chain.addressType
 
         return ClosureOperation<[ElectedValidatorInfo]> {

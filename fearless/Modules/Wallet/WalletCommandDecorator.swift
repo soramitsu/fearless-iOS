@@ -24,9 +24,7 @@ final class WalletCommandDecoratorFactory: WalletCommandDecoratorFactoryProtocol
     func createTransferConfirmationDecorator(
         with commandFactory: WalletCommandFactoryProtocol,
         payload: ConfirmationPayload
-    )
-        -> WalletCommandDecoratorProtocol?
-    {
+    ) -> WalletCommandDecoratorProtocol? {
         let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
             dataStorageFacade.createRepository()
 

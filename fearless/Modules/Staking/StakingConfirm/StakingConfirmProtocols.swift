@@ -40,9 +40,11 @@ protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(feeError: Error)
 }
 
-protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
-    AddressOptionsPresentable, StakingErrorPresentable
-{
+protocol StakingConfirmWireframeProtocol:
+    AlertPresentable,
+    ErrorPresentable,
+    AddressOptionsPresentable,
+    StakingErrorPresentable {
     func showSelectedValidator(
         from view: StakingConfirmViewProtocol?,
         validators: [SelectedValidatorInfo],

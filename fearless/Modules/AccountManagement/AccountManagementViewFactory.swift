@@ -16,9 +16,9 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    private static func createView(for wireframe: AccountManagementWireframeProtocol)
-        -> AccountManagementViewProtocol?
-    {
+    private static func createView(
+        for wireframe: AccountManagementWireframeProtocol
+    ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedAccountItemMapper()
         let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =

@@ -120,8 +120,8 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
     }
 
     private func createEstimatedRewardRow(
-        with stakeReturn: Decimal) -> LocalizableResource<TitleWithSubtitleViewModel>
-    {
+        with stakeReturn: Decimal
+    ) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
             let percentageFormatter = NumberFormatter.percentAPY.localizableResource().value(for: locale)
 
@@ -139,8 +139,8 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
     }
 
     private func createIdentityViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Row]?
-    {
+        from validatorInfo: ValidatorInfoProtocol
+    ) -> [ValidatorInfoViewController.Row]? {
         guard let identity = validatorInfo.identity else { return nil }
 
         var identityViewModel: [ValidatorInfoViewController.Row] = []
@@ -186,8 +186,8 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
     }
 
     private func createStakingViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Row]?
-    {
+        from validatorInfo: ValidatorInfoProtocol
+    ) -> [ValidatorInfoViewController.Row]? {
         guard let stakeInfo = validatorInfo.stakeInfo else { return nil }
 
         var stakingViewModel: [ValidatorInfoViewController.Row] = []

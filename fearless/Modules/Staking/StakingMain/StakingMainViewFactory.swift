@@ -58,9 +58,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     private static func createInteractor(
         settings: SettingsManagerProtocol,
         primitiveFactory: WalletPrimitiveFactoryProtocol
-    )
-        -> StakingMainInteractor
-    {
+    ) -> StakingMainInteractor {
         let substrateProviderFactory =
             SubstrateDataProviderFactory(
                 facade: SubstrateDataStorageFacade.shared,

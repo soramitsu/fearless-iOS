@@ -39,9 +39,11 @@ final class NetworkInfoViewModelFactory {
         return factory
     }
 
-    private func createStakeViewModel(stake: BigUInt, chain: Chain, priceData: PriceData?) ->
-        LocalizableResource<BalanceViewModelProtocol>
-    {
+    private func createStakeViewModel(
+        stake: BigUInt,
+        chain: Chain,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
         let stakedAmount = Decimal.fromSubstrateAmount(
@@ -63,9 +65,7 @@ final class NetworkInfoViewModelFactory {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         priceData: PriceData?
-    ) ->
-        LocalizableResource<BalanceViewModelProtocol>
-    {
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(stake: networkStakingInfo.totalStake, chain: chain, priceData: priceData)
     }
 
@@ -73,9 +73,7 @@ final class NetworkInfoViewModelFactory {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         priceData: PriceData?
-    ) ->
-        LocalizableResource<BalanceViewModelProtocol>
-    {
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(
             stake: networkStakingInfo.minimalStake,
             chain: chain,
@@ -84,8 +82,8 @@ final class NetworkInfoViewModelFactory {
     }
 
     private func createActiveNominatorsViewModel(
-        with networkStakingInfo: NetworkStakingInfo) -> LocalizableResource<String>
-    {
+        with networkStakingInfo: NetworkStakingInfo
+    ) -> LocalizableResource<String> {
         LocalizableResource { locale in
             let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
@@ -120,9 +118,7 @@ extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
         with networkStakingInfo: NetworkStakingInfo,
         chain: Chain,
         priceData: PriceData?
-    ) ->
-        LocalizableResource<NetworkStakingInfoViewModelProtocol>
-    {
+    ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
         let localizedTotalStake = createTotalStakeViewModel(
             with: networkStakingInfo,
             chain: chain,

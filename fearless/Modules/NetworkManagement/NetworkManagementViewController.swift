@@ -97,8 +97,7 @@ final class NetworkManagementViewController: UIViewController {
         updateRightItem()
 
         for cell in tableView.visibleCells where
-            tableView.indexPath(for: cell)?.section == Section.customConnections.rawValue
-        {
+            tableView.indexPath(for: cell)?.section == Section.customConnections.rawValue {
             if let accountCell = cell as? ConnectionTableViewCell {
                 accountCell.setReordering(tableView.isEditing, animated: true)
             }

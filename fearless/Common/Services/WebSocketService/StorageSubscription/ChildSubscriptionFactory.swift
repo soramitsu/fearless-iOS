@@ -44,9 +44,7 @@ extension ChildSubscriptionFactory: ChildSubscriptionFactoryProtocol {
     func createEventEmittingSubscription(
         remoteKey: Data,
         eventFactory: @escaping EventEmittingFactoryClosure
-    )
-        -> StorageChildSubscribing
-    {
+    ) -> StorageChildSubscribing {
         let localKey = localKeyFactory.createIdentifier(for: remoteKey)
 
         return EventEmittingStorageSubscription(

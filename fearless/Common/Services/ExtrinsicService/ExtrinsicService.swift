@@ -60,9 +60,7 @@ final class ExtrinsicService {
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         customClosure: @escaping ExtrinsicBuilderClosure,
         signingClosure: @escaping (Data) throws -> Data
-    )
-        -> BaseOperation<Data>
-    {
+    ) -> BaseOperation<Data> {
         let currentCryptoType = cryptoType
         let currentAddress = address
 

@@ -11,9 +11,7 @@ struct ModalInfoFactory {
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<NumberFormatter>
-    )
-        -> UIViewController
-    {
+    ) -> UIViewController {
         let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
@@ -50,9 +48,7 @@ struct ModalInfoFactory {
     static func createTransferExistentialState(
         _ state: TransferExistentialState,
         amountFormatter: LocalizableResource<NumberFormatter>
-    )
-        -> UIViewController
-    {
+    ) -> UIViewController {
         let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
@@ -89,9 +85,7 @@ struct ModalInfoFactory {
     private static func createTransferStateViewModels(
         _ state: TransferExistentialState,
         amountFormatter: LocalizableResource<NumberFormatter>
-    )
-        -> [LocalizableResource<TitleWithSubtitleViewModel>]
-    {
+    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
         [
             LocalizableResource { locale in
                 let title = R.string.localizable
@@ -134,9 +128,7 @@ struct ModalInfoFactory {
     private static func createViewModelsForContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<NumberFormatter>
-    )
-        -> [LocalizableResource<TitleWithSubtitleViewModel>]
-    {
+    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
         [
             LocalizableResource { locale in
                 let title = R.string.localizable

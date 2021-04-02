@@ -11,9 +11,7 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
         locale: Locale,
         delegate: ContactViewModelDelegate?,
         commandFactory: WalletCommandFactoryProtocol
-    )
-        -> [ContactSectionViewModelProtocol]
-    {
+    ) -> [ContactSectionViewModelProtocol] {
         let (localItems, remoteItems) = items.reduce(([SearchData](), [SearchData]())) { result, item in
             let context = ContactContext(context: item.context ?? [:])
 
@@ -71,9 +69,7 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
         locale: Locale,
         delegate: ContactViewModelDelegate?,
         commandFactory: WalletCommandFactoryProtocol
-    )
-        -> [WalletViewModelProtocol]
-    {
+    ) -> [WalletViewModelProtocol] {
         items.compactMap {
             itemViewModelFactory.createContactViewModelFromContact(
                 $0,
@@ -89,9 +85,7 @@ final class ContactsListViewModelFactory: ContactsListViewModelFactoryProtocol {
         _: ContactModuleParameters,
         locale _: Locale,
         commandFactory: WalletCommandFactoryProtocol
-    )
-        -> WalletBarActionViewModelProtocol?
-    {
+    ) -> WalletBarActionViewModelProtocol? {
         guard let icon = R.image.iconScanQr() else {
             return nil
         }

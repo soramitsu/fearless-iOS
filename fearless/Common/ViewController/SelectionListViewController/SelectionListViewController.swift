@@ -2,8 +2,9 @@ import UIKit
 import Rswift
 
 class SelectionListViewController<C: UITableViewCell & SelectionItemViewProtocol>:
-    UIViewController, UITableViewDataSource, UITableViewDelegate
-{
+    UIViewController,
+    UITableViewDataSource,
+    UITableViewDelegate {
     var listPresenter: SelectionListPresenterProtocol!
 
     var selectableCellIdentifier: ReuseIdentifier<C>! { nil }

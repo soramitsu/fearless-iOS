@@ -27,9 +27,9 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
         )
     }
 
-    private func createRewardDestinationOperation(for payoutAddress: String)
-        -> CompoundOperationWrapper<RewardDestination<DisplayAddress>>
-    {
+    private func createRewardDestinationOperation(
+        for payoutAddress: String
+    ) -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
         let accountFetchOperation = repository.fetchOperation(
             by: payoutAddress,
             options: RepositoryFetchOptions()

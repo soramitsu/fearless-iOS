@@ -46,9 +46,7 @@ extension EraValidatorService {
         activeEra _: UInt32,
         identifiersClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
-    )
-        -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]>
-    {
+    ) -> CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> {
         guard let engine = engine else {
             logger?.warning("Can't find connection")
             return CompoundOperationWrapper.createWithError(EraValidatorServiceError.missingEngine)
@@ -73,9 +71,7 @@ extension EraValidatorService {
         activeEra _: UInt32,
         keysClosure: @escaping () throws -> [Data],
         codingFactory: RuntimeCoderFactoryProtocol
-    )
-        -> CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]>
-    {
+    ) -> CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> {
         guard let engine = engine else {
             logger?.warning("Can't find connection")
             return CompoundOperationWrapper.createWithError(EraValidatorServiceError.missingEngine)
@@ -108,9 +104,7 @@ extension EraValidatorService {
     private func createValidatorsSave(
         for chain: Chain,
         exposures: BaseOperation<[StorageResponse<ValidatorExposure>]>
-    )
-        -> BaseOperation<Void>
-    {
+    ) -> BaseOperation<Void> {
         do {
             let path = StorageCodingPath.erasStakers
             let remoteKey = try StorageKeyFactory().createStorageKey(
@@ -240,9 +234,7 @@ extension EraValidatorService {
     private func decodeLocalValidators(
         _ encodedItems: [ChainStorageItem],
         codingFactory: RuntimeCoderFactoryProtocol
-    )
-        -> CompoundOperationWrapper<[IdentifiableExposure]>
-    {
+    ) -> CompoundOperationWrapper<[IdentifiableExposure]> {
         let decodingOperation = StorageDecodingListOperation<ValidatorExposure>(path: .erasStakers)
         decodingOperation.codingFactory = codingFactory
         decodingOperation.dataList = encodedItems.map(\.data)

@@ -47,9 +47,11 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(minimalAmount: BigUInt)
 }
 
-protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,
-    WebPresentable, StakingErrorPresentable
-{
+protocol StakingAmountWireframeProtocol:
+    AlertPresentable,
+    ErrorPresentable,
+    WebPresentable,
+    StakingErrorPresentable {
     func presentAccountSelection(
         _ accounts: [AccountItem],
         selectedAccountItem: AccountItem,

@@ -11,9 +11,10 @@ extension DataProviderChange {
         }
     }
 
-    static func change<P: Identifiable & Equatable>(value1: P?, value2: P?)
-        -> DataProviderChange<P>?
-    {
+    static func change<P: Identifiable & Equatable>(
+        value1: P?,
+        value2: P?
+    ) -> DataProviderChange<P>? {
         guard let currentItem = value1 else {
             if let newItem = value2 {
                 return DataProviderChange<P>.insert(newItem: newItem)

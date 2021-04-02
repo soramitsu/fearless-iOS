@@ -19,8 +19,9 @@ enum ModalPickerViewAction {
 }
 
 class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>: UIViewController,
-    ModalViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model
-{
+    ModalViewProtocol,
+    UITableViewDelegate,
+    UITableViewDataSource where T == C.Model {
     @IBOutlet private var headerView: ImageWithTitleView!
     @IBOutlet private var headerBackgroundView: BorderedContainerView!
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!

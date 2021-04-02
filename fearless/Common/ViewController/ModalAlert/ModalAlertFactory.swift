@@ -43,9 +43,7 @@ struct ModalAlertFactory {
     static func createMultilineSuccessAlert(
         _ title: String,
         dissmisAfter timeInterval: TimeInterval = 4.0
-    )
-        -> UIViewController
-    {
+    ) -> UIViewController {
         let contentView = MultilineImageWithTitleView()
         contentView.verticalSpacing = 8.0
         contentView.titleLabel.textColor = R.color.colorWhite()

@@ -71,9 +71,7 @@ final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
         _ username: String,
         interactor: AccountCreateInteractor,
         wireframe: AccountCreateWireframeProtocol
-    )
-        -> AccountCreateViewProtocol?
-    {
+    ) -> AccountCreateViewProtocol? {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
         let presenter = AccountCreatePresenter(username: username)
 

@@ -34,9 +34,7 @@ class SubstrateDataStorageFacade: StorageFacadeProtocol {
         filter: NSPredicate?,
         sortDescriptors: [NSSortDescriptor],
         mapper: AnyCoreDataMapper<T, U>
-    ) -> CoreDataRepository<T, U>
-        where T: Identifiable, U: NSManagedObject
-    {
+    ) -> CoreDataRepository<T, U> where T: Identifiable, U: NSManagedObject {
         CoreDataRepository(
             databaseService: databaseService,
             mapper: mapper,

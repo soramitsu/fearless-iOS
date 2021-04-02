@@ -114,9 +114,7 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
     func saveDefaultOperation(
         for chain: Chain,
         data closure: @escaping () throws -> Data
-    )
-        -> CompoundOperationWrapper<Void>
-    {
+    ) -> CompoundOperationWrapper<Void> {
         guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)

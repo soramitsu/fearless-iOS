@@ -202,9 +202,9 @@ final class TransferSubscription {
 }
 
 extension TransferSubscription {
-    private func createFeeWrappersFromResults(_ results: [TransferSubscriptionResult])
-        -> [ResultAndFeeOperationWrapper]
-    {
+    private func createFeeWrappersFromResults(
+        _ results: [TransferSubscriptionResult]
+    ) -> [ResultAndFeeOperationWrapper] {
         let networkType = SNAddressType(chain: chain)
 
         return results.map { result in
@@ -243,9 +243,9 @@ extension TransferSubscription {
         }
     }
 
-    private func createTxSaveDependingOnFee(wrappers: [ResultAndFeeOperationWrapper])
-        -> BaseOperation<Void>
-    {
+    private func createTxSaveDependingOnFee(
+        wrappers: [ResultAndFeeOperationWrapper]
+    ) -> BaseOperation<Void> {
         txStorage.saveOperation({
             wrappers.compactMap { wrapper in
                 do {
@@ -266,9 +266,9 @@ extension TransferSubscription {
         }, { [] })
     }
 
-    private func createContactSaveForResults(_ results: [TransferSubscriptionResult])
-        -> [CompoundOperationWrapper<Void>]
-    {
+    private func createContactSaveForResults(
+        _ results: [TransferSubscriptionResult]
+    ) -> [CompoundOperationWrapper<Void>] {
         do {
             let networkType = SNAddressType(chain: chain)
             let accountId = try addressFactory.accountId(
@@ -307,9 +307,7 @@ extension TransferSubscription {
     private func createParseOperation(
         dependingOn fetchOperation: BaseOperation<SignedBlock>,
         upgradedOperation: CompoundOperationWrapper<Bool?>
-    )
-        -> BaseOperation<[TransferSubscriptionResult]>
-    {
+    ) -> BaseOperation<[TransferSubscriptionResult]> {
         let currentChain = chain
 
         return ClosureOperation {

@@ -121,9 +121,7 @@ final class StakingStateViewModelFactory {
         commonData: StakingStateCommonData,
         state: NominatorState,
         viewStatus: NominationViewStatus
-    )
-        -> LocalizableResource<NominationViewModelProtocol>
-    {
+    ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
         let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)

@@ -114,9 +114,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     private static func createAccountConfirmInteractor(
         for request: AccountCreationRequest,
         metadata: AccountCreationMetadata
-    )
-        -> BaseAccountConfirmInteractor?
-    {
+    ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
             .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
         else {
@@ -145,9 +143,7 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
     private static func createAddAccountConfirmInteractor(
         for request: AccountCreationRequest,
         metadata: AccountCreationMetadata
-    )
-        -> BaseAccountConfirmInteractor?
-    {
+    ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
             .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
         else {

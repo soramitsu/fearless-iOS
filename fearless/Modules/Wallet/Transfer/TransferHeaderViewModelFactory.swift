@@ -31,9 +31,7 @@ final class TransferHeaderViewModelFactory: OperationDefinitionHeaderModelFactor
         receiverId _: String?,
         feeDescription _: Fee,
         locale _: Locale
-    )
-        -> MultilineTitleIconViewModelProtocol?
-    {
+    ) -> MultilineTitleIconViewModelProtocol? {
         nil
     }
 

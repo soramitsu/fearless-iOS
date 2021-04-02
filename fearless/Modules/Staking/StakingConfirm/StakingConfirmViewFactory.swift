@@ -4,9 +4,9 @@ import SoraFoundation
 import RobinHood
 
 final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
-    static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
-        -> StakingConfirmViewProtocol?
-    {
+    static func createInitiatedBondingView(
+        for state: PreparedNomination<InitiatedBonding>
+    ) -> StakingConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -26,9 +26,9 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         return createView(for: interactor, settings: settings, keystore: keystore)
     }
 
-    static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
-        -> StakingConfirmViewProtocol?
-    {
+    static func createChangeTargetsView(
+        for state: PreparedNomination<ExistingBonding>
+    ) -> StakingConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -114,9 +114,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         connection: JSONRPCEngine,
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol
-    )
-        -> StakingBaseConfirmInteractor?
-    {
+    ) -> StakingBaseConfirmInteractor? {
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
@@ -170,9 +168,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         keystore: KeystoreProtocol,
         assetId: WalletAssetId,
         networkSettings: ConnectionItem
-    )
-        -> StakingBaseConfirmInteractor?
-    {
+    ) -> StakingBaseConfirmInteractor? {
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(

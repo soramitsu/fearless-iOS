@@ -21,9 +21,9 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         self.asset = asset
     }
 
-    func createRestake(from model: CalculatedReward?)
-        -> LocalizableResource<RewardDestinationViewModelProtocol>
-    {
+    func createRestake(
+        from model: CalculatedReward?
+    ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         guard let model = model else {
             return createEmptyReturnViewModel(from: .restake)
         }
@@ -57,9 +57,9 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
 
     // MARK: Private
 
-    func createEmptyReturnViewModel(from type: RewardDestinationTypeViewModel)
-        -> LocalizableResource<RewardDestinationViewModelProtocol>
-    {
+    func createEmptyReturnViewModel(
+        from type: RewardDestinationTypeViewModel
+    ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         LocalizableResource { _ in
             RewardDestinationViewModel(rewardViewModel: nil, type: type)
         }
@@ -69,9 +69,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         from model: CalculatedReward,
         amountFormatter: LocalizableResource<TokenAmountFormatter>,
         type: RewardDestinationTypeViewModel
-    )
-        -> LocalizableResource<RewardDestinationViewModelProtocol>
-    {
+    ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         LocalizableResource { locale in
             let amountFormatter = amountFormatter.value(for: locale)
             let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
