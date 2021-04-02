@@ -7,10 +7,6 @@ class StoriesPreviewCollectionItem: UICollectionViewCell {
     @IBOutlet private var captionLabel: UILabel!
     @IBOutlet weak var strokeView: RoundedView!
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
-    }
-
     override var isHighlighted: Bool {
         willSet {
             strokeView.set(highlighted: newValue, animated: false)

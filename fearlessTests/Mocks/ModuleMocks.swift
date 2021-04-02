@@ -18817,9 +18817,9 @@ import SoraFoundation
     
     
     
-     func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int)  {
+     func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int)  {
         
-    return cuckoo_manager.call("showStories(from: StakingMainViewProtocol?, startingFrom: Int)",
+    return cuckoo_manager.call("showStories(from: ControllerBackedProtocol?, startingFrom: Int)",
             parameters: (view, index),
             escapingParameters: (view, index),
             superclassCall:
@@ -18914,9 +18914,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRecommendedValidators(from: StakingMainViewProtocol?, existingBonding: ExistingBonding)", parameterMatchers: matchers))
 	    }
 	    
-	    func showStories<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, startingFrom index: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?, Int)> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == Int {
-	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Int)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: index) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStories(from: StakingMainViewProtocol?, startingFrom: Int)", parameterMatchers: matchers))
+	    func showStories<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, startingFrom index: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, Int)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Int)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: index) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStories(from: ControllerBackedProtocol?, startingFrom: Int)", parameterMatchers: matchers))
 	    }
 	    
 	    func showRewardPayouts<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
@@ -18974,9 +18974,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func showStories<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, startingFrom index: M2) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?, Int), Void> where M1.OptionalMatchedType == StakingMainViewProtocol, M2.MatchedType == Int {
-	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?, Int)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: index) { $0.1 }]
-	        return cuckoo_manager.verify("showStories(from: StakingMainViewProtocol?, startingFrom: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showStories<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, startingFrom index: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, Int), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Int)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: index) { $0.1 }]
+	        return cuckoo_manager.verify("showStories(from: ControllerBackedProtocol?, startingFrom: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -19024,7 +19024,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func showStories(from view: StakingMainViewProtocol?, startingFrom index: Int)   {
+     func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
