@@ -7,16 +7,16 @@ protocol AccountExportPasswordViewProtocol: ControllerBackedProtocol {
     func set(error: AccountExportPasswordError)
 }
 
-protocol AccountExportPasswordPresenterProtocol: class {
+protocol AccountExportPasswordPresenterProtocol: AnyObject {
     func setup()
     func proceed()
 }
 
-protocol AccountExportPasswordInteractorInputProtocol: class {
+protocol AccountExportPasswordInteractorInputProtocol: AnyObject {
     func exportAccount(address: String, password: String)
 }
 
-protocol AccountExportPasswordInteractorOutputProtocol: class {
+protocol AccountExportPasswordInteractorOutputProtocol: AnyObject {
     func didExport(json: RestoreJson)
     func didReceive(error: Error)
 }
@@ -25,6 +25,6 @@ protocol AccountExportPasswordWireframeProtocol: ErrorPresentable, AlertPresenta
     func showJSONExport(_ json: RestoreJson, from view: AccountExportPasswordViewProtocol?)
 }
 
-protocol AccountExportPasswordViewFactoryProtocol: class {
+protocol AccountExportPasswordViewFactoryProtocol: AnyObject {
     static func createView(with address: String) -> AccountExportPasswordViewProtocol?
 }

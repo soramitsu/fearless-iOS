@@ -6,7 +6,9 @@ final class LanguageSelectionWireframe: LanguageSelectionWireframeProtocol {
             return
         }
 
-        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
-                                                           animated: true)
+        MainTransitionHelper.transitToMainTabBarController(
+            closing: navigationController,
+            animated: true
+        )
     }
 }

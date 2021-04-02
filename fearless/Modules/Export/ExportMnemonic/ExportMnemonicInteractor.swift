@@ -15,9 +15,11 @@ final class ExportMnemonicInteractor {
     let repository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
 
-    init(keystore: KeystoreProtocol,
-         repository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol) {
+    init(
+        keystore: KeystoreProtocol,
+        repository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol
+    ) {
         self.keystore = keystore
         self.repository = repository
         self.operationManager = operationManager
@@ -30,7 +32,8 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
 
         let exportOperation: BaseOperation<ExportMnemonicData> = ClosureOperation { [weak self] in
             guard let account = try accountOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 throw ExportMnemonicInteractorError.missingAccount
             }
 
@@ -48,10 +51,12 @@ extension ExportMnemonicInteractor: ExportMnemonicInteractorInputProtocol {
                 throw AccountExportPasswordInteractorError.unsupportedAddress
             }
 
-            return ExportMnemonicData(account: account,
-                                      mnemonic: mnemonic,
-                                      derivationPath: derivationPath,
-                                      networkType: chain)
+            return ExportMnemonicData(
+                account: account,
+                mnemonic: mnemonic,
+                derivationPath: derivationPath,
+                networkType: chain
+            )
         }
 
         exportOperation.addDependency(accountOperation)

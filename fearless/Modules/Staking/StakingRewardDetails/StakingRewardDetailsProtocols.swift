@@ -2,20 +2,19 @@ import SoraFoundation
 
 protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable {}
 
-protocol StakingRewardDetailsPresenterProtocol: class {
+protocol StakingRewardDetailsPresenterProtocol: AnyObject {
     func setup()
     func handlePayoutAction()
 }
 
-protocol StakingRewardDetailsInteractorInputProtocol: class {}
+protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}
 
-protocol StakingRewardDetailsInteractorOutputProtocol: class {}
+protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {}
 
-protocol StakingRewardDetailsWireframeProtocol: class {
-
+protocol StakingRewardDetailsWireframeProtocol: AnyObject {
     func showPayoutConfirmation(from view: ControllerBackedProtocol?)
 }
 
-protocol StakingRewardDetailsViewFactoryProtocol: class {
-	static func createView() -> StakingRewardDetailsViewProtocol?
+protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {
+    static func createView() -> StakingRewardDetailsViewProtocol?
 }

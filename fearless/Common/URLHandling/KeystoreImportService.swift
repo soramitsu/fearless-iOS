@@ -1,7 +1,7 @@
 import Foundation
 import FearlessUtils
 
-protocol KeystoreImportObserver: class {
+protocol KeystoreImportObserver: AnyObject {
     func didUpdateDefinition(from oldDefinition: KeystoreDefinition?)
 }
 
@@ -56,7 +56,7 @@ extension KeystoreImportService: KeystoreImportServiceProtocol {
     }
 
     func add(observer: KeystoreImportObserver) {
-        observers = observers.filter { $0.observer !== nil}
+        observers = observers.filter { $0.observer !== nil }
 
         if observers.contains(where: { $0.observer === observer }) {
             return
@@ -67,7 +67,7 @@ extension KeystoreImportService: KeystoreImportServiceProtocol {
     }
 
     func remove(observer: KeystoreImportObserver) {
-        observers = observers.filter { $0.observer !== nil && observer !== observer}
+        observers = observers.filter { $0.observer !== nil && observer !== observer }
     }
 
     func clear() {

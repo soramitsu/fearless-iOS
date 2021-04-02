@@ -4,15 +4,17 @@ import SoraKeystore
 
 extension LocalizationManagerProtocol {
     var preferredLocalizations: [String]? {
-        return [selectedLocalization]
+        [selectedLocalization]
     }
 
     var selectedLanguage: Language {
-        return Language(code: selectedLocalization)
+        Language(code: selectedLocalization)
     }
 }
 
 extension LocalizationManager {
-    static let shared = LocalizationManager(settings: SettingsManager.shared,
-                                            key: SettingsKey.selectedLocalization.rawValue)
+    static let shared = LocalizationManager(
+        settings: SettingsManager.shared,
+        key: SettingsKey.selectedLocalization.rawValue
+    )
 }

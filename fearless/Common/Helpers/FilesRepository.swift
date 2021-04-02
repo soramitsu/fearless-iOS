@@ -29,7 +29,8 @@ final class FileRepository: FileRepositoryProtocol {
         ClosureOperation {
             var isDirectory: ObjCBool = false
             if !FileManager.default.fileExists(atPath: path, isDirectory: &isDirectory)
-                || !isDirectory.boolValue {
+                || !isDirectory.boolValue
+            {
                 try FileManager.default
                     .createDirectory(atPath: path, withIntermediateDirectories: true)
             }

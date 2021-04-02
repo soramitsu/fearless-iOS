@@ -27,7 +27,8 @@ final class ScrollableContainerView: UIView {
         configureStackView()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -43,7 +44,7 @@ final class ScrollableContainerView: UIView {
         let bottomConstraint = scrollView.bottomAnchor.constraint(equalTo: bottomAnchor)
         bottomConstraint.isActive = true
 
-        self.scrollBottom = bottomConstraint
+        scrollBottom = bottomConstraint
     }
 
     private func configureStackView() {

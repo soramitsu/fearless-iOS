@@ -71,12 +71,14 @@ struct Transaction: ScaleCodable {
     let nonce: UInt32
     let tip: BigUInt
 
-    init(address: Multiaddress,
-         signatureVersion: UInt8,
-         signature: Data,
-         era: Era,
-         nonce: UInt32,
-         tip: BigUInt) {
+    init(
+        address: Multiaddress,
+        signatureVersion: UInt8,
+        signature: Data,
+        era: Era,
+        nonce: UInt32,
+        tip: BigUInt
+    ) {
         self.address = address
         self.signatureVersion = signatureVersion
         self.signature = signature

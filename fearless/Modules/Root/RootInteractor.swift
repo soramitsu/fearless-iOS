@@ -11,10 +11,12 @@ final class RootInteractor {
     let applicationConfig: ApplicationConfigProtocol
     let eventCenter: EventCenterProtocol
 
-    init(settings: SettingsManagerProtocol,
-         keystore: KeystoreProtocol,
-         applicationConfig: ApplicationConfigProtocol,
-         eventCenter: EventCenterProtocol) {
+    init(
+        settings: SettingsManagerProtocol,
+        keystore: KeystoreProtocol,
+        applicationConfig: ApplicationConfigProtocol,
+        eventCenter: EventCenterProtocol
+    ) {
         self.settings = settings
         self.keystore = keystore
         self.applicationConfig = applicationConfig
@@ -25,8 +27,10 @@ final class RootInteractor {
         let keystoreImportService = KeystoreImportService(logger: Logger.shared)
 
         let callbackUrl = applicationConfig.purchaseRedirect
-        let purchaseHandler = PurchaseCompletionHandler(callbackUrl: callbackUrl,
-                                                        eventCenter: eventCenter)
+        let purchaseHandler = PurchaseCompletionHandler(
+            callbackUrl: callbackUrl,
+            eventCenter: eventCenter
+        )
 
         URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
     }

@@ -13,13 +13,15 @@ class PhishingCheckExecutor: WalletCommandProtocol {
     private let publicKey: String
     private let displayName: String
 
-    init(commandFactory: WalletCommandFactoryProtocol,
-         storage: AnyDataProviderRepository<PhishingItem>,
-         nextAction nextActionBlock: @escaping () -> Void,
-         cancelAction cancelActionBlock: @escaping () -> Void,
-         locale: Locale,
-         publicKey: String,
-         walletAddress displayName: String) {
+    init(
+        commandFactory: WalletCommandFactoryProtocol,
+        storage: AnyDataProviderRepository<PhishingItem>,
+        nextAction nextActionBlock: @escaping () -> Void,
+        cancelAction cancelActionBlock: @escaping () -> Void,
+        locale: Locale,
+        publicKey: String,
+        walletAddress displayName: String
+    ) {
         self.commandFactory = commandFactory
         self.storage = storage
         self.nextActionBlock = nextActionBlock
@@ -30,13 +32,14 @@ class PhishingCheckExecutor: WalletCommandProtocol {
     }
 
     func execute() throws {
-        let fetchOperation = storage.fetchOperation(by: publicKey,
-                                                    options: RepositoryFetchOptions())
+        let fetchOperation = storage.fetchOperation(
+            by: publicKey,
+            options: RepositoryFetchOptions()
+        )
 
         fetchOperation.completionBlock = {
             DispatchQueue.main.async {
                 if let result = try? fetchOperation.extractResultData() {
-
                     guard result != nil else {
                         self.nextActionBlock()
                         return
@@ -46,14 +49,14 @@ class PhishingCheckExecutor: WalletCommandProtocol {
                         onConfirm: self.nextActionBlock,
                         onCancel: self.cancelActionBlock,
                         locale: self.locale,
-                        displayName: self.displayName)
+                        displayName: self.displayName
+                    )
 
                     let presentationCommand = self.commandFactory?.preparePresentationCommand(for: alertController)
                     presentationCommand?.presentationStyle = .modal(inNavigation: false)
 
                     try? presentationCommand?.execute()
                 }
-
             }
         }
 

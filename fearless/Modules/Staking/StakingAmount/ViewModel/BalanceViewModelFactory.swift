@@ -8,10 +8,10 @@ protocol BalanceViewModelFactoryProtocol {
     func priceFromAmount(_ amount: Decimal, priceData: PriceData) -> LocalizableResource<String>
     func amountFromValue(_ value: Decimal) -> LocalizableResource<String>
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
-    -> LocalizableResource<BalanceViewModelProtocol>
+        -> LocalizableResource<BalanceViewModelProtocol>
     func createBalanceInputViewModel(_ amount: Decimal?) -> LocalizableResource<AmountInputViewModelProtocol>
     func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
-    -> LocalizableResource<AssetBalanceViewModelProtocol>
+        -> LocalizableResource<AssetBalanceViewModelProtocol>
 }
 
 final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
@@ -28,9 +28,11 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         walletPrimitiveFactory.createAssetForAddressType(selectedAddressType)
     }()
 
-    init(walletPrimitiveFactory: WalletPrimitiveFactoryProtocol,
-         selectedAddressType: SNAddressType,
-         limit: Decimal) {
+    init(
+        walletPrimitiveFactory: WalletPrimitiveFactoryProtocol,
+        selectedAddressType: SNAddressType,
+        limit: Decimal
+    ) {
         self.walletPrimitiveFactory = walletPrimitiveFactory
         self.selectedAddressType = selectedAddressType
         self.limit = limit
@@ -62,7 +64,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func balanceFromPrice(_ amount: Decimal, priceData: PriceData?)
-    -> LocalizableResource<BalanceViewModelProtocol> {
+        -> LocalizableResource<BalanceViewModelProtocol>
+    {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 
@@ -85,7 +88,8 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
     }
 
     func createBalanceInputViewModel(_ amount: Decimal?)
-    -> LocalizableResource<AmountInputViewModelProtocol> {
+        -> LocalizableResource<AmountInputViewModelProtocol>
+    {
         let localizableFormatter = formatterFactory.createInputFormatter(for: targetAsset)
         let symbol = targetAsset.symbol
 
@@ -93,17 +97,19 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
-            return AmountInputViewModel(symbol: symbol,
-                                        amount: amount,
-                                        limit: currentLimit,
-                                        formatter: formatter,
-                                        precision: Int16(formatter.maximumFractionDigits))
+            return AmountInputViewModel(
+                symbol: symbol,
+                amount: amount,
+                limit: currentLimit,
+                formatter: formatter,
+                precision: Int16(formatter.maximumFractionDigits)
+            )
         }
     }
 
     func createAssetBalanceViewModel(_ amount: Decimal, balance: Decimal?, priceData: PriceData?)
-    -> LocalizableResource<AssetBalanceViewModelProtocol> {
-
+        -> LocalizableResource<AssetBalanceViewModelProtocol>
+    {
         let localizableBalanceFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 
@@ -132,10 +138,12 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
                 balanceString = nil
             }
 
-            return AssetBalanceViewModel(icon: icon,
-                                         symbol: symbol,
-                                         balance: balanceString,
-                                         price: priceString)
+            return AssetBalanceViewModel(
+                icon: icon,
+                symbol: symbol,
+                balance: balanceString,
+                price: priceString
+            )
         }
     }
 }

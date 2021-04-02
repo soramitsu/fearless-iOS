@@ -18,16 +18,20 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
 
     let logger = Logger.shared
 
-    init(payload: ConfirmationPayload,
-         localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol,
-         storage: AnyDataProviderRepository<PhishingItem>) {
-        self.locale = localizationManager.selectedLocale
+    init(
+        payload: ConfirmationPayload,
+        localizationManager: LocalizationManagerProtocol,
+        commandFactory: WalletCommandFactoryProtocol,
+        storage: AnyDataProviderRepository<PhishingItem>
+    ) {
+        locale = localizationManager.selectedLocale
         self.storage = storage
         self.commandFactory = commandFactory
-        self.calleeCommand = TransferConfirmCommand(payload: payload,
-                                                    localizationManager: localizationManager,
-                                                    commandFactory: commandFactory)
+        calleeCommand = TransferConfirmCommand(
+            payload: payload,
+            localizationManager: localizationManager,
+            commandFactory: commandFactory
+        )
     }
 
     func execute() throws {
@@ -42,13 +46,15 @@ final class TransferConfirmCommandProxy: WalletCommandDecoratorProtocol {
         }
 
         let phishingCheckExecutor =
-            PhishingCheckExecutor(commandFactory: commandFactory,
-                                  storage: storage,
-                                  nextAction: nextAction,
-                                  cancelAction: cancelAction,
-                                  locale: locale,
-                                  publicKey: calleeCommand.payload.transferInfo.destination,
-                                  walletAddress: calleeCommand.payload.receiverName)
+            PhishingCheckExecutor(
+                commandFactory: commandFactory,
+                storage: storage,
+                nextAction: nextAction,
+                cancelAction: cancelAction,
+                locale: locale,
+                publicKey: calleeCommand.payload.transferInfo.destination,
+                walletAddress: calleeCommand.payload.receiverName
+            )
 
         try? phishingCheckExecutor.execute()
     }

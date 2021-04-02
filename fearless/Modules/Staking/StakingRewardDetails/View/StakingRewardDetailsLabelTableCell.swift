@@ -1,14 +1,13 @@
 import UIKit
 
 /**
-Used in Staking reward flow.
-For example:
-    "Date"......."3 March 2020" or
-    "Era"......."#1,690" or
-    "Reward destination"......."Restake"
- */
+ Used in Staking reward flow.
+ For example:
+     "Date"......."3 March 2020" or
+     "Era"......."#1,690" or
+     "Reward destination"......."Restake"
+  */
 final class StakingRewardDetailsLabelTableCell: StakingRewardDetailsBaseTableCell {
-
     let valueLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

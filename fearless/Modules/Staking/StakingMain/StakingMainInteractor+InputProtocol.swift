@@ -4,8 +4,8 @@ import RobinHood
 
 extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func setup() {
-        self.currentAccount = settings.selectedAccount
-        self.currentConnection = settings.selectedConnection
+        currentAccount = settings.selectedAccount
+        currentConnection = settings.selectedConnection
 
         provideNewChain()
         provideSelectedAccount()
@@ -42,14 +42,14 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         if updateAccountAndChainIfNeeded() {
             clearStashControllerProvider()
             subscribeToStashControllerProvider()
         }
     }
 
-    func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         if updateAccountAndChainIfNeeded() {
             clearElectionStatusProvider()
             subscribeToElectionStatus()
@@ -63,7 +63,7 @@ extension StakingMainInteractor: EventVisitorProtocol {
         }
     }
 
-    func processEraStakersInfoChanged(event: EraStakersInfoChanged) {
+    func processEraStakersInfoChanged(event _: EraStakersInfoChanged) {
         provideEraStakersInfo()
         provideNetworkStakingInfo()
         provideRewardCalculator()
@@ -71,7 +71,7 @@ extension StakingMainInteractor: EventVisitorProtocol {
 }
 
 extension StakingMainInteractor: ApplicationHandlerDelegate {
-    func didReceiveDidBecomeActive(notification: Notification) {
+    func didReceiveDidBecomeActive(notification _: Notification) {
         priceProvider?.refresh()
         totalRewardProvider?.refresh()
     }

@@ -11,7 +11,7 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
             switch self {
             case .waiting:
                 return nil
-            case .received(let item):
+            case let .received(item):
                 return item?.data
             }
         }
@@ -31,12 +31,14 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
     private var lock = NSLock()
 
-    init(itemIdentifier: String,
-         codingPath: StorageCodingPath,
-         runtimeService: RuntimeCodingServiceProtocol,
-         provider: StreamableProvider<ChainStorageItem>,
-         trigger: DataProviderTriggerProtocol,
-         shouldUseFallback: Bool) {
+    init(
+        itemIdentifier: String,
+        codingPath: StorageCodingPath,
+        runtimeService: RuntimeCodingServiceProtocol,
+        provider: StreamableProvider<ChainStorageItem>,
+        trigger: DataProviderTriggerProtocol,
+        shouldUseFallback: Bool
+    ) {
         self.itemIdentifier = itemIdentifier
         self.codingPath = codingPath
         self.runtimeService = runtimeService
@@ -85,11 +87,13 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
             return
         }
 
-        provider.addObserver(self,
-                             deliverOn: DispatchQueue.global(qos: .default),
-                             executing: updateClosure,
-                             failing: failure,
-                             options: StreamableProviderObserverOptions.substrateSource())
+        provider.addObserver(
+            self,
+            deliverOn: DispatchQueue.global(qos: .default),
+            executing: updateClosure,
+            failing: failure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
     }
 
     private func prepareFallbackBaseOperation() -> CompoundOperationWrapper<T?> {
@@ -99,8 +103,10 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let decodingOperation = StorageFallbackDecodingOperation<T>(path: codingPath,
-                                                                    data: lastSeenResult.data)
+        let decodingOperation = StorageFallbackDecodingOperation<T>(
+            path: codingPath,
+            data: lastSeenResult.data
+        )
         decodingOperation.configurationBlock = {
             do {
                 decodingOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
@@ -117,8 +123,10 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         mappingOperation.addDependency(decodingOperation)
 
-        return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: [codingFactoryOperation, decodingOperation])
+        return CompoundOperationWrapper(
+            targetOperation: mappingOperation,
+            dependencies: [codingFactoryOperation, decodingOperation]
+        )
     }
 
     private func prepareOptionalBaseOperation() -> CompoundOperationWrapper<T?> {
@@ -149,8 +157,10 @@ final class StorageProviderSource<T: Decodable & Equatable>: DataProviderSourceP
 
         mappingOperation.addDependency(decodingOperation)
 
-        return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: [codingFactoryOperation, decodingOperation])
+        return CompoundOperationWrapper(
+            targetOperation: mappingOperation,
+            dependencies: [codingFactoryOperation, decodingOperation]
+        )
     }
 }
 
@@ -180,11 +190,13 @@ extension StorageProviderSource {
         let dependencies = baseOperationWrapper.allOperations
         dependencies.forEach { mappingOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: mappingOperation,
+            dependencies: dependencies
+        )
     }
 
-    func fetchOperation(page index: UInt) -> CompoundOperationWrapper<[Model]> {
+    func fetchOperation(page _: UInt) -> CompoundOperationWrapper<[Model]> {
         lock.lock()
 
         defer {
@@ -206,7 +218,9 @@ extension StorageProviderSource {
         let dependencies = baseOperationWrapper.allOperations
         dependencies.forEach { mappingOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: mappingOperation,
+            dependencies: dependencies
+        )
     }
 }

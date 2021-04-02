@@ -10,7 +10,8 @@ extension SelectConnection {
 
         func showSignup(from view: OnboardingMainViewProtocol?) {
             guard let usernameSetup = UsernameSetupViewFactory
-                .createViewForConnection(item: connectionItem) else {
+                .createViewForConnection(item: connectionItem)
+            else {
                 return
             }
 
@@ -21,7 +22,8 @@ extension SelectConnection {
 
         func showAccountRestore(from view: OnboardingMainViewProtocol?) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForConnection(item: connectionItem)?.controller else {
+                .createViewForConnection(item: connectionItem)?.controller
+            else {
                 return
             }
 

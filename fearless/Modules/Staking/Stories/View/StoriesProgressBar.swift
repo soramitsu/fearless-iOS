@@ -2,12 +2,12 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-protocol StoriesProgressBarDataSource: class {
+protocol StoriesProgressBarDataSource: AnyObject {
     func numberOfSegments() -> Int
     func segmentDuration() -> TimeInterval
 }
 
-protocol StoriesProgressBarDelegate: class {
+protocol StoriesProgressBarDelegate: AnyObject {
     func didFinishSegmentAnimation()
 }
 
@@ -16,7 +16,7 @@ extension StoriesProgressBar {
     @IBInspectable
     var padding: CGFloat {
         get {
-            return stackView.spacing
+            stackView.spacing
         }
 
         set {
@@ -40,7 +40,7 @@ class StoriesProgressBar: UIView {
     private var remainingAnimationTime: TimeInterval = 0
     private var animationState: ProgressBarAnimationState = .stopped
 
-    private struct Constants {
+    private enum Constants {
         static let height: CGFloat = 2
     }
 
@@ -51,6 +51,7 @@ class StoriesProgressBar: UIView {
     weak var delegate: StoriesProgressBarDelegate?
 
     // MARK: - Overrides
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         configure()
@@ -74,6 +75,7 @@ class StoriesProgressBar: UIView {
     }
 
     // MARK: - Private functions
+
     private func configure() {
         backgroundColor = .clear
 
@@ -111,10 +113,10 @@ class StoriesProgressBar: UIView {
     private func clear() {
         segments = []
 
-        stackView.arrangedSubviews.forEach({
+        stackView.arrangedSubviews.forEach {
             stackView.removeArrangedSubview($0)
             $0.removeFromSuperview()
-        })
+        }
 
         currentIndex = 0
     }
@@ -122,16 +124,16 @@ class StoriesProgressBar: UIView {
     private func configureSegments(startingPosition: Int) {
         clear()
 
-        let numberOfSegments = self.dataSource?.numberOfSegments() ?? 0
+        let numberOfSegments = dataSource?.numberOfSegments() ?? 0
 
         guard numberOfSegments > 0 else { return }
         currentIndex = startingPosition
 
-        for index in 0..<numberOfSegments {
+        for index in 0 ..< numberOfSegments {
             let progressView = ProgressView()
 
             progressView.setProgress(0, animated: false)
-            progressView.fillColor = UIColor.init(white: 1.0, alpha: 0.4)
+            progressView.fillColor = UIColor(white: 1.0, alpha: 0.4)
             progressView.animationDuration = CGFloat(animationDuration)
 
             if index < currentIndex {
@@ -148,6 +150,7 @@ class StoriesProgressBar: UIView {
 }
 
 // MARK: - StoriesProgressAnimatorProtocol
+
 extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
     func redrawSegments(startingPosition: Int) {
         stop()
@@ -193,8 +196,9 @@ extension StoriesProgressBar: StoriesProgressAnimatorProtocol {
 }
 
 // MARK: - CountdownTimerDelegate
+
 extension StoriesProgressBar: CountdownTimerDelegate {
-    func didStart(with interval: TimeInterval) {
+    func didStart(with _: TimeInterval) {
         switch animationState {
         case .stopped:
             segments[currentIndex].setProgress(1, animated: true)
@@ -207,7 +211,7 @@ extension StoriesProgressBar: CountdownTimerDelegate {
         animationState = .animating
     }
 
-    func didCountdown(remainedInterval: TimeInterval) { }
+    func didCountdown(remainedInterval _: TimeInterval) {}
 
     func didStop(with remainedInterval: TimeInterval) {
         switch animationState {

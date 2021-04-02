@@ -13,15 +13,20 @@ final class StakingConfirmWireframe: StakingConfirmWireframeProtocol, ModalAlert
         }
     }
 
-    func showSelectedValidator(from view: StakingConfirmViewProtocol?,
-                               validators: [SelectedValidatorInfo],
-                               maxTargets: Int) {
+    func showSelectedValidator(
+        from view: StakingConfirmViewProtocol?,
+        validators: [SelectedValidatorInfo],
+        maxTargets: Int
+    ) {
         guard let validatorsView = SelectedValidatorsViewFactory
-                .createView(for: validators, maxTargets: maxTargets) else {
+            .createView(for: validators, maxTargets: maxTargets)
+        else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(validatorsView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            validatorsView.controller,
+            animated: true
+        )
     }
 }

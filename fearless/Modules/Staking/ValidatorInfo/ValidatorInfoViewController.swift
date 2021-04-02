@@ -29,7 +29,7 @@ final class ValidatorInfoViewController: UIViewController {
     var accountViewModel: ValidatorInfoAccountViewModelProtocol?
     var extrasViewModel: [Section] = []
 
-    @IBOutlet weak var tableView: UITableView!
+    @IBOutlet var tableView: UITableView!
 
     var presenter: ValidatorInfoPresenterProtocol!
     var locale: Locale?
@@ -44,24 +44,32 @@ final class ValidatorInfoViewController: UIViewController {
 
     private func configureTableView() {
         // Cell for validator account display
-        tableView.register(UINib(resource: R.nib.validatorInfoAccountCell),
-                           forCellReuseIdentifier: R.reuseIdentifier.validatorAccountCellId.identifier)
+        tableView.register(
+            UINib(resource: R.nib.validatorInfoAccountCell),
+            forCellReuseIdentifier: R.reuseIdentifier.validatorAccountCellId.identifier
+        )
 
-        tableView.register(UINib(resource: R.nib.validatorInfoInformationCell),
-                           forCellReuseIdentifier: R.reuseIdentifier.validatorInfoInformationCellId.identifier)
+        tableView.register(
+            UINib(resource: R.nib.validatorInfoInformationCell),
+            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoInformationCellId.identifier
+        )
 
-        tableView.register(UINib(resource: R.nib.validatorInfoTitleSubtitleCell),
-                           forCellReuseIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId.identifier)
+        tableView.register(
+            UINib(resource: R.nib.validatorInfoTitleSubtitleCell),
+            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId.identifier
+        )
 
-        tableView.register(UINib(resource: R.nib.validatorInfoWebCell),
-                           forCellReuseIdentifier: R.reuseIdentifier.validatorInfoWebCellId.identifier)
+        tableView.register(
+            UINib(resource: R.nib.validatorInfoWebCell),
+            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoWebCellId.identifier
+        )
 
         tableView.alwaysBounceVertical = false
     }
 }
 
 extension ValidatorInfoViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         guard indexPath.section > 0 else { return RowType.accountRowHeight }
 
         return RowType.rowHeight
@@ -93,11 +101,11 @@ extension ValidatorInfoViewController: UITableViewDelegate {
 }
 
 extension ValidatorInfoViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return 1 + extrasViewModel.count
+    func numberOfSections(in _: UITableView) -> Int {
+        1 + extrasViewModel.count
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         switch section {
         case 0:
             return 1
@@ -106,9 +114,10 @@ extension ValidatorInfoViewController: UITableViewDataSource {
         }
     }
 
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
+    func tableView(_: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         guard let view = UINib(resource: R.nib.validatorInfoHeaderView)
-                .instantiate(withOwner: nil, options: nil).first as? ValidatorInfoHeaderView else {
+            .instantiate(withOwner: nil, options: nil).first as? ValidatorInfoHeaderView
+        else {
             return nil
         }
 
@@ -122,15 +131,17 @@ extension ValidatorInfoViewController: UITableViewDataSource {
         return view
     }
 
-    func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
         guard section > 0 else { return 0.0 }
         return SectionType.rowHeight
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard indexPath.section > 0 else {
-            let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.validatorAccountCellId,
-                                                     for: indexPath)!
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorAccountCellId,
+                for: indexPath
+            )!
 
             if let accountViewModel = accountViewModel {
                 cell.bind(model: accountViewModel)
@@ -146,16 +157,20 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         switch rowType {
         case .totalStake:
-            let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.validatorInfoInformationCellId,
-                                                     for: indexPath)!
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorInfoInformationCellId,
+                for: indexPath
+            )!
 
             cell.bind(model: row.content.value(for: locale))
 
             return cell
 
         case .nominators, .estimatedReward, .legalName:
-            let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId,
-                                                     for: indexPath)!
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId,
+                for: indexPath
+            )!
 
             cell.selectionStyle = .none
 
@@ -164,8 +179,10 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             return cell
 
         case .email, .web, .twitter, .riot:
-            let cell = tableView.dequeueReusableCell(withIdentifier: R.reuseIdentifier.validatorInfoWebCellId,
-                                                     for: indexPath)!
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorInfoWebCellId,
+                for: indexPath
+            )!
             cell.bind(model: row.content.value(for: locale))
             return cell
         }
@@ -173,9 +190,12 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 }
 
 // MARK: - ValidatorInfoViewProtocol
+
 extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
-    func didReceive(accountViewModel: ValidatorInfoAccountViewModelProtocol,
-                    extrasViewModel: [Section]) {
+    func didReceive(
+        accountViewModel: ValidatorInfoAccountViewModelProtocol,
+        extrasViewModel: [Section]
+    ) {
         self.accountViewModel = accountViewModel
         self.extrasViewModel = extrasViewModel
         tableView.reloadData()
@@ -183,6 +203,7 @@ extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
 }
 
 // MARK: - Localizable
+
 extension ValidatorInfoViewController: Localizable {
     private func setupLocalization() {
         title = R.string.localizable

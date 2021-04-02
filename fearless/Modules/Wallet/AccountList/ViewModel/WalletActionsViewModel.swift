@@ -40,9 +40,11 @@ final class WalletActionsViewModel: WalletActionsViewModelProtocol {
     let receive: ActionViewModelProtocol
     let buy: WalletDisablingActionProtocol
 
-    init(send: ActionViewModelProtocol,
-         receive: ActionViewModelProtocol,
-         buy: WalletDisablingActionProtocol) {
+    init(
+        send: ActionViewModelProtocol,
+        receive: ActionViewModelProtocol,
+        buy: WalletDisablingActionProtocol
+    ) {
         self.send = send
         self.receive = receive
         self.buy = buy

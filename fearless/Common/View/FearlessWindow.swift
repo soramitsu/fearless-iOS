@@ -2,7 +2,7 @@ import UIKit
 import SoraUI
 
 final class FearlessWindow: UIWindow {
-    private struct Constants {
+    private enum Constants {
         static let statusHeight: CGFloat = 9.0
         static let appearanceAnimationDuration: TimeInterval = 0.2
         static let changeAnimationDuration: TimeInterval = 0.2
@@ -64,8 +64,10 @@ final class FearlessWindow: UIWindow {
         }
 
         if animated {
-            BlockViewAnimator(duration: Constants.changeAnimationDuration).animate(block: closure,
-                                                                                   completionBlock: nil)
+            BlockViewAnimator(duration: Constants.changeAnimationDuration).animate(
+                block: closure,
+                completionBlock: nil
+            )
         } else {
             closure()
         }
@@ -120,8 +122,10 @@ extension FearlessWindow: ApplicationStatusPresentable {
             var newFrame = statusView.frame
             newFrame.origin.y = -newFrame.height
 
-            BlockViewAnimator(duration: Constants.dissmissAnimationDuration,
-                              delay: 2 * animationDelay).animate(block: {
+            BlockViewAnimator(
+                duration: Constants.dissmissAnimationDuration,
+                delay: 2 * animationDelay
+            ).animate(block: {
                 statusView.frame = newFrame
             }, completionBlock: { _ in
                 statusView.removeFromSuperview()

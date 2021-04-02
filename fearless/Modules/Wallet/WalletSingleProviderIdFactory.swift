@@ -13,7 +13,7 @@ final class WalletSingleProviderIdFactory: SingleProviderIdentifierFactoryProtoc
         "wallet.cache.\(accountId).\(addressType.rawValue).balance"
     }
 
-    func historyIdentifierForAccountId(_ accountId: String, assets: [String]) -> String {
+    func historyIdentifierForAccountId(_ accountId: String, assets _: [String]) -> String {
         "wallet.cache.\(accountId).\(addressType.rawValue).history"
     }
 
@@ -21,15 +21,19 @@ final class WalletSingleProviderIdFactory: SingleProviderIdentifierFactoryProtoc
         "wallet.cache.\(accountId).\(addressType.rawValue).contacts"
     }
 
-    func withdrawMetadataIdentifierForAccountId(_ accountId: String,
-                                                assetId: String,
-                                                optionId: String) -> String {
+    func withdrawMetadataIdentifierForAccountId(
+        _ accountId: String,
+        assetId _: String,
+        optionId _: String
+    ) -> String {
         "wallet.cache.\(accountId).\(addressType.rawValue).withdraw.metadata"
     }
 
-    func transferMetadataIdentifierForAccountId(_ accountId: String,
-                                                assetId: String,
-                                                receiverId: String) -> String {
+    func transferMetadataIdentifierForAccountId(
+        _ accountId: String,
+        assetId _: String,
+        receiverId _: String
+    ) -> String {
         "wallet.cache.\(accountId).\(addressType.rawValue).transfer.metadata"
     }
 }

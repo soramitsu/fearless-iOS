@@ -13,8 +13,11 @@ final class WalletBuyCommand: WalletCommandProtocol {
     private func handle(action: PurchaseAction) throws {
         guard
             let commandFactory = commandFactory,
-            let webView = PurchaseViewFactory.createView(for: action,
-                                                         commandFactory: commandFactory) else {
+            let webView = PurchaseViewFactory.createView(
+                for: action,
+                commandFactory: commandFactory
+            )
+        else {
             return
         }
 

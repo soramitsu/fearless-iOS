@@ -13,17 +13,21 @@ class TextSharingSource: NSObject {
 }
 
 extension TextSharingSource: UIActivityItemSource {
-    func activityViewControllerPlaceholderItem(_ activityViewController: UIActivityViewController) -> Any {
-        return message
+    func activityViewControllerPlaceholderItem(_: UIActivityViewController) -> Any {
+        message
     }
 
-    func activityViewController(_ activityViewController: UIActivityViewController,
-                                itemForActivityType activityType: UIActivity.ActivityType?) -> Any? {
-        return message
+    func activityViewController(
+        _: UIActivityViewController,
+        itemForActivityType _: UIActivity.ActivityType?
+    ) -> Any? {
+        message
     }
 
-    func activityViewController(_ activityViewController: UIActivityViewController,
-                                subjectForActivityType activityType: UIActivity.ActivityType?) -> String {
-        return subject ?? "(No subject)"
+    func activityViewController(
+        _: UIActivityViewController,
+        subjectForActivityType _: UIActivity.ActivityType?
+    ) -> String {
+        subject ?? "(No subject)"
     }
 }

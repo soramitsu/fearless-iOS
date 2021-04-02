@@ -14,7 +14,8 @@ final class WalletSelectAccountCommand: WalletCommandProtocol {
         }
 
         guard let command = commandFactory?
-                .preparePresentationCommand(for: accountManagementView.controller) else {
+            .preparePresentationCommand(for: accountManagementView.controller)
+        else {
             return
         }
 

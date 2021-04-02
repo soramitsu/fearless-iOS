@@ -49,9 +49,11 @@ extension AccountExportPasswordPresenter: AccountExportPasswordInteractorOutputP
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }

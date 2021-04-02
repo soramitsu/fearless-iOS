@@ -4,8 +4,10 @@ import RobinHood
 final class EmptyStreamableSource<T: Identifiable>: StreamableSourceProtocol {
     typealias Model = T
 
-    func fetchHistory(runningIn queue: DispatchQueue?,
-                      commitNotificationBlock: ((Result<Int, Error>?) -> Void)?) {
+    func fetchHistory(
+        runningIn queue: DispatchQueue?,
+        commitNotificationBlock: ((Result<Int, Error>?) -> Void)?
+    ) {
         guard let closure = commitNotificationBlock else {
             return
         }
@@ -21,8 +23,10 @@ final class EmptyStreamableSource<T: Identifiable>: StreamableSourceProtocol {
         }
     }
 
-    func refresh(runningIn queue: DispatchQueue?,
-                 commitNotificationBlock: ((Result<Int, Error>?) -> Void)?) {
+    func refresh(
+        runningIn queue: DispatchQueue?,
+        commitNotificationBlock: ((Result<Int, Error>?) -> Void)?
+    ) {
         guard let closure = commitNotificationBlock else {
             return
         }

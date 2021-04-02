@@ -12,7 +12,7 @@ protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func didValidateDerivationPath(_ status: FieldStatus)
 }
 
-protocol AccountCreatePresenterProtocol: class {
+protocol AccountCreatePresenterProtocol: AnyObject {
     func setup()
     func selectCryptoType()
     func selectNetworkType()
@@ -21,33 +21,39 @@ protocol AccountCreatePresenterProtocol: class {
     func proceed()
 }
 
-protocol AccountCreateInteractorInputProtocol: class {
+protocol AccountCreateInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol AccountCreateInteractorOutputProtocol: class {
+protocol AccountCreateInteractorOutputProtocol: AnyObject {
     func didReceive(metadata: AccountCreationMetadata)
     func didReceiveMnemonicGeneration(error: Error)
 }
 
 protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func confirm(from view: AccountCreateViewProtocol?,
-                 request: AccountCreationRequest,
-                 metadata: AccountCreationMetadata)
+    func confirm(
+        from view: AccountCreateViewProtocol?,
+        request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    )
 
-    func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?,
-                                    availableTypes: [CryptoType],
-                                    selectedType: CryptoType,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?)
-    func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?,
-                                     availableTypes: [Chain],
-                                     selectedType: Chain,
-                                     delegate: ModalPickerViewControllerDelegate?,
-                                     context: AnyObject?)
+    func presentCryptoTypeSelection(
+        from view: AccountCreateViewProtocol?,
+        availableTypes: [CryptoType],
+        selectedType: CryptoType,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
+    func presentNetworkTypeSelection(
+        from view: AccountCreateViewProtocol?,
+        availableTypes: [Chain],
+        selectedType: Chain,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    )
 }
 
-protocol AccountCreateViewFactoryProtocol: class {
+protocol AccountCreateViewFactoryProtocol: AnyObject {
     static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol?
     static func createViewForAdding(username: String) -> AccountCreateViewProtocol?
     static func createViewForConnection(item: ConnectionItem, username: String) -> AccountCreateViewProtocol?

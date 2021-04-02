@@ -15,5 +15,4 @@ extension ManagedAccountItem: Identifiable {
 
 extension ManagedConnectionItem: Identifiable {
     var identifier: String { url.absoluteString }
-
 }

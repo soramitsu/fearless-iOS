@@ -22,17 +22,21 @@ extension OnboardingMainPresenter: OnboardingMainPresenterProtocol {
 
     func activateTerms() {
         if let view = view {
-            wireframe.showWeb(url: legalData.termsUrl,
-                              from: view,
-                              style: .modal)
+            wireframe.showWeb(
+                url: legalData.termsUrl,
+                from: view,
+                style: .modal
+            )
         }
     }
 
     func activatePrivacy() {
         if let view = view {
-            wireframe.showWeb(url: legalData.privacyPolicyUrl,
-                              from: view,
-                              style: .modal)
+            wireframe.showWeb(
+                url: legalData.privacyPolicyUrl,
+                from: view,
+                style: .modal
+            )
         }
     }
 

@@ -4,13 +4,17 @@ import CommonWallet
 final class TransactionDetailsConfigurator {
     let viewModelFactory: TransactionDetailsViewModelFactory
 
-    init(address: String,
-         amountFormatterFactory: NumberFormatterFactoryProtocol,
-         assets: [WalletAsset]) {
-        viewModelFactory = TransactionDetailsViewModelFactory(address: address,
-                                                              assets: assets,
-                                                              dateFormatter: DateFormatter.txDetails,
-                                                              amountFormatterFactory: amountFormatterFactory)
+    init(
+        address: String,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        assets: [WalletAsset]
+    ) {
+        viewModelFactory = TransactionDetailsViewModelFactory(
+            address: address,
+            assets: assets,
+            dateFormatter: DateFormatter.txDetails,
+            amountFormatterFactory: amountFormatterFactory
+        )
     }
 
     func configure(builder: TransactionDetailsModuleBuilderProtocol) {

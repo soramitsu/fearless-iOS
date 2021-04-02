@@ -40,18 +40,18 @@ enum Multiaddress: ScaleCodable {
 
     func encode(scaleEncoder: ScaleEncoding) throws {
         switch self {
-        case .accountId(let value):
+        case let .accountId(value):
             scaleEncoder.appendRaw(data: Data([0]) + value)
-        case .index(let index):
+        case let .index(index):
             scaleEncoder.appendRaw(data: Data([1]))
             try index.encode(scaleEncoder: scaleEncoder)
-        case .raw(let value):
+        case let .raw(value):
             scaleEncoder.appendRaw(data: Data([2]))
             let bytes = value.map { $0 }
             try bytes.encode(scaleEncoder: scaleEncoder)
-        case .address32(let address):
+        case let .address32(address):
             scaleEncoder.appendRaw(data: Data([3]) + address)
-        case .address20(let address):
+        case let .address20(address):
             scaleEncoder.appendRaw(data: Data([4]) + address)
         }
     }

@@ -83,9 +83,11 @@ final class RecommendedValidatorsViewController: UIViewController {
         if let viewModel = viewModel {
             let languages = localizationManager?.selectedLocale.rLanguages
             let text = R.string.localizable
-                .stakingRecommendedValidatorsCounter("\(viewModel.selectedCount)",
-                                                     "\(viewModel.totalCount)",
-                                                     preferredLanguages: languages)
+                .stakingRecommendedValidatorsCounter(
+                    "\(viewModel.selectedCount)",
+                    "\(viewModel.totalCount)",
+                    preferredLanguages: languages
+                )
             validatorsCountLabel.text = text
         } else {
             validatorsCountLabel.text = ""

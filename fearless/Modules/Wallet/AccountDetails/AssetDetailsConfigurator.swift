@@ -5,17 +5,21 @@ import SoraFoundation
 final class AssetDetailsConfigurator {
     let viewModelFactory: AssetDetailsViewModelFactory
 
-    init(address: String,
-         chain: Chain,
-         purchaseProvider: PurchaseProviderProtocol,
-         priceAsset: WalletAsset) {
+    init(
+        address: String,
+        chain: Chain,
+        purchaseProvider: PurchaseProviderProtocol,
+        priceAsset: WalletAsset
+    ) {
         let amountFormatterFactory = AmountFormatterFactory()
 
-        viewModelFactory = AssetDetailsViewModelFactory(address: address,
-                                                        chain: chain,
-                                                        purchaseProvider: purchaseProvider,
-                                                        amountFormatterFactory: amountFormatterFactory,
-                                                        priceAsset: priceAsset)
+        viewModelFactory = AssetDetailsViewModelFactory(
+            address: address,
+            chain: chain,
+            purchaseProvider: purchaseProvider,
+            amountFormatterFactory: amountFormatterFactory,
+            priceAsset: priceAsset
+        )
     }
 
     func configure(builder: AccountDetailsModuleBuilderProtocol) {

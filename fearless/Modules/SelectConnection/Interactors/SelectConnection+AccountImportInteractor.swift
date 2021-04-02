@@ -10,34 +10,41 @@ extension SelectConnection {
         let connectionItem: ConnectionItem
         let eventCenter: EventCenterProtocol
 
-        init(connectionItem: ConnectionItem,
-             accountOperationFactory: AccountOperationFactoryProtocol,
-             accountRepository: AnyDataProviderRepository<AccountItem>,
-             operationManager: OperationManagerProtocol,
-             settings: SettingsManagerProtocol,
-             keystoreImportService: KeystoreImportServiceProtocol,
-             eventCenter: EventCenterProtocol) {
+        init(
+            connectionItem: ConnectionItem,
+            accountOperationFactory: AccountOperationFactoryProtocol,
+            accountRepository: AnyDataProviderRepository<AccountItem>,
+            operationManager: OperationManagerProtocol,
+            settings: SettingsManagerProtocol,
+            keystoreImportService: KeystoreImportServiceProtocol,
+            eventCenter: EventCenterProtocol
+        ) {
             self.settings = settings
             self.connectionItem = connectionItem
             self.eventCenter = eventCenter
 
-            super.init(accountOperationFactory: accountOperationFactory,
-                       accountRepository: accountRepository,
-                       operationManager: operationManager,
-                       keystoreImportService: keystoreImportService,
-                       supportedNetworks: [connectionItem.type.chain],
-                       defaultNetwork: connectionItem.type.chain)
+            super.init(
+                accountOperationFactory: accountOperationFactory,
+                accountRepository: accountRepository,
+                operationManager: operationManager,
+                keystoreImportService: keystoreImportService,
+                supportedNetworks: [connectionItem.type.chain],
+                defaultNetwork: connectionItem.type.chain
+            )
         }
 
         private func importAccountItem(_ item: AccountItem) {
             let selectedConnection = connectionItem
 
-            let checkOperation = accountRepository.fetchOperation(by: item.address,
-                                                                  options: RepositoryFetchOptions())
+            let checkOperation = accountRepository.fetchOperation(
+                by: item.address,
+                options: RepositoryFetchOptions()
+            )
 
             let persistentOperation = accountRepository.saveOperation({
                 if try checkOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil
+                {
                     throw AccountCreateError.duplicated
                 }
 
@@ -47,7 +54,7 @@ extension SelectConnection {
             persistentOperation.addDependency(checkOperation)
 
             let connectionOperation: BaseOperation<(AccountItem, ConnectionItem)> = ClosureOperation {
-                if case .failure(let error) = persistentOperation.result {
+                if case let .failure(error) = persistentOperation.result {
                     throw error
                 }
 
@@ -73,7 +80,7 @@ extension SelectConnection {
                         self?.eventCenter.notify(with: SelectedAccountChanged())
 
                         self?.presenter?.didCompleteAccountImport()
-                    case .failure(let error):
+                    case let .failure(error):
                         self?.presenter?.didReceiveAccountImport(error: error)
                     case .none:
                         let error = BaseOperationError.parentOperationCancelled
@@ -82,17 +89,19 @@ extension SelectConnection {
                 }
             }
 
-            operationManager.enqueue(operations: [checkOperation, persistentOperation, connectionOperation],
-                                     in: .transient)
+            operationManager.enqueue(
+                operations: [checkOperation, persistentOperation, connectionOperation],
+                in: .transient
+            )
         }
 
         override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
             importOperation.completionBlock = { [weak self] in
                 DispatchQueue.main.async {
                     switch importOperation.result {
-                    case .success(let accountItem):
+                    case let .success(accountItem):
                         self?.importAccountItem(accountItem)
-                    case .failure(let error):
+                    case let .failure(error):
                         self?.presenter?.didReceiveAccountImport(error: error)
                     case .none:
                         let error = BaseOperationError.parentOperationCancelled
@@ -104,5 +113,4 @@ extension SelectConnection {
             operationManager.enqueue(operations: [importOperation], in: .transient)
         }
     }
-
 }

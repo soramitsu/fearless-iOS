@@ -1,13 +1,13 @@
 import Foundation
 
-protocol LocalAuthInteractorInputProtocol: class {
+protocol LocalAuthInteractorInputProtocol: AnyObject {
     var allowManualBiometryAuth: Bool { get }
 
     func startAuth()
     func process(pin: String)
 }
 
-protocol LocalAuthInteractorOutputProtocol: class {
+protocol LocalAuthInteractorOutputProtocol: AnyObject {
     func didEnterWrongPincode()
     func didChangeState(from state: LocalAuthInteractor.LocalAuthState)
     func didCompleteAuth()

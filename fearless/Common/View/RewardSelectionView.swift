@@ -37,13 +37,17 @@ class RewardSelectionView: BackgroundedContentControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        let topContentHeight = max(titleLabel.intrinsicContentSize.height,
-                                   earningsTitleLabel.intrinsicContentSize.height)
-        let bottomContentHeight = max(subtitleLabel.intrinsicContentSize.height,
-                                      earningsSubtitleLabel.intrinsicContentSize.height)
+        let topContentHeight = max(
+            titleLabel.intrinsicContentSize.height,
+            earningsTitleLabel.intrinsicContentSize.height
+        )
+        let bottomContentHeight = max(
+            subtitleLabel.intrinsicContentSize.height,
+            earningsSubtitleLabel.intrinsicContentSize.height
+        )
 
         let height = contentInsets.top + topContentHeight + verticalSpacing
-             + bottomContentHeight + contentInsets.bottom
+            + bottomContentHeight + contentInsets.bottom
 
         return CGSize(width: UIView.noIntrinsicMetric, height: height)
     }
@@ -53,7 +57,7 @@ class RewardSelectionView: BackgroundedContentControl {
         configure()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configure()
     }
@@ -71,10 +75,12 @@ class RewardSelectionView: BackgroundedContentControl {
 
         contentView?.frame = bounds
 
-        iconView.frame = CGRect(x: bounds.minX,
-                                y: bounds.minY,
-                                width: selectionWidth,
-                                height: bounds.height)
+        iconView.frame = CGRect(
+            x: bounds.minX,
+            y: bounds.minY,
+            width: selectionWidth,
+            height: bounds.height
+        )
 
         layoutTopContent()
         layoutBottomContent()
@@ -87,19 +93,23 @@ class RewardSelectionView: BackgroundedContentControl {
 
         let centerY = bounds.minY + contentInsets.top + max(titleSize.height, earningsSize.height) / 2.0
 
-        titleLabel.frame = CGRect(x: bounds.minX + selectionWidth,
-                                  y: centerY - titleSize.height / 2.0,
-                                  width: min(availableWidth, titleSize.width),
-                                  height: titleSize.height)
+        titleLabel.frame = CGRect(
+            x: bounds.minX + selectionWidth,
+            y: centerY - titleSize.height / 2.0,
+            width: min(availableWidth, titleSize.width),
+            height: titleSize.height
+        )
 
         let estimatedEarningsWidth = bounds.maxX - contentInsets.right
             - titleLabel.frame.maxX - horizontalSpacing
         let earningsWidth = max(min(estimatedEarningsWidth, earningsSize.width), 0.0)
 
-        earningsTitleLabel.frame = CGRect(x: bounds.maxX - contentInsets.right - earningsWidth,
-                                          y: centerY - earningsSize.height / 2.0,
-                                          width: earningsWidth,
-                                          height: earningsSize.height)
+        earningsTitleLabel.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - earningsWidth,
+            y: centerY - earningsSize.height / 2.0,
+            width: earningsWidth,
+            height: earningsSize.height
+        )
     }
 
     private func layoutBottomContent() {
@@ -110,25 +120,29 @@ class RewardSelectionView: BackgroundedContentControl {
         let centerY = bounds.maxY - contentInsets.bottom -
             max(subtitleSize.height, earningsSize.height) / 2.0
 
-        subtitleLabel.frame = CGRect(x: bounds.minX + selectionWidth,
-                                     y: centerY - subtitleSize.height / 2.0,
-                                     width: min(availableWidth, subtitleSize.width),
-                                     height: subtitleSize.height)
+        subtitleLabel.frame = CGRect(
+            x: bounds.minX + selectionWidth,
+            y: centerY - subtitleSize.height / 2.0,
+            width: min(availableWidth, subtitleSize.width),
+            height: subtitleSize.height
+        )
 
         let estimatedEarningsWidth = bounds.maxX - contentInsets.right
             - subtitleLabel.frame.maxX - horizontalSpacing
         let earningsWidth = max(min(estimatedEarningsWidth, earningsSize.width), 0.0)
 
-        earningsSubtitleLabel.frame = CGRect(x: bounds.maxX - contentInsets.right - earningsWidth,
-                                             y: centerY - earningsSize.height / 2.0,
-                                             width: earningsWidth,
-                                             height: earningsSize.height)
+        earningsSubtitleLabel.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - earningsWidth,
+            y: centerY - earningsSize.height / 2.0,
+            width: earningsWidth,
+            height: earningsSize.height
+        )
     }
 
     // MARK: Configure
 
     private func configure() {
-        self.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
 
         configureBackgroundViewIfNeeded()
         configureContentViewIfNeeded()
@@ -141,7 +155,7 @@ class RewardSelectionView: BackgroundedContentControl {
             triangularedView.isUserInteractionEnabled = false
             triangularedView.shadowOpacity = 0.0
 
-            self.backgroundView = triangularedView
+            backgroundView = triangularedView
         }
     }
 

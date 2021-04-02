@@ -24,7 +24,7 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
     private var actionsViewModel: WalletActionsViewModelProtocol?
     private var assetViewModel: AssetDetailsViewModel?
 
-    func setContentInsets(_ contentInsets: UIEdgeInsets, animated: Bool) {
+    func setContentInsets(_ contentInsets: UIEdgeInsets, animated _: Bool) {
         self.contentInsets = contentInsets
     }
 
@@ -51,7 +51,7 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
 
         iconView.image = nil
 
-        assetViewModel.imageViewModel?.loadImage { [weak self] (image, _) in
+        assetViewModel.imageViewModel?.loadImage { [weak self] image, _ in
             self?.iconView.image = image
         }
 
@@ -64,10 +64,10 @@ final class AssetDetailsView: BaseAccountDetailsContainingView {
         rightDetailsLabel.text = assetViewModel.rightDetails
 
         switch assetViewModel.priceChangeViewModel {
-        case .goingUp(let displayString):
+        case let .goingUp(displayString):
             priceChangeLabel.text = displayString
             priceChangeLabel.textColor = R.color.colorGreen()!
-        case .goingDown(let displayString):
+        case let .goingDown(displayString):
             priceChangeLabel.text = displayString
             priceChangeLabel.textColor = R.color.colorRed()!
         }

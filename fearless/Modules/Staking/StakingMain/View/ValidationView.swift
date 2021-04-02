@@ -4,7 +4,7 @@ final class ValidationView: LocalizableView {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var detailsLabel: UILabel!
 
-    var locale: Locale = Locale.current {
+    var locale = Locale.current {
         didSet {
             applyLocalization()
         }

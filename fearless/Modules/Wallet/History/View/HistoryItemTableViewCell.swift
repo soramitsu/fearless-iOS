@@ -2,7 +2,7 @@ import UIKit
 import CommonWallet
 
 final class HistoryItemTableViewCell: UITableViewCell {
-    private struct Constants {
+    private enum Constants {
         static let trailingWithoutStatus: CGFloat = 12.0
         static let trailingWithStatus: CGFloat = 36.0
     }
@@ -66,7 +66,7 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
 
             iconImageView.image = nil
 
-            itemViewModel.imageViewModel?.loadImage { [weak self] (image, _) in
+            itemViewModel.imageViewModel?.loadImage { [weak self] image, _ in
                 self?.iconImageView.image = image
             }
         }

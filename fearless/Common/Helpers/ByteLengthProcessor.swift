@@ -19,9 +19,9 @@ final class ByteLengthProcessor: TextProcessing {
             return text
         }
 
-        for index in 0..<maxLength {
+        for index in 0 ..< maxLength {
             let length = maxLength - index
-            if let validString = String(data: data[0..<length], encoding: encoding) {
+            if let validString = String(data: data[0 ..< length], encoding: encoding) {
                 return validString
             }
         }

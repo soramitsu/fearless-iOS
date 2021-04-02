@@ -35,17 +35,17 @@ extension BalanceContext {
 
 extension BalanceContext {
     init(context: [String: String]) {
-        self.free = Self.parseContext(key: BalanceContext.freeKey, context: context)
-        self.reserved = Self.parseContext(key: BalanceContext.reservedKey, context: context)
-        self.miscFrozen = Self.parseContext(key: BalanceContext.miscFrozenKey, context: context)
-        self.feeFrozen = Self.parseContext(key: BalanceContext.feeFrozenKey, context: context)
+        free = Self.parseContext(key: BalanceContext.freeKey, context: context)
+        reserved = Self.parseContext(key: BalanceContext.reservedKey, context: context)
+        miscFrozen = Self.parseContext(key: BalanceContext.miscFrozenKey, context: context)
+        feeFrozen = Self.parseContext(key: BalanceContext.feeFrozenKey, context: context)
 
-        self.bonded = Self.parseContext(key: BalanceContext.bondedKey, context: context)
-        self.redeemable = Self.parseContext(key: BalanceContext.redeemableKey, context: context)
-        self.unbonding  = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
+        bonded = Self.parseContext(key: BalanceContext.bondedKey, context: context)
+        redeemable = Self.parseContext(key: BalanceContext.redeemableKey, context: context)
+        unbonding = Self.parseContext(key: BalanceContext.unbondingKey, context: context)
 
-        self.price = Self.parseContext(key: BalanceContext.priceKey, context: context)
-        self.priceChange = Self.parseContext(key: BalanceContext.priceChangeKey, context: context)
+        price = Self.parseContext(key: BalanceContext.priceKey, context: context)
+        priceChange = Self.parseContext(key: BalanceContext.priceChangeKey, context: context)
     }
 
     func toContext() -> [String: String] {
@@ -82,52 +82,66 @@ extension BalanceContext {
         let feeFrozen = Decimal
             .fromSubstrateAmount(accountData.feeFrozen.value, precision: precision) ?? .zero
 
-        return BalanceContext(free: free,
-                              reserved: reserved,
-                              miscFrozen: miscFrozen,
-                              feeFrozen: feeFrozen,
-                              bonded: bonded,
-                              redeemable: redeemable,
-                              unbonding: unbonding,
-                              price: price,
-                              priceChange: priceChange)
+        return BalanceContext(
+            free: free,
+            reserved: reserved,
+            miscFrozen: miscFrozen,
+            feeFrozen: feeFrozen,
+            bonded: bonded,
+            redeemable: redeemable,
+            unbonding: unbonding,
+            price: price,
+            priceChange: priceChange
+        )
     }
 
-    func byChangingStakingInfo(_ stakingInfo: StakingLedger,
-                               activeEra: UInt32,
-                               precision: Int16) -> BalanceContext {
+    func byChangingStakingInfo(
+        _ stakingInfo: StakingLedger,
+        activeEra: UInt32,
+        precision: Int16
+    ) -> BalanceContext {
         let redeemable = Decimal
-            .fromSubstrateAmount(stakingInfo.redeemable(inEra: activeEra),
-                                 precision: precision) ?? .zero
+            .fromSubstrateAmount(
+                stakingInfo.redeemable(inEra: activeEra),
+                precision: precision
+            ) ?? .zero
 
         let bonded = Decimal
-            .fromSubstrateAmount(stakingInfo.active,
-                                 precision: precision) ?? .zero
+            .fromSubstrateAmount(
+                stakingInfo.active,
+                precision: precision
+            ) ?? .zero
 
         let unbonding = Decimal
-            .fromSubstrateAmount(stakingInfo.unbounding(inEra: activeEra),
-                                 precision: precision) ?? .zero
+            .fromSubstrateAmount(
+                stakingInfo.unbounding(inEra: activeEra),
+                precision: precision
+            ) ?? .zero
 
-        return BalanceContext(free: free,
-                              reserved: reserved,
-                              miscFrozen: miscFrozen,
-                              feeFrozen: feeFrozen,
-                              bonded: bonded,
-                              redeemable: redeemable,
-                              unbonding: unbonding,
-                              price: price,
-                              priceChange: priceChange)
+        return BalanceContext(
+            free: free,
+            reserved: reserved,
+            miscFrozen: miscFrozen,
+            feeFrozen: feeFrozen,
+            bonded: bonded,
+            redeemable: redeemable,
+            unbonding: unbonding,
+            price: price,
+            priceChange: priceChange
+        )
     }
 
     func byChangingPrice(_ newPrice: Decimal, newPriceChange: Decimal) -> BalanceContext {
-        BalanceContext(free: free,
-                       reserved: reserved,
-                       miscFrozen: miscFrozen,
-                       feeFrozen: feeFrozen,
-                       bonded: bonded,
-                       redeemable: redeemable,
-                       unbonding: unbonding,
-                       price: newPrice,
-                       priceChange: newPriceChange)
+        BalanceContext(
+            free: free,
+            reserved: reserved,
+            miscFrozen: miscFrozen,
+            feeFrozen: feeFrozen,
+            bonded: bonded,
+            redeemable: redeemable,
+            unbonding: unbonding,
+            price: newPrice,
+            priceChange: newPriceChange
+        )
     }
 }

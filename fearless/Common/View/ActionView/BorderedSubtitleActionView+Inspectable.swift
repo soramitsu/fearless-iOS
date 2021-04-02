@@ -5,7 +5,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _title: String? {
         get {
-            return actionControl.contentView.titleLabel.text
+            actionControl.contentView.titleLabel.text
         }
 
         set {
@@ -16,7 +16,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _titleColor: UIColor? {
         get {
-            return actionControl.contentView.titleLabel.textColor
+            actionControl.contentView.titleLabel.textColor
         }
 
         set {
@@ -27,7 +27,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _titleFontName: String? {
         get {
-            return actionControl.contentView.titleLabel.font.fontName
+            actionControl.contentView.titleLabel.font.fontName
         }
 
         set(newValue) {
@@ -43,7 +43,7 @@ extension BorderedSubtitleActionView {
 
             actionControl.contentView.titleLabel.font = UIFont(name: fontName, size: pointSize)
 
-            self.invalidateLayout()
+            invalidateLayout()
         }
     }
 
@@ -65,14 +65,14 @@ extension BorderedSubtitleActionView {
 
             actionControl.contentView.titleLabel.font = UIFont(name: fontName, size: newValue)
 
-            self.invalidateLayout()
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _subtitle: String? {
         get {
-            return actionControl.contentView.subtitleLabelView.text
+            actionControl.contentView.subtitleLabelView.text
         }
 
         set {
@@ -83,7 +83,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _subtitleColor: UIColor? {
         get {
-            return actionControl.contentView.subtitleLabelView.textColor
+            actionControl.contentView.subtitleLabelView.textColor
         }
 
         set {
@@ -94,7 +94,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _subtitleFontName: String? {
         get {
-            return actionControl.contentView.subtitleLabelView.font?.fontName
+            actionControl.contentView.subtitleLabelView.font?.fontName
         }
 
         set(newValue) {
@@ -104,14 +104,16 @@ extension BorderedSubtitleActionView {
             }
 
             guard let pointSize = actionControl.contentView.subtitleLabelView.font?.pointSize else {
-                actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName,
-                                                                          size: UIFont.buttonFontSize)
+                actionControl.contentView.subtitleLabelView.font = UIFont(
+                    name: fontName,
+                    size: UIFont.buttonFontSize
+                )
                 return
             }
 
             actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName, size: pointSize)
 
-            self.invalidateLayout()
+            invalidateLayout()
         }
     }
 
@@ -133,14 +135,14 @@ extension BorderedSubtitleActionView {
 
             actionControl.contentView.subtitleLabelView.font = UIFont(name: fontName, size: newValue)
 
-            self.invalidateLayout()
+            invalidateLayout()
         }
     }
 
     @IBInspectable
     private var _subtitleIcon: UIImage? {
         get {
-            return actionControl.contentView.subtitleImageView.image
+            actionControl.contentView.subtitleImageView.image
         }
 
         set {
@@ -151,7 +153,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _indicatorIcon: UIImage? {
         get {
-            return actionControl.imageIndicator.image
+            actionControl.imageIndicator.image
         }
 
         set {
@@ -162,7 +164,7 @@ extension BorderedSubtitleActionView {
     @IBInspectable
     private var _layoutType: UInt {
         get {
-            return actionControl.layoutType.rawValue
+            actionControl.layoutType.rawValue
         }
 
         set(newValue) {
@@ -173,5 +175,4 @@ extension BorderedSubtitleActionView {
             actionControl.layoutType = newType
         }
     }
-
 }

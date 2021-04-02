@@ -6,8 +6,10 @@ final class PurchaseWireframe: PurchaseWireframeProtocol {
     let commandFactory: WalletCommandFactoryProtocol
     let localizationManager: LocalizationManagerProtocol
 
-    init(localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol) {
+    init(
+        localizationManager: LocalizationManagerProtocol,
+        commandFactory: WalletCommandFactoryProtocol
+    ) {
         self.localizationManager = localizationManager
         self.commandFactory = commandFactory
     }

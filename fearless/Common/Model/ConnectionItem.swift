@@ -21,8 +21,10 @@ extension ConnectionItem {
     }
 
     func replacingTitle(_ newTitle: String) -> ConnectionItem {
-        ConnectionItem(title: newTitle,
-                       url: url,
-                       type: type)
+        ConnectionItem(
+            title: newTitle,
+            url: url,
+            type: type
+        )
     }
 }

@@ -17,10 +17,12 @@ class PinSetupInteractor {
     private let biometryAuth: BiometryAuthProtocol
     private let locale: Locale
 
-    init(secretManager: SecretStoreManagerProtocol,
-         settingsManager: SettingsManagerProtocol,
-         biometryAuth: BiometryAuthProtocol,
-         locale: Locale) {
+    init(
+        secretManager: SecretStoreManagerProtocol,
+        settingsManager: SettingsManagerProtocol,
+        biometryAuth: BiometryAuthProtocol,
+        locale: Locale
+    ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
@@ -72,10 +74,12 @@ class PinSetupInteractor {
     private func submitPincode() {
         guard state == .submitingPincode, let currentPincode = pincode else { return }
 
-        secretManager.saveSecret(currentPincode,
-                                 for: KeystoreTag.pincode.rawValue,
-                                 completionQueue: DispatchQueue.main) { _ -> Void in
-                                    self.completeSetup()
+        secretManager.saveSecret(
+            currentPincode,
+            for: KeystoreTag.pincode.rawValue,
+            completionQueue: DispatchQueue.main
+        ) { _ -> Void in
+            self.completeSetup()
         }
     }
 
@@ -90,7 +94,7 @@ extension PinSetupInteractor: PinSetupInteractorInputProtocol {
     func process(pin: String) {
         guard state == .waitingPincode else { return }
 
-        self.pincode = pin
+        pincode = pin
 
         switch biometryAuth.availableBiometryType {
         case .none:

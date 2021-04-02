@@ -7,19 +7,23 @@ import SoraKeystore
 final class AccountImportInteractor: BaseAccountImportInteractor {
     private(set) var settings: SettingsManagerProtocol
 
-    init(accountOperationFactory: AccountOperationFactoryProtocol,
-         accountRepository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol,
-         settings: SettingsManagerProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+    init(
+        accountOperationFactory: AccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol,
+        settings: SettingsManagerProtocol,
+        keystoreImportService: KeystoreImportServiceProtocol
+    ) {
         self.settings = settings
 
-        super.init(accountOperationFactory: accountOperationFactory,
-                   accountRepository: accountRepository,
-                   operationManager: operationManager,
-                   keystoreImportService: keystoreImportService,
-                   supportedNetworks: Chain.allCases,
-                   defaultNetwork: ConnectionItem.defaultConnection.type.chain)
+        super.init(
+            accountOperationFactory: accountOperationFactory,
+            accountRepository: accountRepository,
+            operationManager: operationManager,
+            keystoreImportService: keystoreImportService,
+            supportedNetworks: Chain.allCases,
+            defaultNetwork: ConnectionItem.defaultConnection.type.chain
+        )
     }
 
     override func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -38,7 +42,8 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             let type = try SS58AddressFactory().type(fromAddress: accountItem.address)
 
             guard let connectionItem = ConnectionItem.supportedConnections
-                .first(where: { $0.type.rawValue == type.uint8Value }) else {
+                .first(where: { $0.type.rawValue == type.uint8Value })
+            else {
                 throw AccountCreateError.unsupportedNetwork
             }
 
@@ -55,7 +60,7 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
                     self?.settings.selectedConnection = connectionItem
 
                     self?.presenter?.didCompleteAccountImport()
-                case .failure(let error):
+                case let .failure(error):
                     self?.presenter?.didReceiveAccountImport(error: error)
                 case .none:
                     let error = BaseOperationError.parentOperationCancelled
@@ -64,7 +69,9 @@ final class AccountImportInteractor: BaseAccountImportInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [importOperation, persistentOperation, connectionOperation],
+            in: .transient
+        )
     }
 }

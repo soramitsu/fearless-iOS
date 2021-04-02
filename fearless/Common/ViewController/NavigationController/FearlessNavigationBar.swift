@@ -2,19 +2,19 @@ import UIKit
 
 struct FearlessNavigationBarStyle {
     static let background: UIImage? = {
-        return UIImage.background(from: R.color.colorBlack()!)
+        UIImage.background(from: R.color.colorBlack()!)
     }()
 
     static let darkShadow: UIImage? = {
-        return UIImage.background(from: R.color.colorDarkGray()!)
+        UIImage.background(from: R.color.colorDarkGray()!)
     }()
 
     static let lightShadow: UIImage? = {
-        return UIImage.background(from: R.color.colorLightGray()!)
+        UIImage.background(from: R.color.colorLightGray()!)
     }()
 
     static let tintColor: UIColor? = {
-        return R.color.colorWhite()!
+        R.color.colorWhite()!
     }()
 
     static let titleAttributes: [NSAttributedString.Key: Any]? = {

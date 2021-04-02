@@ -4,9 +4,11 @@ import IrohaCrypto
 import BigInt
 
 protocol RewardViewModelFactoryProtocol {
-    func createRewardViewModel(reward: Decimal,
-                               targetReturn: Decimal,
-                               priceData: PriceData?) -> LocalizableResource<RewardViewModelProtocol>
+    func createRewardViewModel(
+        reward: Decimal,
+        targetReturn: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<RewardViewModelProtocol>
 }
 
 final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
@@ -27,9 +29,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         self.selectedAddressType = selectedAddressType
     }
 
-    func createRewardViewModel(reward: Decimal,
-                               targetReturn: Decimal,
-                               priceData: PriceData?) -> LocalizableResource<RewardViewModelProtocol> {
+    func createRewardViewModel(
+        reward: Decimal,
+        targetReturn: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<RewardViewModelProtocol> {
         let localizableAmountFormatter = formatterFactory.createTokenFormatter(for: targetAsset)
         let localizablePriceFormatter = formatterFactory.createTokenFormatter(for: priceAsset)
 
@@ -43,9 +47,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
             let rewardPercentageString = percentageFormatter.string(from: targetReturn as NSNumber)
 
             guard let priceData = priceData, let rate = Decimal(string: priceData.price) else {
-                return RewardViewModel(amount: amountString,
-                                       price: nil,
-                                       increase: rewardPercentageString)
+                return RewardViewModel(
+                    amount: amountString,
+                    price: nil,
+                    increase: rewardPercentageString
+                )
             }
 
             let priceAmount = rate * reward
@@ -53,9 +59,11 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
             let priceFormatter = localizablePriceFormatter.value(for: locale)
             let priceString = priceFormatter.string(from: priceAmount) ?? ""
 
-            return RewardViewModel(amount: amountString,
-                                    price: priceString,
-                                    increase: rewardPercentageString)
+            return RewardViewModel(
+                amount: amountString,
+                price: priceString,
+                increase: rewardPercentageString
+            )
         }
     }
 }

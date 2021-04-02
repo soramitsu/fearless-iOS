@@ -2,16 +2,16 @@ import SoraFoundation
 
 protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable {}
 
-protocol StakingPayoutConfirmationPresenterProtocol: class {
+protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
     func setup()
 }
 
-protocol StakingPayoutConfirmationInteractorInputProtocol: class {}
+protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {}
 
-protocol StakingPayoutConfirmationInteractorOutputProtocol: class {}
+protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {}
 
-protocol StakingPayoutConfirmationWireframeProtocol: class {}
+protocol StakingPayoutConfirmationWireframeProtocol: AnyObject {}
 
-protocol StakingPayoutConfirmationViewFactoryProtocol: class {
-	static func createView() -> StakingPayoutConfirmationViewProtocol?
+protocol StakingPayoutConfirmationViewFactoryProtocol: AnyObject {
+    static func createView() -> StakingPayoutConfirmationViewProtocol?
 }

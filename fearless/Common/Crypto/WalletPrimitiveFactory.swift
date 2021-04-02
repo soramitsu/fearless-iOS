@@ -19,8 +19,10 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
     let keystore: KeystoreProtocol
     let settings: SettingsManagerProtocol
 
-    init(keystore: KeystoreProtocol,
-         settings: SettingsManagerProtocol) {
+    init(
+        keystore: KeystoreProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.keystore = keystore
         self.settings = settings
     }
@@ -49,21 +51,25 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             symbol = "KSM"
         }
 
-        return WalletAsset(identifier: identifier,
-                           name: localizableName,
-                           platform: platformName,
-                           symbol: symbol,
-                           precision: addressType.precision,
-                           modes: .all)
+        return WalletAsset(
+            identifier: identifier,
+            name: localizableName,
+            platform: platformName,
+            symbol: symbol,
+            precision: addressType.precision,
+            modes: .all
+        )
     }
 
     func createPriceAsset() -> WalletAsset {
-        WalletAsset(identifier: WalletAssetId.usd.rawValue,
-                    name: LocalizableResource { _ in "" },
-                    platform: LocalizableResource { _ in "" },
-                    symbol: "$",
-                    precision: 2,
-                    modes: .view)
+        WalletAsset(
+            identifier: WalletAssetId.usd.rawValue,
+            name: LocalizableResource { _ in "" },
+            platform: LocalizableResource { _ in "" },
+            symbol: "$",
+            precision: 2,
+            modes: .view
+        )
     }
 
     func createAccountSettings() throws -> WalletAccountSettingsProtocol {
@@ -77,10 +83,14 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
 
         let totalPriceAsset = createPriceAsset()
 
-        let accountId = try SS58AddressFactory().accountId(fromAddress: selectedAccount.address,
-                                                           type: settings.selectedConnection.type)
+        let accountId = try SS58AddressFactory().accountId(
+            fromAddress: selectedAccount.address,
+            type: settings.selectedConnection.type
+        )
 
-        return WalletAccountSettings(accountId: accountId.toHex(),
-                                     assets: [totalPriceAsset, networkAsset])
+        return WalletAccountSettings(
+            accountId: accountId.toHex(),
+            assets: [totalPriceAsset, networkAsset]
+        )
     }
 }

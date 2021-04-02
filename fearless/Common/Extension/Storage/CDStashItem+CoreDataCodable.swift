@@ -3,7 +3,7 @@ import CoreData
 import RobinHood
 
 extension CDStashItem: CoreDataCodable {
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let stashItem = try StashItem(from: decoder)
 
         stash = stashItem.stash

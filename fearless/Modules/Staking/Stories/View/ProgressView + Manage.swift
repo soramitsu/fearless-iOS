@@ -2,13 +2,13 @@ import SoraUI
 
 extension ProgressView {
     func stop() {
-        guard let progressLayer = self.layer.sublayers?.last else { return }
+        guard let progressLayer = layer.sublayers?.last else { return }
 
         progressLayer.removeAllAnimations()
     }
 
     func pause() {
-        guard let progressLayer = self.layer.sublayers?.last else { return }
+        guard let progressLayer = layer.sublayers?.last else { return }
 
         let pausedTime: CFTimeInterval = progressLayer.convertTime(CACurrentMediaTime(), from: nil)
         progressLayer.speed = 0.0
@@ -16,7 +16,7 @@ extension ProgressView {
     }
 
     func resume() {
-        guard let progressLayer = self.layer.sublayers?.last else { return }
+        guard let progressLayer = layer.sublayers?.last else { return }
 
         let pausedTime = progressLayer.timeOffset
         progressLayer.speed = 1.0

@@ -2,7 +2,7 @@ import Foundation
 
 protocol OnboardingMainViewProtocol: ControllerBackedProtocol {}
 
-protocol OnboardingMainPresenterProtocol: class {
+protocol OnboardingMainPresenterProtocol: AnyObject {
     func setup()
     func activateSignup()
     func activateAccountRestore()
@@ -16,11 +16,11 @@ protocol OnboardingMainWireframeProtocol: WebPresentable, ErrorPresentable, Aler
     func showKeystoreImport(from view: OnboardingMainViewProtocol?)
 }
 
-protocol OnboardingMainInteractorInputProtocol: class {
+protocol OnboardingMainInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol OnboardingMainInteractorOutputProtocol: class {
+protocol OnboardingMainInteractorOutputProtocol: AnyObject {
     func didSuggestKeystoreImport()
 }
 

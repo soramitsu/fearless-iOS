@@ -10,13 +10,15 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
     let priceAsset: WalletAsset
     let accountCommandFactory: WalletSelectAccountCommandFactoryProtocol
 
-    init(address: String,
-         chain: Chain,
-         assetCellStyleFactory: AssetCellStyleFactoryProtocol,
-         amountFormatterFactory: NumberFormatterFactoryProtocol,
-         priceAsset: WalletAsset,
-         accountCommandFactory: WalletSelectAccountCommandFactoryProtocol,
-         purchaseProvider: PurchaseProviderProtocol) {
+    init(
+        address: String,
+        chain: Chain,
+        assetCellStyleFactory: AssetCellStyleFactoryProtocol,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        priceAsset: WalletAsset,
+        accountCommandFactory: WalletSelectAccountCommandFactoryProtocol,
+        purchaseProvider: PurchaseProviderProtocol
+    ) {
         self.assetCellStyleFactory = assetCellStyleFactory
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
@@ -25,10 +27,12 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
         super.init(address: address, chain: chain, purchaseProvider: purchaseProvider)
     }
 
-    private func creatRegularViewModel(for asset: WalletAsset,
-                                       balance: BalanceData,
-                                       commandFactory: WalletCommandFactoryProtocol,
-                                       locale: Locale) -> AssetViewModelProtocol? {
+    private func creatRegularViewModel(
+        for asset: WalletAsset,
+        balance: BalanceData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> AssetViewModelProtocol? {
         let style = assetCellStyleFactory.createCellStyle(for: asset)
 
         let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
@@ -75,22 +79,26 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
         let assetDetailsCommand = commandFactory.prepareAssetDetailsCommand(for: asset.identifier)
         assetDetailsCommand.presentationStyle = .push(hidesBottomBar: true)
 
-        return WalletAssetViewModel(assetId: asset.identifier,
-                                    amount: amount,
-                                    symbol: asset.symbol,
-                                    accessoryDetails: totalPriceString,
-                                    imageViewModel: imageViewModel,
-                                    style: style,
-                                    platform: platform,
-                                    details: priceString,
-                                    priceChangeViewModel: priceChangeViewModel,
-                                    command: assetDetailsCommand)
+        return WalletAssetViewModel(
+            assetId: asset.identifier,
+            amount: amount,
+            symbol: asset.symbol,
+            accessoryDetails: totalPriceString,
+            imageViewModel: imageViewModel,
+            style: style,
+            platform: platform,
+            details: priceString,
+            priceChangeViewModel: priceChangeViewModel,
+            command: assetDetailsCommand
+        )
     }
 
-    private func createTotalPriceViewModel(for asset: WalletAsset,
-                                           balance: BalanceData,
-                                           commandFactory: WalletCommandFactoryProtocol,
-                                           locale: Locale) -> AssetViewModelProtocol? {
+    private func createTotalPriceViewModel(
+        for asset: WalletAsset,
+        balance: BalanceData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> AssetViewModelProtocol? {
         let style = assetCellStyleFactory.createCellStyle(for: asset)
 
         let priceFormater = amountFormatterFactory.createTokenFormatter(for: priceAsset)
@@ -107,9 +115,11 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
 
         let iconGenerator = PolkadotIconGenerator()
         let icon = (try? iconGenerator.generateFromAddress(address))?
-            .imageWithFillColor(R.color.colorWhite()!,
-                                size: CGSize(width: 40.0, height: 40.0),
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: CGSize(width: 40.0, height: 40.0),
+                contentScale: UIScreen.main.scale
+            )
 
         let imageViewModel: WalletImageViewModelProtocol?
 
@@ -124,29 +134,37 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
 
         let accountCommand = accountCommandFactory.createCommand(commandFactory)
 
-        return WalletTotalPriceViewModel(assetId: asset.identifier,
-                                         details: details,
-                                         amount: amount,
-                                         imageViewModel: imageViewModel,
-                                         style: style,
-                                         command: nil,
-                                         accountCommand: accountCommand)
+        return WalletTotalPriceViewModel(
+            assetId: asset.identifier,
+            details: details,
+            amount: amount,
+            imageViewModel: imageViewModel,
+            style: style,
+            command: nil,
+            accountCommand: accountCommand
+        )
     }
 
-    override func createAssetViewModel(for asset: WalletAsset,
-                                       balance: BalanceData,
-                                       commandFactory: WalletCommandFactoryProtocol,
-                                       locale: Locale) -> WalletViewModelProtocol? {
+    override func createAssetViewModel(
+        for asset: WalletAsset,
+        balance: BalanceData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> WalletViewModelProtocol? {
         if asset.identifier == priceAsset.identifier {
-            return createTotalPriceViewModel(for: asset,
-                                             balance: balance,
-                                             commandFactory: commandFactory,
-                                             locale: locale)
+            return createTotalPriceViewModel(
+                for: asset,
+                balance: balance,
+                commandFactory: commandFactory,
+                locale: locale
+            )
         } else {
-            return creatRegularViewModel(for: asset,
-                                         balance: balance,
-                                         commandFactory: commandFactory,
-                                         locale: locale)
+            return creatRegularViewModel(
+                for: asset,
+                balance: balance,
+                commandFactory: commandFactory,
+                locale: locale
+            )
         }
     }
 }

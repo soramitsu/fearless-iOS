@@ -12,7 +12,8 @@ final class WebSocketServiceFactory {
     }
 
     static func createNetworkStatusPresenter(localizationManager: LocalizationManagerProtocol)
-        -> NetworkAvailabilityLayerInteractorOutputProtocol? {
+        -> NetworkAvailabilityLayerInteractorOutputProtocol?
+    {
         guard let window = UIApplication.shared.keyWindow as? ApplicationStatusPresentable else {
             return nil
         }

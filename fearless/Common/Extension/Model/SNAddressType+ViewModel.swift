@@ -2,7 +2,7 @@ import Foundation
 import IrohaCrypto
 
 extension SNAddressType {
-    func titleForLocale(_ locale: Locale) -> String {
+    func titleForLocale(_: Locale) -> String {
         switch self {
         case .polkadotMain, .polkadotSecondary:
             return "Polkadot"

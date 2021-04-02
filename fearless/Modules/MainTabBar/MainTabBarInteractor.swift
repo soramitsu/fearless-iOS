@@ -18,10 +18,12 @@ final class MainTabBarInteractor {
         stopServices()
     }
 
-    init(eventCenter: EventCenterProtocol,
-         settings: SettingsManagerProtocol,
-         serviceCoordinator: ServiceCoordinatorProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol) {
+    init(
+        eventCenter: EventCenterProtocol,
+        settings: SettingsManagerProtocol,
+        serviceCoordinator: ServiceCoordinatorProtocol,
+        keystoreImportService: KeystoreImportServiceProtocol
+    ) {
         self.eventCenter = eventCenter
         self.settings = settings
         self.keystoreImportService = keystoreImportService
@@ -33,8 +35,8 @@ final class MainTabBarInteractor {
     }
 
     private func updateSelectedItems() {
-        self.currentAccount = settings.selectedAccount
-        self.currentConnection = settings.selectedConnection
+        currentAccount = settings.selectedAccount
+        currentConnection = settings.selectedConnection
     }
 
     private func startServices() {
@@ -58,7 +60,7 @@ extension MainTabBarInteractor: MainTabBarInteractorInputProtocol {
 }
 
 extension MainTabBarInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         if currentAccount != settings.selectedAccount {
             serviceCoordinator.updateOnAccountChange()
             updateSelectedItems()
@@ -66,7 +68,7 @@ extension MainTabBarInteractor: EventVisitorProtocol {
         }
     }
 
-    func processSelectedConnectionChanged(event: SelectedConnectionChanged) {
+    func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         if currentConnection != settings.selectedConnection {
             serviceCoordinator.updateOnNetworkChange()
             updateSelectedItems()
@@ -74,21 +76,21 @@ extension MainTabBarInteractor: EventVisitorProtocol {
         }
     }
 
-    func processBalanceChanged(event: WalletBalanceChanged) {
+    func processBalanceChanged(event _: WalletBalanceChanged) {
         presenter?.didUpdateWalletInfo()
     }
 
-    func processStakingChanged(event: WalletStakingInfoChanged) {
+    func processStakingChanged(event _: WalletStakingInfoChanged) {
         presenter?.didUpdateWalletInfo()
     }
 
-    func processNewTransaction(event: WalletNewTransactionInserted) {
+    func processNewTransaction(event _: WalletNewTransactionInserted) {
         presenter?.didUpdateWalletInfo()
     }
 }
 
 extension MainTabBarInteractor: KeystoreImportObserver {
-    func didUpdateDefinition(from oldDefinition: KeystoreDefinition?) {
+    func didUpdateDefinition(from _: KeystoreDefinition?) {
         guard keystoreImportService.definition != nil else {
             return
         }

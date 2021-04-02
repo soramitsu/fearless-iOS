@@ -6,7 +6,7 @@ protocol NetworkInfoViewProtocol: ControllerBackedProtocol, LoadableViewProtocol
     func set(networkType: Chain)
 }
 
-protocol NetworkInfoPresenterProtocol: class {
+protocol NetworkInfoPresenterProtocol: AnyObject {
     func setup()
 
     func activateCopy()
@@ -14,13 +14,15 @@ protocol NetworkInfoPresenterProtocol: class {
     func activateUpdate()
 }
 
-protocol NetworkInfoInteractorInputProtocol: class {
-    func updateConnection(_ oldConnection: ConnectionItem,
-                          newURL: URL,
-                          newName: String)
+protocol NetworkInfoInteractorInputProtocol: AnyObject {
+    func updateConnection(
+        _ oldConnection: ConnectionItem,
+        newURL: URL,
+        newName: String
+    )
 }
 
-protocol NetworkInfoInteractorOutputProtocol: class {
+protocol NetworkInfoInteractorOutputProtocol: AnyObject {
     func didStartConnectionUpdate(with url: URL)
     func didCompleteConnectionUpdate(with url: URL)
     func didReceive(error: Error, for url: URL)
@@ -30,6 +32,6 @@ protocol NetworkInfoWireframeProtocol: AlertPresentable, ErrorPresentable, Modal
     func close(view: NetworkInfoViewProtocol?)
 }
 
-protocol NetworkInfoViewFactoryProtocol: class {
-	static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol?
+protocol NetworkInfoViewFactoryProtocol: AnyObject {
+    static func createView(with connectionItem: ConnectionItem, mode: NetworkInfoMode) -> NetworkInfoViewProtocol?
 }

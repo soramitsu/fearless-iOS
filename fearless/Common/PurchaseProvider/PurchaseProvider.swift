@@ -9,9 +9,11 @@ protocol PurchaseProviderProtocol {
     func with(appName: String) -> Self
     func with(logoUrl: URL) -> Self
     func with(callbackUrl: URL) -> Self
-    func buildPurchaseAction(for chain: Chain,
-                             assetId: WalletAssetId?,
-                             address: String) -> [PurchaseAction]
+    func buildPurchaseAction(
+        for chain: Chain,
+        assetId: WalletAssetId?,
+        address: String
+    ) -> [PurchaseAction]
 }
 
 final class PurchaseAggregator {
@@ -38,9 +40,11 @@ extension PurchaseAggregator: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseAction(for chain: Chain,
-                             assetId: WalletAssetId?,
-                             address: String) -> [PurchaseAction] {
+    func buildPurchaseAction(
+        for chain: Chain,
+        assetId: WalletAssetId?,
+        address: String
+    ) -> [PurchaseAction] {
         providers.flatMap { $0.buildPurchaseAction(for: chain, assetId: assetId, address: address) }
     }
 }

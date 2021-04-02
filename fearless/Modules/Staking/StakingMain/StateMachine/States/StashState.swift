@@ -7,11 +7,13 @@ final class StashState: BaseStakingState {
 
     private(set) var ledgerInfo: DyStakingLedger?
 
-    init(stateMachine: StakingStateMachineProtocol,
-         commonData: StakingStateCommonData,
-         stashItem: StashItem,
-         ledgerInfo: DyStakingLedger?,
-         totalReward: TotalRewardItem?) {
+    init(
+        stateMachine: StakingStateMachineProtocol,
+        commonData: StakingStateCommonData,
+        stashItem: StashItem,
+        ledgerInfo: DyStakingLedger?,
+        totalReward: TotalRewardItem?
+    ) {
         self.stashItem = stashItem
         self.ledgerInfo = ledgerInfo
         self.totalReward = totalReward
@@ -33,8 +35,10 @@ final class StashState: BaseStakingState {
                 return
             }
 
-            let newState = NoStashState(stateMachine: stateMachine,
-                                        commonData: commonData)
+            let newState = NoStashState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
 
             stateMachine.transit(to: newState)
         }
@@ -54,29 +58,35 @@ final class StashState: BaseStakingState {
         let newState: StakingStateProtocol
 
         if let ledgerInfo = ledgerInfo, let nomination = nomination {
-            newState = NominatorState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: ledgerInfo,
-                                      nomination: nomination,
-                                      totalReward: totalReward,
-                                      payee: payee)
+            newState = NominatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                nomination: nomination,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else if let nomination = nomination {
-            newState = PendingNominatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: nil,
-                                             nomination: nomination,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingNominatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                nomination: nomination,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
-            newState = PendingValidatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: ledgerInfo,
-                                             prefs: nil,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                prefs: nil,
+                totalReward: totalReward,
+                payee: payee
+            )
         }
 
         stateMachine.transit(to: newState)
@@ -90,29 +100,35 @@ final class StashState: BaseStakingState {
         let newState: StakingStateProtocol
 
         if let ledgerInfo = ledgerInfo, let prefs = validatorPrefs {
-            newState = ValidatorState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: ledgerInfo,
-                                      prefs: prefs,
-                                      totalReward: totalReward,
-                                      payee: payee)
+            newState = ValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                prefs: prefs,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else if let prefs = validatorPrefs {
-            newState = PendingValidatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: nil,
-                                             prefs: prefs,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                prefs: prefs,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
-            newState = PendingNominatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: ledgerInfo,
-                                             nomination: nil,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingNominatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                nomination: nil,
+                totalReward: totalReward,
+                payee: payee
+            )
         }
 
         stateMachine.transit(to: newState)

@@ -6,16 +6,16 @@ extension ChainData {
         switch self {
         case .none:
             return nil
-        case .raw(let data):
+        case let .raw(data):
             return String(data: data, encoding: .utf8)
-        case .blakeTwo256(let data), .keccak256(let data),
-             .sha256(let data), .shaThree256(let data):
+        case let .blakeTwo256(data), let .keccak256(data),
+             let .sha256(data), let .shaThree256(data):
             return data.value.toHex(includePrefix: true)
         }
     }
 
     var imageValue: UIImage? {
-        if case .raw(let data) = self {
+        if case let .raw(data) = self {
             return UIImage(data: data)
         } else {
             return nil
@@ -26,10 +26,10 @@ extension ChainData {
         switch self {
         case .none:
             return nil
-        case .raw(let data):
+        case let .raw(data):
             return data
-        case .blakeTwo256(let hash), .keccak256(let hash),
-             .sha256(let hash), .shaThree256(let hash):
+        case let .blakeTwo256(hash), let .keccak256(hash),
+             let .sha256(hash), let .shaThree256(hash):
             return hash.value
         }
     }

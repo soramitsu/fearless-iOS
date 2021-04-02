@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-protocol SubstrateOperationFactoryProtocol: class {
+protocol SubstrateOperationFactoryProtocol: AnyObject {
     func fetchChainOperation(_ url: URL) -> BaseOperation<String>
 }
 
@@ -13,10 +13,12 @@ final class SubstrateOperationFactory: SubstrateOperationFactoryProtocol {
     }
 
     func fetchChainOperation(_ url: URL) -> BaseOperation<String> {
-        let engine = WebSocketEngine(url: url,
-                                     reachabilityManager: nil,
-                                     reconnectionStrategy: nil,
-                                     logger: logger)
+        let engine = WebSocketEngine(
+            url: url,
+            reachabilityManager: nil,
+            reconnectionStrategy: nil,
+            logger: logger
+        )
 
         return JSONRPCListOperation(engine: engine, method: RPCMethod.chain)
     }

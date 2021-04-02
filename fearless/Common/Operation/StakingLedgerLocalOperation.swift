@@ -68,7 +68,7 @@ final class StakingLedgerLocalOperation: BaseOperation<StakingLedger?> {
         let currentStashAddress = stashAddress
         let semaphore = DispatchSemaphore(value: 0)
 
-        storageService.performAsync { (context, error) in
+        storageService.performAsync { context, error in
             do {
                 if let context = context {
                     let stashEntityName = String(describing: CDStashItem.self)

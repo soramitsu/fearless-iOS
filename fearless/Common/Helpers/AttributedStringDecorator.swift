@@ -1,6 +1,6 @@
 import UIKit
 
-protocol AttributedStringDecoratorProtocol: class {
+protocol AttributedStringDecoratorProtocol: AnyObject {
     func decorate(attributedString: NSAttributedString) -> NSAttributedString
 }
 
@@ -19,8 +19,9 @@ final class HighlightingAttributedStringDecorator: AttributedStringDecoratorProt
 
         guard
             range.location != NSNotFound,
-            let resultAttributedString = attributedString.mutableCopy() as? NSMutableAttributedString else {
-                return attributedString
+            let resultAttributedString = attributedString.mutableCopy() as? NSMutableAttributedString
+        else {
+            return attributedString
         }
 
         resultAttributedString.addAttributes(attributes, range: range)
@@ -58,8 +59,8 @@ final class CompoundAttributedStringDecorator: AttributedStringDecoratorProtocol
     }
 
     func decorate(attributedString: NSAttributedString) -> NSAttributedString {
-        return decorators.reduce(attributedString) { (result, decorator) in
-            return decorator.decorate(attributedString: result)
+        decorators.reduce(attributedString) { result, decorator in
+            decorator.decorate(attributedString: result)
         }
     }
 }

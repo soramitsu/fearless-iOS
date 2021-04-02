@@ -34,19 +34,21 @@ final class StakingMainInteractor {
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?
 
-    init(providerFactory: SingleValueProviderFactoryProtocol,
-         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-         settings: SettingsManagerProtocol,
-         eventCenter: EventCenterProtocol,
-         primitiveFactory: WalletPrimitiveFactoryProtocol,
-         eraValidatorService: EraValidatorServiceProtocol,
-         calculatorService: RewardCalculatorServiceProtocol,
-         runtimeService: RuntimeCodingServiceProtocol,
-         accountRepository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol,
-         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
-         applicationHandler: ApplicationHandlerProtocol,
-         logger: Logger) {
+    init(
+        providerFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        settings: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        primitiveFactory: WalletPrimitiveFactoryProtocol,
+        eraValidatorService: EraValidatorServiceProtocol,
+        calculatorService: RewardCalculatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol,
+        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
+        applicationHandler: ApplicationHandlerProtocol,
+        logger: Logger
+    ) {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.settings = settings
@@ -92,8 +94,10 @@ final class StakingMainInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [operation],
+            in: .transient
+        )
     }
 
     func provideEraStakersInfo() {
@@ -110,8 +114,10 @@ final class StakingMainInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [operation],
+            in: .transient
+        )
     }
 
     func provideNetworkStakingInfo() {

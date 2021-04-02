@@ -11,8 +11,8 @@ struct UIConstants {
     static let formSeparatorWidth: CGFloat = 0.5
     static let triangularedIconLargeRadius: CGFloat = 12.0
     static let triangularedIconSmallRadius: CGFloat = 9.0
-    static let smallAddressIconSize: CGSize = CGSize(width: 18.0, height: 18.0)
-    static let normalAddressIconSize: CGSize = CGSize(width: 32.0, height: 32.0)
+    static let smallAddressIconSize = CGSize(width: 18.0, height: 18.0)
+    static let normalAddressIconSize = CGSize(width: 32.0, height: 32.0)
     static let accessoryBarHeight: CGFloat = 44.0
     static let accessoryItemsSpacing: CGFloat = 12.0
     static let cellHeight: CGFloat = 48
@@ -22,19 +22,25 @@ struct UIConstants {
 protocol UIFactoryProtocol {
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
-    func createDetailsView(with layout: DetailsTriangularedView.Layout,
-                           filled: Bool) -> DetailsTriangularedView
+    func createDetailsView(
+        with layout: DetailsTriangularedView.Layout,
+        filled: Bool
+    ) -> DetailsTriangularedView
     func createExpandableActionControl() -> ExpandableActionControl
     func createTitledMnemonicView(_ title: String?, icon: UIImage?) -> TitledMnemonicView
     func createMultilinedTriangularedView() -> MultilineTriangularedView
     func createSeparatorView() -> UIView
-    func createActionsAccessoryView(for actions: [ViewSelectorAction],
-                                    doneAction: ViewSelectorAction,
-                                    target: Any?,
-                                    spacing: CGFloat) -> UIToolbar
+    func createActionsAccessoryView(
+        for actions: [ViewSelectorAction],
+        doneAction: ViewSelectorAction,
+        target: Any?,
+        spacing: CGFloat
+    ) -> UIToolbar
 
-    func createAmountAccessoryView(for delegate: AmountInputAccessoryViewDelegate?,
-                                   locale: Locale) -> UIToolbar
+    func createAmountAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -50,8 +56,10 @@ final class UIFactory: UIFactoryProtocol {
         return button
     }
 
-    func createDetailsView(with layout: DetailsTriangularedView.Layout,
-                           filled: Bool) -> DetailsTriangularedView {
+    func createDetailsView(
+        with layout: DetailsTriangularedView.Layout,
+        filled: Bool
+    ) -> DetailsTriangularedView {
         let view = DetailsTriangularedView()
         view.layout = layout
 
@@ -140,26 +148,34 @@ final class UIFactory: UIFactoryProtocol {
         return view
     }
 
-    func createActionsAccessoryView(for actions: [ViewSelectorAction],
-                                    doneAction: ViewSelectorAction,
-                                    target: Any?,
-                                    spacing: CGFloat) -> UIToolbar {
-        let frame = CGRect(x: 0.0,
-                           y: 0.0,
-                           width: UIScreen.main.bounds.width,
-                           height: UIConstants.accessoryBarHeight)
+    func createActionsAccessoryView(
+        for _: [ViewSelectorAction],
+        doneAction _: ViewSelectorAction,
+        target _: Any?,
+        spacing _: CGFloat
+    ) -> UIToolbar {
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
 
         let toolBar = UIToolbar(frame: frame)
 
         return toolBar
     }
 
-    func createAmountAccessoryView(for delegate: AmountInputAccessoryViewDelegate?,
-                                   locale: Locale) -> UIToolbar {
-        let frame = CGRect(x: 0.0,
-                           y: 0.0,
-                           width: UIScreen.main.bounds.width,
-                           height: UIConstants.accessoryBarHeight)
+    func createAmountAccessoryView(
+        for delegate: AmountInputAccessoryViewDelegate?,
+        locale: Locale
+    ) -> UIToolbar {
+        let frame = CGRect(
+            x: 0.0,
+            y: 0.0,
+            width: UIScreen.main.bounds.width,
+            height: UIConstants.accessoryBarHeight
+        )
 
         let toolBar = AmountInputAccessoryView(frame: frame)
         toolBar.actionDelegate = delegate
@@ -172,8 +188,10 @@ final class UIFactory: UIFactoryProtocol {
         ]
 
         let doneTitle = R.string.localizable.commonDone(preferredLanguages: locale.rLanguages)
-        let doneAction = ViewSelectorAction(title: doneTitle,
-                                            selector: #selector(toolBar.actionSelectDone))
+        let doneAction = ViewSelectorAction(
+            title: doneTitle,
+            selector: #selector(toolBar.actionSelectDone)
+        )
 
         let spacing: CGFloat
 
@@ -183,58 +201,72 @@ final class UIFactory: UIFactoryProtocol {
             spacing = UIConstants.accessoryItemsSpacing
         }
 
-        return createActionsAccessoryView(for: toolBar,
-                                          actions: actions,
-                                          doneAction: doneAction,
-                                          target: toolBar,
-                                          spacing: spacing)
+        return createActionsAccessoryView(
+            for: toolBar,
+            actions: actions,
+            doneAction: doneAction,
+            target: toolBar,
+            spacing: spacing
+        )
     }
 
-    private func createActionsAccessoryView(for toolBar: UIToolbar,
-                                            actions: [ViewSelectorAction],
-                                            doneAction: ViewSelectorAction,
-                                            target: Any?,
-                                            spacing: CGFloat) -> UIToolbar {
+    private func createActionsAccessoryView(
+        for toolBar: UIToolbar,
+        actions: [ViewSelectorAction],
+        doneAction: ViewSelectorAction,
+        target: Any?,
+        spacing: CGFloat
+    ) -> UIToolbar {
         toolBar.isTranslucent = false
 
         let background = UIImage.background(from: R.color.colorAlmostBlack()!)
-        toolBar.setBackgroundImage(background,
-                                   forToolbarPosition: .any,
-                                   barMetrics: .default)
+        toolBar.setBackgroundImage(
+            background,
+            forToolbarPosition: .any,
+            barMetrics: .default
+        )
 
         let actionAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: R.color.colorWhite()!,
             .font: UIFont.p1Paragraph
         ]
 
-        let barItems = actions.reduce([UIBarButtonItem]()) { (result, action) in
-            let barItem = UIBarButtonItem(title: action.title,
-                                          style: .plain,
-                                          target: target,
-                                          action: action.selector)
+        let barItems = actions.reduce([UIBarButtonItem]()) { result, action in
+            let barItem = UIBarButtonItem(
+                title: action.title,
+                style: .plain,
+                target: target,
+                action: action.selector
+            )
             barItem.setTitleTextAttributes(actionAttributes, for: .normal)
             barItem.setTitleTextAttributes(actionAttributes, for: .highlighted)
 
             if result.isEmpty {
                 return [barItem]
             } else {
-                let fixedSpacing = UIBarButtonItem(barButtonSystemItem: .fixedSpace,
-                                                   target: nil,
-                                                   action: nil)
+                let fixedSpacing = UIBarButtonItem(
+                    barButtonSystemItem: .fixedSpace,
+                    target: nil,
+                    action: nil
+                )
                 fixedSpacing.width = spacing
 
                 return result + [fixedSpacing, barItem]
             }
         }
 
-        let flexibleSpacing = UIBarButtonItem(barButtonSystemItem: .flexibleSpace,
-                                              target: nil,
-                                              action: nil)
+        let flexibleSpacing = UIBarButtonItem(
+            barButtonSystemItem: .flexibleSpace,
+            target: nil,
+            action: nil
+        )
 
-        let doneItem = UIBarButtonItem(title: doneAction.title,
-                                       style: .done,
-                                       target: target,
-                                       action: doneAction.selector)
+        let doneItem = UIBarButtonItem(
+            title: doneAction.title,
+            style: .done,
+            target: target,
+            action: doneAction.selector
+        )
 
         let doneAttributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: R.color.colorWhite()!,

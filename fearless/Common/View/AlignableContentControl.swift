@@ -20,10 +20,12 @@ class AlignableContentControl: BackgroundedContentControl {
 
         switch alignment {
         case .left:
-            contentView.frame = CGRect(x: contentInsets.left,
-                                       y: contentInsets.top,
-                                       width: bounds.size.width - contentInsets.left - contentInsets.right,
-                                       height: bounds.size.height - contentInsets.top - contentInsets.bottom)
+            contentView.frame = CGRect(
+                x: contentInsets.left,
+                y: contentInsets.top,
+                width: bounds.size.width - contentInsets.left - contentInsets.right,
+                height: bounds.size.height - contentInsets.top - contentInsets.bottom
+            )
         case .none:
             break
         }

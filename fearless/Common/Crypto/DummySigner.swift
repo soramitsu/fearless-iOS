@@ -14,25 +14,28 @@ final class DummySigner: SigningWrapperProtocol {
         switch cryptoType {
         case .sr25519:
             let keypair = try SNKeyFactory().createKeypair(fromSeed: seed)
-            type = .sr25519(secretKeyData: keypair.privateKey().rawData(),
-                            publicKeyData: keypair.publicKey().rawData())
+            type = .sr25519(
+                secretKeyData: keypair.privateKey().rawData(),
+                publicKeyData: keypair.publicKey().rawData()
+            )
         case .ed25519:
             type = .ed25519(seed: seed)
         case .ecdsa:
             type = .ecdsa(seed: seed)
         }
-
     }
 
     func sign(_ originalData: Data) throws -> IRSignatureProtocol {
         switch type {
-        case .sr25519(let secretKeyData, let publicKeyData):
-            return try signSr25519(originalData,
-                                   secretKeyData: secretKeyData,
-                                   publicKeyData: publicKeyData)
-        case .ed25519(let seed):
+        case let .sr25519(secretKeyData, publicKeyData):
+            return try signSr25519(
+                originalData,
+                secretKeyData: secretKeyData,
+                publicKeyData: publicKeyData
+            )
+        case let .ed25519(seed):
             return try signEd25519(originalData, secretKey: seed)
-        case .ecdsa(let seed):
+        case let .ecdsa(seed):
             return try signEcdsa(originalData, secretKey: seed)
         }
     }

@@ -15,9 +15,11 @@ final class AccountExportPasswordInteractor {
     let repository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
 
-    init(exportJsonWrapper: KeystoreExportWrapperProtocol,
-         repository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol) {
+    init(
+        exportJsonWrapper: KeystoreExportWrapperProtocol,
+        repository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol
+    ) {
         self.exportJsonWrapper = exportJsonWrapper
         self.repository = repository
         self.operationManager = operationManager
@@ -30,12 +32,14 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
 
         let exportOperation: BaseOperation<RestoreJson> = ClosureOperation { [weak self] in
             guard let account = try accountOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 throw AccountExportPasswordInteractorError.missingAccount
             }
 
             guard let data = try self?.exportJsonWrapper
-                    .export(account: account, password: password) else {
+                .export(account: account, password: password)
+            else {
                 throw BaseOperationError.parentOperationCancelled
             }
 
@@ -49,9 +53,11 @@ extension AccountExportPasswordInteractor: AccountExportPasswordInteractorInputP
                 throw AccountExportPasswordInteractorError.unsupportedAddress
             }
 
-            return RestoreJson(data: result,
-                               chain: chain,
-                               cryptoType: account.cryptoType)
+            return RestoreJson(
+                data: result,
+                chain: chain,
+                cryptoType: account.cryptoType
+            )
         }
 
         exportOperation.addDependency(accountOperation)

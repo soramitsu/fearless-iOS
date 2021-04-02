@@ -2,29 +2,29 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-protocol NetworkInfoViewDelegate: class {
+protocol NetworkInfoViewDelegate: AnyObject {
     func animateAlongsideWithInfo(view: NetworkInfoView)
 }
 
 final class NetworkInfoView: UIView {
-    @IBOutlet weak var backgroundView: TriangularedBlurView!
-    @IBOutlet weak var networkInfoContainer: UIView!
-    @IBOutlet weak var titleControl: ActionTitleControl!
-    @IBOutlet weak var collectionView: UICollectionView!
+    @IBOutlet var backgroundView: TriangularedBlurView!
+    @IBOutlet var networkInfoContainer: UIView!
+    @IBOutlet var titleControl: ActionTitleControl!
+    @IBOutlet var collectionView: UICollectionView!
 
-    @IBOutlet weak var totalStakedTitleLabel: UILabel!
-    @IBOutlet weak var totalStakedAmountLabel: UILabel!
-    @IBOutlet weak var totalStakedFiatAmountLabel: UILabel!
-    @IBOutlet weak var minimumStakeTitleLabel: UILabel!
-    @IBOutlet weak var minimumStakeAmountLabel: UILabel!
-    @IBOutlet weak var minimumStakeFiatAmountLabel: UILabel!
-    @IBOutlet weak var activeNominatorsTitleLabel: UILabel!
-    @IBOutlet weak var activeNominatorsLabel: UILabel!
-    @IBOutlet weak var lockUpPeriodTitleLabel: UILabel!
-    @IBOutlet weak var lockUpPeriodLabel: UILabel!
+    @IBOutlet var totalStakedTitleLabel: UILabel!
+    @IBOutlet var totalStakedAmountLabel: UILabel!
+    @IBOutlet var totalStakedFiatAmountLabel: UILabel!
+    @IBOutlet var minimumStakeTitleLabel: UILabel!
+    @IBOutlet var minimumStakeAmountLabel: UILabel!
+    @IBOutlet var minimumStakeFiatAmountLabel: UILabel!
+    @IBOutlet var activeNominatorsTitleLabel: UILabel!
+    @IBOutlet var activeNominatorsLabel: UILabel!
+    @IBOutlet var lockUpPeriodTitleLabel: UILabel!
+    @IBOutlet var lockUpPeriodLabel: UILabel!
 
-    @IBOutlet weak var contentTop: NSLayoutConstraint!
-    @IBOutlet weak var contentHeight: NSLayoutConstraint!
+    @IBOutlet var contentTop: NSLayoutConstraint!
+    @IBOutlet var contentHeight: NSLayoutConstraint!
 
     weak var delegate: NetworkInfoViewDelegate?
 
@@ -149,7 +149,7 @@ final class NetworkInfoView: UIView {
             contentTop.constant = 0.0
             networkInfoContainer.alpha = 1.0
         } else {
-            contentTop.constant = -self.contentHeight.constant
+            contentTop.constant = -contentHeight.constant
             networkInfoContainer.alpha = 0.0
         }
     }
@@ -192,10 +192,11 @@ final class NetworkInfoView: UIView {
         let skeletonView = Skrull(
             size: networkInfoContainer.frame.size,
             decorations: [],
-            skeletons: createSkeletons(for: spaceSize))
-            .fillSkeletonStart(R.color.colorSkeletonStart()!)
-            .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
-            .build()
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
 
         skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
         skeletonView.autoresizingMask = []
@@ -213,55 +214,67 @@ final class NetworkInfoView: UIView {
         let verticalSpacing: CGFloat = 10.0
 
         return [
-              createSkeletoRow(
-                  under: totalStakedTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset),
-                  size: bigRowSize),
+            createSkeletoRow(
+                under: totalStakedTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize
+            ),
 
-              createSkeletoRow(
-                  under: totalStakedTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                  size: smallRowSize),
+            createSkeletoRow(
+                under: totalStakedTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                size: smallRowSize
+            ),
 
-              createSkeletoRow(
-                  under: minimumStakeTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset),
-                  size: bigRowSize),
+            createSkeletoRow(
+                under: minimumStakeTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize
+            ),
 
-              createSkeletoRow(
-                  under: minimumStakeTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                  size: smallRowSize),
+            createSkeletoRow(
+                under: minimumStakeTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                size: smallRowSize
+            ),
 
-              createSkeletoRow(
-                  under: activeNominatorsTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset),
-                  size: bigRowSize),
+            createSkeletoRow(
+                under: activeNominatorsTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize
+            ),
 
-              createSkeletoRow(
-                  under: lockUpPeriodTitleLabel,
-                  in: spaceSize,
-                  offset: CGPoint(x: 0.0, y: topInset),
-                  size: bigRowSize)
+            createSkeletoRow(
+                under: lockUpPeriodTitleLabel,
+                in: spaceSize,
+                offset: CGPoint(x: 0.0, y: topInset),
+                size: bigRowSize
+            )
         ]
     }
 
-    private func createSkeletoRow(under targetView: UIView,
-                                  in spaceSize: CGSize,
-                                  offset: CGPoint,
-                                  size: CGSize) -> SingleSkeleton {
+    private func createSkeletoRow(
+        under targetView: UIView,
+        in spaceSize: CGSize,
+        offset: CGPoint,
+        size: CGSize
+    ) -> SingleSkeleton {
         let targetFrame = targetView.convert(targetView.bounds, to: networkInfoContainer)
 
-        let position = CGPoint(x: targetFrame.minX + offset.x + size.width / 2.0,
-                               y: targetFrame.maxY + offset.y + size.height / 2.0)
+        let position = CGPoint(
+            x: targetFrame.minX + offset.x + size.width / 2.0,
+            y: targetFrame.maxY + offset.y + size.height / 2.0
+        )
 
-        let mappedSize = CGSize(width: spaceSize.skrullMapX(size.width),
-                                height: spaceSize.skrullMapY(size.height))
+        let mappedSize = CGSize(
+            width: spaceSize.skrullMapX(size.width),
+            height: spaceSize.skrullMapY(size.height)
+        )
 
         return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }

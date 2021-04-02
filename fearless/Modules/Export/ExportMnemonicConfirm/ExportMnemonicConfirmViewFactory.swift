@@ -27,5 +27,4 @@ final class ExportMnemonicConfirmViewFactory: ExportMnemonicConfirmViewFactoryPr
 
         return view
     }
-
 }

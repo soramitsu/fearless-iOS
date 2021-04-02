@@ -9,12 +9,14 @@ final class ShakeAnimator: ViewAnimatorProtocol {
     let initialAmplitude: CGFloat
     let options: UIView.AnimationOptions
 
-    init(duration: TimeInterval = 0.25,
-         delay: TimeInterval = 0.0,
-         dumpingFactor: CGFloat = 0.4,
-         initialVelocity: CGFloat = 1.0,
-         initialAmplitude: CGFloat = 20.0,
-         options: UIView.AnimationOptions = []) {
+    init(
+        duration: TimeInterval = 0.25,
+        delay: TimeInterval = 0.0,
+        dumpingFactor: CGFloat = 0.4,
+        initialVelocity: CGFloat = 1.0,
+        initialAmplitude: CGFloat = 20.0,
+        options: UIView.AnimationOptions = []
+    ) {
         self.duration = duration
         self.delay = delay
         self.dumpingFactor = dumpingFactor
@@ -30,12 +32,14 @@ final class ShakeAnimator: ViewAnimatorProtocol {
             view.transform = CGAffineTransform.identity
         }
 
-        UIView.animate(withDuration: duration,
-                       delay: delay,
-                       usingSpringWithDamping: dumpingFactor,
-                       initialSpringVelocity: initialVelocity,
-                       options: options,
-                       animations: block,
-                       completion: completionBlock)
+        UIView.animate(
+            withDuration: duration,
+            delay: delay,
+            usingSpringWithDamping: dumpingFactor,
+            initialSpringVelocity: initialVelocity,
+            options: options,
+            animations: block,
+            completion: completionBlock
+        )
     }
 }

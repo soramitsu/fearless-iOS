@@ -2,21 +2,25 @@ import Foundation
 import SoraFoundation
 
 final class StakingAmountWireframe: StakingAmountWireframeProtocol {
-    func presentAccountSelection(_ accounts: [AccountItem],
-                                 selectedAccountItem: AccountItem,
-                                 delegate: ModalPickerViewControllerDelegate,
-                                 from view: StakingAmountViewProtocol?,
-                                 context: AnyObject?) {
+    func presentAccountSelection(
+        _ accounts: [AccountItem],
+        selectedAccountItem: AccountItem,
+        delegate: ModalPickerViewControllerDelegate,
+        from view: StakingAmountViewProtocol?,
+        context: AnyObject?
+    ) {
         let title = LocalizableResource { locale in
             R.string.localizable
                 .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)
         }
 
-        guard let picker = ModalPickerFactory.createPickerList(accounts,
-                                                               selectedAccount: selectedAccountItem,
-                                                               title: title,
-                                                               delegate: delegate,
-                                                               context: context) else {
+        guard let picker = ModalPickerFactory.createPickerList(
+            accounts,
+            selectedAccount: selectedAccountItem,
+            title: title,
+            delegate: delegate,
+            context: context
+        ) else {
             return
         }
 
@@ -25,12 +29,15 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
 
     func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding) {
         guard let validatorsView = RecommendedValidatorsViewFactory
-                .createInitiatedBondingView(with: state) else {
+            .createInitiatedBondingView(with: state)
+        else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(validatorsView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            validatorsView.controller,
+            animated: true
+        )
     }
 
     func close(view: StakingAmountViewProtocol?) {

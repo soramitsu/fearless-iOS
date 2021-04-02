@@ -19,8 +19,10 @@ enum ElectionStatus: Decodable, Equatable {
             let blockNumber = try container.decode(StringScaleMapper<UInt32>.self).value
             self = .open(blockNumber: blockNumber)
         default:
-            throw DecodingError.dataCorruptedError(in: container,
-                                                   debugDescription: "Unexpected election status")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unexpected election status"
+            )
         }
     }
 }

@@ -36,6 +36,7 @@ open class TriangularedView: ShadowShapeView {
     }
 
     // MARK: Overriden methods
+
     override open var shapePath: UIBezierPath {
         let bezierPath = UIBezierPath()
 
