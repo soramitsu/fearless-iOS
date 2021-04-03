@@ -17,7 +17,6 @@ jobs:
       
       - name: Install Dependencies & Test
         run: |
-          cd fearless
           pod install --repo-update
           xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' build test
 
