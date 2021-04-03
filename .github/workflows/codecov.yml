@@ -3,10 +3,10 @@ name: Codecov Fearless
 on:
   push:
     branches:
-develop
+      - feature/codecov
   pull_request:
     branches:
-develop
+      - develop
 
 jobs:
   build:
