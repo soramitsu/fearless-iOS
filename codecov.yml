@@ -3,3 +3,9 @@ comment:
   behavior: default
   branches:
     - "develop"
+
+ignore:
+  - "**/*View.swift"
+  - "**/*ViewController.swift"
+  - "**/*Cell.swift"
+  - "**/*Wireframe.swift"
