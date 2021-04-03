@@ -6,6 +6,7 @@ comment:
 
 ignore:
   - "**/*View.swift"
+  - "**/*ViewFactory.swift"
   - "**/*ViewController.swift"
   - "**/*Cell.swift"
   - "**/*Wireframe.swift"
