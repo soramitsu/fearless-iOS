@@ -1,5 +1,11 @@
 name: Codecov Fearless
 
+comment:
+  layout: "reach, diff, flags, files"
+  behavior: default
+  branches:
+    - "develop"
+
 on:
   push:
     branches:
