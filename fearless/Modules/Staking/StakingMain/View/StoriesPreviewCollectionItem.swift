@@ -4,7 +4,7 @@ import SoraUI
 class StoriesPreviewCollectionItem: UICollectionViewCell {
     @IBOutlet private var iconLabel: UILabel!
     @IBOutlet private var captionLabel: UILabel!
-    @IBOutlet weak var strokeView: RoundedView!
+    @IBOutlet var strokeView: RoundedView!
 
     override var isHighlighted: Bool {
         willSet {
