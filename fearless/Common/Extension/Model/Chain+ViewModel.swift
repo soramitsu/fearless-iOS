@@ -1,7 +1,7 @@
 import UIKit
 
 extension Chain {
-    func titleForLocale(_ locale: Locale) -> String {
+    func titleForLocale(_: Locale) -> String {
         switch self {
         case .polkadot:
             return "Polkadot"

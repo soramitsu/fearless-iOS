@@ -9,8 +9,10 @@ final class RecommendedValidatorsInteractor {
     let operationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
 
-    init(operationFactory: ValidatorOperationFactoryProtocol,
-         operationManager: OperationManagerProtocol) {
+    init(
+        operationFactory: ValidatorOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol
+    ) {
         self.operationFactory = operationFactory
         self.operationManager = operationManager
     }

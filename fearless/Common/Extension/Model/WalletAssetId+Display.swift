@@ -27,7 +27,7 @@ extension WalletAssetId {
         }
     }
 
-    func titleForLocale(_ locale: Locale) -> String {
+    func titleForLocale(_: Locale) -> String {
         switch self {
         case .dot:
             return "Polkadot"

@@ -16,6 +16,7 @@ abstract_target 'fearlessAll' do
   pod 'ReachabilitySwift'
   pod 'SwiftGifOrigin', '~> 1.7.0'
   pod 'SnapKit', '~> 5.0.0'
+  pod 'SwiftFormat/CLI'
 
   target 'fearlessTests' do
     inherit! :search_paths

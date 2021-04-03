@@ -7,28 +7,28 @@ final class SelectionSubtitleTableViewCell: UITableViewCell, SelectionItemViewPr
     @IBOutlet private var checkmarkImageView: UIImageView!
 
     @IBInspectable
-    var titleColor: UIColor = UIColor.black {
+    var titleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }
     }
 
     @IBInspectable
-    var selectedTitleColor: UIColor = UIColor.black {
+    var selectedTitleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }
     }
 
     @IBInspectable
-    var subtitleColor: UIColor = UIColor.black {
+    var subtitleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }
     }
 
     @IBInspectable
-    var selectedSubtitleColor: UIColor = UIColor.black {
+    var selectedSubtitleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }
@@ -44,6 +44,7 @@ final class SelectionSubtitleTableViewCell: UITableViewCell, SelectionItemViewPr
     private(set) var viewModel: SelectableSubtitleListViewModel?
 
     override func prepareForReuse() {
+        super.prepareForReuse()
         viewModel?.removeObserver(self)
     }
 

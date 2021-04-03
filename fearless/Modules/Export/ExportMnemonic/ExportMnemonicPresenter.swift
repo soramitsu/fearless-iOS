@@ -27,18 +27,22 @@ final class ExportMnemonicPresenter {
 
         if let derivationPath = exportData?.derivationPath {
             text = R.string.localizable
-                .exportMnemonicWithDpTemplate(data.networkType.titleForLocale(locale),
-                                              data.mnemonic.toString(),
-                                              derivationPath,
-                                              preferredLanguages: locale.rLanguages)
+                .exportMnemonicWithDpTemplate(
+                    data.networkType.titleForLocale(locale),
+                    data.mnemonic.toString(),
+                    derivationPath,
+                    preferredLanguages: locale.rLanguages
+                )
         } else {
             text = R.string.localizable
-                .exportMnemonicWithoutDpTemplate(data.networkType.titleForLocale(locale),
-                                                 data.mnemonic.toString(),
-                                                 preferredLanguages: locale.rLanguages)
+                .exportMnemonicWithoutDpTemplate(
+                    data.networkType.titleForLocale(locale),
+                    data.mnemonic.toString(),
+                    preferredLanguages: locale.rLanguages
+                )
         }
 
-        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] (completed) in
+        wireframe.share(source: TextSharingSource(message: text), from: view) { [weak self] completed in
             if completed {
                 self?.wireframe.close(view: self?.view)
             }
@@ -63,10 +67,12 @@ extension ExportMnemonicPresenter: ExportGenericPresenterProtocol {
         }
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: message,
-                                                  actions: [exportAction],
-                                                  closeAction: cancelTitle)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [exportAction],
+            closeAction: cancelTitle
+        )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
@@ -84,19 +90,23 @@ extension ExportMnemonicPresenter: ExportMnemonicInteractorOutputProtocol {
     func didReceive(exportData: ExportMnemonicData) {
         self.exportData = exportData
 
-        let viewModel = ExportMnemonicViewModel(option: .mnemonic,
-                                                networkType: exportData.networkType,
-                                                derivationPath: exportData.derivationPath,
-                                                cryptoType: exportData.account.cryptoType,
-                                                mnemonic: exportData.mnemonic.allWords())
+        let viewModel = ExportMnemonicViewModel(
+            option: .mnemonic,
+            networkType: exportData.networkType,
+            derivationPath: exportData.derivationPath,
+            cryptoType: exportData.account.cryptoType,
+            mnemonic: exportData.mnemonic.allWords()
+        )
         view?.set(viewModel: viewModel)
     }
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }

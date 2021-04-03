@@ -26,7 +26,9 @@ final class AccountManagementWireframe: AccountManagementWireframeProtocol {
             return
         }
 
-        MainTransitionHelper.transitToMainTabBarController(closing: navigationController,
-                                                           animated: true)
+        MainTransitionHelper.transitToMainTabBarController(
+            closing: navigationController,
+            animated: true
+        )
     }
 }

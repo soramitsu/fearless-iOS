@@ -17,10 +17,12 @@ final class StakingConfirmPresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let asset: WalletAsset
 
-    init(confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol,
-         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         asset: WalletAsset,
-         logger: LoggerProtocol? = nil) {
+    init(
+        confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        asset: WalletAsset,
+        logger: LoggerProtocol? = nil
+    ) {
         self.confirmationViewModelFactory = confirmationViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.logger = logger
@@ -54,9 +56,11 @@ final class StakingConfirmPresenter {
             return
         }
 
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(state.amount,
-                                                                            balance: balance,
-                                                                            priceData: priceData)
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+            state.amount,
+            balance: balance,
+            priceData: priceData
+        )
         view?.didReceive(assetViewModel: viewModel)
     }
 
@@ -73,7 +77,7 @@ final class StakingConfirmPresenter {
                 wireframe.presentAmountTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
-            case .missingController(let address):
+            case let .missingController(address):
                 wireframe.presentMissingController(from: view, address: address, locale: locale)
             case .extrinsicFailed:
                 wireframe.presentExtrinsicFailed(from: view, locale: locale)
@@ -102,10 +106,12 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         if let view = view, let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
             let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
-            wireframe.presentAccountOptions(from: view,
-                                            address: state.wallet.address,
-                                            chain: chain,
-                                            locale: locale)
+            wireframe.presentAccountOptions(
+                from: view,
+                address: state.wallet.address,
+                chain: chain,
+                locale: locale
+            )
         }
     }
 
@@ -114,15 +120,17 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
             return
         }
 
-        if case .payout(let account) = state.rewardDestination,
+        if case let .payout(account) = state.rewardDestination,
            let view = view,
            let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
             let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
-            wireframe.presentAccountOptions(from: view,
-                                            address: account.address,
-                                            chain: chain,
-                                            locale: locale)
+            wireframe.presentAccountOptions(
+                from: view,
+                address: account.address,
+                chain: chain,
+                locale: locale
+            )
         }
     }
 
@@ -131,16 +139,20 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
             return
         }
 
-        wireframe.showSelectedValidator(from: view,
-                                        validators: state.targets,
-                                        maxTargets: state.maxTargets)
+        wireframe.showSelectedValidator(
+            from: view,
+            validators: state.targets,
+            maxTargets: state.maxTargets
+        )
     }
 
     func proceed() {
         guard let fee = fee else {
             if let view = view {
-                wireframe.presentFeeNotReceived(from: view,
-                                                locale: view.localizationManager?.selectedLocale)
+                wireframe.presentFeeNotReceived(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
             }
 
             return
@@ -152,7 +164,7 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
 
 extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
     func didReceive(model: StakingConfirmationModel) {
-        self.state = model
+        state = model
 
         provideAsset()
         provideConfirmationState()
@@ -163,7 +175,7 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
     }
 
     func didReceive(price: PriceData?) {
-        self.priceData = price
+        priceData = price
         provideAsset()
         provideFee()
     }
@@ -174,8 +186,10 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
 
     func didReceive(balance: DyAccountData?) {
         if let availableValue = balance?.available {
-            self.balance = Decimal.fromSubstrateAmount(availableValue,
-                                                       precision: asset.precision)
+            self.balance = Decimal.fromSubstrateAmount(
+                availableValue,
+                precision: asset.precision
+            )
         } else {
             self.balance = 0.0
         }
@@ -210,7 +224,7 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
             self.fee = fee
         } else {
-            self.fee = nil
+            fee = nil
         }
 
         provideFee()

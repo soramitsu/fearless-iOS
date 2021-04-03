@@ -8,7 +8,7 @@ extension CDSingleValue: CoreDataCodable {
         case payload
     }
 
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
 
         identifier = try container.decode(String.self, forKey: .identifier)

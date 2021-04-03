@@ -2,7 +2,7 @@ import Foundation
 
 struct SubscanRewardData: Codable {
     enum CodingKeys: String, CodingKey {
-        case count = "count"
+        case count
         case items = "list"
     }
 
@@ -17,10 +17,10 @@ struct SubscanRewardItemData: Codable {
         case extrinsicIndex = "extrinsic_idx"
         case extrinsicHash = "extrinsic_hash"
         case moduleId = "module_id"
-        case params = "params"
+        case params
         case eventId = "event_id"
         case eventIndex = "event_idx"
-        case amount = "amount"
+        case amount
         case timestamp = "block_timestamp"
         case slashKton = "slash_kton"
     }

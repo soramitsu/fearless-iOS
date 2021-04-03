@@ -7,7 +7,7 @@ protocol NetworkManagementViewProtocol: ControllerBackedProtocol {
     func didRemoveCustomItem(at index: Int)
 }
 
-protocol NetworkManagementPresenterProtocol: class {
+protocol NetworkManagementPresenterProtocol: AnyObject {
     func activateConnectionAdd()
 
     func activateDefaultConnectionDetails(at index: Int)
@@ -29,7 +29,7 @@ protocol NetworkManagementPresenterProtocol: class {
     func setup()
 }
 
-protocol NetworkManagementInteractorInputProtocol: class {
+protocol NetworkManagementInteractorInputProtocol: AnyObject {
     func setup()
     func select(connection: ConnectionItem)
     func select(connection: ConnectionItem, account: AccountItem)
@@ -37,7 +37,7 @@ protocol NetworkManagementInteractorInputProtocol: class {
     func remove(item: ManagedConnectionItem)
 }
 
-protocol NetworkManagementInteractorOutputProtocol: class {
+protocol NetworkManagementInteractorOutputProtocol: AnyObject {
     func didReceiveSelectedConnection(_ item: ConnectionItem)
     func didReceiveDefaultConnections(_ connections: [ConnectionItem])
     func didReceiveCustomConnection(changes: [DataProviderChange<ManagedConnectionItem>])
@@ -49,24 +49,30 @@ protocol NetworkManagementInteractorOutputProtocol: class {
 }
 
 protocol NetworkManagementWireframeProtocol: ErrorPresentable, AlertPresentable {
-    func presentAccountSelection(_ accounts: [AccountItem],
-                                 addressType: SNAddressType,
-                                 delegate: ModalPickerViewControllerDelegate,
-                                 from view: NetworkManagementViewProtocol?,
-                                 context: AnyObject?)
+    func presentAccountSelection(
+        _ accounts: [AccountItem],
+        addressType: SNAddressType,
+        delegate: ModalPickerViewControllerDelegate,
+        from view: NetworkManagementViewProtocol?,
+        context: AnyObject?
+    )
 
-    func presentAccountCreation(for connection: ConnectionItem,
-                                from view: NetworkManagementViewProtocol?)
+    func presentAccountCreation(
+        for connection: ConnectionItem,
+        from view: NetworkManagementViewProtocol?
+    )
 
-    func presentConnectionInfo(_ connectionItem: ConnectionItem,
-                               mode: NetworkInfoMode,
-                               from view: NetworkManagementViewProtocol?)
+    func presentConnectionInfo(
+        _ connectionItem: ConnectionItem,
+        mode: NetworkInfoMode,
+        from view: NetworkManagementViewProtocol?
+    )
 
     func presentConnectionAdd(from view: NetworkManagementViewProtocol?)
 
     func complete(from view: NetworkManagementViewProtocol?)
 }
 
-protocol NetworkManagementViewFactoryProtocol: class {
-	static func createView() -> NetworkManagementViewProtocol?
+protocol NetworkManagementViewFactoryProtocol: AnyObject {
+    static func createView() -> NetworkManagementViewProtocol?
 }

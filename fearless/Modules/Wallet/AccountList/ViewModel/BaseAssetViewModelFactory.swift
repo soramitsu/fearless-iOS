@@ -12,28 +12,36 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
         self.purchaseProvider = purchaseProvider
     }
 
-    func createAssetViewModel(for asset: WalletAsset,
-                              balance: BalanceData,
-                              commandFactory: WalletCommandFactoryProtocol,
-                              locale: Locale) -> WalletViewModelProtocol? {
-        return nil
+    func createAssetViewModel(
+        for _: WalletAsset,
+        balance _: BalanceData,
+        commandFactory _: WalletCommandFactoryProtocol,
+        locale _: Locale
+    ) -> WalletViewModelProtocol? {
+        nil
     }
 
-    func createActionsViewModel(for assetId: String?,
-                                commandFactory: WalletCommandFactoryProtocol,
-                                locale: Locale) -> WalletViewModelProtocol? {
+    func createActionsViewModel(
+        for assetId: String?,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> WalletViewModelProtocol? {
         let sendCommand: WalletCommandProtocol = commandFactory.prepareSendCommand(for: assetId)
         let sendTitle = R.string.localizable
             .walletSendTitle(preferredLanguages: locale.rLanguages)
-        let sendViewModel = WalletActionViewModel(title: sendTitle,
-                                                  command: sendCommand)
+        let sendViewModel = WalletActionViewModel(
+            title: sendTitle,
+            command: sendCommand
+        )
 
         let receiveCommand: WalletCommandProtocol = commandFactory.prepareReceiveCommand(for: assetId)
 
         let receiveTitle = R.string.localizable
             .walletAssetReceive(preferredLanguages: locale.rLanguages)
-        let receiveViewModel = WalletActionViewModel(title: receiveTitle,
-                                                     command: receiveCommand)
+        let receiveViewModel = WalletActionViewModel(
+            title: receiveTitle,
+            command: receiveCommand
+        )
 
         let walletAssetId: WalletAssetId?
 
@@ -43,9 +51,11 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
             walletAssetId = nil
         }
 
-        let actions = purchaseProvider.buildPurchaseAction(for: chain,
-                                                           assetId: walletAssetId,
-                                                           address: address)
+        let actions = purchaseProvider.buildPurchaseAction(
+            for: chain,
+            assetId: walletAssetId,
+            address: address
+        )
 
         let buyCommand: WalletCommandProtocol?
         if !actions.isEmpty {
@@ -57,8 +67,10 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
         let buyTitle = R.string.localizable.walletAssetBuy(preferredLanguages: locale.rLanguages)
         let buyViewModel = WalletDisablingAction(title: buyTitle, command: buyCommand)
 
-        return WalletActionsViewModel(send: sendViewModel,
-                                      receive: receiveViewModel,
-                                      buy: buyViewModel)
+        return WalletActionsViewModel(
+            send: sendViewModel,
+            receive: receiveViewModel,
+            buy: buyViewModel
+        )
     }
 }

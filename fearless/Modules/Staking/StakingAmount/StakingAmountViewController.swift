@@ -42,10 +42,12 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNavigationItem() {
-        let closeBarItem = UIBarButtonItem(image: R.image.iconClose(),
-                                                style: .plain,
-                                                target: self,
-                                                action: #selector(actionClose))
+        let closeBarItem = UIBarButtonItem(
+            image: R.image.iconClose(),
+            style: .plain,
+            target: self,
+            action: #selector(actionClose)
+        )
 
         navigationItem.leftBarButtonItem = closeBarItem
     }
@@ -73,21 +75,27 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
         accountView.actionImage = R.image.iconSmallArrow()
 
-        accountView.addTarget(self,
-                              action: #selector(actionSelectPayoutAccount),
-                              for: .touchUpInside)
+        accountView.addTarget(
+            self,
+            action: #selector(actionSelectPayoutAccount),
+            for: .touchUpInside
+        )
 
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.backgroundColor = .clear
         containerView.addSubview(accountView)
-        self.accountContainerView = containerView
+        accountContainerView = containerView
 
-        accountView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
-                                             constant: UIConstants.horizontalInset).isActive = true
+        accountView.leadingAnchor.constraint(
+            equalTo: containerView.leadingAnchor,
+            constant: UIConstants.horizontalInset
+        ).isActive = true
 
-        accountView.rightAnchor.constraint(equalTo: containerView.rightAnchor,
-                                           constant: -UIConstants.horizontalInset).isActive = true
+        accountView.rightAnchor.constraint(
+            equalTo: containerView.rightAnchor,
+            constant: -UIConstants.horizontalInset
+        ).isActive = true
 
         accountView.heightAnchor.constraint(equalToConstant: UIConstants.triangularedViewHeight).isActive = true
 
@@ -109,7 +117,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
             if let containerView = accountContainerView,
                let insertionIndex = stackView.arrangedSubviews
-                .firstIndex(where: { $0 == chooseRewardView }) {
+               .firstIndex(where: { $0 == chooseRewardView }) {
                 stackView.insertArrangedSubview(containerView, at: insertionIndex + 1)
             }
         }
@@ -126,11 +134,13 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         amountInputView.balanceText = ""
 
         let textColor = R.color.colorWhite()!
-        let placeholder = NSAttributedString(string: "0",
-                                             attributes: [
-                                                .foregroundColor: textColor.withAlphaComponent(0.5),
-                                                .font: UIFont.h4Title
-                                             ])
+        let placeholder = NSAttributedString(
+            string: "0",
+            attributes: [
+                .foregroundColor: textColor.withAlphaComponent(0.5),
+                .font: UIFont.h4Title
+            ]
+        )
 
         amountInputView.textField.attributedPlaceholder = placeholder
         amountInputView.textField.keyboardType = .decimalPad
@@ -190,8 +200,10 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         if let viewModel = assetViewModel?.value(for: locale) {
             amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(viewModel.balance ?? "",
-                                     preferredLanguages: locale.rLanguages)
+                .commonBalanceFormat(
+                    viewModel.balance ?? "",
+                    preferredLanguages: locale.rLanguages
+                )
             amountInputView.priceText = viewModel.price
 
             amountInputView.assetIcon = viewModel.icon
@@ -204,18 +216,22 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         if let fee = feeViewModel?.value(for: locale) {
             feeActivityIndicator.stopAnimating()
 
-            let amountAttributedString = NSMutableAttributedString(string: fee.amount + "  ",
-                                                                   attributes: [
-                                                                        .foregroundColor: R.color.colorWhite()!,
-                                                                        .font: UIFont.p1Paragraph
-                                                                   ])
+            let amountAttributedString = NSMutableAttributedString(
+                string: fee.amount + "  ",
+                attributes: [
+                    .foregroundColor: R.color.colorWhite()!,
+                    .font: UIFont.p1Paragraph
+                ]
+            )
 
             if let price = fee.price {
-                let priceAttributedString = NSAttributedString(string: price,
-                                                               attributes: [
-                                                                .foregroundColor: R.color.colorGray()!,
-                                                                .font: UIFont.p1Paragraph
-                                                               ])
+                let priceAttributedString = NSAttributedString(
+                    string: price,
+                    attributes: [
+                        .foregroundColor: R.color.colorGray()!,
+                        .font: UIFont.p1Paragraph
+                    ]
+                )
                 amountAttributedString.append(priceAttributedString)
             }
 
@@ -241,31 +257,39 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
         if let reward = viewModel.rewardViewModel {
-            let restakeAmount = NSMutableAttributedString(string: reward.restakeAmount + "  ",
-                                                          attributes: [
-                                                            .foregroundColor: restakeColor,
-                                                            .font: UIFont.h6Title
-                                                          ])
+            let restakeAmount = NSMutableAttributedString(
+                string: reward.restakeAmount + "  ",
+                attributes: [
+                    .foregroundColor: restakeColor,
+                    .font: UIFont.h6Title
+                ]
+            )
 
-            let restakePercentage = NSAttributedString(string: reward.restakePercentage,
-                                                       attributes: [
-                                                        .foregroundColor: R.color.colorGreen()!,
-                                                        .font: UIFont.h6Title
-                                                       ])
+            let restakePercentage = NSAttributedString(
+                string: reward.restakePercentage,
+                attributes: [
+                    .foregroundColor: R.color.colorGreen()!,
+                    .font: UIFont.h6Title
+                ]
+            )
 
             restakeAmount.append(restakePercentage)
 
-            let payoutAmount = NSMutableAttributedString(string: reward.payoutAmount + "  ",
-                                                         attributes: [
-                                                            .foregroundColor: payoutColor,
-                                                            .font: UIFont.h6Title
-                                                         ])
+            let payoutAmount = NSMutableAttributedString(
+                string: reward.payoutAmount + "  ",
+                attributes: [
+                    .foregroundColor: payoutColor,
+                    .font: UIFont.h6Title
+                ]
+            )
 
-            let payoutPercentage = NSAttributedString(string: reward.payoutPercentage,
-                                                      attributes: [
-                                                        .foregroundColor: R.color.colorGreen()!,
-                                                        .font: UIFont.h6Title
-                                                      ])
+            let payoutPercentage = NSAttributedString(
+                string: reward.payoutPercentage,
+                attributes: [
+                    .foregroundColor: R.color.colorGreen()!,
+                    .font: UIFont.h6Title
+                ]
+            )
             payoutAmount.append(payoutPercentage)
 
             restakeView.earningsTitleLabel.attributedText = restakeAmount
@@ -289,7 +313,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
             payoutView.isSelected = false
 
             updateAccountView()
-        case .payout(let icon, let title):
+        case let .payout(icon, title):
             restakeView.isSelected = false
             payoutView.isSelected = true
 
@@ -299,9 +323,11 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyPayoutAddress(_ icon: DrawableIcon, title: String) {
-        let icon = icon.imageWithFillColor(R.color.colorWhite()!,
-                                           size: UIConstants.smallAddressIconSize,
-                                           contentScale: UIScreen.main.scale)
+        let icon = icon.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: UIConstants.smallAddressIconSize,
+            contentScale: UIScreen.main.scale
+        )
 
         accountView?.iconImage = icon
         accountView?.subtitle = title
@@ -366,13 +392,13 @@ extension StakingAmountViewController: StakingAmountViewProtocol {
 }
 
 extension StakingAmountViewController: AmountInputAccessoryViewDelegate {
-    func didSelect(on view: AmountInputAccessoryView, percentage: Float) {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 
         presenter.selectAmountPercentage(percentage)
     }
 
-    func didSelectDone(on view: AmountInputAccessoryView) {
+    func didSelectDone(on _: AmountInputAccessoryView) {
         amountInputView.textField.resignFirstResponder()
     }
 }
@@ -389,10 +415,12 @@ extension StakingAmountViewController: AmountInputViewModelObserver {
 }
 
 extension StakingAmountViewController: UITextFieldDelegate {
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
-        return amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+    func textField(
+        _: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }
 

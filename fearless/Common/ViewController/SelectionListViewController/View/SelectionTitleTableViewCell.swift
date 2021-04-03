@@ -6,14 +6,14 @@ final class SelectionTitleTableViewCell: UITableViewCell, SelectionItemViewProto
     @IBOutlet private var checkmarkImageView: UIImageView!
 
     @IBInspectable
-    var titleColor: UIColor = UIColor.black {
+    var titleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }
     }
 
     @IBInspectable
-    var selectedTitleColor: UIColor = UIColor.black {
+    var selectedTitleColor: UIColor = .black {
         didSet {
             updateSelectionState()
         }

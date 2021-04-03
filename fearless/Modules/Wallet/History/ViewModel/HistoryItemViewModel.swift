@@ -13,13 +13,15 @@ final class HistoryItemViewModel: WalletViewModelProtocol {
     let imageViewModel: WalletImageViewModelProtocol?
     let command: WalletCommandProtocol?
 
-    init(title: String,
-         details: String,
-         amount: String,
-         direction: TransactionType,
-         status: AssetTransactionStatus,
-         imageViewModel: WalletImageViewModelProtocol?,
-         command: WalletCommandProtocol?) {
+    init(
+        title: String,
+        details: String,
+        amount: String,
+        direction: TransactionType,
+        status: AssetTransactionStatus,
+        imageViewModel: WalletImageViewModelProtocol?,
+        command: WalletCommandProtocol?
+    ) {
         self.title = title
         self.details = details
         self.amount = amount

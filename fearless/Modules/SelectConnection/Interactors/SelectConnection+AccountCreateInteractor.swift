@@ -18,11 +18,13 @@ extension SelectConnection {
             do {
                 let mnemonic = try mnemonicCreator.randomMnemonic(.entropy128)
 
-                let metadata = AccountCreationMetadata(mnemonic: mnemonic.allWords(),
-                                                       availableNetworks: [connection.type.chain],
-                                                       defaultNetwork: connection.type.chain,
-                                                       availableCryptoTypes: CryptoType.allCases,
-                                                       defaultCryptoType: .sr25519)
+                let metadata = AccountCreationMetadata(
+                    mnemonic: mnemonic.allWords(),
+                    availableNetworks: [connection.type.chain],
+                    defaultNetwork: connection.type.chain,
+                    availableCryptoTypes: CryptoType.allCases,
+                    defaultCryptoType: .sr25519
+                )
                 presenter.didReceive(metadata: metadata)
             } catch {
                 presenter.didReceiveMnemonicGeneration(error: error)

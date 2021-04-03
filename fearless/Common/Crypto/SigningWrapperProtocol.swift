@@ -7,7 +7,6 @@ protocol SigningWrapperProtocol: IRSignatureCreatorProtocol {}
 extension SigningWrapperProtocol {
     func signSr25519(_ originalData: Data, secretKeyData: Data, publicKeyData: Data) throws
         -> IRSignatureProtocol {
-
         let privateKey = try SNPrivateKey(rawData: secretKeyData)
         let publicKey = try SNPublicKey(rawData: publicKeyData)
 

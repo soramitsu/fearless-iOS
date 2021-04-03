@@ -2,23 +2,26 @@ import UIKit
 import SoraFoundation
 
 final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
-
     typealias RootViewType = StakingRewardPayoutsViewLayout
 
     // MARK: Properties -
+
     let presenter: StakingRewardPayoutsPresenterProtocol
 
     // MARK: Init -
+
     init(presenter: StakingRewardPayoutsPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     // MARK: Lifecycle -
+
     override func loadView() {
         view = StakingRewardPayoutsViewLayout()
     }
@@ -39,7 +42,7 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupButtonLocalization() {
-        // TODO
+        // TODO:
         let title = R.string.localizable.stakingRewardPayoutsPayoutAll("0.00345 KSM")
         rootView.payoutButton.imageWithTitleView?.title = title
     }
@@ -55,7 +58,8 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
         rootView.payoutButton.addTarget(
             self,
             action: #selector(handlePayoutButtonAction),
-            for: .touchUpInside)
+            for: .touchUpInside
+        )
     }
 
     @objc
@@ -67,7 +71,6 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {}
 
 extension StakingRewardPayoutsViewController: Localizable {
-
     private func setupLocalization() {
         setupTitleLocalization()
         setupButtonLocalization()
@@ -82,7 +85,6 @@ extension StakingRewardPayoutsViewController: Localizable {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
-
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
         let headerView: StakingRewardHistoryHeaderView = tableView.dequeueReusableHeaderFooterView()
         let model = stubCellData[section].0
@@ -97,8 +99,7 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
-
-    // TODO delete stub data
+    // TODO: delete stub data
     var stubCellData: [(String, [StakingRewardHistoryTableCell.ViewModel])] {
         [
             ("DEC 15, 2021 (era #1,615)".uppercased(), [
@@ -134,15 +135,15 @@ extension StakingRewardPayoutsViewController: UITableViewDataSource {
         ]
     }
 
-    func numberOfSections(in tableView: UITableView) -> Int {
-        return stubCellData.count
+    func numberOfSections(in _: UITableView) -> Int {
+        stubCellData.count
     }
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
         stubCellData[section].1.count
     }
 
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
         let model = stubCellData[indexPath.section].1[indexPath.row]

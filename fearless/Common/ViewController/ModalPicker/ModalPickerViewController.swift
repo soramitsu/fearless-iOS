@@ -2,15 +2,15 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-protocol ModalPickerViewControllerDelegate: class {
+protocol ModalPickerViewControllerDelegate: AnyObject {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?)
     func modalPickerDidCancel(context: AnyObject?)
     func modalPickerDidSelectAction(context: AnyObject?)
 }
 
 extension ModalPickerViewControllerDelegate {
-    func modalPickerDidCancel(context: AnyObject?) {}
-    func modalPickerDidSelectAction(context: AnyObject?) {}
+    func modalPickerDidCancel(context _: AnyObject?) {}
+    func modalPickerDidSelectAction(context _: AnyObject?) {}
 }
 
 enum ModalPickerViewAction {
@@ -19,8 +19,9 @@ enum ModalPickerViewAction {
 }
 
 class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>: UIViewController,
-    ModalViewProtocol, UITableViewDelegate, UITableViewDataSource where T == C.Model {
-
+    ModalViewProtocol,
+    UITableViewDelegate,
+    UITableViewDataSource where T == C.Model {
     @IBOutlet private var headerView: ImageWithTitleView!
     @IBOutlet private var headerBackgroundView: BorderedContainerView!
     @IBOutlet private var headerHeightConstraint: NSLayoutConstraint!
@@ -109,8 +110,10 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     }
 
     private func centerHeader() {
-        headerView.trailingAnchor.constraint(equalTo: headerBackgroundView.trailingAnchor,
-                                             constant: -20.0).isActive = true
+        headerView.trailingAnchor.constraint(
+            equalTo: headerBackgroundView.trailingAnchor,
+            constant: -20.0
+        ).isActive = true
     }
 
     private func configureCloseItem() {
@@ -153,14 +156,14 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         }
     }
 
-    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        return cellHeight
+    func tableView(_: UITableView, heightForRowAt _: IndexPath) -> CGFloat {
+        cellHeight
     }
 
     // MARK: Table View Data Source
 
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return viewModels.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        viewModels.count
     }
 
     // swiftlint:disable force_cast
@@ -174,6 +177,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
         return cell
     }
+
     // swiftlint:enable force_cast
 
     @objc private func handleAction() {
@@ -197,7 +201,7 @@ extension ModalPickerViewController: Localizable {
 }
 
 extension ModalPickerViewController: ModalPresenterDelegate {
-    func presenterDidHide(_ presenter: ModalPresenterProtocol) {
+    func presenterDidHide(_: ModalPresenterProtocol) {
         delegate?.modalPickerDidCancel(context: context)
     }
 }

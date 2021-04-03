@@ -11,11 +11,13 @@ final class AccountManagementInteractor {
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
-    init(repository: AnyDataProviderRepository<ManagedAccountItem>,
-         repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
-         settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol) {
+    init(
+        repository: AnyDataProviderRepository<ManagedAccountItem>,
+        repositoryObservable: AnyDataProviderRepositoryObservable<ManagedAccountItem>,
+        settings: SettingsManagerProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
+    ) {
         self.repository = repository
         self.repositoryObservable = repositoryObservable
         self.settings = settings
@@ -71,7 +73,8 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
 
         if item.networkType != settings.selectedConnection.type {
             guard let newConnection = ConnectionItem
-                .supportedConnections.first(where: { $0.type == item.networkType }) else {
+                .supportedConnections.first(where: { $0.type == item.networkType })
+            else {
                 return
             }
 
@@ -82,10 +85,12 @@ extension AccountManagementInteractor: AccountManagementInteractorInputProtocol 
             connectionChanged = false
         }
 
-        let newSelectedAccountItem = AccountItem(address: item.address,
-                                             cryptoType: item.cryptoType,
-                                             username: item.username,
-                                             publicKeyData: item.publicKeyData)
+        let newSelectedAccountItem = AccountItem(
+            address: item.address,
+            cryptoType: item.cryptoType,
+            username: item.username,
+            publicKeyData: item.publicKeyData
+        )
 
         settings.selectedAccount = newSelectedAccountItem
         presenter?.didReceiveSelected(item: newSelectedAccountItem)

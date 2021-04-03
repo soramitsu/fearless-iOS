@@ -6,21 +6,25 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
     let nomination: PreparedNomination<InitiatedBonding>
     let settings: SettingsManagerProtocol
 
-    init(priceProvider: AnySingleValueProvider<PriceData>,
-         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-         extrinsicService: ExtrinsicServiceProtocol,
-         operationManager: OperationManagerProtocol,
-         signer: SigningWrapperProtocol,
-         settings: SettingsManagerProtocol,
-         nomination: PreparedNomination<InitiatedBonding>) {
+    init(
+        priceProvider: AnySingleValueProvider<PriceData>,
+        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        extrinsicService: ExtrinsicServiceProtocol,
+        operationManager: OperationManagerProtocol,
+        signer: SigningWrapperProtocol,
+        settings: SettingsManagerProtocol,
+        nomination: PreparedNomination<InitiatedBonding>
+    ) {
         self.nomination = nomination
         self.settings = settings
 
-        super.init(priceProvider: priceProvider,
-                   balanceProvider: balanceProvider,
-                   extrinsicService: extrinsicService,
-                   operationManager: operationManager,
-                   signer: signer)
+        super.init(
+            priceProvider: priceProvider,
+            balanceProvider: balanceProvider,
+            extrinsicService: extrinsicService,
+            operationManager: operationManager,
+            signer: signer
+        )
     }
 
     private func provideConfirmationModel() {
@@ -32,21 +36,27 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
             switch nomination.bonding.rewardDestination {
             case .restake:
                 return .restake
-            case .payout(let account):
-                let displayAddress = DisplayAddress(address: account.address,
-                                                    username: account.username)
+            case let .payout(account):
+                let displayAddress = DisplayAddress(
+                    address: account.address,
+                    username: account.username
+                )
                 return .payout(account: displayAddress)
             }
         }()
 
-        let stash = DisplayAddress(address: selectedAccount.address,
-                                   username: selectedAccount.username)
+        let stash = DisplayAddress(
+            address: selectedAccount.address,
+            username: selectedAccount.username
+        )
 
-        let confirmation = StakingConfirmationModel(wallet: stash,
-                                                    amount: nomination.bonding.amount,
-                                                    rewardDestination: rewardDestination,
-                                                    targets: nomination.targets,
-                                                    maxTargets: nomination.maxTargets)
+        let confirmation = StakingConfirmationModel(
+            wallet: stash,
+            amount: nomination.bonding.amount,
+            rewardDestination: rewardDestination,
+            targets: nomination.targets,
+            maxTargets: nomination.maxTargets
+        )
 
         presenter.didReceive(model: confirmation)
     }
@@ -59,7 +69,8 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
         let networkType = settings.selectedConnection.type
 
         guard let amount = nomination.bonding.amount
-                .toSubstrateAmount(precision: networkType.precision) else {
+            .toSubstrateAmount(precision: networkType.precision)
+        else {
             return nil
         }
 
@@ -70,9 +81,11 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
         let closure: ExtrinsicBuilderClosure = { builder in
             let callFactory = SubstrateCallFactory()
 
-            let bondCall = try callFactory.bond(amount: amount,
-                                                controller: controllerAddress,
-                                                rewardDestination: rewardDestination)
+            let bondCall = try callFactory.bond(
+                amount: amount,
+                controller: controllerAddress,
+                rewardDestination: rewardDestination
+            )
 
             let nominateCall = try callFactory.nominate(targets: targets)
 
@@ -97,16 +110,16 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
 
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
             switch result {
-            case .success(let info):
+            case let .success(info):
                 self?.presenter.didReceive(paymentInfo: info)
-            case .failure(let error):
+            case let .failure(error):
                 self?.presenter.didReceive(feeError: error)
             }
         }
     }
 
     override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
-        guard lastBalance >= nomination.bonding.amount  + lastFee else {
+        guard lastBalance >= nomination.bonding.amount + lastFee else {
             presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
             return
         }
@@ -117,13 +130,15 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
 
         presenter.didStartNomination()
 
-        extrinsicService.submit(closure,
-                                signer: signer,
-                                runningIn: .main) { [weak self] result in
+        extrinsicService.submit(
+            closure,
+            signer: signer,
+            runningIn: .main
+        ) { [weak self] result in
             switch result {
-            case .success(let txHash):
+            case let .success(txHash):
                 self?.presenter.didCompleteNomination(txHash: txHash)
-            case .failure(let error):
+            case let .failure(error):
                 self?.presenter.didFailNomination(error: error)
             }
         }

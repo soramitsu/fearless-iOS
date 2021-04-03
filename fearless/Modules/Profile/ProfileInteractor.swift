@@ -7,15 +7,17 @@ enum ProfileInteractorError: Error {
 }
 
 final class ProfileInteractor {
-	weak var presenter: ProfileInteractorOutputProtocol?
+    weak var presenter: ProfileInteractorOutputProtocol?
 
     let settingsManager: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol
 
-    init(settingsManager: SettingsManagerProtocol,
-         eventCenter: EventCenterProtocol,
-         logger: LoggerProtocol) {
+    init(
+        settingsManager: SettingsManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol
+    ) {
         self.settingsManager = settingsManager
         self.eventCenter = eventCenter
         self.logger = logger
@@ -29,8 +31,10 @@ final class ProfileInteractor {
 
             let connection = settingsManager.selectedConnection
 
-            let userSettings = UserSettings(account: account,
-                                            connection: connection)
+            let userSettings = UserSettings(
+                account: account,
+                connection: connection
+            )
 
             presenter?.didReceive(userSettings: userSettings)
         } catch {
@@ -47,11 +51,11 @@ extension ProfileInteractor: ProfileInteractorInputProtocol {
 }
 
 extension ProfileInteractor: EventVisitorProtocol {
-    func processSelectedAccountChanged(event: SelectedAccountChanged) {
+    func processSelectedAccountChanged(event _: SelectedAccountChanged) {
         provideUserSettings()
     }
 
-    func processSelectedUsernameChanged(event: SelectedUsernameChanged) {
+    func processSelectedUsernameChanged(event _: SelectedUsernameChanged) {
         provideUserSettings()
     }
 }

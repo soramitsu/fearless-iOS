@@ -1,17 +1,17 @@
 import Foundation
 
-protocol SelectionListViewModelObserver: class {
+protocol SelectionListViewModelObserver: AnyObject {
     func didChangeSelection()
 }
 
-protocol SelectableViewModelProtocol: class {
+protocol SelectableViewModelProtocol: AnyObject {
     var isSelected: Bool { get }
 
     func addObserver(_ observer: SelectionListViewModelObserver)
     func removeObserver(_ observer: SelectionListViewModelObserver)
 }
 
-private struct Constants {
+private enum Constants {
     static var isSelectedKey = "co.jp.fearless.selectable.selected"
     static var observersKey = "co.jp.fearless.observers"
 }
@@ -23,16 +23,17 @@ private struct Observation {
 extension SelectableViewModelProtocol {
     var isSelected: Bool {
         get {
-            return objc_getAssociatedObject(self, &Constants.isSelectedKey) as? Bool ?? false
+            objc_getAssociatedObject(self, &Constants.isSelectedKey) as? Bool ?? false
         }
 
         set {
-
             if newValue != isSelected {
-                objc_setAssociatedObject(self,
-                                         &Constants.isSelectedKey,
-                                         newValue,
-                                         .OBJC_ASSOCIATION_COPY)
+                objc_setAssociatedObject(
+                    self,
+                    &Constants.isSelectedKey,
+                    newValue,
+                    .OBJC_ASSOCIATION_COPY
+                )
 
                 observers.forEach {
                     $0.observer?.didChangeSelection()
@@ -43,14 +44,16 @@ extension SelectableViewModelProtocol {
 
     private var observers: [Observation] {
         get {
-            return objc_getAssociatedObject(self, &Constants.observersKey) as? [Observation] ?? []
+            objc_getAssociatedObject(self, &Constants.observersKey) as? [Observation] ?? []
         }
 
         set {
-            objc_setAssociatedObject(self,
-                                     &Constants.observersKey,
-                                     newValue,
-                                     .OBJC_ASSOCIATION_COPY)
+            objc_setAssociatedObject(
+                self,
+                &Constants.observersKey,
+                newValue,
+                .OBJC_ASSOCIATION_COPY
+            )
         }
     }
 

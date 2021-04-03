@@ -22,14 +22,13 @@ class LocalAuthPresenter: PinSetupPresenterProtocol {
 }
 
 extension LocalAuthPresenter: LocalAuthInteractorOutputProtocol {
-
     func didEnterWrongPincode() {
         DispatchQueue.main.async { [weak self] in
             self?.view?.didReceiveWrongPincode()
         }
     }
 
-    func didChangeState(from state: LocalAuthInteractor.LocalAuthState) {}
+    func didChangeState(from _: LocalAuthInteractor.LocalAuthState) {}
 
     func didCompleteAuth() {
         DispatchQueue.main.async { [weak self] in

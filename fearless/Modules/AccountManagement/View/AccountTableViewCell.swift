@@ -2,7 +2,7 @@ import UIKit
 import FearlessUtils
 import SoraUI
 
-protocol AccountTableViewCellDelegate: class {
+protocol AccountTableViewCellDelegate: AnyObject {
     func didSelectInfo(_ cell: AccountTableViewCell)
 }
 

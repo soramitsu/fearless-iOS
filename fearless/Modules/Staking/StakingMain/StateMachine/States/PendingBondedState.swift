@@ -13,12 +13,14 @@ final class PendingBondedState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let ledgerInfo = ledgerInfo {
-            newState = BondedState(stateMachine: stateMachine,
-                                   commonData: commonData,
-                                   stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo,
-                                   totalReward: totalReward,
-                                   payee: payee)
+            newState = BondedState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }
@@ -34,13 +36,15 @@ final class PendingBondedState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let nomination = nomination {
-            newState = PendingNominatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: nil,
-                                             nomination: nomination,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingNominatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                nomination: nomination,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }
@@ -56,13 +60,15 @@ final class PendingBondedState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let prefs = validatorPrefs {
-            newState = PendingValidatorState(stateMachine: stateMachine,
-                                             commonData: commonData,
-                                             stashItem: stashItem,
-                                             ledgerInfo: nil,
-                                             prefs: prefs,
-                                             totalReward: totalReward,
-                                             payee: payee)
+            newState = PendingValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                prefs: prefs,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }

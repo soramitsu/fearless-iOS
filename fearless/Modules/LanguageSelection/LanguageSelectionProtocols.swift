@@ -4,20 +4,20 @@ protocol LanguageSelectionPresenterProtocol: SelectionListPresenterProtocol {
     func setup()
 }
 
-protocol LanguageSelectionInteractorInputProtocol: class {
+protocol LanguageSelectionInteractorInputProtocol: AnyObject {
     func load()
     func select(language: Language) -> Bool
 }
 
-protocol LanguageSelectionInteractorOutputProtocol: class {
+protocol LanguageSelectionInteractorOutputProtocol: AnyObject {
     func didLoad(selectedLanguage: Language)
     func didLoad(languages: [Language])
 }
 
-protocol LanguageSelectionWireframeProtocol: class {
+protocol LanguageSelectionWireframeProtocol: AnyObject {
     func proceed(from view: LanguageSelectionViewProtocol?)
 }
 
-protocol LanguageSelectionViewFactoryProtocol: class {
-	static func createView() -> LanguageSelectionViewProtocol?
+protocol LanguageSelectionViewFactoryProtocol: AnyObject {
+    static func createView() -> LanguageSelectionViewProtocol?
 }

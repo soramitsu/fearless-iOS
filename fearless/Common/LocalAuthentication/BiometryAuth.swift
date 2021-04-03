@@ -9,12 +9,15 @@ enum AvailableBiometryType {
 
 protocol BiometryAuthProtocol {
     var availableBiometryType: AvailableBiometryType { get }
-    func authenticate(localizedReason: String, completionQueue: DispatchQueue,
-                      completionBlock: @escaping (Bool) -> Void)
+    func authenticate(
+        localizedReason: String,
+        completionQueue: DispatchQueue,
+        completionBlock: @escaping (Bool) -> Void
+    )
 }
 
 class BiometryAuth: BiometryAuthProtocol {
-    private lazy var context: LAContext = LAContext()
+    private lazy var context = LAContext()
 
     var availableBiometryType: AvailableBiometryType {
         let available = context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics, error: nil)
@@ -36,8 +39,11 @@ class BiometryAuth: BiometryAuthProtocol {
         }
     }
 
-    func authenticate(localizedReason: String, completionQueue: DispatchQueue,
-                      completionBlock: @escaping (Bool) -> Void) {
+    func authenticate(
+        localizedReason: String,
+        completionQueue: DispatchQueue,
+        completionBlock: @escaping (Bool) -> Void
+    ) {
         guard availableBiometryType != .none else {
             completionQueue.async {
                 completionBlock(false)
@@ -45,8 +51,10 @@ class BiometryAuth: BiometryAuthProtocol {
             return
         }
 
-        context.evaluatePolicy(LAPolicy.deviceOwnerAuthenticationWithBiometrics,
-                               localizedReason: localizedReason) { (result: Bool, _: Error?) -> Void in
+        context.evaluatePolicy(
+            LAPolicy.deviceOwnerAuthenticationWithBiometrics,
+            localizedReason: localizedReason
+        ) { (result: Bool, _: Error?) -> Void in
             completionQueue.async {
                 completionBlock(result)
             }

@@ -9,6 +9,6 @@ protocol WalletSelectAccountCommandFactoryProtocol {
 
 final class WalletSelectAccountCommandFactory: WalletSelectAccountCommandFactoryProtocol {
     func createCommand(_ walletCommandFactory: WalletCommandFactoryProtocol) -> WalletSelectAccountCommand {
-        return WalletSelectAccountCommand(commandFactory: walletCommandFactory)
+        WalletSelectAccountCommand(commandFactory: walletCommandFactory)
     }
 }

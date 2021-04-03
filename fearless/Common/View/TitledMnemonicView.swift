@@ -53,10 +53,12 @@ final class TitledMnemonicView: UIView {
 
         if let iconView = lazyIconView {
             let iconSize = iconView.intrinsicContentSize
-            iconView.frame = CGRect(x: bounds.minX,
-                                    y: bounds.minY,
-                                    width: iconSize.width,
-                                    height: iconSize.height)
+            iconView.frame = CGRect(
+                x: bounds.minX,
+                y: bounds.minY,
+                width: iconSize.width,
+                height: iconSize.height
+            )
         }
 
         if let titleLabel = lazyTitleLabel {
@@ -80,10 +82,12 @@ final class TitledMnemonicView: UIView {
         let headerHeight = max(lazyIconView?.frame.maxY ?? 0.0, lazyTitleLabel?.frame.maxY ?? 0.0)
         let top = lazyIconView != nil || lazyTitleLabel != nil ? headerHeight + verticalSpacing : headerHeight
 
-        contentView.frame = CGRect(x: bounds.minX,
-                                   y: top,
-                                   width: bounds.width,
-                                   height: bounds.height - top)
+        contentView.frame = CGRect(
+            x: bounds.minX,
+            y: top,
+            width: bounds.width,
+            height: bounds.height - top
+        )
     }
 
     private func configure() {
@@ -132,8 +136,10 @@ final class TitledMnemonicView: UIView {
 
     private func updateTitleSizeForWidth(_ width: CGFloat) {
         calculatedTitleWidth = width
-        calculatedTitleHeight = titleLabel.sizeThatFits(CGSize(width: width,
-                                                    height: CGFloat.greatestFiniteMagnitude)).height
+        calculatedTitleHeight = titleLabel.sizeThatFits(CGSize(
+            width: width,
+            height: CGFloat.greatestFiniteMagnitude
+        )).height
         invalidateIntrinsicContentSize()
     }
 }

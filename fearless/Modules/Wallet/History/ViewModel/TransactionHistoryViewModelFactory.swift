@@ -13,19 +13,23 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
 
-    let iconGenerator: PolkadotIconGenerator = PolkadotIconGenerator()
+    let iconGenerator = PolkadotIconGenerator()
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol,
-         dateFormatter: LocalizableResource<DateFormatter>,
-         assets: [WalletAsset]) {
+    init(
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        dateFormatter: LocalizableResource<DateFormatter>,
+        assets: [WalletAsset]
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.dateFormatter = dateFormatter
         self.assets = assets
     }
 
-    func createItemFromData(_ data: AssetTransactionData,
-                            commandFactory: WalletCommandFactoryProtocol,
-                            locale: Locale) throws -> WalletViewModelProtocol {
+    func createItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) throws -> WalletViewModelProtocol {
         guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
             throw TransactionHistoryViewModelFactoryError.missingAsset
         }
@@ -43,9 +47,11 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
 
         if let address = data.peerName {
             icon = try? iconGenerator.generateFromAddress(address)
-                .imageWithFillColor(R.color.colorWhite()!,
-                                    size: CGSize(width: 32.0, height: 32.0),
-                                    contentScale: UIScreen.main.scale)
+                .imageWithFillColor(
+                    R.color.colorWhite()!,
+                    size: CGSize(width: 32.0, height: 32.0),
+                    contentScale: UIScreen.main.scale
+                )
         } else {
             icon = nil
         }
@@ -62,12 +68,14 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
 
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
-        return HistoryItemViewModel(title: data.peerName ?? "",
-                                    details: details,
-                                    amount: amount,
-                                    direction: transactionType,
-                                    status: data.status,
-                                    imageViewModel: imageViewModel,
-                                    command: command)
+        return HistoryItemViewModel(
+            title: data.peerName ?? "",
+            details: details,
+            amount: amount,
+            direction: transactionType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
     }
 }

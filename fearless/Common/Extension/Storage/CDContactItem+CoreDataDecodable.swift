@@ -3,7 +3,7 @@ import CoreData
 import RobinHood
 
 extension CDContactItem: CoreDataCodable {
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let contact = try ContactItem(from: decoder)
 
         identifier = contact.identifier

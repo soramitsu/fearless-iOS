@@ -4,9 +4,11 @@ import IrohaCrypto
 import BigInt
 
 protocol SubstrateCallFactoryProtocol {
-    func bond(amount: BigUInt,
-              controller: String,
-              rewardDestination: RewardDestination<AccountAddress>) throws -> RuntimeCall<BondCall>
+    func bond(
+        amount: BigUInt,
+        controller: String,
+        rewardDestination: RewardDestination<AccountAddress>
+    ) throws -> RuntimeCall<BondCall>
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 }
@@ -14,9 +16,11 @@ protocol SubstrateCallFactoryProtocol {
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
 
-    func bond(amount: BigUInt,
-              controller: String,
-              rewardDestination: RewardDestination<String>) throws -> RuntimeCall<BondCall> {
+    func bond(
+        amount: BigUInt,
+        controller: String,
+        rewardDestination: RewardDestination<String>
+    ) throws -> RuntimeCall<BondCall> {
         let controllerId = try addressFactory.accountId(from: controller)
 
         let destArg: RewardDestinationArg
@@ -24,14 +28,16 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         switch rewardDestination {
         case .restake:
             destArg = .staked
-        case .payout(let address):
+        case let .payout(address):
             let accountId = try addressFactory.accountId(from: address)
             destArg = .account(accountId)
         }
 
-        let call = BondCall(controller: .accoundId(controllerId),
-                            value: amount,
-                            payee: destArg)
+        let call = BondCall(
+            controller: .accoundId(controllerId),
+            value: amount,
+            payee: destArg
+        )
 
         return RuntimeCall<BondCall>.bond(call)
     }

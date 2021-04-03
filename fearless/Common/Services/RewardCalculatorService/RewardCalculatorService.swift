@@ -16,8 +16,10 @@ final class RewardCalculatorService {
         let queue: DispatchQueue?
     }
 
-    private let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
-                                          qos: .userInitiated)
+    private let syncQueue = DispatchQueue(
+        label: "\(queueLabelPrefix).\(UUID().uuidString)",
+        qos: .userInitiated
+    )
 
     private var isActive: Bool = false
     private var chain: Chain?
@@ -33,12 +35,14 @@ final class RewardCalculatorService {
     let storageFacade: StorageFacadeProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
 
-    init(eraValidatorsService: EraValidatorServiceProtocol,
-         logger: LoggerProtocol? = nil,
-         operationManager: OperationManagerProtocol,
-         providerFactory: SubstrateDataProviderFactoryProtocol,
-         runtimeCodingService: RuntimeCodingServiceProtocol,
-         storageFacade: StorageFacadeProtocol) {
+    init(
+        eraValidatorsService: EraValidatorServiceProtocol,
+        logger: LoggerProtocol? = nil,
+        operationManager: OperationManagerProtocol,
+        providerFactory: SubstrateDataProviderFactoryProtocol,
+        runtimeCodingService: RuntimeCodingServiceProtocol,
+        storageFacade: StorageFacadeProtocol
+    ) {
         self.logger = logger
         self.storageFacade = storageFacade
         self.providerFactory = providerFactory
@@ -48,8 +52,11 @@ final class RewardCalculatorService {
     }
 
     // MARK: - Private
-    private func fetchInfoFactory(runCompletionIn queue: DispatchQueue?,
-                                  executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void) {
+
+    private func fetchInfoFactory(
+        runCompletionIn queue: DispatchQueue?,
+        executing closure: @escaping (RewardCalculatorEngineProtocol) -> Void
+    ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
@@ -65,14 +72,16 @@ final class RewardCalculatorService {
         eraOperation.completionBlock = {
             dispatchInQueueWhenPossible(request.queue) {
                 switch eraOperation.result {
-                case .success(let eraStakersInfo):
+                case let .success(eraStakersInfo):
                     if let chain = self.chain {
-                        let calculator = RewardCalculatorEngine(totalIssuance: snapshot,
-                                                                validators: eraStakersInfo.validators,
-                                                                chain: chain)
+                        let calculator = RewardCalculatorEngine(
+                            totalIssuance: snapshot,
+                            validators: eraStakersInfo.validators,
+                            chain: chain
+                        )
                         request.resultClosure(calculator)
                     }
-                case .failure(let error):
+                case let .failure(error):
                     self.logger?.error("Era stakers info fetch error: \(error)")
                 case .none:
                     self.logger?.warning("Era stakers info fetch cancelled")
@@ -80,8 +89,10 @@ final class RewardCalculatorService {
             }
         }
 
-        operationManager.enqueue(operations: [eraOperation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [eraOperation],
+            in: .transient
+        )
     }
 
     private func notifyPendingClosures(with totalIssuance: BigUInt) {
@@ -99,18 +110,20 @@ final class RewardCalculatorService {
         logger?.debug("Fulfilled pendings")
     }
 
-    private func handleTotalIssuanceDecodingResult(chain: Chain,
-                                                   result: Result<StringScaleMapper<BigUInt>, Error>?) {
+    private func handleTotalIssuanceDecodingResult(
+        chain: Chain,
+        result: Result<StringScaleMapper<BigUInt>, Error>?
+    ) {
         guard chain == self.chain else {
             logger?.warning("Total Issuance decoding triggered but chain changed. Cancelled.")
             return
         }
 
         switch result {
-        case .success(let totalIssuance):
-            self.snapshot = totalIssuance.value
+        case let .success(totalIssuance):
+            snapshot = totalIssuance.value
             notifyPendingClosures(with: totalIssuance.value)
-        case .failure(let error):
+        case let .failure(error):
             logger?.error("Did receive total issuance decoding error: \(error)")
         case .none:
             logger?.warning("Error decoding operation canceled")
@@ -129,8 +142,10 @@ final class RewardCalculatorService {
 
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
         let decodingOperation =
-            StorageDecodingOperation<StringScaleMapper<BigUInt>>(path: .totalIssuance,
-                                                                 data: totalIssuanceItem.data)
+            StorageDecodingOperation<StringScaleMapper<BigUInt>>(
+                path: .totalIssuance,
+                data: totalIssuanceItem.data
+            )
         decodingOperation.configurationBlock = {
             do {
                 decodingOperation.codingFactory = try codingFactoryOperation
@@ -148,8 +163,10 @@ final class RewardCalculatorService {
             }
         }
 
-        operationManager.enqueue(operations: [codingFactoryOperation, decodingOperation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [codingFactoryOperation, decodingOperation],
+            in: .transient
+        )
     }
 
     private func subscribe() {
@@ -162,16 +179,18 @@ final class RewardCalculatorService {
             let localFactory = try ChainStorageIdFactory(chain: chain)
 
             let path = StorageCodingPath.totalIssuance
-            let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                               storageName: path.itemName)
+            let key = try StorageKeyFactory().createStorageKey(
+                moduleName: path.moduleName,
+                storageName: path.itemName
+            )
 
             let localKey = localFactory.createIdentifier(for: key)
             let totalIssuanceDataProvider = providerFactory.createStorageProvider(for: localKey)
 
             let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
-                let finalValue: ChainStorageItem? = changes.reduce(nil) { (_, item) in
+                let finalValue: ChainStorageItem? = changes.reduce(nil) { _, item in
                     switch item {
-                    case .insert(let newItem), .update(let newItem):
+                    case let .insert(newItem), let .update(newItem):
                         return newItem
                     case .delete:
                         return nil
@@ -181,15 +200,17 @@ final class RewardCalculatorService {
                 self?.didUpdateTotalIssuanceItem(finalValue)
             }
 
-            let failureClosure: (Error) -> Void = { [weak self] (error) in
+            let failureClosure: (Error) -> Void = { [weak self] error in
                 self?.logger?.error("Did receive error: \(error)")
             }
 
-            totalIssuanceDataProvider.addObserver(self,
-                                                  deliverOn: syncQueue,
-                                                  executing: updateClosure,
-                                                  failing: failureClosure,
-                                                  options: StreamableProviderObserverOptions.substrateSource())
+            totalIssuanceDataProvider.addObserver(
+                self,
+                deliverOn: syncQueue,
+                executing: updateClosure,
+                failing: failureClosure,
+                options: StreamableProviderObserverOptions.substrateSource()
+            )
 
             self.totalIssuanceDataProvider = totalIssuanceDataProvider
         } catch {

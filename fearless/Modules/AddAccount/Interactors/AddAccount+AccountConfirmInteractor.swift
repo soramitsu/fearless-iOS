@@ -10,21 +10,25 @@ extension AddAccount {
 
         private var currentOperation: Operation?
 
-        init(request: AccountCreationRequest,
-             mnemonic: IRMnemonicProtocol,
-             accountOperationFactory: AccountOperationFactoryProtocol,
-             accountRepository: AnyDataProviderRepository<AccountItem>,
-             operationManager: OperationManagerProtocol,
-             settings: SettingsManagerProtocol,
-             eventCenter: EventCenterProtocol) {
+        init(
+            request: AccountCreationRequest,
+            mnemonic: IRMnemonicProtocol,
+            accountOperationFactory: AccountOperationFactoryProtocol,
+            accountRepository: AnyDataProviderRepository<AccountItem>,
+            operationManager: OperationManagerProtocol,
+            settings: SettingsManagerProtocol,
+            eventCenter: EventCenterProtocol
+        ) {
             self.settings = settings
             self.eventCenter = eventCenter
 
-            super.init(request: request,
-                       mnemonic: mnemonic,
-                       accountOperationFactory: accountOperationFactory,
-                       accountRepository: accountRepository,
-                       operationManager: operationManager)
+            super.init(
+                request: request,
+                mnemonic: mnemonic,
+                accountOperationFactory: accountOperationFactory,
+                accountRepository: accountRepository,
+                operationManager: operationManager
+            )
         }
 
         private func handleResult(_ result: Result<(AccountItem, ConnectionItem), Error>?) {
@@ -41,7 +45,7 @@ extension AddAccount {
                 eventCenter.notify(with: SelectedAccountChanged())
 
                 presenter?.didCompleteConfirmation()
-            case .failure(let error):
+            case let .failure(error):
                 presenter?.didReceive(error: error)
             case .none:
                 let error = BaseOperationError.parentOperationCancelled
@@ -75,7 +79,7 @@ extension AddAccount {
                 if selectedConnection.type == SNAddressType(rawValue: type.uint8Value) {
                     resultConnection = selectedConnection
                 } else if let connection = ConnectionItem.supportedConnections
-                            .first(where: { $0.type.rawValue == type.uint8Value}) {
+                    .first(where: { $0.type.rawValue == type.uint8Value }) {
                     resultConnection = connection
                 } else {
                     throw AccountCreateError.unsupportedNetwork
@@ -96,9 +100,10 @@ extension AddAccount {
                 }
             }
 
-            operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                     in: .transient)
+            operationManager.enqueue(
+                operations: [importOperation, persistentOperation, connectionOperation],
+                in: .transient
+            )
         }
     }
-
 }

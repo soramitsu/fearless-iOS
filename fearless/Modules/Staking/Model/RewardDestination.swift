@@ -15,9 +15,11 @@ extension RewardDestination where A == AccountAddress {
             self = .payout(account: stashItem.stash)
         case .controller:
             self = .payout(account: stashItem.controller)
-        case .account(let accountId):
-            let address = try SS58AddressFactory().addressFromAccountId(data: accountId,
-                                                                        type: chain.addressType)
+        case let .account(accountId):
+            let address = try SS58AddressFactory().addressFromAccountId(
+                data: accountId,
+                type: chain.addressType
+            )
             self = .payout(account: address)
         }
     }
@@ -28,7 +30,7 @@ extension RewardDestination where A == AccountItem {
         switch self {
         case .restake:
             return .restake
-        case .payout(let account):
+        case let .payout(account):
             return .payout(account: account.address)
         }
     }

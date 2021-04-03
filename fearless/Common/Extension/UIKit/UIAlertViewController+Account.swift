@@ -1,21 +1,26 @@
 import UIKit
 
 extension UIAlertController {
-    static func presentAccountOptions(_ address: String,
-                                      chain: Chain,
-                                      locale: Locale,
-                                      copyClosure: @escaping () -> Void,
-                                      urlClosure: @escaping  (URL) -> Void) -> UIAlertController {
-
+    static func presentAccountOptions(
+        _ address: String,
+        chain: Chain,
+        locale: Locale,
+        copyClosure: @escaping () -> Void,
+        urlClosure: @escaping (URL) -> Void
+    ) -> UIAlertController {
         var title = address
 
         let offset = title.count / 2
-        title.insert(contentsOf: String.returnKey,
-                     at: title.index(title.startIndex, offsetBy: offset))
+        title.insert(
+            contentsOf: String.returnKey,
+            at: title.index(title.startIndex, offsetBy: offset)
+        )
 
-        let alertController = UIAlertController(title: title,
-                                                message: nil,
-                                                preferredStyle: .actionSheet)
+        let alertController = UIAlertController(
+            title: title,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
 
         let copyTitle = R.string.localizable
             .commonCopyAddress(preferredLanguages: locale.rLanguages)

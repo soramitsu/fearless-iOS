@@ -11,8 +11,10 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
     private var itemsById: [String: Model] = [:]
     private let lock = NSLock()
 
-    func fetchOperation(by modelId: String,
-                        options: RepositoryFetchOptions) -> BaseOperation<Model?> {
+    func fetchOperation(
+        by modelId: String,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<Model?> {
         ClosureOperation { [weak self] in
             self?.lock.lock()
 
@@ -24,7 +26,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
         }
     }
 
-    func fetchAllOperation(with options: RepositoryFetchOptions) -> BaseOperation<[Model]> {
+    func fetchAllOperation(with _: RepositoryFetchOptions) -> BaseOperation<[Model]> {
         ClosureOperation { [weak self] in
             self?.lock.lock()
 
@@ -40,13 +42,17 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
         }
     }
 
-    func fetchOperation(by request: RepositorySliceRequest,
-                        options: RepositoryFetchOptions) -> BaseOperation<[Model]> {
+    func fetchOperation(
+        by _: RepositorySliceRequest,
+        options _: RepositoryFetchOptions
+    ) -> BaseOperation<[Model]> {
         BaseOperation.createWithError(InMemoryDataProviderRepositoryError.unsupported)
     }
 
-    func saveOperation(_ updateModelsBlock: @escaping () throws -> [Model],
-                       _ deleteIdsBlock: @escaping () throws -> [String]) -> BaseOperation<Void> {
+    func saveOperation(
+        _ updateModelsBlock: @escaping () throws -> [Model],
+        _ deleteIdsBlock: @escaping () throws -> [String]
+    ) -> BaseOperation<Void> {
         ClosureOperation { [weak self] in
             self?.lock.lock()
 
@@ -82,7 +88,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
 
             let models = try newModelsBlock()
 
-            let newItems = models.reduce(into: [String: Model]()) { (result, model) in
+            let newItems = models.reduce(into: [String: Model]()) { result, model in
                 result[model.identifier] = model
             }
 

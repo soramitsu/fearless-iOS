@@ -14,13 +14,15 @@ final class WalletNetworkOperationFactory {
     let chainStorage: AnyDataProviderRepository<ChainStorageItem>
     let localStorageIdFactory: ChainStorageIdFactoryProtocol
 
-    init(engine: JSONRPCEngine,
-         accountSettings: WalletAccountSettingsProtocol,
-         cryptoType: CryptoType,
-         accountSigner: IRSignatureCreatorProtocol,
-         dummySigner: IRSignatureCreatorProtocol,
-         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
-         localStorageIdFactory: ChainStorageIdFactoryProtocol) {
+    init(
+        engine: JSONRPCEngine,
+        accountSettings: WalletAccountSettingsProtocol,
+        cryptoType: CryptoType,
+        accountSigner: IRSignatureCreatorProtocol,
+        dummySigner: IRSignatureCreatorProtocol,
+        chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+        localStorageIdFactory: ChainStorageIdFactoryProtocol
+    ) {
         self.engine = engine
         self.accountSettings = accountSettings
         self.cryptoType = cryptoType
@@ -39,9 +41,11 @@ final class WalletNetworkOperationFactory {
         let param = Data(Data(bytes: &currentBlock, count: MemoryLayout<UInt32>.size).reversed())
             .toHex(includePrefix: true)
 
-        return JSONRPCListOperation<String>(engine: engine,
-                                            method: RPCMethod.getBlockHash,
-                                            parameters: [param])
+        return JSONRPCListOperation<String>(
+            engine: engine,
+            method: RPCMethod.getBlockHash,
+            parameters: [param]
+        )
     }
 
     func createUpgradedInfoFetchOperation() -> CompoundOperationWrapper<Bool?> {
@@ -56,17 +60,20 @@ final class WalletNetworkOperationFactory {
         }
     }
 
-    func createAccountInfoFetchOperation(_ accountId: Data)
-    -> CompoundOperationWrapper<AccountInfo?> {
+    func createAccountInfoFetchOperation(
+        _ accountId: Data
+    ) -> CompoundOperationWrapper<AccountInfo?> {
         do {
             let storageKeyFactory = StorageKeyFactory()
             let accountIdKey = try storageKeyFactory.accountInfoKeyForId(accountId).toHex(includePrefix: true)
 
             let upgradedOperation = createUpgradedInfoFetchOperation()
 
-            let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(engine: engine,
-                                                                          method: RPCMethod.queryStorageAt,
-                                                                          parameters: [[accountIdKey]])
+            let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(
+                engine: engine,
+                method: RPCMethod.queryStorageAt,
+                parameters: [[accountIdKey]]
+            )
 
             let mapOperation = ClosureOperation<AccountInfo?> {
                 let storageUpdates = try operation
@@ -79,7 +86,7 @@ final class WalletNetworkOperationFactory {
                 let upgraded = (try upgradedOperation.targetOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
 
-                let accountInfo: AccountInfo? = try storageUpdateDataList.reduce(nil) { (result, updateData) in
+                let accountInfo: AccountInfo? = try storageUpdateDataList.reduce(nil) { result, updateData in
                     guard result == nil else {
                         return result
                     }
@@ -117,26 +124,32 @@ final class WalletNetworkOperationFactory {
             let identifier = try (accountId ?? Data(hexString: accountSettings.accountId))
 
             let address = try SS58AddressFactory()
-                .address(fromPublicKey: AccountIdWrapper(rawData: identifier),
-                         type: SNAddressType(chain: chain))
+                .address(
+                    fromPublicKey: AccountIdWrapper(rawData: identifier),
+                    type: SNAddressType(chain: chain)
+                )
 
-            return JSONRPCListOperation<UInt32>(engine: engine,
-                                                method: RPCMethod.getExtrinsicNonce,
-                                                parameters: [address])
+            return JSONRPCListOperation<UInt32>(
+                engine: engine,
+                method: RPCMethod.getExtrinsicNonce,
+                parameters: [address]
+            )
         } catch {
             return createBaseOperation(result: .failure(error))
         }
     }
 
     func createRuntimeVersionOperation() -> BaseOperation<RuntimeVersion> {
-        return JSONRPCListOperation(engine: engine, method: RPCMethod.getRuntimeVersion)
+        JSONRPCListOperation(engine: engine, method: RPCMethod.getRuntimeVersion)
     }
 
-    func setupTransferExtrinsic<T>(_ targetOperation: JSONRPCListOperation<T>,
-                                   amount: BigUInt,
-                                   receiver: String,
-                                   chain: Chain,
-                                   signer: IRSignatureCreatorProtocol) -> CompoundOperationWrapper<T> {
+    func setupTransferExtrinsic<T>(
+        _ targetOperation: JSONRPCListOperation<T>,
+        amount: BigUInt,
+        receiver: String,
+        chain: Chain,
+        signer: IRSignatureCreatorProtocol
+    ) -> CompoundOperationWrapper<T> {
         let sender = accountSettings.accountId
         let currentCryptoType = cryptoType
 
@@ -159,30 +172,36 @@ final class WalletNetworkOperationFactory {
                 let senderAccountId = try Data(hexString: sender)
                 let genesisHashData = try Data(hexString: chain.genesisHash)
 
-                let additionalParameters = ExtrinsicParameters(nonce: nonce,
-                                                               genesisHash: genesisHashData,
-                                                               specVersion: runtimeVersion.specVersion,
-                                                               transactionVersion: runtimeVersion.transactionVersion,
-                                                               signatureVersion: currentCryptoType.version,
-                                                               moduleIndex: chain.balanceModuleIndex,
-                                                               callIndex: chain.transferCallIndex)
+                let additionalParameters = ExtrinsicParameters(
+                    nonce: nonce,
+                    genesisHash: genesisHashData,
+                    specVersion: runtimeVersion.specVersion,
+                    transactionVersion: runtimeVersion.transactionVersion,
+                    signatureVersion: currentCryptoType.version,
+                    moduleIndex: chain.balanceModuleIndex,
+                    callIndex: chain.transferCallIndex
+                )
 
                 let extrinsicData: Data
 
                 if upgraded {
                     extrinsicData = try ExtrinsicFactory
-                        .transferExtrinsic(from: senderAccountId,
-                                           to: receiverAccountId,
-                                           amount: amount,
-                                           additionalParameters: additionalParameters,
-                                           signer: signer)
+                        .transferExtrinsic(
+                            from: senderAccountId,
+                            to: receiverAccountId,
+                            amount: amount,
+                            additionalParameters: additionalParameters,
+                            signer: signer
+                        )
                 } else {
                     extrinsicData = try ExtrinsicFactoryV27
-                        .transferExtrinsic(from: senderAccountId,
-                                           to: receiverAccountId,
-                                           amount: amount,
-                                           additionalParameters: additionalParameters,
-                                           signer: signer)
+                        .transferExtrinsic(
+                            from: senderAccountId,
+                            to: receiverAccountId,
+                            amount: amount,
+                            additionalParameters: additionalParameters,
+                            signer: signer
+                        )
                 }
 
                 targetOperation.parameters = [extrinsicData.toHex(includePrefix: true)]
@@ -194,10 +213,12 @@ final class WalletNetworkOperationFactory {
         let dependencies: [Operation] = [nonceOperation, runtimeVersionOperation]
             + upgradedOperation.allOperations
 
-        dependencies.forEach { targetOperation.addDependency($0)}
+        dependencies.forEach { targetOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: targetOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: targetOperation,
+            dependencies: dependencies
+        )
     }
 
     func createCompoundOperation<T>(result: Result<T, Error>) -> CompoundOperationWrapper<T> {

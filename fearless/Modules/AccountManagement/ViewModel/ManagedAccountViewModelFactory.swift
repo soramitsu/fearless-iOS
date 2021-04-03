@@ -15,9 +15,11 @@ final class ManagedAccountViewModelFactory: ManagedAccountViewModelFactoryProtoc
     func createViewModelFromItem(_ item: ManagedAccountItem, selected: Bool) -> ManagedAccountViewModelItem {
         let icon = try? iconGenerator.generateFromAddress(item.address)
 
-        return ManagedAccountViewModelItem(name: item.username,
-                                           address: item.address,
-                                           icon: icon,
-                                           isSelected: selected)
+        return ManagedAccountViewModelItem(
+            name: item.username,
+            address: item.address,
+            icon: icon,
+            isSelected: selected
+        )
     }
 }

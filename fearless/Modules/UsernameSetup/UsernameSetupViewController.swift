@@ -90,9 +90,11 @@ final class UsernameSetupViewController: UIViewController {
 }
 
 extension UsernameSetupViewController: AnimatedTextFieldDelegate {
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let viewModel = viewModel else {
             return true
         }

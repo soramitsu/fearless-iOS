@@ -35,9 +35,11 @@ final class LanguageSelectionPresenter {
                 title = ""
             }
 
-            return SelectableSubtitleListViewModel(title: title,
-                                                   subtitle: subtitle,
-                                                   isSelected: isSelected)
+            return SelectableSubtitleListViewModel(
+                title: title,
+                subtitle: subtitle,
+                isSelected: isSelected
+            )
         }
 
         view?.didReload()
@@ -52,11 +54,11 @@ final class LanguageSelectionPresenter {
 
 extension LanguageSelectionPresenter: LanguageSelectionPresenterProtocol {
     var numberOfItems: Int {
-        return viewModels.count
+        viewModels.count
     }
 
     func item(at index: Int) -> SelectableViewModelProtocol {
-        return viewModels[index]
+        viewModels[index]
     }
 
     func selectItem(at index: Int) {

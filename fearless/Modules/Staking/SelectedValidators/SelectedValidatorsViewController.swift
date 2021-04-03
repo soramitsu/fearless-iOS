@@ -37,9 +37,11 @@ final class SelectedValidatorsViewController: UIViewController {
         if let viewModel = viewModel {
             let languages = localizationManager?.selectedLocale.rLanguages
             let title = R.string.localizable
-                .stakingSelectedValidatorsCount("\(viewModel.itemViewModels.count)",
-                                                "\(viewModel.maxTargets)",
-                                                preferredLanguages: languages)
+                .stakingSelectedValidatorsCount(
+                    "\(viewModel.itemViewModels.count)",
+                    "\(viewModel.maxTargets)",
+                    preferredLanguages: languages
+                )
             headerView?.bind(title: title.uppercased())
         }
     }
@@ -54,14 +56,16 @@ final class SelectedValidatorsViewController: UIViewController {
 }
 
 extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewDataSource {
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModel?.itemViewModels.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView
-            .dequeueReusableCell(withIdentifier: R.reuseIdentifier.selectedValidatorCellId,
-                                 for: indexPath)!
+            .dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.selectedValidatorCellId,
+                for: indexPath
+            )!
 
         let items = viewModel?.itemViewModels ?? []
         cell.bind(viewModel: items[indexPath.row])

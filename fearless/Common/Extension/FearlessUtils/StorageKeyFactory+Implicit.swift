@@ -3,53 +3,71 @@ import FearlessUtils
 
 extension StorageKeyFactoryProtocol {
     func updatedDualRefCount() throws -> Data {
-        try createStorageKey(moduleName: "System",
-                             storageName: "UpgradedToDualRefCount")
+        try createStorageKey(
+            moduleName: "System",
+            storageName: "UpgradedToDualRefCount"
+        )
     }
 
     func accountInfoKeyForId(_ identifier: Data) throws -> Data {
-        try createStorageKey(moduleName: "System",
-                             storageName: "Account",
-                             key: identifier,
-                             hasher: .blake128Concat)
+        try createStorageKey(
+            moduleName: "System",
+            storageName: "Account",
+            key: identifier,
+            hasher: .blake128Concat
+        )
     }
 
     func bondedKeyForId(_ identifier: Data) throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "Bonded",
-                             key: identifier,
-                             hasher: .twox64Concat)
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "Bonded",
+            key: identifier,
+            hasher: .twox64Concat
+        )
     }
 
     func stakingInfoForControllerId(_ identifier: Data) throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "Ledger",
-                             key: identifier,
-                             hasher: .blake128Concat)
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "Ledger",
+            key: identifier,
+            hasher: .blake128Concat
+        )
     }
 
     func activeEra() throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "ActiveEra")
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "ActiveEra"
+        )
     }
 
     func currentEra() throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "CurrentEra")
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "CurrentEra"
+        )
     }
 
     func totalIssuance() throws -> Data {
-        try createStorageKey(moduleName: "Balances",
-                             storageName: "TotalIssuance")
+        try createStorageKey(
+            moduleName: "Balances",
+            storageName: "TotalIssuance"
+        )
     }
 
     func electionStatus() throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "ElectionStatus")
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "ElectionStatus"
+        )
     }
 
     func historyDepth() throws -> Data {
-        try createStorageKey(moduleName: "Staking",
-                             storageName: "HistoryDepth")
+        try createStorageKey(
+            moduleName: "Staking",
+            storageName: "HistoryDepth"
+        )
     }
- }
+}

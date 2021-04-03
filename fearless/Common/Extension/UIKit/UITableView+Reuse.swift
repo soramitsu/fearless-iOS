@@ -1,7 +1,6 @@
 import UIKit
 
 extension UITableView {
-
     func registerClassForCell(_ cellClass: UITableViewCell.Type) {
         register(cellClass, forCellReuseIdentifier: cellClass.reuseIdentifier)
     }
@@ -17,7 +16,7 @@ extension UITableView {
     }
 
     func dequeueReusableCellWithType<T: UITableViewCell>(_ cellClass: T.Type) -> T? {
-        return dequeueReusableCell(withIdentifier: cellClass.reuseIdentifier) as? T
+        dequeueReusableCell(withIdentifier: cellClass.reuseIdentifier) as? T
     }
 
     func dequeueReusableCellWithType<T: UITableViewCell>(
@@ -25,8 +24,9 @@ extension UITableView {
         forIndexPath indexPath: IndexPath
     ) -> T {
         guard let cell = dequeueReusableCell(
-                withIdentifier: cellClass.reuseIdentifier,
-                for: indexPath) as? T else {
+            withIdentifier: cellClass.reuseIdentifier,
+            for: indexPath
+        ) as? T else {
             fatalError("You are trying to dequeue \(cellClass) which is not registered")
         }
         return cell
@@ -42,6 +42,6 @@ extension UITableView {
 
 extension UIView {
     static var reuseIdentifier: String {
-        return NSStringFromClass(self)
+        NSStringFromClass(self)
     }
 }

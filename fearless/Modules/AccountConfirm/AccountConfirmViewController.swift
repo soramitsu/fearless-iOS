@@ -4,14 +4,16 @@ import SoraUI
 import AudioToolbox
 
 final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
-    private struct Constants {
+    private enum Constants {
         static let externalMargin: CGFloat = 16.0
         static let itemsSpacing: CGFloat = 8.0
         static let internalMargin: CGFloat = 16.0
-        static let itemContentInsets: UIEdgeInsets = UIEdgeInsets(top: 7.0,
-                                                                  left: 11.0,
-                                                                  bottom: 7.0,
-                                                                  right: 11.0)
+        static let itemContentInsets = UIEdgeInsets(
+            top: 7.0,
+            left: 11.0,
+            bottom: 7.0,
+            right: 11.0
+        )
         static let cornerRadius: CGFloat = 4.0
     }
 
@@ -38,14 +40,20 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
 
     private var minHeight: CGFloat = 0.0
 
-    var wordTransitionAnimation = BlockViewAnimator(duration: 0.25,
-                                                    options: [.curveEaseOut])
+    var wordTransitionAnimation = BlockViewAnimator(
+        duration: 0.25,
+        options: [.curveEaseOut]
+    )
 
-    var retryAnimation = TransitionAnimator(type: .fade,
-                                            duration: 0.25)
+    var retryAnimation = TransitionAnimator(
+        type: .fade,
+        duration: 0.25
+    )
 
-    var wrongSequenceAnimation = ShakeAnimator(duration: 0.5,
-                                               options: [.curveEaseInOut])
+    var wrongSequenceAnimation = ShakeAnimator(
+        duration: 0.5,
+        options: [.curveEaseInOut]
+    )
 
     private var contentWidth: CGFloat = 0.0
 
@@ -107,9 +115,11 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         button.imageWithTitleView?.titleFont = UIFont.p1Paragraph
         button.changesContentOpacityWhenHighlighted = true
 
-        button.addTarget(self,
-                         action: #selector(actionItem),
-                         for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(actionItem),
+            for: .touchUpInside
+        )
 
         return button
     }
@@ -146,10 +156,12 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(image: R.image.iconRetry(),
-                                       style: .plain,
-                                       target: self,
-                                       action: #selector(actionRetry))
+        let infoItem = UIBarButtonItem(
+            image: R.image.iconRetry(),
+            style: .plain,
+            target: self,
+            action: #selector(actionRetry)
+        )
         navigationItem.rightBarButtonItem = infoItem
     }
 
@@ -159,14 +171,18 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
         skipButton.applyAccessoryStyle()
         buttonsView.addSubview(skipButton)
 
-        skipButton.addTarget(self,
-                             action: #selector(actionSkip),
-                             for: .touchUpInside)
+        skipButton.addTarget(
+            self,
+            action: #selector(actionSkip),
+            for: .touchUpInside
+        )
 
         skipButton.leadingAnchor.constraint(equalTo: buttonsView.leadingAnchor).isActive = true
         skipButton.trailingAnchor.constraint(equalTo: buttonsView.trailingAnchor).isActive = true
-        skipButton.bottomAnchor.constraint(equalTo: nextButton.topAnchor,
-                                           constant: -UIConstants.mainAccessoryActionsSpacing).isActive = true
+        skipButton.bottomAnchor.constraint(
+            equalTo: nextButton.topAnchor,
+            constant: -UIConstants.mainAccessoryActionsSpacing
+        ).isActive = true
         skipButton.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight).isActive = true
 
         buttonsHeightConstraint.constant = 2.0 * UIConstants.actionHeight + UIConstants.mainAccessoryActionsSpacing
@@ -187,7 +203,7 @@ final class AccountConfirmViewController: UIViewController, AdaptiveDesignable {
             return
         }
 
-        let words: [String] = submittedButtons.reduce(into: []) { (list, button) in
+        let words: [String] = submittedButtons.reduce(into: []) { list, button in
             if let title = button.imageWithTitleView?.title {
                 list.append(title)
             }
@@ -266,14 +282,14 @@ extension AccountConfirmViewController {
         var totalHeight: CGFloat = 0.0
 
         for row in rows {
-            var width = row.reduce(CGFloat(0.0)) { (result, item) in
-                return result + item.intrinsicContentSize.width
+            var width = row.reduce(CGFloat(0.0)) { result, item in
+                result + item.intrinsicContentSize.width
             }
 
             width += CGFloat(row.count - 1) * Constants.itemsSpacing
 
-            let height = row.reduce(CGFloat(0.0)) { (result, item) in
-                return max(result, item.intrinsicContentSize.height)
+            let height = row.reduce(CGFloat(0.0)) { result, item in
+                max(result, item.intrinsicContentSize.height)
             }
 
             var originX = Constants.internalMargin + availableWidth / 2.0 - width / 2.0
@@ -286,12 +302,16 @@ extension AccountConfirmViewController {
                     position.top.isActive = false
                 }
 
-                let leading = item.leadingAnchor.constraint(equalTo: contentView.leadingAnchor,
-                                                            constant: originX)
+                let leading = item.leadingAnchor.constraint(
+                    equalTo: contentView.leadingAnchor,
+                    constant: originX
+                )
 
                 let itemY = currentY + height / 2.0 - size.height / 2.0
-                let top = item.topAnchor.constraint(equalTo: plane.topAnchor,
-                                                    constant: itemY)
+                let top = item.topAnchor.constraint(
+                    equalTo: plane.topAnchor,
+                    constant: itemY
+                )
 
                 leading.isActive = true
                 top.isActive = true
@@ -329,8 +349,10 @@ extension AccountConfirmViewController {
                 self.contentView.layoutIfNeeded()
             }
 
-            wordTransitionAnimation.animate(block: animationBlock,
-                                            completionBlock: nil)
+            wordTransitionAnimation.animate(
+                block: animationBlock,
+                completionBlock: nil
+            )
         } else if let index = submittedButtons.firstIndex(of: button) {
             submittedButtons.remove(at: index)
             pendingButtons.append(button)
@@ -356,8 +378,10 @@ extension AccountConfirmViewController {
                 self.contentView.layoutIfNeeded()
             }
 
-            wordTransitionAnimation.animate(block: animationBlock,
-                                            completionBlock: nil)
+            wordTransitionAnimation.animate(
+                block: animationBlock,
+                completionBlock: nil
+            )
         }
 
         updateNextButton()
@@ -369,16 +393,20 @@ extension AccountConfirmViewController: AccountConfirmViewProtocol {
         if afterConfirmationFail {
             wrongSequenceAnimation.animate(view: contentView) { _ in
                 self.apply(words: words)
-                self.retryAnimation.animate(view: self.contentView,
-                                            completionBlock: nil)
+                self.retryAnimation.animate(
+                    view: self.contentView,
+                    completionBlock: nil
+                )
             }
 
             AudioServicesPlayAlertSound(SystemSoundID(kSystemSoundID_Vibrate))
         } else {
             apply(words: words)
 
-            self.retryAnimation.animate(view: self.contentView,
-                                        completionBlock: nil)
+            retryAnimation.animate(
+                view: contentView,
+                completionBlock: nil
+            )
         }
     }
 }

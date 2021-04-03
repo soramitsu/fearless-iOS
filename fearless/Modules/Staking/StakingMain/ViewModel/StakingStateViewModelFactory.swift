@@ -33,16 +33,19 @@ final class StakingStateViewModelFactory {
         }
     }
 
-    private func convertAmount(_ amount: BigUInt?,
-                               for chain: Chain,
-                               defaultValue: Decimal) -> Decimal {
+    private func convertAmount(
+        _ amount: BigUInt?,
+        for chain: Chain,
+        defaultValue: Decimal
+    ) -> Decimal {
         if let amount = amount {
-            return Decimal.fromSubstrateAmount(amount,
-                                               precision: chain.addressType.precision) ?? defaultValue
+            return Decimal.fromSubstrateAmount(
+                amount,
+                precision: chain.addressType.precision
+            ) ?? defaultValue
         } else {
             return defaultValue
         }
-
     }
 
     private func getBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
@@ -50,11 +53,13 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                              selectedAddressType: chain.addressType,
-                                              limit: StakingConstants.maxAmount)
+        let factory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
 
-        self.balanceViewModelFactory = factory
+        balanceViewModelFactory = factory
 
         return factory
     }
@@ -64,21 +69,26 @@ final class StakingStateViewModelFactory {
             return factory
         }
 
-        let factory = RewardViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                             selectedAddressType: chain.addressType)
+        let factory = RewardViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType
+        )
 
-        self.rewardViewModelFactory = factory
+        rewardViewModelFactory = factory
 
         return factory
     }
 
-    private func createNominationStatus(for chain: Chain,
-                                        commonData: StakingStateCommonData,
-                                        stashItem: StashItem,
-                                        nomination: Nomination) -> NominationViewStatus {
+    private func createNominationStatus(
+        for _: Chain,
+        commonData: StakingStateCommonData,
+        stashItem: StashItem,
+        nomination: Nomination
+    ) -> NominationViewStatus {
         guard
             let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus else {
+            let electionStatus = commonData.electionStatus
+        else {
             return .undefined
         }
 
@@ -90,7 +100,8 @@ final class StakingStateViewModelFactory {
             let accountId = try addressFactory.accountId(from: stashItem.stash)
 
             if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId})}) != nil {
+                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil
+            {
                 return .active(era: eraStakers.era)
             }
 
@@ -105,21 +116,26 @@ final class StakingStateViewModelFactory {
         }
     }
 
-    private func createNominationViewModel(for chain: Chain,
-                                           commonData: StakingStateCommonData,
-                                           state: NominatorState,
-                                           viewStatus: NominationViewStatus)
-    -> LocalizableResource<NominationViewModelProtocol> {
+    private func createNominationViewModel(
+        for chain: Chain,
+        commonData: StakingStateCommonData,
+        state: NominatorState,
+        viewStatus: NominationViewStatus
+    ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
         let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)
-        let staked = balanceViewModelFactory.balanceFromPrice(stakedAmount,
-                                                              priceData: commonData.price)
+        let staked = balanceViewModelFactory.balanceFromPrice(
+            stakedAmount,
+            priceData: commonData.price
+        )
 
         let reward: LocalizableResource<BalanceViewModelProtocol>?
         if let totalReward = state.totalReward {
-            reward = balanceViewModelFactory.balanceFromPrice(totalReward.amount.decimalValue,
-                                                                       priceData: commonData.price)
+            reward = balanceViewModelFactory.balanceFromPrice(
+                totalReward.amount.decimalValue,
+                priceData: commonData.price
+            )
         } else {
             reward = nil
         }
@@ -128,17 +144,21 @@ final class StakingStateViewModelFactory {
             let stakedViewModel = staked.value(for: locale)
             let rewardViewModel = reward?.value(for: locale)
 
-            return NominationViewModel(totalStakedAmount: stakedViewModel.amount,
-                                       totalStakedPrice: stakedViewModel.price ?? "",
-                                       totalRewardAmount: rewardViewModel?.amount ?? "",
-                                       totalRewardPrice: rewardViewModel?.price ?? "",
-                                       status: viewStatus)
+            return NominationViewModel(
+                totalStakedAmount: stakedViewModel.amount,
+                totalStakedPrice: stakedViewModel.price ?? "",
+                totalRewardAmount: rewardViewModel?.amount ?? "",
+                totalRewardPrice: rewardViewModel?.price ?? "",
+                status: viewStatus
+            )
         }
     }
 
-    private func createPeriodReward(for chain: Chain,
-                                    commonData: StakingStateCommonData,
-                                    amount: Decimal?) throws -> LocalizableResource<PeriodRewardViewModel>? {
+    private func createPeriodReward(
+        for chain: Chain,
+        commonData: StakingStateCommonData,
+        amount: Decimal?
+    ) throws -> LocalizableResource<PeriodRewardViewModel>? {
         guard let calculator = commonData.calculatorEngine else {
             return nil
         }
@@ -152,39 +172,49 @@ final class StakingStateViewModelFactory {
         let monthlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: (amount ?? 0.0) * monthlyReturn,
             targetReturn: monthlyReturn,
-            priceData: commonData.price)
+            priceData: commonData.price
+        )
 
         let yearlyViewModel = rewardViewModelFactory.createRewardViewModel(
             reward: (amount ?? 0.0) * yearlyReturn,
             targetReturn: yearlyReturn,
-            priceData: commonData.price)
+            priceData: commonData.price
+        )
 
         return LocalizableResource { locale in
             PeriodRewardViewModel(
                 monthlyReward: monthlyViewModel.value(for: locale),
-                yearlyReward: yearlyViewModel.value(for: locale))
+                yearlyReward: yearlyViewModel.value(for: locale)
+            )
         }
     }
 
-    private func createEstimationViewModel(for chain: Chain,
-                                           commonData: StakingStateCommonData,
-                                           amount: Decimal?)
-    throws -> StakingEstimationViewModel {
+    private func createEstimationViewModel(
+        for chain: Chain,
+        commonData: StakingStateCommonData,
+        amount: Decimal?
+    )
+        throws -> StakingEstimationViewModel {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let balance = convertAmount(commonData.accountInfo?.data.available,
-                                    for: chain,
-                                    defaultValue: 0.0)
+        let balance = convertAmount(
+            commonData.accountInfo?.data.available,
+            for: chain,
+            defaultValue: 0.0
+        )
 
         let balanceViewModel = balanceViewModelFactory
-            .createAssetBalanceViewModel(amount ?? 0.0,
-                                         balance: balance,
-                                         priceData: commonData.price)
+            .createAssetBalanceViewModel(
+                amount ?? 0.0,
+                balance: balance,
+                priceData: commonData.price
+            )
 
         let reward: LocalizableResource<PeriodRewardViewModel>? = try createPeriodReward(
             for: chain,
             commonData: commonData,
-            amount: amount)
+            amount: amount
+        )
 
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
@@ -193,7 +223,8 @@ final class StakingStateViewModelFactory {
             rewardViewModel: reward,
             asset: asset,
             inputLimit: StakingConstants.maxAmount,
-            amount: amount)
+            amount: amount
+        )
     }
 }
 
@@ -222,9 +253,11 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         updateCacheForChain(chain)
 
         do {
-            let viewModel = try createEstimationViewModel(for: chain,
-                                                          commonData: state.commonData,
-                                                          amount: state.rewardEstimationAmount)
+            let viewModel = try createEstimationViewModel(
+                for: chain,
+                commonData: state.commonData,
+                amount: state.rewardEstimationAmount
+            )
 
             lastViewModel = .noStash(viewModel: viewModel)
         } catch {
@@ -269,9 +302,11 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
         updateCacheForChain(chain)
 
         do {
-            let viewModel = try createEstimationViewModel(for: chain,
-                                                          commonData: state.commonData,
-                                                          amount: state.rewardEstimationAmount ?? 0.0)
+            let viewModel = try createEstimationViewModel(
+                for: chain,
+                commonData: state.commonData,
+                amount: state.rewardEstimationAmount ?? 0.0
+            )
 
             lastViewModel = .noStash(viewModel: viewModel)
         } catch {
@@ -302,10 +337,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         updateCacheForChain(chain)
 
-        let viewModel = createNominationViewModel(for: chain,
-                                                  commonData: state.commonData,
-                                                  state: state,
-                                                  viewStatus: state.status)
+        let viewModel = createNominationViewModel(
+            for: chain,
+            commonData: state.commonData,
+            state: state,
+            viewStatus: state.status
+        )
 
         lastViewModel = .nominator(viewModel: viewModel)
     }

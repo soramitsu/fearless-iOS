@@ -12,15 +12,19 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        guard let presenter = createPresenter(amount: amount,
-                                              settings: settings,
-                                              keystore: keystore) else {
+        guard let presenter = createPresenter(
+            amount: amount,
+            settings: settings,
+            keystore: keystore
+        ) else {
             return nil
         }
 
-        guard let interactor = createInteractor(connection: connection,
-                                                settings: settings,
-                                                keystore: keystore) else {
+        guard let interactor = createInteractor(
+            connection: connection,
+            settings: settings,
+            keystore: keystore
+        ) else {
             return nil
         }
 
@@ -39,9 +43,11 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         return view
     }
 
-    static private func createPresenter(amount: Decimal?,
-                                        settings: SettingsManagerProtocol,
-                                        keystore: KeystoreProtocol) -> StakingAmountPresenter? {
+    private static func createPresenter(
+        amount: Decimal?,
+        settings: SettingsManagerProtocol,
+        keystore: KeystoreProtocol
+    ) -> StakingAmountPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
@@ -51,36 +57,46 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         }
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(asset: asset)
-        let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                                              selectedAddressType: networkType,
-                                                              limit: StakingConstants.maxAmount)
-        let presenter = StakingAmountPresenter(amount: amount,
-                                               asset: asset,
-                                               selectedAccount: selectedAccount,
-                                               rewardDestViewModelFactory: rewardDestViewModelFactory,
-                                               balanceViewModelFactory: balanceViewModelFactory,
-                                               applicationConfig: ApplicationConfig.shared,
-                                               logger: Logger.shared)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount
+        )
+        let presenter = StakingAmountPresenter(
+            amount: amount,
+            asset: asset,
+            selectedAccount: selectedAccount,
+            rewardDestViewModelFactory: rewardDestViewModelFactory,
+            balanceViewModelFactory: balanceViewModelFactory,
+            applicationConfig: ApplicationConfig.shared,
+            logger: Logger.shared
+        )
 
         return presenter
     }
 
-    static private func createInteractor(connection: JSONRPCEngine,
-                                         settings: SettingsManagerProtocol,
-                                         keystore: KeystoreProtocol) -> StakingAmountInteractor? {
+    private static func createInteractor(
+        connection: JSONRPCEngine,
+        settings: SettingsManagerProtocol,
+        keystore: KeystoreProtocol
+    ) -> StakingAmountInteractor? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         guard let selectedAccount = settings.selectedAccount,
-              let assetId = WalletAssetId(rawValue: asset.identifier) else {
+              let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
             return nil
         }
 
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
-                .getAccountProvider(for: selectedAccount.address,
-                                    runtimeService: RuntimeRegistryFacade.sharedService) else {
+            .getAccountProvider(
+                for: selectedAccount.address,
+                runtimeService: RuntimeRegistryFacade.sharedService
+            )
+        else {
             return nil
         }
 
@@ -88,24 +104,30 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            facade.createRepository(filter: filter,
-                                    sortDescriptors: [.accountsByOrder])
+            facade.createRepository(
+                filter: filter,
+                sortDescriptors: [.accountsByOrder]
+            )
 
-        let extrinsicService = ExtrinsicService(address: selectedAccount.address,
-                                                cryptoType: selectedAccount.cryptoType,
-                                                runtimeRegistry: RuntimeRegistryFacade.sharedService,
-                                                engine: connection,
-                                                operationManager: OperationManagerFacade.sharedManager)
+        let extrinsicService = ExtrinsicService(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            engine: connection,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
-        let interactor = StakingAmountInteractor(repository: AnyDataProviderRepository(accountRepository),
-                                                 priceProvider: AnySingleValueProvider(priceProvider),
-                                                 balanceProvider: AnyDataProvider(balanceProvider),
-                                                 extrinsicService: extrinsicService,
-                                                 rewardService: RewardCalculatorFacade.sharedService,
-                                                 runtimeService: RuntimeRegistryFacade.sharedService,
-                                                 operationManager: OperationManagerFacade.sharedManager)
+        let interactor = StakingAmountInteractor(
+            repository: AnyDataProviderRepository(accountRepository),
+            priceProvider: AnySingleValueProvider(priceProvider),
+            balanceProvider: AnyDataProvider(balanceProvider),
+            extrinsicService: extrinsicService,
+            rewardService: RewardCalculatorFacade.sharedService,
+            runtimeService: RuntimeRegistryFacade.sharedService,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
         return interactor
     }

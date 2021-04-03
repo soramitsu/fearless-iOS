@@ -10,6 +10,4 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     func setup() {}
 }
 
-extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
-
-}
+extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {}

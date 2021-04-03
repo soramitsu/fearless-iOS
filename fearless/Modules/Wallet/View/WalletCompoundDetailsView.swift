@@ -19,8 +19,10 @@ final class WalletCompoundDetailsView: WalletFormItemView {
     private var viewModel: WalletCompoundDetailsViewModel?
 
     override var intrinsicContentSize: CGSize {
-        CGSize(width: UIView.noIntrinsicMetric,
-               height: 52.0 + contentInsets.top + contentInsets.bottom)
+        CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: 52.0 + contentInsets.top + contentInsets.bottom
+        )
     }
 
     override func awakeFromNib() {

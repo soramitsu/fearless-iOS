@@ -28,15 +28,21 @@ final class SigningWrapper: SigningWrapperProtocol {
 
         switch selectedAccount.cryptoType {
         case .sr25519:
-            return try signSr25519(originalData,
-                                   secretKeyData: secretKey,
-                                   publicKeyData: selectedAccount.publicKeyData)
+            return try signSr25519(
+                originalData,
+                secretKeyData: secretKey,
+                publicKeyData: selectedAccount.publicKeyData
+            )
         case .ed25519:
-            return try signEd25519(originalData,
-                                   secretKey: secretKey)
+            return try signEd25519(
+                originalData,
+                secretKey: secretKey
+            )
         case .ecdsa:
-            return try signEcdsa(originalData,
-                                 secretKey: secretKey)
+            return try signEcdsa(
+                originalData,
+                secretKey: secretKey
+            )
         }
     }
 }

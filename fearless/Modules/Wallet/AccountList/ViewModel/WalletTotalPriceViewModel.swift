@@ -17,13 +17,15 @@ final class WalletTotalPriceViewModel: AssetViewModelProtocol {
     let command: WalletCommandProtocol?
     let accountCommand: WalletCommandProtocol?
 
-    init(assetId: String,
-         details: String,
-         amount: String,
-         imageViewModel: WalletImageViewModelProtocol?,
-         style: AssetCellStyle,
-         command: WalletCommandProtocol?,
-         accountCommand: WalletCommandProtocol?) {
+    init(
+        assetId: String,
+        details: String,
+        amount: String,
+        imageViewModel: WalletImageViewModelProtocol?,
+        style: AssetCellStyle,
+        command: WalletCommandProtocol?,
+        accountCommand: WalletCommandProtocol?
+    ) {
         self.assetId = assetId
         self.details = details
         self.amount = amount

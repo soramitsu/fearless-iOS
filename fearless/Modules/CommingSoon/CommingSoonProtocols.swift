@@ -1,17 +1,17 @@
 protocol CommingSoonViewProtocol: ControllerBackedProtocol {}
 
-protocol CommingSoonPresenterProtocol: class {
+protocol CommingSoonPresenterProtocol: AnyObject {
     func setup()
     func activateDevStatus()
     func activateRoadmap()
 }
 
-protocol CommingSoonInteractorInputProtocol: class {}
+protocol CommingSoonInteractorInputProtocol: AnyObject {}
 
-protocol CommingSoonInteractorOutputProtocol: class {}
+protocol CommingSoonInteractorOutputProtocol: AnyObject {}
 
 protocol CommingSoonWireframeProtocol: WebPresentable {}
 
-protocol CommingSoonViewFactoryProtocol: class {
-	static func createView() -> CommingSoonViewProtocol?
+protocol CommingSoonViewFactoryProtocol: AnyObject {
+    static func createView() -> CommingSoonViewProtocol?
 }

@@ -8,14 +8,18 @@ typealias EstimateFeeClosure = (Result<RuntimeDispatchInfo, Error>) -> Void
 typealias ExtrinsicSubmitClosure = (Result<String, Error>) -> Void
 
 protocol ExtrinsicServiceProtocol {
-    func estimateFee(_ closure: @escaping ExtrinsicBuilderClosure,
-                     runningIn queue: DispatchQueue,
-                     completion completionClosure: @escaping EstimateFeeClosure)
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping EstimateFeeClosure
+    )
 
-    func submit(_ closure: @escaping ExtrinsicBuilderClosure,
-                signer: SigningWrapperProtocol,
-                runningIn queue: DispatchQueue,
-                completion completionClosure: @escaping ExtrinsicSubmitClosure)
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitClosure
+    )
 }
 
 final class ExtrinsicService {
@@ -25,11 +29,13 @@ final class ExtrinsicService {
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
 
-    init(address: String,
-         cryptoType: CryptoType,
-         runtimeRegistry: RuntimeCodingServiceProtocol,
-         engine: JSONRPCEngine,
-         operationManager: OperationManagerProtocol) {
+    init(
+        address: String,
+        cryptoType: CryptoType,
+        runtimeRegistry: RuntimeCodingServiceProtocol,
+        engine: JSONRPCEngine,
+        operationManager: OperationManagerProtocol
+    ) {
         self.address = address
         self.cryptoType = cryptoType
         self.runtimeRegistry = runtimeRegistry
@@ -38,21 +44,23 @@ final class ExtrinsicService {
     }
 
     private func createNonceOperation() -> BaseOperation<UInt32> {
-        JSONRPCListOperation<UInt32>(engine: engine,
-                                     method: RPCMethod.getExtrinsicNonce,
-                                     parameters: [address])
+        JSONRPCListOperation<UInt32>(
+            engine: engine,
+            method: RPCMethod.getExtrinsicNonce,
+            parameters: [address]
+        )
     }
 
     private func createCodingFactoryOperation() -> BaseOperation<RuntimeCoderFactoryProtocol> {
         runtimeRegistry.fetchCoderFactoryOperation()
     }
 
-    private func createExtrinsicOperation(dependingOn nonceOperation: BaseOperation<UInt32>,
-                                          codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-                                          customClosure: @escaping ExtrinsicBuilderClosure,
-                                          signingClosure: @escaping (Data) throws -> Data)
-    -> BaseOperation<Data> {
-
+    private func createExtrinsicOperation(
+        dependingOn nonceOperation: BaseOperation<UInt32>,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        customClosure: @escaping ExtrinsicBuilderClosure,
+        signingClosure: @escaping (Data) throws -> Data
+    ) -> BaseOperation<Data> {
         let currentCryptoType = cryptoType
         let currentAddress = address
 
@@ -68,46 +76,58 @@ final class ExtrinsicService {
             let account = MultiAddress.accoundId(accountId)
 
             var builder: ExtrinsicBuilderProtocol =
-                try ExtrinsicBuilder(specVersion: codingFactory.specVersion,
-                                     transactionVersion: codingFactory.txVersion,
-                                     genesisHash: addressType.chain.genesisHash)
-                    .with(address: account)
-                    .with(nonce: nonce)
+                try ExtrinsicBuilder(
+                    specVersion: codingFactory.specVersion,
+                    transactionVersion: codingFactory.txVersion,
+                    genesisHash: addressType.chain.genesisHash
+                )
+                .with(address: account)
+                .with(nonce: nonce)
 
-            builder = try customClosure(builder).signing(by: signingClosure,
-                                                         of: currentCryptoType.utilsType,
-                                                         using: codingFactory.createEncoder(),
-                                                         metadata: codingFactory.metadata)
+            builder = try customClosure(builder).signing(
+                by: signingClosure,
+                of: currentCryptoType.utilsType,
+                using: codingFactory.createEncoder(),
+                metadata: codingFactory.metadata
+            )
 
-            return try builder.build(encodingBy: codingFactory.createEncoder(),
-                                     metadata: codingFactory.metadata)
+            return try builder.build(
+                encodingBy: codingFactory.createEncoder(),
+                metadata: codingFactory.metadata
+            )
         }
     }
 }
 
 extension ExtrinsicService: ExtrinsicServiceProtocol {
-    func estimateFee(_ closure: @escaping ExtrinsicBuilderClosure,
-                     runningIn queue: DispatchQueue,
-                     completion completionClosure: @escaping EstimateFeeClosure) {
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping EstimateFeeClosure
+    ) {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
         let currentCryptoType = cryptoType
 
         let signingClosure: (Data) throws -> Data = { data in
-            return try DummySigner(cryptoType: currentCryptoType).sign(data).rawData()
+            try DummySigner(cryptoType: currentCryptoType).sign(data).rawData()
         }
 
-        let builderOperation = createExtrinsicOperation(dependingOn: nonceOperation,
-                                                        codingFactoryOperation: codingFactoryOperation,
-                                                        customClosure: closure,
-                                                        signingClosure: signingClosure)
+        let builderOperation = createExtrinsicOperation(
+            dependingOn: nonceOperation,
+            codingFactoryOperation: codingFactoryOperation,
+            customClosure: closure,
+            signingClosure: signingClosure
+        )
 
         builderOperation.addDependency(nonceOperation)
         builderOperation.addDependency(codingFactoryOperation)
 
-        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                      method: RPCMethod.paymentInfo)
+        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(
+            engine: engine,
+            method: RPCMethod.paymentInfo
+        )
         infoOperation.configurationBlock = {
             do {
                 let extrinsic = try builderOperation.extractNoCancellableResultData().toHex(includePrefix: true)
@@ -133,27 +153,33 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
         operationManager.enqueue(operations: operations, in: .transient)
     }
 
-    func submit(_ closure: @escaping ExtrinsicBuilderClosure,
-                signer: SigningWrapperProtocol,
-                runningIn queue: DispatchQueue,
-                completion completionClosure: @escaping ExtrinsicSubmitClosure) {
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitClosure
+    ) {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
         let signingClosure: (Data) throws -> Data = { data in
-            return try signer.sign(data).rawData()
+            try signer.sign(data).rawData()
         }
 
-        let builderOperation = createExtrinsicOperation(dependingOn: nonceOperation,
-                                                        codingFactoryOperation: codingFactoryOperation,
-                                                        customClosure: closure,
-                                                        signingClosure: signingClosure)
+        let builderOperation = createExtrinsicOperation(
+            dependingOn: nonceOperation,
+            codingFactoryOperation: codingFactoryOperation,
+            customClosure: closure,
+            signingClosure: signingClosure
+        )
 
         builderOperation.addDependency(nonceOperation)
         builderOperation.addDependency(codingFactoryOperation)
 
-        let submitOperation = JSONRPCListOperation<String>(engine: engine,
-                                                           method: RPCMethod.submitExtrinsic)
+        let submitOperation = JSONRPCListOperation<String>(
+            engine: engine,
+            method: RPCMethod.submitExtrinsic
+        )
         submitOperation.configurationBlock = {
             do {
                 let extrinsic = try builderOperation

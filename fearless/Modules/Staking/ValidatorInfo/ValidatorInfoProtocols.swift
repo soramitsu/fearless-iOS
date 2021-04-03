@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 
 // MARK: - Entity
+
 protocol ValidatorStakeInfoProtocol {
     var nominators: [NominatorInfo] { get }
     var totalStake: Decimal { get }
@@ -15,26 +16,31 @@ protocol ValidatorInfoProtocol {
 }
 
 // MARK: - View
-protocol ValidatorInfoViewFactoryProtocol: class {
+
+protocol ValidatorInfoViewFactoryProtocol: AnyObject {
     static func createView(with validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewProtocol?
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(accountViewModel: ValidatorInfoAccountViewModelProtocol,
-                    extrasViewModel: [ValidatorInfoViewController.Section])
+    func didReceive(
+        accountViewModel: ValidatorInfoAccountViewModelProtocol,
+        extrasViewModel: [ValidatorInfoViewController.Section]
+    )
 }
 
 // MARK: - Interactor
-protocol ValidatorInfoInteractorInputProtocol: class {
+
+protocol ValidatorInfoInteractorInputProtocol: AnyObject {
     func setup()
 }
 
 // MARK: - Presenter
-protocol ValidatorInfoInteractorOutputProtocol: class {
+
+protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
     func didReceive(validatorInfo: ValidatorInfoProtocol)
 }
 
-protocol ValidatorInfoPresenterProtocol: class {
+protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
 
     func presentAccountOptions()
@@ -47,7 +53,8 @@ protocol ValidatorInfoPresenterProtocol: class {
 }
 
 // MARK: - Router
+
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
-                                         EmailPresentable,
-                                         AlertPresentable,
-                                         AddressOptionsPresentable { }
+    EmailPresentable,
+    AlertPresentable,
+    AddressOptionsPresentable {}

@@ -5,11 +5,13 @@ class BaseStashNextState: BaseStakingState {
     private(set) var totalReward: TotalRewardItem?
     private(set) var payee: RewardDestinationArg?
 
-    init(stateMachine: StakingStateMachineProtocol,
-         commonData: StakingStateCommonData,
-         stashItem: StashItem,
-         totalReward: TotalRewardItem?,
-         payee: RewardDestinationArg?) {
+    init(
+        stateMachine: StakingStateMachineProtocol,
+        commonData: StakingStateCommonData,
+        stashItem: StashItem,
+        totalReward: TotalRewardItem?,
+        payee: RewardDestinationArg?
+    ) {
         self.stashItem = stashItem
         self.totalReward = totalReward
         self.payee = payee
@@ -30,14 +32,18 @@ class BaseStashNextState: BaseStakingState {
         let newState: StakingStateProtocol
 
         if let stashItem = stashItem {
-            newState = StashState(stateMachine: stateMachine,
-                                  commonData: commonData,
-                                  stashItem: stashItem,
-                                  ledgerInfo: nil,
-                                  totalReward: nil)
+            newState = StashState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                totalReward: nil
+            )
         } else {
-            newState = NoStashState(stateMachine: stateMachine,
-                                    commonData: commonData)
+            newState = NoStashState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
         }
 
         stateMachine.transit(to: newState)

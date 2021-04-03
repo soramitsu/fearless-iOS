@@ -16,33 +16,41 @@ final class AccountManagementViewFactory: AccountManagementViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    private static func createView(for wireframe: AccountManagementWireframeProtocol)
-    -> AccountManagementViewProtocol? {
-
+    private static func createView(
+        for wireframe: AccountManagementWireframeProtocol
+    ) -> AccountManagementViewProtocol? {
         let facade = UserDataStorageFacade.shared
         let mapper = ManagedAccountItemMapper()
         let observer: CoreDataContextObservable<ManagedAccountItem, CDAccountItem> =
-            CoreDataContextObservable(service: facade.databaseService,
-                                                 mapper: AnyCoreDataMapper(mapper),
-                                                 predicate: { _ in true })
-        let repository = facade.createRepository(filter: nil,
-                                                 sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                                                 mapper: AnyCoreDataMapper(mapper))
+            CoreDataContextObservable(
+                service: facade.databaseService,
+                mapper: AnyCoreDataMapper(mapper),
+                predicate: { _ in true }
+            )
+        let repository = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [NSSortDescriptor.accountsByOrder],
+            mapper: AnyCoreDataMapper(mapper)
+        )
 
         let view = AccountManagementViewController(nib: R.nib.accountManagementViewController)
 
         let iconGenerator = PolkadotIconGenerator()
         let viewModelFactory = ManagedAccountViewModelFactory(iconGenerator: iconGenerator)
 
-        let presenter = AccountManagementPresenter(viewModelFactory: viewModelFactory,
-                                                   supportedNetworks: SNAddressType.supported)
+        let presenter = AccountManagementPresenter(
+            viewModelFactory: viewModelFactory,
+            supportedNetworks: SNAddressType.supported
+        )
 
         let anyObserver = AnyDataProviderRepositoryObservable(observer)
-        let interactor = AccountManagementInteractor(repository: AnyDataProviderRepository(repository),
-                                                     repositoryObservable: anyObserver,
-                                                     settings: SettingsManager.shared,
-                                                     operationManager: OperationManagerFacade.sharedManager,
-                                                     eventCenter: EventCenter.shared)
+        let interactor = AccountManagementInteractor(
+            repository: AnyDataProviderRepository(repository),
+            repositoryObservable: anyObserver,
+            settings: SettingsManager.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            eventCenter: EventCenter.shared
+        )
 
         view.presenter = presenter
         presenter.view = view

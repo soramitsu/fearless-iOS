@@ -16,11 +16,13 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
     private var subscriptionId: UInt16?
 
-    init(chain: Chain,
-         storage: AnyDataProviderRepository<RuntimeMetadataItem>,
-         engine: JSONRPCEngine,
-         operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol) {
+    init(
+        chain: Chain,
+        storage: AnyDataProviderRepository<RuntimeMetadataItem>,
+        engine: JSONRPCEngine,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol
+    ) {
         self.chain = chain
         self.storage = storage
         self.engine = engine
@@ -36,8 +38,7 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
 
     private func subscribe() {
         do {
-
-            let updateClosure: (RuntimeVersionUpdate) -> Void = { [weak self] (update) in
+            let updateClosure: (RuntimeVersionUpdate) -> Void = { [weak self] update in
                 let runtimeVersion = update.params.result
                 self?.logger.debug("Did receive spec version: \(runtimeVersion.specVersion)")
                 self?.logger.debug("Did receive tx version: \(runtimeVersion.transactionVersion)")
@@ -45,15 +46,17 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
                 self?.handle(runtimeVersion: runtimeVersion)
             }
 
-            let failureClosure: (Error, Bool) -> Void = { [weak self] (error, unsubscribed) in
+            let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
                 self?.logger.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
             let params: [String] = []
-            subscriptionId = try engine.subscribe(RPCMethod.runtimeVersionSubscribe,
-                                                  params: params,
-                                                  updateClosure: updateClosure,
-                                                  failureClosure: failureClosure)
+            subscriptionId = try engine.subscribe(
+                RPCMethod.runtimeVersionSubscribe,
+                params: params,
+                updateClosure: updateClosure,
+                failureClosure: failureClosure
+            )
         } catch {
             logger.error("Can't subscribe to storage: \(error)")
         }
@@ -66,15 +69,21 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
     }
 
     private func handle(runtimeVersion: RuntimeVersion) {
-        let fetchCurrentOperation = storage.fetchOperation(by: chain.genesisHash,
-                                                           options: RepositoryFetchOptions())
+        let fetchCurrentOperation = storage.fetchOperation(
+            by: chain.genesisHash,
+            options: RepositoryFetchOptions()
+        )
 
-        let metaOperation = createMetadataOperation(dependingOn: fetchCurrentOperation,
-                                                    runtimeVersion: runtimeVersion)
+        let metaOperation = createMetadataOperation(
+            dependingOn: fetchCurrentOperation,
+            runtimeVersion: runtimeVersion
+        )
         metaOperation.addDependency(fetchCurrentOperation)
 
-        let saveOperation = createSaveOperation(dependingOn: metaOperation,
-                                                runtimeVersion: runtimeVersion)
+        let saveOperation = createSaveOperation(
+            dependingOn: metaOperation,
+            runtimeVersion: runtimeVersion
+        )
         saveOperation.addDependency(metaOperation)
 
         saveOperation.completionBlock = {
@@ -95,15 +104,21 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             }
         }
 
-        operationManager.enqueue(operations: [fetchCurrentOperation, metaOperation, saveOperation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [fetchCurrentOperation, metaOperation, saveOperation],
+            in: .transient
+        )
     }
 
-    private func createMetadataOperation(dependingOn localFetch: BaseOperation<RuntimeMetadataItem?>,
-                                         runtimeVersion: RuntimeVersion) -> BaseOperation<String> {
+    private func createMetadataOperation(
+        dependingOn localFetch: BaseOperation<RuntimeMetadataItem?>,
+        runtimeVersion: RuntimeVersion
+    ) -> BaseOperation<String> {
         let method = RPCMethod.getRuntimeMetadata
-        let metaOperation = JSONRPCOperation<[String], String>(engine: engine,
-                                                               method: method)
+        let metaOperation = JSONRPCOperation<[String], String>(
+            engine: engine,
+            method: method
+        )
 
         metaOperation.configurationBlock = {
             do {
@@ -120,8 +135,10 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
         return metaOperation
     }
 
-    private func createSaveOperation(dependingOn meta: BaseOperation<String>,
-                                     runtimeVersion: RuntimeVersion) -> BaseOperation<Void> {
+    private func createSaveOperation(
+        dependingOn meta: BaseOperation<String>,
+        runtimeVersion: RuntimeVersion
+    ) -> BaseOperation<Void> {
         storage.saveOperation({
             let metadataHex = try meta
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -129,10 +146,12 @@ final class RuntimeVersionSubscription: WebSocketSubscribing {
             let decoder = try ScaleDecoder(data: rawMetadata)
             _ = try RuntimeMetadata(scaleDecoder: decoder)
 
-            let item = RuntimeMetadataItem(chain: self.chain.genesisHash,
-                                           version: runtimeVersion.specVersion,
-                                           txVersion: runtimeVersion.transactionVersion,
-                                           metadata: rawMetadata)
+            let item = RuntimeMetadataItem(
+                chain: self.chain.genesisHash,
+                version: runtimeVersion.specVersion,
+                txVersion: runtimeVersion.transactionVersion,
+                metadata: rawMetadata
+            )
 
             return [item]
 

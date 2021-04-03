@@ -6,11 +6,11 @@ final class LanguageSelectionViewController: SelectionListViewController<Selecti
     var presenter: LanguageSelectionPresenterProtocol!
 
     override var selectableCellIdentifier: ReuseIdentifier<SelectionSubtitleTableViewCell>! {
-        return R.reuseIdentifier.selectionSubtitleCellId
+        R.reuseIdentifier.selectionSubtitleCellId
     }
 
     override var selectableCellNib: UINib? {
-        return UINib(resource: R.nib.selectionSubtitleTableViewCell)
+        UINib(resource: R.nib.selectionSubtitleTableViewCell)
     }
 
     override func viewDidLoad() {

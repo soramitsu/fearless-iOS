@@ -4,8 +4,9 @@ import RobinHood
 import FearlessUtils
 
 extension WalletNetworkFacade {
-    func fetchBalanceInfoForAsset(_ assets: [WalletAsset])
-        -> CompoundOperationWrapper<[BalanceData]?> {
+    func fetchBalanceInfoForAsset(
+        _ assets: [WalletAsset]
+    ) -> CompoundOperationWrapper<[BalanceData]?> {
         do {
             guard let asset = assets.first else {
                 throw BaseOperationError.unexpectedDependentResult
@@ -24,43 +25,49 @@ extension WalletNetworkFacade {
                 queryAccountInfoByKey(accountInfoKey, dependingOn: upgradeCheckOperation)
 
             let stakingLedgerOperation =
-                StakingLedgerLocalOperation(stashAddress: address,
-                                            storageService: storageFacade.databaseService)
+                StakingLedgerLocalOperation(
+                    stashAddress: address,
+                    storageService: storageFacade.databaseService
+                )
 
             let activeEraOperation: CompoundOperationWrapper<UInt32?> =
                 queryStorageByKey(activeEraKey)
 
             let mappingOperation = ClosureOperation<[BalanceData]?> {
                 switch accountInfoOperation.targetOperation.result {
-                case .success(let info):
-                    var context: BalanceContext = BalanceContext(context: [:])
+                case let .success(info):
+                    var context = BalanceContext(context: [:])
 
                     if let accountData = info?.data {
-                        context = context.byChangingAccountInfo(accountData,
-                                                                precision: asset.precision)
+                        context = context.byChangingAccountInfo(
+                            accountData,
+                            precision: asset.precision
+                        )
 
                         if
                             let activeEra = try? activeEraOperation
-                                .targetOperation.extractResultData(throwing:
-                                    BaseOperationError.parentOperationCancelled),
+                            .targetOperation.extractResultData(throwing:
+                                BaseOperationError.parentOperationCancelled),
                             let stakingLedger = try? stakingLedgerOperation
-                                .extractNoCancellableResultData() {
-
-                            context = context.byChangingStakingInfo(stakingLedger,
-                                                                    activeEra: activeEra,
-                                                                    precision: asset.precision)
+                            .extractNoCancellableResultData() {
+                            context = context.byChangingStakingInfo(
+                                stakingLedger,
+                                activeEra: activeEra,
+                                precision: asset.precision
+                            )
                         }
-
                     }
 
-                    let balance = BalanceData(identifier: asset.identifier,
-                                              balance: AmountDecimal(value: context.total),
-                                              context: context.toContext())
+                    let balance = BalanceData(
+                        identifier: asset.identifier,
+                        balance: AmountDecimal(value: context.total),
+                        context: context.toContext()
+                    )
 
                     return [balance]
                 case .none:
                     throw BaseOperationError.parentOperationCancelled
-                case .failure(let error):
+                case let .failure(error):
                     throw error
                 }
             }
@@ -70,8 +77,10 @@ extension WalletNetworkFacade {
 
             dependencies.forEach { mappingOperation.addDependency($0) }
 
-            return CompoundOperationWrapper(targetOperation: mappingOperation,
-                                            dependencies: dependencies)
+            return CompoundOperationWrapper(
+                targetOperation: mappingOperation,
+                dependencies: dependencies
+            )
 
         } catch {
             return CompoundOperationWrapper<[BalanceData]?>
@@ -84,14 +93,17 @@ extension WalletNetworkFacade {
         return chainStorage.queryStorageByKey(identifier)
     }
 
-    func queryAccountInfoByKey(_ storageKey: Data,
-                               dependingOn upgradeOperation: CompoundOperationWrapper<Bool?>) ->
-    CompoundOperationWrapper<AccountInfo?> {
+    func queryAccountInfoByKey(
+        _ storageKey: Data,
+        dependingOn upgradeOperation: CompoundOperationWrapper<Bool?>
+    ) -> CompoundOperationWrapper<AccountInfo?> {
         let identifier = localStorageIdFactory.createIdentifier(for: storageKey)
 
         let fetchOperation = chainStorage
-            .fetchOperation(by: identifier,
-                            options: RepositoryFetchOptions())
+            .fetchOperation(
+                by: identifier,
+                options: RepositoryFetchOptions()
+            )
 
         let decoderOperation: ClosureOperation<AccountInfo?> = ClosureOperation {
             let isUpgraded = (try upgradeOperation.targetOperation
@@ -118,7 +130,9 @@ extension WalletNetworkFacade {
 
         upgradeOperation.allOperations.forEach { decoderOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(targetOperation: decoderOperation,
-                                        dependencies: [fetchOperation])
+        return CompoundOperationWrapper(
+            targetOperation: decoderOperation,
+            dependencies: [fetchOperation]
+        )
     }
 }

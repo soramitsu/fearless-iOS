@@ -14,14 +14,14 @@ extension TransactionHistoryContext {
            let page = Int(pageString) {
             self.page = page
         } else {
-            self.page = 0
+            page = 0
         }
 
         if let completeString = context[TransactionHistoryContext.completeKey],
            let isComplete = Bool(completeString) {
             self.isComplete = isComplete
         } else {
-            self.isComplete = false
+            isComplete = false
         }
     }
 

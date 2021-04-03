@@ -5,32 +5,36 @@ class BaseStakingState: StakingStateProtocol {
 
     private(set) var commonData: StakingStateCommonData
 
-    init(stateMachine: StakingStateMachineProtocol?,
-         commonData: StakingStateCommonData) {
+    init(
+        stateMachine: StakingStateMachineProtocol?,
+        commonData: StakingStateCommonData
+    ) {
         self.stateMachine = stateMachine
         self.commonData = commonData
     }
 
-    func accept(visitor: StakingStateVisitorProtocol) {}
+    func accept(visitor _: StakingStateVisitorProtocol) {}
 
     func process(chain: Chain?) {
         if commonData.chain != chain {
-            self.commonData = StakingStateCommonData.empty.byReplacing(chain: chain)
+            commonData = StakingStateCommonData.empty.byReplacing(chain: chain)
 
             guard let stateMachine = stateMachine else {
                 return
             }
 
-            let newState = InitialStakingState(stateMachine: stateMachine,
-                                               commonData: commonData)
+            let newState = InitialStakingState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
 
             stateMachine.transit(to: newState)
         }
     }
 
     func process(address: String?) {
-        if self.commonData.address != address {
-            self.commonData = commonData
+        if commonData.address != address {
+            commonData = commonData
                 .byReplacing(address: address)
                 .byReplacing(accountInfo: nil)
 
@@ -38,8 +42,10 @@ class BaseStakingState: StakingStateProtocol {
                 return
             }
 
-            let newState = InitialStakingState(stateMachine: stateMachine,
-                                               commonData: commonData)
+            let newState = InitialStakingState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
 
             stateMachine.transit(to: newState)
         }
@@ -75,11 +81,11 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
-    func process(rewardEstimationAmount: Decimal?) {}
-    func process(stashItem: StashItem?) {}
-    func process(ledgerInfo: DyStakingLedger?) {}
-    func process(nomination: Nomination?) {}
-    func process(validatorPrefs: ValidatorPrefs?) {}
-    func process(totalReward: TotalRewardItem?) {}
-    func process(payee: RewardDestinationArg?) {}
+    func process(rewardEstimationAmount _: Decimal?) {}
+    func process(stashItem _: StashItem?) {}
+    func process(ledgerInfo _: DyStakingLedger?) {}
+    func process(nomination _: Nomination?) {}
+    func process(validatorPrefs _: ValidatorPrefs?) {}
+    func process(totalReward _: TotalRewardItem?) {}
+    func process(payee _: RewardDestinationArg?) {}
 }

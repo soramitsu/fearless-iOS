@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-protocol ConnectionTableViewCellDelegate: class {
+protocol ConnectionTableViewCellDelegate: AnyObject {
     func didSelectInfo(_ cell: ConnectionTableViewCell)
 }
 
@@ -59,5 +59,4 @@ final class ConnectionTableViewCell: UITableViewCell {
     @IBAction private func actionInfo() {
         delegate?.didSelectInfo(self)
     }
-
 }

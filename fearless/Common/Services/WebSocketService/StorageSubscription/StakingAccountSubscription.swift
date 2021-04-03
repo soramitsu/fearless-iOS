@@ -23,15 +23,17 @@ final class StakingAccountSubscription: WebSocketSubscribing {
 
     private var subscription: Subscription?
 
-    init(address: String,
-         chain: Chain,
-         engine: JSONRPCEngine,
-         provider: StreamableProvider<StashItem>,
-         runtimeService: RuntimeCodingServiceProtocol,
-         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-         operationManager: OperationManagerProtocol,
-         addressFactory: SS58AddressFactoryProtocol,
-         logger: LoggerProtocol?) {
+    init(
+        address: String,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        provider: StreamableProvider<StashItem>,
+        runtimeService: RuntimeCodingServiceProtocol,
+        childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        addressFactory: SS58AddressFactoryProtocol,
+        logger: LoggerProtocol?
+    ) {
         self.address = address
         self.chain = chain
         self.engine = engine
@@ -50,10 +52,10 @@ final class StakingAccountSubscription: WebSocketSubscribing {
     }
 
     private func subscribeLocal() {
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] (changes) in
-            let stashItem: StashItem? = changes.reduce(nil) { (_, item) in
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
+            let stashItem: StashItem? = changes.reduce(nil) { _, item in
                 switch item {
-                case .insert(let newItem), .update(let newItem):
+                case let .insert(newItem), let .update(newItem):
                     return newItem
                 case .delete:
                     return nil
@@ -71,11 +73,13 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             self?.logger?.error("Did receive error: \(error)")
         }
 
-        provider.addObserver(self,
-                             deliverOn: .global(qos: .userInitiated),
-                             executing: changesClosure,
-                             failing: failureClosure,
-                             options: StreamableProviderObserverOptions.substrateSource())
+        provider.addObserver(
+            self,
+            deliverOn: .global(qos: .userInitiated),
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
     }
 
     private func unsubscribeRemote() {
@@ -85,7 +89,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             engine.cancelForIdentifier(subscriptionId)
         }
 
-        self.subscription = nil
+        subscription = nil
 
         mutex.unlock()
     }
@@ -120,9 +124,11 @@ final class StakingAccountSubscription: WebSocketSubscribing {
             let storageKeyFactory = StorageKeyFactory()
 
             let codingOperations: [MapKeyEncodingOperation<Data>] = requests.map { request in
-                MapKeyEncodingOperation(path: request.0,
-                                        storageKeyFactory: storageKeyFactory,
-                                        keyParams: [request.1])
+                MapKeyEncodingOperation(
+                    path: request.0,
+                    storageKeyFactory: storageKeyFactory,
+                    keyParams: [request.1]
+                )
             }
 
             configureMapOperations(codingOperations, coderFactoryOperation: codingFactoryOperation)
@@ -169,18 +175,20 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         do {
             let storageParams = keys.map { $0.toHex(includePrefix: true) }
 
-            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] (update) in
+            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] update in
                 self?.handleUpdate(update.params.result)
             }
 
-            let failureClosure: (Error, Bool) -> Void = { [weak self] (error, unsubscribed) in
+            let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
                 self?.logger?.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
-            let subscriptionId = try engine.subscribe(RPCMethod.storageSubscibe,
-                                                      params: [storageParams],
-                                                      updateClosure: updateClosure,
-                                                      failureClosure: failureClosure)
+            let subscriptionId = try engine.subscribe(
+                RPCMethod.storageSubscibe,
+                params: [storageParams],
+                updateClosure: updateClosure,
+                failureClosure: failureClosure
+            )
 
             let handlers: [StorageChildSubscribing] = keys.map { key in
                 if key == ledgerKey {
@@ -197,8 +205,10 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
     }
 
-    private func configureMapOperations(_ operations: [MapKeyEncodingOperation<Data>],
-                                        coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>) {
+    private func configureMapOperations(
+        _ operations: [MapKeyEncodingOperation<Data>],
+        coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) {
         operations.forEach { operation in
             operation.addDependency(coderFactoryOperation)
 

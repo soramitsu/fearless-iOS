@@ -14,12 +14,14 @@ final class ValidatorOperationFactory {
     let runtimeService: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
 
-    init(chain: Chain,
-         eraValidatorService: EraValidatorServiceProtocol,
-         rewardService: RewardCalculatorServiceProtocol,
-         storageRequestFactory: StorageRequestFactoryProtocol,
-         runtimeService: RuntimeCodingServiceProtocol,
-         engine: JSONRPCEngine) {
+    init(
+        chain: Chain,
+        eraValidatorService: EraValidatorServiceProtocol,
+        rewardService: RewardCalculatorServiceProtocol,
+        storageRequestFactory: StorageRequestFactoryProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        engine: JSONRPCEngine
+    ) {
         self.chain = chain
         self.eraValidatorService = eraValidatorService
         self.rewardService = rewardService
@@ -28,31 +30,35 @@ final class ValidatorOperationFactory {
         self.engine = engine
     }
 
-    private func createSuperIdentityOperation(dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-                                              eraValidators: BaseOperation<EraStakersInfo>)
-    -> SuperIdentityWrapper {
+    private func createSuperIdentityOperation(
+        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        eraValidators: BaseOperation<EraStakersInfo>
+    ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
 
         let keyParams: () throws -> [Data] = {
             let info = try eraValidators.extractNoCancellableResultData()
-            return info.validators.map { $0.accountId }
+            return info.validators.map(\.accountId)
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {
             try runtime.extractNoCancellableResultData()
         }
 
-        let superIdentityWrapper: SuperIdentityWrapper = storageRequestFactory.queryItems(engine: engine,
-                                                                                          keyParams: keyParams,
-                                                                                          factory: factory,
-                                                                                          storagePath: path)
+        let superIdentityWrapper: SuperIdentityWrapper = storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: keyParams,
+            factory: factory,
+            storagePath: path
+        )
 
         return superIdentityWrapper
     }
 
-    private func createIdentityMapOperation(dependingOn superOperation: SuperIdentityOperation,
-                                            identityOperation: IdentityOperation)
-    -> BaseOperation<[String: AccountIdentity]> {
+    private func createIdentityMapOperation(
+        dependingOn superOperation: SuperIdentityOperation,
+        identityOperation: IdentityOperation
+    ) -> BaseOperation<[String: AccountIdentity]> {
         let addressType = chain.addressType
 
         return ClosureOperation<[String: AccountIdentity]> {
@@ -60,47 +66,58 @@ final class ValidatorOperationFactory {
 
             let superIdentities = try superOperation.extractNoCancellableResultData()
             let identities = try identityOperation.extractNoCancellableResultData()
-                .reduce(into: [String: Identity]()) { (result, item) in
+                .reduce(into: [String: Identity]()) { result, item in
                     if let value = item.value {
                         let address = try addressFactory
-                            .addressFromAccountId(data: item.key.getAccountIdFromKey(),
-                                                  type: addressType)
+                            .addressFromAccountId(
+                                data: item.key.getAccountIdFromKey(),
+                                type: addressType
+                            )
                         result[address] = value
                     }
                 }
 
-            return try superIdentities.reduce(into: [String: AccountIdentity]()) { (result, item) in
+            return try superIdentities.reduce(into: [String: AccountIdentity]()) { result, item in
                 let address = try addressFactory
-                    .addressFromAccountId(data: item.key.getAccountIdFromKey(),
-                                          type: addressType)
+                    .addressFromAccountId(
+                        data: item.key.getAccountIdFromKey(),
+                        type: addressType
+                    )
 
                 if let value = item.value {
                     let parentAddress = try addressFactory
-                        .addressFromAccountId(data: value.parentAccountId,
-                                              type: addressType)
+                        .addressFromAccountId(
+                            data: value.parentAccountId,
+                            type: addressType
+                        )
 
                     if let parentIdentity = identities[parentAddress] {
-                        result[address] = AccountIdentity(name: value.data.stringValue ?? "",
-                                                          parentAddress: parentAddress,
-                                                          parentName: parentIdentity.info.display.stringValue,
-                                                          identity: parentIdentity.info)
+                        result[address] = AccountIdentity(
+                            name: value.data.stringValue ?? "",
+                            parentAddress: parentAddress,
+                            parentName: parentIdentity.info.display.stringValue,
+                            identity: parentIdentity.info
+                        )
                     } else {
                         result[address] = AccountIdentity(name: value.data.stringValue ?? "")
                     }
 
                 } else if let identity = identities[address] {
-                    result[address] = AccountIdentity(name: identity.info.display.stringValue ?? "",
-                                                      parentAddress: nil,
-                                                      parentName: nil,
-                                                      identity: identity.info)
+                    result[address] = AccountIdentity(
+                        name: identity.info.display.stringValue ?? "",
+                        parentAddress: nil,
+                        parentName: nil,
+                        identity: identity.info
+                    )
                 }
             }
         }
     }
 
-    private func createIdentityWrapper(dependingOn superIdentity: SuperIdentityOperation,
-                                       runtime: BaseOperation<RuntimeCoderFactoryProtocol>)
-    -> CompoundOperationWrapper<[String: AccountIdentity]> {
+    private func createIdentityWrapper(
+        dependingOn superIdentity: SuperIdentityOperation,
+        runtime: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> CompoundOperationWrapper<[String: AccountIdentity]> {
         let path = StorageCodingPath.identity
 
         let keyParams: () throws -> [Data] = {
@@ -118,46 +135,56 @@ final class ValidatorOperationFactory {
             try runtime.extractNoCancellableResultData()
         }
 
-        let identityWrapper: IdentityWrapper = storageRequestFactory.queryItems(engine: engine,
-                                                                                keyParams: keyParams,
-                                                                                factory: factory,
-                                                                                storagePath: path)
+        let identityWrapper: IdentityWrapper = storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: keyParams,
+            factory: factory,
+            storagePath: path
+        )
 
-        let mapOperation = createIdentityMapOperation(dependingOn: superIdentity,
-                                                      identityOperation: identityWrapper.targetOperation)
+        let mapOperation = createIdentityMapOperation(
+            dependingOn: superIdentity,
+            identityOperation: identityWrapper.targetOperation
+        )
 
         mapOperation.addDependency(identityWrapper.targetOperation)
 
-        return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: identityWrapper.allOperations)
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: identityWrapper.allOperations
+        )
     }
 
-    private func createSlashesWrapper(dependingOn validators: BaseOperation<EraStakersInfo>,
-                                      runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-                                      slashDefer: BaseOperation<UInt32>)
-    -> UnappliedSlashesWrapper {
+    private func createSlashesWrapper(
+        dependingOn validators: BaseOperation<EraStakersInfo>,
+        runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        slashDefer: BaseOperation<UInt32>
+    ) -> UnappliedSlashesWrapper {
         let path = StorageCodingPath.unappliedSlashes
 
         let keyParams: () throws -> [String] = {
             let info = try validators.extractNoCancellableResultData()
             let duration = try slashDefer.extractNoCancellableResultData()
             let startEra = max(info.era - duration, 0)
-            return (startEra...info.era).map { String($0) }
+            return (startEra ... info.era).map { String($0) }
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {
             try runtime.extractNoCancellableResultData()
         }
 
-        return storageRequestFactory.queryItems(engine: engine,
-                                                keyParams: keyParams,
-                                                factory: factory,
-                                                storagePath: path)
+        return storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: keyParams,
+            factory: factory,
+            storagePath: path
+        )
     }
 
-    private func createConstOperation<T>(dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-                                         path: ConstantCodingPath) -> PrimitiveConstantOperation<T>
-    where T: LosslessStringConvertible {
+    private func createConstOperation<T>(
+        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: ConstantCodingPath
+    ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
         let operation = PrimitiveConstantOperation<T>(path: path)
 
         operation.configurationBlock = {
@@ -171,12 +198,13 @@ final class ValidatorOperationFactory {
         return operation
     }
 
-    private func createMapOperation(dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
-                                    rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
-                                    maxNominatorsOperation: BaseOperation<UInt32>,
-                                    slashesOperation: UnappliedSlashesOperation,
-                                    identitiesOperation: BaseOperation<[String: AccountIdentity]>)
-    -> BaseOperation<[ElectedValidatorInfo]> {
+    private func createMapOperation(
+        dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
+        rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
+        maxNominatorsOperation: BaseOperation<UInt32>,
+        slashesOperation: UnappliedSlashesOperation,
+        identitiesOperation: BaseOperation<[String: AccountIdentity]>
+    ) -> BaseOperation<[ElectedValidatorInfo]> {
         let addressType = chain.addressType
 
         return ClosureOperation<[ElectedValidatorInfo]> {
@@ -188,7 +216,7 @@ final class ValidatorOperationFactory {
 
             let addressFactory = SS58AddressFactory()
 
-            let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { (result, slashInEra) in
+            let slashed: Set<Data> = slashings.reduce(into: Set<Data>()) { result, slashInEra in
                 slashInEra.value?.forEach { slash in
                     result.insert(slash.validator)
                 }
@@ -197,21 +225,27 @@ final class ValidatorOperationFactory {
             return try electedInfo.validators.map { validator in
                 let hasSlashes = slashed.contains(validator.accountId)
 
-                let address = try addressFactory.addressFromAccountId(data: validator.accountId,
-                                                                      type: addressType)
+                let address = try addressFactory.addressFromAccountId(
+                    data: validator.accountId,
+                    type: addressType
+                )
 
                 let validatorReturn = try calculator
-                    .calculateValidatorReturn(validatorAccountId: validator.accountId,
-                                              isCompound: false,
-                                              period: .year)
+                    .calculateValidatorReturn(
+                        validatorAccountId: validator.accountId,
+                        isCompound: false,
+                        period: .year
+                    )
 
-                return try ElectedValidatorInfo(validator: validator,
-                                                identity: identities[address],
-                                                stakeReturn: validatorReturn,
-                                                hasSlashes: hasSlashes,
-                                                maxNominatorsAllowed: maxNominators,
-                                                addressType: addressType,
-                                                blocked: validator.prefs.blocked)
+                return try ElectedValidatorInfo(
+                    validator: validator,
+                    identity: identities[address],
+                    stakeReturn: validatorReturn,
+                    hasSlashes: hasSlashes,
+                    maxNominatorsAllowed: maxNominators,
+                    addressType: addressType,
+                    blocked: validator.prefs.blocked
+                )
             }
         }
     }
@@ -222,34 +256,44 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashDeferOperation: BaseOperation<UInt32> =
-            createConstOperation(dependingOn: runtimeOperation,
-                                 path: .slashDeferDuration)
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .slashDeferDuration
+            )
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
-            createConstOperation(dependingOn: runtimeOperation,
-                                 path: .maxNominatorRewardedPerValidator)
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .maxNominatorRewardedPerValidator
+            )
 
         slashDeferOperation.addDependency(runtimeOperation)
         maxNominatorsOperation.addDependency(runtimeOperation)
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
-        let superIdentityWrapper = createSuperIdentityOperation(dependingOn: runtimeOperation,
-                                                                eraValidators: eraValidatorsOperation)
+        let superIdentityWrapper = createSuperIdentityOperation(
+            dependingOn: runtimeOperation,
+            eraValidators: eraValidatorsOperation
+        )
 
         superIdentityWrapper.allOperations.forEach {
             $0.addDependency(eraValidatorsOperation)
             $0.addDependency(runtimeOperation)
         }
 
-        let identityWrapper = createIdentityWrapper(dependingOn: superIdentityWrapper.targetOperation,
-                                                    runtime: runtimeOperation)
+        let identityWrapper = createIdentityWrapper(
+            dependingOn: superIdentityWrapper.targetOperation,
+            runtime: runtimeOperation
+        )
 
         identityWrapper.allOperations.forEach { $0.addDependency(superIdentityWrapper.targetOperation) }
 
-        let slashingsWrapper = createSlashesWrapper(dependingOn: eraValidatorsOperation,
-                                                    runtime: runtimeOperation,
-                                                    slashDefer: slashDeferOperation)
+        let slashingsWrapper = createSlashesWrapper(
+            dependingOn: eraValidatorsOperation,
+            runtime: runtimeOperation,
+            slashDefer: slashDeferOperation
+        )
 
         slashingsWrapper.allOperations.forEach {
             $0.addDependency(eraValidatorsOperation)
@@ -259,11 +303,13 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         let rewardOperation = rewardService.fetchCalculatorOperation()
 
-        let mapOperation = createMapOperation(dependingOn: eraValidatorsOperation,
-                                              rewardOperation: rewardOperation,
-                                              maxNominatorsOperation: maxNominatorsOperation,
-                                              slashesOperation: slashingsWrapper.targetOperation,
-                                              identitiesOperation: identityWrapper.targetOperation)
+        let mapOperation = createMapOperation(
+            dependingOn: eraValidatorsOperation,
+            rewardOperation: rewardOperation,
+            maxNominatorsOperation: maxNominatorsOperation,
+            slashesOperation: slashingsWrapper.targetOperation,
+            identitiesOperation: identityWrapper.targetOperation
+        )
 
         mapOperation.addDependency(slashingsWrapper.targetOperation)
         mapOperation.addDependency(identityWrapper.targetOperation)
@@ -278,7 +324,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             rewardOperation
         ]
 
-        let dependencies = baseOperations  + superIdentityWrapper.allOperations +
+        let dependencies = baseOperations + superIdentityWrapper.allOperations +
             identityWrapper.allOperations + slashingsWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)

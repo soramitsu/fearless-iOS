@@ -8,10 +8,12 @@ final class WalletExtrinsicOpenCommand: WalletCommandProtocol {
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(extrinsicHash: String,
-         chain: Chain,
-         commandFactory: WalletCommandFactoryProtocol,
-         locale: Locale) {
+    init(
+        extrinsicHash: String,
+        chain: Chain,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) {
         self.extrinsicHash = extrinsicHash
         self.chain = chain
         self.commandFactory = commandFactory
@@ -21,9 +23,11 @@ final class WalletExtrinsicOpenCommand: WalletCommandProtocol {
     func execute() throws {
         let title = R.string.localizable
             .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
-        let alertController = UIAlertController(title: title,
-                                                message: nil,
-                                                preferredStyle: .actionSheet)
+        let alertController = UIAlertController(
+            title: title,
+            message: nil,
+            preferredStyle: .actionSheet
+        )
 
         let copyTitle = R.string.localizable
             .transactionDetailsCopyHash(preferredLanguages: locale.rLanguages)

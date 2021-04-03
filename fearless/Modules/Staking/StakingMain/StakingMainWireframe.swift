@@ -20,16 +20,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         let maybeManageView = ModalPickerFactory.createPickerForList(
             items,
             delegate: delegate,
-            context: context)
+            context: context
+        )
         guard let manageView = maybeManageView else { return }
 
         view?.controller.present(manageView, animated: true, completion: nil)
     }
 
-    func showRecommendedValidators(from view: StakingMainViewProtocol?,
-                                   existingBonding: ExistingBonding) {
+    func showRecommendedValidators(
+        from view: StakingMainViewProtocol?,
+        existingBonding: ExistingBonding
+    ) {
         guard let recommendedView = RecommendedValidatorsViewFactory
-                .createChangeTargetsView(with: existingBonding) else {
+            .createChangeTargetsView(with: existingBonding)
+        else {
             return
         }
 
@@ -64,7 +68,9 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         accountsView.controller.hidesBottomBarWhenPushed = true
 
-        view?.controller.navigationController?.pushViewController(accountsView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            accountsView.controller,
+            animated: true
+        )
     }
 }

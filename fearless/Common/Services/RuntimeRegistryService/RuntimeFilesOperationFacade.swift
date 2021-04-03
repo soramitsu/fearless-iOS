@@ -5,11 +5,15 @@ protocol RuntimeFilesOperationFacadeProtocol {
     func fetchDefaultOperation(for chain: Chain) -> CompoundOperationWrapper<Data?>
     func fetchNetworkOperation(for chain: Chain) -> CompoundOperationWrapper<Data?>
 
-    func saveDefaultOperation(for chain: Chain,
-                              data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>
+    func saveDefaultOperation(
+        for chain: Chain,
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void>
 
-    func saveNetworkOperation(for chain: Chain,
-                              data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void>
+    func saveNetworkOperation(
+        for chain: Chain,
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void>
 }
 
 enum RuntimeFilesOperationFacadeError: Error {
@@ -63,13 +67,16 @@ final class RuntimeFilesOperationFacade {
 
         let dependencies = [createDirOperation, fileExistsOperation, copyOperation]
 
-        return CompoundOperationWrapper(targetOperation: readOperation,
-                                        dependencies: dependencies)
-
+        return CompoundOperationWrapper(
+            targetOperation: readOperation,
+            dependencies: dependencies
+        )
     }
 
-    private func saveFileOperation(for localPath: String,
-                                   data: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+    private func saveFileOperation(
+        for localPath: String,
+        data: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void> {
         let createDirOperation = repository.createDirectoryIfNeededOperation(at: directoryPath)
 
         let fileName = (localPath as NSString).lastPathComponent
@@ -78,8 +85,10 @@ final class RuntimeFilesOperationFacade {
         let writeOperation = repository.writeOperation(dataClosure: data, at: filePath)
         writeOperation.addDependency(createDirOperation)
 
-        return CompoundOperationWrapper(targetOperation: writeOperation,
-                                        dependencies: [createDirOperation])
+        return CompoundOperationWrapper(
+            targetOperation: writeOperation,
+            dependencies: [createDirOperation]
+        )
     }
 }
 
@@ -102,9 +111,10 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
         return fetchFileOperation(for: localFilePath)
     }
 
-    func saveDefaultOperation(for chain: Chain,
-                              data closure: @escaping () throws -> Data)
-    -> CompoundOperationWrapper<Void> {
+    func saveDefaultOperation(
+        for chain: Chain,
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void> {
         guard let localFilePath = chain.preparedDefaultTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)
@@ -113,8 +123,10 @@ extension RuntimeFilesOperationFacade: RuntimeFilesOperationFacadeProtocol {
         return saveFileOperation(for: localFilePath, data: closure)
     }
 
-    func saveNetworkOperation(for chain: Chain,
-                              data closure: @escaping () throws -> Data) -> CompoundOperationWrapper<Void> {
+    func saveNetworkOperation(
+        for chain: Chain,
+        data closure: @escaping () throws -> Data
+    ) -> CompoundOperationWrapper<Void> {
         guard let localFilePath = chain.preparedNetworkTypeDefPath() else {
             return CompoundOperationWrapper
                 .createWithError(RuntimeRegistryServiceError.unexpectedCoderFetchingFailure)

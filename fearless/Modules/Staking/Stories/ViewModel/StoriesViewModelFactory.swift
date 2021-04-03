@@ -9,8 +9,9 @@ class StoriesViewModelFactory: StoriesViewModelFactoryProtocol {
         let slides = story.slides.map { slide in
             SlideViewModel(
                 title: "\(story.icon) \(story.title)",
-                content: slide.description)
-         }
+                content: slide.description
+            )
+        }
         return slides
     }
 }

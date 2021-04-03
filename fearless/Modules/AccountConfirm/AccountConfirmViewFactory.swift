@@ -5,10 +5,14 @@ import IrohaCrypto
 import RobinHood
 
 final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
-    static func createViewForOnboarding(request: AccountCreationRequest,
-                                        metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
-        guard let interactor = createAccountConfirmInteractor(for: request,
-                                                              metadata: metadata) else {
+    static func createViewForOnboarding(
+        request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> AccountConfirmViewProtocol? {
+        guard let interactor = createAccountConfirmInteractor(
+            for: request,
+            metadata: metadata
+        ) else {
             return nil
         }
 
@@ -17,10 +21,14 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForAdding(request: AccountCreationRequest,
-                                    metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
-        guard let interactor = createAddAccountConfirmInteractor(for: request,
-                                                                 metadata: metadata) else {
+    static func createViewForAdding(
+        request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> AccountConfirmViewProtocol? {
+        guard let interactor = createAddAccountConfirmInteractor(
+            for: request,
+            metadata: metadata
+        ) else {
             return nil
         }
 
@@ -29,11 +37,14 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForConnection(item: ConnectionItem,
-                                        request: AccountCreationRequest,
-                                        metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
+    static func createViewForConnection(
+        item: ConnectionItem,
+        request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> AccountConfirmViewProtocol? {
         guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " ")) else {
+            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
+        else {
             return nil
         }
 
@@ -46,23 +57,29 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let operationManager = OperationManagerFacade.sharedManager
         let anyRepository = AnyDataProviderRepository(accountRepository)
         let interactor = SelectConnection
-            .AccountConfirmInteractor(connectionItem: item,
-                                      request: request,
-                                      mnemonic: mnemonic,
-                                      accountOperationFactory: accountOperationFactory,
-                                      accountRepository: anyRepository,
-                                      settings: SettingsManager.shared,
-                                      operationManager: operationManager,
-                                      eventCenter: EventCenter.shared)
+            .AccountConfirmInteractor(
+                connectionItem: item,
+                request: request,
+                mnemonic: mnemonic,
+                accountOperationFactory: accountOperationFactory,
+                accountRepository: anyRepository,
+                settings: SettingsManager.shared,
+                operationManager: operationManager,
+                eventCenter: EventCenter.shared
+            )
         let wireframe = SelectConnection.AccountConfirmWireframe()
 
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    static func createViewForSwitch(request: AccountCreationRequest,
-                                    metadata: AccountCreationMetadata) -> AccountConfirmViewProtocol? {
-        guard let interactor = createAddAccountConfirmInteractor(for: request,
-                                                                 metadata: metadata) else {
+    static func createViewForSwitch(
+        request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> AccountConfirmViewProtocol? {
+        guard let interactor = createAddAccountConfirmInteractor(
+            for: request,
+            metadata: metadata
+        ) else {
             return nil
         }
 
@@ -70,8 +87,10 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return createView(for: interactor, wireframe: wireframe)
     }
 
-    private static func createView(for interactor: BaseAccountConfirmInteractor,
-                                   wireframe: AccountConfirmWireframeProtocol) -> AccountConfirmViewProtocol? {
+    private static func createView(
+        for interactor: BaseAccountConfirmInteractor,
+        wireframe: AccountConfirmWireframeProtocol
+    ) -> AccountConfirmViewProtocol? {
         let view = AccountConfirmViewController(nib: R.nib.accountConfirmViewController)
         view.skipButtonTitle = LocalizableResource { locale in
             R.string.localizable.confirmationSkipAction(preferredLanguages: locale.rLanguages)
@@ -92,11 +111,13 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         return view
     }
 
-    private static func createAccountConfirmInteractor(for request: AccountCreationRequest,
-                                                       metadata: AccountCreationMetadata)
-    -> BaseAccountConfirmInteractor? {
+    private static func createAccountConfirmInteractor(
+        for request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " ")) else {
+            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
+        else {
             return nil
         }
 
@@ -107,21 +128,25 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = AccountConfirmInteractor(request: request,
-                                                  mnemonic: mnemonic,
-                                                  accountOperationFactory: accountOperationFactory,
-                                                  accountRepository: AnyDataProviderRepository(accountRepository),
-                                                  settings: settings,
-                                                  operationManager: OperationManagerFacade.sharedManager)
+        let interactor = AccountConfirmInteractor(
+            request: request,
+            mnemonic: mnemonic,
+            accountOperationFactory: accountOperationFactory,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            settings: settings,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
         return interactor
     }
 
-    private static func createAddAccountConfirmInteractor(for request: AccountCreationRequest,
-                                                          metadata: AccountCreationMetadata)
-    -> BaseAccountConfirmInteractor? {
+    private static func createAddAccountConfirmInteractor(
+        for request: AccountCreationRequest,
+        metadata: AccountCreationMetadata
+    ) -> BaseAccountConfirmInteractor? {
         guard let mnemonic = try? IRMnemonicCreator()
-            .mnemonic(fromList: metadata.mnemonic.joined(separator: " ")) else {
+            .mnemonic(fromList: metadata.mnemonic.joined(separator: " "))
+        else {
             return nil
         }
 
@@ -132,13 +157,15 @@ final class AccountConfirmViewFactory: AccountConfirmViewFactoryProtocol {
             UserDataStorageFacade.shared.createRepository()
 
         let interactor = AddAccount
-            .AccountConfirmInteractor(request: request,
-                                      mnemonic: mnemonic,
-                                      accountOperationFactory: accountOperationFactory,
-                                      accountRepository: AnyDataProviderRepository(accountRepository),
-                                      operationManager: OperationManagerFacade.sharedManager,
-                                      settings: SettingsManager.shared,
-                                      eventCenter: EventCenter.shared)
+            .AccountConfirmInteractor(
+                request: request,
+                mnemonic: mnemonic,
+                accountOperationFactory: accountOperationFactory,
+                accountRepository: AnyDataProviderRepository(accountRepository),
+                operationManager: OperationManagerFacade.sharedManager,
+                settings: SettingsManager.shared,
+                eventCenter: EventCenter.shared
+            )
 
         return interactor
     }

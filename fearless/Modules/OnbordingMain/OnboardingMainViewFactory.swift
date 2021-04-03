@@ -23,10 +23,12 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    private static func createView(for wireframe: OnboardingMainWireframeProtocol)
-    -> OnboardingMainViewProtocol? {
+    private static func createView(
+        for wireframe: OnboardingMainWireframeProtocol
+    ) -> OnboardingMainViewProtocol? {
         guard let kestoreImportService: KeystoreImportServiceProtocol =
-            URLHandlingService.shared.findService() else {
+            URLHandlingService.shared.findService()
+        else {
             Logger.shared.error("Can't find required keystore import service")
             return nil
         }
@@ -35,8 +37,10 @@ final class OnboardingMainViewFactory: OnboardingMainViewFactoryProtocol {
 
         let locale: Locale = LocalizationManager.shared.selectedLocale
 
-        let legalData = LegalData(termsUrl: applicationConfig.termsURL,
-                              privacyPolicyUrl: applicationConfig.privacyPolicyURL)
+        let legalData = LegalData(
+            termsUrl: applicationConfig.termsURL,
+            privacyPolicyUrl: applicationConfig.privacyPolicyURL
+        )
 
         let view = OnboardingMainViewController(nib: R.nib.onbordingMain)
         view.termDecorator = CompoundAttributedStringDecorator.legal(for: locale)

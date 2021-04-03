@@ -11,12 +11,12 @@ import SoraUI
 class TriangularedBlurButton: BackgroundedContentControl {
     /// Returns content view that consists of title and icon
     public var imageWithTitleView: ImageWithTitleView? {
-        return self.contentView as? ImageWithTitleView
+        contentView as? ImageWithTitleView
     }
 
     /// Returns blured backround view with cut corners
     var triangularedBlurView: TriangularedBlurView? {
-        return self.backgroundView as? TriangularedBlurView
+        self.backgroundView as? TriangularedBlurView
     }
 
     // MARK: Overriden initializers
@@ -31,27 +31,27 @@ class TriangularedBlurButton: BackgroundedContentControl {
         configure()
     }
 
-    open override func prepareForInterfaceBuilder() {
+    override open func prepareForInterfaceBuilder() {
         super.prepareForInterfaceBuilder()
 
         configure()
     }
 
     /**
-        Creates and setups content and background views. This method **must not** be called
-        directly but can be overriden by subclass.
-    */
+         Creates and setups content and background views. This method **must not** be called
+         directly but can be overriden by subclass.
+     */
     open func configure() {
-        self.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
 
-        if self.backgroundView == nil {
-            self.backgroundView = TriangularedBlurView()
-            self.backgroundView?.isUserInteractionEnabled = false
+        if backgroundView == nil {
+            backgroundView = TriangularedBlurView()
+            backgroundView?.isUserInteractionEnabled = false
         }
 
-        if self.contentView == nil {
-            self.contentView = ImageWithTitleView()
-            self.contentView?.isUserInteractionEnabled = false
+        if contentView == nil {
+            contentView = ImageWithTitleView()
+            contentView?.isUserInteractionEnabled = false
         }
     }
 }

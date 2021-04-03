@@ -36,8 +36,10 @@ extension RewardDestinationArg: Codable {
             let data = try container.decode(Data.self)
             self = .account(data)
         default:
-            throw DecodingError.dataCorruptedError(in: container,
-                                                   debugDescription: "Unexpected type")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Unexpected type"
+            )
         }
     }
 
@@ -54,7 +56,7 @@ extension RewardDestinationArg: Codable {
         case .controller:
             try container.encode(Self.controllerField)
             try container.encodeNil()
-        case .account(let data):
+        case let .account(data):
             try container.encode(Self.accountField)
             try container.encode(data)
         }

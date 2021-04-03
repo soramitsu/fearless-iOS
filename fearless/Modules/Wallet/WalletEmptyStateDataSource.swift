@@ -12,13 +12,13 @@ final class WalletEmptyStateDataSource {
 
     init(titleResource: LocalizableResource<String>, image: UIImage? = nil) {
         self.titleResource = titleResource
-        self.imageForEmptyState = image
+        imageForEmptyState = image
     }
 }
 
 extension WalletEmptyStateDataSource: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        return nil
+        nil
     }
 
     var titleForEmptyState: String? {

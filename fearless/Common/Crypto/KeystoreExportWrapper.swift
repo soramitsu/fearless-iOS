@@ -41,10 +41,12 @@ final class KeystoreExportWrapper: KeystoreExportWrapperProtocol {
             builder = builder.with(genesisHash: genesisHashData.toHex(includePrefix: true))
         }
 
-        let keystoreData = KeystoreData(address: account.address,
-                                        secretKeyData: secretKey,
-                                        publicKeyData: account.publicKeyData,
-                                        cryptoType: account.cryptoType.utilsType)
+        let keystoreData = KeystoreData(
+            address: account.address,
+            secretKeyData: secretKey,
+            publicKeyData: account.publicKeyData,
+            cryptoType: account.cryptoType.utilsType
+        )
 
         let definition = try builder.build(from: keystoreData, password: password)
 

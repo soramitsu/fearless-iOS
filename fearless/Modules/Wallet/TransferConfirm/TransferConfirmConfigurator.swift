@@ -16,8 +16,10 @@ final class TransferConfirmConfigurator {
     let viewModelFactory: TransferConfirmViewModelFactory
 
     init(assets: [WalletAsset], amountFormatterFactory: NumberFormatterFactoryProtocol) {
-        viewModelFactory = TransferConfirmViewModelFactory(assets: assets,
-                                                           amountFormatterFactory: amountFormatterFactory)
+        viewModelFactory = TransferConfirmViewModelFactory(
+            assets: assets,
+            amountFormatterFactory: amountFormatterFactory
+        )
     }
 
     func configure(builder: TransferConfirmationModuleBuilderProtocol) {

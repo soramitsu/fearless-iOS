@@ -28,7 +28,7 @@ final class TransferChangeHandling: OperationDefinitionChangeHandling {
         }
     }
 
-    func shouldUpdateAccessoryForChange(event: OperationDefinitionChangeEvent) -> Bool {
+    func shouldUpdateAccessoryForChange(event _: OperationDefinitionChangeEvent) -> Bool {
         false
     }
 }

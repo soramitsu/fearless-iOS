@@ -2,7 +2,6 @@ import UIKit
 import SoraUI
 
 final class ValidatorInfoTitleSubtitleCell: UITableViewCell {
-
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!
 

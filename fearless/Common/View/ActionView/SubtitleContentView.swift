@@ -1,9 +1,9 @@
 import SoraUI
 
 final class SubtitleContentView: UIView {
-    let titleLabel: UILabel = UILabel()
-    let subtitleImageView: UIImageView = UIImageView()
-    let subtitleLabelView: UILabel = UILabel()
+    let titleLabel = UILabel()
+    let subtitleImageView = UIImageView()
+    let subtitleLabelView = UILabel()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -70,10 +70,12 @@ final class SubtitleContentView: UIView {
 
         let titleSize = titleLabel.intrinsicContentSize
 
-        titleLabel.frame = CGRect(x: bounds.minX,
-                                  y: bounds.minY,
-                                  width: min(titleSize.width, bounds.width),
-                                  height: titleSize.height)
+        titleLabel.frame = CGRect(
+            x: bounds.minX,
+            y: bounds.minY,
+            width: min(titleSize.width, bounds.width),
+            height: titleSize.height
+        )
 
         let subtitleLabelSize = subtitleLabelView.intrinsicContentSize
         var subtitleHeight = subtitleLabelSize.height
@@ -86,10 +88,12 @@ final class SubtitleContentView: UIView {
 
             let imageOrigin = titleLabel.frame.maxY + verticalSpacing +
                 subtitleHeight / 2.0 - image.size.height / 2.0
-            subtitleImageView.frame = CGRect(x: originX,
-                                             y: imageOrigin,
-                                             width: image.size.width,
-                                             height: image.size.height)
+            subtitleImageView.frame = CGRect(
+                x: originX,
+                y: imageOrigin,
+                width: image.size.width,
+                height: image.size.height
+            )
 
             originX = subtitleImageView.frame.maxX + horizontalSubtitleSpacing
             availableWidth -= originX
@@ -98,9 +102,11 @@ final class SubtitleContentView: UIView {
         let labelOrigin = titleLabel.frame.maxY + verticalSpacing +
             subtitleHeight / 2.0 - subtitleLabelSize.height / 2.0
 
-        subtitleLabelView.frame = CGRect(x: originX,
-                                         y: labelOrigin,
-                                         width: availableWidth,
-                                         height: subtitleLabelSize.height)
+        subtitleLabelView.frame = CGRect(
+            x: originX,
+            y: labelOrigin,
+            width: availableWidth,
+            height: subtitleLabelSize.height
+        )
     }
 }

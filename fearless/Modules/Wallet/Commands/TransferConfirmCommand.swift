@@ -17,9 +17,11 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(payload: ConfirmationPayload,
-         localizationManager: LocalizationManagerProtocol,
-         commandFactory: WalletCommandFactoryProtocol) {
+    init(
+        payload: ConfirmationPayload,
+        localizationManager: LocalizationManagerProtocol,
+        commandFactory: WalletCommandFactoryProtocol
+    ) {
         self.commandFactory = commandFactory
         self.localizationManager = localizationManager
         self.payload = payload
@@ -27,7 +29,8 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
 
     func execute() throws {
         guard let context = payload.transferInfo.context,
-            let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
+              let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain
+        else {
             try undelyingCommand?.execute()
             return
         }
@@ -48,9 +51,11 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
         let title = R.string.localizable.commonWarning(preferredLanguages: locale.rLanguages)
         let message = R.string.localizable.walletSendExistentialWarning(preferredLanguages: locale.rLanguages)
 
-        let alertController = UIAlertController(title: title,
-                                                message: message,
-                                                preferredStyle: .alert)
+        let alertController = UIAlertController(
+            title: title,
+            message: message,
+            preferredStyle: .alert
+        )
 
         let continueTitle = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
@@ -62,9 +67,11 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
         alertController.addAction(continueAction)
 
         let cancelTitle = R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages)
-        let closeAction = UIAlertAction(title: cancelTitle,
-                                        style: .cancel,
-                                        handler: nil)
+        let closeAction = UIAlertAction(
+            title: cancelTitle,
+            style: .cancel,
+            handler: nil
+        )
         alertController.addAction(closeAction)
 
         let presentationCommand = commandFactory?.preparePresentationCommand(for: alertController)

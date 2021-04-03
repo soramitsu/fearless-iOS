@@ -12,9 +12,11 @@ final class ValidatorInfoPresenter {
 
     private(set) var validatorInfo: ValidatorInfoProtocol?
 
-    init(viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
-         asset: WalletAsset,
-         locale: Locale) {
+    init(
+        viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
+        asset: WalletAsset,
+        locale: Locale
+    ) {
         self.viewModelFactory = viewModelFactory
         self.asset = asset
         self.locale = locale
@@ -36,10 +38,12 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         if let view = view,
            let chain = WalletAssetId(rawValue: asset.identifier)?.chain,
            let validatorInfo = self.validatorInfo {
-            wireframe.presentAccountOptions(from: view,
-                                            address: validatorInfo.address,
-                                            chain: chain,
-                                            locale: locale)
+            wireframe.presentAccountOptions(
+                from: view,
+                address: validatorInfo.address,
+                chain: chain,
+                locale: locale
+            )
         }
     }
 
@@ -52,17 +56,21 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         guard let email = validatorInfo?.identity?.email else { return }
         guard let view = view else { return }
 
-        let message = SocialMessage(body: nil,
-                                    subject: "",
-                                    recepients: [email])
+        let message = SocialMessage(
+            body: nil,
+            subject: "",
+            recepients: [email]
+        )
         if !wireframe.writeEmail(with: message, from: view, completionHandler: nil) {
-            wireframe.present(message: R.string.localizable
-                                .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
-                              title: R.string.localizable
-                                .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
-                              closeAction: R.string.localizable
-                                .commonClose(preferredLanguages: locale.rLanguages),
-                              from: view)
+            wireframe.present(
+                message: R.string.localizable
+                    .noEmailBoundErrorMessage(preferredLanguages: locale.rLanguages),
+                title: R.string.localizable
+                    .commonErrorGeneralTitle(preferredLanguages: locale.rLanguages),
+                closeAction: R.string.localizable
+                    .commonClose(preferredLanguages: locale.rLanguages),
+                from: view
+            )
         }
     }
 
@@ -98,7 +106,9 @@ extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
         let accountViewModel = viewModelFactory.createAccountViewModel(from: validatorInfo)
         let extrasViewModel = viewModelFactory.createExtrasViewModel(from: validatorInfo)
 
-        self.view?.didReceive(accountViewModel: accountViewModel,
-                              extrasViewModel: extrasViewModel)
+        view?.didReceive(
+            accountViewModel: accountViewModel,
+            extrasViewModel: extrasViewModel
+        )
     }
 }

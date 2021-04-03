@@ -22,8 +22,9 @@ final class UsernameSetupViewFactory: UsernameSetupViewFactoryProtocol {
         return createView(for: wireframe)
     }
 
-    private static func createView(for wireframe: UsernameSetupWireframeProtocol)
-    -> UsernameSetupViewProtocol? {
+    private static func createView(
+        for wireframe: UsernameSetupWireframeProtocol
+    ) -> UsernameSetupViewProtocol? {
         let view = UsernameSetupViewController(nib: R.nib.usernameSetupViewController)
         let presenter = UsernameSetupPresenter()
 
