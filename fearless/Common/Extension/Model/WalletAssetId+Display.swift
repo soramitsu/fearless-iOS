@@ -4,7 +4,7 @@ extension WalletAssetId {
     var icon: UIImage? {
         switch self {
         case .xor:
-            return R.image.iconPolkadotSmallBg() //TODO: add sora icon!
+            return R.image.iconSoraSmallBg()
         case .dot:
             return R.image.iconPolkadotSmallBg()
         case .kusama:
@@ -19,7 +19,7 @@ extension WalletAssetId {
     var assetIcon: UIImage? {
         switch self {
         case .xor:
-            return R.image.iconPolkadotAsset() //TODO: add sora icon
+            return R.image.iconSoraAsset()
         case .dot:
             return R.image.iconPolkadotAsset()
         case .kusama:
