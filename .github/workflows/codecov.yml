@@ -12,21 +12,14 @@ jobs:
   build:
     runs-on: macOS-latest
     steps:
-      - name: Test
+      - name: Checkout
         uses: actions/checkout@v1
       
-      - name: Install Dependencies
+      - name: Install Dependencies & Test
         run: |
           cd fearless
           pod install --repo-update
-
-      - name: Test
-        uses: ty0x2333/cocoapods-action@master
-        with:
-          workspace: fearless.xcworkspace
-          scheme: fearless
-          additional_build_params: -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4'
-          lint: false
+          xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' build test
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
