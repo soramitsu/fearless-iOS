@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-protocol AmountInputAccessoryViewDelegate: class {
+protocol AmountInputAccessoryViewDelegate: AnyObject {
     func didSelect(on view: AmountInputAccessoryView, percentage: Float)
     func didSelectDone(on view: AmountInputAccessoryView)
 }

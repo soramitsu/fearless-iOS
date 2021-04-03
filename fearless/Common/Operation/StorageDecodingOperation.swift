@@ -36,8 +36,10 @@ final class StorageDecodingOperation<T: Decodable>: BaseOperation<T> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
-                                                                  storageName: path.itemName) else {
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
                 throw StorageDecodingOperationError.invalidStoragePath
             }
 
@@ -79,8 +81,10 @@ final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
-                                                                  storageName: path.itemName) else {
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
                 throw StorageDecodingOperationError.invalidStoragePath
             }
 
@@ -136,8 +140,10 @@ final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
-                                                                  storageName: path.itemName) else {
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
                 throw StorageDecodingOperationError.invalidStoragePath
             }
 
@@ -221,7 +227,8 @@ final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>
             }
 
             guard let entry = factory.metadata
-                    .getConstant(in: path.moduleName, constantName: path.constantName) else {
+                .getConstant(in: path.moduleName, constantName: path.constantName)
+            else {
                 throw StorageDecodingOperationError.invalidStoragePath
             }
 

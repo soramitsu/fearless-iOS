@@ -75,10 +75,12 @@ class DetailsTriangularedView: BackgroundedContentControl {
         contentView?.frame = bounds
 
         if let actionView = lazyActionView {
-            actionView.frame = CGRect(x: bounds.maxX - bounds.height,
-                                      y: bounds.minY,
-                                      width: bounds.height,
-                                      height: bounds.height)
+            actionView.frame = CGRect(
+                x: bounds.maxX - bounds.height,
+                y: bounds.minY,
+                width: bounds.height,
+                height: bounds.height
+            )
         }
 
         switch layout {
@@ -98,22 +100,28 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let labelX = bounds.minX + contentInsets.left + iconOffset
 
         let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
-        titleLabel.frame = CGRect(x: labelX,
-                                  y: bounds.minY + contentInsets.top,
-                                  width: trailing - labelX,
-                                  height: titleHeight)
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.minY + contentInsets.top,
+            width: trailing - labelX,
+            height: titleHeight
+        )
 
         let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
-        subtitleLabel?.frame = CGRect(x: labelX,
-                                     y: bounds.maxY - contentInsets.bottom - subtitleHeight,
-                                     width: trailing - labelX,
-                                     height: subtitleHeight)
+        subtitleLabel?.frame = CGRect(
+            x: labelX,
+            y: bounds.maxY - contentInsets.bottom - subtitleHeight,
+            width: trailing - labelX,
+            height: subtitleHeight
+        )
 
         if let iconView = lazyIconView {
-            iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                    y: bounds.midY - iconRadius,
-                                    width: 2.0 * iconRadius,
-                                    height: 2.0 * iconRadius)
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: bounds.midY - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
         }
     }
 
@@ -122,24 +130,30 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let titleX = bounds.minX + contentInsets.left
 
         let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
-        titleLabel.frame = CGRect(x: titleX,
-                                  y: bounds.minY + contentInsets.top,
-                                  width: trailing - titleX,
-                                  height: titleHeight)
+        titleLabel.frame = CGRect(
+            x: titleX,
+            y: bounds.minY + contentInsets.top,
+            width: trailing - titleX,
+            height: titleHeight
+        )
 
         let subtitleHeight = subtitleLabel?.intrinsicContentSize.height ?? 0.0
         let subtitleX = lazyIconView != nil ? titleX + 2.0 * iconRadius + horizontalSpacing : titleX
-        subtitleLabel?.frame = CGRect(x: subtitleX,
-                                      y: bounds.maxY - contentInsets.bottom - subtitleHeight,
-                                      width: trailing - subtitleX,
-                                      height: subtitleHeight)
+        subtitleLabel?.frame = CGRect(
+            x: subtitleX,
+            y: bounds.maxY - contentInsets.bottom - subtitleHeight,
+            width: trailing - subtitleX,
+            height: subtitleHeight
+        )
 
         if let iconView = lazyIconView {
             let subtitleCenter = subtitleLabel?.frame.midY ?? bounds.midY
-            iconView.frame = CGRect(x: titleX,
-                                    y: subtitleCenter - iconRadius,
-                                    width: 2.0 * iconRadius,
-                                    height: 2.0 * iconRadius)
+            iconView.frame = CGRect(
+                x: titleX,
+                y: subtitleCenter - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
         }
     }
 
@@ -150,21 +164,25 @@ class DetailsTriangularedView: BackgroundedContentControl {
         let labelX = bounds.minX + contentInsets.left + iconOffset
         let trailing = lazyActionView?.frame.minX ?? bounds.maxX - contentInsets.right
 
-        titleLabel.frame = CGRect(x: labelX,
-                                  y: bounds.midY - titleHeight / 2.0,
-                                  width: trailing - labelX,
-                                  height: titleHeight)
+        titleLabel.frame = CGRect(
+            x: labelX,
+            y: bounds.midY - titleHeight / 2.0,
+            width: trailing - labelX,
+            height: titleHeight
+        )
 
         if let iconView = lazyIconView {
-            iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                    y: bounds.midY - iconRadius,
-                                    width: 2.0 * iconRadius,
-                                    height: 2.0 * iconRadius)
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: bounds.midY - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
         }
     }
 
     private func configure() {
-        self.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
 
         configureBackgroundViewIfNeeded()
         configureContentViewIfNeeded()
@@ -176,7 +194,7 @@ class DetailsTriangularedView: BackgroundedContentControl {
             triangularedView.isUserInteractionEnabled = false
             triangularedView.shadowOpacity = 0.0
 
-            self.backgroundView = triangularedView
+            backgroundView = triangularedView
         }
     }
 

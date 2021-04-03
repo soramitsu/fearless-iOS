@@ -61,7 +61,7 @@ extension RewardSelectionView {
     @IBInspectable
     var title: String? {
         get {
-            return titleLabel.text
+            titleLabel.text
         }
 
         set {
@@ -73,7 +73,7 @@ extension RewardSelectionView {
     @IBInspectable
     var titleColor: UIColor? {
         get {
-            return titleLabel.textColor
+            titleLabel.textColor
         }
 
         set {
@@ -84,7 +84,7 @@ extension RewardSelectionView {
     @IBInspectable
     private var _titleFontName: String? {
         get {
-            return titleLabel.font.fontName
+            titleLabel.font.fontName
         }
 
         set(newValue) {
@@ -119,7 +119,7 @@ extension RewardSelectionView {
     @IBInspectable
     var earningTitle: String? {
         get {
-            return earningsTitleLabel?.text
+            earningsTitleLabel?.text
         }
 
         set {
@@ -131,7 +131,7 @@ extension RewardSelectionView {
     @IBInspectable
     private var _earningTitleFontName: String? {
         get {
-            return earningsTitleLabel.font.fontName
+            earningsTitleLabel.font.fontName
         }
 
         set(newValue) {
@@ -166,7 +166,7 @@ extension RewardSelectionView {
     @IBInspectable
     var earningTitleColor: UIColor? {
         get {
-            return earningsTitleLabel.textColor
+            earningsTitleLabel.textColor
         }
 
         set {
@@ -177,7 +177,7 @@ extension RewardSelectionView {
     @IBInspectable
     var subtitle: String? {
         get {
-            return subtitleLabel.text
+            subtitleLabel.text
         }
 
         set {
@@ -189,7 +189,7 @@ extension RewardSelectionView {
     @IBInspectable
     private var _subtitleFontName: String? {
         get {
-            return subtitleLabel.font.fontName
+            subtitleLabel.font.fontName
         }
 
         set(newValue) {
@@ -224,7 +224,7 @@ extension RewardSelectionView {
     @IBInspectable
     var subtitleColor: UIColor? {
         get {
-            return subtitleLabel.textColor
+            subtitleLabel.textColor
         }
 
         set {
@@ -235,7 +235,7 @@ extension RewardSelectionView {
     @IBInspectable
     var earningsSubtitle: String? {
         get {
-            return earningsSubtitleLabel.text
+            earningsSubtitleLabel.text
         }
 
         set {
@@ -247,7 +247,7 @@ extension RewardSelectionView {
     @IBInspectable
     private var _earningsSubtitleFontName: String? {
         get {
-            return earningsSubtitleLabel.font.fontName
+            earningsSubtitleLabel.font.fontName
         }
 
         set(newValue) {
@@ -282,7 +282,7 @@ extension RewardSelectionView {
     @IBInspectable
     var earningsSubtitleColor: UIColor? {
         get {
-            return earningsSubtitleLabel.textColor
+            earningsSubtitleLabel.textColor
         }
 
         set {

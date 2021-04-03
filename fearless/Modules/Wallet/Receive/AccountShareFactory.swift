@@ -8,9 +8,11 @@ final class AccountShareFactory: AccountShareFactoryProtocol {
     let assets: [WalletAsset]
     let localizationManager: LocalizationManagerProtocol
 
-    init(accountViewModel: ReceiveAccountViewModelProtocol,
-         assets: [WalletAsset],
-         localizationManager: LocalizationManagerProtocol) {
+    init(
+        accountViewModel: ReceiveAccountViewModelProtocol,
+        assets: [WalletAsset],
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.assets = assets
         self.accountViewModel = accountViewModel
         self.localizationManager = localizationManager

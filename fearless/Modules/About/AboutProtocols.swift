@@ -2,7 +2,7 @@ protocol AboutViewProtocol: ControllerBackedProtocol {
     func didReceive(viewModel: AboutViewModel)
 }
 
-protocol AboutPresenterProtocol: class {
+protocol AboutPresenterProtocol: AnyObject {
     func setup()
 
     func activateWebsite()
@@ -15,6 +15,6 @@ protocol AboutPresenterProtocol: class {
 
 protocol AboutWireframeProtocol: WebPresentable, EmailPresentable, AlertPresentable {}
 
-protocol AboutViewFactoryProtocol: class {
-	static func createView() -> AboutViewProtocol?
+protocol AboutViewFactoryProtocol: AnyObject {
+    static func createView() -> AboutViewProtocol?
 }

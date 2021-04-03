@@ -16,31 +16,31 @@ extension NSPredicate {
     }
 
     static func filterTransactionsBySender(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.sender), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.sender), address)
     }
 
     static func filterTransactionsByReceiver(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.receiver), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDTransactionHistoryItem.receiver), address)
     }
 
     static func filterContactsByTarget(address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDContactItem.targetAddress), address)
     }
 
     static func filterRuntimeMetadataItemsBy(identifier: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDRuntimeMetadataItem.identifier), identifier)
+        NSPredicate(format: "%K == %@", #keyPath(CDRuntimeMetadataItem.identifier), identifier)
     }
 
     static func filterStorageItemsBy(identifier: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDChainStorageItem.identifier), identifier)
+        NSPredicate(format: "%K == %@", #keyPath(CDChainStorageItem.identifier), identifier)
     }
 
     static func filterByIdPrefix(_ prefix: String) -> NSPredicate {
-        return NSPredicate(format: "%K BEGINSWITH %@", #keyPath(CDChainStorageItem.identifier), prefix)
+        NSPredicate(format: "%K BEGINSWITH %@", #keyPath(CDChainStorageItem.identifier), prefix)
     }
 
     static func filterByStash(_ address: String) -> NSPredicate {
-        return NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
+        NSPredicate(format: "%K == %@", #keyPath(CDStashItem.stash), address)
     }
 
     static func filterByStashOrController(_ address: String) -> NSPredicate {

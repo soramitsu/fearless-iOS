@@ -71,12 +71,14 @@ struct TransactionV27: ScaleCodable {
     let nonce: UInt32
     let tip: BigUInt
 
-    init(accountId: Data,
-         signatureVersion: UInt8,
-         signature: Data,
-         era: Era,
-         nonce: UInt32,
-         tip: BigUInt) {
+    init(
+        accountId: Data,
+        signatureVersion: UInt8,
+        signature: Data,
+        era: Era,
+        nonce: UInt32,
+        tip: BigUInt
+    ) {
         self.accountId = accountId
         self.signatureVersion = signatureVersion
         self.signature = signature

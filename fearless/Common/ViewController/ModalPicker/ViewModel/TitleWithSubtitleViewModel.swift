@@ -11,6 +11,6 @@ struct TitleWithSubtitleViewModel {
 
     init(title: String) {
         self.title = title
-        self.subtitle = ""
+        subtitle = ""
     }
 }

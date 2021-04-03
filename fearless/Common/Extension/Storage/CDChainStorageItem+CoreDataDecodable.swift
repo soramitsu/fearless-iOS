@@ -3,7 +3,7 @@ import CoreData
 import RobinHood
 
 extension CDChainStorageItem: CoreDataCodable {
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let container = try decoder.container(keyedBy: ChainStorageItem.CodingKeys.self)
 
         identifier = try container.decode(String.self, forKey: .identifier)

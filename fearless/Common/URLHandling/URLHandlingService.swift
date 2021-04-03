@@ -1,6 +1,6 @@
 import Foundation
 
-protocol URLHandlingServiceProtocol: class {
+protocol URLHandlingServiceProtocol: AnyObject {
     func handle(url: URL) -> Bool
 }
 
@@ -14,7 +14,7 @@ final class URLHandlingService {
     }
 
     func findService<T>() -> T? {
-        return children.first(where: { $0 is T }) as? T
+        children.first(where: { $0 is T }) as? T
     }
 }
 

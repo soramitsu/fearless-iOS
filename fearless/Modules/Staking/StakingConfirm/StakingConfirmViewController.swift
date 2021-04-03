@@ -75,30 +75,40 @@ final class StakingConfirmViewController: UIViewController {
 
         payoutView.actionImage = R.image.iconMore()
 
-        payoutView.addTarget(self,
-                             action: #selector(actionOnPayoutAccount),
-                             for: .touchUpInside)
+        payoutView.addTarget(
+            self,
+            action: #selector(actionOnPayoutAccount),
+            for: .touchUpInside
+        )
 
         let containerView = UIView()
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.backgroundColor = .clear
         containerView.addSubview(payoutView)
-        self.payoutContainerView = containerView
+        payoutContainerView = containerView
 
-        payoutView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
-                                             constant: UIConstants.horizontalInset).isActive = true
+        payoutView.leadingAnchor.constraint(
+            equalTo: containerView.leadingAnchor,
+            constant: UIConstants.horizontalInset
+        ).isActive = true
 
-        payoutView.rightAnchor.constraint(equalTo: containerView.rightAnchor,
-                                          constant: -UIConstants.horizontalInset).isActive = true
+        payoutView.rightAnchor.constraint(
+            equalTo: containerView.rightAnchor,
+            constant: -UIConstants.horizontalInset
+        ).isActive = true
 
         payoutView.heightAnchor.constraint(equalToConstant: UIConstants.triangularedViewHeight)
             .isActive = true
 
-        payoutView.topAnchor.constraint(equalTo: containerView.topAnchor,
-                                        constant: 0.0).isActive = true
+        payoutView.topAnchor.constraint(
+            equalTo: containerView.topAnchor,
+            constant: 0.0
+        ).isActive = true
 
-        payoutView.bottomAnchor.constraint(equalTo: containerView.bottomAnchor,
-                                           constant: -12.0).isActive = true
+        payoutView.bottomAnchor.constraint(
+            equalTo: containerView.bottomAnchor,
+            constant: -12.0
+        ).isActive = true
     }
 
     private func updateActionButton() {
@@ -115,8 +125,8 @@ final class StakingConfirmViewController: UIViewController {
 
         if let containerView = payoutContainerView,
            let insertionIndex = stackView.arrangedSubviews
-             .firstIndex(where: { $0 == rewardContainerView }) {
-             stackView.insertArrangedSubview(containerView, at: insertionIndex + 1)
+           .firstIndex(where: { $0 == rewardContainerView }) {
+            stackView.insertArrangedSubview(containerView, at: insertionIndex + 1)
         }
     }
 
@@ -139,9 +149,11 @@ final class StakingConfirmViewController: UIViewController {
         balanceView.fieldText = viewModel.amount
 
         accountView.iconImage = viewModel.senderIcon
-            .imageWithFillColor(R.color.colorWhite()!,
-                                size: UIConstants.smallAddressIconSize,
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
         accountView.subtitle = viewModel.senderName
 
         switch viewModel.rewardDestination {
@@ -149,14 +161,16 @@ final class StakingConfirmViewController: UIViewController {
             rewardDetailsLabel.text = R.string.localizable
                 .stakingRestakeTitle(preferredLanguages: locale.rLanguages)
             removePayoutViewIfNeeded()
-        case .payout(let icon, let title):
+        case let .payout(icon, title):
             rewardDetailsLabel.text = R.string.localizable
                 .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
             insertPayoutViewIfNeeded()
 
-            payoutView?.iconImage = icon.imageWithFillColor(R.color.colorWhite()!,
-                                                            size: UIConstants.smallAddressIconSize,
-                                                            contentScale: UIScreen.main.scale)
+            payoutView?.iconImage = icon.imageWithFillColor(
+                R.color.colorWhite()!,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
             payoutView?.subtitle = title
         }
 
@@ -170,8 +184,10 @@ final class StakingConfirmViewController: UIViewController {
         }
 
         balanceView.balanceText = R.string.localizable
-            .commonBalanceFormat(viewModel.balance ?? "",
-                                 preferredLanguages: locale.rLanguages)
+            .commonBalanceFormat(
+                viewModel.balance ?? "",
+                preferredLanguages: locale.rLanguages
+            )
         balanceView.priceText = viewModel.price
 
         balanceView.assetIcon = viewModel.icon
@@ -184,18 +200,22 @@ final class StakingConfirmViewController: UIViewController {
             activityIndicatorView.stopAnimating()
             feeDetailsLabel.isHidden = false
 
-            let amountAttributedString = NSMutableAttributedString(string: viewModel.amount + "  ",
-                                                                   attributes: [
-                                                                        .foregroundColor: R.color.colorWhite()!,
-                                                                        .font: UIFont.p1Paragraph
-                                                                   ])
+            let amountAttributedString = NSMutableAttributedString(
+                string: viewModel.amount + "  ",
+                attributes: [
+                    .foregroundColor: R.color.colorWhite()!,
+                    .font: UIFont.p1Paragraph
+                ]
+            )
 
             if let price = viewModel.price {
-                let priceAttributedString = NSAttributedString(string: price,
-                                                               attributes: [
-                                                                .foregroundColor: R.color.colorGray()!,
-                                                                .font: UIFont.p1Paragraph
-                                                               ])
+                let priceAttributedString = NSAttributedString(
+                    string: price,
+                    attributes: [
+                        .foregroundColor: R.color.colorGray()!,
+                        .font: UIFont.p1Paragraph
+                    ]
+                )
                 amountAttributedString.append(priceAttributedString)
             }
 
@@ -239,7 +259,7 @@ extension StakingConfirmViewController: StakingConfirmViewProtocol {
 
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         self.feeViewModel = feeViewModel
-        self.applyFeeViewModel()
+        applyFeeViewModel()
     }
 }
 

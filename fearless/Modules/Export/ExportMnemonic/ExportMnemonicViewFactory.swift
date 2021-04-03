@@ -10,23 +10,29 @@ final class ExportMnemonicViewFactory: ExportMnemonicViewFactoryProtocol {
         }
 
         let uiFactory = UIFactory()
-        let view = ExportGenericViewController(uiFactory: uiFactory,
-                                               binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
-                                               mainTitle: nil,
-                                               accessoryTitle: accessoryActionTitle)
+        let view = ExportGenericViewController(
+            uiFactory: uiFactory,
+            binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+            mainTitle: nil,
+            accessoryTitle: accessoryActionTitle
+        )
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = ExportMnemonicPresenter(address: address,
-                                                localizationManager: localizationManager)
+        let presenter = ExportMnemonicPresenter(
+            address: address,
+            localizationManager: localizationManager
+        )
 
         let keychain = Keychain()
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = ExportMnemonicInteractor(keystore: keychain,
-                                                  repository: AnyDataProviderRepository(repository),
-                                                  operationManager: OperationManagerFacade.sharedManager)
+        let interactor = ExportMnemonicInteractor(
+            keystore: keychain,
+            repository: AnyDataProviderRepository(repository),
+            operationManager: OperationManagerFacade.sharedManager
+        )
         let wireframe = ExportMnemonicWireframe()
 
         view.presenter = presenter

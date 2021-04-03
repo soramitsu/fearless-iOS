@@ -17,7 +17,7 @@ final class NetworkManagementPresenter {
     private var pendingCompletion: Bool = false
 
     private let listCalculator: ListDifferenceCalculator<ManagedConnectionItem> = {
-        let calculator = ListDifferenceCalculator<ManagedConnectionItem>(initialItems: []) { (item1, item2) in
+        let calculator = ListDifferenceCalculator<ManagedConnectionItem>(initialItems: []) { item1, item2 in
             item1.order < item2.order
         }
 
@@ -28,8 +28,10 @@ final class NetworkManagementPresenter {
 
     let viewModelFactory: ManagedConnectionViewModelFactoryProtocol
 
-    init(localizationManager: LocalizationManagerProtocol,
-         viewModelFactory: ManagedConnectionViewModelFactoryProtocol) {
+    init(
+        localizationManager: LocalizationManagerProtocol,
+        viewModelFactory: ManagedConnectionViewModelFactoryProtocol
+    ) {
         self.localizationManager = localizationManager
         self.viewModelFactory = viewModelFactory
     }
@@ -38,20 +40,25 @@ final class NetworkManagementPresenter {
         let newDefaultConnectionViewModels: [ManagedConnectionViewModel] = defaultConnectionItems.map { item in
             let selected: Bool = item.identifier == selectedConnectionItem?.identifier
 
-            return viewModelFactory.createViewModelFromConnectionItem(item,
-                                                                      selected: selected)
+            return viewModelFactory.createViewModelFromConnectionItem(
+                item,
+                selected: selected
+            )
         }
 
         let newCustomConnectionViewModels: [ManagedConnectionViewModel] = listCalculator.allItems.map { item in
             let selected: Bool = item.identifier == selectedConnectionItem?.identifier
 
-            return viewModelFactory.createViewModelFromManagedItem(item,
-                                                                   selected: selected)
+            return viewModelFactory.createViewModelFromManagedItem(
+                item,
+                selected: selected
+            )
         }
 
         if
             defaultConnectionViewModels != newDefaultConnectionViewModels ||
-                customConnectionViewModels != newCustomConnectionViewModels  {
+            customConnectionViewModels != newCustomConnectionViewModels
+        {
             defaultConnectionViewModels = newDefaultConnectionViewModels
             customConnectionViewModels = newCustomConnectionViewModels
 
@@ -80,9 +87,11 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
     func activateDefaultConnectionDetails(at index: Int) {
         let connection = defaultConnectionItems[index]
 
-        wireframe.presentConnectionInfo(connection,
-                                        mode: .none,
-                                        from: view)
+        wireframe.presentConnectionInfo(
+            connection,
+            mode: .none,
+            from: view
+        )
     }
 
     func activateCustomConnectionDetails(at index: Int) {
@@ -94,9 +103,11 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
             mode.formUnion(.node)
         }
 
-        wireframe.presentConnectionInfo(connection,
-                                        mode: mode,
-                                        from: view)
+        wireframe.presentConnectionInfo(
+            connection,
+            mode: mode,
+            from: view
+        )
     }
 
     func selectDefaultItem(at index: Int) {
@@ -127,11 +138,11 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         var saveItems: [ManagedConnectionItem]
 
         if startIndex > finalIndex {
-            saveItems = customConnectionViewModels[finalIndex...startIndex].map { viewModel in
+            saveItems = customConnectionViewModels[finalIndex ... startIndex].map { viewModel in
                 listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
             }
         } else {
-            saveItems = customConnectionViewModels[startIndex...finalIndex].map { viewModel in
+            saveItems = customConnectionViewModels[startIndex ... finalIndex].map { viewModel in
                 listCalculator.allItems.first { $0.identifier == viewModel.identifier }!
             }.reversed()
         }
@@ -141,8 +152,8 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
 
         let initialOrder = saveItems[0].order
 
-        for index in (0..<saveItems.count - 1) {
-            saveItems[index] = saveItems[index].replacingOrder(saveItems[index+1].order)
+        for index in 0 ..< saveItems.count - 1 {
+            saveItems[index] = saveItems[index].replacingOrder(saveItems[index + 1].order)
         }
 
         let lastIndex = saveItems.count - 1
@@ -173,10 +184,12 @@ extension NetworkManagementPresenter: NetworkManagementPresenterProtocol {
         let detailsParam = "\(viewModel.type.titleForLocale(locale)), \(viewModel.name)"
         let details = R.string.localizable
             .connectionDeleteDescription(detailsParam, preferredLanguages: locale.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(title: title,
-                                                       message: details,
-                                                       actions: [removeAction],
-                                                       closeAction: cancelTitle)
+        let alertViewModel = AlertPresentableViewModel(
+            title: title,
+            message: details,
+            actions: [removeAction],
+            closeAction: cancelTitle
+        )
 
         wireframe.present(viewModel: alertViewModel, style: .alert, from: view)
     }
@@ -226,9 +239,11 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
 
     func didReceiveCustomConnection(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 
@@ -237,11 +252,13 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
 
         let context = PrimitiveContextWrapper(value: (accounts, connection))
 
-        wireframe.presentAccountSelection(accounts,
-                                          addressType: connection.type,
-                                          delegate: self,
-                                          from: view,
-                                          context: context)
+        wireframe.presentAccountSelection(
+            accounts,
+            addressType: connection.type,
+            delegate: self,
+            from: view,
+            context: context
+        )
     }
 
     func didFindNoAccounts(for connection: ConnectionItem) {
@@ -261,23 +278,31 @@ extension NetworkManagementPresenter: NetworkManagementInteractorOutputProtocol 
         let closeTitle = R.string.localizable
             .commonCancel(preferredLanguages: localizationManager.selectedLocale.rLanguages)
 
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: message,
-                                                  actions: [proceedAction],
-                                                  closeAction: closeTitle)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [proceedAction],
+            closeAction: closeTitle
+        )
 
-        wireframe.present(viewModel: viewModel,
-                          style: .alert,
-                          from: view)
+        wireframe.present(
+            viewModel: viewModel,
+            style: .alert,
+            from: view
+        )
     }
 
     func didReceiveConnection(selectionError: Error) {
-        if !wireframe.present(error: selectionError,
-                              from: view,
-                              locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+        if !wireframe.present(
+            error: selectionError,
+            from: view,
+            locale: localizationManager.selectedLocale
+        ) {
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }
@@ -286,7 +311,8 @@ extension NetworkManagementPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
             let (accounts, connection) =
-            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value else {
+            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value
+        else {
             return
         }
 
@@ -298,7 +324,8 @@ extension NetworkManagementPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectAction(context: AnyObject?) {
         guard
             let (_, connection) =
-            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value else {
+            (context as? PrimitiveContextWrapper<([AccountItem], ConnectionItem)>)?.value
+        else {
             return
         }
 

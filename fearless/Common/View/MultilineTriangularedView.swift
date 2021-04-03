@@ -47,19 +47,23 @@ class MultilineTriangularedView: UIView {
 
         backgroundView.frame = bounds
 
-        titleLabel.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                  y: bounds.minY + contentInsets.top,
-                                  width: availableWidth,
-                                  height: titleLabel.intrinsicContentSize.height)
+        titleLabel.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: bounds.minY + contentInsets.top,
+            width: availableWidth,
+            height: titleLabel.intrinsicContentSize.height
+        )
 
         if abs(calculatedSubtitleWidth - availableWidth) > CGFloat.leastNormalMagnitude {
             updateSubtitleSizeForWidth(availableWidth)
         }
 
-        subtitleLabel.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                     y: titleLabel.frame.maxY + verticalSpacing,
-                                     width: calculatedSubtitleWidth,
-                                     height: calculatedSubtitleHeight)
+        subtitleLabel.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: titleLabel.frame.maxY + verticalSpacing,
+            width: calculatedSubtitleWidth,
+            height: calculatedSubtitleHeight
+        )
     }
 
     private func configure() {
@@ -87,8 +91,10 @@ class MultilineTriangularedView: UIView {
     private func updateSubtitleSizeForWidth(_ width: CGFloat) {
         calculatedSubtitleWidth = width
         calculatedSubtitleHeight = subtitleLabel
-            .sizeThatFits(CGSize(width: width,
-                                 height: CGFloat.greatestFiniteMagnitude)).height
+            .sizeThatFits(CGSize(
+                width: width,
+                height: CGFloat.greatestFiniteMagnitude
+            )).height
 
         invalidateIntrinsicContentSize()
     }

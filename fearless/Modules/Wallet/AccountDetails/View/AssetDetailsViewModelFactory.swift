@@ -5,21 +5,25 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let priceAsset: WalletAsset
 
-    init(address: String,
-         chain: Chain,
-         purchaseProvider: PurchaseProviderProtocol,
-         amountFormatterFactory: NumberFormatterFactoryProtocol,
-         priceAsset: WalletAsset) {
+    init(
+        address: String,
+        chain: Chain,
+        purchaseProvider: PurchaseProviderProtocol,
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        priceAsset: WalletAsset
+    ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.priceAsset = priceAsset
 
         super.init(address: address, chain: chain, purchaseProvider: purchaseProvider)
     }
 
-    override func createAssetViewModel(for asset: WalletAsset,
-                                       balance: BalanceData,
-                                       commandFactory: WalletCommandFactoryProtocol,
-                                       locale: Locale) -> WalletViewModelProtocol? {
+    override func createAssetViewModel(
+        for asset: WalletAsset,
+        balance: BalanceData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) -> WalletViewModelProtocol? {
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
 
@@ -79,20 +83,24 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let title = asset.platform?.value(for: locale) ?? ""
 
-        let infoDetailsCommand = WalletAccountInfoCommand(balanceContext: balanceContext,
-                                                          amountFormatter: numberFormatter,
-                                                          commandFactory: commandFactory)
+        let infoDetailsCommand = WalletAccountInfoCommand(
+            balanceContext: balanceContext,
+            amountFormatter: numberFormatter,
+            commandFactory: commandFactory
+        )
 
-        return AssetDetailsViewModel(title: title,
-                                     imageViewModel: imageViewModel,
-                                     amount: amount,
-                                     price: priceString,
-                                     priceChangeViewModel: priceChangeViewModel,
-                                     totalVolume: totalPriceString,
-                                     leftTitle: leftTitle,
-                                     leftDetails: leftDetails,
-                                     rightTitle: rightTitle,
-                                     rightDetails: rightDetails,
-                                     infoDetailsCommand: infoDetailsCommand)
+        return AssetDetailsViewModel(
+            title: title,
+            imageViewModel: imageViewModel,
+            amount: amount,
+            price: priceString,
+            priceChangeViewModel: priceChangeViewModel,
+            totalVolume: totalPriceString,
+            leftTitle: leftTitle,
+            leftDetails: leftDetails,
+            rightTitle: rightTitle,
+            rightDetails: rightDetails,
+            infoDetailsCommand: infoDetailsCommand
+        )
     }
 }

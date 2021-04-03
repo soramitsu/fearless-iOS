@@ -5,21 +5,25 @@ final class BondedState: BaseStashNextState {
 
     private(set) var rewardEstimationAmount: Decimal?
 
-    init(stateMachine: StakingStateMachineProtocol,
-         commonData: StakingStateCommonData,
-         stashItem: StashItem,
-         ledgerInfo: DyStakingLedger,
-         totalReward: TotalRewardItem?,
-         rewardEstimationAmount: Decimal? = nil,
-         payee: RewardDestinationArg?) {
+    init(
+        stateMachine: StakingStateMachineProtocol,
+        commonData: StakingStateCommonData,
+        stashItem: StashItem,
+        ledgerInfo: DyStakingLedger,
+        totalReward: TotalRewardItem?,
+        rewardEstimationAmount: Decimal? = nil,
+        payee: RewardDestinationArg?
+    ) {
         self.ledgerInfo = ledgerInfo
         self.rewardEstimationAmount = rewardEstimationAmount
 
-        super.init(stateMachine: stateMachine,
-                   commonData: commonData,
-                   stashItem: stashItem,
-                   totalReward: totalReward,
-                   payee: payee)
+        super.init(
+            stateMachine: stateMachine,
+            commonData: commonData,
+            stashItem: stashItem,
+            totalReward: totalReward,
+            payee: payee
+        )
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -44,11 +48,13 @@ final class BondedState: BaseStashNextState {
 
             newState = self
         } else {
-            newState = StashState(stateMachine: stateMachine,
-                                  commonData: commonData,
-                                  stashItem: stashItem,
-                                  ledgerInfo: nil,
-                                  totalReward: totalReward)
+            newState = StashState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                totalReward: totalReward
+            )
         }
 
         stateMachine.transit(to: newState)
@@ -62,13 +68,15 @@ final class BondedState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let nomination = nomination {
-            newState = NominatorState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: ledgerInfo,
-                                      nomination: nomination,
-                                      totalReward: totalReward,
-                                      payee: payee)
+            newState = NominatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                nomination: nomination,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }
@@ -84,13 +92,15 @@ final class BondedState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let prefs = validatorPrefs {
-            newState = ValidatorState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: ledgerInfo,
-                                      prefs: prefs,
-                                      totalReward: totalReward,
-                                      payee: payee)
+            newState = ValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                prefs: prefs,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }

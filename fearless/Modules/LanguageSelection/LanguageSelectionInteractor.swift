@@ -16,7 +16,7 @@ final class LanguageSelectionInteractor {
 extension LanguageSelectionInteractor: LanguageSelectionInteractorInputProtocol {
     func load() {
         let languages: [Language] = localizationManager.availableLocalizations.map { localization in
-            return Language(code: localization)
+            Language(code: localization)
         }
 
         presenter.didLoad(languages: languages)

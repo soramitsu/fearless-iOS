@@ -3,27 +3,27 @@ import CommonWallet
 import SoraFoundation
 import SoraUI
 
-protocol RewardEstimationViewDelegate: class {
+protocol RewardEstimationViewDelegate: AnyObject {
     func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?)
     func rewardEstimationView(_ view: RewardEstimationView, didSelect percentage: Float)
     func rewardEstimationDidStartAction(_ view: RewardEstimationView)
 }
 
 final class RewardEstimationView: LocalizableView {
-    @IBOutlet weak var backgroundView: TriangularedBlurView!
-    @IBOutlet weak var amountInputView: AmountInputView!
+    @IBOutlet var backgroundView: TriangularedBlurView!
+    @IBOutlet var amountInputView: AmountInputView!
 
-    @IBOutlet weak var estimateWidgetTitleLabel: UILabel!
+    @IBOutlet var estimateWidgetTitleLabel: UILabel!
 
-    @IBOutlet weak var monthlyTitleLabel: UILabel!
-    @IBOutlet weak var monthlyAmountLabel: UILabel!
-    @IBOutlet weak var monthlyFiatAmountLabel: UILabel!
-    @IBOutlet weak var monthlyPercentageLabel: UILabel!
+    @IBOutlet var monthlyTitleLabel: UILabel!
+    @IBOutlet var monthlyAmountLabel: UILabel!
+    @IBOutlet var monthlyFiatAmountLabel: UILabel!
+    @IBOutlet var monthlyPercentageLabel: UILabel!
 
-    @IBOutlet weak var yearlyTitleLabel: UILabel!
-    @IBOutlet weak var yearlyAmountLabel: UILabel!
-    @IBOutlet weak var yearlyFiatAmountLabel: UILabel!
-    @IBOutlet weak var yearlyPercentageLabel: UILabel!
+    @IBOutlet var yearlyTitleLabel: UILabel!
+    @IBOutlet var yearlyAmountLabel: UILabel!
+    @IBOutlet var yearlyFiatAmountLabel: UILabel!
+    @IBOutlet var yearlyPercentageLabel: UILabel!
 
     @IBOutlet private var actionButton: TriangularedButton!
 
@@ -47,7 +47,7 @@ final class RewardEstimationView: LocalizableView {
         }
     }
 
-    var locale: Locale = Locale.current {
+    var locale = Locale.current {
         didSet {
             applyLocalization()
             applyInputViewModel()
@@ -84,8 +84,10 @@ final class RewardEstimationView: LocalizableView {
     private func applyWidgetViewModel() {
         if let viewModel = widgetViewModel?.assetBalance.value(for: locale) {
             amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(viewModel.balance ?? "",
-                                     preferredLanguages: locale.rLanguages)
+                .commonBalanceFormat(
+                    viewModel.balance ?? "",
+                    preferredLanguages: locale.rLanguages
+                )
             amountInputView.priceText = viewModel.price
 
             amountInputView.assetIcon = viewModel.icon
@@ -116,12 +118,14 @@ final class RewardEstimationView: LocalizableView {
 
         let formatter = amountFormatterFactory
             .createInputFormatter(for: widgetViewModel.asset).value(for: locale)
-        let newInputViewModel = AmountInputViewModel(symbol: asset.symbol,
-                                                     amount: widgetViewModel.amount,
-                                                     limit: widgetViewModel.inputLimit,
-                                                     formatter: formatter,
-                                                     inputLocale: locale,
-                                                     precision: Int16(formatter.maximumFractionDigits))
+        let newInputViewModel = AmountInputViewModel(
+            symbol: asset.symbol,
+            amount: widgetViewModel.amount,
+            limit: widgetViewModel.inputLimit,
+            formatter: formatter,
+            inputLocale: locale,
+            precision: Int16(formatter.maximumFractionDigits)
+        )
 
         inputViewModel?.observable.remove(observer: self)
 
@@ -163,11 +167,13 @@ final class RewardEstimationView: LocalizableView {
 
     private func setupAmountField() {
         let textColor = R.color.colorWhite()!
-        let placeholder = NSAttributedString(string: "0",
-                                             attributes: [
-                                                .foregroundColor: textColor.withAlphaComponent(0.5),
-                                                .font: UIFont.h4Title
-                                             ])
+        let placeholder = NSAttributedString(
+            string: "0",
+            attributes: [
+                .foregroundColor: textColor.withAlphaComponent(0.5),
+                .font: UIFont.h4Title
+            ]
+        )
 
         amountInputView.textField.attributedPlaceholder = placeholder
         amountInputView.textField.keyboardType = .decimalPad
@@ -213,10 +219,11 @@ final class RewardEstimationView: LocalizableView {
         let skeletonView = Skrull(
             size: spaceSize,
             decorations: [],
-            skeletons: createSkeletons(for: spaceSize))
-            .fillSkeletonStart(R.color.colorSkeletonStart()!)
-            .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
-            .build()
+            skeletons: createSkeletons(for: spaceSize)
+        )
+        .fillSkeletonStart(R.color.colorSkeletonStart()!)
+        .fillSkeletonEnd(color: R.color.colorSkeletonEnd()!)
+        .build()
 
         skeletonView.frame = CGRect(origin: .zero, size: spaceSize)
         skeletonView.autoresizingMask = []
@@ -238,39 +245,49 @@ final class RewardEstimationView: LocalizableView {
                 under: monthlyTitleLabel,
                 in: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize),
+                size: bigRowSize
+            ),
 
             createSkeletoRow(
                 under: monthlyTitleLabel,
                 in: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                size: smallRowSize),
+                size: smallRowSize
+            ),
 
             createSkeletoRow(
                 under: yearlyTitleLabel,
                 in: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize),
+                size: bigRowSize
+            ),
 
             createSkeletoRow(
                 under: yearlyTitleLabel,
                 in: spaceSize,
                 offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
-                size: smallRowSize)
-          ]
+                size: smallRowSize
+            )
+        ]
     }
 
-    private func createSkeletoRow(under targetView: UIView,
-                                  in spaceSize: CGSize,
-                                  offset: CGPoint,
-                                  size: CGSize) -> SingleSkeleton {
+    private func createSkeletoRow(
+        under targetView: UIView,
+        in spaceSize: CGSize,
+        offset: CGPoint,
+        size: CGSize
+    ) -> SingleSkeleton {
         let targetFrame = targetView.convert(targetView.bounds, to: self)
 
-        let position = CGPoint(x: targetFrame.minX + offset.x + size.width / 2.0,
-                               y: targetFrame.maxY + offset.y + size.height / 2.0)
+        let position = CGPoint(
+            x: targetFrame.minX + offset.x + size.width / 2.0,
+            y: targetFrame.maxY + offset.y + size.height / 2.0
+        )
 
-        let mappedSize = CGSize(width: spaceSize.skrullMapX(size.width),
-                                height: spaceSize.skrullMapY(size.height))
+        let mappedSize = CGSize(
+            width: spaceSize.skrullMapX(size.width),
+            height: spaceSize.skrullMapY(size.height)
+        )
 
         return SingleSkeleton(position: spaceSize.skrullMap(point: position), size: mappedSize).round()
     }
@@ -283,21 +300,23 @@ final class RewardEstimationView: LocalizableView {
 }
 
 extension RewardEstimationView: UITextFieldDelegate {
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
-        return inputViewModel?.didReceiveReplacement(string, for: range) ?? false
+    func textField(
+        _: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        inputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }
 
 extension RewardEstimationView: AmountInputAccessoryViewDelegate {
-    func didSelect(on view: AmountInputAccessoryView, percentage: Float) {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
         amountInputView.textField.resignFirstResponder()
 
         delegate?.rewardEstimationView(self, didSelect: percentage)
     }
 
-    func didSelectDone(on view: AmountInputAccessoryView) {
+    func didSelectDone(on _: AmountInputAccessoryView) {
         amountInputView.textField.resignFirstResponder()
     }
 }

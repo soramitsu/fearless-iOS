@@ -31,7 +31,7 @@ protocol StakingStateProtocol {
     func process(payee: RewardDestinationArg?)
 }
 
-protocol StakingStateMachineProtocol: class {
+protocol StakingStateMachineProtocol: AnyObject {
     var state: StakingStateProtocol { get }
 
     func transit(to state: StakingStateProtocol)
@@ -47,6 +47,6 @@ extension StakingStateMachineProtocol {
     }
 }
 
-protocol StakingStateMachineDelegate: class {
+protocol StakingStateMachineDelegate: AnyObject {
     func stateMachineDidChangeState(_ stateMachine: StakingStateMachineProtocol)
 }

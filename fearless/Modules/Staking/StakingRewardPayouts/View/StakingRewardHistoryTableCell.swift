@@ -1,7 +1,6 @@
 import UIKit
 
 final class StakingRewardHistoryTableCell: UITableViewCell {
-
     private enum Constants {
         static let verticalInset: CGFloat = 11
         static let iconSize: CGFloat = 32
@@ -45,7 +44,8 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         setupLayout()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -56,7 +56,8 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         NSLayoutConstraint.activate([
             transactionTypeView.leadingAnchor.constraint(
                 equalTo: contentView.leadingAnchor,
-                constant: UIConstants.horizontalInset),
+                constant: UIConstants.horizontalInset
+            ),
             transactionTypeView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
             transactionTypeView.widthAnchor.constraint(equalToConstant: Constants.iconSize)
         ])
@@ -66,10 +67,12 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         NSLayoutConstraint.activate([
             addressLabel.leadingAnchor.constraint(
                 equalTo: transactionTypeView.trailingAnchor,
-                constant: UIConstants.horizontalInset / 2),
+                constant: UIConstants.horizontalInset / 2
+            ),
             addressLabel.topAnchor.constraint(
                 equalTo: contentView.topAnchor,
-                constant: Constants.verticalInset)
+                constant: Constants.verticalInset
+            )
         ])
 
         contentView.addSubview(daysLeftLabel)
@@ -77,11 +80,13 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         NSLayoutConstraint.activate([
             daysLeftLabel.leadingAnchor.constraint(
                 equalTo: transactionTypeView.trailingAnchor,
-                constant: UIConstants.horizontalInset / 2),
+                constant: UIConstants.horizontalInset / 2
+            ),
             daysLeftLabel.topAnchor.constraint(equalTo: addressLabel.bottomAnchor),
             daysLeftLabel.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor,
-                constant: -Constants.verticalInset)
+                constant: -Constants.verticalInset
+            )
         ])
 
         contentView.addSubview(ksmAmountLabel)
@@ -89,13 +94,16 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         NSLayoutConstraint.activate([
             ksmAmountLabel.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor,
-                constant: -UIConstants.horizontalInset),
+                constant: -UIConstants.horizontalInset
+            ),
             ksmAmountLabel.topAnchor.constraint(
                 equalTo: contentView.topAnchor,
-                constant: Constants.verticalInset),
+                constant: Constants.verticalInset
+            ),
             addressLabel.trailingAnchor.constraint(
                 lessThanOrEqualTo: ksmAmountLabel.leadingAnchor,
-                constant: -UIConstants.horizontalInset)
+                constant: -UIConstants.horizontalInset
+            )
         ])
 
         contentView.addSubview(usdAmountLabel)
@@ -103,18 +111,19 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         NSLayoutConstraint.activate([
             usdAmountLabel.trailingAnchor.constraint(
                 equalTo: contentView.trailingAnchor,
-                constant: -UIConstants.horizontalInset),
+                constant: -UIConstants.horizontalInset
+            ),
             usdAmountLabel.topAnchor.constraint(equalTo: ksmAmountLabel.bottomAnchor),
             usdAmountLabel.bottomAnchor.constraint(
                 equalTo: contentView.bottomAnchor,
-                constant: -Constants.verticalInset)
+                constant: -Constants.verticalInset
+            )
         ])
     }
     // swiftlint:enable function_body_length
 }
 
 extension StakingRewardHistoryTableCell {
-
     struct ViewModel {
         let addressOrName: String
         let daysLeftText: String

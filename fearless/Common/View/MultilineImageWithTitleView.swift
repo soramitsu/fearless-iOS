@@ -64,19 +64,23 @@ final class MultilineImageWithTitleView: UIView {
         let availableWidth = preferredWidth - contentInsets.left - contentInsets.right
 
         let imageSize = imageView.intrinsicContentSize
-        imageView.frame = CGRect(x: bounds.midX - imageSize.width / 2.0,
-                                 y: contentInsets.top,
-                                 width: imageSize.width,
-                                 height: imageSize.height)
+        imageView.frame = CGRect(
+            x: bounds.midX - imageSize.width / 2.0,
+            y: contentInsets.top,
+            width: imageSize.width,
+            height: imageSize.height
+        )
 
         if abs(calculatedWidth - availableWidth) > CGFloat.leastNormalMagnitude {
             updateTitleSizeForWidth(availableWidth)
         }
 
-        titleLabel.frame = CGRect(x: bounds.midX - calculatedWidth / 2.0,
-                                  y: imageView.frame.maxY + verticalSpacing,
-                                  width: calculatedWidth,
-                                  height: calculatedTitleHeight)
+        titleLabel.frame = CGRect(
+            x: bounds.midX - calculatedWidth / 2.0,
+            y: imageView.frame.maxY + verticalSpacing,
+            width: calculatedWidth,
+            height: calculatedTitleHeight
+        )
     }
 
     private func configure() {
@@ -95,8 +99,10 @@ final class MultilineImageWithTitleView: UIView {
     private func updateTitleSizeForWidth(_ width: CGFloat) {
         calculatedWidth = width
         calculatedTitleHeight = titleLabel
-            .sizeThatFits(CGSize(width: width,
-                                 height: CGFloat.greatestFiniteMagnitude)).height
+            .sizeThatFits(CGSize(
+                width: width,
+                height: CGFloat.greatestFiniteMagnitude
+            )).height
 
         invalidateIntrinsicContentSize()
     }

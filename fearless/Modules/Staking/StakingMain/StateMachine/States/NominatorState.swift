@@ -4,21 +4,25 @@ final class NominatorState: BaseStashNextState {
     private(set) var ledgerInfo: DyStakingLedger
     private(set) var nomination: Nomination
 
-    init(stateMachine: StakingStateMachineProtocol,
-         commonData: StakingStateCommonData,
-         stashItem: StashItem,
-         ledgerInfo: DyStakingLedger,
-         nomination: Nomination,
-         totalReward: TotalRewardItem?,
-         payee: RewardDestinationArg?) {
+    init(
+        stateMachine: StakingStateMachineProtocol,
+        commonData: StakingStateCommonData,
+        stashItem: StashItem,
+        ledgerInfo: DyStakingLedger,
+        nomination: Nomination,
+        totalReward: TotalRewardItem?,
+        payee: RewardDestinationArg?
+    ) {
         self.ledgerInfo = ledgerInfo
         self.nomination = nomination
 
-        super.init(stateMachine: stateMachine,
-                   commonData: commonData,
-                   stashItem: stashItem,
-                   totalReward: totalReward,
-                   payee: payee)
+        super.init(
+            stateMachine: stateMachine,
+            commonData: commonData,
+            stashItem: stashItem,
+            totalReward: totalReward,
+            payee: payee
+        )
     }
 
     override func accept(visitor: StakingStateVisitorProtocol) {
@@ -37,11 +41,13 @@ final class NominatorState: BaseStashNextState {
 
             newState = self
         } else {
-            newState = StashState(stateMachine: stateMachine,
-                                  commonData: commonData,
-                                  stashItem: stashItem,
-                                  ledgerInfo: nil,
-                                  totalReward: totalReward)
+            newState = StashState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                totalReward: totalReward
+            )
         }
 
         stateMachine.transit(to: newState)
@@ -59,12 +65,14 @@ final class NominatorState: BaseStashNextState {
 
             newState = self
         } else {
-            newState = BondedState(stateMachine: stateMachine,
-                                   commonData: commonData,
-                                   stashItem: stashItem,
-                                   ledgerInfo: ledgerInfo,
-                                   totalReward: totalReward,
-                                   payee: payee)
+            newState = BondedState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                totalReward: totalReward,
+                payee: payee
+            )
         }
 
         stateMachine.transit(to: newState)
@@ -78,13 +86,15 @@ final class NominatorState: BaseStashNextState {
         let newState: StakingStateProtocol
 
         if let prefs = validatorPrefs {
-            newState = ValidatorState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: ledgerInfo,
-                                      prefs: prefs,
-                                      totalReward: totalReward,
-                                      payee: payee)
+            newState = ValidatorState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: ledgerInfo,
+                prefs: prefs,
+                totalReward: totalReward,
+                payee: payee
+            )
         } else {
             newState = self
         }

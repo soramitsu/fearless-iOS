@@ -16,10 +16,12 @@ class LocalAuthInteractor {
     private(set) var biometryAuth: BiometryAuthProtocol
     private(set) var locale: Locale
 
-    init(secretManager: SecretStoreManagerProtocol,
-         settingsManager: SettingsManagerProtocol,
-         biometryAuth: BiometryAuthProtocol,
-         locale: Locale) {
+    init(
+        secretManager: SecretStoreManagerProtocol,
+        settingsManager: SettingsManagerProtocol,
+        biometryAuth: BiometryAuthProtocol,
+        locale: Locale
+    ) {
         self.secretManager = secretManager
         self.settingsManager = settingsManager
         self.biometryAuth = biometryAuth
@@ -53,7 +55,8 @@ class LocalAuthInteractor {
 
         biometryAuth.authenticate(
             localizedReason: R.string.localizable.askBiometryReason(preferredLanguages: locale.rLanguages),
-            completionQueue: DispatchQueue.main) { [weak self] (result: Bool) -> Void in
+            completionQueue: DispatchQueue.main
+        ) { [weak self] (result: Bool) -> Void in
 
             self?.processBiometryAuth(result: result)
         }
@@ -65,7 +68,7 @@ class LocalAuthInteractor {
         }
 
         if result {
-           state = .completed
+            state = .completed
             presenter?.didCompleteAuth()
             return
         }
@@ -92,7 +95,7 @@ class LocalAuthInteractor {
 
 extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
     var allowManualBiometryAuth: Bool {
-        return settingsManager.biometryEnabled == true && biometryAuth.availableBiometryType == .touchId
+        settingsManager.biometryEnabled == true && biometryAuth.availableBiometryType == .touchId
     }
 
     func startAuth() {
@@ -105,12 +108,13 @@ extension LocalAuthInteractor: LocalAuthInteractorInputProtocol {
     func process(pin: String) {
         guard state == .waitingPincode || state == .checkingBiometry else { return }
 
-        self.pincode = pin
+        pincode = pin
 
         state = .checkingPincode
 
-        secretManager.loadSecret(for: KeystoreTag.pincode.rawValue,
-                                 completionQueue: DispatchQueue.main
+        secretManager.loadSecret(
+            for: KeystoreTag.pincode.rawValue,
+            completionQueue: DispatchQueue.main
         ) { [weak self] (secret: SecretDataRepresentable?) -> Void in
             self?.processStored(pin: secret?.toUTF8String())
         }

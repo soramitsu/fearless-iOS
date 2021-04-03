@@ -10,7 +10,7 @@ protocol StakingAmountViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
 }
 
-protocol StakingAmountPresenterProtocol: class {
+protocol StakingAmountPresenterProtocol: AnyObject {
     func setup()
     func selectRestakeDestination()
     func selectPayoutDestination()
@@ -22,40 +22,49 @@ protocol StakingAmountPresenterProtocol: class {
     func close()
 }
 
-protocol StakingAmountInteractorInputProtocol: class {
+protocol StakingAmountInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for address: String,
-                     amount: BigUInt,
-                     rewardDestination: RewardDestination<AccountItem>)
+    func estimateFee(
+        for address: String,
+        amount: BigUInt,
+        rewardDestination: RewardDestination<AccountItem>
+    )
     func fetchAccounts()
 }
 
-protocol StakingAmountInteractorOutputProtocol: class {
+protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(accounts: [AccountItem])
     func didReceive(price: PriceData?)
     func didReceive(balance: DyAccountData?)
-    func didReceive(paymentInfo: RuntimeDispatchInfo,
-                    for amount: BigUInt,
-                    rewardDestination: RewardDestination<AccountItem>)
+    func didReceive(
+        paymentInfo: RuntimeDispatchInfo,
+        for amount: BigUInt,
+        rewardDestination: RewardDestination<AccountItem>
+    )
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
     func didReceive(minimalAmount: BigUInt)
 }
 
-protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable,
-                                         WebPresentable, StakingErrorPresentable {
-    func presentAccountSelection(_ accounts: [AccountItem],
-                                 selectedAccountItem: AccountItem,
-                                 delegate: ModalPickerViewControllerDelegate,
-                                 from view: StakingAmountViewProtocol?,
-                                 context: AnyObject?)
+protocol StakingAmountWireframeProtocol:
+    AlertPresentable,
+    ErrorPresentable,
+    WebPresentable,
+    StakingErrorPresentable {
+    func presentAccountSelection(
+        _ accounts: [AccountItem],
+        selectedAccountItem: AccountItem,
+        delegate: ModalPickerViewControllerDelegate,
+        from view: StakingAmountViewProtocol?,
+        context: AnyObject?
+    )
 
     func proceed(from view: StakingAmountViewProtocol?, state: InitiatedBonding)
 
     func close(view: StakingAmountViewProtocol?)
 }
 
-protocol StakingAmountViewFactoryProtocol: class {
+protocol StakingAmountViewFactoryProtocol: AnyObject {
     static func createView(with amount: Decimal?) -> StakingAmountViewProtocol?
 }

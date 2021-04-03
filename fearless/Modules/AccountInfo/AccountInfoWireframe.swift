@@ -5,44 +5,54 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
-    func showExport(for address: String,
-                    options: [ExportOption],
-                    locale: Locale?,
-                    from view: AccountInfoViewProtocol?) {
-        authorize(animated: true, cancellable: true) { [weak self] (success) in
+    func showExport(
+        for address: String,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: AccountInfoViewProtocol?
+    ) {
+        authorize(animated: true, cancellable: true) { [weak self] success in
             if success {
-                self?.performExportPresentation(for: address,
-                                                options: options,
-                                                locale: locale,
-                                                from: view)
+                self?.performExportPresentation(
+                    for: address,
+                    options: options,
+                    locale: locale,
+                    from: view
+                )
             }
         }
     }
 
-    func presentAddressOptions(_ address: String,
-                               chain: Chain,
-                               locale: Locale,
-                               copyClosure: @escaping () -> Void,
-                               from view: AccountInfoViewProtocol?) {
+    func presentAddressOptions(
+        _ address: String,
+        chain: Chain,
+        locale: Locale,
+        copyClosure: @escaping () -> Void,
+        from view: AccountInfoViewProtocol?
+    ) {
         let alertController = UIAlertController
-            .presentAccountOptions(address,
-                                   chain: chain,
-                                   locale: locale,
-                                   copyClosure: copyClosure) { [weak self, view] url in
+            .presentAccountOptions(
+                address,
+                chain: chain,
+                locale: locale,
+                copyClosure: copyClosure
+            ) { [weak self, view] url in
                 if let view = view {
                     self?.showWeb(url: url, from: view, style: .automatic)
                 }
-        }
+            }
 
         view?.controller.present(alertController, animated: true, completion: nil)
     }
 
     // MARK: Private
 
-    private func performExportPresentation(for address: String,
-                                           options: [ExportOption],
-                                           locale: Locale?,
-                                           from view: AccountInfoViewProtocol?) {
+    private func performExportPresentation(
+        for address: String,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: AccountInfoViewProtocol?
+    ) {
         let cancelTitle = R.string.localizable
             .commonCancel(preferredLanguages: locale?.rLanguages)
 
@@ -67,14 +77,18 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
         }
 
         let title = R.string.localizable.importSourcePickerTitle(preferredLanguages: locale?.rLanguages)
-        let alertViewModel = AlertPresentableViewModel(title: title,
-                                                       message: nil,
-                                                       actions: actions,
-                                                       closeAction: cancelTitle)
+        let alertViewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: cancelTitle
+        )
 
-        present(viewModel: alertViewModel,
-                style: .actionSheet,
-                from: view)
+        present(
+            viewModel: alertViewModel,
+            style: .actionSheet,
+            from: view
+        )
     }
 
     private func showMnemonicExport(for address: String, from view: AccountInfoViewProtocol?) {
@@ -82,8 +96,10 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
             return
         }
 
-        view?.controller.navigationController?.pushViewController(mnemonicView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            mnemonicView.controller,
+            animated: true
+        )
     }
 
     private func showKeystoreExport(for address: String, from view: AccountInfoViewProtocol?) {
@@ -91,8 +107,10 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
             return
         }
 
-        view?.controller.navigationController?.pushViewController(passwordView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            passwordView.controller,
+            animated: true
+        )
     }
 
     private func showSeedExport(for address: String, from view: AccountInfoViewProtocol?) {
@@ -100,7 +118,9 @@ final class AccountInfoWireframe: AccountInfoWireframeProtocol, AuthorizationPre
             return
         }
 
-        view?.controller.navigationController?.pushViewController(seedView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            seedView.controller,
+            animated: true
+        )
     }
 }

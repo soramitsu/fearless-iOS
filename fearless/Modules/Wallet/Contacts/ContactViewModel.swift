@@ -15,11 +15,13 @@ final class ContactViewModel: ContactsLocalSearchResultProtocol {
     let image: UIImage?
     let name: String
 
-    init(firstName: String,
-         lastName: String,
-         accountId: String,
-         image: UIImage?,
-         name: String) {
+    init(
+        firstName: String,
+        lastName: String,
+        accountId: String,
+        image: UIImage?,
+        name: String
+    ) {
         self.firstName = firstName
         self.lastName = lastName
         self.accountId = accountId

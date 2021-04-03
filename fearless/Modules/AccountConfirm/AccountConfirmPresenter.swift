@@ -35,10 +35,12 @@ extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
                 .confirmMnemonicMismatchErrorMessage(preferredLanguages: locale?.rLanguages)
             let close = R.string.localizable.commonOk(preferredLanguages: locale?.rLanguages)
 
-            wireframe.present(message: message,
-                              title: title,
-                              closeAction: close,
-                              from: view)
+            wireframe.present(
+                message: message,
+                title: title,
+                closeAction: close,
+                from: view
+            )
         }
 
         view?.didReceive(words: words, afterConfirmationFail: afterConfirmationFail)
@@ -55,9 +57,11 @@ extension AccountConfirmPresenter: AccountConfirmInteractorOutputProtocol {
             return
         }
 
-        _ = wireframe.present(error: CommonError.undefined,
-                              from: view,
-                              locale: locale)
+        _ = wireframe.present(
+            error: CommonError.undefined,
+            from: view,
+            locale: locale
+        )
     }
 }
 

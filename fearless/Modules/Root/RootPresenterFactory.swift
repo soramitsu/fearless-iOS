@@ -7,10 +7,12 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
         let presenter = RootPresenter()
         let wireframe = RootWireframe()
 
-        let interactor = RootInteractor(settings: SettingsManager.shared,
-                                        keystore: Keychain(),
-                                        applicationConfig: ApplicationConfig.shared,
-                                        eventCenter: EventCenter.shared)
+        let interactor = RootInteractor(
+            settings: SettingsManager.shared,
+            keystore: Keychain(),
+            applicationConfig: ApplicationConfig.shared,
+            eventCenter: EventCenter.shared
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe

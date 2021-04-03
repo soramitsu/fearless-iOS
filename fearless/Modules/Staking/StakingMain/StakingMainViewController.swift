@@ -5,7 +5,7 @@ import SoraUI
 import CommonWallet
 
 final class StakingMainViewController: UIViewController, AdaptiveDesignable {
-    private struct Constants {
+    private enum Constants {
         static let verticalSpacing: CGFloat = 0.0
         static let bottomInset: CGFloat = 8.0
     }
@@ -33,6 +33,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     var keyboardHandler: KeyboardHandler?
 
     // MARK: - UIViewController
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -86,6 +87,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     // MARK: - Private functions
+
     private func setupNetworkInfoView() {
         guard
             let networkInfoView = R.nib.networkInfoView(owner: self),
@@ -116,7 +118,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         networkInfoView.collectionView.register(
             UINib(resource: R.nib.storiesPreviewCollectionItem),
-            forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier)
+            forCellWithReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId.identifier
+        )
     }
 
     private func clearStateView() {
@@ -131,22 +134,31 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
         innerView.translatesAutoresizingMaskIntoConstraints = false
-        innerView.leadingAnchor.constraint(equalTo: containerView.leadingAnchor,
-                                           constant: UIConstants.horizontalInset).isActive = true
-        innerView.trailingAnchor.constraint(equalTo: containerView.trailingAnchor,
-                                            constant: -UIConstants.horizontalInset).isActive = true
-        innerView.topAnchor.constraint(equalTo: containerView.topAnchor,
-                                       constant: Constants.verticalSpacing).isActive = true
+        innerView.leadingAnchor.constraint(
+            equalTo: containerView.leadingAnchor,
+            constant: UIConstants.horizontalInset
+        ).isActive = true
+        innerView.trailingAnchor.constraint(
+            equalTo: containerView.trailingAnchor,
+            constant: -UIConstants.horizontalInset
+        ).isActive = true
+        innerView.topAnchor.constraint(
+            equalTo: containerView.topAnchor,
+            constant: Constants.verticalSpacing
+        ).isActive = true
 
-        containerView.bottomAnchor.constraint(equalTo: innerView.bottomAnchor,
-                                              constant: Constants.bottomInset).isActive = true
+        containerView.bottomAnchor.constraint(
+            equalTo: innerView.bottomAnchor,
+            constant: Constants.bottomInset
+        ).isActive = true
     }
 
     private func setupNibStateView<T: LocalizableView>(for viewFactory: () -> T?) -> T? {
         clearStateView()
 
         guard let prevViewIndex = stackView.arrangedSubviews
-                .firstIndex(of: networkInfoContainerView) else {
+            .firstIndex(of: networkInfoContainerView)
+        else {
             return nil
         }
 
@@ -163,7 +175,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stackView.insertArrangedSubview(containerView, at: prevViewIndex + 1)
 
-        self.stateContainerView = containerView
+        stateContainerView = containerView
         self.stateView = stateView
 
         return stateView
@@ -251,15 +263,15 @@ extension StakingMainViewController: Localizable {
 }
 
 extension StakingMainViewController: RewardEstimationViewDelegate {
-    func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?) {
+    func rewardEstimationView(_: RewardEstimationView, didChange amount: Decimal?) {
         presenter.updateAmount(amount ?? 0.0)
     }
 
-    func rewardEstimationView(_ view: RewardEstimationView, didSelect percentage: Float) {
+    func rewardEstimationView(_: RewardEstimationView, didSelect percentage: Float) {
         presenter.selectAmountPercentage(percentage)
     }
 
-    func rewardEstimationDidStartAction(_ view: RewardEstimationView) {
+    func rewardEstimationDidStartAction(_: RewardEstimationView) {
         presenter.performMainAction()
     }
 }
@@ -287,11 +299,11 @@ extension StakingMainViewController: StakingMainViewProtocol {
         switch viewModel {
         case .undefined:
             clearStateView()
-        case .bonded(let viewModel):
+        case let .bonded(viewModel):
             applyBonded(viewModel: viewModel)
-        case .noStash(let viewModel):
+        case let .noStash(viewModel):
             applyNoStash(viewModel: viewModel)
-        case .nominator(let viewModel):
+        case let .nominator(viewModel):
             applyNomination(viewModel: viewModel)
         case .validator:
             applyValidator()
@@ -300,7 +312,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
 }
 
 extension StakingMainViewController: NetworkInfoViewDelegate {
-    func animateAlongsideWithInfo(view: NetworkInfoView) {
+    func animateAlongsideWithInfo(view _: NetworkInfoView) {
         scrollView.layoutIfNeeded()
     }
 }
@@ -316,8 +328,10 @@ extension StakingMainViewController: KeyboardAdoptable {
         scrollView.contentInset = contentInsets
 
         if contentInsets.bottom > 0.0, let firstResponderView = stateView {
-            let fieldFrame = scrollView.convert(firstResponderView.frame,
-                                                from: firstResponderView.superview)
+            let fieldFrame = scrollView.convert(
+                firstResponderView.frame,
+                from: firstResponderView.superview
+            )
 
             scrollView.scrollRectToVisible(fieldFrame, animated: true)
         }
@@ -325,16 +339,20 @@ extension StakingMainViewController: KeyboardAdoptable {
 }
 
 // MARK: Collection View Data Source -
+
 extension StakingMainViewController: UICollectionViewDataSource {
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return storiesModel.stories.count
+    func collectionView(_: UICollectionView, numberOfItemsInSection _: Int) -> Int {
+        storiesModel.stories.count
     }
 
-    func collectionView(_ collectionView: UICollectionView,
-                        cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        cellForItemAt indexPath: IndexPath
+    ) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(
             withReuseIdentifier: R.reuseIdentifier.storiesPreviewCollectionItemId,
-            for: indexPath)!
+            for: indexPath
+        )!
 
         let story = storiesModel.stories[indexPath.row]
 
@@ -344,6 +362,7 @@ extension StakingMainViewController: UICollectionViewDataSource {
 }
 
 // MARK: Collection View Delegate -
+
 extension StakingMainViewController: UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
@@ -353,13 +372,13 @@ extension StakingMainViewController: UICollectionViewDelegate {
 }
 
 // MARK: Nomination View Delegate -
-extension StakingMainViewController: NominationViewDelegate {
 
-    func nominationViewDidReceiveMoreAction(_ nominationView: NominationView) {
+extension StakingMainViewController: NominationViewDelegate {
+    func nominationViewDidReceiveMoreAction(_: NominationView) {
         presenter.performManageStakingAction()
     }
 
-    func nominationViewDidReceiveStatusAction(_ nominationView: NominationView) {
+    func nominationViewDidReceiveStatusAction(_: NominationView) {
         presenter.performNominationStatusAction()
     }
 }

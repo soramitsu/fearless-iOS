@@ -25,17 +25,19 @@ final class StakingAmountPresenter {
     private var loadingPayouts: Bool = false
     private var minimalAmount: Decimal?
 
-    init(amount: Decimal?,
-         asset: WalletAsset,
-         selectedAccount: AccountItem,
-         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
-         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-         applicationConfig: ApplicationConfigProtocol,
-         logger: LoggerProtocol) {
+    init(
+        amount: Decimal?,
+        asset: WalletAsset,
+        selectedAccount: AccountItem,
+        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        applicationConfig: ApplicationConfigProtocol,
+        logger: LoggerProtocol
+    ) {
         self.amount = amount
         self.asset = asset
         self.selectedAccount = selectedAccount
-        self.payoutAccount = selectedAccount
+        payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.applicationConfig = applicationConfig
@@ -47,17 +49,23 @@ final class StakingAmountPresenter {
             let reward: CalculatedReward?
 
             if let calculator = calculator {
-                let restake =  try calculator.calculateNetworkReturn(isCompound: true,
-                                                                     period: .year)
+                let restake = try calculator.calculateNetworkReturn(
+                    isCompound: true,
+                    period: .year
+                )
 
-                let payout = try calculator.calculateNetworkReturn(isCompound: false,
-                                                                   period: .year)
+                let payout = try calculator.calculateNetworkReturn(
+                    isCompound: false,
+                    period: .year
+                )
 
                 let curAmount = amount ?? 0.0
-                reward = CalculatedReward(restakeReturn: restake * curAmount,
-                                          restakeReturnPercentage: restake,
-                                          payoutReturn: payout * curAmount,
-                                          payoutReturnPercentage: payout)
+                reward = CalculatedReward(
+                    restakeReturn: restake * curAmount,
+                    restakeReturnPercentage: restake,
+                    payoutReturn: payout * curAmount,
+                    payoutReturnPercentage: payout
+                )
             } else {
                 reward = nil
             }
@@ -77,9 +85,11 @@ final class StakingAmountPresenter {
     }
 
     private func provideAsset() {
-        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(amount ?? 0.0,
-                                                                            balance: balance,
-                                                                            priceData: priceData)
+        let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
+            amount ?? 0.0,
+            balance: balance,
+            priceData: priceData
+        )
         view?.didReceiveAsset(viewModel: viewModel)
     }
 
@@ -106,9 +116,11 @@ final class StakingAmountPresenter {
     private func estimateFee() {
         if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
             loadingFee = true
-            interactor.estimateFee(for: selectedAccount.address,
-                                   amount: amount,
-                                   rewardDestination: .payout(account: payoutAccount))
+            interactor.estimateFee(
+                for: selectedAccount.address,
+                amount: amount,
+                rewardDestination: .payout(account: payoutAccount)
+            )
         }
     }
 
@@ -174,8 +186,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 provideAsset()
                 provideRewardDestination()
             } else if let view = view {
-                wireframe.presentAmountTooHigh(from: view,
-                                                locale: view.localizationManager?.selectedLocale)
+                wireframe.presentAmountTooHigh(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
             }
         }
     }
@@ -192,9 +206,11 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
     func selectLearnMore() {
         if let view = view {
-            wireframe.showWeb(url: applicationConfig.learnPayoutURL,
-                              from: view,
-                              style: .automatic)
+            wireframe.showWeb(
+                url: applicationConfig.learnPayoutURL,
+                from: view,
+                style: .automatic
+            )
         }
     }
 
@@ -213,8 +229,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
         guard let fee = fee else {
             if let view = view {
-                wireframe.presentFeeNotReceived(from: view,
-                                                locale: view.localizationManager?.selectedLocale)
+                wireframe.presentFeeNotReceived(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
             }
 
             return
@@ -222,8 +240,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 
         guard amount + fee <= balance else {
             if let view = view {
-                wireframe.presentAmountTooHigh(from: view,
-                                               locale: view.localizationManager?.selectedLocale)
+                wireframe.presentAmountTooHigh(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
             }
 
             scheduleFeeEstimation()
@@ -236,8 +256,10 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
             return
         }
 
-        let stakingState = InitiatedBonding(amount: amount,
-                                            rewardDestination: rewardDestination)
+        let stakingState = InitiatedBonding(
+            amount: amount,
+            rewardDestination: rewardDestination
+        )
 
         wireframe.proceed(from: view, state: stakingState)
     }
@@ -248,7 +270,7 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
 }
 
 extension StakingAmountPresenter: SchedulerDelegate {
-    func didTrigger(scheduler: SchedulerProtocol) {
+    func didTrigger(scheduler _: SchedulerProtocol) {
         estimateFee()
     }
 }
@@ -259,23 +281,27 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
 
         let context = PrimitiveContextWrapper(value: accounts)
 
-        wireframe.presentAccountSelection(accounts,
-                                          selectedAccountItem: payoutAccount,
-                                          delegate: self,
-                                          from: view,
-                                          context: context)
+        wireframe.presentAccountSelection(
+            accounts,
+            selectedAccountItem: payoutAccount,
+            delegate: self,
+            from: view,
+            context: context
+        )
     }
 
     func didReceive(price: PriceData?) {
-        self.priceData = price
+        priceData = price
         provideAsset()
         provideFee()
     }
 
     func didReceive(balance: DyAccountData?) {
         if let availableValue = balance?.available {
-            self.balance = Decimal.fromSubstrateAmount(availableValue,
-                                                       precision: asset.precision)
+            self.balance = Decimal.fromSubstrateAmount(
+                availableValue,
+                precision: asset.precision
+            )
         } else {
             self.balance = 0.0
         }
@@ -283,16 +309,18 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         provideAsset()
     }
 
-    func didReceive(paymentInfo: RuntimeDispatchInfo,
-                    for amount: BigUInt,
-                    rewardDestination: RewardDestination<AccountItem>) {
+    func didReceive(
+        paymentInfo: RuntimeDispatchInfo,
+        for _: BigUInt,
+        rewardDestination _: RewardDestination<AccountItem>
+    ) {
         loadingFee = false
 
         if let feeValue = BigUInt(paymentInfo.fee),
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
             self.fee = fee
         } else {
-            self.fee = nil
+            fee = nil
         }
 
         provideFee()
@@ -333,7 +361,8 @@ extension StakingAmountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
             let accounts =
-            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value else {
+            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+        else {
             return
         }
 

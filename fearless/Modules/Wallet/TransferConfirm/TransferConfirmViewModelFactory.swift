@@ -13,13 +13,16 @@ final class TransferConfirmViewModelFactory {
         self.amountFormatterFactory = amountFormatterFactory
     }
 
-    func populateAsset(in viewModelList: inout [WalletFormViewBindingProtocol],
-                       payload: ConfirmationPayload,
-                       locale: Locale) {
+    func populateAsset(
+        in viewModelList: inout [WalletFormViewBindingProtocol],
+        payload: ConfirmationPayload,
+        locale: Locale
+    ) {
         guard
             let asset = assets
-                .first(where: { $0.identifier == payload.transferInfo.asset }),
-            let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            .first(where: { $0.identifier == payload.transferInfo.asset }),
+            let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
             return
         }
 
@@ -41,35 +44,43 @@ final class TransferConfirmViewModelFactory {
             let transferring = payload.transferInfo.amount.decimalValue
             let fee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
             let remaining = context.total - (transferring + fee)
-            let transferState = TransferExistentialState(totalAmount: context.total,
-                                                         availableAmount: context.available,
-                                                         totalAfterTransfer: remaining,
-                                                         existentialDeposit: existentialDeposit)
+            let transferState = TransferExistentialState(
+                totalAmount: context.total,
+                availableAmount: context.available,
+                totalAfterTransfer: remaining,
+                existentialDeposit: existentialDeposit
+            )
 
             let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
 
-            detailsCommand = ExistentialDepositInfoCommand(transferState: transferState,
-                                                           amountFormatter: amountFormatter,
-                                                           commandFactory: commandFactory)
+            detailsCommand = ExistentialDepositInfoCommand(
+                transferState: transferState,
+                amountFormatter: amountFormatter,
+                commandFactory: commandFactory
+            )
         } else {
             detailsCommand = nil
         }
 
         let selectedState = SelectedAssetState(isSelecting: false, canSelect: false)
-        let tokenViewModel = WalletTokenViewModel(header: headerTitle,
-                                                  title: assetId.titleForLocale(locale),
-                                                  subtitle: subtitle,
-                                                  details: details,
-                                                  icon: assetId.icon,
-                                                  state: selectedState,
-                                                  detailsCommand: detailsCommand)
+        let tokenViewModel = WalletTokenViewModel(
+            header: headerTitle,
+            title: assetId.titleForLocale(locale),
+            subtitle: subtitle,
+            details: details,
+            icon: assetId.icon,
+            state: selectedState,
+            detailsCommand: detailsCommand
+        )
 
         viewModelList.append(WalletFormSeparatedViewModel(content: tokenViewModel, borderType: [.bottom]))
     }
 
-    func populateFee(in viewModelList: inout [WalletFormViewBindingProtocol],
-                     payload: ConfirmationPayload,
-                     locale: Locale) {
+    func populateFee(
+        in viewModelList: inout [WalletFormViewBindingProtocol],
+        payload: ConfirmationPayload,
+        locale: Locale
+    ) {
         guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
             return
         }
@@ -84,17 +95,21 @@ final class TransferConfirmViewModelFactory {
             }
 
             let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
-            let viewModel = WalletNewFormDetailsViewModel(title: title,
-                                                          titleIcon: nil,
-                                                          details: amount,
-                                                          detailsIcon: nil)
+            let viewModel = WalletNewFormDetailsViewModel(
+                title: title,
+                titleIcon: nil,
+                details: amount,
+                detailsIcon: nil
+            )
             viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
         }
     }
 
-    func populateSendingAmount(in viewModelList: inout [WalletFormViewBindingProtocol],
-                               payload: ConfirmationPayload,
-                               locale: Locale) {
+    func populateSendingAmount(
+        in viewModelList: inout [WalletFormViewBindingProtocol],
+        payload: ConfirmationPayload,
+        locale: Locale
+    ) {
         guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
             return
         }
@@ -112,10 +127,12 @@ final class TransferConfirmViewModelFactory {
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: .none))
     }
 
-    func populateReceiver(in viewModelList: inout [WalletFormViewBindingProtocol],
-                          payload: ConfirmationPayload,
-                          chain: Chain,
-                          locale: Locale) {
+    func populateReceiver(
+        in viewModelList: inout [WalletFormViewBindingProtocol],
+        payload: ConfirmationPayload,
+        chain: Chain,
+        locale: Locale
+    ) {
         guard let commandFactory = commandFactory else {
             return
         }
@@ -125,29 +142,37 @@ final class TransferConfirmViewModelFactory {
 
         let iconGenerator = PolkadotIconGenerator()
         let icon = try? iconGenerator.generateFromAddress(payload.receiverName)
-            .imageWithFillColor(R.color.colorWhite()!,
-                                size: UIConstants.smallAddressIconSize,
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
 
-        let command = WalletAccountOpenCommand(address: payload.receiverName,
-                                               chain: chain,
-                                               commandFactory: commandFactory,
-                                               locale: locale)
+        let command = WalletAccountOpenCommand(
+            address: payload.receiverName,
+            chain: chain,
+            commandFactory: commandFactory,
+            locale: locale
+        )
 
-        let viewModel = WalletCompoundDetailsViewModel(title: headerTitle,
-                                                       details: payload.receiverName,
-                                                       mainIcon: icon,
-                                                       actionIcon: R.image.iconMore(),
-                                                       command: command,
-                                                       enabled: false)
+        let viewModel = WalletCompoundDetailsViewModel(
+            title: headerTitle,
+            details: payload.receiverName,
+            mainIcon: icon,
+            actionIcon: R.image.iconMore(),
+            command: command,
+            enabled: false
+        )
 
         viewModelList.append(WalletFormSeparatedViewModel(content: viewModel, borderType: [.bottom]))
     }
 }
 
 extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryOverriding {
-    func createViewModelsFromPayload(_ payload: ConfirmationPayload,
-                                     locale: Locale) -> [WalletFormViewBindingProtocol]? {
+    func createViewModelsFromPayload(
+        _ payload: ConfirmationPayload,
+        locale: Locale
+    ) -> [WalletFormViewBindingProtocol]? {
         guard let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain else {
             return nil
         }
@@ -162,8 +187,10 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
         return viewModelList
     }
 
-    func createAccessoryViewModelFromPayload(_ payload: ConfirmationPayload,
-                                             locale: Locale) -> AccessoryViewModelProtocol? {
+    func createAccessoryViewModelFromPayload(
+        _ payload: ConfirmationPayload,
+        locale: Locale
+    ) -> AccessoryViewModelProtocol? {
         guard let asset = assets.first(where: { $0.identifier == payload.transferInfo.asset }) else {
             return nil
         }
@@ -183,11 +210,13 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
         let actionTitle = R.string.localizable.walletSendConfirmTitle(preferredLanguages: locale.rLanguages)
         let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
 
-        return TransferConfirmAccessoryViewModel(title: title,
-                                                 icon: nil,
-                                                 action: actionTitle,
-                                                 numberOfLines: 1,
-                                                 amount: amount,
-                                                 shouldAllowAction: true)
+        return TransferConfirmAccessoryViewModel(
+            title: title,
+            icon: nil,
+            action: actionTitle,
+            numberOfLines: 1,
+            amount: amount,
+            shouldAllowAction: true
+        )
     }
 }

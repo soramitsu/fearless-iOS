@@ -3,9 +3,11 @@ import Foundation
 final class NoStashState: BaseStakingState {
     private(set) var rewardEstimationAmount: Decimal?
 
-    init(stateMachine: StakingStateMachineProtocol,
-         commonData: StakingStateCommonData,
-         rewardEstimationAmount: Decimal? = nil) {
+    init(
+        stateMachine: StakingStateMachineProtocol,
+        commonData: StakingStateCommonData,
+        rewardEstimationAmount: Decimal? = nil
+    ) {
         self.rewardEstimationAmount = rewardEstimationAmount
 
         super.init(stateMachine: stateMachine, commonData: commonData)
@@ -21,11 +23,13 @@ final class NoStashState: BaseStakingState {
                 return
             }
 
-            let newState = StashState(stateMachine: stateMachine,
-                                      commonData: commonData,
-                                      stashItem: stashItem,
-                                      ledgerInfo: nil,
-                                      totalReward: nil)
+            let newState = StashState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                totalReward: nil
+            )
 
             stateMachine.transit(to: newState)
         } else {

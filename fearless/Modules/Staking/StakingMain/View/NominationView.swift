@@ -3,7 +3,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-protocol NominationViewDelegate: class {
+protocol NominationViewDelegate: AnyObject {
     func nominationViewDidReceiveMoreAction(_ nominationView: NominationView)
     func nominationViewDidReceiveStatusAction(_ nominationView: NominationView)
 }
@@ -25,7 +25,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
 
     weak var delegate: NominationViewDelegate?
 
-    var locale: Locale = Locale.current {
+    var locale = Locale.current {
         didSet {
             applyLocalization()
             applyViewModel()
@@ -41,7 +41,7 @@ final class NominationView: UIView, LocalizableViewProtocol {
     private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
 
     func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
-        self.localizableViewModel = viewModel
+        localizableViewModel = viewModel
 
         applyViewModel()
     }
@@ -74,9 +74,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
         switch viewModel.status {
         case .undefined:
             break
-        case .active(let era):
+        case let .active(era):
             presentActiveStatus(for: era)
-        case .inactive(let era):
+        case let .inactive(era):
             presentInactiveStatus(for: era)
         case .waiting:
             presentWaitingStatus()

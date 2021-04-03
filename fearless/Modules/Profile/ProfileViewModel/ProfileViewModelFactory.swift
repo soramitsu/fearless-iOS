@@ -3,12 +3,14 @@ import SoraFoundation
 import FearlessUtils
 import IrohaCrypto
 
-protocol ProfileViewModelFactoryProtocol: class {
+protocol ProfileViewModelFactoryProtocol: AnyObject {
     func createUserViewModel(from settings: UserSettings, locale: Locale) -> ProfileUserViewModelProtocol
 
-    func createOptionViewModels(from settings: UserSettings,
-                                language: Language,
-                                locale: Locale) -> [ProfileOptionViewModelProtocol]
+    func createOptionViewModels(
+        from settings: UserSettings,
+        language: Language,
+        locale: Locale
+    ) -> [ProfileOptionViewModelProtocol]
 }
 
 enum ProfileOption: UInt, CaseIterable {
@@ -26,18 +28,21 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
         self.iconGenerator = iconGenerator
     }
 
-    func createUserViewModel(from settings: UserSettings, locale: Locale) -> ProfileUserViewModelProtocol {
+    func createUserViewModel(from settings: UserSettings, locale _: Locale) -> ProfileUserViewModelProtocol {
         let icon = try? iconGenerator.generateFromAddress(settings.account.address)
 
-        return ProfileUserViewModel(name: settings.account.username,
-                                    details: settings.account.address,
-                                    icon: icon)
+        return ProfileUserViewModel(
+            name: settings.account.username,
+            details: settings.account.address,
+            icon: icon
+        )
     }
 
-    func createOptionViewModels(from settings: UserSettings,
-                                language: Language,
-                                locale: Locale) -> [ProfileOptionViewModelProtocol] {
-
+    func createOptionViewModels(
+        from settings: UserSettings,
+        language: Language,
+        locale: Locale
+    ) -> [ProfileOptionViewModelProtocol] {
         let optionViewModels = ProfileOption.allCases.compactMap { (option) -> ProfileOptionViewModel? in
             switch option {
             case .accountList:
@@ -59,23 +64,28 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createAccountListViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileAccountsTitle(preferredLanguages: locale.rLanguages)
-        let viewModel = ProfileOptionViewModel(title: title,
-                                               icon: R.image.iconProfileAccounts()!,
-                                               accessoryTitle: nil)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfileAccounts()!,
+            accessoryTitle: nil
+        )
         return viewModel
     }
 
-    private func createConnectionListViewModel(from connection: ConnectionItem,
-                                               locale: Locale) -> ProfileOptionViewModel {
-
+    private func createConnectionListViewModel(
+        from connection: ConnectionItem,
+        locale: Locale
+    ) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileNetworkTitle(preferredLanguages: locale.rLanguages)
 
         let subtitle: String = connection.type.titleForLocale(locale)
 
-        let viewModel = ProfileOptionViewModel(title: title,
-                                               icon: R.image.iconProfileNetworks()!,
-                                               accessoryTitle: subtitle)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfileNetworks()!,
+            accessoryTitle: subtitle
+        )
 
         return viewModel
     }
@@ -83,18 +93,22 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createChangePincode(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profilePincodeChangeTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title,
-                                      icon: R.image.iconProfilePin()!,
-                                      accessoryTitle: nil)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfilePin()!,
+            accessoryTitle: nil
+        )
     }
 
     private func createLanguageViewModel(from language: Language?, locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileLanguageTitle(preferredLanguages: locale.rLanguages)
         let subtitle = language?.title(in: locale)?.capitalized
-        let viewModel = ProfileOptionViewModel(title: title,
-                                               icon: R.image.iconProfileLanguage()!,
-                                               accessoryTitle: subtitle)
+        let viewModel = ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfileLanguage()!,
+            accessoryTitle: subtitle
+        )
 
         return viewModel
     }
@@ -102,8 +116,10 @@ final class ProfileViewModelFactory: ProfileViewModelFactoryProtocol {
     private func createAboutViewModel(for locale: Locale) -> ProfileOptionViewModel {
         let title = R.string.localizable
             .profileAboutTitle(preferredLanguages: locale.rLanguages)
-        return ProfileOptionViewModel(title: title,
-                                      icon: R.image.iconProfileAbout()!,
-                                      accessoryTitle: nil)
+        return ProfileOptionViewModel(
+            title: title,
+            icon: R.image.iconProfileAbout()!,
+            accessoryTitle: nil
+        )
     }
 }

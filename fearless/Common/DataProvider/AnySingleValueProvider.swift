@@ -6,8 +6,13 @@ public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
 
     private let fetchClosure: (((Result<T?, Error>?) -> Void)?) -> CompoundOperationWrapper<T?>
 
-    private let addObserverClosure: (AnyObject, DispatchQueue?,
-    @escaping ([DataProviderChange<T>]) -> Void, @escaping (Error) -> Void, DataProviderObserverOptions) -> Void
+    private let addObserverClosure: (
+        AnyObject,
+        DispatchQueue?,
+        @escaping ([DataProviderChange<T>]) -> Void,
+        @escaping (Error) -> Void,
+        DataProviderObserverOptions
+    ) -> Void
 
     private let removeObserverClosure: (AnyObject) -> Void
 
@@ -20,19 +25,20 @@ public class AnySingleValueProvider<T>: SingleValueProviderProtocol {
         addObserverClosure = dataProvider.addObserver
         removeObserverClosure = dataProvider.removeObserver
         refreshClosure = dataProvider.refresh
-        self.executionQueue = dataProvider.executionQueue
+        executionQueue = dataProvider.executionQueue
     }
 
     public func fetch(with completionBlock: ((Result<T?, Error>?) -> Void)?) -> CompoundOperationWrapper<T?> {
-        return fetchClosure(completionBlock)
+        fetchClosure(completionBlock)
     }
 
-    public func addObserver(_ observer: AnyObject,
-                            deliverOn queue: DispatchQueue?,
-                            executing updateBlock: @escaping ([DataProviderChange<Model>]) -> Void,
-                            failing failureBlock: @escaping (Error) -> Void,
-                            options: DataProviderObserverOptions) {
-
+    public func addObserver(
+        _ observer: AnyObject,
+        deliverOn queue: DispatchQueue?,
+        executing updateBlock: @escaping ([DataProviderChange<Model>]) -> Void,
+        failing failureBlock: @escaping (Error) -> Void,
+        options: DataProviderObserverOptions
+    ) {
         addObserverClosure(observer, queue, updateBlock, failureBlock, options)
     }
 

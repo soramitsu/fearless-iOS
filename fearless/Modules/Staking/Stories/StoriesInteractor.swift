@@ -6,7 +6,7 @@ final class StoriesInteractor {
     private let storiesModel: StoriesModel
 
     init(model: StoriesModel) {
-        self.storiesModel = model
+        storiesModel = model
     }
 }
 

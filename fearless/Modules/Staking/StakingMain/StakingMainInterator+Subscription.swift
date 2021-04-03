@@ -27,7 +27,7 @@ extension StakingMainInteractor {
             } else {
                 for change in changes {
                     switch change {
-                    case .insert(let item), .update(let item):
+                    case let .insert(item), let .update(item):
                         self?.presenter.didReceive(price: item)
                     case .delete:
                         self?.presenter.didReceive(price: nil)
@@ -41,13 +41,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        priceProvider?.addObserver(self,
-                                  deliverOn: .main,
-                                  executing: updateClosure,
-                                  failing: failureClosure,
-                                  options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        priceProvider?.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func clearAccountProvider() {
@@ -61,8 +65,11 @@ extension StakingMainInteractor {
         }
 
         guard let balanceProvider = try? providerFactory
-                .getAccountProvider(for: selectedAccount.address,
-                                    runtimeService: runtimeService) else {
+            .getAccountProvider(
+                for: selectedAccount.address,
+                runtimeService: runtimeService
+            )
+        else {
             logger.error("Can't create balance provider")
             return
         }
@@ -79,13 +86,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        balanceProvider.addObserver(self,
-                                    deliverOn: .main,
-                                    executing: updateClosure,
-                                    failing: failureClosure,
-                                    options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        balanceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func updateAccountAndChainIfNeeded() -> Bool {
@@ -93,7 +104,7 @@ extension StakingMainInteractor {
             (currentConnection != settings.selectedConnection)
 
         if settings.selectedConnection != currentConnection {
-            self.currentConnection = settings.selectedConnection
+            currentConnection = settings.selectedConnection
 
             clearPriceProvider()
             subscribeToPriceChanges()
@@ -102,7 +113,7 @@ extension StakingMainInteractor {
         }
 
         if settings.selectedAccount != currentAccount {
-            self.currentAccount = settings.selectedAccount
+            currentAccount = settings.selectedAccount
 
             clearAccountProvider()
             subscribeToAccountChanges()
@@ -143,23 +154,25 @@ extension StakingMainInteractor {
 
         let provider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
 
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] (changes) in
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
             let stashItem = changes.reduceToLastChange()
             self?.handle(stashItem: stashItem)
         }
 
-        let failureClosure: (Error) -> Void = { [weak self] (error) in
+        let failureClosure: (Error) -> Void = { [weak self] error in
             self?.presenter.didReceive(stashItemError: error)
             return
         }
 
-        provider.addObserver(self,
-                             deliverOn: .main,
-                             executing: changesClosure,
-                             failing: failureClosure,
-                             options: StreamableProviderObserverOptions.substrateSource())
+        provider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
 
-        self.stashControllerProvider = provider
+        stashControllerProvider = provider
     }
 
     func clearLedgerProvider() {
@@ -173,7 +186,8 @@ extension StakingMainInteractor {
         }
 
         guard let ledgerProvider = try? providerFactory
-                .getLedgerInfoProvider(for: address, runtimeService: runtimeService) else {
+            .getLedgerInfoProvider(for: address, runtimeService: runtimeService)
+        else {
             logger.error("Can't create ledger provider")
             return
         }
@@ -191,13 +205,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        ledgerProvider.addObserver(self,
-                                   deliverOn: .main,
-                                   executing: updateClosure,
-                                   failing: failureClosure,
-                                   options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        ledgerProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func clearNominatorProvider() {
@@ -211,7 +229,8 @@ extension StakingMainInteractor {
         }
 
         guard let nominatorProvider = try? providerFactory
-                .getNominationProvider(for: address, runtimeService: runtimeService) else {
+            .getNominationProvider(for: address, runtimeService: runtimeService)
+        else {
             logger.error("Can't create nominator provider")
             return
         }
@@ -229,13 +248,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        nominatorProvider.addObserver(self,
-                                      deliverOn: .main,
-                                      executing: updateClosure,
-                                      failing: failureClosure,
-                                      options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        nominatorProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func clearValidatorProvider() {
@@ -249,7 +272,8 @@ extension StakingMainInteractor {
         }
 
         guard let validatorProvider = try? providerFactory
-                .getValidatorProvider(for: address, runtimeService: runtimeService) else {
+            .getValidatorProvider(for: address, runtimeService: runtimeService)
+        else {
             logger.error("Can't create validator provider")
             return
         }
@@ -267,13 +291,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        validatorProvider.addObserver(self,
-                                      deliverOn: .main,
-                                      executing: updateClosure,
-                                      failing: failureClosure,
-                                      options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        validatorProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func clearTotalRewardProvider() {
@@ -282,7 +310,7 @@ extension StakingMainInteractor {
     }
 
     func subscribeToTotalReward(address: String) {
-        guard totalRewardProvider == nil, let type = currentConnection?.type  else {
+        guard totalRewardProvider == nil, let type = currentConnection?.type else {
             return
         }
 
@@ -294,7 +322,8 @@ extension StakingMainInteractor {
         }
 
         guard let totalRewardProvider = try? providerFactory
-                .getTotalReward(for: address, assetId: assetId) else {
+            .getTotalReward(for: address, assetId: assetId)
+        else {
             logger.error("Can't create total reward provider")
             return
         }
@@ -312,13 +341,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true,
-                                                  waitsInProgressSyncOnAdd: false)
-        totalRewardProvider.addObserver(self,
-                                      deliverOn: .main,
-                                      executing: updateClosure,
-                                      failing: failureClosure,
-                                      options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: true,
+            waitsInProgressSyncOnAdd: false
+        )
+        totalRewardProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
 
         totalRewardProvider.refresh()
     }
@@ -334,7 +367,8 @@ extension StakingMainInteractor {
         }
 
         guard let payeeProvider = try? providerFactory
-                .getPayee(for: address, runtimeService: runtimeService) else {
+            .getPayee(for: address, runtimeService: runtimeService)
+        else {
             logger.error("Can't create payee provider")
             return
         }
@@ -352,13 +386,17 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        payeeProvider.addObserver(self,
-                                  deliverOn: .main,
-                                  executing: updateClosure,
-                                  failing: failureClosure,
-                                  options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        payeeProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func clearElectionStatusProvider() {
@@ -372,7 +410,8 @@ extension StakingMainInteractor {
         }
 
         guard let electionStatusProvider = try? providerFactory
-                .getElectionStatusProvider(chain: chain, runtimeService: runtimeService) else {
+            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
+        else {
             logger.error("Can't create election status provider")
             return
         }
@@ -390,12 +429,16 @@ extension StakingMainInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        electionStatusProvider.addObserver(self,
-                                           deliverOn: .main,
-                                           executing: updateClosure,
-                                           failing: failureClosure,
-                                           options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        electionStatusProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 }

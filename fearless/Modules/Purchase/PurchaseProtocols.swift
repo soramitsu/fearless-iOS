@@ -3,23 +3,25 @@ import CommonWallet
 
 protocol PurchaseViewProtocol: ControllerBackedProtocol {}
 
-protocol PurchasePresenterProtocol: class {
+protocol PurchasePresenterProtocol: AnyObject {
     func setup()
 }
 
-protocol PurchaseInteractorInputProtocol: class {
+protocol PurchaseInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol PurchaseInteractorOutputProtocol: class {
+protocol PurchaseInteractorOutputProtocol: AnyObject {
     func didCompletePurchase()
 }
 
-protocol PurchaseWireframeProtocol: class {
+protocol PurchaseWireframeProtocol: AnyObject {
     func complete(from view: PurchaseViewProtocol?)
 }
 
-protocol PurchaseViewFactoryProtocol: class {
-    static func createView(for action: PurchaseAction,
-                           commandFactory: WalletCommandFactoryProtocol) -> PurchaseViewProtocol?
+protocol PurchaseViewFactoryProtocol: AnyObject {
+    static func createView(
+        for action: PurchaseAction,
+        commandFactory: WalletCommandFactoryProtocol
+    ) -> PurchaseViewProtocol?
 }

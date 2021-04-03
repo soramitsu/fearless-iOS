@@ -15,12 +15,14 @@ final class ServiceCoordinator {
     let rewardCalculatorService: RewardCalculatorServiceProtocol
     let settings: SettingsManagerProtocol
 
-    init(webSocketService: WebSocketServiceProtocol,
-         runtimeService: RuntimeRegistryServiceProtocol,
-         validatorService: EraValidatorServiceProtocol,
-         gitHubPhishingAPIService: ApplicationServiceProtocol,
-         rewardCalculatorService: RewardCalculatorServiceProtocol,
-         settings: SettingsManagerProtocol) {
+    init(
+        webSocketService: WebSocketServiceProtocol,
+        runtimeService: RuntimeRegistryServiceProtocol,
+        validatorService: EraValidatorServiceProtocol,
+        gitHubPhishingAPIService: ApplicationServiceProtocol,
+        rewardCalculatorService: RewardCalculatorServiceProtocol,
+        settings: SettingsManagerProtocol
+    ) {
         self.webSocketService = webSocketService
         self.runtimeService = runtimeService
         self.validatorService = validatorService
@@ -33,9 +35,11 @@ final class ServiceCoordinator {
         let connectionItem = settings.selectedConnection
         let account = settings.selectedAccount
 
-        let settings = WebSocketServiceSettings(url: connectionItem.url,
-                                                addressType: connectionItem.type,
-                                                address: account?.address)
+        let settings = WebSocketServiceSettings(
+            url: connectionItem.url,
+            addressType: connectionItem.type,
+            address: account?.address
+        )
         webSocketService.update(settings: settings)
     }
 
@@ -106,11 +110,13 @@ extension ServiceCoordinator {
         let validatorService = EraValidatorFacade.sharedService
         let rewardCalculatorService = RewardCalculatorFacade.sharedService
 
-        return ServiceCoordinator(webSocketService: webSocketService,
-                                  runtimeService: runtimeService,
-                                  validatorService: validatorService,
-                                  gitHubPhishingAPIService: gitHubPhishingAPIService,
-                                  rewardCalculatorService: rewardCalculatorService,
-                                  settings: SettingsManager.shared)
+        return ServiceCoordinator(
+            webSocketService: webSocketService,
+            runtimeService: runtimeService,
+            validatorService: validatorService,
+            gitHubPhishingAPIService: gitHubPhishingAPIService,
+            rewardCalculatorService: rewardCalculatorService,
+            settings: SettingsManager.shared
+        )
     }
 }

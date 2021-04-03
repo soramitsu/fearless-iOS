@@ -5,7 +5,7 @@ protocol RecommendedValidatorsViewProtocol: ControllerBackedProtocol, Localizabl
     func didReceive(viewModel: RecommendedViewModelProtocol)
 }
 
-protocol RecommendedValidatorsPresenterProtocol: class {
+protocol RecommendedValidatorsPresenterProtocol: AnyObject {
     func setup()
 
     func proceed()
@@ -13,31 +13,35 @@ protocol RecommendedValidatorsPresenterProtocol: class {
     func selectCustomValidators()
 }
 
-protocol RecommendedValidatorsInteractorInputProtocol: class {
+protocol RecommendedValidatorsInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol RecommendedValidatorsInteractorOutputProtocol: class {
+protocol RecommendedValidatorsInteractorOutputProtocol: AnyObject {
     func didReceive(validators: [ElectedValidatorInfo])
     func didReceive(error: Error)
 }
 
 protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(from view: RecommendedValidatorsViewProtocol?,
-                 targets: [SelectedValidatorInfo],
-                 maxTargets: Int)
+    func proceed(
+        from view: RecommendedValidatorsViewProtocol?,
+        targets: [SelectedValidatorInfo],
+        maxTargets: Int
+    )
 
-    func showRecommended(from view: RecommendedValidatorsViewProtocol?,
-                         validators: [ElectedValidatorInfo],
-                         maxTargets: Int)
+    func showRecommended(
+        from view: RecommendedValidatorsViewProtocol?,
+        validators: [ElectedValidatorInfo],
+        maxTargets: Int
+    )
 
     func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
 }
 
-protocol RecommendedValidatorsViewFactoryProtocol: class {
+protocol RecommendedValidatorsViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(with state: InitiatedBonding)
-    -> RecommendedValidatorsViewProtocol?
+        -> RecommendedValidatorsViewProtocol?
 
     static func createChangeTargetsView(with state: ExistingBonding)
-    -> RecommendedValidatorsViewProtocol?
+        -> RecommendedValidatorsViewProtocol?
 }

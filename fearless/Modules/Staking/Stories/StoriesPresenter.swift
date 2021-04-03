@@ -11,8 +11,10 @@ final class StoriesPresenter {
 
     private var model: StoriesModel?
 
-    init(selectedStoryIndex: Int,
-         viewModelFactory: StoriesViewModelFactoryProtocol) {
+    init(
+        selectedStoryIndex: Int,
+        viewModelFactory: StoriesViewModelFactoryProtocol
+    ) {
         self.selectedStoryIndex = selectedStoryIndex
         self.viewModelFactory = viewModelFactory
     }
@@ -25,8 +27,9 @@ final class StoriesPresenter {
 
     private func advanceStoriesBy(_ shift: Int, startingFrom slide: StaringIndex = .first) {
         guard let model = self.model else { return }
-        guard selectedStoryIndex + shift < model.stories.count &&
-              selectedStoryIndex + shift >= 0 else {
+        guard selectedStoryIndex + shift < model.stories.count,
+              selectedStoryIndex + shift >= 0
+        else {
             activateClose()
             return
         }
@@ -47,8 +50,8 @@ extension StoriesPresenter: StoriesPresenterProtocol {
 
     func activateWeb() {
         guard let urlString = model?
-                .stories[selectedStoryIndex]
-                .slides[selectedSlideIndex].urlString else { return }
+            .stories[selectedStoryIndex]
+            .slides[selectedSlideIndex].urlString else { return }
 
         if let url = URL(string: urlString) {
             show(url)

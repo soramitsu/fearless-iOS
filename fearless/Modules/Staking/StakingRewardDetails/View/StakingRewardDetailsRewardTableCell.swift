@@ -1,7 +1,6 @@
 import UIKit
 
 final class StakingRewardDetailsRewardTableCell: StakingRewardDetailsBaseTableCell {
-
     let ksmAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

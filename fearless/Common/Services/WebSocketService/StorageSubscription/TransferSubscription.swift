@@ -10,22 +10,22 @@ enum ExtrinsicResult {
 
     var call: Call {
         switch self {
-        case .v28(let extrinsic):
+        case let .v28(extrinsic):
             return extrinsic.call
-        case .v27(let extrinsic):
+        case let .v27(extrinsic):
             return extrinsic.call
         }
     }
 
     var sender: Data? {
         switch self {
-        case .v28(let extrinsic):
-            if case .accountId(let value) = extrinsic.transaction?.address {
+        case let .v28(extrinsic):
+            if case let .accountId(value) = extrinsic.transaction?.address {
                 return value
             } else {
                 return nil
             }
-        case .v27(let extrinsic):
+        case let .v27(extrinsic):
             return extrinsic.transaction?.accountId
         }
     }
@@ -37,22 +37,22 @@ enum TransferCallResult {
 
     var receiver: Data? {
         switch self {
-        case .v28(let call):
-            if case .accountId(let value) = call.receiver {
+        case let .v28(call):
+            if case let .accountId(value) = call.receiver {
                 return value
             } else {
                 return nil
             }
-        case .v27(let call):
+        case let .v27(call):
             return call.receiver
         }
     }
 
     var amount: BigUInt {
         switch self {
-        case .v28(let call):
+        case let .v28(call):
             return call.amount
-        case .v27(let call):
+        case let .v27(call):
             return call.amount
         }
     }
@@ -83,17 +83,19 @@ final class TransferSubscription {
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol
 
-    init(engine: JSONRPCEngine,
-         address: String,
-         chain: Chain,
-         addressFactory: SS58AddressFactoryProtocol,
-         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
-         localIdFactory: ChainStorageIdFactoryProtocol,
-         contactOperationFactory: WalletContactOperationFactoryProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol,
-         logger: LoggerProtocol) {
+    init(
+        engine: JSONRPCEngine,
+        address: String,
+        chain: Chain,
+        addressFactory: SS58AddressFactoryProtocol,
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+        chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+        localIdFactory: ChainStorageIdFactoryProtocol,
+        contactOperationFactory: WalletContactOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol
+    ) {
         self.engine = engine
         self.address = address
         self.chain = chain
@@ -111,14 +113,18 @@ final class TransferSubscription {
         logger.debug("Did start fetching block: \(blockHash.toHex(includePrefix: true))")
 
         let fetchBlockOperation: JSONRPCOperation<[String], SignedBlock> =
-            JSONRPCOperation(engine: engine,
-                             method: RPCMethod.getChainBlock,
-                             parameters: [blockHash.toHex(includePrefix: true)])
+            JSONRPCOperation(
+                engine: engine,
+                method: RPCMethod.getChainBlock,
+                parameters: [blockHash.toHex(includePrefix: true)]
+            )
 
         let upgradedOperation = createUpgradedOperation()
 
-        let parseOperation = createParseOperation(dependingOn: fetchBlockOperation,
-                                                  upgradedOperation: upgradedOperation)
+        let parseOperation = createParseOperation(
+            dependingOn: fetchBlockOperation,
+            upgradedOperation: upgradedOperation
+        )
 
         parseOperation.addDependency(fetchBlockOperation)
         upgradedOperation.allOperations.forEach { parseOperation.addDependency($0) }
@@ -137,8 +143,10 @@ final class TransferSubscription {
 
         let operations = upgradedOperation.allOperations + [fetchBlockOperation, parseOperation]
 
-        operationManager.enqueue(operations: operations,
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: operations,
+            in: .transient
+        )
     }
 
     private func createUpgradedOperation() -> CompoundOperationWrapper<Bool?> {
@@ -161,13 +169,13 @@ final class TransferSubscription {
 
         let contactWrappers = createContactSaveForResults(results)
 
-        let contactDependencies = contactWrappers.reduce([]) { (result, wrapper) in
+        let contactDependencies = contactWrappers.reduce([]) { result, wrapper in
             result + wrapper.allOperations
         }
 
         let saveOperation = createTxSaveDependingOnFee(wrappers: feeWrappers)
 
-        let txDependencies: [Operation] = feeWrappers.reduce([]) { (result, wrapper) in
+        let txDependencies: [Operation] = feeWrappers.reduce([]) { result, wrapper in
             result + wrapper.allOperations
         }
 
@@ -180,7 +188,7 @@ final class TransferSubscription {
                 DispatchQueue.main.async {
                     self.eventCenter.notify(with: WalletNewTransactionInserted())
                 }
-            case .failure(let error):
+            case let .failure(error):
                 self.logger.error("Did fail block processing: \(error)")
             case .none:
                 self.logger.error("Block processing cancelled")
@@ -194,16 +202,18 @@ final class TransferSubscription {
 }
 
 extension TransferSubscription {
-    private func createFeeWrappersFromResults(_ results: [TransferSubscriptionResult])
-        -> [ResultAndFeeOperationWrapper] {
-
+    private func createFeeWrappersFromResults(
+        _ results: [TransferSubscriptionResult]
+    ) -> [ResultAndFeeOperationWrapper] {
         let networkType = SNAddressType(chain: chain)
 
         return results.map { result in
             let feeOperation: BaseOperation<RuntimeDispatchInfo> =
-                JSONRPCOperation(engine: engine,
-                                 method: RPCMethod.paymentInfo,
-                                 parameters: [result.encodedExtrinsic])
+                JSONRPCOperation(
+                    engine: engine,
+                    method: RPCMethod.paymentInfo,
+                    parameters: [result.encodedExtrinsic]
+                )
 
             let mapOperation: BaseOperation<(TransferSubscriptionResult, Decimal)> = ClosureOperation {
                 do {
@@ -211,8 +221,10 @@ extension TransferSubscription {
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
                         .fee
 
-                    let fee = Decimal.fromSubstrateAmount(BigUInt(feeString) ?? BigUInt(0),
-                                                          precision: networkType.precision) ?? .zero
+                    let fee = Decimal.fromSubstrateAmount(
+                        BigUInt(feeString) ?? BigUInt(0),
+                        precision: networkType.precision
+                    ) ?? .zero
 
                     self.logger.debug("Did receive fee: \(result.extrinsicHash) \(fee)")
                     return (result, fee)
@@ -224,23 +236,28 @@ extension TransferSubscription {
 
             mapOperation.addDependency(feeOperation)
 
-            return CompoundOperationWrapper(targetOperation: mapOperation,
-                                            dependencies: [feeOperation])
+            return CompoundOperationWrapper(
+                targetOperation: mapOperation,
+                dependencies: [feeOperation]
+            )
         }
     }
 
-    private func createTxSaveDependingOnFee(wrappers: [ResultAndFeeOperationWrapper])
-        -> BaseOperation<Void> {
+    private func createTxSaveDependingOnFee(
+        wrappers: [ResultAndFeeOperationWrapper]
+    ) -> BaseOperation<Void> {
         txStorage.saveOperation({
             wrappers.compactMap { wrapper in
                 do {
                     let feeResult = try wrapper.targetOperation
                         .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
-                    return TransactionHistoryItem.createFromSubscriptionResult(feeResult.0,
-                                                                               fee: feeResult.1,
-                                                                               address: self.address,
-                                                                               addressFactory: self.addressFactory)
+                    return TransactionHistoryItem.createFromSubscriptionResult(
+                        feeResult.0,
+                        fee: feeResult.1,
+                        address: self.address,
+                        addressFactory: self.addressFactory
+                    )
                 } catch {
                     self.logger.error("Failed to save received extrinsic")
                     return nil
@@ -249,12 +266,15 @@ extension TransferSubscription {
         }, { [] })
     }
 
-    private func createContactSaveForResults(_ results: [TransferSubscriptionResult])
-        -> [CompoundOperationWrapper<Void>] {
+    private func createContactSaveForResults(
+        _ results: [TransferSubscriptionResult]
+    ) -> [CompoundOperationWrapper<Void>] {
         do {
             let networkType = SNAddressType(chain: chain)
-            let accountId = try addressFactory.accountId(fromAddress: address,
-                                                         type: networkType)
+            let accountId = try addressFactory.accountId(
+                fromAddress: address,
+                type: networkType
+            )
 
             let contacts: Set<Data> = Set(
                 results.compactMap { result in
@@ -272,8 +292,10 @@ extension TransferSubscription {
 
             return try contacts.map { accountId in
                 let address = try addressFactory
-                    .address(fromPublicKey: AccountIdWrapper(rawData: accountId),
-                             type: networkType)
+                    .address(
+                        fromPublicKey: AccountIdWrapper(rawData: accountId),
+                        type: networkType
+                    )
 
                 return contactOperationFactory.saveByAddressOperation(address)
             }
@@ -282,10 +304,10 @@ extension TransferSubscription {
         }
     }
 
-    private func createParseOperation(dependingOn fetchOperation: BaseOperation<SignedBlock>,
-                                      upgradedOperation: CompoundOperationWrapper<Bool?>)
-        -> BaseOperation<[TransferSubscriptionResult]> {
-
+    private func createParseOperation(
+        dependingOn fetchOperation: BaseOperation<SignedBlock>,
+        upgradedOperation: CompoundOperationWrapper<Bool?>
+    ) -> BaseOperation<[TransferSubscriptionResult]> {
         let currentChain = chain
 
         return ClosureOperation {
@@ -302,7 +324,7 @@ extension TransferSubscription {
 
             let blockNumber = UInt32(blockNumberData)
 
-            return block.extrinsics.enumerated().compactMap { (index, hexExtrinsic) in
+            return block.extrinsics.enumerated().compactMap { index, hexExtrinsic in
                 do {
                     let data = try Data(hexString: hexExtrinsic)
                     let extrinsicHash = try data.blake2b32()
@@ -339,12 +361,14 @@ extension TransferSubscription {
                         callResult = .v27(call)
                     }
 
-                    return TransferSubscriptionResult(extrinsic: extrinsicResult,
-                                                      encodedExtrinsic: hexExtrinsic,
-                                                      call: callResult,
-                                                      extrinsicHash: extrinsicHash,
-                                                      blockNumber: Int64(blockNumber),
-                                                      txIndex: Int16(index))
+                    return TransferSubscriptionResult(
+                        extrinsic: extrinsicResult,
+                        encodedExtrinsic: hexExtrinsic,
+                        call: callResult,
+                        extrinsicHash: extrinsicHash,
+                        blockNumber: Int64(blockNumber),
+                        txIndex: Int16(index)
+                    )
                 } catch {
                     return nil
                 }

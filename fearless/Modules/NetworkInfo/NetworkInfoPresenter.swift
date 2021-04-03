@@ -13,9 +13,11 @@ final class NetworkInfoPresenter {
 
     let localizationManager: LocalizationManagerProtocol
 
-    init(connectionItem: ConnectionItem,
-         mode: NetworkInfoMode,
-         localizationManager: LocalizationManagerProtocol) {
+    init(
+        connectionItem: ConnectionItem,
+        mode: NetworkInfoMode,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.localizationManager = localizationManager
 
         self.connectionItem = connectionItem
@@ -24,10 +26,12 @@ final class NetworkInfoPresenter {
         nameViewModel = InputViewModel(inputHandler: nameInputHandling)
 
         let processor = TrimmingCharacterProcessor(charset: CharacterSet.whitespacesAndNewlines)
-        let nodeInputHandling = InputHandler(value: connectionItem.identifier,
-                                             enabled: mode.contains(.node),
-                                             predicate: NSPredicate.websocket,
-                                             processor: processor)
+        let nodeInputHandling = InputHandler(
+            value: connectionItem.identifier,
+            enabled: mode.contains(.node),
+            predicate: NSPredicate.websocket,
+            processor: processor
+        )
         nodeViewModel = InputViewModel(inputHandler: nodeInputHandling)
     }
 }
@@ -56,32 +60,38 @@ extension NetworkInfoPresenter: NetworkInfoPresenterProtocol {
             return
         }
 
-        interactor.updateConnection(connectionItem,
-                                    newURL: url,
-                                    newName: nameViewModel.inputHandler.value)
+        interactor.updateConnection(
+            connectionItem,
+            newURL: url,
+            newName: nameViewModel.inputHandler.value
+        )
     }
 }
 
 extension NetworkInfoPresenter: NetworkInfoInteractorOutputProtocol {
-    func didStartConnectionUpdate(with url: URL) {
+    func didStartConnectionUpdate(with _: URL) {
         view?.didStartLoading()
     }
 
-    func didCompleteConnectionUpdate(with url: URL) {
+    func didCompleteConnectionUpdate(with _: URL) {
         view?.didStopLoading()
 
         wireframe.close(view: view)
     }
 
-    func didReceive(error: Error, for url: URL) {
+    func didReceive(error: Error, for _: URL) {
         view?.didStopLoading()
 
-        if !wireframe.present(error: error,
-                              from: view,
-                              locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+        if !wireframe.present(
+            error: error,
+            from: view,
+            locale: localizationManager.selectedLocale
+        ) {
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }

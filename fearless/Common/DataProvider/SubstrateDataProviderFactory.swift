@@ -12,9 +12,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
     let operationManager: OperationManagerProtocol
     let logger: LoggerProtocol?
 
-    init(facade: StorageFacadeProtocol,
-         operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol? = nil) {
+    init(
+        facade: StorageFacadeProtocol,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol? = nil
+    ) {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
@@ -26,24 +28,30 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
 
         let filter = NSPredicate.filterByStashOrController(address)
         let repository: CoreDataRepository<StashItem, CDStashItem> = facade
-            .createRepository(filter: filter,
-                              sortDescriptors: [],
-                              mapper: AnyCoreDataMapper(mapper))
+            .createRepository(
+                filter: filter,
+                sortDescriptors: [],
+                mapper: AnyCoreDataMapper(mapper)
+            )
 
-        let observable = CoreDataContextObservable(service: facade.databaseService,
-                                                   mapper: AnyCoreDataMapper(mapper),
-                                                   predicate: { $0.stash == address || $0.controller == address })
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(mapper),
+            predicate: { $0.stash == address || $0.controller == address }
+        )
 
-        observable.start { [weak self] (error) in
+        observable.start { [weak self] error in
             if let error = error {
                 self?.logger?.error("Did receive error: \(error)")
             }
         }
 
-        return StreamableProvider<StashItem>(source: AnyStreamableSource(EmptyStreamableSource()),
-                                             repository: AnyDataProviderRepository(repository),
-                                             observable: AnyDataProviderRepositoryObservable(observable),
-                                             operationManager: operationManager)
+        return StreamableProvider<StashItem>(
+            source: AnyStreamableSource(EmptyStreamableSource()),
+            repository: AnyDataProviderRepository(repository),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager
+        )
     }
 
     func createRuntimeMetadataItemProvider(for chain: Chain) -> StreamableProvider<RuntimeMetadataItem> {
@@ -53,9 +61,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
         let storage: CoreDataRepository<RuntimeMetadataItem, CDRuntimeMetadataItem> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<RuntimeMetadataItem>()
-        let observable = CoreDataContextObservable(service: facade.databaseService,
-                                                   mapper: AnyCoreDataMapper(storage.dataMapper),
-                                                   predicate: { $0.identifier == identifier })
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(storage.dataMapper),
+            predicate: { $0.identifier == identifier }
+        )
 
         observable.start { error in
             if let error = error {
@@ -63,10 +73,12 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
             }
         }
 
-        return StreamableProvider(source: AnyStreamableSource(source),
-                                  repository: AnyDataProviderRepository(storage),
-                                  observable: AnyDataProviderRepositoryObservable(observable),
-                                  operationManager: operationManager)
+        return StreamableProvider(
+            source: AnyStreamableSource(source),
+            repository: AnyDataProviderRepository(storage),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager
+        )
     }
 
     func createStorageProvider(for key: String) -> StreamableProvider<ChainStorageItem> {
@@ -74,9 +86,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             facade.createRepository(filter: filter)
         let source = EmptyStreamableSource<ChainStorageItem>()
-        let observable = CoreDataContextObservable(service: facade.databaseService,
-                                                   mapper: AnyCoreDataMapper(storage.dataMapper),
-                                                   predicate: { $0.identifier == key })
+        let observable = CoreDataContextObservable(
+            service: facade.databaseService,
+            mapper: AnyCoreDataMapper(storage.dataMapper),
+            predicate: { $0.identifier == key }
+        )
 
         observable.start { error in
             if let error = error {
@@ -84,9 +98,11 @@ final class SubstrateDataProviderFactory: SubstrateDataProviderFactoryProtocol {
             }
         }
 
-        return StreamableProvider(source: AnyStreamableSource(source),
-                                  repository: AnyDataProviderRepository(storage),
-                                  observable: AnyDataProviderRepositoryObservable(observable),
-                                  operationManager: operationManager)
+        return StreamableProvider(
+            source: AnyStreamableSource(source),
+            repository: AnyDataProviderRepository(storage),
+            observable: AnyDataProviderRepositoryObservable(observable),
+            operationManager: operationManager
+        )
     }
 }

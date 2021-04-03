@@ -16,7 +16,7 @@ final class AccountManagementPresenter {
     private var sections: [ManagedAccountViewModelSection] = []
 
     private let listCalculator: ListDifferenceCalculator<ManagedAccountItem> = {
-        let calculator = ListDifferenceCalculator<ManagedAccountItem>(initialItems: []) { (item1, item2) in
+        let calculator = ListDifferenceCalculator<ManagedAccountItem>(initialItems: []) { item1, item2 in
             item1.order < item2.order
         }
 
@@ -30,14 +30,14 @@ final class AccountManagementPresenter {
 
     private func updateViewModels() {
         let groups = listCalculator.allItems
-            .reduce(into: [SNAddressType: [ManagedAccountViewModelItem]]()) { (result, item) in
+            .reduce(into: [SNAddressType: [ManagedAccountViewModelItem]]()) { result, item in
                 let selected = (item.address == selectedAccountItem?.address)
                 let viewModel = viewModelFactory.createViewModelFromItem(item, selected: selected)
 
                 var viewModels = result[item.networkType] ?? []
                 viewModels.append(viewModel)
                 result[item.networkType] = viewModels
-        }
+            }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
@@ -49,9 +49,11 @@ final class AccountManagementPresenter {
             let sectionTitle = addressType.titleForLocale(locale).uppercased()
             let icon = addressType.icon
 
-            return ManagedAccountViewModelSection(title: sectionTitle,
-                                                  icon: icon,
-                                                  items: items)
+            return ManagedAccountViewModelSection(
+                title: sectionTitle,
+                icon: icon,
+                items: items
+            )
         }
 
         if newSections != sections {
@@ -108,11 +110,11 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         var saveItems: [ManagedAccountItem]
 
         if startIndex > finalIndex {
-            saveItems = newItems[finalIndex...startIndex].map { viewModel in
+            saveItems = newItems[finalIndex ... startIndex].map { viewModel in
                 listCalculator.allItems.first { $0.address == viewModel.address }!
             }
         } else {
-            saveItems = newItems[startIndex...finalIndex].map { viewModel in
+            saveItems = newItems[startIndex ... finalIndex].map { viewModel in
                 listCalculator.allItems.first { $0.address == viewModel.address }!
             }.reversed()
         }
@@ -122,8 +124,8 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
 
         let initialOrder = saveItems[0].order
 
-        for index in (0..<saveItems.count - 1) {
-            saveItems[index] = saveItems[index].replacingOrder(saveItems[index+1].order)
+        for index in 0 ..< saveItems.count - 1 {
+            saveItems[index] = saveItems[index].replacingOrder(saveItems[index + 1].order)
         }
 
         let lastIndex = saveItems.count - 1
@@ -169,10 +171,12 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
             .accountDeleteConfirmationTitle(preferredLanguages: locale?.rLanguages)
         let details = R.string.localizable
             .accountDeleteConfirmationDescription(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: details,
-                                                  actions: [cancelAction, removeAction],
-                                                  closeAction: nil)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: details,
+            actions: [cancelAction, removeAction],
+            closeAction: nil
+        )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }
@@ -181,10 +185,12 @@ extension AccountManagementPresenter: AccountManagementPresenterProtocol {
         var newItems = sections[section].items
         let viewModel = newItems.remove(at: index)
 
-        if newItems.count > 0 {
-            let newSection = ManagedAccountViewModelSection(title: sections[section].title,
-                                                            icon: sections[section].icon,
-                                                            items: newItems)
+        if !newItems.isEmpty {
+            let newSection = ManagedAccountViewModelSection(
+                title: sections[section].title,
+                icon: sections[section].icon,
+                items: newItems
+            )
             sections[section] = newSection
         } else {
             sections.remove(at: section)
@@ -209,9 +215,11 @@ extension AccountManagementPresenter: AccountManagementInteractorOutputProtocol 
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager?.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager?.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager?.selectedLocale
+            )
         }
     }
 }

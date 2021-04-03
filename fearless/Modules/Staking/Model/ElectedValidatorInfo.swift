@@ -24,14 +24,15 @@ struct NominatorInfo: Equatable {
 }
 
 extension ElectedValidatorInfo {
-    init(validator: EraValidatorInfo,
-         identity: AccountIdentity?,
-         stakeReturn: Decimal,
-         hasSlashes: Bool,
-         maxNominatorsAllowed: UInt32,
-         addressType: SNAddressType,
-         blocked: Bool) throws {
-
+    init(
+        validator: EraValidatorInfo,
+        identity: AccountIdentity?,
+        stakeReturn: Decimal,
+        hasSlashes: Bool,
+        maxNominatorsAllowed: UInt32,
+        addressType: SNAddressType,
+        blocked: Bool
+    ) throws {
         self.hasSlashes = hasSlashes
         self.identity = identity
         self.stakeReturn = stakeReturn
@@ -40,13 +41,15 @@ extension ElectedValidatorInfo {
 
         address = try addressFactory.addressFromAccountId(data: validator.accountId, type: addressType)
         nominators = try validator.exposure.others.map { nominator in
-            let nominatorAddress = try addressFactory.addressFromAccountId(data: nominator.who,
-                                                                           type: addressType)
+            let nominatorAddress = try addressFactory.addressFromAccountId(
+                data: nominator.who,
+                type: addressType
+            )
             let stake = Decimal.fromSubstrateAmount(nominator.value, precision: addressType.precision) ?? 0.0
             return NominatorInfo(address: nominatorAddress, stake: stake)
         }
 
-        self.oversubscribed = nominators.count >= maxNominatorsAllowed
+        oversubscribed = nominators.count >= maxNominatorsAllowed
 
         totalStake = Decimal.fromSubstrateAmount(validator.exposure.total, precision: addressType.precision) ?? 0.0
         ownStake = Decimal.fromSubstrateAmount(validator.exposure.own, precision: addressType.precision) ?? 0.0

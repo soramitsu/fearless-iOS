@@ -7,11 +7,10 @@ final class StakingRewardPayoutsPresenter {
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
-
     func setup() {}
 
-    func handleSelectedHistory(at indexPath: IndexPath) {
-        // TODO get model by indexPath -> pass to wireframe
+    func handleSelectedHistory(at _: IndexPath) {
+        // TODO: get model by indexPath -> pass to wireframe
         wireframe.showRewardDetails(from: view)
     }
 
@@ -20,6 +19,4 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 }
 
-extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
-
-}
+extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {}

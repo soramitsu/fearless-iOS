@@ -6,7 +6,7 @@ final class WalletHistoryBackgroundView: TriangularedBlurView {
 }
 
 extension WalletHistoryBackgroundView: HistoryBackgroundViewProtocol {
-    func apply(style: HistoryViewStyleProtocol) {}
+    func apply(style _: HistoryViewStyleProtocol) {}
 
     func applyFullscreen(progress: CGFloat) {
         sideLength = minimizedSideLength * progress

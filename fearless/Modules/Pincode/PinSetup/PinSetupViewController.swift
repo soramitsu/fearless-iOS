@@ -3,7 +3,7 @@ import SoraUI
 import SoraFoundation
 
 class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDependable {
-    private struct Constants {
+    private enum Constants {
         static var cancelBottomMargin: CGFloat = 30.0
     }
 
@@ -73,11 +73,15 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         let bottomMargin = -Constants.cancelBottomMargin * designScaleRatio.height
 
         if #available(iOS 11.0, *) {
-            cancelButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor,
-                                                 constant: bottomMargin).isActive = true
+            cancelButton.bottomAnchor.constraint(
+                equalTo: view.safeAreaLayoutGuide.bottomAnchor,
+                constant: bottomMargin
+            ).isActive = true
         } else {
-            cancelButton.bottomAnchor.constraint(equalTo: view.bottomAnchor,
-                                                 constant: bottomMargin).isActive = true
+            cancelButton.bottomAnchor.constraint(
+                equalTo: view.bottomAnchor,
+                constant: bottomMargin
+            ).isActive = true
         }
 
         cancelButton.trailingAnchor.constraint(equalTo: pinView.trailingAnchor).isActive = true
@@ -85,9 +89,11 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         cancelButton.setTitleColor(R.color.colorWhite()!, for: .normal)
         cancelButton.titleLabel?.font = UIFont.p1Paragraph
 
-        cancelButton.addTarget(self,
-                               action: #selector(actionCancel),
-                               for: .touchUpInside)
+        cancelButton.addTarget(
+            self,
+            action: #selector(actionCancel),
+            for: .touchUpInside
+        )
 
         self.cancelButton = cancelButton
     }
@@ -96,7 +102,7 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
         let languages = localizationManager?.preferredLocalizations
 
         if pinView.mode == .create {
-            if  pinView.creationState == .normal {
+            if pinView.creationState == .normal {
                 titleLabel.text = R.string.localizable
                     .pincodeSetYourPinCode(preferredLanguages: languages)
             } else {
@@ -119,8 +125,10 @@ class PinSetupViewController: UIViewController, AdaptiveDesignable, NavigationDe
 
     private func setupLocalization() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        cancelButton?.setTitle(R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages),
-                               for: .normal)
+        cancelButton?.setTitle(
+            R.string.localizable.commonCancel(preferredLanguages: locale.rLanguages),
+            for: .normal
+        )
 
         topLabel.text = localizableTopTitle.value(for: locale)
 
@@ -211,20 +219,24 @@ extension PinSetupViewController: PinSetupViewProtocol {
 
         let alertView = UIAlertController(title: title, message: message, preferredStyle: .alert)
 
-        let useAction = UIAlertAction(title: R.string.localizable.commonUse(preferredLanguages: languages),
-                                      style: .default) { (_: UIAlertAction) -> Void in
+        let useAction = UIAlertAction(
+            title: R.string.localizable.commonUse(preferredLanguages: languages),
+            style: .default
+        ) { (_: UIAlertAction) -> Void in
             completionBlock(true)
         }
 
-        let skipAction = UIAlertAction(title: R.string.localizable.commonSkip(preferredLanguages: languages),
-                                       style: .cancel) { (_: UIAlertAction) -> Void in
+        let skipAction = UIAlertAction(
+            title: R.string.localizable.commonSkip(preferredLanguages: languages),
+            style: .cancel
+        ) { (_: UIAlertAction) -> Void in
             completionBlock(false)
         }
 
         alertView.addAction(useAction)
         alertView.addAction(skipAction)
 
-        self.present(alertView, animated: true, completion: nil)
+        present(alertView, animated: true, completion: nil)
     }
 
     func didReceiveWrongPincode() {
@@ -239,13 +251,13 @@ extension PinSetupViewController: PinSetupViewProtocol {
 }
 
 extension PinSetupViewController: PinViewDelegate {
-    func didFailConfirmation(pinView: PinView) {}
+    func didFailConfirmation(pinView _: PinView) {}
 
-    func didCompleteInput(pinView: PinView, result: String) {
+    func didCompleteInput(pinView _: PinView, result: String) {
         presenter.submit(pin: result)
     }
 
-    func didChange(pinView: PinView, from state: PinView.CreationState) {
+    func didChange(pinView: PinView, from _: PinView.CreationState) {
         updateTitleLabelState()
 
         let shouldAnimate = navigationControlling == nil
@@ -258,13 +270,13 @@ extension PinSetupViewController: PinViewDelegate {
         }
     }
 
-    func didSelectAccessoryControl(pinView: PinView) {
+    func didSelectAccessoryControl(pinView _: PinView) {
         presenter.activateBiometricAuth()
     }
 }
 
 extension PinSetupViewController: UINavigationBarDelegate {
-    func navigationBar(_ navigationBar: UINavigationBar, shouldPop item: UINavigationItem) -> Bool {
+    func navigationBar(_: UINavigationBar, shouldPop _: UINavigationItem) -> Bool {
         if pinView.creationState == .confirm {
             navigationControlling?.setNavigationBarHidden(false, animated: false)
         }

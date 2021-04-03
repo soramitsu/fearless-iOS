@@ -17,7 +17,7 @@ extension PurchaseInteractor: PurchaseInteractorInputProtocol {
 }
 
 extension PurchaseInteractor: EventVisitorProtocol {
-    func processPurchaseCompletion(event: PurchaseCompleted) {
+    func processPurchaseCompletion(event _: PurchaseCompleted) {
         presenter.didCompletePurchase()
     }
 }

@@ -16,29 +16,36 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
         self.networkType = networkType
     }
 
-    func search(query: String,
-                parameters: ContactModuleParameters,
-                locale: Locale,
-                delegate: ContactViewModelDelegate?,
-                commandFactory: WalletCommandFactoryProtocol) -> [ContactViewModelProtocol]? {
+    func search(
+        query: String,
+        parameters: ContactModuleParameters,
+        locale: Locale,
+        delegate: ContactViewModelDelegate?,
+        commandFactory: WalletCommandFactoryProtocol
+    ) -> [ContactViewModelProtocol]? {
         do {
             let peerId = try addressFactory.accountId(fromAddress: query, type: networkType)
             let accountIdData = try Data(hexString: parameters.accountId)
 
-            guard peerId != accountIdData  else {
+            guard peerId != accountIdData else {
                 return []
             }
 
-            let searchData = SearchData(accountId: peerId.toHex(),
-                                        firstName: query,
-                                        lastName: "")
+            let searchData = SearchData(
+                accountId: peerId.toHex(),
+                firstName: query,
+                lastName: ""
+            )
 
             guard let viewModel = contactViewModelFactory
-                .createContactViewModelFromContact(searchData,
-                                                   parameters: parameters,
-                                                   locale: locale,
-                                                   delegate: delegate,
-                                                   commandFactory: commandFactory) else {
+                .createContactViewModelFromContact(
+                    searchData,
+                    parameters: parameters,
+                    locale: locale,
+                    delegate: delegate,
+                    commandFactory: commandFactory
+                )
+            else {
                 return nil
             }
 
@@ -46,6 +53,5 @@ final class ContactsLocalSearchEngine: ContactsLocalSearchEngineProtocol {
         } catch {
             return nil
         }
-
     }
 }

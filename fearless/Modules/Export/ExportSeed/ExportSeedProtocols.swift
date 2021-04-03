@@ -1,14 +1,14 @@
-protocol ExportSeedInteractorInputProtocol: class {
+protocol ExportSeedInteractorInputProtocol: AnyObject {
     func fetchExportDataForAddress(_ address: String)
 }
 
-protocol ExportSeedInteractorOutputProtocol: class {
+protocol ExportSeedInteractorOutputProtocol: AnyObject {
     func didReceive(exportData: ExportSeedData)
     func didReceive(error: Error)
 }
 
 protocol ExportSeedWireframeProtocol: ExportGenericWireframeProtocol {}
 
-protocol ExportSeedViewFactoryProtocol: class {
+protocol ExportSeedViewFactoryProtocol: AnyObject {
     static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol?
 }

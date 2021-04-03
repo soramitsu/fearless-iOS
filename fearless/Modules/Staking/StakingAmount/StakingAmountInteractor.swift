@@ -16,13 +16,15 @@ final class StakingAmountInteractor {
     private let rewardService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
 
-    init(repository: AnyDataProviderRepository<AccountItem>,
-         priceProvider: AnySingleValueProvider<PriceData>,
-         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-         extrinsicService: ExtrinsicServiceProtocol,
-         rewardService: RewardCalculatorServiceProtocol,
-         runtimeService: RuntimeCodingServiceProtocol,
-         operationManager: OperationManagerProtocol) {
+    init(
+        repository: AnyDataProviderRepository<AccountItem>,
+        priceProvider: AnySingleValueProvider<PriceData>,
+        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        extrinsicService: ExtrinsicServiceProtocol,
+        rewardService: RewardCalculatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol
+    ) {
         self.repository = repository
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
@@ -39,7 +41,7 @@ final class StakingAmountInteractor {
             } else {
                 for change in changes {
                     switch change {
-                    case .insert(let item), .update(let item):
+                    case let .insert(item), let .update(item):
                         self?.presenter.didReceive(price: item)
                     case .delete:
                         self?.presenter.didReceive(price: nil)
@@ -53,13 +55,17 @@ final class StakingAmountInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        priceProvider.addObserver(self,
-                                  deliverOn: .main,
-                                  executing: updateClosure,
-                                  failing: failureClosure,
-                                  options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        priceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     private func subscribeToAccountChanges() {
@@ -73,13 +79,17 @@ final class StakingAmountInteractor {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        balanceProvider.addObserver(self,
-                                    deliverOn: .main,
-                                    executing: updateClosure,
-                                    failing: failureClosure,
-                                    options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        balanceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     private func provideRewardCalculator() {
@@ -96,8 +106,10 @@ final class StakingAmountInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [operation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [operation],
+            in: .transient
+        )
     }
 
     private func provideMinimumAmount() {
@@ -125,8 +137,10 @@ final class StakingAmountInteractor {
             }
         }
 
-        operationManager.enqueue(operations: [factoryOperation, minimumOperation],
-                                 in: .transient)
+        operationManager.enqueue(
+            operations: [factoryOperation, minimumOperation],
+            in: .transient
+        )
     }
 }
 
@@ -154,18 +168,24 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func estimateFee(for address: String,
-                     amount: BigUInt,
-                     rewardDestination: RewardDestination<AccountItem>) {
+    func estimateFee(
+        for address: String,
+        amount: BigUInt,
+        rewardDestination: RewardDestination<AccountItem>
+    ) {
         let closure: ExtrinsicBuilderClosure = { builder in
             let callFactory = SubstrateCallFactory()
 
-            let bondCall = try callFactory.bond(amount: amount,
-                                                controller: address,
-                                                rewardDestination: rewardDestination.accountAddress)
+            let bondCall = try callFactory.bond(
+                amount: amount,
+                controller: address,
+                rewardDestination: rewardDestination.accountAddress
+            )
 
-            let targets = Array(repeating: SelectedValidatorInfo(address: address),
-                                count: SubstrateConstants.maxNominations)
+            let targets = Array(
+                repeating: SelectedValidatorInfo(address: address),
+                count: SubstrateConstants.maxNominations
+            )
             let nominateCall = try callFactory.nominate(targets: targets)
 
             return try builder
@@ -175,11 +195,13 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
 
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
             switch result {
-            case .success(let info):
-                self?.presenter.didReceive(paymentInfo: info,
-                                           for: amount,
-                                           rewardDestination: rewardDestination)
-            case .failure(let error):
+            case let .success(info):
+                self?.presenter.didReceive(
+                    paymentInfo: info,
+                    for: amount,
+                    rewardDestination: rewardDestination
+                )
+            case let .failure(error):
                 self?.presenter.didReceive(error: error)
             }
         }

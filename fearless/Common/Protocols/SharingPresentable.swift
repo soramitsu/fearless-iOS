@@ -3,14 +3,19 @@ import UIKit
 typealias SharingCompletionHandler = (Bool) -> Void
 
 protocol SharingPresentable {
-    func share(source: UIActivityItemSource, from view: ControllerBackedProtocol?,
-               with completionHandler: SharingCompletionHandler?)
+    func share(
+        source: UIActivityItemSource,
+        from view: ControllerBackedProtocol?,
+        with completionHandler: SharingCompletionHandler?
+    )
 }
 
 extension SharingPresentable {
-    func share(source: UIActivityItemSource,
-               from view: ControllerBackedProtocol?,
-               with completionHandler: SharingCompletionHandler?) {
+    func share(
+        source: UIActivityItemSource,
+        from view: ControllerBackedProtocol?,
+        with completionHandler: SharingCompletionHandler?
+    ) {
         var currentController = view?.controller
 
         if currentController == nil {
@@ -21,11 +26,13 @@ extension SharingPresentable {
             return
         }
 
-        let activityController = UIActivityViewController(activityItems: [source],
-                                                          applicationActivities: nil)
+        let activityController = UIActivityViewController(
+            activityItems: [source],
+            applicationActivities: nil
+        )
 
         if let handler = completionHandler {
-            activityController.completionWithItemsHandler = { (_, completed, _, _) in
+            activityController.completionWithItemsHandler = { _, completed, _, _ in
                 handler(completed)
             }
         }

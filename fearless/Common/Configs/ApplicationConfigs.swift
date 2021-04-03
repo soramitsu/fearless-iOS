@@ -61,6 +61,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
         return "\(mainVersion).\(buildNumber)"
     }
+
     // swiftlint:enable force_cast
 
     var opensourceURL: URL {
@@ -72,6 +73,7 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         let bundle = Bundle(for: ApplicationConfig.self)
         return bundle.infoDictionary?["CFBundleDisplayName"] as! String
     }
+
     // swiftlint:enable force_cast
 
     // swiftlint:disable line_length
@@ -79,21 +81,22 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         let logoString = "https://raw.githubusercontent.com/sora-xor/sora-branding/master/Fearless-Wallet-brand/fearless-wallet-logo-ramp.png"
         return URL(string: logoString)!
     }
+
     // swiftlint:enable line_length
 
     var purchaseAppName: String {
-        return "Fearless Wallet"
+        "Fearless Wallet"
     }
 
     var purchaseRedirect: URL {
-        return URL(string: "fearless://fearless.io/redirect")!
+        URL(string: "fearless://fearless.io/redirect")!
     }
 
     var phishingListURL: URL {
-        return URL(string: "https://polkadot.js.org/phishing/address.json")!
+        URL(string: "https://polkadot.js.org/phishing/address.json")!
     }
 
     var learnPayoutURL: URL {
-        return URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+        URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
     }
 }

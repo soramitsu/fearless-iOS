@@ -6,23 +6,29 @@ import SoraFoundation
 final class ExportSeedViewFactory: ExportSeedViewFactoryProtocol {
     static func createViewForAddress(_ address: String) -> ExportGenericViewProtocol? {
         let uiFactory = UIFactory()
-        let view = ExportGenericViewController(uiFactory: uiFactory,
-                                               binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
-                                               mainTitle: nil,
-                                               accessoryTitle: nil)
+        let view = ExportGenericViewController(
+            uiFactory: uiFactory,
+            binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+            mainTitle: nil,
+            accessoryTitle: nil
+        )
 
         let localizationManager = LocalizationManager.shared
 
-        let presenter = ExportSeedPresenter(address: address,
-                                            localizationManager: localizationManager)
+        let presenter = ExportSeedPresenter(
+            address: address,
+            localizationManager: localizationManager
+        )
 
         let keychain = Keychain()
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let interactor = ExportSeedInteractor(keystore: keychain,
-                                              repository: AnyDataProviderRepository(repository),
-                                              operationManager: OperationManagerFacade.sharedManager)
+        let interactor = ExportSeedInteractor(
+            keystore: keychain,
+            repository: AnyDataProviderRepository(repository),
+            operationManager: OperationManagerFacade.sharedManager
+        )
         let wireframe = ExportSeedWireframe()
 
         view.presenter = presenter

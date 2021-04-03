@@ -9,12 +9,14 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         accountManagement.controller.hidesBottomBarWhenPushed = true
 
-        view?.controller.navigationController?.pushViewController(accountManagement.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            accountManagement.controller,
+            animated: true
+        )
     }
 
     func showPincodeChange(from view: ProfileViewProtocol?) {
-        authorize(animated: true, cancellable: true) { [weak self] (completed) in
+        authorize(animated: true, cancellable: true) { [weak self] completed in
             if completed {
                 self?.showPinSetup(from: view)
             }
@@ -28,8 +30,10 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         accountManagement.controller.hidesBottomBarWhenPushed = true
 
-        view?.controller.navigationController?.pushViewController(accountManagement.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            accountManagement.controller,
+            animated: true
+        )
     }
 
     func showConnectionSelection(from view: ProfileViewProtocol?) {
@@ -74,7 +78,9 @@ final class ProfileWireframe: ProfileWireframeProtocol, AuthorizationPresentable
 
         pinSetup.controller.hidesBottomBarWhenPushed = true
 
-        view?.controller.navigationController?.pushViewController(pinSetup.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            pinSetup.controller,
+            animated: true
+        )
     }
 }

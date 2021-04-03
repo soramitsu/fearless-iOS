@@ -77,26 +77,34 @@ final class AccountImportPresenter {
         case .mnemonic:
             let placeholder = R.string.localizable
                 .importMnemonic(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(value: value,
-                                            maxLength: AccountImportPresenter.maxMnemonicLength,
-                                            validCharacterSet: CharacterSet.englishMnemonic,
-                                            predicate: NSPredicate.notEmpty)
+            let inputHandler = InputHandler(
+                value: value,
+                maxLength: AccountImportPresenter.maxMnemonicLength,
+                validCharacterSet: CharacterSet.englishMnemonic,
+                predicate: NSPredicate.notEmpty
+            )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .seed:
             let placeholder = R.string.localizable
                 .accountImportRawSeedPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(value: value,
-                                            maxLength: Self.maxRawSeedLength,
-                                            predicate: NSPredicate.seed)
+            let inputHandler = InputHandler(
+                value: value,
+                maxLength: Self.maxRawSeedLength,
+                predicate: NSPredicate.seed
+            )
             viewModel = InputViewModel(inputHandler: inputHandler, placeholder: placeholder)
         case .keystore:
             let placeholder = R.string.localizable
                 .accountImportRecoveryJsonPlaceholder(preferredLanguages: locale.rLanguages)
-            let inputHandler = InputHandler(value: value,
-                                            maxLength: Self.maxKeystoreLength,
-                                            predicate: NSPredicate.notEmpty)
-            viewModel = InputViewModel(inputHandler: inputHandler,
-                                       placeholder: placeholder)
+            let inputHandler = InputHandler(
+                value: value,
+                maxLength: Self.maxKeystoreLength,
+                predicate: NSPredicate.notEmpty
+            )
+            viewModel = InputViewModel(
+                inputHandler: inputHandler,
+                placeholder: placeholder
+            )
         }
 
         sourceViewModel = viewModel
@@ -108,9 +116,11 @@ final class AccountImportPresenter {
         let processor = ByteLengthProcessor.username
         let processedUsername = processor.process(text: username)
 
-        let inputHandler = InputHandler(value: processedUsername,
-                                        predicate: NSPredicate.notEmpty,
-                                        processor: processor)
+        let inputHandler = InputHandler(
+            value: processedUsername,
+            predicate: NSPredicate.notEmpty,
+            processor: processor
+        )
 
         let viewModel = InputViewModel(inputHandler: inputHandler)
         usernameViewModel = viewModel
@@ -150,8 +160,10 @@ final class AccountImportPresenter {
            !metadata.availableNetworks.contains(preferredNetwork) {
             let locale = localizationManager?.selectedLocale ?? Locale.current
             let message = R.string.localizable
-                .accountImportWrongNetwork(preferredNetwork.titleForLocale(locale),
-                                           metadata.defaultNetwork.titleForLocale(locale))
+                .accountImportWrongNetwork(
+                    preferredNetwork.titleForLocale(locale),
+                    metadata.defaultNetwork.titleForLocale(locale)
+                )
             view?.setUploadWarning(message: message)
             return
         }
@@ -184,8 +196,10 @@ final class AccountImportPresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = TitleWithSubtitleViewModel(title: cryptoType.titleForLocale(locale),
-                                                   subtitle: cryptoType.subtitleForLocale(locale))
+        let viewModel = TitleWithSubtitleViewModel(
+            title: cryptoType.titleForLocale(locale),
+            subtitle: cryptoType.subtitleForLocale(locale)
+        )
 
         let selectable: Bool
 
@@ -195,8 +209,10 @@ final class AccountImportPresenter {
             selectable = (metadata?.availableCryptoTypes.count ?? 0) > 1
         }
 
-        view?.setSelectedCrypto(model: SelectableViewModel(underlyingViewModel: viewModel,
-                                                           selectable: selectable))
+        view?.setSelectedCrypto(model: SelectableViewModel(
+            underlyingViewModel: viewModel,
+            selectable: selectable
+        ))
     }
 
     private func applyNetworkTypeViewModel(_ preferredInfo: AccountImportPreferredInfo?) {
@@ -206,8 +222,10 @@ final class AccountImportPresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let contentViewModel = IconWithTitleViewModel(icon: networkType.icon,
-                                                      title: networkType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(
+            icon: networkType.icon,
+            title: networkType.titleForLocale(locale)
+        )
 
         let selectable: Bool
 
@@ -217,8 +235,10 @@ final class AccountImportPresenter {
             selectable = (metadata?.availableNetworks.count ?? 0) > 1
         }
 
-        let selectedViewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
-                                                    selectable: selectable)
+        let selectedViewModel = SelectableViewModel(
+            underlyingViewModel: contentViewModel,
+            selectable: selectable
+        )
 
         view?.setSelectedNetwork(model: selectedViewModel)
     }
@@ -255,40 +275,52 @@ final class AccountImportPresenter {
 
         let inputHandling = InputHandler(required: false, predicate: predicate)
 
-        let viewModel = InputViewModel(inputHandler: inputHandling,
-                                       placeholder: placeholder)
+        let viewModel = InputViewModel(
+            inputHandler: inputHandling,
+            placeholder: placeholder
+        )
 
-        self.derivationPathViewModel = viewModel
+        derivationPathViewModel = viewModel
 
         view?.setDerivationPath(viewModel: viewModel)
         view?.didValidateDerivationPath(.none)
     }
 
-    private func presentDerivationPathError(sourceType: AccountImportSource,
-                                            cryptoType: CryptoType) {
+    private func presentDerivationPathError(
+        sourceType: AccountImportSource,
+        cryptoType: CryptoType
+    ) {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         switch cryptoType {
         case .sr25519:
             if sourceType == .mnemonic {
-                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoftPassword,
-                                      from: view,
-                                      locale: locale)
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHardSoftPassword,
+                    from: view,
+                    locale: locale
+                )
             } else {
-                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoft,
-                                      from: view,
-                                      locale: locale)
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHardSoft,
+                    from: view,
+                    locale: locale
+                )
             }
 
         case .ed25519, .ecdsa:
             if sourceType == .mnemonic {
-                _ = wireframe.present(error: AccountCreationError.invalidDerivationHardPassword,
-                                      from: view,
-                                      locale: locale)
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHardPassword,
+                    from: view,
+                    locale: locale
+                )
             } else {
-                _ = wireframe.present(error: AccountCreationError.invalidDerivationHard,
-                                      from: view,
-                                      locale: locale)
+                _ = wireframe.present(
+                    error: AccountCreationError.invalidDerivationHard,
+                    from: view,
+                    locale: locale
+                )
             }
         }
     }
@@ -338,11 +370,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let context = AccountImportContext.sourceType.rawValue as NSString
             let selectedSourceType = self.selectedSourceType ?? metadata.defaultSource
 
-            wireframe.presentSourceTypeSelection(from: view,
-                                                 availableSources: metadata.availableSources,
-                                                 selectedSource: selectedSourceType,
-                                                 delegate: self,
-                                                 context: context)
+            wireframe.presentSourceTypeSelection(
+                from: view,
+                availableSources: metadata.availableSources,
+                selectedSource: selectedSourceType,
+                delegate: self,
+                context: context
+            )
         }
     }
 
@@ -350,11 +384,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         if let metadata = metadata {
             let context = AccountImportContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
-            wireframe.presentCryptoTypeSelection(from: view,
-                                                 availableTypes: metadata.availableCryptoTypes,
-                                                 selectedType: selectedType,
-                                                 delegate: self,
-                                                 context: context)
+            wireframe.presentCryptoTypeSelection(
+                from: view,
+                availableTypes: metadata.availableCryptoTypes,
+                selectedType: selectedType,
+                delegate: self,
+                context: context
+            )
         }
     }
 
@@ -362,11 +398,13 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
         if let metadata = metadata {
             let context = AccountImportContext.addressType.rawValue as NSString
             let selectedType = selectedNetworkType ?? metadata.defaultNetwork
-            wireframe.presentNetworkTypeSelection(from: view,
-                                                  availableTypes: metadata.availableNetworks,
-                                                  selectedType: selectedType,
-                                                  delegate: self,
-                                                  context: context)
+            wireframe.presentNetworkTypeSelection(
+                from: view,
+                availableTypes: metadata.availableNetworks,
+                selectedType: selectedType,
+                delegate: self,
+                context: context
+            )
         }
     }
 
@@ -383,18 +421,21 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
 
         let title = R.string.localizable.importRecoveryJson(preferredLanguages: locale?.rLanguages)
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: nil,
-                                                  actions: [pasteAction],
-                                                  closeAction: closeTitle)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: [pasteAction],
+            closeAction: closeTitle
+        )
 
         wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
     }
 
     func validateDerivationPath() {
         guard let viewModel = derivationPathViewModel,
-            let cryptoType = selectedCryptoType,
-            let sourceType = selectedSourceType else {
+              let cryptoType = selectedCryptoType,
+              let sourceType = selectedSourceType
+        else {
             return
         }
 
@@ -411,14 +452,17 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let selectedSourceType = selectedSourceType,
             let selectedCryptoType = selectedCryptoType,
             let sourceViewModel = sourceViewModel,
-            let usernameViewModel = usernameViewModel else {
+            let usernameViewModel = usernameViewModel
+        else {
             return
         }
 
         if let error = validateSourceViewModel() {
-            _ = wireframe.present(error: error,
-                                  from: view,
-                                  locale: localizationManager?.selectedLocale)
+            _ = wireframe.present(
+                error: error,
+                from: view,
+                locale: localizationManager?.selectedLocale
+            )
             return
         }
 
@@ -439,31 +483,37 @@ extension AccountImportPresenter: AccountImportPresenterProtocol {
             let mnemonic = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
-            let request = AccountImportMnemonicRequest(mnemonic: mnemonic,
-                                                       username: username,
-                                                       networkType: selectedNetworkType,
-                                                       derivationPath: derivationPath,
-                                                       cryptoType: selectedCryptoType)
+            let request = AccountImportMnemonicRequest(
+                mnemonic: mnemonic,
+                username: username,
+                networkType: selectedNetworkType,
+                derivationPath: derivationPath,
+                cryptoType: selectedCryptoType
+            )
             interactor.importAccountWithMnemonic(request: request)
         case .seed:
             let seed = sourceViewModel.inputHandler.value
             let username = usernameViewModel.inputHandler.value
             let derivationPath = derivationPathViewModel?.inputHandler.value ?? ""
-            let request = AccountImportSeedRequest(seed: seed,
-                                                   username: username,
-                                                   networkType: selectedNetworkType,
-                                                   derivationPath: derivationPath,
-                                                   cryptoType: selectedCryptoType)
+            let request = AccountImportSeedRequest(
+                seed: seed,
+                username: username,
+                networkType: selectedNetworkType,
+                derivationPath: derivationPath,
+                cryptoType: selectedCryptoType
+            )
             interactor.importAccountWithSeed(request: request)
         case .keystore:
             let keystore = sourceViewModel.inputHandler.value
             let password = passwordViewModel?.inputHandler.value ?? ""
             let username = usernameViewModel.inputHandler.value
-            let request = AccountImportKeystoreRequest(keystore: keystore,
-                                                       password: password,
-                                                       username: username,
-                                                       networkType: selectedNetworkType,
-                                                       cryptoType: selectedCryptoType)
+            let request = AccountImportKeystoreRequest(
+                keystore: keystore,
+                password: password,
+                username: username,
+                networkType: selectedNetworkType,
+                cryptoType: selectedCryptoType
+            )
 
             interactor.importAccountWithKeystore(request: request)
         }
@@ -492,9 +542,11 @@ extension AccountImportPresenter: AccountImportInteractorOutputProtocol {
             return
         }
 
-        _ = wireframe.present(error: CommonError.undefined,
-                              from: view,
-                              locale: locale)
+        _ = wireframe.present(
+            error: CommonError.undefined,
+            from: view,
+            locale: locale
+        )
     }
 
     func didSuggestKeystore(text: String, preferredInfo: AccountImportPreferredInfo?) {

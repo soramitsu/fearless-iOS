@@ -1,5 +1,3 @@
 import Foundation
 
-final class StakingPayoutConfirmationWireframe: StakingPayoutConfirmationWireframeProtocol {
-
-}
+final class StakingPayoutConfirmationWireframe: StakingPayoutConfirmationWireframeProtocol {}

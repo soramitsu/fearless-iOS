@@ -17,18 +17,20 @@ final class WalletNetworkFacade {
     let contactsOperationFactory: WalletContactOperationFactoryProtocol
     let accountsRepository: AnyDataProviderRepository<ManagedAccountItem>
 
-    init(storageFacade: StorageFacadeProtocol,
-         accountSettings: WalletAccountSettingsProtocol,
-         nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
-         subscanOperationFactory: SubscanOperationFactoryProtocol,
-         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
-         localStorageIdFactory: ChainStorageIdFactoryProtocol,
-         txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
-         contactsOperationFactory: WalletContactOperationFactoryProtocol,
-         accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
-         address: String,
-         networkType: SNAddressType,
-         totalPriceAssetId: WalletAssetId) {
+    init(
+        storageFacade: StorageFacadeProtocol,
+        accountSettings: WalletAccountSettingsProtocol,
+        nodeOperationFactory: WalletNetworkOperationFactoryProtocol,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        chainStorage: AnyDataProviderRepository<ChainStorageItem>,
+        localStorageIdFactory: ChainStorageIdFactoryProtocol,
+        txStorage: AnyDataProviderRepository<TransactionHistoryItem>,
+        contactsOperationFactory: WalletContactOperationFactoryProtocol,
+        accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
+        address: String,
+        networkType: SNAddressType,
+        totalPriceAssetId: WalletAssetId
+    ) {
         self.storageFacade = storageFacade
         self.accountSettings = accountSettings
         self.nodeOperationFactory = nodeOperationFactory

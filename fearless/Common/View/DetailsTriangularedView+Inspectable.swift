@@ -60,7 +60,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var title: String? {
         get {
-            return titleLabel.text
+            titleLabel.text
         }
 
         set {
@@ -72,7 +72,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var subtitle: String? {
         get {
-            return subtitleLabel?.text
+            subtitleLabel?.text
         }
 
         set {
@@ -84,7 +84,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var titleColor: UIColor? {
         get {
-            return titleLabel.textColor
+            titleLabel.textColor
         }
 
         set {
@@ -95,7 +95,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var highlightedTitleColor: UIColor? {
         get {
-            return titleLabel.highlightedTextColor
+            titleLabel.highlightedTextColor
         }
 
         set {
@@ -106,7 +106,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var subtitleColor: UIColor? {
         get {
-            return subtitleLabel?.textColor
+            subtitleLabel?.textColor
         }
 
         set {
@@ -117,7 +117,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var highlightedSubtitleColor: UIColor? {
         get {
-            return subtitleLabel?.highlightedTextColor
+            subtitleLabel?.highlightedTextColor
         }
 
         set {
@@ -128,7 +128,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     private var _titleFontName: String? {
         get {
-            return titleLabel.font.fontName
+            titleLabel.font.fontName
         }
 
         set(newValue) {
@@ -163,7 +163,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     private var _subtitleFontName: String? {
         get {
-            return titleLabel.font.fontName
+            titleLabel.font.fontName
         }
 
         set(newValue) {
@@ -200,7 +200,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var iconImage: UIImage? {
         get {
-            return iconView.image
+            iconView.image
         }
 
         set {
@@ -211,7 +211,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionImage: UIImage? {
         get {
-            return actionView.image
+            actionView.image
         }
 
         set {
@@ -223,7 +223,7 @@ extension DetailsTriangularedView {
     @IBInspectable
     var actionTintColor: UIColor? {
         get {
-            return actionView.tintColor
+            actionView.tintColor
         }
 
         set {

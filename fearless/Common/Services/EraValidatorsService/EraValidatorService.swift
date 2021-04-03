@@ -17,8 +17,10 @@ final class EraValidatorService {
         let queue: DispatchQueue?
     }
 
-    let syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
-                                  qos: .userInitiated)
+    let syncQueue = DispatchQueue(
+        label: "\(queueLabelPrefix).\(UUID().uuidString)",
+        qos: .userInitiated
+    )
 
     private(set) var activeEra: UInt32?
     private(set) var chain: Chain?
@@ -36,12 +38,14 @@ final class EraValidatorService {
     let eventCenter: EventCenterProtocol
     let logger: LoggerProtocol?
 
-    init(storageFacade: StorageFacadeProtocol,
-         runtimeCodingService: RuntimeCodingServiceProtocol,
-         providerFactory: SubstrateDataProviderFactoryProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol,
-         logger: LoggerProtocol? = nil) {
+    init(
+        storageFacade: StorageFacadeProtocol,
+        runtimeCodingService: RuntimeCodingServiceProtocol,
+        providerFactory: SubstrateDataProviderFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol? = nil
+    ) {
         self.storageFacade = storageFacade
         self.runtimeCodingService = runtimeCodingService
         self.providerFactory = providerFactory
@@ -73,11 +77,13 @@ final class EraValidatorService {
     }
 
     func didReceiveActiveEra(_ era: UInt32) {
-        self.activeEra = era
+        activeEra = era
     }
 
-    private func fetchInfoFactory(runCompletionIn queue: DispatchQueue?,
-                                  executing closure: @escaping (EraStakersInfo) -> Void) {
+    private func fetchInfoFactory(
+        runCompletionIn queue: DispatchQueue?,
+        executing closure: @escaping (EraStakersInfo) -> Void
+    ) {
         let request = PendingRequest(resultClosure: closure, queue: queue)
 
         if let snapshot = snapshot {
@@ -103,16 +109,18 @@ final class EraValidatorService {
             let localFactory = try ChainStorageIdFactory(chain: chain)
 
             let path = StorageCodingPath.activeEra
-            let key = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                               storageName: path.itemName)
+            let key = try StorageKeyFactory().createStorageKey(
+                moduleName: path.moduleName,
+                storageName: path.itemName
+            )
 
             let localKey = localFactory.createIdentifier(for: key)
             let eraDataProvider = providerFactory.createStorageProvider(for: localKey)
 
             let updateClosure: ([DataProviderChange<ChainStorageItem>]) -> Void = { [weak self] changes in
-                let finalValue: ChainStorageItem? = changes.reduce(nil) { (_, item) in
+                let finalValue: ChainStorageItem? = changes.reduce(nil) { _, item in
                     switch item {
-                    case .insert(let newItem), .update(let newItem):
+                    case let .insert(newItem), let .update(newItem):
                         return newItem
                     case .delete:
                         return nil
@@ -122,15 +130,17 @@ final class EraValidatorService {
                 self?.didUpdateActiveEraItem(finalValue)
             }
 
-            let failureClosure: (Error) -> Void = { [weak self] (error) in
+            let failureClosure: (Error) -> Void = { [weak self] error in
                 self?.logger?.error("Did receive error: \(error)")
             }
 
-            eraDataProvider.addObserver(self,
-                                        deliverOn: syncQueue,
-                                        executing: updateClosure,
-                                        failing: failureClosure,
-                                        options: StreamableProviderObserverOptions.substrateSource())
+            eraDataProvider.addObserver(
+                self,
+                deliverOn: syncQueue,
+                executing: updateClosure,
+                failing: failureClosure,
+                options: StreamableProviderObserverOptions.substrateSource()
+            )
 
             self.eraDataProvider = eraDataProvider
         } catch {

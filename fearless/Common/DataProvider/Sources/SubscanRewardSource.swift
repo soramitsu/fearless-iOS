@@ -37,18 +37,20 @@ final class SubscanRewardSource {
     private var lastSyncError: Error?
     private var syncing: SyncState?
     private var totalReward: TotalRewardItem?
-    private let mutex: NSLock = NSLock()
+    private let mutex = NSLock()
 
-    init(address: String,
-         assetId: WalletAssetId,
-         chain: Chain,
-         targetIdentifier: String,
-         repository: AnyDataProviderRepository<SingleValueProviderObject>,
-         operationFactory: SubscanOperationFactoryProtocol,
-         trigger: DataProviderTriggerProtocol,
-         operationManager: OperationManagerProtocol,
-         pageSize: Int = 100,
-         logger: LoggerProtocol? = nil) {
+    init(
+        address: String,
+        assetId: WalletAssetId,
+        chain: Chain,
+        targetIdentifier: String,
+        repository: AnyDataProviderRepository<SingleValueProviderObject>,
+        operationFactory: SubscanOperationFactoryProtocol,
+        trigger: DataProviderTriggerProtocol,
+        operationManager: OperationManagerProtocol,
+        pageSize: Int = 100,
+        logger: LoggerProtocol? = nil
+    ) {
         self.address = address
         self.assetId = assetId
         self.chain = chain
@@ -90,11 +92,13 @@ final class SubscanRewardSource {
             return
         }
 
-        syncing = SyncState(blockNumber: nil,
-                            extrinsicIndex: nil,
-                            totalCount: nil,
-                            receivedCount: 0,
-                            reward: nil)
+        syncing = SyncState(
+            blockNumber: nil,
+            extrinsicIndex: nil,
+            totalCount: nil,
+            receivedCount: 0,
+            reward: nil
+        )
 
         fetch(page: 0)
     }
@@ -109,12 +113,16 @@ final class SubscanRewardSource {
 
         localWrapper = createLocalFetchWrapper()
 
-        let info = RewardInfo(address: address,
-                              row: pageSize,
-                              page: page)
+        let info = RewardInfo(
+            address: address,
+            row: pageSize,
+            page: page
+        )
 
-        let remoteOperation = operationFactory.fetchRewardsAndSlashesOperation(url,
-                                                                               info: info)
+        let remoteOperation = operationFactory.fetchRewardsAndSlashesOperation(
+            url,
+            info: info
+        )
 
         let syncOperation = Operation()
 
@@ -129,9 +137,11 @@ final class SubscanRewardSource {
                     self.mutex.unlock()
                 }
 
-                self.processOperations(localWrapper.targetOperation,
-                                       remoteOperation: remoteOperation,
-                                       page: page)
+                self.processOperations(
+                    localWrapper.targetOperation,
+                    remoteOperation: remoteOperation,
+                    page: page
+                )
             }
         }
 
@@ -139,9 +149,11 @@ final class SubscanRewardSource {
         operationManager.enqueue(operations: allOperations, in: .transient)
     }
 
-    private func processOperations(_ localOperation: BaseOperation<TotalRewardItem?>,
-                                   remoteOperation: BaseOperation<SubscanRewardData>,
-                                   page: Int) {
+    private func processOperations(
+        _ localOperation: BaseOperation<TotalRewardItem?>,
+        remoteOperation: BaseOperation<SubscanRewardData>,
+        page: Int
+    ) {
         do {
             let totalReward = try localOperation.extractNoCancellableResultData()
             let remoteData = try remoteOperation.extractNoCancellableResultData()
@@ -164,7 +176,7 @@ final class SubscanRewardSource {
             let allRemoteItems = remoteData.items ?? []
             let count = endIndex ?? allRemoteItems.count
 
-            let newRemoteItems = Array(allRemoteItems[0..<count])
+            let newRemoteItems = Array(allRemoteItems[0 ..< count])
             let pageReward = calculateReward(from: newRemoteItems)
 
             let newBlockNum = (syncing?.blockNumber != nil) ? syncing?.blockNumber :
@@ -173,11 +185,13 @@ final class SubscanRewardSource {
                 newRemoteItems.first?.extrinsicIndex
             let receivedCount = (syncing?.receivedCount ?? 0) + newRemoteItems.count
 
-            syncing = SyncState(blockNumber: newBlockNum,
-                                extrinsicIndex: newExtrinsicIndex,
-                                totalCount: remoteData.count,
-                                receivedCount: receivedCount,
-                                reward: (syncing?.reward ?? 0.0) + pageReward)
+            syncing = SyncState(
+                blockNumber: newBlockNum,
+                extrinsicIndex: newExtrinsicIndex,
+                totalCount: remoteData.count,
+                receivedCount: receivedCount,
+                reward: (syncing?.reward ?? 0.0) + pageReward
+            )
 
             logger?.debug("Did complete sync of \(receivedCount) of \(remoteData.count)")
             logger?.debug("Block number: \(String(describing: newBlockNum))")
@@ -204,12 +218,13 @@ final class SubscanRewardSource {
         if let blockNum = syncState.blockNumber,
            let extrinsicIndex = syncState.extrinsicIndex,
            let reward = syncState.reward {
-
             let newAmount = reward + (previousReward?.amount.decimalValue ?? 0.0)
-            totalReward = TotalRewardItem(address: address,
-                                          blockNumber: blockNum,
-                                          extrinsicIndex: extrinsicIndex,
-                                          amount: AmountDecimal(value: newAmount))
+            totalReward = TotalRewardItem(
+                address: address,
+                blockNumber: blockNum,
+                extrinsicIndex: extrinsicIndex,
+                amount: AmountDecimal(value: newAmount)
+            )
 
             syncing = nil
 
@@ -217,10 +232,12 @@ final class SubscanRewardSource {
         } else {
             logger?.debug("Sync completed: nothing changed")
 
-            totalReward = TotalRewardItem(address: address,
-                                          blockNumber: previousReward?.blockNumber,
-                                          extrinsicIndex: previousReward?.extrinsicIndex,
-                                          amount: previousReward?.amount ?? AmountDecimal(value: 0.0))
+            totalReward = TotalRewardItem(
+                address: address,
+                blockNumber: previousReward?.blockNumber,
+                extrinsicIndex: previousReward?.extrinsicIndex,
+                amount: previousReward?.amount ?? AmountDecimal(value: 0.0)
+            )
 
             syncing = nil
         }
@@ -255,12 +272,13 @@ final class SubscanRewardSource {
     }
 
     private func calculateReward(from remoteItems: [SubscanRewardItemData]) -> Decimal {
-        remoteItems.reduce(Decimal(0.0)) { (amount, remoteItem) in
+        remoteItems.reduce(Decimal(0.0)) { amount, remoteItem in
             guard
                 let nextAmount = BigUInt(remoteItem.amount),
                 let nextAmountDecimal = Decimal
-                    .fromSubstrateAmount(nextAmount, precision: chain.addressType.precision),
-                let change = RewardChange(rawValue: remoteItem.eventId) else {
+                .fromSubstrateAmount(nextAmount, precision: chain.addressType.precision),
+                let change = RewardChange(rawValue: remoteItem.eventId)
+            else {
                 logger?.error("Broken reward: \(remoteItem)")
                 return amount
             }

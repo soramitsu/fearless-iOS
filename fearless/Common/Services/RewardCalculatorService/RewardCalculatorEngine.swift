@@ -24,37 +24,48 @@ enum CalculationPeriod {
 }
 
 protocol RewardCalculatorEngineProtocol {
-    func calculateEarnings(amount: Decimal,
-                           validatorAccountId: Data?,
-                           isCompound: Bool,
-                           period: CalculationPeriod) throws -> Decimal
+    func calculateEarnings(
+        amount: Decimal,
+        validatorAccountId: Data?,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) throws -> Decimal
 }
 
 extension RewardCalculatorEngineProtocol {
-    func calculateValidatorReturn(validatorAccountId: Data,
-                                  isCompound: Bool,
-                                  period: CalculationPeriod) throws -> Decimal {
-
-        try calculateEarnings(amount: 1.0,
-                              validatorAccountId: validatorAccountId,
-                              isCompound: isCompound,
-                              period: period)
+    func calculateValidatorReturn(
+        validatorAccountId: Data,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) throws -> Decimal {
+        try calculateEarnings(
+            amount: 1.0,
+            validatorAccountId: validatorAccountId,
+            isCompound: isCompound,
+            period: period
+        )
     }
 
     func calculateNetworkReturn(isCompound: Bool, period: CalculationPeriod) throws -> Decimal {
-        try calculateEarnings(amount: 1.0,
-                              validatorAccountId: nil,
-                              isCompound: isCompound,
-                              period: period)
+        try calculateEarnings(
+            amount: 1.0,
+            validatorAccountId: nil,
+            isCompound: isCompound,
+            period: period
+        )
     }
 
-    func calculateNetworkEarnings(amount: Decimal,
-                                  isCompound: Bool,
-                                  period: CalculationPeriod) throws -> Decimal {
-        try calculateEarnings(amount: amount,
-                              validatorAccountId: nil,
-                              isCompound: isCompound,
-                              period: period)
+    func calculateNetworkEarnings(
+        amount: Decimal,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) throws -> Decimal {
+        try calculateEarnings(
+            amount: amount,
+            validatorAccountId: nil,
+            isCompound: isCompound,
+            period: period
+        )
     }
 }
 
@@ -76,8 +87,10 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     private let minimalInflation: Decimal = 0.025
 
     private lazy var totalStake: Decimal = {
-        Decimal.fromSubstrateAmount(validators.map({$0.exposure.total}).reduce(0, +),
-                                    precision: chain.addressType.precision) ?? 0.0
+        Decimal.fromSubstrateAmount(
+            validators.map(\.exposure.total).reduce(0, +),
+            precision: chain.addressType.precision
+        ) ?? 0.0
     }()
 
     private var averageStake: Decimal {
@@ -112,7 +125,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }()
 
     private lazy var medianCommission: Decimal = {
-        let sorted = validators.map({ $0.prefs.commission }).sorted()
+        let sorted = validators.map(\.prefs.commission).sorted()
 
         guard !sorted.isEmpty else {
             return 0.0
@@ -121,7 +134,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let commission: BigUInt
 
         if sorted.count % 2 == 0 {
-            commission = (sorted[(sorted.count / 2)] + sorted[(sorted.count / 2) - 1]) / 2
+            commission = (sorted[sorted.count / 2] + sorted[(sorted.count / 2) - 1]) / 2
         } else {
             commission = sorted[(sorted.count - 1) / 2]
         }
@@ -129,19 +142,25 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         return Decimal.fromSubstratePerbill(value: commission) ?? 0.0
     }()
 
-    init(totalIssuance: BigUInt,
-         validators: [EraValidatorInfo],
-         chain: Chain) {
-        self.totalIssuance = Decimal.fromSubstrateAmount(totalIssuance,
-                                                         precision: chain.addressType.precision) ?? 0.0
+    init(
+        totalIssuance: BigUInt,
+        validators: [EraValidatorInfo],
+        chain: Chain
+    ) {
+        self.totalIssuance = Decimal.fromSubstrateAmount(
+            totalIssuance,
+            precision: chain.addressType.precision
+        ) ?? 0.0
         self.validators = validators
         self.chain = chain
     }
 
-    func calculateEarnings(amount: Decimal,
-                           validatorAccountId: Data?,
-                           isCompound: Bool,
-                           period: CalculationPeriod) throws -> Decimal {
+    func calculateEarnings(
+        amount: Decimal,
+        validatorAccountId: Data?,
+        isCompound: Bool,
+        period: CalculationPeriod
+    ) throws -> Decimal {
         let annualReturn: Decimal
 
         if let accountId = validatorAccountId {
@@ -150,8 +169,10 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             }
 
             let commission = Decimal.fromSubstratePerbill(value: validator.prefs.commission) ?? 0.0
-            let stake = Decimal.fromSubstrateAmount(validator.exposure.total,
-                                                    precision: chain.addressType.precision) ?? 0.0
+            let stake = Decimal.fromSubstrateAmount(
+                validator.exposure.total,
+                precision: chain.addressType.precision
+            ) ?? 0.0
 
             annualReturn = calculateForValidator(stake: stake, commission: commission)
         } else {
@@ -161,9 +182,11 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         let dailyReturn = annualReturn / 365.0
 
         if isCompound {
-            return calculateCompoundReward(initialAmount: amount,
-                                           period: period,
-                                           dailyInterestRate: dailyReturn)
+            return calculateCompoundReward(
+                initialAmount: amount,
+                period: period,
+                dailyInterestRate: dailyReturn
+            )
         } else {
             return amount * dailyReturn * Decimal(period.inDays)
         }
@@ -174,14 +197,17 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     // MARK: - Private
+
     // Calculation formula: R = P(1 + r/n)^nt - P, where
     // P – original amount
     // r - daily interest rate
     // n - number of eras in a day
     // t - number of days
-    private func calculateCompoundReward(initialAmount: Decimal,
-                                         period: CalculationPeriod,
-                                         dailyInterestRate: Decimal) -> Decimal {
+    private func calculateCompoundReward(
+        initialAmount: Decimal,
+        period: CalculationPeriod,
+        dailyInterestRate: Decimal
+    ) -> Decimal {
         let numberOfDays = period.inDays
         let erasPerDay = chain.erasPerDay
 
@@ -189,7 +215,7 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
             return 0.0
         }
 
-        let compoundedInterest = pow(1.0 + dailyInterestRate/Decimal(erasPerDay), erasPerDay * numberOfDays)
+        let compoundedInterest = pow(1.0 + dailyInterestRate / Decimal(erasPerDay), erasPerDay * numberOfDays)
         let finalAmount = initialAmount * compoundedInterest
 
         return finalAmount - initialAmount

@@ -21,8 +21,10 @@ final class RecommendedValidatorsPresenter {
         }
 
         let totalCount = min(all.count, StakingConstants.maxTargets)
-        let viewModel = RecommendedViewModel(selectedCount: recommended.count,
-                                             totalCount: totalCount)
+        let viewModel = RecommendedViewModel(
+            selectedCount: recommended.count,
+            totalCount: totalCount
+        )
 
         view?.didReceive(viewModel: viewModel)
     }
@@ -41,11 +43,15 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
         let totalCount = min(all.count, StakingConstants.maxTargets)
 
         let targets = recommended.map {
-            SelectedValidatorInfo(address: $0.address,
-                                  identity: $0.identity,
-                                  stakeInfo: ValidatorStakeInfo(nominators: $0.nominators,
-                                                                totalStake: $0.totalStake,
-                                                                stakeReturn: $0.stakeReturn))
+            SelectedValidatorInfo(
+                address: $0.address,
+                identity: $0.identity,
+                stakeInfo: ValidatorStakeInfo(
+                    nominators: $0.nominators,
+                    totalStake: $0.totalStake,
+                    stakeReturn: $0.stakeReturn
+                )
+            )
         }
 
         wireframe.proceed(from: view, targets: targets, maxTargets: totalCount)
@@ -75,7 +81,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
         allValidators = validators
 
         let recommended = validators
-            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked}
+            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked }
             .sorted(by: { $0.stakeReturn >= $1.stakeReturn })
             .prefix(StakingConstants.maxTargets)
         self.recommended = Array(recommended)
@@ -88,9 +94,11 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
 
         let locale = view?.localizationManager?.selectedLocale
         if !wireframe.present(error: error, from: view, locale: locale) {
-            _ = wireframe.present(error: BaseOperationError.unexpectedDependentResult,
-                                  from: view,
-                                  locale: locale)
+            _ = wireframe.present(
+                error: BaseOperationError.unexpectedDependentResult,
+                from: view,
+                locale: locale
+            )
         }
     }
 }

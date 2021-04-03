@@ -5,8 +5,8 @@ enum KeystoreTag: String, CaseIterable {
     case pincode
 
     static func secretKeyTagForAddress(_ address: String) -> String { address + "-" + "secretKey" }
-    static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy"}
-    static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv"}
+    static func entropyTagForAddress(_ address: String) -> String { address + "-" + "entropy" }
+    static func deriviationTagForAddress(_ address: String) -> String { address + "-" + "deriv" }
     static func seedTagForAddress(_ address: String) -> String { address + "-" + "seed" }
 }
 

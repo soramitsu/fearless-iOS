@@ -10,16 +10,20 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
     func fetchPhishingListOperation(_ url: URL) -> NetworkOperation<[PhishingItem]> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
-            request.setValue(HttpContentType.json.rawValue,
-                             forHTTPHeaderField: HttpHeaderKey.contentType.rawValue)
+            request.setValue(
+                HttpContentType.json.rawValue,
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
             request.httpMethod = HttpMethod.get.rawValue
             return request
         }
 
         let resultFactory = AnyNetworkResultFactory<[PhishingItem]> { data in
             guard let json =
-                    try JSONSerialization.jsonObject(with: data,
-                                                     options: [.mutableContainers]) as? [String: AnyObject]
+                try JSONSerialization.jsonObject(
+                    with: data,
+                    options: [.mutableContainers]
+                ) as? [String: AnyObject]
             else {
                 return []
             }
@@ -31,7 +35,7 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
                     let items = publicKeys.compactMap {
                         self.getPublicKey(from: $0, using: addressFactory)
                     }.map {
-                        return PhishingItem(source: key, publicKey: $0)
+                        PhishingItem(source: key, publicKey: $0)
                     }
                     return items
                 }
@@ -54,8 +58,10 @@ class GitHubOperationFactory: GitHubOperationFactoryProtocol {
                 return nil
             }
 
-            let publicKey = try addressFactory.accountId(fromAddress: address,
-                                                         type: addressType)
+            let publicKey = try addressFactory.accountId(
+                fromAddress: address,
+                type: addressType
+            )
 
             return publicKey.toHex()
         } catch {

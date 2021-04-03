@@ -12,10 +12,12 @@ final class ExportRestoreJsonViewFactory: ExportRestoreJsonViewFactoryProtocol {
         }
 
         let uiFactory = UIFactory()
-        let view = ExportGenericViewController(uiFactory: uiFactory,
-                                               binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
-                                               mainTitle: mainActionTitle,
-                                               accessoryTitle: accessoryActionTitle)
+        let view = ExportGenericViewController(
+            uiFactory: uiFactory,
+            binder: ExportGenericViewModelBinder(uiFactory: uiFactory),
+            mainTitle: mainActionTitle,
+            accessoryTitle: accessoryActionTitle
+        )
 
         let presenter = ExportRestoreJsonPresenter(model: model)
         presenter.wireframe = ExportRestoreJsonWireframe()

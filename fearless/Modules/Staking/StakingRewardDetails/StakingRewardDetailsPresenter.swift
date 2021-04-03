@@ -14,6 +14,4 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     }
 }
 
-extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {
-
-}
+extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {}

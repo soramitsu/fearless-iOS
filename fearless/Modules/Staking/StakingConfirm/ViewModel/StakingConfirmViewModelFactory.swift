@@ -5,7 +5,7 @@ import SoraFoundation
 
 protocol StakingConfirmViewModelFactoryProtocol {
     func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
-    -> LocalizableResource<StakingConfirmViewModelProtocol>
+        -> LocalizableResource<StakingConfirmViewModelProtocol>
 }
 
 final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtocol {
@@ -13,7 +13,7 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
     private lazy var amountFactory = AmountFormatterFactory()
 
     func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
-    -> LocalizableResource<StakingConfirmViewModelProtocol> {
+        -> LocalizableResource<StakingConfirmViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset)
@@ -23,7 +23,7 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
         switch state.rewardDestination {
         case .restake:
             rewardViewModel = .restake
-        case .payout(let account):
+        case let .payout(account):
             let payoutIcon = try iconGenerator.generateFromAddress(account.address)
 
             rewardViewModel = .payout(icon: payoutIcon, title: account.username)
@@ -32,11 +32,13 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
         return LocalizableResource { locale in
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
-            return StakingConfirmViewModel(senderIcon: icon,
-                                           senderName: state.wallet.username,
-                                           amount: amount ?? "",
-                                           rewardDestination: rewardViewModel,
-                                           validatorsCount: state.targets.count)
+            return StakingConfirmViewModel(
+                senderIcon: icon,
+                senderName: state.wallet.username,
+                amount: amount ?? "",
+                rewardDestination: rewardViewModel,
+                validatorsCount: state.targets.count
+            )
         }
     }
 }

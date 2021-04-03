@@ -49,7 +49,7 @@ struct JSONRPCOptions {
     }
 }
 
-protocol JSONRPCSubscribing: class {
+protocol JSONRPCSubscribing: AnyObject {
     var requestId: UInt16 { get }
     var requestData: Data { get }
     var requestOptions: JSONRPCOptions { get }
@@ -70,11 +70,13 @@ final class JSONRPCSubscription<T: Decodable>: JSONRPCSubscribing {
     let updateClosure: (T) -> Void
     let failureClosure: (Error, Bool) -> Void
 
-    init(requestId: UInt16,
-         requestData: Data,
-         requestOptions: JSONRPCOptions,
-         updateClosure: @escaping (T) -> Void,
-         failureClosure: @escaping (Error, Bool) -> Void) {
+    init(
+        requestId: UInt16,
+        requestData: Data,
+        requestOptions: JSONRPCOptions,
+        updateClosure: @escaping (T) -> Void,
+        failureClosure: @escaping (Error, Bool) -> Void
+    ) {
         self.requestId = requestId
         self.requestData = requestData
         self.requestOptions = requestOptions
@@ -92,28 +94,36 @@ final class JSONRPCSubscription<T: Decodable>: JSONRPCSubscribing {
     }
 }
 
-protocol JSONRPCEngine: class {
-    func callMethod<P: Encodable, T: Decodable>(_ method: String,
-                                                params: P?,
-                                                options: JSONRPCOptions,
-                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16
+protocol JSONRPCEngine: AnyObject {
+    func callMethod<P: Encodable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        options: JSONRPCOptions,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16
 
-    func subscribe<P: Encodable, T: Decodable>(_ method: String,
-                                               params: P?,
-                                               updateClosure: @escaping (T) -> Void,
-                                               failureClosure: @escaping  (Error, Bool) -> Void)
+    func subscribe<P: Encodable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        updateClosure: @escaping (T) -> Void,
+        failureClosure: @escaping (Error, Bool) -> Void
+    )
         throws -> UInt16
 
     func cancelForIdentifier(_ identifier: UInt16)
 }
 
 extension JSONRPCEngine {
-    func callMethod<P: Encodable, T: Decodable>(_ method: String,
-                                                params: P?,
-                                                completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
-        try callMethod(method,
-                       params: params,
-                       options: JSONRPCOptions(),
-                       completion: closure)
+    func callMethod<P: Encodable, T: Decodable>(
+        _ method: String,
+        params: P?,
+        completion closure: ((Result<T, Error>) -> Void)?
+    ) throws -> UInt16 {
+        try callMethod(
+            method,
+            params: params,
+            options: JSONRPCOptions(),
+            completion: closure
+        )
     }
 }

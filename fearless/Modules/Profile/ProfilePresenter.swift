@@ -2,9 +2,9 @@ import Foundation
 import SoraFoundation
 
 final class ProfilePresenter {
-	weak var view: ProfileViewProtocol?
-	var interactor: ProfileInteractorInputProtocol!
-	var wireframe: ProfileWireframeProtocol!
+    weak var view: ProfileViewProtocol?
+    var interactor: ProfileInteractorInputProtocol!
+    var wireframe: ProfileWireframeProtocol!
 
     var logger: LoggerProtocol?
 
@@ -29,15 +29,18 @@ final class ProfilePresenter {
     private func updateOptionsViewModel() {
         guard
             let userSettings = userSettings,
-            let language = localizationManager?.selectedLanguage else {
+            let language = localizationManager?.selectedLanguage
+        else {
             return
         }
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let optionViewModels = viewModelFactory.createOptionViewModels(from: userSettings,
-                                                                       language: language,
-                                                                       locale: locale)
+        let optionViewModels = viewModelFactory.createOptionViewModels(
+            from: userSettings,
+            language: language,
+            locale: locale
+        )
         view?.didLoad(optionViewModels: optionViewModels)
     }
 
@@ -113,14 +116,18 @@ extension ProfilePresenter: ProfilePresenterProtocol {
 
         let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
 
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: nil,
-                                                  actions: actions,
-                                                  closeAction: closeTitle)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: closeTitle
+        )
 
-        wireframe.present(viewModel: viewModel,
-                          style: .actionSheet,
-                          from: view)
+        wireframe.present(
+            viewModel: viewModel,
+            style: .actionSheet,
+            from: view
+        )
     }
 
     func activateOption(at index: UInt) {

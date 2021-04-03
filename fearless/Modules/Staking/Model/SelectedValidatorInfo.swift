@@ -5,9 +5,11 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol {
     let identity: AccountIdentity?
     let stakeInfo: ValidatorStakeInfoProtocol?
 
-    init(address: AccountAddress,
-         identity: AccountIdentity? = nil,
-         stakeInfo: ValidatorStakeInfoProtocol? = nil) {
+    init(
+        address: AccountAddress,
+        identity: AccountIdentity? = nil,
+        stakeInfo: ValidatorStakeInfoProtocol? = nil
+    ) {
         self.address = address
         self.identity = identity
         self.stakeInfo = stakeInfo
@@ -19,9 +21,11 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
     let totalStake: Decimal
     let stakeReturn: Decimal
 
-    init(nominators: [NominatorInfo] = [],
-         totalStake: Decimal = 0.0,
-         stakeReturn: Decimal = 0.0) {
+    init(
+        nominators: [NominatorInfo] = [],
+        totalStake: Decimal = 0.0,
+        stakeReturn: Decimal = 0.0
+    ) {
         self.nominators = nominators
         self.totalStake = totalStake
         self.stakeReturn = stakeReturn

@@ -3,11 +3,12 @@ import IrohaCrypto
 import FearlessUtils
 
 extension TransactionHistoryItem {
-    static func createFromSubscriptionResult(_ result: TransferSubscriptionResult,
-                                             fee: Decimal,
-                                             address: String,
-                                             addressFactory: SS58AddressFactoryProtocol)
-        -> TransactionHistoryItem? {
+    static func createFromSubscriptionResult(
+        _ result: TransferSubscriptionResult,
+        fee: Decimal,
+        address: String,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> TransactionHistoryItem? {
         do {
             let typeRawValue = try addressFactory.type(fromAddress: address)
 
@@ -23,25 +24,33 @@ extension TransactionHistoryItem {
                 return nil
             }
 
-            let sender = try addressFactory.address(fromPublicKey: AccountIdWrapper(rawData: txOrigin),
-                                                    type: addressType)
+            let sender = try addressFactory.address(
+                fromPublicKey: AccountIdWrapper(rawData: txOrigin),
+                type: addressType
+            )
             let receiver = try addressFactory
-                .address(fromPublicKey: AccountIdWrapper(rawData: txReceiver),
-                         type: addressType)
+                .address(
+                    fromPublicKey: AccountIdWrapper(rawData: txReceiver),
+                    type: addressType
+                )
 
             let timestamp = Int64(Date().timeIntervalSince1970)
-            let amount = Decimal.fromSubstrateAmount(result.call.amount,
-                                                     precision: addressType.precision) ?? .zero
+            let amount = Decimal.fromSubstrateAmount(
+                result.call.amount,
+                precision: addressType.precision
+            ) ?? .zero
 
-            return TransactionHistoryItem(sender: sender,
-                                          receiver: receiver,
-                                          status: .success,
-                                          txHash: result.extrinsicHash.toHex(includePrefix: true),
-                                          timestamp: timestamp,
-                                          amount: amount.stringWithPointSeparator,
-                                          fee: fee.stringWithPointSeparator,
-                                          blockNumber: result.blockNumber,
-                                          txIndex: result.txIndex)
+            return TransactionHistoryItem(
+                sender: sender,
+                receiver: receiver,
+                status: .success,
+                txHash: result.extrinsicHash.toHex(includePrefix: true),
+                timestamp: timestamp,
+                amount: amount.stringWithPointSeparator,
+                fee: fee.stringWithPointSeparator,
+                blockNumber: result.blockNumber,
+                txIndex: result.txIndex
+            )
 
         } catch {
             return nil

@@ -13,12 +13,14 @@ final class NetworkManagementInteractor {
     let operationManager: OperationManagerProtocol
     let eventCenter: EventCenterProtocol
 
-    init(connectionsRepository: AnyDataProviderRepository<ManagedConnectionItem>,
-         connectionsObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>,
-         accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
-         settings: SettingsManagerProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol) {
+    init(
+        connectionsRepository: AnyDataProviderRepository<ManagedConnectionItem>,
+        connectionsObservable: AnyDataProviderRepositoryObservable<ManagedConnectionItem>,
+        accountsRepository: AnyDataProviderRepository<ManagedAccountItem>,
+        settings: SettingsManagerProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol
+    ) {
         self.connectionsRepository = connectionsRepository
         self.connectionsObservable = connectionsObservable
         self.accountsRepository = accountsRepository
@@ -56,15 +58,17 @@ final class NetworkManagementInteractor {
         presenter.didReceiveSelectedConnection(settings.selectedConnection)
     }
 
-    private func select(connection: ConnectionItem,
-                        for accountsFetchResult: Result<[ManagedAccountItem], Error>?) {
+    private func select(
+        connection: ConnectionItem,
+        for accountsFetchResult: Result<[ManagedAccountItem], Error>?
+    ) {
         guard let result = accountsFetchResult else {
             presenter.didReceiveConnection(selectionError: BaseOperationError.parentOperationCancelled)
             return
         }
 
         switch result {
-        case .success(let accounts):
+        case let .success(accounts):
             let filteredAccounts: [AccountItem] = accounts.compactMap { managedAccount in
                 if managedAccount.networkType == connection.type {
                     return AccountItem(managedItem: managedAccount)
@@ -81,7 +85,7 @@ final class NetworkManagementInteractor {
                 select(connection: connection, account: account)
             }
 
-        case .failure(let error):
+        case let .failure(error):
             presenter.didReceiveConnection(selectionError: error)
         }
     }

@@ -13,8 +13,10 @@ final class AccountInfoPresenter {
 
     private var accountItem: ManagedAccountItem?
 
-    init(address: String,
-         localizationManager: LocalizationManagerProtocol) {
+    init(
+        address: String,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.address = address
         self.localizationManager = localizationManager
     }
@@ -23,9 +25,11 @@ final class AccountInfoPresenter {
         let processor = ByteLengthProcessor.username
         let processedUsername = processor.process(text: accountItem.username)
 
-        let inputHandling = InputHandler(value: processedUsername,
-                                         predicate: NSPredicate.notEmpty,
-                                         processor: processor)
+        let inputHandling = InputHandler(
+            value: processedUsername,
+            predicate: NSPredicate.notEmpty,
+            processor: processor
+        )
 
         let usernameViewModel = InputViewModel(inputHandler: inputHandling)
         usernameViewModel.inputHandler.addObserver(self)
@@ -76,11 +80,13 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
             self?.copyAddress()
         }
 
-        wireframe.presentAddressOptions(address,
-                                        chain: accountItem.networkType.chain,
-                                        locale: locale,
-                                        copyClosure: copyClosure,
-                                        from: view)
+        wireframe.presentAddressOptions(
+            address,
+            chain: accountItem.networkType.chain,
+            locale: locale,
+            copyClosure: copyClosure,
+            from: view
+        )
     }
 
     func finalizeUsername() {
@@ -90,10 +96,12 @@ extension AccountInfoPresenter: AccountInfoPresenterProtocol {
 
 extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
     func didReceive(exportOptions: [ExportOption]) {
-        wireframe.showExport(for: address,
-                             options: exportOptions,
-                             locale: localizationManager.selectedLocale,
-                             from: view)
+        wireframe.showExport(
+            for: address,
+            options: exportOptions,
+            locale: localizationManager.selectedLocale,
+            from: view
+        )
     }
 
     func didReceive(accountItem: ManagedAccountItem) {
@@ -102,19 +110,21 @@ extension AccountInfoPresenter: AccountInfoInteractorOutputProtocol {
         updateView(accountItem: accountItem)
     }
 
-    func didSave(username: String) {}
+    func didSave(username _: String) {}
 
     func didReceive(error: Error) {
         if !wireframe.present(error: error, from: view, locale: localizationManager.selectedLocale) {
-            _ = wireframe.present(error: CommonError.undefined,
-                                  from: view,
-                                  locale: localizationManager.selectedLocale)
+            _ = wireframe.present(
+                error: CommonError.undefined,
+                from: view,
+                locale: localizationManager.selectedLocale
+            )
         }
     }
 }
 
 extension AccountInfoPresenter: InputHandlingObserver {
-    func didChangeInputValue(_ handler: InputHandling, from oldValue: String) {
+    func didChangeInputValue(_ handler: InputHandling, from _: String) {
         if handler.completed {
             let username = handler.normalizedValue
             interactor.save(username: username, address: address)

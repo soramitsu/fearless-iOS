@@ -29,15 +29,17 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
     private var subscription: Subscription?
 
-    init(address: String,
-         chain: Chain,
-         engine: JSONRPCEngine,
-         runtimeService: RuntimeCodingServiceProtocol,
-         repository: AnyDataProviderRepository<StashItem>,
-         childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
-         addressFactory: SS58AddressFactoryProtocol,
-         operationManager: OperationManagerProtocol,
-         logger: LoggerProtocol?) {
+    init(
+        address: String,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        repository: AnyDataProviderRepository<StashItem>,
+        childSubscriptionFactory: ChildSubscriptionFactoryProtocol,
+        addressFactory: SS58AddressFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        logger: LoggerProtocol?
+    ) {
         self.address = address
         self.chain = chain
         self.engine = engine
@@ -63,13 +65,17 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            let controllerOperation = MapKeyEncodingOperation(path: .controller,
-                                                              storageKeyFactory: storageKeyFactory,
-                                                              keyParams: [accountId])
+            let controllerOperation = MapKeyEncodingOperation(
+                path: .controller,
+                storageKeyFactory: storageKeyFactory,
+                keyParams: [accountId]
+            )
 
-            let ledgerOperation = MapKeyEncodingOperation(path: .stakingLedger,
-                                                          storageKeyFactory: storageKeyFactory,
-                                                          keyParams: [accountId])
+            let ledgerOperation = MapKeyEncodingOperation(
+                path: .stakingLedger,
+                storageKeyFactory: storageKeyFactory,
+                keyParams: [accountId]
+            )
 
             [controllerOperation, ledgerOperation].forEach { operation in
                 operation.addDependency(codingFactoryOperation)
@@ -133,30 +139,36 @@ final class StakingAccountResolver: WebSocketSubscribing {
             let controllerSubscription = childSubscriptionFactory
                 .createEmptyHandlingSubscription(remoteKey: controllerKey)
             let ledgerSubscription = childSubscriptionFactory
-                .createEventEmittingSubscription(remoteKey: ledgerKey,
-                                                 eventFactory: { _ in WalletStakingInfoChanged() })
+                .createEventEmittingSubscription(
+                    remoteKey: ledgerKey,
+                    eventFactory: { _ in WalletStakingInfoChanged() }
+                )
 
             let storageParams = [
                 controllerKey.toHex(includePrefix: true),
                 ledgerKey.toHex(includePrefix: true)
             ]
 
-            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] (update) in
+            let updateClosure: (StorageSubscriptionUpdate) -> Void = { [weak self] update in
                 self?.handleUpdate(update.params.result)
             }
 
-            let failureClosure: (Error, Bool) -> Void = { [weak self] (error, unsubscribed) in
+            let failureClosure: (Error, Bool) -> Void = { [weak self] error, unsubscribed in
                 self?.logger?.error("Did receive subscription error: \(error) \(unsubscribed)")
             }
 
-            let subscriptionId = try engine.subscribe(RPCMethod.storageSubscibe,
-                                                      params: [storageParams],
-                                                      updateClosure: updateClosure,
-                                                      failureClosure: failureClosure)
+            let subscriptionId = try engine.subscribe(
+                RPCMethod.storageSubscibe,
+                params: [storageParams],
+                updateClosure: updateClosure,
+                failureClosure: failureClosure
+            )
 
-            subscription = Subscription(controller: controllerSubscription,
-                                        ledger: ledgerSubscription,
-                                        subscriptionId: subscriptionId)
+            subscription = Subscription(
+                controller: controllerSubscription,
+                ledger: ledgerSubscription,
+                subscriptionId: subscriptionId
+            )
         } catch {
             logger?.error("Did receive error: \(error)")
         }
@@ -179,10 +191,12 @@ final class StakingAccountResolver: WebSocketSubscribing {
         updateChild(subscription: subscription.ledger, for: updateData)
 
         let decodingWrapper = createDecodingWrapper(from: updateData, subscription: subscription)
-        let processingOperation = createProcessingOperation(dependingOn: decodingWrapper.targetOperation,
-                                                            initAddress: address,
-                                                            type: chain.addressType,
-                                                            addressFactory: addressFactory)
+        let processingOperation = createProcessingOperation(
+            dependingOn: decodingWrapper.targetOperation,
+            initAddress: address,
+            type: chain.addressType,
+            addressFactory: addressFactory
+        )
         processingOperation.addDependency(decodingWrapper.targetOperation)
         let saveWrapper = createSaveWrapper(dependingOn: processingOperation)
         saveWrapper.allOperations.forEach { $0.addDependency(processingOperation) }
@@ -200,22 +214,27 @@ final class StakingAccountResolver: WebSocketSubscribing {
 }
 
 extension StakingAccountResolver {
-    private func createDecodingWrapper(from updateData: StorageUpdateData,
-                                       subscription: Subscription)
-    -> CompoundOperationWrapper<DecodedChanges> {
+    private func createDecodingWrapper(
+        from updateData: StorageUpdateData,
+        subscription: Subscription
+    ) -> CompoundOperationWrapper<DecodedChanges> {
         let codingFactory = runtimeService.fetchCoderFactoryOperation()
 
-        let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(for: subscription.controller,
-                                                                               path: .controller,
-                                                                               updateData: updateData,
-                                                                               coderOperation: codingFactory)
+        let controllerDecoding: BaseOperation<Data>? = createDecodingOperation(
+            for: subscription.controller,
+            path: .controller,
+            updateData: updateData,
+            coderOperation: codingFactory
+        )
         controllerDecoding?.addDependency(codingFactory)
 
         let ledgerDecoding: BaseOperation<DyStakingLedger>? =
-            createDecodingOperation(for: subscription.ledger,
-                                    path: .stakingLedger,
-                                    updateData: updateData,
-                                    coderOperation: codingFactory)
+            createDecodingOperation(
+                for: subscription.ledger,
+                path: .stakingLedger,
+                updateData: updateData,
+                coderOperation: codingFactory
+            )
         ledgerDecoding?.addDependency(codingFactory)
 
         let mapOperation = ClosureOperation<DecodedChanges> {
@@ -240,11 +259,12 @@ extension StakingAccountResolver {
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
-    private func createDecodingOperation<T>(for subscription: StorageChildSubscribing,
-                                            path: StorageCodingPath,
-                                            updateData: StorageUpdateData,
-                                            coderOperation: BaseOperation<RuntimeCoderFactoryProtocol>)
-    -> BaseOperation<T>? where T: Decodable {
+    private func createDecodingOperation<T>(
+        for subscription: StorageChildSubscribing,
+        path: StorageCodingPath,
+        updateData: StorageUpdateData,
+        coderOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) -> BaseOperation<T>? where T: Decodable {
         if let ledgerValue = updateData.changes
             .first(where: { $0.key == subscription.remoteStorageKey })?.value {
             let operation = StorageDecodingOperation<T>(path: path, data: ledgerValue)
@@ -262,11 +282,12 @@ extension StakingAccountResolver {
         }
     }
 
-    private func createProcessingOperation(dependingOn decodinigOperation: BaseOperation<DecodedChanges>,
-                                           initAddress: String,
-                                           type: SNAddressType,
-                                           addressFactory: SS58AddressFactoryProtocol)
-    -> BaseOperation<StashItem?> {
+    private func createProcessingOperation(
+        dependingOn decodinigOperation: BaseOperation<DecodedChanges>,
+        initAddress: String,
+        type: SNAddressType,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> BaseOperation<StashItem?> {
         ClosureOperation<StashItem?> {
             let changes = try decodinigOperation.extractNoCancellableResultData()
             if let controller = changes.controller {
@@ -283,13 +304,14 @@ extension StakingAccountResolver {
         }
     }
 
-    private func createSaveWrapper(dependingOn operation: BaseOperation<StashItem?>)
-    -> CompoundOperationWrapper<Void> {
+    private func createSaveWrapper(
+        dependingOn operation: BaseOperation<StashItem?>
+    ) -> CompoundOperationWrapper<Void> {
         let currentItemsOperation = repository.fetchAllOperation(with: RepositoryFetchOptions())
 
         let saveOperation = repository.saveOperation({
             let currentItem = try currentItemsOperation.extractNoCancellableResultData()
-                    .first
+                .first
 
             if let newStashItem = try operation.extractNoCancellableResultData(),
                currentItem != newStashItem {
@@ -301,7 +323,8 @@ extension StakingAccountResolver {
             let newStashItem = try operation.extractNoCancellableResultData()
 
             guard let currentId = try currentItemsOperation.extractNoCancellableResultData()
-                    .first?.identifier else {
+                .first?.identifier
+            else {
                 return []
             }
 

@@ -4,7 +4,6 @@ typealias RewardPoint = UInt32
 
 /// Reward points of an era. Used to split era total payout between validators.
 struct EraRewardPoints: Decodable {
-
     /// Total number of points. Equals the sum of reward points for each validator.
     @StringCodable var total: RewardPoint
 

@@ -55,16 +55,16 @@ class JSONRPCOperation<P: Encodable, T: Decodable>: BaseOperation<T> {
             }
 
             if
-                case .failure(let error) = callResult,
+                case let .failure(error) = callResult,
                 let jsonRPCEngineError = error as? JSONRPCEngineError,
                 jsonRPCEngineError == .clientCancelled {
                 return
             }
 
             switch callResult {
-            case .success(let response):
+            case let .success(response):
                 result = .success(response)
-            case .failure(let error):
+            case let .failure(error):
                 result = .failure(error)
             }
 

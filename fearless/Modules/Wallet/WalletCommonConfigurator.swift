@@ -4,16 +4,17 @@ import SoraFoundation
 import IrohaCrypto
 
 struct WalletCommonConfigurator {
-
     let localizationManager: LocalizationManagerProtocol
     let networkType: SNAddressType
     let account: AccountItem
     let assets: [WalletAsset]
 
-    init(localizationManager: LocalizationManagerProtocol,
-         networkType: SNAddressType,
-         account: AccountItem,
-         assets: [WalletAsset]) {
+    init(
+        localizationManager: LocalizationManagerProtocol,
+        networkType: SNAddressType,
+        account: AccountItem,
+        assets: [WalletAsset]
+    ) {
         self.localizationManager = localizationManager
         self.networkType = networkType
         self.account = account
@@ -24,13 +25,17 @@ struct WalletCommonConfigurator {
         let language = WalletLanguage(rawValue: localizationManager.selectedLocalization)
             ?? WalletLanguage.defaultLanguage
 
-        let decoratorFactory = WalletCommandDecoratorFactory(localizationManager: localizationManager,
-                                                             dataStorageFacade: SubstrateDataStorageFacade.shared)
+        let decoratorFactory = WalletCommandDecoratorFactory(
+            localizationManager: localizationManager,
+            dataStorageFacade: SubstrateDataStorageFacade.shared
+        )
 
-        let qrCoderFactory = WalletQRCoderFactory(networkType: networkType,
-                                                  publicKey: account.publicKeyData,
-                                                  username: account.username,
-                                                  assets: assets)
+        let qrCoderFactory = WalletQRCoderFactory(
+            networkType: networkType,
+            publicKey: account.publicKeyData,
+            username: account.username,
+            assets: assets
+        )
 
         let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
         builder

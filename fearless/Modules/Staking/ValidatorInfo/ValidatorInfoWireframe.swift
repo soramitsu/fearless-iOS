@@ -1,5 +1,3 @@
 import Foundation
 
-final class ValidatorInfoWireframe: ValidatorInfoWireframeProtocol {
-
-}
+final class ValidatorInfoWireframe: ValidatorInfoWireframeProtocol {}

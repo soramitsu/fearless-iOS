@@ -18,14 +18,17 @@ final class AccountRepositoryFactory: AccountRepositoryFactoryProtocol {
         self.operationManager = operationManager
     }
 
-    func createAccountRepository(for networkType: SNAddressType)
-        -> AnyDataProviderRepository<AccountItem> {
-            let mapper = CodableCoreDataMapper<AccountItem, CDAccountItem>()
-            let repository = storageFacade
-                .createRepository(filter: NSPredicate.filterAccountBy(networkType: networkType),
-                                  sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                                  mapper: AnyCoreDataMapper(mapper))
+    func createAccountRepository(
+        for networkType: SNAddressType
+    ) -> AnyDataProviderRepository<AccountItem> {
+        let mapper = CodableCoreDataMapper<AccountItem, CDAccountItem>()
+        let repository = storageFacade
+            .createRepository(
+                filter: NSPredicate.filterAccountBy(networkType: networkType),
+                sortDescriptors: [NSSortDescriptor.accountsByOrder],
+                mapper: AnyCoreDataMapper(mapper)
+            )
 
-            return AnyDataProviderRepository(repository)
+        return AnyDataProviderRepository(repository)
     }
 }

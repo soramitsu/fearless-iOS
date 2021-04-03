@@ -13,10 +13,12 @@ class PinViewFactory: PinViewFactoryProtocol {
         }
 
         let presenter = PinSetupPresenter()
-        let interactor = PinSetupInteractor(secretManager: KeychainManager.shared,
-                                            settingsManager: SettingsManager.shared,
-                                            biometryAuth: BiometryAuth(),
-                                            locale: LocalizationManager.shared.selectedLocale)
+        let interactor = PinSetupInteractor(
+            secretManager: KeychainManager.shared,
+            settingsManager: SettingsManager.shared,
+            biometryAuth: BiometryAuth(),
+            locale: LocalizationManager.shared.selectedLocale
+        )
         let wireframe = PinSetupWireframe()
 
         pinSetupView.presenter = presenter
@@ -62,10 +64,12 @@ class PinViewFactory: PinViewFactoryProtocol {
         pinVerifyView.mode = .securedInput
 
         let presenter = LocalAuthPresenter()
-        let interactor = LocalAuthInteractor(secretManager: KeychainManager.shared,
-                                             settingsManager: SettingsManager.shared,
-                                             biometryAuth: BiometryAuth(),
-                                             locale: LocalizationManager.shared.selectedLocale)
+        let interactor = LocalAuthInteractor(
+            secretManager: KeychainManager.shared,
+            settingsManager: SettingsManager.shared,
+            biometryAuth: BiometryAuth(),
+            locale: LocalizationManager.shared.selectedLocale
+        )
         let wireframe = PinSetupWireframe()
 
         pinVerifyView.presenter = presenter
@@ -80,18 +84,22 @@ class PinViewFactory: PinViewFactoryProtocol {
         return pinVerifyView
     }
 
-    static func createScreenAuthorizationView(with wireframe: ScreenAuthorizationWireframeProtocol, cancellable: Bool)
-        -> PinSetupViewProtocol? {
+    static func createScreenAuthorizationView(
+        with wireframe: ScreenAuthorizationWireframeProtocol,
+        cancellable: Bool
+    ) -> PinSetupViewProtocol? {
         let pinVerifyView = PinSetupViewController(nib: R.nib.pinSetupViewController)
         pinVerifyView.cancellable = cancellable
 
         pinVerifyView.mode = .securedInput
 
         let presenter = ScreenAuthorizationPresenter()
-        let interactor = LocalAuthInteractor(secretManager: KeychainManager.shared,
-                                             settingsManager: SettingsManager.shared,
-                                             biometryAuth: BiometryAuth(),
-                                             locale: LocalizationManager.shared.selectedLocale)
+        let interactor = LocalAuthInteractor(
+            secretManager: KeychainManager.shared,
+            settingsManager: SettingsManager.shared,
+            biometryAuth: BiometryAuth(),
+            locale: LocalizationManager.shared.selectedLocale
+        )
 
         pinVerifyView.presenter = presenter
         presenter.interactor = interactor

@@ -6,7 +6,7 @@ struct SuperIdentity: Codable {
     let data: ChainData
 
     var name: String? {
-        if case .raw(let value) = data {
+        if case let .raw(value) = data {
             return String(data: value, encoding: .utf8)
         } else {
             return nil
