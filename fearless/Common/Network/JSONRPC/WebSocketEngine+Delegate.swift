@@ -5,6 +5,7 @@ extension WebSocketEngine: WebSocketDelegate {
     func didReceive(event: WebSocketEvent, client: WebSocket) {
         mutex.lock()
 
+        logger.debug("MAKOTO EVENT: \(event)")
         switch event {
         case .binary(let data):
             handleBinaryEvent(data: data)
