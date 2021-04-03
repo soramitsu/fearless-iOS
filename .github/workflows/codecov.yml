@@ -17,7 +17,9 @@ jobs:
       - name: CocoaPods Action
         uses: ty0x2333/cocoapods-action@0.2.0
       - name: Install Dependencies
-        run: bundle exec pod install --repo-update
+        run: |
+          cd fearless
+          bundle exec pod install --repo-update
       - name: Build and Test
         run:  xcodebuild -workspace fearless.xcworkspace -scheme fearless -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' test
       - name: Upload coverage to Codecov
