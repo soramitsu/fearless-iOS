@@ -18,7 +18,7 @@ jobs:
       - name: Install Dependencies & Test
         run: |
           pod install --repo-update
-          xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' build test
+          set -o pipefail && xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' build test | xcpretty
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v1.2.1
