@@ -6,7 +6,10 @@ comment:
 
 ignore:
   - "*View.swift"
-  - "*ViewFactory.swift"
+  - "*Factory.swift"
   - "*ViewController.swift"
   - "*Cell.swift"
   - "*Wireframe.swift"
+  - "fearless/Common/Protocols"
+  - "fearless/Common/View"
+  - "fearless/Common/ViewController"
