@@ -5,8 +5,8 @@ comment:
     - "develop"
 
 ignore:
-  - "**/*View.swift"
-  - "**/*ViewFactory.swift"
-  - "**/*ViewController.swift"
-  - "**/*Cell.swift"
-  - "**/*Wireframe.swift"
+  - "*View.swift"
+  - "*ViewFactory.swift"
+  - "*ViewController.swift"
+  - "*Cell.swift"
+  - "*Wireframe.swift"
