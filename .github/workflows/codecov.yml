@@ -14,6 +14,11 @@ jobs:
     steps:
       - name: Test
         uses: actions/checkout@v1
+      - name: CocoaPods Action
+        uses: ty0x2333/cocoapods-action@0.2.0
+      - name: Install Dependencies
+        run: pod install --repo-update
+      shell: bash
       - name: Build and Test
         run:  xcodebuild -workspace fearless.xcworkspace -scheme fearless -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' test
       - name: Upload coverage to Codecov
