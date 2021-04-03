@@ -1,9 +1,6 @@
 name: Codecov Fearless
 
 on:
-  push:
-    branches:
-      - feature/codecov
   pull_request:
     branches:
       - develop
