@@ -18,7 +18,7 @@ jobs:
       - name: Install Dependencies
         run: |
           cd fearless
-          bundle exec pod install --repo-update
+          pod install --repo-update
 
       - name: Test
         uses: ty0x2333/cocoapods-action@master
