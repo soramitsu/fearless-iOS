@@ -1,11 +1,11 @@
 import Foundation
 
-protocol SchedulerProtocol: class {
+protocol SchedulerProtocol: AnyObject {
     func notifyAfter(_ seconds: TimeInterval)
     func cancel()
 }
 
-protocol SchedulerDelegate: class {
+protocol SchedulerDelegate: AnyObject {
     func didTrigger(scheduler: SchedulerProtocol)
 }
 
@@ -14,7 +14,7 @@ final class Scheduler: NSObject, SchedulerProtocol {
 
     let callbackQueue: DispatchQueue?
 
-    private var lock: NSLock = NSLock()
+    private var lock = NSLock()
     private var timer: DispatchSourceTimer?
 
     init(with delegate: SchedulerDelegate, callbackQueue: DispatchQueue? = nil) {
@@ -38,8 +38,10 @@ final class Scheduler: NSObject, SchedulerProtocol {
         clearTimer()
 
         timer = DispatchSource.makeTimerSource()
-        timer?.schedule(deadline: .now() + .milliseconds(Int(1000.0 * seconds)),
-                        repeating: DispatchTimeInterval.never)
+        timer?.schedule(
+            deadline: .now() + .milliseconds(Int(1000.0 * seconds)),
+            repeating: DispatchTimeInterval.never
+        )
         timer?.setEventHandler { [weak self] in
             self?.handleTrigger()
         }

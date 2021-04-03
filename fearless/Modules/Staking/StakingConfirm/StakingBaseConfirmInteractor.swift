@@ -10,11 +10,13 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
 
-    init(priceProvider: AnySingleValueProvider<PriceData>,
-         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-         extrinsicService: ExtrinsicServiceProtocol,
-         operationManager: OperationManagerProtocol,
-         signer: SigningWrapperProtocol) {
+    init(
+        priceProvider: AnySingleValueProvider<PriceData>,
+        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        extrinsicService: ExtrinsicServiceProtocol,
+        operationManager: OperationManagerProtocol,
+        signer: SigningWrapperProtocol
+    ) {
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
@@ -29,7 +31,7 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
             } else {
                 for change in changes {
                     switch change {
-                    case .insert(let item), .update(let item):
+                    case let .insert(item), let .update(item):
                         self?.presenter.didReceive(price: item)
                     case .delete:
                         self?.presenter.didReceive(price: nil)
@@ -43,13 +45,17 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        priceProvider.addObserver(self,
-                                  deliverOn: .main,
-                                  executing: updateClosure,
-                                  failing: failureClosure,
-                                  options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        priceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     private func subscribeToAccountChanges() {
@@ -63,13 +69,17 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
             return
         }
 
-        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false,
-                                                  waitsInProgressSyncOnAdd: false)
-        balanceProvider.addObserver(self,
-                                    deliverOn: .main,
-                                    executing: updateClosure,
-                                    failing: failureClosure,
-                                    options: options)
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        balanceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     // MARK: StakingConfirmInteractorInputProtocol
@@ -79,7 +89,7 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
         subscribeToPriceChanges()
     }
 
-    func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {}
+    func submitNomination(for _: Decimal, lastFee _: Decimal) {}
 
     func estimateFee() {}
 }

@@ -1,14 +1,14 @@
 import UIKit
 
 final class MainTabBarViewController: UITabBarController {
-	var presenter: MainTabBarPresenterProtocol!
+    var presenter: MainTabBarPresenterProtocol!
 
     private var viewAppeared: Bool = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        self.delegate = self
+        delegate = self
 
         configureTabBar()
     }
@@ -47,10 +47,12 @@ final class MainTabBarViewController: UITabBarController {
 }
 
 extension MainTabBarViewController: UITabBarControllerDelegate {
-    func tabBarController(_ tabBarController: UITabBarController,
-                          shouldSelect viewController: UIViewController) -> Bool {
+    func tabBarController(
+        _: UITabBarController,
+        shouldSelect viewController: UIViewController
+    ) -> Bool {
         if viewController == viewControllers?[selectedIndex],
-            let scrollableController = viewController as? ScrollsToTop {
+           let scrollableController = viewController as? ScrollsToTop {
             scrollableController.scrollToTop()
         }
 
@@ -66,6 +68,6 @@ extension MainTabBarViewController: MainTabBarViewProtocol {
 
         newViewControllers[index] = newView
 
-        self.setViewControllers(newViewControllers, animated: false)
+        setViewControllers(newViewControllers, animated: false)
     }
 }

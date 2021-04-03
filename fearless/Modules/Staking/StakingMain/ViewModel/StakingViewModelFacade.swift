@@ -14,13 +14,17 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     }
 
     func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol {
-        return BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                       selectedAddressType: chain.addressType,
-                                       limit: StakingConstants.maxAmount)
+        BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
     }
 
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol {
-        return RewardViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                      selectedAddressType: chain.addressType)
+        RewardViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType
+        )
     }
 }

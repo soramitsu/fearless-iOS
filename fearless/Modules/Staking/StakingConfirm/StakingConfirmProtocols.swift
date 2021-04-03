@@ -8,7 +8,7 @@ protocol StakingConfirmViewProtocol: ControllerBackedProtocol, Localizable, Load
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
-protocol StakingConfirmPresenterProtocol: class {
+protocol StakingConfirmPresenterProtocol: AnyObject {
     func setup()
     func selectWalletAccount()
     func selectPayoutAccount()
@@ -16,13 +16,13 @@ protocol StakingConfirmPresenterProtocol: class {
     func proceed()
 }
 
-protocol StakingConfirmInteractorInputProtocol: class {
+protocol StakingConfirmInteractorInputProtocol: AnyObject {
     func setup()
     func submitNomination(for lastBalance: Decimal, lastFee: Decimal)
     func estimateFee()
 }
 
-protocol StakingConfirmInteractorOutputProtocol: class {
+protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(model: StakingConfirmationModel)
     func didReceive(modelError: Error)
 
@@ -40,18 +40,23 @@ protocol StakingConfirmInteractorOutputProtocol: class {
     func didReceive(feeError: Error)
 }
 
-protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
-                                          AddressOptionsPresentable, StakingErrorPresentable {
-    func showSelectedValidator(from view: StakingConfirmViewProtocol?,
-                               validators: [SelectedValidatorInfo],
-                               maxTargets: Int)
+protocol StakingConfirmWireframeProtocol:
+    AlertPresentable,
+    ErrorPresentable,
+    AddressOptionsPresentable,
+    StakingErrorPresentable {
+    func showSelectedValidator(
+        from view: StakingConfirmViewProtocol?,
+        validators: [SelectedValidatorInfo],
+        maxTargets: Int
+    )
     func complete(from view: StakingConfirmViewProtocol?)
 }
 
-protocol StakingConfirmViewFactoryProtocol: class {
+protocol StakingConfirmViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
-    -> StakingConfirmViewProtocol?
+        -> StakingConfirmViewProtocol?
 
     static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
-    -> StakingConfirmViewProtocol?
+        -> StakingConfirmViewProtocol?
 }

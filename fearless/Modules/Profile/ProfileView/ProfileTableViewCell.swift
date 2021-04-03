@@ -2,7 +2,6 @@ import UIKit
 import SoraUI
 
 final class ProfileTableViewCell: UITableViewCell {
-
     @IBOutlet private var iconImageView: UIImageView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var subtitleLabel: UILabel!

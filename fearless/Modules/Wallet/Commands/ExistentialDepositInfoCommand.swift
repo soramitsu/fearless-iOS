@@ -15,9 +15,11 @@ final class ExistentialDepositInfoCommand: WalletCommandProtocol {
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(transferState: TransferExistentialState,
-         amountFormatter: LocalizableResource<NumberFormatter>,
-         commandFactory: WalletCommandFactoryProtocol) {
+    init(
+        transferState: TransferExistentialState,
+        amountFormatter: LocalizableResource<NumberFormatter>,
+        commandFactory: WalletCommandFactoryProtocol
+    ) {
         self.transferState = transferState
         self.amountFormatter = amountFormatter
         self.commandFactory = commandFactory
@@ -25,8 +27,10 @@ final class ExistentialDepositInfoCommand: WalletCommandProtocol {
 
     func execute() throws {
         let viewController = ModalInfoFactory
-            .createTransferExistentialState(transferState,
-                                            amountFormatter: amountFormatter)
+            .createTransferExistentialState(
+                transferState,
+                amountFormatter: amountFormatter
+            )
 
         let presentationCommand = commandFactory?.preparePresentationCommand(for: viewController)
         presentationCommand?.presentationStyle = .modal(inNavigation: false)

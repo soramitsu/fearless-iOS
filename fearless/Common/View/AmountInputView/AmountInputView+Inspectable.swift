@@ -29,7 +29,7 @@ extension AmountInputView {
     @IBInspectable
     var title: String? {
         get {
-            return titleLabel.text
+            titleLabel.text
         }
 
         set {
@@ -41,7 +41,7 @@ extension AmountInputView {
     @IBInspectable
     var titleColor: UIColor? {
         get {
-            return titleLabel.textColor
+            titleLabel.textColor
         }
 
         set {
@@ -52,7 +52,7 @@ extension AmountInputView {
     @IBInspectable
     private var _titleFontName: String? {
         get {
-            return titleLabel.font.fontName
+            titleLabel.font.fontName
         }
 
         set(newValue) {
@@ -87,7 +87,7 @@ extension AmountInputView {
     @IBInspectable
     var priceText: String? {
         get {
-            return priceLabel?.text
+            priceLabel?.text
         }
 
         set {
@@ -99,7 +99,7 @@ extension AmountInputView {
     @IBInspectable
     private var _priceFontName: String? {
         get {
-            return priceLabel.font.fontName
+            priceLabel.font.fontName
         }
 
         set(newValue) {
@@ -134,7 +134,7 @@ extension AmountInputView {
     @IBInspectable
     var priceColor: UIColor? {
         get {
-            return priceLabel.textColor
+            priceLabel.textColor
         }
 
         set {
@@ -145,7 +145,7 @@ extension AmountInputView {
     @IBInspectable
     var balanceText: String? {
         get {
-            return balanceLabel?.text
+            balanceLabel?.text
         }
 
         set {
@@ -157,7 +157,7 @@ extension AmountInputView {
     @IBInspectable
     private var _balanceFontName: String? {
         get {
-            return balanceLabel.font.fontName
+            balanceLabel.font.fontName
         }
 
         set(newValue) {
@@ -192,7 +192,7 @@ extension AmountInputView {
     @IBInspectable
     var balanceColor: UIColor? {
         get {
-            return balanceLabel.textColor
+            balanceLabel.textColor
         }
 
         set {
@@ -203,7 +203,7 @@ extension AmountInputView {
     @IBInspectable
     var symbol: String? {
         get {
-            return symbolLabel?.text
+            symbolLabel?.text
         }
 
         set {
@@ -215,7 +215,7 @@ extension AmountInputView {
     @IBInspectable
     private var _symbolFontName: String? {
         get {
-            return symbolLabel.font.fontName
+            symbolLabel.font.fontName
         }
 
         set(newValue) {
@@ -250,7 +250,7 @@ extension AmountInputView {
     @IBInspectable
     var symbolColor: UIColor? {
         get {
-            return symbolLabel.textColor
+            symbolLabel.textColor
         }
 
         set {
@@ -261,7 +261,7 @@ extension AmountInputView {
     @IBInspectable
     var fieldText: String? {
         get {
-            return textField?.text
+            textField?.text
         }
 
         set {
@@ -273,7 +273,7 @@ extension AmountInputView {
     @IBInspectable
     private var _filedFontName: String? {
         get {
-            return textField.font?.fontName
+            textField.font?.fontName
         }
 
         set(newValue) {
@@ -309,7 +309,7 @@ extension AmountInputView {
     @IBInspectable
     var fieldColor: UIColor? {
         get {
-            return textField.textColor
+            textField.textColor
         }
 
         set {
@@ -320,7 +320,7 @@ extension AmountInputView {
     @IBInspectable
     var assetIcon: UIImage? {
         get {
-            return iconView.image
+            iconView.image
         }
 
         set {
@@ -375,67 +375,75 @@ extension AmountInputView {
     @IBInspectable
     private var _top: CGFloat {
         get {
-            return self.contentInsets.top
+            contentInsets.top
         }
 
         set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: newValue,
-                                              left: insets.left,
-                                              bottom: insets.bottom,
-                                              right: insets.right)
+            let insets = contentInsets
+            contentInsets = UIEdgeInsets(
+                top: newValue,
+                left: insets.left,
+                bottom: insets.bottom,
+                right: insets.right
+            )
         }
     }
 
     @IBInspectable
     private var _left: CGFloat {
         get {
-            return self.contentInsets.top
+            contentInsets.top
         }
 
         set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: newValue,
-                                              bottom: insets.bottom,
-                                              right: insets.right)
+            let insets = contentInsets
+            contentInsets = UIEdgeInsets(
+                top: insets.top,
+                left: newValue,
+                bottom: insets.bottom,
+                right: insets.right
+            )
         }
     }
 
     @IBInspectable
     private var _bottom: CGFloat {
         get {
-            return self.contentInsets.top
+            contentInsets.top
         }
 
         set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: insets.left,
-                                              bottom: newValue,
-                                              right: insets.right)
+            let insets = contentInsets
+            contentInsets = UIEdgeInsets(
+                top: insets.top,
+                left: insets.left,
+                bottom: newValue,
+                right: insets.right
+            )
         }
     }
 
     @IBInspectable
     private var _right: CGFloat {
         get {
-            return self.contentInsets.top
+            contentInsets.top
         }
 
         set(newValue) {
-            let insets = self.contentInsets
-            self.contentInsets = UIEdgeInsets(top: insets.top,
-                                              left: insets.left,
-                                              bottom: insets.bottom,
-                                              right: newValue)
+            let insets = contentInsets
+            contentInsets = UIEdgeInsets(
+                top: insets.top,
+                left: insets.left,
+                bottom: insets.bottom,
+                right: newValue
+            )
         }
     }
 
     @IBInspectable
     private var _inputIndicatorColor: UIColor {
         get {
-            return textField.tintColor
+            textField.tintColor
         }
 
         set {

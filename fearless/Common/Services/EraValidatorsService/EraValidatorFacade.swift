@@ -6,15 +6,19 @@ final class EraValidatorFacade {
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
+        let providerFactory = SubstrateDataProviderFactory(
+            facade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
 
-        return EraValidatorService(storageFacade: SubstrateDataStorageFacade.shared,
-                                   runtimeCodingService: RuntimeRegistryFacade.sharedService,
-                                   providerFactory: providerFactory,
-                                   operationManager: operationManager,
-                                   eventCenter: EventCenter.shared,
-                                   logger: logger)
+        return EraValidatorService(
+            storageFacade: SubstrateDataStorageFacade.shared,
+            runtimeCodingService: RuntimeRegistryFacade.sharedService,
+            providerFactory: providerFactory,
+            operationManager: operationManager,
+            eventCenter: EventCenter.shared,
+            logger: logger
+        )
     }()
 }

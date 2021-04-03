@@ -239,6 +239,7 @@
 "staking.selected.accounts.mask" = "Аккаунттар(%d)";
 "staking.recommended.validators.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
+"common.learn.more" = "";
 "staking.custom.validators.title" = "Валидаторҙарҙы һайлағыҙ";
 "staking.recommended.validators.apy" = "Иҫәпләнгән әжер, APY";
 "staking.amount.too.big.error" = "Ғәфү итегеҙ, кәрәккән сумманы стек өсөн етерлек аҡса юҡ";
@@ -298,3 +299,15 @@
 "staking.nominator.status.alert.no.validators" = "";
 "staking.nominator.status.alert.low.stake" = "";
 "staking.controller.missing.message" = "";
+"staking.manage.title" = "";
+"staking.manage.payouts.title" = "";
+"staking.reward.details.date" = "";
+"staking.reward.details.era" = "";
+"staking.reward.details.payout" = "";
+"staking.reward.details.reward" = "";
+"staking.reward.details.status" = "";
+"staking.reward.details.status.claimable" = "";
+"staking.reward.details.status.received" = "";
+"staking.reward.details.title" = "";
+"staking.reward.payouts.payout.all" = "(%@)";
+"staking.reward.payouts.title" = "";

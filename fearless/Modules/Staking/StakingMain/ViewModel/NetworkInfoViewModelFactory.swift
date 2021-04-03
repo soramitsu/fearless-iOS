@@ -4,10 +4,12 @@ import BigInt
 
 protocol NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String>
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo,
-                                           chain: Chain,
-                                           priceData: PriceData?) ->
-    LocalizableResource<NetworkStakingInfoViewModelProtocol>
+    func createNetworkStakingInfoViewModel(
+        with networkStakingInfo: NetworkStakingInfo,
+        chain: Chain,
+        priceData: PriceData?
+    ) ->
+        LocalizableResource<NetworkStakingInfoViewModelProtocol>
 }
 
 final class NetworkInfoViewModelFactory {
@@ -25,49 +27,63 @@ final class NetworkInfoViewModelFactory {
             return factory
         }
 
-        let factory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
-                                              selectedAddressType: chain.addressType,
-                                              limit: StakingConstants.maxAmount)
+        let factory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
 
         self.chain = chain
-        self.balanceViewModelFactory = factory
+        balanceViewModelFactory = factory
 
         return factory
     }
 
-    private func createStakeViewModel(stake: BigUInt, chain: Chain, priceData: PriceData?) ->
-    LocalizableResource<BalanceViewModelProtocol> {
+    private func createStakeViewModel(
+        stake: BigUInt,
+        chain: Chain,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let stakedAmount = Decimal.fromSubstrateAmount(stake,
-                                                       precision: chain.addressType.precision) ?? 0.0
+        let stakedAmount = Decimal.fromSubstrateAmount(
+            stake,
+            precision: chain.addressType.precision
+        ) ?? 0.0
 
-        let stakedPair = balanceViewModelFactory.balanceFromPrice(stakedAmount,
-                                                                  priceData: priceData)
+        let stakedPair = balanceViewModelFactory.balanceFromPrice(
+            stakedAmount,
+            priceData: priceData
+        )
 
         return LocalizableResource { locale in
             stakedPair.value(for: locale)
         }
     }
 
-    private func createTotalStakeViewModel(with networkStakingInfo: NetworkStakingInfo,
-                                           chain: Chain,
-                                           priceData: PriceData?) ->
-    LocalizableResource<BalanceViewModelProtocol> {
+    private func createTotalStakeViewModel(
+        with networkStakingInfo: NetworkStakingInfo,
+        chain: Chain,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
         createStakeViewModel(stake: networkStakingInfo.totalStake, chain: chain, priceData: priceData)
     }
 
-    private func createMinimalStakeViewModel(with networkStakingInfo: NetworkStakingInfo,
-                                             chain: Chain,
-                                             priceData: PriceData?) ->
-    LocalizableResource<BalanceViewModelProtocol> {
-        createStakeViewModel(stake: networkStakingInfo.minimalStake,
-                             chain: chain,
-                             priceData: priceData)
+    private func createMinimalStakeViewModel(
+        with networkStakingInfo: NetworkStakingInfo,
+        chain: Chain,
+        priceData: PriceData?
+    ) -> LocalizableResource<BalanceViewModelProtocol> {
+        createStakeViewModel(
+            stake: networkStakingInfo.minimalStake,
+            chain: chain,
+            priceData: priceData
+        )
     }
 
     private func createActiveNominatorsViewModel(
-        with networkStakingInfo: NetworkStakingInfo) -> LocalizableResource<String> {
+        with networkStakingInfo: NetworkStakingInfo
+    ) -> LocalizableResource<String> {
         LocalizableResource { locale in
             let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
 
@@ -76,13 +92,17 @@ final class NetworkInfoViewModelFactory {
         }
     }
 
-    private func createLockUpPeriodViewModel(with networkStakingInfo: NetworkStakingInfo,
-                                             chain: Chain) -> LocalizableResource<String> {
+    private func createLockUpPeriodViewModel(
+        with networkStakingInfo: NetworkStakingInfo,
+        chain: Chain
+    ) -> LocalizableResource<String> {
         let lockUpPeriodInDays = Int(networkStakingInfo.lockUpPeriod) / chain.erasPerDay
 
         return LocalizableResource { locale in
-            R.string.localizable.stakingMainLockupPeriodValue(format: lockUpPeriodInDays,
-                                                              preferredLanguages: locale.rLanguages)
+            R.string.localizable.stakingMainLockupPeriodValue(
+                format: lockUpPeriodInDays,
+                preferredLanguages: locale.rLanguages
+            )
         }
     }
 }
@@ -90,32 +110,41 @@ final class NetworkInfoViewModelFactory {
 extension NetworkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol {
     func createChainViewModel(for chain: Chain) -> LocalizableResource<String> {
         LocalizableResource { locale in
-            return chain.addressType.titleForLocale(locale)
+            chain.addressType.titleForLocale(locale)
         }
     }
 
-    func createNetworkStakingInfoViewModel(with networkStakingInfo: NetworkStakingInfo,
-                                           chain: Chain,
-                                           priceData: PriceData?) ->
-    LocalizableResource<NetworkStakingInfoViewModelProtocol> {
-        let localizedTotalStake = createTotalStakeViewModel(with: networkStakingInfo,
-                                                            chain: chain,
-                                                            priceData: priceData)
+    func createNetworkStakingInfoViewModel(
+        with networkStakingInfo: NetworkStakingInfo,
+        chain: Chain,
+        priceData: PriceData?
+    ) -> LocalizableResource<NetworkStakingInfoViewModelProtocol> {
+        let localizedTotalStake = createTotalStakeViewModel(
+            with: networkStakingInfo,
+            chain: chain,
+            priceData: priceData
+        )
 
-        let localizedMinimalStake = createMinimalStakeViewModel(with: networkStakingInfo,
-                                                                chain: chain,
-                                                                priceData: priceData)
+        let localizedMinimalStake = createMinimalStakeViewModel(
+            with: networkStakingInfo,
+            chain: chain,
+            priceData: priceData
+        )
 
         let nominatorsCount = createActiveNominatorsViewModel(with: networkStakingInfo)
 
-        let localizedLockUpPeriod = createLockUpPeriodViewModel(with: networkStakingInfo,
-                                                                chain: chain)
+        let localizedLockUpPeriod = createLockUpPeriodViewModel(
+            with: networkStakingInfo,
+            chain: chain
+        )
 
         return LocalizableResource { locale in
-            NetworkStakingInfoViewModel(totalStake: localizedTotalStake.value(for: locale),
-                                    minimalStake: localizedMinimalStake.value(for: locale),
-                                    activeNominators: nominatorsCount.value(for: locale),
-                                    lockUpPeriod: localizedLockUpPeriod.value(for: locale))
+            NetworkStakingInfoViewModel(
+                totalStake: localizedTotalStake.value(for: locale),
+                minimalStake: localizedMinimalStake.value(for: locale),
+                activeNominators: nominatorsCount.value(for: locale),
+                lockUpPeriod: localizedLockUpPeriod.value(for: locale)
+            )
         }
     }
 }

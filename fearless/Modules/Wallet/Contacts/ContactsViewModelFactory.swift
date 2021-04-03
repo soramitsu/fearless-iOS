@@ -12,21 +12,24 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
         self.dataStorageFacade = dataStorageFacade
     }
 
-    func createContactViewModelFromContact(_ contact: SearchData,
-                                           parameters: ContactModuleParameters,
-                                           locale: Locale,
-                                           delegate: ContactViewModelDelegate?,
-                                           commandFactory: WalletCommandFactoryProtocol)
-    -> ContactViewModelProtocol? {
+    func createContactViewModelFromContact(
+        _ contact: SearchData,
+        parameters: ContactModuleParameters,
+        locale: Locale,
+        delegate: ContactViewModelDelegate?,
+        commandFactory: WalletCommandFactoryProtocol
+    ) -> ContactViewModelProtocol? {
         do {
             guard parameters.accountId != contact.accountId else {
                 return nil
             }
 
             let icon = try iconGenerator.generateFromAddress(contact.firstName)
-                .imageWithFillColor(.white,
-                                    size: CGSize(width: 24.0, height: 24.0),
-                                    contentScale: UIScreen.main.scale)
+                .imageWithFillColor(
+                    .white,
+                    size: CGSize(width: 24.0, height: 24.0),
+                    contentScale: UIScreen.main.scale
+                )
 
             let storage: CoreDataRepository<PhishingItem, CDPhishingItem> =
                 dataStorageFacade.createRepository()
@@ -36,7 +39,8 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                 lastName: contact.lastName,
                 accountId: contact.accountId,
                 image: icon,
-                name: contact.firstName)
+                name: contact.firstName
+            )
 
             let nextAction = { [weak delegate] in
                 delegate?.didSelect(contact: viewModel)
@@ -55,7 +59,8 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
                 cancelAction: cancelAction,
                 locale: locale,
                 publicKey: contact.accountId,
-                walletAddress: contact.firstName)
+                walletAddress: contact.firstName
+            )
 
             return viewModel
         } catch {

@@ -9,24 +9,30 @@ struct StorageResponse<T: Decodable> {
 }
 
 protocol StorageRequestFactoryProtocol {
-    func queryItems<K, T>(engine: JSONRPCEngine,
-                          keyParams: @escaping  () throws -> [K],
-                          factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                          storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable
+    func queryItems<K, T>(
+        engine: JSONRPCEngine,
+        keyParams: @escaping () throws -> [K],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    )
+        -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable
 
-    func queryItems<K1, K2, T>(engine: JSONRPCEngine,
-                               keyParams1: @escaping  () throws -> [K1],
-                               keyParams2: @escaping  () throws -> [K2],
-                               factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                               storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable
+    func queryItems<K1, K2, T>(
+        engine: JSONRPCEngine,
+        keyParams1: @escaping () throws -> [K1],
+        keyParams2: @escaping () throws -> [K2],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    )
+        -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable
 
-    func queryItems<T>(engine: JSONRPCEngine,
-                       keys: @escaping () throws -> [Data],
-                       factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                       storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keys: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    )
+        -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable
 }
 
 final class StorageRequestFactory: StorageRequestFactoryProtocol {
@@ -36,13 +42,16 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         self.remoteFactory = remoteFactory
     }
 
-    func queryItems<T>(engine: JSONRPCEngine,
-                       keys: @escaping () throws -> [Data],
-                       factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                       storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
-        let queryOperation = JSONRPCQueryOperation(engine: engine,
-                                                   method: RPCMethod.queryStorageAt)
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keys: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
+        let queryOperation = JSONRPCQueryOperation(
+            engine: engine,
+            method: RPCMethod.queryStorageAt
+        )
         queryOperation.configurationBlock = {
             do {
                 let keys = try keys().map { $0.toHex(includePrefix: true) }
@@ -60,8 +69,8 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
                 decodingOperation.codingFactory = try factory()
 
                 decodingOperation.dataList = result
-                    .flatMap({ StorageUpdateData(update: $0).changes })
-                    .compactMap { $0.value }
+                    .flatMap { StorageUpdateData(update: $0).changes }
+                    .compactMap(\.value)
             } catch {
                 decodingOperation.result = .failure(error)
             }
@@ -74,19 +83,19 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
             let resultChangesData = result.flatMap { StorageUpdateData(update: $0).changes }
 
-            let keyedEncodedItems = resultChangesData.reduce(into: [Data: Data]()) { (result, change) in
+            let keyedEncodedItems = resultChangesData.reduce(into: [Data: Data]()) { result, change in
                 if let data = change.value {
                     result[change.key] = data
                 }
             }
 
-            let allKeys = resultChangesData.map { $0.key }
+            let allKeys = resultChangesData.map(\.key)
 
             let allNonzeroKeys = resultChangesData.compactMap { $0.value != nil ? $0.key : nil }
 
             let items = try decodingOperation.extractNoCancellableResultData()
 
-            let keyedItems = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { (result, item) in
+            let keyedItems = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { result, item in
                 result[item.0] = item.1
             }
 
@@ -99,18 +108,22 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
         let dependencies = [queryOperation, decodingOperation]
 
-        return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: dependencies
+        )
     }
 
-    func queryItems<K, T>(engine: JSONRPCEngine,
-                          keyParams: @escaping  () throws -> [K],
-                          factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                          storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable {
-
-        let keysOperation = MapKeyEncodingOperation<K>(path: storagePath,
-                                                       storageKeyFactory: remoteFactory)
+    func queryItems<K, T>(
+        engine: JSONRPCEngine,
+        keyParams: @escaping () throws -> [K],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable {
+        let keysOperation = MapKeyEncodingOperation<K>(
+            path: storagePath,
+            storageKeyFactory: remoteFactory
+        )
 
         keysOperation.configurationBlock = {
             do {
@@ -132,20 +145,25 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
         let dependencies = [keysOperation] + queryWrapper.dependencies
 
-        return CompoundOperationWrapper(targetOperation: queryWrapper.targetOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: queryWrapper.targetOperation,
+            dependencies: dependencies
+        )
     }
 
-    func queryItems<K1, K2, T>(engine: JSONRPCEngine,
-                               keyParams1: @escaping  () throws -> [K1],
-                               keyParams2: @escaping  () throws -> [K2],
-                               factory: @escaping  () throws -> RuntimeCoderFactoryProtocol,
-                               storagePath: StorageCodingPath)
-    -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable {
+    func queryItems<K1, K2, T>(
+        engine: JSONRPCEngine,
+        keyParams1: @escaping () throws -> [K1],
+        keyParams2: @escaping () throws -> [K2],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable {
         let currentRemoteFactory = remoteFactory
 
-        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(path: storagePath,
-                                                                  storageKeyFactory: currentRemoteFactory)
+        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(
+            path: storagePath,
+            storageKeyFactory: currentRemoteFactory
+        )
 
         keysOperation.configurationBlock = {
             do {
@@ -168,7 +186,9 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
         let dependencies = [keysOperation] + queryWrapper.dependencies
 
-        return CompoundOperationWrapper(targetOperation: queryWrapper.targetOperation,
-                                        dependencies: dependencies)
+        return CompoundOperationWrapper(
+            targetOperation: queryWrapper.targetOperation,
+            dependencies: dependencies
+        )
     }
 }

@@ -1,12 +1,12 @@
 import UIKit
 
-protocol HiddableBarWhenPushed: class {}
+protocol HiddableBarWhenPushed: AnyObject {}
 
-protocol NavigationDependable: class {
+protocol NavigationDependable: AnyObject {
     var navigationControlling: NavigationControlling? { get set }
 }
 
-protocol NavigationControlling: class {
+protocol NavigationControlling: AnyObject {
     var isNavigationBarHidden: Bool { get }
 
     func setNavigationBarHidden(_ hidden: Bool, animated: Bool)
@@ -20,7 +20,7 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
     }
 
     override var childForStatusBarStyle: UIViewController? {
-        return self.topViewController
+        topViewController
     }
 
     private func setup() {
@@ -44,8 +44,11 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
 
     // MARK: UINavigationControllerDelegate
 
-    func navigationController(_ navigationController: UINavigationController,
-                              willShow viewController: UIViewController, animated: Bool) {
+    func navigationController(
+        _: UINavigationController,
+        willShow viewController: UIViewController,
+        animated _: Bool
+    ) {
         updateNavigationBarState(in: viewController)
         setupBackButtonItem(for: viewController)
     }
@@ -72,10 +75,12 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
             presentingViewController != nil,
             let rootViewController = viewControllers.first,
             rootViewController.navigationItem.leftBarButtonItem == nil {
-            let closeItem = UIBarButtonItem(image: R.image.iconClose(),
-                                            style: .plain,
-                                            target: self,
-                                            action: #selector(actionClose))
+            let closeItem = UIBarButtonItem(
+                image: R.image.iconClose(),
+                style: .plain,
+                target: self,
+                action: #selector(actionClose)
+            )
             rootViewController.navigationItem.leftBarButtonItem = closeItem
         }
     }

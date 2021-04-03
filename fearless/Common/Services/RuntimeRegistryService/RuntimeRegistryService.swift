@@ -42,23 +42,27 @@ final class RuntimeRegistryService {
 
     private var runtimeMetadata: RuntimeMetadataItem?
     private var snapshot: Snapshot?
-    private var syncQueue = DispatchQueue(label: "\(queueLabelPrefix).\(UUID().uuidString)",
-                                          qos: .userInitiated)
+    private var syncQueue = DispatchQueue(
+        label: "\(queueLabelPrefix).\(UUID().uuidString)",
+        qos: .userInitiated
+    )
     private var pendingRequests: [PendingRequest] = []
     private var dataHasher: StorageHasher = .twox256
     private var snapshotLoadingWrapper: CompoundOperationWrapper<Snapshot>?
     private var syncTypesWrapper: CompoundOperationWrapper<Bool>?
 
-    init(chain: Chain,
-         metadataProviderFactory: SubstrateDataProviderFactoryProtocol,
-         dataOperationFactory: DataOperationFactoryProtocol,
-         filesOperationFacade: RuntimeFilesOperationFacadeProtocol,
-         operationManager: OperationManagerProtocol,
-         eventCenter: EventCenterProtocol,
-         logger: LoggerProtocol? = nil) {
+    init(
+        chain: Chain,
+        metadataProviderFactory: SubstrateDataProviderFactoryProtocol,
+        dataOperationFactory: DataOperationFactoryProtocol,
+        filesOperationFacade: RuntimeFilesOperationFacadeProtocol,
+        operationManager: OperationManagerProtocol,
+        eventCenter: EventCenterProtocol,
+        logger: LoggerProtocol? = nil
+    ) {
         self.chain = chain
         self.metadataProviderFactory = metadataProviderFactory
-        self.metadataProvider = metadataProviderFactory.createRuntimeMetadataItemProvider(for: chain)
+        metadataProvider = metadataProviderFactory.createRuntimeMetadataItemProvider(for: chain)
         self.dataOperationFactory = dataOperationFactory
         self.filesOperationFacade = filesOperationFacade
         self.operationManager = operationManager
@@ -66,9 +70,11 @@ final class RuntimeRegistryService {
         self.logger = logger
     }
 
-    private func fetchCoderFactory(for metadata: RuntimeMetadata?,
-                                   runCompletionIn queue: DispatchQueue?,
-                                   executing closure: @escaping (RuntimeCoderFactoryProtocol) -> Void) {
+    private func fetchCoderFactory(
+        for metadata: RuntimeMetadata?,
+        runCompletionIn queue: DispatchQueue?,
+        executing closure: @escaping (RuntimeCoderFactoryProtocol) -> Void
+    ) {
         let request = PendingRequest(resultClosure: closure, metadata: metadata, queue: queue)
 
         if let snapshot = snapshot {
@@ -94,10 +100,12 @@ final class RuntimeRegistryService {
     }
 
     private func deliver(snapshot: Snapshot, to request: PendingRequest) {
-        let factory = RuntimeCoderFactory(catalog: snapshot.typeRegistryCatalog,
-                                          specVersion: snapshot.specVersion,
-                                          txVersion: snapshot.txVersion,
-                                          metadata: snapshot.metadata)
+        let factory = RuntimeCoderFactory(
+            catalog: snapshot.typeRegistryCatalog,
+            specVersion: snapshot.specVersion,
+            txVersion: snapshot.txVersion,
+            metadata: snapshot.metadata
+        )
 
         dispatchInQueueWhenPossible(request.queue) {
             request.resultClosure(factory)
@@ -124,11 +132,13 @@ final class RuntimeRegistryService {
             return
         }
 
-        metadataProvider.addObserver(self,
-                                     deliverOn: syncQueue,
-                                     executing: updateClosure,
-                                     failing: failureClosure,
-                                     options: StreamableProviderObserverOptions.substrateSource(for: 1))
+        metadataProvider.addObserver(
+            self,
+            deliverOn: syncQueue,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource(for: 1)
+        )
 
         logger?.debug("Did subscribe to metadata")
     }
@@ -155,13 +165,15 @@ final class RuntimeRegistryService {
         let combiningOperation = ClosureOperation<Snapshot> {
             guard
                 let baseData = try baseTypesOperation.targetOperation
-                    .extractNoCancellableResultData() else {
+                .extractNoCancellableResultData()
+            else {
                 throw RuntimeRegistryServiceError.missingBaseTypes
             }
 
             guard
                 let networkData = try networkTypesOperation.targetOperation
-                    .extractNoCancellableResultData() else {
+                .extractNoCancellableResultData()
+            else {
                 throw RuntimeRegistryServiceError.missingNetworkTypes
             }
 
@@ -170,32 +182,40 @@ final class RuntimeRegistryService {
             }
 
             let catalog = try TypeRegistryCatalog
-                .createFromBaseTypeDefinition(baseData,
-                                              networkDefinitionData: networkData,
-                                              runtimeMetadata: metadata)
+                .createFromBaseTypeDefinition(
+                    baseData,
+                    networkDefinitionData: networkData,
+                    runtimeMetadata: metadata
+                )
 
             let localBaseHash = try hasher.hash(data: baseData)
             let localNetworkHash = try hasher.hash(data: networkData)
 
-            return Snapshot(localBaseHash: localBaseHash,
-                            localNetworkHash: localNetworkHash,
-                            typeRegistryCatalog: catalog,
-                            specVersion: runtimeMetadata.version,
-                            txVersion: runtimeMetadata.txVersion,
-                            metadata: metadata)
+            return Snapshot(
+                localBaseHash: localBaseHash,
+                localNetworkHash: localNetworkHash,
+                typeRegistryCatalog: catalog,
+                specVersion: runtimeMetadata.version,
+                txVersion: runtimeMetadata.txVersion,
+                metadata: metadata
+            )
         }
 
         let dependencies = baseTypesOperation.allOperations + networkTypesOperation.allOperations + [decoderOperation]
 
         dependencies.forEach { combiningOperation.addDependency($0) }
 
-        snapshotLoadingWrapper = CompoundOperationWrapper(targetOperation: combiningOperation,
-                                                          dependencies: dependencies)
+        snapshotLoadingWrapper = CompoundOperationWrapper(
+            targetOperation: combiningOperation,
+            dependencies: dependencies
+        )
 
         combiningOperation.completionBlock = {
             self.syncQueue.async {
-                self.handleSnapshotLoadingCompletion(result: combiningOperation.result,
-                                                     shouldSyncFiles: shouldSyncFiles)
+                self.handleSnapshotLoadingCompletion(
+                    result: combiningOperation.result,
+                    shouldSyncFiles: shouldSyncFiles
+                )
             }
         }
 
@@ -209,8 +229,10 @@ final class RuntimeRegistryService {
         loadTypeRegistryCatalog(hasher: dataHasher, shouldSyncFiles: shouldSyncFiles)
     }
 
-    private func handleSnapshotLoadingCompletion(result: Result<Snapshot, Error>?,
-                                                 shouldSyncFiles: Bool) {
+    private func handleSnapshotLoadingCompletion(
+        result: Result<Snapshot, Error>?,
+        shouldSyncFiles: Bool
+    ) {
         guard let result = result else {
             return
         }
@@ -218,7 +240,7 @@ final class RuntimeRegistryService {
         snapshotLoadingWrapper = nil
 
         switch result {
-        case .success(let snapshot):
+        case let .success(snapshot):
             logger?.debug("Did complete loading snapshot version: \(snapshot.specVersion)")
             self.snapshot = snapshot
 
@@ -233,7 +255,7 @@ final class RuntimeRegistryService {
                 self.eventCenter.notify(with: event)
             }
 
-        case .failure(let error):
+        case let .failure(error):
             logger?.error("Loading runtime snapshot failed: \(error)")
         }
     }
@@ -259,7 +281,8 @@ extension RuntimeRegistryService {
         guard
             let snapshot = snapshot,
             let baseRemoteUrl = chain.typeDefDefaultFileURL(),
-            let networkRemoteUrl = chain.typeDefNetworkFileURL() else {
+            let networkRemoteUrl = chain.typeDefNetworkFileURL()
+        else {
             return
         }
 
@@ -270,15 +293,19 @@ extension RuntimeRegistryService {
         let baseTypeData = dataOperationFactory.fetchData(from: baseRemoteUrl)
         let networkTypeData = dataOperationFactory.fetchData(from: networkRemoteUrl)
 
-        let baseSave = createBaseSaveOperation(for: snapshot,
-                                               dependingOn: baseTypeData,
-                                               networkRemote: networkTypeData,
-                                               hasher: dataHasher)
+        let baseSave = createBaseSaveOperation(
+            for: snapshot,
+            dependingOn: baseTypeData,
+            networkRemote: networkTypeData,
+            hasher: dataHasher
+        )
 
-        let networkSave = createNetworkSaveOperation(for: snapshot,
-                                                     dependingOn: baseTypeData,
-                                                     networkRemote: networkTypeData,
-                                                     hasher: dataHasher)
+        let networkSave = createNetworkSaveOperation(
+            for: snapshot,
+            dependingOn: baseTypeData,
+            networkRemote: networkTypeData,
+            hasher: dataHasher
+        )
 
         let syncOperation = createSyncOperation(dependingOn: baseSave, networkSave: networkSave)
 
@@ -299,8 +326,10 @@ extension RuntimeRegistryService {
 
         let dependencies = [baseTypeData, networkTypeData] + saveOperations
 
-        let wrapper = CompoundOperationWrapper(targetOperation: syncOperation,
-                                               dependencies: dependencies)
+        let wrapper = CompoundOperationWrapper(
+            targetOperation: syncOperation,
+            dependencies: dependencies
+        )
 
         syncTypesWrapper = wrapper
 
@@ -314,7 +343,7 @@ extension RuntimeRegistryService {
 
         syncTypesWrapper = nil
 
-        if case .success(let shouldUpdate) = result, shouldUpdate {
+        if case let .success(shouldUpdate) = result, shouldUpdate {
             logger?.debug("Did change runtime types. Updating catalog...")
             self.updateTypeRegistryCatalog(shouldSyncFiles: false)
         } else {
@@ -322,11 +351,12 @@ extension RuntimeRegistryService {
         }
     }
 
-    private func createBaseSaveOperation(for snapshot: Snapshot,
-                                         dependingOn baseRemote: BaseOperation<Data>,
-                                         networkRemote: BaseOperation<Data>,
-                                         hasher: StorageHasher)
-    -> CompoundOperationWrapper<Void> {
+    private func createBaseSaveOperation(
+        for snapshot: Snapshot,
+        dependingOn baseRemote: BaseOperation<Data>,
+        networkRemote: BaseOperation<Data>,
+        hasher: StorageHasher
+    ) -> CompoundOperationWrapper<Void> {
         filesOperationFacade.saveDefaultOperation(for: chain) {
             let data = try baseRemote.extractNoCancellableResultData()
             _ = try networkRemote.extractNoCancellableResultData()
@@ -341,11 +371,12 @@ extension RuntimeRegistryService {
         }
     }
 
-    private func createNetworkSaveOperation(for snapshot: Snapshot,
-                                            dependingOn baseRemote: BaseOperation<Data>,
-                                            networkRemote: BaseOperation<Data>,
-                                            hasher: StorageHasher)
-    -> CompoundOperationWrapper<Void> {
+    private func createNetworkSaveOperation(
+        for snapshot: Snapshot,
+        dependingOn baseRemote: BaseOperation<Data>,
+        networkRemote: BaseOperation<Data>,
+        hasher: StorageHasher
+    ) -> CompoundOperationWrapper<Void> {
         filesOperationFacade.saveNetworkOperation(for: chain) {
             _ = try baseRemote.extractNoCancellableResultData()
             let data = try networkRemote.extractNoCancellableResultData()
@@ -360,9 +391,10 @@ extension RuntimeRegistryService {
         }
     }
 
-    private func createSyncOperation(dependingOn baseSave: CompoundOperationWrapper<Void>,
-                                     networkSave: CompoundOperationWrapper<Void>)
-    -> ClosureOperation<Bool> {
+    private func createSyncOperation(
+        dependingOn baseSave: CompoundOperationWrapper<Void>,
+        networkSave: CompoundOperationWrapper<Void>
+    ) -> ClosureOperation<Bool> {
         ClosureOperation<Bool> {
             let baseSaved: Bool
             if case .success = baseSave.targetOperation.result {
@@ -435,8 +467,10 @@ extension RuntimeRegistryService: RuntimeRegistryServiceProtocol {
 }
 
 extension RuntimeRegistryService: RuntimeCodingServiceProtocol {
-    func fetchCoderFactoryOperation(with timeout: TimeInterval, closure: RuntimeMetadataClosure?)
-    -> BaseOperation<RuntimeCoderFactoryProtocol> {
+    func fetchCoderFactoryOperation(
+        with timeout: TimeInterval,
+        closure: RuntimeMetadataClosure?
+    ) -> BaseOperation<RuntimeCoderFactoryProtocol> {
         ClosureOperation {
             var fetchedFactory: RuntimeCoderFactoryProtocol?
 

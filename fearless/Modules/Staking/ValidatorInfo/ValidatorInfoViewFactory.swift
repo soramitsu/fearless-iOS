@@ -16,14 +16,17 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
             asset: asset,
-            amountFormatterFactory: AmountFormatterFactory())
+            amountFormatterFactory: AmountFormatterFactory()
+        )
 
         let view = ValidatorInfoViewController(nib: R.nib.validatorInfoViewController)
         view.locale = localizationManager.selectedLocale
 
-        let presenter = ValidatorInfoPresenter(viewModelFactory: validatorInfoViewModelFactory,
-                                               asset: asset,
-                                               locale: localizationManager.selectedLocale)
+        let presenter = ValidatorInfoPresenter(
+            viewModelFactory: validatorInfoViewModelFactory,
+            asset: asset,
+            locale: localizationManager.selectedLocale
+        )
 
         let interactor = ValidatorInfoInteractor(validatorInfo: validatorInfo)
         let wireframe = ValidatorInfoWireframe()

@@ -15,23 +15,25 @@ enum WalletNetworkOperationFactoryError: Error {
 }
 
 extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
-    func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
-        return CompoundOperationWrapper<[BalanceData]?>.createWithResult(nil)
+    func fetchBalanceOperation(_: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
+        CompoundOperationWrapper<[BalanceData]?>.createWithResult(nil)
     }
 
-    func fetchTransactionHistoryOperation(_ filter: WalletHistoryRequest,
-                                          pagination: Pagination)
-        -> CompoundOperationWrapper<AssetTransactionPageData?> {
-            let operation = ClosureOperation<AssetTransactionPageData?> {
-                nil
-            }
+    func fetchTransactionHistoryOperation(
+        _: WalletHistoryRequest,
+        pagination _: Pagination
+    ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        let operation = ClosureOperation<AssetTransactionPageData?> {
+            nil
+        }
 
-            return CompoundOperationWrapper(targetOperation: operation)
+        return CompoundOperationWrapper(targetOperation: operation)
     }
 
     func transferMetadataOperation(_ info: TransferMetadataInfo) -> CompoundOperationWrapper<TransferMetaData?> {
         guard let asset = accountSettings.assets.first(where: { $0.identifier == info.assetId }),
-            let assetId = WalletAssetId(rawValue: asset.identifier) else {
+              let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
             let error = WalletNetworkOperationFactoryError.invalidAsset
             return createCompoundOperation(result: .failure(error))
         }
@@ -53,30 +55,44 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
         let compoundReceiver = createAccountInfoFetchOperation(receiver)
 
-        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(engine: engine,
-                                                                      method: RPCMethod.paymentInfo)
+        let infoOperation = JSONRPCListOperation<RuntimeDispatchInfo>(
+            engine: engine,
+            method: RPCMethod.paymentInfo
+        )
 
-        let compoundInfo = setupTransferExtrinsic(infoOperation, amount: amount, receiver: info.receiver,
-                                                  chain: chain, signer: dummySigner)
+        let compoundInfo = setupTransferExtrinsic(
+            infoOperation,
+            amount: amount,
+            receiver: info.receiver,
+            chain: chain,
+            signer: dummySigner
+        )
 
         let mapOperation: ClosureOperation<TransferMetaData?> = ClosureOperation {
             let paymentInfo = try infoOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             guard let fee = BigUInt(paymentInfo.fee),
-                let decimalFee = Decimal.fromSubstrateAmount(fee, precision: asset.precision) else {
+                  let decimalFee = Decimal.fromSubstrateAmount(fee, precision: asset.precision)
+            else {
                 return nil
             }
 
             let amount = AmountDecimal(value: decimalFee)
 
-            let feeDescription = FeeDescription(identifier: asset.identifier, assetId: asset.identifier,
-                                                type: FeeType.fixed.rawValue, parameters: [amount])
+            let feeDescription = FeeDescription(
+                identifier: asset.identifier,
+                assetId: asset.identifier,
+                type: FeeType.fixed.rawValue,
+                parameters: [amount]
+            )
 
             if let receiverInfo = try compoundReceiver.targetOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) {
-                let context = TransferMetadataContext(data: receiverInfo.data,
-                                                      precision: asset.precision).toContext()
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled) {
+                let context = TransferMetadataContext(
+                    data: receiverInfo.data,
+                    precision: asset.precision
+                ).toContext()
                 return TransferMetaData(feeDescriptions: [feeDescription], context: context)
             } else {
                 return TransferMetaData(feeDescriptions: [feeDescription])
@@ -93,7 +109,8 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
     func transferOperation(_ info: TransferInfo) -> CompoundOperationWrapper<Data> {
         guard
             let asset = accountSettings.assets.first(where: { $0.identifier == info.asset }),
-            let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            let assetId = WalletAssetId(rawValue: asset.identifier)
+        else {
             let error = WalletNetworkOperationFactoryError.invalidAsset
             return createCompoundOperation(result: .failure(error))
         }
@@ -108,14 +125,18 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
             return createCompoundOperation(result: .failure(error))
         }
 
-        let transferOperation = JSONRPCListOperation<String>(engine: engine,
-                                                             method: RPCMethod.submitExtrinsic)
+        let transferOperation = JSONRPCListOperation<String>(
+            engine: engine,
+            method: RPCMethod.submitExtrinsic
+        )
 
-        let compoundTransfer = setupTransferExtrinsic(transferOperation,
-                                                      amount: amount,
-                                                      receiver: info.destination,
-                                                      chain: chain,
-                                                      signer: accountSigner)
+        let compoundTransfer = setupTransferExtrinsic(
+            transferOperation,
+            amount: amount,
+            receiver: info.destination,
+            chain: chain,
+            signer: accountSigner
+        )
 
         let mapOperation: ClosureOperation<Data> = ClosureOperation {
             let hashString = try transferOperation
@@ -126,24 +147,27 @@ extension WalletNetworkOperationFactory: WalletNetworkOperationFactoryProtocol {
 
         mapOperation.addDependency(compoundTransfer.targetOperation)
 
-        return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: compoundTransfer.allOperations)
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: compoundTransfer.allOperations
+        )
     }
 
-    func searchOperation(_ searchString: String) -> CompoundOperationWrapper<[SearchData]?> {
-        return CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
+    func searchOperation(_: String) -> CompoundOperationWrapper<[SearchData]?> {
+        CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
     }
 
     func contactsOperation() -> CompoundOperationWrapper<[SearchData]?> {
-        return CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
+        CompoundOperationWrapper<[SearchData]?>.createWithResult(nil)
     }
 
-    func withdrawalMetadataOperation(_ info: WithdrawMetadataInfo)
-        -> CompoundOperationWrapper<WithdrawMetaData?> {
-        return CompoundOperationWrapper<WithdrawMetaData?>.createWithResult(nil)
+    func withdrawalMetadataOperation(
+        _: WithdrawMetadataInfo
+    ) -> CompoundOperationWrapper<WithdrawMetaData?> {
+        CompoundOperationWrapper<WithdrawMetaData?>.createWithResult(nil)
     }
 
-    func withdrawOperation(_ info: WithdrawInfo) -> CompoundOperationWrapper<Data> {
-        return CompoundOperationWrapper<Data>.createWithResult(Data())
+    func withdrawOperation(_: WithdrawInfo) -> CompoundOperationWrapper<Data> {
+        CompoundOperationWrapper<Data>.createWithResult(Data())
     }
 }

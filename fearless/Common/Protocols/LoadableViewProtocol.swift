@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-protocol LoadableViewProtocol: class {
+protocol LoadableViewProtocol: AnyObject {
     var loadableContentView: UIView! { get }
     var shouldDisableInteractionWhenLoading: Bool { get }
 
@@ -9,18 +9,18 @@ protocol LoadableViewProtocol: class {
     func didStopLoading()
 }
 
-struct LoadableViewProtocolConstants {
+enum LoadableViewProtocolConstants {
     static let activityIndicatorIdentifier: String = "LoadingIndicatorIdentifier"
     static let animationDuration = 0.35
 }
 
 extension LoadableViewProtocol where Self: UIViewController {
     var loadableContentView: UIView! {
-        return view
+        view
     }
 
     var shouldDisableInteractionWhenLoading: Bool {
-        return true
+        true
     }
 
     func didStartLoading() {
@@ -60,12 +60,15 @@ extension LoadableViewProtocol where Self: UIViewController {
         currentIndicator.accessibilityIdentifier = nil
         loadableContentView.isUserInteractionEnabled = true
 
-        UIView.animate(withDuration: LoadableViewProtocolConstants.animationDuration,
-                       animations: {
-                        currentIndicator.alpha = 0.0
-        }, completion: { _ in
-            currentIndicator.stopAnimating()
-            currentIndicator.removeFromSuperview()
-        })
+        UIView.animate(
+            withDuration: LoadableViewProtocolConstants.animationDuration,
+            animations: {
+                currentIndicator.alpha = 0.0
+            },
+            completion: { _ in
+                currentIndicator.stopAnimating()
+                currentIndicator.removeFromSuperview()
+            }
+        )
     }
 }

@@ -4,8 +4,10 @@ import RobinHood
 
 extension AnyDataProviderRepository where AnyDataProviderRepository.Model == ChainStorageItem {
     func queryStorageByKey<T: ScaleDecodable>(_ identifier: String) -> CompoundOperationWrapper<T?> {
-        let fetchOperation = self.fetchOperation(by: identifier,
-                                                 options: RepositoryFetchOptions())
+        let fetchOperation = self.fetchOperation(
+            by: identifier,
+            options: RepositoryFetchOptions()
+        )
 
         let decoderOperation = ScaleDecoderOperation<T>()
         decoderOperation.configurationBlock = {
@@ -20,7 +22,9 @@ extension AnyDataProviderRepository where AnyDataProviderRepository.Model == Cha
 
         decoderOperation.addDependency(fetchOperation)
 
-        return CompoundOperationWrapper(targetOperation: decoderOperation,
-                                        dependencies: [fetchOperation])
+        return CompoundOperationWrapper(
+            targetOperation: decoderOperation,
+            dependencies: [fetchOperation]
+        )
     }
 }

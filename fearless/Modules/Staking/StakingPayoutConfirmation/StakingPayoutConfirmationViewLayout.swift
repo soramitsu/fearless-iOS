@@ -2,7 +2,6 @@ import UIKit
 import SnapKit
 
 final class StakingPayoutConfirmationViewLayout: UIView {
-
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
@@ -21,7 +20,8 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         setupLayout()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 

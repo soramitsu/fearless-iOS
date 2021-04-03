@@ -8,7 +8,7 @@ protocol AccountInfoViewProtocol: ControllerBackedProtocol {
     func set(cryptoType: CryptoType)
 }
 
-protocol AccountInfoPresenterProtocol: class {
+protocol AccountInfoPresenterProtocol: AnyObject {
     func setup()
     func activateClose()
     func activateExport()
@@ -16,14 +16,14 @@ protocol AccountInfoPresenterProtocol: class {
     func finalizeUsername()
 }
 
-protocol AccountInfoInteractorInputProtocol: class {
+protocol AccountInfoInteractorInputProtocol: AnyObject {
     func setup(address: String)
     func save(username: String, address: String)
     func requestExportOptions(accountItem: ManagedAccountItem)
     func flushPendingUsername()
 }
 
-protocol AccountInfoInteractorOutputProtocol: class {
+protocol AccountInfoInteractorOutputProtocol: AnyObject {
     func didReceive(exportOptions: [ExportOption])
     func didReceive(accountItem: ManagedAccountItem)
     func didSave(username: String)
@@ -33,18 +33,22 @@ protocol AccountInfoInteractorOutputProtocol: class {
 protocol AccountInfoWireframeProtocol: AlertPresentable, ErrorPresentable, ModalAlertPresenting, WebPresentable {
     func close(view: AccountInfoViewProtocol?)
 
-    func showExport(for address: String,
-                    options: [ExportOption],
-                    locale: Locale?,
-                    from view: AccountInfoViewProtocol?)
+    func showExport(
+        for address: String,
+        options: [ExportOption],
+        locale: Locale?,
+        from view: AccountInfoViewProtocol?
+    )
 
-    func presentAddressOptions(_ address: String,
-                               chain: Chain,
-                               locale: Locale,
-                               copyClosure: @escaping  () -> Void,
-                               from view: AccountInfoViewProtocol?)
+    func presentAddressOptions(
+        _ address: String,
+        chain: Chain,
+        locale: Locale,
+        copyClosure: @escaping () -> Void,
+        from view: AccountInfoViewProtocol?
+    )
 }
 
-protocol AccountInfoViewFactoryProtocol: class {
+protocol AccountInfoViewFactoryProtocol: AnyObject {
     static func createView(address: String) -> AccountInfoViewProtocol?
 }

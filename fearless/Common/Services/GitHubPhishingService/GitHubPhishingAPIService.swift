@@ -2,16 +2,18 @@ import Foundation
 import RobinHood
 
 class GitHubPhishingAPIService: ApplicationServiceProtocol {
-    private var networkOperation: BaseOperation<[PhishingItem]>! = nil
+    private var networkOperation: BaseOperation<[PhishingItem]>!
     private let operationFactory: GitHubOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let url: URL
     private let storage: CoreDataRepository<PhishingItem, CDPhishingItem>
 
-    init(url: URL,
-         operationFactory: GitHubOperationFactoryProtocol,
-         operationManager: OperationManagerProtocol,
-         storage: CoreDataRepository<PhishingItem, CDPhishingItem>) {
+    init(
+        url: URL,
+        operationFactory: GitHubOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol,
+        storage: CoreDataRepository<PhishingItem, CDPhishingItem>
+    ) {
         self.url = url
         self.operationFactory = operationFactory
         self.operationManager = operationManager
@@ -52,7 +54,6 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
     }
 
     private func setupConnection() {
-
         networkOperation = GitHubOperationFactory().fetchPhishingListOperation(url)
 
         let replaceOperation = storage.replaceOperation {
@@ -63,8 +64,10 @@ class GitHubPhishingAPIService: ApplicationServiceProtocol {
 
         replaceOperation.addDependency(networkOperation)
 
-        let operationWrapper = CompoundOperationWrapper(targetOperation: replaceOperation,
-                                        dependencies: [networkOperation])
+        let operationWrapper = CompoundOperationWrapper(
+            targetOperation: replaceOperation,
+            dependencies: [networkOperation]
+        )
 
         operationManager.enqueue(operations: operationWrapper.allOperations, in: .transient)
     }

@@ -4,7 +4,7 @@ protocol SelectionListViewProtocol: ControllerBackedProtocol {
     func didReload()
 }
 
-protocol SelectionListPresenterProtocol: class {
+protocol SelectionListPresenterProtocol: AnyObject {
     var numberOfItems: Int { get }
 
     func item(at index: Int) -> SelectableViewModelProtocol

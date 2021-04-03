@@ -6,8 +6,10 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     let assetPrecision: Int
     let usdPrecision: Int
 
-    init(assetPrecision: Int = 4,
-         usdPrecision: Int = 2) {
+    init(
+        assetPrecision: Int = 4,
+        usdPrecision: Int = 2
+    ) {
         self.assetPrecision = assetPrecision
         self.usdPrecision = usdPrecision
     }
@@ -34,16 +36,20 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenAmountFormatter> {
         if asset?.identifier == WalletAssetId.usd.rawValue {
             let numberFormatter = createUsdNumberFormatter(for: usdPrecision)
-            return TokenAmountFormatter(numberFormatter: numberFormatter,
-                                        tokenSymbol: asset?.symbol ?? "",
-                                        separator: "",
-                                        position: .prefix).localizableResource()
+            return TokenAmountFormatter(
+                numberFormatter: numberFormatter,
+                tokenSymbol: asset?.symbol ?? "",
+                separator: "",
+                position: .prefix
+            ).localizableResource()
         } else {
             let numberFormatter = createTokenNumberFormatter(for: assetPrecision)
-            return TokenAmountFormatter(numberFormatter: numberFormatter,
-                                        tokenSymbol: asset?.symbol ?? "",
-                                        separator: " ",
-                                        position: .suffix).localizableResource()
+            return TokenAmountFormatter(
+                numberFormatter: numberFormatter,
+                tokenSymbol: asset?.symbol ?? "",
+                separator: " ",
+                position: .suffix
+            ).localizableResource()
         }
     }
 

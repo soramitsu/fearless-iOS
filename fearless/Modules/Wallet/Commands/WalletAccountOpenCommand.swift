@@ -8,10 +8,12 @@ final class WalletAccountOpenCommand: WalletCommandProtocol {
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(address: String,
-         chain: Chain,
-         commandFactory: WalletCommandFactoryProtocol,
-         locale: Locale) {
+    init(
+        address: String,
+        chain: Chain,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) {
         self.address = address
         self.chain = chain
         self.commandFactory = commandFactory
@@ -19,11 +21,13 @@ final class WalletAccountOpenCommand: WalletCommandProtocol {
     }
 
     func execute() throws {
-        let controller = UIAlertController.presentAccountOptions(address,
-                                                                 chain: chain,
-                                                                 locale: locale,
-                                                                 copyClosure: copyAddress,
-                                                                 urlClosure: present(url:))
+        let controller = UIAlertController.presentAccountOptions(
+            address,
+            chain: chain,
+            locale: locale,
+            copyClosure: copyAddress,
+            urlClosure: present(url:)
+        )
 
         let command = commandFactory?.preparePresentationCommand(for: controller)
         command?.presentationStyle = .modal(inNavigation: false)

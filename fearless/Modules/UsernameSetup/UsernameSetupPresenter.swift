@@ -6,8 +6,10 @@ final class UsernameSetupPresenter {
     var wireframe: UsernameSetupWireframeProtocol!
 
     private var viewModel: InputViewModelProtocol = {
-        let inputHandling = InputHandler(predicate: NSPredicate.notEmpty,
-                                         processor: ByteLengthProcessor.username)
+        let inputHandling = InputHandler(
+            predicate: NSPredicate.notEmpty,
+            processor: ByteLengthProcessor.username
+        )
         return InputViewModel(inputHandler: inputHandling)
     }()
 }
@@ -28,10 +30,12 @@ extension UsernameSetupPresenter: UsernameSetupPresenterProtocol {
 
         let title = R.string.localizable.commonNoScreenshotTitle(preferredLanguages: rLanguages)
         let message = R.string.localizable.commonNoScreenshotMessage(preferredLanguages: rLanguages)
-        let viewModel = AlertPresentableViewModel(title: title,
-                                                  message: message,
-                                                  actions: [action],
-                                                  closeAction: nil)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [action],
+            closeAction: nil
+        )
 
         wireframe.present(viewModel: viewModel, style: .alert, from: view)
     }

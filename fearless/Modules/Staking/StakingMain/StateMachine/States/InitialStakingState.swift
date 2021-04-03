@@ -13,14 +13,18 @@ final class InitialStakingState: BaseStakingState {
         let newState: StakingStateProtocol
 
         if let stashItem = stashItem {
-            newState = StashState(stateMachine: stateMachine,
-                                  commonData: commonData,
-                                  stashItem: stashItem,
-                                  ledgerInfo: nil,
-                                  totalReward: nil)
+            newState = StashState(
+                stateMachine: stateMachine,
+                commonData: commonData,
+                stashItem: stashItem,
+                ledgerInfo: nil,
+                totalReward: nil
+            )
         } else {
-            newState = NoStashState(stateMachine: stateMachine,
-                                    commonData: commonData)
+            newState = NoStashState(
+                stateMachine: stateMachine,
+                commonData: commonData
+            )
         }
 
         stateMachine.transit(to: newState)

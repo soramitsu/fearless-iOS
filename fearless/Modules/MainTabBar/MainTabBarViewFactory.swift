@@ -6,10 +6,10 @@ import CommonWallet
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
 
-	static func createView() -> MainTabBarViewProtocol? {
-
+    static func createView() -> MainTabBarViewProtocol? {
         guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
-                .findService() else {
+            .findService()
+        else {
             Logger.shared.error("Can't find required keystore import service")
             return nil
         }
@@ -18,16 +18,20 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let serviceCoordinator = ServiceCoordinator.createDefault()
 
-        let interactor = MainTabBarInteractor(eventCenter: EventCenter.shared,
-                                              settings: SettingsManager.shared,
-                                              serviceCoordinator: serviceCoordinator,
-                                              keystoreImportService: keystoreImportService)
+        let interactor = MainTabBarInteractor(
+            eventCenter: EventCenter.shared,
+            settings: SettingsManager.shared,
+            serviceCoordinator: serviceCoordinator,
+            keystoreImportService: keystoreImportService
+        )
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),
-            let walletController = createWalletController(walletContext: walletContext,
-                                                          localizationManager: localizationManager)
-            else {
+            let walletController = createWalletController(
+                walletContext: walletContext,
+                localizationManager: localizationManager
+            )
+        else {
             return nil
         }
 
@@ -67,17 +71,21 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         interactor.presenter = presenter
 
         return view
-	}
+    }
 
-    static func reloadWalletView(on view: MainTabBarViewProtocol,
-                                 wireframe: MainTabBarWireframeProtocol) {
+    static func reloadWalletView(
+        on view: MainTabBarViewProtocol,
+        wireframe: MainTabBarWireframeProtocol
+    ) {
         let localizationManager = LocalizationManager.shared
 
         guard
             let walletContext = try? WalletContextFactory().createContext(),
-            let walletController = createWalletController(walletContext: walletContext,
-                                                          localizationManager: localizationManager)
-            else {
+            let walletController = createWalletController(
+                walletContext: walletContext,
+                localizationManager: localizationManager
+            )
+        else {
             return
         }
 
@@ -85,9 +93,10 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         view.didReplaceView(for: walletController, for: Self.walletIndex)
     }
 
-    static func createWalletController(walletContext: CommonWalletContextProtocol,
-                                       localizationManager: LocalizationManagerProtocol)
-        -> UIViewController? {
+    static func createWalletController(
+        walletContext: CommonWalletContextProtocol,
+        localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         do {
             let viewController = try walletContext.createRootController()
 
@@ -101,11 +110,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
                 .withRenderingMode(.alwaysOriginal)
             let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
                 .withRenderingMode(.alwaysOriginal)
-            viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                         normalImage: normalIcon,
-                                                         selectedImage: selectedIcon)
+            viewController.tabBarItem = createTabBarItem(
+                title: currentTitle,
+                normalImage: normalIcon,
+                selectedImage: selectedIcon
+            )
 
-            localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
+            localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
                 let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
                 viewController?.tabBarItem.title = currentTitle
             }
@@ -118,8 +129,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         }
     }
 
-    static func createStakingController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController? {
+    static func createStakingController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = StakingMainViewFactory.createView()?.controller else {
             return nil
         }
@@ -134,11 +146,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: normalIcon,
-                                                     selectedImage: selectedIcon)
+        viewController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
 
-        localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
+        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
             viewController?.tabBarItem.title = currentTitle
         }
@@ -148,8 +162,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createGovernanceController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController? {
+    static func createGovernanceController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = CommingSoonViewFactory.createView()?.controller else {
             return nil
         }
@@ -164,11 +179,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = normalIcon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: normalIcon,
-                                                     selectedImage: selectedIcon)
+        viewController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
 
-        localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
+        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
             viewController?.tabBarItem.title = currentTitle
         }
@@ -176,9 +193,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createPolkaswapController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController? {
-
+    static func createPolkaswapController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let viewController = CommingSoonViewFactory.createView()?.controller else {
             return nil
         }
@@ -193,11 +210,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        viewController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                     normalImage: normalIcon,
-                                                     selectedImage: selectedIcon)
+        viewController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
 
-        localizationManager.addObserver(with: viewController) { [weak viewController] (_, _) in
+        localizationManager.addObserver(with: viewController) { [weak viewController] _, _ in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
             viewController?.tabBarItem.title = currentTitle
         }
@@ -205,8 +224,9 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return viewController
     }
 
-    static func createProfileController(for localizationManager: LocalizationManagerProtocol)
-        -> UIViewController? {
+    static func createProfileController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
         guard let settingsView = ProfileViewFactory.createView() else {
             return nil
         }
@@ -223,11 +243,13 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
             .withRenderingMode(.alwaysOriginal)
-        navigationController.tabBarItem = createTabBarItem(title: currentTitle,
-                                                           normalImage: normalIcon,
-                                                           selectedImage: selectedIcon)
+        navigationController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
 
-        localizationManager.addObserver(with: navigationController) { [weak navigationController] (_, _) in
+        localizationManager.addObserver(with: navigationController) { [weak navigationController] _, _ in
             let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
             navigationController?.tabBarItem.title = currentTitle
         }
@@ -235,13 +257,16 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         return navigationController
     }
 
-    static func createTabBarItem(title: String,
-                                 normalImage: UIImage?,
-                                 selectedImage: UIImage?) -> UITabBarItem {
-
-        let tabBarItem = UITabBarItem(title: title,
-                                      image: normalImage,
-                                      selectedImage: selectedImage)
+    static func createTabBarItem(
+        title: String,
+        normalImage: UIImage?,
+        selectedImage: UIImage?
+    ) -> UITabBarItem {
+        let tabBarItem = UITabBarItem(
+            title: title,
+            image: normalImage,
+            selectedImage: selectedImage
+        )
 
         // Style is set here for compatibility reasons for iOS 12.x and less.
         // For iOS 13 styling see MainTabBarViewController's 'configure' method.

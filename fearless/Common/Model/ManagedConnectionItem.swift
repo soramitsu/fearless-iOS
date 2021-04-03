@@ -10,9 +10,11 @@ struct ManagedConnectionItem: Equatable {
 
 extension ManagedConnectionItem {
     func replacingOrder(_ newOrder: Int16) -> ManagedConnectionItem {
-        ManagedConnectionItem(title: title,
-                              url: url,
-                              type: type,
-                              order: newOrder)
+        ManagedConnectionItem(
+            title: title,
+            url: url,
+            type: type,
+            order: newOrder
+        )
     }
 }

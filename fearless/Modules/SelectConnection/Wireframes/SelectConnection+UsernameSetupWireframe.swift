@@ -10,12 +10,15 @@ extension SelectConnection {
 
         func proceed(from view: UsernameSetupViewProtocol?, username: String) {
             guard let accountCreation = AccountCreateViewFactory
-                .createViewForConnection(item: connectionItem, username: username) else {
+                .createViewForConnection(item: connectionItem, username: username)
+            else {
                 return
             }
 
-            view?.controller.navigationController?.pushViewController(accountCreation.controller,
-                                                                      animated: true)
+            view?.controller.navigationController?.pushViewController(
+                accountCreation.controller,
+                animated: true
+            )
         }
     }
 }

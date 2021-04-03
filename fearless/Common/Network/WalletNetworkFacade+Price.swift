@@ -5,7 +5,8 @@ extension WalletNetworkFacade {
     func fetchPriceOperation(_ asset: WalletAssetId) -> CompoundOperationWrapper<Price?> {
         guard
             asset.hasPrice,
-            let url = asset.subscanUrl?.appendingPathComponent(SubscanApi.price) else {
+            let url = asset.subscanUrl?.appendingPathComponent(SubscanApi.price)
+        else {
             let operation = BaseOperation<Price?>()
             operation.result = .success(nil)
             return CompoundOperationWrapper(targetOperation: operation)
@@ -27,7 +28,8 @@ extension WalletNetworkFacade {
             // if no last price then also no change
 
             guard let currentPriceString = currentPrice.records
-                .first(where: { $0.time <= currentTime})?.price else {
+                .first(where: { $0.time <= currentTime })?.price
+            else {
                 return Price(assetId: asset, lastValue: .zero, change: .zero)
             }
 
@@ -65,7 +67,9 @@ extension WalletNetworkFacade {
         diffOperation.addDependency(currentPriceOperation)
         diffOperation.addDependency(prevPriceOperation)
 
-        return CompoundOperationWrapper(targetOperation: diffOperation,
-                                        dependencies: [prevPriceOperation, currentPriceOperation])
+        return CompoundOperationWrapper(
+            targetOperation: diffOperation,
+            dependencies: [prevPriceOperation, currentPriceOperation]
+        )
     }
 }

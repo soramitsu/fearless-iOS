@@ -13,12 +13,15 @@ final class InvoiceScanLocalSearchEngine: InvoiceLocalSearchEngineProtocol {
 
     func searchByAccountId(_ accountId: String) -> SearchData? {
         guard let accountIdData = try? Data(hexString: accountId),
-              accountIdData.count == ExtrinsicConstants.accountIdLength else {
+              accountIdData.count == ExtrinsicConstants.accountIdLength
+        else {
             return nil
         }
 
-        guard let address = try? addressFactory.address(fromPublicKey: AccountIdWrapper(rawData: accountIdData),
-                                                        type: networkType) else {
+        guard let address = try? addressFactory.address(
+            fromPublicKey: AccountIdWrapper(rawData: accountIdData),
+            type: networkType
+        ) else {
             return nil
         }
 

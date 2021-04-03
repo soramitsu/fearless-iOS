@@ -2,7 +2,6 @@ import UIKit
 import SnapKit
 
 final class StakingRewardDetailsViewLayout: UIView {
-
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
@@ -22,7 +21,8 @@ final class StakingRewardDetailsViewLayout: UIView {
         setupLayout()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 

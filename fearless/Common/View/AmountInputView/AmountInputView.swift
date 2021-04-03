@@ -34,11 +34,17 @@ class AmountInputView: BackgroundedContentControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        let topContentHeight = max(titleLabel.intrinsicContentSize.height,
-                                   priceLabel.intrinsicContentSize.height)
-        let middleContentHeight = max(lazyIconView?.intrinsicContentSize.height ?? 0.0,
-                                      max(symbolLabel.intrinsicContentSize.height,
-                                          textField.intrinsicContentSize.height))
+        let topContentHeight = max(
+            titleLabel.intrinsicContentSize.height,
+            priceLabel.intrinsicContentSize.height
+        )
+        let middleContentHeight = max(
+            lazyIconView?.intrinsicContentSize.height ?? 0.0,
+            max(
+                symbolLabel.intrinsicContentSize.height,
+                textField.intrinsicContentSize.height
+            )
+        )
         let bottomContentHeight = balanceLabel.intrinsicContentSize.height
 
         let height = contentInsets.top + topContentHeight + verticalSpacing
@@ -52,7 +58,7 @@ class AmountInputView: BackgroundedContentControl {
         configure()
     }
 
-    required public init?(coder aDecoder: NSCoder) {
+    public required init?(coder aDecoder: NSCoder) {
         super.init(coder: aDecoder)
         configure()
     }
@@ -79,20 +85,26 @@ class AmountInputView: BackgroundedContentControl {
         let availableWidth = bounds.width - contentInsets.left - contentInsets.right
         let symbolSize = symbolLabel.intrinsicContentSize
         if let iconView = lazyIconView {
-            iconView.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                    y: bounds.midY - iconRadius,
-                                    width: 2.0 * iconRadius,
-                                    height: 2.0 * iconRadius)
+            iconView.frame = CGRect(
+                x: bounds.minX + contentInsets.left,
+                y: bounds.midY - iconRadius,
+                width: 2.0 * iconRadius,
+                height: 2.0 * iconRadius
+            )
 
-            symbolLabel.frame = CGRect(x: iconView.frame.maxX + horizontalSpacing,
-                                       y: bounds.midY - symbolSize.height / 2.0,
-                                       width: min(availableWidth, symbolSize.width),
-                                       height: symbolSize.height)
+            symbolLabel.frame = CGRect(
+                x: iconView.frame.maxX + horizontalSpacing,
+                y: bounds.midY - symbolSize.height / 2.0,
+                width: min(availableWidth, symbolSize.width),
+                height: symbolSize.height
+            )
         } else {
-            symbolLabel.frame = CGRect(x: contentInsets.left,
-                                       y: bounds.midY - symbolSize.height / 2.0,
-                                       width: min(availableWidth, symbolSize.width),
-                                       height: symbolSize.height)
+            symbolLabel.frame = CGRect(
+                x: contentInsets.left,
+                y: bounds.midY - symbolSize.height / 2.0,
+                width: min(availableWidth, symbolSize.width),
+                height: symbolSize.height
+            )
         }
 
         let estimatedFieldWidth = bounds.maxX - contentInsets.right
@@ -100,10 +112,12 @@ class AmountInputView: BackgroundedContentControl {
         let fieldWidth = max(estimatedFieldWidth, 0.0)
 
         let fieldHeight = textField.intrinsicContentSize.height
-        textField.frame = CGRect(x: bounds.maxX - contentInsets.right - fieldWidth,
-                                 y: bounds.midY - fieldHeight / 2.0,
-                                 width: fieldWidth,
-                                 height: fieldHeight)
+        textField.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - fieldWidth,
+            y: bounds.midY - fieldHeight / 2.0,
+            width: fieldWidth,
+            height: fieldHeight
+        )
     }
 
     private func layoutTopContent() {
@@ -111,40 +125,50 @@ class AmountInputView: BackgroundedContentControl {
         let titleSize = titleLabel.intrinsicContentSize
         let priceSize = priceLabel.intrinsicContentSize
 
-        let middleY = min(min(symbolLabel.frame.minY, textField.frame.minY),
-                          lazyIconView?.frame.minY ?? CGFloat.greatestFiniteMagnitude)
+        let middleY = min(
+            min(symbolLabel.frame.minY, textField.frame.minY),
+            lazyIconView?.frame.minY ?? CGFloat.greatestFiniteMagnitude
+        )
         let centerY = middleY - verticalSpacing - max(titleSize.height, priceSize.height) / 2.0
 
-        titleLabel.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                  y: centerY - titleSize.height / 2.0,
-                                  width: min(availableWidth, titleSize.width),
-                                  height: titleSize.height)
+        titleLabel.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: centerY - titleSize.height / 2.0,
+            width: min(availableWidth, titleSize.width),
+            height: titleSize.height
+        )
 
         let estimatedPriceWidth = bounds.maxX - contentInsets.right
             - titleLabel.frame.maxX - horizontalSpacing
         let priceWidth = max(min(estimatedPriceWidth, priceSize.width), 0.0)
 
-        priceLabel.frame = CGRect(x: bounds.maxX - contentInsets.right - priceWidth,
-                                  y: centerY - priceSize.height / 2.0,
-                                  width: priceWidth,
-                                  height: priceSize.height)
+        priceLabel.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - priceWidth,
+            y: centerY - priceSize.height / 2.0,
+            width: priceWidth,
+            height: priceSize.height
+        )
     }
 
     private func layoutBottomContent() {
         let availableWidth = bounds.width - contentInsets.left - contentInsets.right
-        let balanceY = max(max(symbolLabel.frame.maxY, textField.frame.maxY),
-                           lazyIconView?.frame.maxY ?? 0.0) + verticalSpacing
+        let balanceY = max(
+            max(symbolLabel.frame.maxY, textField.frame.maxY),
+            lazyIconView?.frame.maxY ?? 0.0
+        ) + verticalSpacing
 
-        balanceLabel.frame = CGRect(x: bounds.minX + contentInsets.left,
-                                    y: balanceY,
-                                    width: availableWidth,
-                                    height: balanceLabel.intrinsicContentSize.height)
+        balanceLabel.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: balanceY,
+            width: availableWidth,
+            height: balanceLabel.intrinsicContentSize.height
+        )
     }
 
     // MARK: Configure
 
     private func configure() {
-        self.backgroundColor = UIColor.clear
+        backgroundColor = UIColor.clear
 
         configureBackgroundViewIfNeeded()
         configureContentViewIfNeeded()
@@ -156,7 +180,7 @@ class AmountInputView: BackgroundedContentControl {
             triangularedView.isUserInteractionEnabled = false
             triangularedView.shadowOpacity = 0.0
 
-            self.backgroundView = triangularedView
+            backgroundView = triangularedView
         }
     }
 

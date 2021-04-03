@@ -6,36 +6,47 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
     let nomination: PreparedNomination<ExistingBonding>
     let repository: AnyDataProviderRepository<AccountItem>
 
-    init(priceProvider: AnySingleValueProvider<PriceData>,
-         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-         extrinsicService: ExtrinsicServiceProtocol,
-         operationManager: OperationManagerProtocol,
-         signer: SigningWrapperProtocol,
-         repository: AnyDataProviderRepository<AccountItem>,
-         nomination: PreparedNomination<ExistingBonding>) {
+    init(
+        priceProvider: AnySingleValueProvider<PriceData>,
+        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        extrinsicService: ExtrinsicServiceProtocol,
+        operationManager: OperationManagerProtocol,
+        signer: SigningWrapperProtocol,
+        repository: AnyDataProviderRepository<AccountItem>,
+        nomination: PreparedNomination<ExistingBonding>
+    ) {
         self.nomination = nomination
         self.repository = repository
 
-        super.init(priceProvider: priceProvider,
-                   balanceProvider: balanceProvider,
-                   extrinsicService: extrinsicService,
-                   operationManager: operationManager,
-                   signer: signer)
+        super.init(
+            priceProvider: priceProvider,
+            balanceProvider: balanceProvider,
+            extrinsicService: extrinsicService,
+            operationManager: operationManager,
+            signer: signer
+        )
     }
 
-    private func createRewardDestinationOperation(for payoutAddress: String)
-    -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
-        let accountFetchOperation = repository.fetchOperation(by: payoutAddress,
-                                                              options: RepositoryFetchOptions())
+    private func createRewardDestinationOperation(
+        for payoutAddress: String
+    ) -> CompoundOperationWrapper<RewardDestination<DisplayAddress>> {
+        let accountFetchOperation = repository.fetchOperation(
+            by: payoutAddress,
+            options: RepositoryFetchOptions()
+        )
         let mapOperation: BaseOperation<RewardDestination<DisplayAddress>> = ClosureOperation {
             if let accountItem = try accountFetchOperation.extractNoCancellableResultData() {
-                let displayAddress = DisplayAddress(address: accountItem.address,
-                                                    username: accountItem.username)
+                let displayAddress = DisplayAddress(
+                    address: accountItem.address,
+                    username: accountItem.username
+                )
 
                 return RewardDestination.payout(account: displayAddress)
             } else {
-                let displayAddress = DisplayAddress(address: payoutAddress,
-                                                    username: payoutAddress)
+                let displayAddress = DisplayAddress(
+                    address: payoutAddress,
+                    username: payoutAddress
+                )
 
                 return RewardDestination.payout(account: displayAddress)
             }
@@ -43,8 +54,10 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
 
         mapOperation.addDependency(accountFetchOperation)
 
-        return CompoundOperationWrapper(targetOperation: mapOperation,
-                                        dependencies: [accountFetchOperation])
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
+            dependencies: [accountFetchOperation]
+        )
     }
 
     private func provideConfirmationModel() {
@@ -52,7 +65,7 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
             switch nomination.bonding.rewardDestination {
             case .restake:
                 return CompoundOperationWrapper.createWithResult(RewardDestination<DisplayAddress>.restake)
-            case .payout(let address):
+            case let .payout(address):
                 return createRewardDestinationOperation(for: address)
             }
         }()
@@ -63,14 +76,18 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
             let controller = currentNomination.bonding.controllerAccount
             let rewardDestination = try rewardDestWrapper.targetOperation.extractNoCancellableResultData()
 
-            let controllerDisplayAddress = DisplayAddress(address: controller.address,
-                                                          username: controller.username)
+            let controllerDisplayAddress = DisplayAddress(
+                address: controller.address,
+                username: controller.username
+            )
 
-            return StakingConfirmationModel(wallet: controllerDisplayAddress,
-                                            amount: currentNomination.bonding.amount,
-                                            rewardDestination: rewardDestination,
-                                            targets: currentNomination.targets,
-                                            maxTargets: currentNomination.maxTargets)
+            return StakingConfirmationModel(
+                wallet: controllerDisplayAddress,
+                amount: currentNomination.bonding.amount,
+                rewardDestination: rewardDestination,
+                targets: currentNomination.targets,
+                maxTargets: currentNomination.maxTargets
+            )
         }
 
         let dependencies = rewardDestWrapper.allOperations
@@ -119,9 +136,9 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
 
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
             switch result {
-            case .success(let info):
+            case let .success(info):
                 self?.presenter.didReceive(paymentInfo: info)
-            case .failure(let error):
+            case let .failure(error):
                 self?.presenter.didReceive(feeError: error)
             }
         }
@@ -139,13 +156,15 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
 
         presenter.didStartNomination()
 
-        extrinsicService.submit(closure,
-                                signer: signer,
-                                runningIn: .main) { [weak self] result in
+        extrinsicService.submit(
+            closure,
+            signer: signer,
+            runningIn: .main
+        ) { [weak self] result in
             switch result {
-            case .success(let txHash):
+            case let .success(txHash):
                 self?.presenter.didCompleteNomination(txHash: txHash)
-            case .failure(let error):
+            case let .failure(error):
                 self?.presenter.didFailNomination(error: error)
             }
         }

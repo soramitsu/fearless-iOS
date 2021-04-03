@@ -21,16 +21,18 @@ final class WalletAssetViewModel: AssetViewModelProtocol {
 
     let platform: String
 
-    init(assetId: String,
-         amount: String,
-         symbol: String?,
-         accessoryDetails: String?,
-         imageViewModel: WalletImageViewModelProtocol?,
-         style: AssetCellStyle,
-         platform: String,
-         details: String,
-         priceChangeViewModel: WalletPriceChangeViewModel,
-         command: WalletCommandProtocol?) {
+    init(
+        assetId: String,
+        amount: String,
+        symbol: String?,
+        accessoryDetails: String?,
+        imageViewModel: WalletImageViewModelProtocol?,
+        style: AssetCellStyle,
+        platform: String,
+        details: String,
+        priceChangeViewModel: WalletPriceChangeViewModel,
+        command: WalletCommandProtocol?
+    ) {
         self.assetId = assetId
         self.amount = amount
         self.symbol = symbol

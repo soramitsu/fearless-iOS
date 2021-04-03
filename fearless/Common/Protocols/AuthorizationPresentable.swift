@@ -3,9 +3,11 @@ import UIKit
 typealias AuthorizationCompletionBlock = (Bool) -> Void
 
 protocol AuthorizationPresentable: ScreenAuthorizationWireframeProtocol {
-    func authorize(animated: Bool,
-                   cancellable: Bool,
-                   with completionBlock: @escaping AuthorizationCompletionBlock)
+    func authorize(
+        animated: Bool,
+        cancellable: Bool,
+        with completionBlock: @escaping AuthorizationCompletionBlock
+    )
 }
 
 protocol AuthorizationAccessible {
@@ -14,15 +16,17 @@ protocol AuthorizationAccessible {
 
 private let authorization = UUID().uuidString
 
-private struct AuthorizationConstants {
+private enum AuthorizationConstants {
     static var completionBlockKey: String = "co.jp.fearless.auth.delegate"
     static var authorizationViewKey: String = "co.jp.fearless.auth.view"
 }
 
 extension AuthorizationAccessible {
     var isAuthorizing: Bool {
-        let view = objc_getAssociatedObject(authorization,
-                                            &AuthorizationConstants.authorizationViewKey)
+        let view = objc_getAssociatedObject(
+            authorization,
+            &AuthorizationConstants.authorizationViewKey
+        )
             as? PinSetupViewProtocol
 
         return view != nil
@@ -32,34 +36,38 @@ extension AuthorizationAccessible {
 extension AuthorizationPresentable {
     private var completionBlock: AuthorizationCompletionBlock? {
         get {
-            return objc_getAssociatedObject(authorization, &AuthorizationConstants.completionBlockKey)
+            objc_getAssociatedObject(authorization, &AuthorizationConstants.completionBlockKey)
                 as? AuthorizationCompletionBlock
         }
 
         set {
-            objc_setAssociatedObject(authorization,
-                                     &AuthorizationConstants.completionBlockKey,
-                                     newValue,
-                                     .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(
+                authorization,
+                &AuthorizationConstants.completionBlockKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN
+            )
         }
     }
 
     private var authorizationView: PinSetupViewProtocol? {
         get {
-            return objc_getAssociatedObject(authorization, &AuthorizationConstants.authorizationViewKey)
+            objc_getAssociatedObject(authorization, &AuthorizationConstants.authorizationViewKey)
                 as? PinSetupViewProtocol
         }
 
         set {
-            objc_setAssociatedObject(authorization,
-                                     &AuthorizationConstants.authorizationViewKey,
-                                     newValue,
-                                     .OBJC_ASSOCIATION_RETAIN)
+            objc_setAssociatedObject(
+                authorization,
+                &AuthorizationConstants.authorizationViewKey,
+                newValue,
+                .OBJC_ASSOCIATION_RETAIN
+            )
         }
     }
 
     private var isAuthorizing: Bool {
-        return authorizationView != nil
+        authorizationView != nil
     }
 }
 
@@ -68,20 +76,25 @@ extension AuthorizationPresentable {
         authorize(animated: animated, cancellable: false, with: completionBlock)
     }
 
-    func authorize(animated: Bool,
-                   cancellable: Bool,
-                   with completionBlock: @escaping AuthorizationCompletionBlock) {
+    func authorize(
+        animated: Bool,
+        cancellable: Bool,
+        with completionBlock: @escaping AuthorizationCompletionBlock
+    ) {
         guard !isAuthorizing else {
             return
         }
 
         guard let presentingController = UIApplication.shared.keyWindow?
-            .rootViewController?.topModalViewController else {
+            .rootViewController?.topModalViewController
+        else {
             return
         }
 
-        guard let authorizationView = PinViewFactory.createScreenAuthorizationView(with: self,
-                                                                                   cancellable: cancellable) else {
+        guard let authorizationView = PinViewFactory.createScreenAuthorizationView(
+            with: self,
+            cancellable: cancellable
+        ) else {
             completionBlock(false)
             return
         }

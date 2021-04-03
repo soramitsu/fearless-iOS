@@ -10,9 +10,11 @@ final class SelectedValidatorsPresenter {
     let maxTargets: Int
     let logger: LoggerProtocol?
 
-    init(validators: [SelectedValidatorInfo],
-         maxTargets: Int,
-         logger: LoggerProtocol? = nil) {
+    init(
+        validators: [SelectedValidatorInfo],
+        maxTargets: Int,
+        logger: LoggerProtocol? = nil
+    ) {
         self.validators = validators
         self.maxTargets = maxTargets
         self.logger = logger
@@ -27,13 +29,17 @@ final class SelectedValidatorsPresenter {
                     let icon = try iconGenerator.generateFromAddress(validator.address)
                     let title = validator.identity?.displayName ?? validator.address
 
-                    return SelectedValidatorViewModel(icon: icon,
-                                                      title: title,
-                                                      details: "")
+                    return SelectedValidatorViewModel(
+                        icon: icon,
+                        title: title,
+                        details: ""
+                    )
                 }
 
-            let viewModel = SelectedValidatorsViewModel(maxTargets: maxTargets,
-                                                        itemViewModels: items)
+            let viewModel = SelectedValidatorsViewModel(
+                maxTargets: maxTargets,
+                itemViewModels: items
+            )
 
             view?.didReceive(viewModel: viewModel)
         } catch {
@@ -50,7 +56,9 @@ extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
     func selectedValidatorAt(index: Int) {
         // TODO: FLW-593
         let selectedValidator = validators[index]
-        wireframe.showInformation(about: selectedValidator,
-                                  from: view)
+        wireframe.showInformation(
+            about: selectedValidator,
+            from: view
+        )
     }
 }

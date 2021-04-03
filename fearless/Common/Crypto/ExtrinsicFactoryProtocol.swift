@@ -3,11 +3,13 @@ import BigInt
 import IrohaCrypto
 
 protocol ExtrinsicFactoryProtocol {
-    static func transferExtrinsic(from senderAccountId: Data,
-                                  to receiverAccountId: Data,
-                                  amount: BigUInt,
-                                  additionalParameters: ExtrinsicParameters,
-                                  signer: IRSignatureCreatorProtocol) throws -> Data
+    static func transferExtrinsic(
+        from senderAccountId: Data,
+        to receiverAccountId: Data,
+        amount: BigUInt,
+        additionalParameters: ExtrinsicParameters,
+        signer: IRSignatureCreatorProtocol
+    ) throws -> Data
 }
 
 struct ExtrinsicParameters {

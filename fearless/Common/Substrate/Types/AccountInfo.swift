@@ -9,10 +9,10 @@ struct AccountInfo: ScaleDecodable {
     let data: AccountData
 
     init(v27: AccountInfoV27) {
-        self.nonce = v27.nonce
-        self.consumers = v27.refcount
-        self.providers = 0
-        self.data = v27.data
+        nonce = v27.nonce
+        consumers = v27.refcount
+        providers = 0
+        data = v27.data
     }
 
     init(scaleDecoder: ScaleDecoding) throws {

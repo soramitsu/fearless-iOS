@@ -16,21 +16,25 @@ struct TransactionHistoryContext {
 
 extension TransactionHistoryContext {
     init(context: [String: String]) {
-        self.transfersPage = TransactionHistoryContext.extractPage(
+        transfersPage = TransactionHistoryContext.extractPage(
             for: TransactionHistoryContext.transfersPageKey,
-            from: context)
+            from: context
+        )
 
-        self.isTransfersComplete = TransactionHistoryContext.extractCompleteness(
+        isTransfersComplete = TransactionHistoryContext.extractCompleteness(
             for: TransactionHistoryContext.transfersCompleteKey,
-            from: context)
+            from: context
+        )
 
-        self.rewardsPage = TransactionHistoryContext.extractPage(
+        rewardsPage = TransactionHistoryContext.extractPage(
             for: TransactionHistoryContext.rewardsPageKey,
-            from: context)
+            from: context
+        )
 
-        self.isRewardsComplete = TransactionHistoryContext.extractCompleteness(
+        isRewardsComplete = TransactionHistoryContext.extractCompleteness(
             for: TransactionHistoryContext.rewardsCompleteKey,
-            from: context)
+            from: context
+        )
     }
 
     func toContext() -> [String: String] {

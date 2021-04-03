@@ -2,16 +2,18 @@ import UIKit
 import SoraUI
 
 struct MainTransitionHelper {
-    static func transitToMainTabBarController(selectingIndex: Int = MainTabBarViewFactory.walletIndex,
-                                              closing controller: UIViewController,
-                                              animated: Bool) {
-
+    static func transitToMainTabBarController(
+        selectingIndex: Int = MainTabBarViewFactory.walletIndex,
+        closing controller: UIViewController,
+        animated: Bool
+    ) {
         if let presentingController = controller.presentingViewController {
             presentingController.dismiss(animated: animated, completion: nil)
         }
 
         guard let tabBarController = UIApplication.shared
-                .delegate?.window??.rootViewController as? UITabBarController else {
+            .delegate?.window??.rootViewController as? UITabBarController
+        else {
             return
         }
 

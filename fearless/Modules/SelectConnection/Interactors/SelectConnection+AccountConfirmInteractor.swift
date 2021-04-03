@@ -11,23 +11,27 @@ extension SelectConnection {
         let eventCenter: EventCenterProtocol
         let connectionItem: ConnectionItem
 
-        init(connectionItem: ConnectionItem,
-             request: AccountCreationRequest,
-             mnemonic: IRMnemonicProtocol,
-             accountOperationFactory: AccountOperationFactoryProtocol,
-             accountRepository: AnyDataProviderRepository<AccountItem>,
-             settings: SettingsManagerProtocol,
-             operationManager: OperationManagerProtocol,
-             eventCenter: EventCenterProtocol) {
+        init(
+            connectionItem: ConnectionItem,
+            request: AccountCreationRequest,
+            mnemonic: IRMnemonicProtocol,
+            accountOperationFactory: AccountOperationFactoryProtocol,
+            accountRepository: AnyDataProviderRepository<AccountItem>,
+            settings: SettingsManagerProtocol,
+            operationManager: OperationManagerProtocol,
+            eventCenter: EventCenterProtocol
+        ) {
             self.settings = settings
             self.connectionItem = connectionItem
             self.eventCenter = eventCenter
 
-            super.init(request: request,
-                       mnemonic: mnemonic,
-                       accountOperationFactory: accountOperationFactory,
-                       accountRepository: accountRepository,
-                       operationManager: operationManager)
+            super.init(
+                request: request,
+                mnemonic: mnemonic,
+                accountOperationFactory: accountOperationFactory,
+                accountRepository: accountRepository,
+                operationManager: operationManager
+            )
         }
 
         override func createAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {
@@ -75,7 +79,7 @@ extension SelectConnection {
                         self?.eventCenter.notify(with: SelectedAccountChanged())
 
                         self?.presenter?.didCompleteConfirmation()
-                    case .failure(let error):
+                    case let .failure(error):
                         self?.presenter?.didReceive(error: error)
                     case .none:
                         let error = BaseOperationError.parentOperationCancelled
@@ -84,9 +88,10 @@ extension SelectConnection {
                 }
             }
 
-            operationManager.enqueue(operations: [importOperation, persistentOperation, connectionOperation],
-                                     in: .transient)
+            operationManager.enqueue(
+                operations: [importOperation, persistentOperation, connectionOperation],
+                in: .transient
+            )
         }
     }
-
 }

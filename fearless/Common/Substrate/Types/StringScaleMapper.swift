@@ -9,10 +9,12 @@ struct StringScaleMapper<T: LosslessStringConvertible & Equatable>: Decodable, E
         let strValue = try container.decode(String.self)
 
         guard let convertedValue = T(strValue) else {
-            throw DecodingError.dataCorruptedError(in: container,
-                                                   debugDescription: "Can't decode value: \(strValue)")
+            throw DecodingError.dataCorruptedError(
+                in: container,
+                debugDescription: "Can't decode value: \(strValue)"
+            )
         }
 
-        self.value = convertedValue
+        value = convertedValue
     }
 }

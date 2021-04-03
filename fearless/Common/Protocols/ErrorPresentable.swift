@@ -1,5 +1,5 @@
 import Foundation
 
-protocol ErrorPresentable: class {
+protocol ErrorPresentable: AnyObject {
     func present(error: Error, from view: ControllerBackedProtocol?, locale: Locale?) -> Bool
 }

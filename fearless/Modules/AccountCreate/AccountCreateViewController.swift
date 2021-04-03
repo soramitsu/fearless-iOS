@@ -27,15 +27,19 @@ final class AccountCreateViewController: UIViewController {
 
     var keyboardHandler: KeyboardHandler?
 
-    var advancedAppearanceAnimator = TransitionAnimator(type: .push,
-                                                        duration: 0.35,
-                                                        subtype: .fromBottom,
-                                                        curve: .easeOut)
+    var advancedAppearanceAnimator = TransitionAnimator(
+        type: .push,
+        duration: 0.35,
+        subtype: .fromBottom,
+        curve: .easeOut
+    )
 
-    var advancedDismissalAnimator = TransitionAnimator(type: .push,
-                                                       duration: 0.35,
-                                                       subtype: .fromTop,
-                                                       curve: .easeIn)
+    var advancedDismissalAnimator = TransitionAnimator(
+        type: .push,
+        duration: 0.35,
+        subtype: .fromTop,
+        curve: .easeIn
+    )
 
     private var mnemonicView: MnemonicDisplayView?
 
@@ -68,20 +72,26 @@ final class AccountCreateViewController: UIViewController {
 
         advancedContainerView.isHidden = !expadableControl.isActivated
 
-        cryptoTypeView.actionControl.addTarget(self,
-                                               action: #selector(actionOpenCryptoType),
-                                               for: .valueChanged)
+        cryptoTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenCryptoType),
+            for: .valueChanged
+        )
 
-        networkTypeView.actionControl.addTarget(self,
-                                                action: #selector(actionOpenNetworkType),
-                                                for: .valueChanged)
+        networkTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenNetworkType),
+            for: .valueChanged
+        )
     }
 
     private func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(image: R.image.iconInfo(),
-                                       style: .plain,
-                                       target: self,
-                                       action: #selector(actionOpenInfo))
+        let infoItem = UIBarButtonItem(
+            image: R.image.iconInfo(),
+            style: .plain,
+            target: self,
+            action: #selector(actionOpenInfo)
+        )
         navigationItem.rightBarButtonItem = infoItem
     }
 
@@ -214,8 +224,10 @@ extension AccountCreateViewController: AccountCreateViewProtocol {
 
         derivationPathField.text = viewModel.inputHandler.value
 
-        let attributedPlaceholder = NSAttributedString(string: viewModel.placeholder,
-                                                       attributes: [.foregroundColor: R.color.colorGray()!])
+        let attributedPlaceholder = NSAttributedString(
+            string: viewModel.placeholder,
+            attributes: [.foregroundColor: R.color.colorGray()!]
+        )
         derivationPathField.attributedPlaceholder = attributedPlaceholder
     }
 
@@ -241,10 +253,11 @@ extension AccountCreateViewController: UITextFieldDelegate {
         return false
     }
 
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
-
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let viewModel = derivationPathModel else {
             return true
         }
@@ -270,8 +283,10 @@ extension AccountCreateViewController: KeyboardAdoptable {
         scrollView.contentInset = contentInsets
 
         if contentInsets.bottom > 0.0 {
-            let fieldFrame = scrollView.convert(networkTypeView.frame,
-                                                from: networkTypeView.superview)
+            let fieldFrame = scrollView.convert(
+                networkTypeView.frame,
+                from: networkTypeView.superview
+            )
 
             scrollView.scrollRectToVisible(fieldFrame, animated: true)
         }

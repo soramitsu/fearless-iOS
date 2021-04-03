@@ -5,17 +5,17 @@ protocol ProfileViewProtocol: ControllerBackedProtocol {
     func didLoad(optionViewModels: [ProfileOptionViewModelProtocol])
 }
 
-protocol ProfilePresenterProtocol: class {
+protocol ProfilePresenterProtocol: AnyObject {
     func setup()
     func activateAccountDetails()
     func activateOption(at index: UInt)
 }
 
-protocol ProfileInteractorInputProtocol: class {
+protocol ProfileInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol ProfileInteractorOutputProtocol: class {
+protocol ProfileInteractorOutputProtocol: AnyObject {
     func didReceive(userSettings: UserSettings)
     func didReceiveUserDataProvider(error: Error)
 }
@@ -29,6 +29,6 @@ protocol ProfileWireframeProtocol: ErrorPresentable, AlertPresentable, WebPresen
     func showAbout(from view: ProfileViewProtocol?)
 }
 
-protocol ProfileViewFactoryProtocol: class {
-	static func createView() -> ProfileViewProtocol?
+protocol ProfileViewFactoryProtocol: AnyObject {
+    static func createView() -> ProfileViewProtocol?
 }

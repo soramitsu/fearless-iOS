@@ -20,13 +20,13 @@ struct StakingLedger: ScaleDecodable {
 
 extension StakingLedger {
     func redeemable(inEra activeEra: UInt32) -> BigUInt {
-        unlocking.reduce(BigUInt(0)) { (result, item) in
+        unlocking.reduce(BigUInt(0)) { result, item in
             item.era <= activeEra ? (result + item.value) : result
         }
     }
 
     func unbounding(inEra activeEra: UInt32) -> BigUInt {
-        unlocking.reduce(BigUInt(0)) { (result, item) in
+        unlocking.reduce(BigUInt(0)) { result, item in
             item.era > activeEra ? (result + item.value) : result
         }
     }

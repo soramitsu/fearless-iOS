@@ -10,17 +10,20 @@ final class NetworkStakingInfoOperationFactory {
     let eraValidatorService: EraValidatorServiceProtocol
     let runtimeService: RuntimeCodingServiceProtocol
 
-    init(eraValidatorService: EraValidatorServiceProtocol,
-         runtimeService: RuntimeCodingServiceProtocol) {
+    init(
+        eraValidatorService: EraValidatorServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) {
         self.eraValidatorService = eraValidatorService
         self.runtimeService = runtimeService
     }
 
     // MARK: - Private functions
 
-    private func createConstOperation<T>(dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-                                         path: ConstantCodingPath) -> PrimitiveConstantOperation<T>
-    where T: LosslessStringConvertible {
+    private func createConstOperation<T>(
+        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: ConstantCodingPath
+    ) -> PrimitiveConstantOperation<T> where T: LosslessStringConvertible {
         let operation = PrimitiveConstantOperation<T>(path: path)
 
         operation.configurationBlock = {
@@ -36,39 +39,44 @@ final class NetworkStakingInfoOperationFactory {
 
     private func deriveTotalStake(from eraStakersInfo: EraStakersInfo) -> BigUInt {
         eraStakersInfo.validators
-            .map({$0.exposure.total})
+            .map(\.exposure.total)
             .reduce(0, +)
     }
 
-    private func deriveMinimalStake(from eraStakersInfo: EraStakersInfo,
-                                    limitedBy maxNominators: Int) -> BigUInt {
+    private func deriveMinimalStake(
+        from eraStakersInfo: EraStakersInfo,
+        limitedBy maxNominators: Int
+    ) -> BigUInt {
         eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
             .flatMap { Array($0.prefix(maxNominators)) }
-            .reduce(into: [Data: BigUInt]()) { (result, item) in
-                if let stake = result[item.who] {
+            .reduce(into: [Data: BigUInt]()) { result, item in
+                if let maybeStake = result[item.who], let stake = maybeStake {
                     result[item.who] = stake + item.value
                 } else {
                     result[item.who] = item.value
                 }
             }
-            .compactMap { $0.value }
+            .compactMap(\.value)
             .min() ?? BigUInt.zero
     }
 
-    private func deriveActiveNominatorsCount(from eraStakersInfo: EraStakersInfo,
-                                             limitedBy maxNominators: Int) -> Int {
+    private func deriveActiveNominatorsCount(
+        from eraStakersInfo: EraStakersInfo,
+        limitedBy maxNominators: Int
+    ) -> Int {
         eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
             .flatMap { Array($0.prefix(maxNominators)) }
             .reduce(into: Set<Data>()) { $0.insert($1.who) }
             .count
     }
 
-    private func createMapOperation(dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
-                                    maxNominatorsOperation: BaseOperation<UInt32>,
-                                    lockUpPeriodOperation: BaseOperation<UInt32>,
-                                    minBalanceOperation: BaseOperation<BigUInt>)
-    -> BaseOperation<NetworkStakingInfo> {
-        return ClosureOperation<NetworkStakingInfo> {
+    private func createMapOperation(
+        dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
+        maxNominatorsOperation: BaseOperation<UInt32>,
+        lockUpPeriodOperation: BaseOperation<UInt32>,
+        minBalanceOperation: BaseOperation<BigUInt>
+    ) -> BaseOperation<NetworkStakingInfo> {
+        ClosureOperation<NetworkStakingInfo> {
             let eraStakersInfo = try eraValidatorsOperation.extractNoCancellableResultData()
             let maxNominators = try Int(maxNominatorsOperation.extractNoCancellableResultData())
             let lockUpPeriod = try lockUpPeriodOperation.extractNoCancellableResultData()
@@ -76,16 +84,22 @@ final class NetworkStakingInfoOperationFactory {
 
             let totalStake = self.deriveTotalStake(from: eraStakersInfo)
 
-            let minimalStake = self.deriveMinimalStake(from: eraStakersInfo,
-                                                       limitedBy: maxNominators)
+            let minimalStake = self.deriveMinimalStake(
+                from: eraStakersInfo,
+                limitedBy: maxNominators
+            )
 
-            let activeNominatorsCount = self.deriveActiveNominatorsCount(from: eraStakersInfo,
-                                                                         limitedBy: maxNominators)
+            let activeNominatorsCount = self.deriveActiveNominatorsCount(
+                from: eraStakersInfo,
+                limitedBy: maxNominators
+            )
 
-            return NetworkStakingInfo(totalStake: totalStake,
-                                      minimalStake: max(minimalStake, minBalance),
-                                      activeNominatorsCount: activeNominatorsCount,
-                                      lockUpPeriod: lockUpPeriod)
+            return NetworkStakingInfo(
+                totalStake: totalStake,
+                minimalStake: max(minimalStake, minBalance),
+                activeNominatorsCount: activeNominatorsCount,
+                lockUpPeriod: lockUpPeriod
+            )
         }
     }
 }
@@ -97,15 +111,21 @@ extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactory
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let maxNominatorsOperation: BaseOperation<UInt32> =
-            createConstOperation(dependingOn: runtimeOperation,
-                                 path: .maxNominatorRewardedPerValidator)
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .maxNominatorRewardedPerValidator
+            )
 
         let lockUpPeriodOperation: BaseOperation<UInt32> =
-            createConstOperation(dependingOn: runtimeOperation,
-                                 path: .lockUpPeriod)
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .lockUpPeriod
+            )
 
-        let existentialDepositOperation: BaseOperation<BigUInt> = createConstOperation(dependingOn: runtimeOperation,
-                                                                                       path: .existentialDeposit)
+        let existentialDepositOperation: BaseOperation<BigUInt> = createConstOperation(
+            dependingOn: runtimeOperation,
+            path: .existentialDeposit
+        )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
         lockUpPeriodOperation.addDependency(runtimeOperation)
@@ -113,10 +133,12 @@ extension NetworkStakingInfoOperationFactory: NetworkStakingInfoOperationFactory
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
-        let mapOperation = createMapOperation(dependingOn: eraValidatorsOperation,
-                                              maxNominatorsOperation: maxNominatorsOperation,
-                                              lockUpPeriodOperation: lockUpPeriodOperation,
-                                              minBalanceOperation: existentialDepositOperation)
+        let mapOperation = createMapOperation(
+            dependingOn: eraValidatorsOperation,
+            maxNominatorsOperation: maxNominatorsOperation,
+            lockUpPeriodOperation: lockUpPeriodOperation,
+            minBalanceOperation: existentialDepositOperation
+        )
 
         mapOperation.addDependency(eraValidatorsOperation)
         mapOperation.addDependency(maxNominatorsOperation)

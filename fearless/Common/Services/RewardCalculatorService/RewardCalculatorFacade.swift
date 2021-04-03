@@ -6,15 +6,19 @@ final class RewardCalculatorFacade {
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
-        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
-                                                           operationManager: operationManager,
-                                                           logger: logger)
+        let providerFactory = SubstrateDataProviderFactory(
+            facade: storageFacade,
+            operationManager: operationManager,
+            logger: logger
+        )
 
-        return RewardCalculatorService(eraValidatorsService: EraValidatorFacade.sharedService,
-                                       logger: logger,
-                                       operationManager: operationManager,
-                                       providerFactory: providerFactory,
-                                       runtimeCodingService: RuntimeRegistryFacade.sharedService,
-                                       storageFacade: storageFacade)
+        return RewardCalculatorService(
+            eraValidatorsService: EraValidatorFacade.sharedService,
+            logger: logger,
+            operationManager: operationManager,
+            providerFactory: providerFactory,
+            runtimeCodingService: RuntimeRegistryFacade.sharedService,
+            storageFacade: storageFacade
+        )
     }()
 }

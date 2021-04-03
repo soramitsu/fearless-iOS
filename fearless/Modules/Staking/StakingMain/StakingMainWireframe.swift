@@ -20,16 +20,20 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         let maybeManageView = ModalPickerFactory.createPickerForList(
             items,
             delegate: delegate,
-            context: context)
+            context: context
+        )
         guard let manageView = maybeManageView else { return }
 
         view?.controller.present(manageView, animated: true, completion: nil)
     }
 
-    func showRecommendedValidators(from view: StakingMainViewProtocol?,
-                                   existingBonding: ExistingBonding) {
+    func showRecommendedValidators(
+        from view: StakingMainViewProtocol?,
+        existingBonding: ExistingBonding
+    ) {
         guard let recommendedView = RecommendedValidatorsViewFactory
-                .createChangeTargetsView(with: existingBonding) else {
+            .createChangeTargetsView(with: existingBonding)
+        else {
             return
         }
 
@@ -37,6 +41,15 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         let navigationController = FearlessNavigationController(rootViewController: rootController)
 
         view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int) {
+        guard let storiesView = StoriesViewFactory.createView(with: index) else {
+            return
+        }
+
+        storiesView.controller.modalPresentationStyle = .overFullScreen
+        view?.controller.present(storiesView.controller, animated: true, completion: nil)
     }
 
     func showRewardPayouts(from view: ControllerBackedProtocol?) {
@@ -55,7 +68,9 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         accountsView.controller.hidesBottomBarWhenPushed = true
 
-        view?.controller.navigationController?.pushViewController(accountsView.controller,
-                                                                  animated: true)
+        view?.controller.navigationController?.pushViewController(
+            accountsView.controller,
+            animated: true
+        )
     }
 }

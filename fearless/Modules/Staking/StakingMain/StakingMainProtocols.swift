@@ -10,7 +10,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveStakingState(viewModel: StakingViewState)
 }
 
-protocol StakingMainPresenterProtocol: class {
+protocol StakingMainPresenterProtocol: AnyObject {
     func setup()
     func performMainAction()
     func performAccountAction()
@@ -18,14 +18,15 @@ protocol StakingMainPresenterProtocol: class {
     func performNominationStatusAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
+    func selectStory(at index: Int)
 }
 
-protocol StakingMainInteractorInputProtocol: class {
+protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
     func fetchController(for address: AccountAddress)
 }
 
-protocol StakingMainInteractorOutputProtocol: class {
+protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(selectedAddress: String)
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
@@ -67,13 +68,21 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         context: AnyObject?
     )
 
-    func showRecommendedValidators(from view: StakingMainViewProtocol?,
-                                   existingBonding: ExistingBonding)
+    func showRecommendedValidators(
+        from view: StakingMainViewProtocol?,
+        existingBonding: ExistingBonding
+    )
+
+    func showStories(
+        from view: ControllerBackedProtocol?,
+        startingFrom index: Int
+    )
 
     func showRewardPayouts(from view: ControllerBackedProtocol?)
+
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
 
-protocol StakingMainViewFactoryProtocol: class {
-	static func createView() -> StakingMainViewProtocol?
+protocol StakingMainViewFactoryProtocol: AnyObject {
+    static func createView() -> StakingMainViewProtocol?
 }

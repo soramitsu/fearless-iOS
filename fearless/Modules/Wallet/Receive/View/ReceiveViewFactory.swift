@@ -13,9 +13,11 @@ final class ReceiveViewFactory: ReceiveViewFactoryProtocol {
 
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(accountViewModel: ReceiveAccountViewModelProtocol,
-         chain: Chain,
-         localizationManager: LocalizationManagerProtocol) {
+    init(
+        accountViewModel: ReceiveAccountViewModelProtocol,
+        chain: Chain,
+        localizationManager: LocalizationManagerProtocol
+    ) {
         self.accountViewModel = accountViewModel
         self.chain = chain
         self.localizationManager = localizationManager
@@ -26,9 +28,11 @@ final class ReceiveViewFactory: ReceiveViewFactoryProtocol {
         let username = accountViewModel.displayName
 
         let icon = try? iconGenerator.generateFromAddress(address)
-            .imageWithFillColor(R.color.colorWhite()!,
-                                size: CGSize(width: 32.0, height: 32.0),
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                R.color.colorWhite()!,
+                size: CGSize(width: 32.0, height: 32.0),
+                contentScale: UIScreen.main.scale
+            )
 
         let receiveView = R.nib.receiveHeaderView(owner: nil)
         receiveView?.accountView.title = username
@@ -39,10 +43,12 @@ final class ReceiveViewFactory: ReceiveViewFactoryProtocol {
         let locale = localizationManager.selectedLocale
 
         if let commandFactory = commandFactory {
-            let command = WalletAccountOpenCommand(address: address,
-                                                   chain: chain,
-                                                   commandFactory: commandFactory,
-                                                   locale: locale)
+            let command = WalletAccountOpenCommand(
+                address: address,
+                chain: chain,
+                commandFactory: commandFactory,
+                locale: locale
+            )
             receiveView?.actionCommand = command
         }
 

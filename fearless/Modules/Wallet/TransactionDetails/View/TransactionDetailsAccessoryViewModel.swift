@@ -11,12 +11,14 @@ struct TransactionDetailsAccessoryViewModel: AccessoryViewModelProtocol {
 
     let numberOfLines: Int = 0
 
-    init(title: String,
-         amount: String,
-         action: String,
-         icon: UIImage?,
-         command: WalletCommandProtocol,
-         shouldAllowAction: Bool) {
+    init(
+        title: String,
+        amount: String,
+        action: String,
+        icon: UIImage?,
+        command: WalletCommandProtocol,
+        shouldAllowAction: Bool
+    ) {
         self.title = title
         self.amount = amount
         self.action = action

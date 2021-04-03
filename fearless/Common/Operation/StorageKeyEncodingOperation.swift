@@ -39,8 +39,10 @@ final class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
                 throw StorageKeyEncodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
-                                                                  storageName: path.itemName) else {
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
                 throw StorageKeyEncodingOperationError.invalidStoragePath
             }
 
@@ -48,10 +50,10 @@ final class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
             let hasher: StorageHasher
 
             switch entry.type {
-            case .map(let mapEntry):
+            case let .map(mapEntry):
                 keyType = mapEntry.key
                 hasher = mapEntry.hasher
-            case .doubleMap(let doubleMapEntry):
+            case let .doubleMap(doubleMapEntry):
                 keyType = doubleMapEntry.key1
                 hasher = doubleMapEntry.hasher
             case .plain:
@@ -64,10 +66,12 @@ final class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
 
                 let encodedParam = try encoder.encode()
 
-                return try storageKeyFactory.createStorageKey(moduleName: path.moduleName,
-                                                              storageName: path.itemName,
-                                                              key: encodedParam,
-                                                              hasher: hasher)
+                return try storageKeyFactory.createStorageKey(
+                    moduleName: path.moduleName,
+                    storageName: path.itemName,
+                    key: encodedParam,
+                    hasher: hasher
+                )
             }
 
             result = .success(keys)
@@ -85,10 +89,12 @@ final class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOpe
     let path: StorageCodingPath
     let storageKeyFactory: StorageKeyFactoryProtocol
 
-    init(path: StorageCodingPath,
-         storageKeyFactory: StorageKeyFactoryProtocol,
-         keyParams1: [T1]? = nil,
-         keyParams2: [T2]? = nil) {
+    init(
+        path: StorageCodingPath,
+        storageKeyFactory: StorageKeyFactoryProtocol,
+        keyParams1: [T1]? = nil,
+        keyParams2: [T2]? = nil
+    ) {
         self.path = path
         self.keyParams1 = keyParams1
         self.keyParams2 = keyParams2
@@ -112,34 +118,43 @@ final class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOpe
             guard let factory = codingFactory,
                   let keyParams1 = keyParams1,
                   let keyParams2 = keyParams2,
-                  keyParams1.count == keyParams2.count else {
+                  keyParams1.count == keyParams2.count
+            else {
                 throw StorageKeyEncodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(in: path.moduleName,
-                                                                  storageName: path.itemName) else {
+            guard let entry = factory.metadata.getStorageMetadata(
+                in: path.moduleName,
+                storageName: path.itemName
+            ) else {
                 throw StorageKeyEncodingOperationError.invalidStoragePath
             }
 
-            guard case .doubleMap(let doubleMapEntry) = entry.type else {
+            guard case let .doubleMap(doubleMapEntry) = entry.type else {
                 throw StorageKeyEncodingOperationError.incompatibleStorageType
             }
 
             let keys: [Data] = try zip(keyParams1, keyParams2).map { param in
-                let encodedParam1 = try encodeParam(param.0,
-                                                    factory: factory,
-                                                    type: doubleMapEntry.key1)
+                let encodedParam1 = try encodeParam(
+                    param.0,
+                    factory: factory,
+                    type: doubleMapEntry.key1
+                )
 
-                let encodedParam2 = try encodeParam(param.1,
-                                                    factory: factory,
-                                                    type: doubleMapEntry.key2)
+                let encodedParam2 = try encodeParam(
+                    param.1,
+                    factory: factory,
+                    type: doubleMapEntry.key2
+                )
 
-                return try storageKeyFactory.createStorageKey(moduleName: path.moduleName,
-                                                              storageName: path.itemName,
-                                                              key1: encodedParam1,
-                                                              hasher1: doubleMapEntry.hasher,
-                                                              key2: encodedParam2,
-                                                              hasher2: doubleMapEntry.key2Hasher)
+                return try storageKeyFactory.createStorageKey(
+                    moduleName: path.moduleName,
+                    storageName: path.itemName,
+                    key1: encodedParam1,
+                    hasher1: doubleMapEntry.hasher,
+                    key2: encodedParam2,
+                    hasher2: doubleMapEntry.key2Hasher
+                )
             }
 
             result = .success(keys)
@@ -148,9 +163,11 @@ final class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOpe
         }
     }
 
-    private func encodeParam<T: Encodable>(_ param: T,
-                                           factory: RuntimeCoderFactoryProtocol,
-                                           type: String) throws -> Data {
+    private func encodeParam<T: Encodable>(
+        _ param: T,
+        factory: RuntimeCoderFactoryProtocol,
+        type: String
+    ) throws -> Data {
         let encoder = factory.createEncoder()
         try encoder.append(param, ofType: type)
         return try encoder.encode()

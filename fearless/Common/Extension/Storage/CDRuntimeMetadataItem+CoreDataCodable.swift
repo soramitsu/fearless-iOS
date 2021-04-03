@@ -3,7 +3,7 @@ import RobinHood
 import CoreData
 
 extension CDRuntimeMetadataItem: CoreDataCodable {
-    public func populate(from decoder: Decoder, using context: NSManagedObjectContext) throws {
+    public func populate(from decoder: Decoder, using _: NSManagedObjectContext) throws {
         let item = try RuntimeMetadataItem(from: decoder)
 
         identifier = item.chain

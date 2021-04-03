@@ -11,7 +11,8 @@ protocol WalletRemoteHistoryItemProtocol {
         _ address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol) -> AssetTransactionData
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData
 }
 
 extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
@@ -23,12 +24,15 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
         _ address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol) -> AssetTransactionData {
-        AssetTransactionData.createTransaction(from: self,
-                                               address: address,
-                                               networkType: networkType,
-                                               asset: asset,
-                                               addressFactory: addressFactory)
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        AssetTransactionData.createTransaction(
+            from: self,
+            address: address,
+            networkType: networkType,
+            asset: asset,
+            addressFactory: addressFactory
+        )
     }
 }
 
@@ -41,11 +45,14 @@ extension SubscanTransferItemData: WalletRemoteHistoryItemProtocol {
         _ address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol) -> AssetTransactionData {
-        AssetTransactionData.createTransaction(from: self,
-                                               address: address,
-                                               networkType: networkType,
-                                               asset: asset,
-                                               addressFactory: addressFactory)
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        AssetTransactionData.createTransaction(
+            from: self,
+            address: address,
+            networkType: networkType,
+            asset: asset,
+            addressFactory: addressFactory
+        )
     }
 }

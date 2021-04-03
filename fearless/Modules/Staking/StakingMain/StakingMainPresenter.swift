@@ -34,10 +34,12 @@ final class StakingMainPresenter {
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
 
-    init(stateViewModelFactory: StakingStateViewModelFactoryProtocol,
-         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
-         viewModelFacade: StakingViewModelFacadeProtocol,
-         logger: LoggerProtocol?) {
+    init(
+        stateViewModelFactory: StakingStateViewModelFactoryProtocol,
+        networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
+        viewModelFacade: StakingViewModelFacadeProtocol,
+        logger: LoggerProtocol?
+    ) {
         self.stateViewModelFactory = stateViewModelFactory
         self.networkInfoViewModelFactory = networkInfoViewModelFactory
         self.viewModelFacade = viewModelFacade
@@ -54,9 +56,11 @@ final class StakingMainPresenter {
 
         if let chain = commonData?.chain, let networkStakingInfo = networkStakingInfo {
             let networkStakingInfoViewModel = networkInfoViewModelFactory
-                .createNetworkStakingInfoViewModel(with: networkStakingInfo,
-                                                   chain: chain,
-                                                   priceData: commonData?.price)
+                .createNetworkStakingInfoViewModel(
+                    with: networkStakingInfo,
+                    chain: chain,
+                    priceData: commonData?.price
+                )
             view?.didRecieveNetworkStakingInfo(viewModel: networkStakingInfoViewModel)
         } else {
             view?.didRecieveNetworkStakingInfo(viewModel: nil)
@@ -91,7 +95,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        let bonded = stateMachine.viewState { (_ : BondedState) in true } ?? false
+        let bonded = stateMachine.viewState { (_: BondedState) in true } ?? false
 
         if bonded {
             if let stashItem = stateMachine.viewState(using: { (state: BondedState) in state.stashItem }) {
@@ -107,14 +111,18 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performNominationStatusAction() {
         let optViewModel: AlertPresentableViewModel? = stateMachine.viewState { (state: NominatorState) in
             let locale = view?.localizationManager?.selectedLocale
-            return state.createStatusPresentableViewModel(for: networkStakingInfo?.minimalStake,
-                                                          locale: locale)
+            return state.createStatusPresentableViewModel(
+                for: networkStakingInfo?.minimalStake,
+                locale: locale
+            )
         }
 
         if let viewModel = optViewModel {
-            wireframe.present(viewModel: viewModel,
-                              style: .alert,
-                              from: view)
+            wireframe.present(
+                viewModel: viewModel,
+                style: .alert,
+                from: view
+            )
         }
     }
 
@@ -127,7 +135,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             from: view,
             items: [.rewardPayouts],
             delegate: self,
-            context: nil)
+            context: nil
+        )
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -140,10 +149,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             stateMachine.state.process(rewardEstimationAmount: newAmount)
         }
     }
+
+    func selectStory(at index: Int) {
+        wireframe.showStories(from: view, startingFrom: index)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
-    func stateMachineDidChangeState(_ stateMachine: StakingStateMachineProtocol) {
+    func stateMachineDidChangeState(_: StakingStateMachineProtocol) {
         provideState()
     }
 }
@@ -176,10 +189,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(accountInfo: DyAccountInfo?) {
         if let availableValue = accountInfo?.data.available, let chain = chain {
-            self.balance = Decimal.fromSubstrateAmount(availableValue,
-                                                       precision: chain.addressType.precision)
+            balance = Decimal.fromSubstrateAmount(
+                availableValue,
+                precision: chain.addressType.precision
+            )
         } else {
-            self.balance = 0.0
+            balance = 0.0
         }
 
         stateMachine.state.process(accountInfo: accountInfo)
@@ -267,7 +282,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch electionStatus {
         case .close:
             logger?.debug("Election status: close")
-        case .open(let blockNumber):
+        case let .open(blockNumber):
             logger?.debug("Election status: open from \(blockNumber)")
         case .none:
             logger?.debug("No election status set")
@@ -289,7 +304,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     }
 
     func didReceive(newChain: Chain) {
-        self.networkStakingInfo = nil
+        networkStakingInfo = nil
 
         stateMachine.state.process(chain: newChain)
 
@@ -316,7 +331,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didFetchController(_ controller: AccountItem?, for address: AccountAddress) {
         guard let controller = controller else {
-
             if let view = view {
                 let locale = view.localizationManager?.selectedLocale
                 wireframe.presentMissingController(from: view, address: address, locale: locale)
@@ -328,21 +342,27 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         let optExistingBonding: ExistingBonding? = stateMachine.viewState { (state: BondedState) in
             guard
                 let chain = state.commonData.chain,
-                let amount = Decimal.fromSubstrateAmount(state.ledgerInfo.active,
-                                                         precision: chain.addressType.precision),
+                let amount = Decimal.fromSubstrateAmount(
+                    state.ledgerInfo.active,
+                    precision: chain.addressType.precision
+                ),
                 let payee = state.payee,
-                let rewardDestination = try? RewardDestination(payee: payee,
-                                                               stashItem: state.stashItem,
-                                                               chain: chain),
-                controller.address == state.stashItem.controller else {
-
+                let rewardDestination = try? RewardDestination(
+                    payee: payee,
+                    stashItem: state.stashItem,
+                    chain: chain
+                ),
+                controller.address == state.stashItem.controller
+            else {
                 return nil
             }
 
-            return ExistingBonding(stashAddress: state.stashItem.stash,
-                                   controllerAccount: controller,
-                                   amount: amount,
-                                   rewardDestination: rewardDestination)
+            return ExistingBonding(
+                stashAddress: state.stashItem.stash,
+                controllerAccount: controller,
+                amount: amount,
+                rewardDestination: rewardDestination
+            )
         }
 
         if let existingBonding = optExistingBonding {
@@ -356,8 +376,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 }
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
-
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+    func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
         wireframe.showRewardPayouts(from: view)
     }
 }

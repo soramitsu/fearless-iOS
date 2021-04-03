@@ -30,7 +30,7 @@ extension WalletTotalPriceCell: WalletViewProtocol {
 
             accountButton.imageWithTitleView?.iconImage = nil
 
-            totalPriceViewModel.imageViewModel?.loadImage { [weak self] (image, _)  in
+            totalPriceViewModel.imageViewModel?.loadImage { [weak self] image, _ in
                 self?.accountButton.imageWithTitleView?.iconImage = image
             }
         }

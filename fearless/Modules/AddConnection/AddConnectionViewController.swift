@@ -98,9 +98,11 @@ extension AddConnectionViewController: AddConnectionViewProtocol {
 }
 
 extension AddConnectionViewController: AnimatedTextFieldDelegate {
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let viewModel: InputViewModelProtocol?
 
         if textField === nameField {

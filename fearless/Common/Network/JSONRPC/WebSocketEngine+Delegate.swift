@@ -2,19 +2,19 @@ import Foundation
 import Starscream
 
 extension WebSocketEngine: WebSocketDelegate {
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
+    func didReceive(event: WebSocketEvent, client _: WebSocket) {
         mutex.lock()
 
         switch event {
-        case .binary(let data):
+        case let .binary(data):
             handleBinaryEvent(data: data)
-        case .text(let string):
+        case let .text(string):
             handleTextEvent(string: string)
         case .connected:
             handleConnectedEvent()
-        case .disconnected(let reason, let code):
+        case let .disconnected(reason, code):
             handleDisconnectedEvent(reason: reason, code: code)
-        case .error(let error):
+        case let .error(error):
             handleErrorEvent(error)
         case .cancelled:
             handleCancelled()
@@ -29,7 +29,7 @@ extension WebSocketEngine: WebSocketDelegate {
         logger.warning("Remote cancelled")
 
         switch state {
-        case .connecting(let attempt):
+        case let .connecting(attempt):
             connection.disconnect()
             scheduleReconnectionOrDisconnect(attempt + 1)
         case .connected:
@@ -40,8 +40,10 @@ extension WebSocketEngine: WebSocketDelegate {
             connection.disconnect()
             scheduleReconnectionOrDisconnect(1)
 
-            notify(requests: cancelledRequests,
-                   error: JSONRPCEngineError.clientCancelled)
+            notify(
+                requests: cancelledRequests,
+                error: JSONRPCEngineError.clientCancelled
+            )
         default:
             break
         }
@@ -63,9 +65,11 @@ extension WebSocketEngine: WebSocketDelegate {
             connection.disconnect()
             startConnecting(0)
 
-            notify(requests: cancelledRequests,
-                   error: JSONRPCEngineError.clientCancelled)
-        case .connecting(let attempt):
+            notify(
+                requests: cancelledRequests,
+                error: JSONRPCEngineError.clientCancelled
+            )
+        case let .connecting(attempt):
             connection.disconnect()
 
             scheduleReconnectionOrDisconnect(attempt + 1)
@@ -104,7 +108,7 @@ extension WebSocketEngine: WebSocketDelegate {
         logger.warning("Disconnected with code \(code): \(reason)")
 
         switch state {
-        case .connecting(let attempt):
+        case let .connecting(attempt):
             scheduleReconnectionOrDisconnect(attempt + 1)
         case .connected:
             let cancelledRequests = resetInProgress()
@@ -113,8 +117,10 @@ extension WebSocketEngine: WebSocketDelegate {
 
             scheduleReconnectionOrDisconnect(1)
 
-            notify(requests: cancelledRequests,
-                   error: JSONRPCEngineError.remoteCancelled)
+            notify(
+                requests: cancelledRequests,
+                error: JSONRPCEngineError.remoteCancelled
+            )
         default:
             break
         }
@@ -126,7 +132,6 @@ extension WebSocketEngine: ReachabilityListenerDelegate {
         mutex.lock()
 
         if manager.isReachable, case .waitingReconnection = state {
-
             logger.debug("Network became reachable, retrying connection")
 
             reconnectionScheduler.cancel()
@@ -150,15 +155,15 @@ extension WebSocketEngine: SchedulerDelegate {
         mutex.unlock()
     }
 
-    private func handleReconnection(scheduler: SchedulerProtocol) {
+    private func handleReconnection(scheduler _: SchedulerProtocol) {
         logger.debug("Did trigger reconnection scheduler")
 
-        if case .waitingReconnection(let attempt) = state {
+        if case let .waitingReconnection(attempt) = state {
             startConnecting(attempt)
         }
     }
 
-    private func handlePing(scheduler: SchedulerProtocol) {
+    private func handlePing(scheduler _: SchedulerProtocol) {
         schedulePingIfNeeded()
 
         connection.callbackQueue.async {

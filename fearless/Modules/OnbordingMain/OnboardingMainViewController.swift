@@ -54,7 +54,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func adjustLayout() {
-
         if isAdaptiveHeightDecreased {
             restoreBottomConstraint.constant *= designScaleRatio.height
             termsBottomConstraint.constant *= designScaleRatio.height
@@ -68,11 +67,11 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
 
     // MARK: Action
 
-    @IBAction private func actionSignup(sender: AnyObject) {
+    @IBAction private func actionSignup(sender _: AnyObject) {
         presenter.activateSignup()
     }
 
-    @IBAction private func actionRestoreAccess(sender: AnyObject) {
+    @IBAction private func actionRestoreAccess(sender _: AnyObject) {
         presenter.activateAccountRestore()
     }
 
@@ -85,7 +84,6 @@ final class OnboardingMainViewController: UIViewController, AdaptiveDesignable {
             } else {
                 presenter.activatePrivacy()
             }
-
         }
     }
 }

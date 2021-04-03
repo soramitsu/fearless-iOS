@@ -1,0 +1,21 @@
+name: Codecov Fearless
+
+on:
+  pull_request:
+    branches:
+      - develop
+
+jobs:
+  build:
+    runs-on: macOS-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+      
+      - name: Install Dependencies & Test
+        run: |
+          pod install --repo-update
+          set -o pipefail && xcodebuild test -workspace fearless.xcworkspace -scheme fearless -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' build test | xcpretty --test
+
+      - name: Upload coverage to Codecov
+        run: bash <(curl -s https://codecov.io/bash) -J 'fearless'

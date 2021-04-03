@@ -5,19 +5,25 @@ typealias EmailComposerCompletion = (Bool) -> Void
 
 protocol EmailPresentable {
     @discardableResult
-    func writeEmail(with message: SocialMessage,
-                    from view: ControllerBackedProtocol,
-                    completionHandler: EmailComposerCompletion?) -> Bool
+    func writeEmail(
+        with message: SocialMessage,
+        from view: ControllerBackedProtocol,
+        completionHandler: EmailComposerCompletion?
+    ) -> Bool
 }
 
 extension EmailPresentable {
     @discardableResult
-    func writeEmail(with message: SocialMessage,
-                    from view: ControllerBackedProtocol,
-                    completionHandler: EmailComposerCompletion?) -> Bool {
-        return MFEmailPresenter.shared.presentComposer(with: message,
-                                                       from: view,
-                                                       completionBlock: completionHandler)
+    func writeEmail(
+        with message: SocialMessage,
+        from view: ControllerBackedProtocol,
+        completionHandler: EmailComposerCompletion?
+    ) -> Bool {
+        MFEmailPresenter.shared.presentComposer(
+            with: message,
+            from: view,
+            completionBlock: completionHandler
+        )
     }
 }
 
@@ -27,11 +33,13 @@ private class MFEmailPresenter: NSObject, MFMailComposeViewControllerDelegate {
     private(set) var completionBlock: EmailComposerCompletion?
     private(set) var message: SocialMessage?
 
-    private override init() {}
+    override private init() {}
 
-    func presentComposer(with message: SocialMessage,
-                         from view: ControllerBackedProtocol,
-                         completionBlock: EmailComposerCompletion?) -> Bool {
+    func presentComposer(
+        with message: SocialMessage,
+        from view: ControllerBackedProtocol,
+        completionBlock: EmailComposerCompletion?
+    ) -> Bool {
         guard self.message == nil else {
             return false
         }
@@ -53,23 +61,26 @@ private class MFEmailPresenter: NSObject, MFMailComposeViewControllerDelegate {
             emailComposer.setMessageBody(body, isHTML: false)
         }
 
-        if message.recepients.count > 0 {
+        if !message.recepients.isEmpty {
             emailComposer.setToRecipients(message.recepients)
         }
 
         emailComposer.mailComposeDelegate = self
 
-        view.controller.present(emailComposer,
-                                animated: true,
-                                completion: nil)
+        view.controller.present(
+            emailComposer,
+            animated: true,
+            completion: nil
+        )
 
         return true
     }
 
-    func mailComposeController(_ controller: MFMailComposeViewController,
-                               didFinishWith result: MFMailComposeResult,
-                               error: Error?) {
-
+    func mailComposeController(
+        _ controller: MFMailComposeViewController,
+        didFinishWith result: MFMailComposeResult,
+        error _: Error?
+    ) {
         controller.presentingViewController?.dismiss(animated: true) {
             let completionBlock = self.completionBlock
 

@@ -32,8 +32,10 @@ final class AccountCreatePresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = TitleWithSubtitleViewModel(title: cryptoType.titleForLocale(locale),
-                                                   subtitle: cryptoType.subtitleForLocale(locale))
+        let viewModel = TitleWithSubtitleViewModel(
+            title: cryptoType.titleForLocale(locale),
+            subtitle: cryptoType.subtitleForLocale(locale)
+        )
 
         view?.setSelectedCrypto(model: viewModel)
     }
@@ -45,12 +47,16 @@ final class AccountCreatePresenter {
 
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let contentViewModel = IconWithTitleViewModel(icon: networkType.icon,
-                                                      title: networkType.titleForLocale(locale))
+        let contentViewModel = IconWithTitleViewModel(
+            icon: networkType.icon,
+            title: networkType.titleForLocale(locale)
+        )
 
         let selectable = (metadata?.availableNetworks.count ?? 0) > 1
-        let viewModel = SelectableViewModel(underlyingViewModel: contentViewModel,
-                                            selectable: selectable)
+        let viewModel = SelectableViewModel(
+            underlyingViewModel: contentViewModel,
+            selectable: selectable
+        )
 
         view?.setSelectedNetwork(model: viewModel)
     }
@@ -74,7 +80,7 @@ final class AccountCreatePresenter {
         let inputHandling = InputHandler(predicate: predicate)
         let viewModel = InputViewModel(inputHandler: inputHandling, placeholder: placeholder)
 
-        self.derivationPathViewModel = viewModel
+        derivationPathViewModel = viewModel
 
         view?.setDerivationPath(viewModel: viewModel)
         view?.didValidateDerivationPath(.none)
@@ -85,13 +91,17 @@ final class AccountCreatePresenter {
 
         switch cryptoType {
         case .sr25519:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardSoftPassword,
-                                  from: view,
-                                  locale: locale)
+            _ = wireframe.present(
+                error: AccountCreationError.invalidDerivationHardSoftPassword,
+                from: view,
+                locale: locale
+            )
         case .ed25519, .ecdsa:
-            _ = wireframe.present(error: AccountCreationError.invalidDerivationHardPassword,
-                                  from: view,
-                                  locale: locale)
+            _ = wireframe.present(
+                error: AccountCreationError.invalidDerivationHardPassword,
+                from: view,
+                locale: locale
+            )
         }
     }
 }
@@ -106,10 +116,12 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
         let message = R.string.localizable.accountCreationInfo(preferredLanguages: locale.rLanguages)
         let title = R.string.localizable.commonInfo(preferredLanguages: locale.rLanguages)
-        wireframe.present(message: message,
-                          title: title,
-                          closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
-                          from: view)
+        wireframe.present(
+            message: message,
+            title: title,
+            closeAction: R.string.localizable.commonClose(preferredLanguages: locale.rLanguages),
+            from: view
+        )
     }
 
     func validate() {
@@ -129,11 +141,13 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         if let metadata = metadata {
             let context = AccountCreateContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
-            wireframe.presentCryptoTypeSelection(from: view,
-                                                 availableTypes: metadata.availableCryptoTypes,
-                                                 selectedType: selectedType,
-                                                 delegate: self,
-                                                 context: context)
+            wireframe.presentCryptoTypeSelection(
+                from: view,
+                availableTypes: metadata.availableCryptoTypes,
+                selectedType: selectedType,
+                delegate: self,
+                context: context
+            )
         }
     }
 
@@ -141,11 +155,13 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         if let metadata = metadata {
             let context = AccountCreateContext.networkType.rawValue as NSString
             let selectedType = selectedNetworkType ?? metadata.defaultNetwork
-            wireframe.presentNetworkTypeSelection(from: view,
-                                                  availableTypes: metadata.availableNetworks,
-                                                  selectedType: selectedType,
-                                                  delegate: self,
-                                                  context: context)
+            wireframe.presentNetworkTypeSelection(
+                from: view,
+                availableTypes: metadata.availableNetworks,
+                selectedType: selectedType,
+                delegate: self,
+                context: context
+            )
         }
     }
 
@@ -154,7 +170,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             let networkType = selectedNetworkType,
             let cryptoType = selectedCryptoType,
             let viewModel = derivationPathViewModel,
-            let metadata = metadata else {
+            let metadata = metadata
+        else {
             return
         }
 
@@ -164,14 +181,18 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
             return
         }
 
-        let request = AccountCreationRequest(username: username,
-                                             type: networkType,
-                                             derivationPath: viewModel.inputHandler.value,
-                                             cryptoType: cryptoType)
+        let request = AccountCreationRequest(
+            username: username,
+            type: networkType,
+            derivationPath: viewModel.inputHandler.value,
+            cryptoType: cryptoType
+        )
 
-        wireframe.confirm(from: view,
-                          request: request,
-                          metadata: metadata)
+        wireframe.confirm(
+            from: view,
+            request: request,
+            metadata: metadata
+        )
     }
 }
 
@@ -196,9 +217,11 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
             return
         }
 
-        _ = wireframe.present(error: CommonError.undefined,
-                              from: view,
-                              locale: locale)
+        _ = wireframe.present(
+            error: CommonError.undefined,
+            from: view,
+            locale: locale
+        )
     }
 }
 

@@ -9,12 +9,14 @@ enum AccountHeaderType {
     case address(_ type: SNAddressType, title: LocalizableResource<String>)
 }
 
-struct ModalPickerFactory {
-    static func createPickerForList(_ types: [CryptoType],
-                                    selectedType: CryptoType?,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?) -> UIViewController? {
-        guard types.count > 0 else {
+enum ModalPickerFactory {
+    static func createPickerForList(
+        _ types: [CryptoType],
+        selectedType: CryptoType?,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !types.isEmpty else {
             return nil
         }
 
@@ -38,8 +40,10 @@ struct ModalPickerFactory {
 
         viewController.viewModels = types.map { type in
             LocalizableResource { locale in
-                TitleWithSubtitleViewModel(title: type.titleForLocale(locale),
-                                           subtitle: type.subtitleForLocale(locale))
+                TitleWithSubtitleViewModel(
+                    title: type.titleForLocale(locale),
+                    subtitle: type.subtitleForLocale(locale)
+                )
             }
         }
 
@@ -55,11 +59,13 @@ struct ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerForList(_ types: [Chain],
-                                    selectedType: Chain?,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?) -> UIViewController? {
-        guard types.count > 0 else {
+    static func createPickerForList(
+        _ types: [Chain],
+        selectedType: Chain?,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !types.isEmpty else {
             return nil
         }
 
@@ -83,8 +89,10 @@ struct ModalPickerFactory {
 
         viewController.viewModels = types.map { type in
             LocalizableResource { locale in
-                IconWithTitleViewModel(icon: type.icon,
-                                       title: type.titleForLocale(locale))
+                IconWithTitleViewModel(
+                    icon: type.icon,
+                    title: type.titleForLocale(locale)
+                )
             }
         }
 
@@ -100,11 +108,13 @@ struct ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerForList(_ types: [AccountImportSource],
-                                    selectedType: AccountImportSource?,
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?) -> UIViewController? {
-        guard types.count > 0 else {
+    static func createPickerForList(
+        _ types: [AccountImportSource],
+        selectedType: AccountImportSource?,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !types.isEmpty else {
             return nil
         }
 
@@ -128,8 +138,10 @@ struct ModalPickerFactory {
 
         viewController.viewModels = types.map { type in
             LocalizableResource { locale in
-                TitleWithSubtitleViewModel(title: type.titleForLocale(locale),
-                                           subtitle: "")
+                TitleWithSubtitleViewModel(
+                    title: type.titleForLocale(locale),
+                    subtitle: ""
+                )
             }
         }
 
@@ -145,49 +157,56 @@ struct ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerList(_ accounts: [AccountItem],
-                                 selectedAccount: AccountItem?,
-                                 title: LocalizableResource<String>,
-                                 delegate: ModalPickerViewControllerDelegate?,
-                                 context: AnyObject?) -> UIViewController? {
-
-        createPickerList(accounts,
-                         selectedAccount: selectedAccount,
-                         headerType: .title(title),
-                         delegate: delegate,
-                         context: context)
+    static func createPickerList(
+        _ accounts: [AccountItem],
+        selectedAccount: AccountItem?,
+        title: LocalizableResource<String>,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        createPickerList(
+            accounts,
+            selectedAccount: selectedAccount,
+            headerType: .title(title),
+            delegate: delegate,
+            context: context
+        )
     }
 
-    static func createPickerList(_ accounts: [AccountItem],
-                                 selectedAccount: AccountItem?,
-                                 addressType: SNAddressType,
-                                 delegate: ModalPickerViewControllerDelegate?,
-                                 context: AnyObject?) -> UIViewController? {
-
+    static func createPickerList(
+        _ accounts: [AccountItem],
+        selectedAccount: AccountItem?,
+        addressType: SNAddressType,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
         let localizedTitle = LocalizableResource { locale in
             R.string.localizable.profileAccountsTitle(preferredLanguages: locale.rLanguages)
         }
 
-        return createPickerList(accounts,
-                                selectedAccount: selectedAccount,
-                                headerType: .address(addressType, title: localizedTitle),
-                                delegate: delegate,
-                                context: context)
+        return createPickerList(
+            accounts,
+            selectedAccount: selectedAccount,
+            headerType: .address(addressType, title: localizedTitle),
+            delegate: delegate,
+            context: context
+        )
     }
 
-    static func createPickerList(_ accounts: [AccountItem],
-                                 selectedAccount: AccountItem?,
-                                 headerType: AccountHeaderType,
-                                 delegate: ModalPickerViewControllerDelegate?,
-                                 context: AnyObject?) -> UIViewController? {
-
+    static func createPickerList(
+        _ accounts: [AccountItem],
+        selectedAccount: AccountItem?,
+        headerType: AccountHeaderType,
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
         let viewController: ModalPickerViewController<AccountPickerTableViewCell, AccountPickerViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         switch headerType {
-        case .title(let title):
+        case let .title(title):
             viewController.localizedTitle = title
-        case .address(let type, let title):
+        case let .address(type, title):
             viewController.localizedTitle = title
             viewController.icon = type.icon
             viewController.actionType = .add
@@ -229,10 +248,12 @@ struct ModalPickerFactory {
         return viewController
     }
 
-    static func createPickerForList(_ items: [ManageStakingItem],
-                                    delegate: ModalPickerViewControllerDelegate?,
-                                    context: AnyObject?) -> UIViewController? {
-        guard items.count > 0 else {
+    static func createPickerForList(
+        _ items: [ManageStakingItem],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !items.isEmpty else {
             return nil
         }
 
@@ -251,8 +272,10 @@ struct ModalPickerFactory {
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in
-                IconWithTitleViewModel(icon: type.icon,
-                                       title: type.titleForLocale(locale))
+                IconWithTitleViewModel(
+                    icon: type.icon,
+                    title: type.titleForLocale(locale)
+                )
             }
         }
 

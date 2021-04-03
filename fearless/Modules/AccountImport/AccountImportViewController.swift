@@ -4,7 +4,7 @@ import SoraFoundation
 import SoraUI
 
 final class AccountImportViewController: UIViewController {
-    private struct Constants {
+    private enum Constants {
         static let advancedFullHeight: CGFloat = 220.0
         static let advancedTruncHeight: CGFloat = 152.0
     }
@@ -54,15 +54,19 @@ final class AccountImportViewController: UIViewController {
 
     var keyboardHandler: KeyboardHandler?
 
-    var advancedAppearanceAnimator = TransitionAnimator(type: .push,
-                                                        duration: 0.35,
-                                                        subtype: .fromBottom,
-                                                        curve: .easeOut)
+    var advancedAppearanceAnimator = TransitionAnimator(
+        type: .push,
+        duration: 0.35,
+        subtype: .fromBottom,
+        curve: .easeOut
+    )
 
-    var advancedDismissalAnimator = TransitionAnimator(type: .push,
-                                                       duration: 0.35,
-                                                       subtype: .fromTop,
-                                                       curve: .easeIn)
+    var advancedDismissalAnimator = TransitionAnimator(
+        type: .push,
+        duration: 0.35,
+        subtype: .fromTop,
+        curve: .easeIn
+    )
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -95,24 +99,32 @@ final class AccountImportViewController: UIViewController {
 
         if let placeholder = derivationPathField.placeholder {
             let color = R.color.colorGray() ?? .gray
-            let attributedPlaceholder = NSAttributedString(string: placeholder,
-                                                           attributes: [.foregroundColor: color])
+            let attributedPlaceholder = NSAttributedString(
+                string: placeholder,
+                attributes: [.foregroundColor: color]
+            )
             derivationPathField.attributedPlaceholder = attributedPlaceholder
         }
 
         textView.tintColor = R.color.colorWhite()
 
-        sourceTypeView.actionControl.addTarget(self,
-                                               action: #selector(actionOpenSourceType),
-                                               for: .valueChanged)
+        sourceTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenSourceType),
+            for: .valueChanged
+        )
 
-        cryptoTypeView.actionControl.addTarget(self,
-                                               action: #selector(actionOpenCryptoType),
-                                               for: .valueChanged)
+        cryptoTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenCryptoType),
+            for: .valueChanged
+        )
 
-        networkTypeView.actionControl.addTarget(self,
-                                                action: #selector(actionOpenAddressType),
-                                                for: .valueChanged)
+        networkTypeView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenAddressType),
+            for: .valueChanged
+        )
 
         usernameTextField.textField.returnKeyType = .done
         usernameTextField.textField.textContentType = .nickname
@@ -181,7 +193,7 @@ final class AccountImportViewController: UIViewController {
 
     private func setupPasswordPlaceholder(for locale: Locale) {
         passwordTextField.title = R.string.localizable
-        .accountImportPasswordPlaceholder(preferredLanguages: locale.rLanguages)
+            .accountImportPasswordPlaceholder(preferredLanguages: locale.rLanguages)
     }
 
     private func updateNextButton() {
@@ -455,9 +467,11 @@ extension AccountImportViewController: UITextFieldDelegate {
         return false
     }
 
-    func textField(_ textField: UITextField,
-                   shouldChangeCharactersIn range: NSRange,
-                   replacementString string: String) -> Bool {
+    func textField(
+        _ textField: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         guard let currentViewModel = derivationPathModel else {
             return true
         }
@@ -478,9 +492,11 @@ extension AccountImportViewController: AnimatedTextFieldDelegate {
         return false
     }
 
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let viewModel: InputViewModelProtocol?
 
         if textField === usernameTextField {
@@ -513,9 +529,11 @@ extension AccountImportViewController: UITextViewDelegate {
         updateNextButton()
     }
 
-    func textView(_ textView: UITextView,
-                  shouldChangeTextIn range: NSRange,
-                  replacementText text: String) -> Bool {
+    func textView(
+        _ textView: UITextView,
+        shouldChangeTextIn range: NSRange,
+        replacementText text: String
+    ) -> Bool {
         if text == String.returnKey {
             textView.resignFirstResponder()
             return false
@@ -561,8 +579,10 @@ extension AccountImportViewController: KeyboardAdoptable {
             }
 
             if let firstResponderView = targetView {
-                let fieldFrame = scrollView.convert(firstResponderView.frame,
-                                                    from: firstResponderView.superview)
+                let fieldFrame = scrollView.convert(
+                    firstResponderView.frame,
+                    from: firstResponderView.superview
+                )
 
                 scrollView.scrollRectToVisible(fieldFrame, animated: true)
             }

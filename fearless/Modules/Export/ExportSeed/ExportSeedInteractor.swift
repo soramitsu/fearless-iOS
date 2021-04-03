@@ -14,9 +14,11 @@ final class ExportSeedInteractor {
     let repository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
 
-    init(keystore: KeystoreProtocol,
-         repository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol) {
+    init(
+        keystore: KeystoreProtocol,
+        repository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol
+    ) {
         self.keystore = keystore
         self.repository = repository
         self.operationManager = operationManager
@@ -29,13 +31,14 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
 
         let exportOperation: BaseOperation<ExportSeedData> = ClosureOperation { [weak self] in
             guard let account = try accountOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) else {
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            else {
                 throw ExportMnemonicInteractorError.missingAccount
             }
 
             var optionalSeed: Data? = try self?.keystore.fetchSeedForAddress(address)
 
-            if optionalSeed == nil && account.cryptoType.supportsSeedFromSecretKey {
+            if optionalSeed == nil, account.cryptoType.supportsSeedFromSecretKey {
                 optionalSeed = try self?.keystore.fetchSecretKeyForAddress(address)
             }
 
@@ -51,10 +54,12 @@ extension ExportSeedInteractor: ExportSeedInteractorInputProtocol {
                 throw AccountExportPasswordInteractorError.unsupportedAddress
             }
 
-            return ExportSeedData(account: account,
-                                  seed: seed,
-                                  derivationPath: derivationPath,
-                                  networkType: chain)
+            return ExportSeedData(
+                account: account,
+                seed: seed,
+                derivationPath: derivationPath,
+                networkType: chain
+            )
         }
 
         exportOperation.addDependency(accountOperation)

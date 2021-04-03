@@ -9,7 +9,7 @@ final class ExportMnemonicConfirmInteractor {
 
     init(mnemonic: IRMnemonicProtocol) {
         self.mnemonic = mnemonic
-        self.shuffledWords = mnemonic.allWords().shuffled()
+        shuffledWords = mnemonic.allWords().shuffled()
     }
 }
 
@@ -20,8 +20,10 @@ extension ExportMnemonicConfirmInteractor: AccountConfirmInteractorInputProtocol
 
     func confirm(words: [String]) {
         guard words == mnemonic.allWords() else {
-            presenter.didReceive(words: shuffledWords,
-                                 afterConfirmationFail: true)
+            presenter.didReceive(
+                words: shuffledWords,
+                afterConfirmationFail: true
+            )
             return
         }
 

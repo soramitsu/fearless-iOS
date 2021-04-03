@@ -7,9 +7,10 @@ extension AddAccount {
                 return
             }
 
-            view?.controller.navigationController?.pushViewController(accountCreation.controller,
-                                                                      animated: true)
+            view?.controller.navigationController?.pushViewController(
+                accountCreation.controller,
+                animated: true
+            )
         }
     }
-
 }

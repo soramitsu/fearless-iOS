@@ -3,7 +3,7 @@ import SoraUI
 import SoraFoundation
 
 final class NetworkInfoViewController: UIViewController {
-    private struct Constants {
+    private enum Constants {
         static let margin: CGFloat = 16.0
         static let actionHeight: CGFloat = 52.0
     }
@@ -51,10 +51,12 @@ final class NetworkInfoViewController: UIViewController {
     }
 
     private func configureNavigationItem() {
-        let closeBarItem = UIBarButtonItem(image: R.image.iconClose(),
-                                                style: .plain,
-                                                target: self,
-                                                action: #selector(actionClose))
+        let closeBarItem = UIBarButtonItem(
+            image: R.image.iconClose(),
+            style: .plain,
+            target: self,
+            action: #selector(actionClose)
+        )
 
         navigationItem.leftBarButtonItem = closeBarItem
     }
@@ -85,20 +87,28 @@ final class NetworkInfoViewController: UIViewController {
         button.imageWithTitleView?.title = R.string.localizable
             .commonUpdate(preferredLanguages: localizationManager?.selectedLocale.rLanguages)
 
-        button.leadingAnchor.constraint(equalTo: view.leadingAnchor,
-                                        constant: Constants.margin).isActive = true
+        button.leadingAnchor.constraint(
+            equalTo: view.leadingAnchor,
+            constant: Constants.margin
+        ).isActive = true
 
-        button.rightAnchor.constraint(equalTo: view.rightAnchor,
-                                      constant: -Constants.margin).isActive = true
+        button.rightAnchor.constraint(
+            equalTo: view.rightAnchor,
+            constant: -Constants.margin
+        ).isActive = true
 
-        button.topAnchor.constraint(equalTo: networkView.bottomAnchor,
-                                      constant: Constants.margin).isActive = true
+        button.topAnchor.constraint(
+            equalTo: networkView.bottomAnchor,
+            constant: Constants.margin
+        ).isActive = true
 
         button.heightAnchor.constraint(equalToConstant: Constants.actionHeight).isActive = true
 
-        button.addTarget(self,
-                         action: #selector(actionUpdate),
-                         for: .touchUpInside)
+        button.addTarget(
+            self,
+            action: #selector(actionUpdate),
+            for: .touchUpInside
+        )
 
         actionButton = button
     }
@@ -170,7 +180,7 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
             nameBackgroundView.applyDisabledStyle()
         }
 
-        let shouldAddAction = (nameViewModel.inputHandler.enabled) || (nodeViewModel?.inputHandler.enabled ?? false)
+        let shouldAddAction = nameViewModel.inputHandler.enabled || (nodeViewModel?.inputHandler.enabled ?? false)
 
         if shouldAddAction {
             addActionButtonIfNeeded()
@@ -196,7 +206,7 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
             nodeBackgroundView.applyDisabledStyle()
         }
 
-        let shouldAddAction = (nameViewModel?.inputHandler.enabled ?? false) || (nodeViewModel.inputHandler.enabled)
+        let shouldAddAction = (nameViewModel?.inputHandler.enabled ?? false) || nodeViewModel.inputHandler.enabled
 
         if shouldAddAction {
             addActionButtonIfNeeded()
@@ -215,9 +225,11 @@ extension NetworkInfoViewController: NetworkInfoViewProtocol {
 }
 
 extension NetworkInfoViewController: AnimatedTextFieldDelegate {
-    func animatedTextField(_ textField: AnimatedTextField,
-                           shouldChangeCharactersIn range: NSRange,
-                           replacementString string: String) -> Bool {
+    func animatedTextField(
+        _ textField: AnimatedTextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
         let viewModel: InputViewModelProtocol?
 
         if textField === nameField {

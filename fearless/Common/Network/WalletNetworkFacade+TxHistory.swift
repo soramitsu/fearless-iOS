@@ -8,8 +8,8 @@ extension WalletNetworkFacade {
         dependingOn remoteOperation: BaseOperation<WalletRemoteHistoryData>?,
         localOperation: BaseOperation<[TransactionHistoryItem]>?,
         asset: WalletAsset,
-        address: String)
-        -> BaseOperation<TransactionHistoryMergeResult> {
+        address: String
+    ) -> BaseOperation<TransactionHistoryMergeResult> {
         let currentNetworkType = networkType
         let addressFactory = SS58AddressFactory()
 
@@ -18,35 +18,46 @@ extension WalletNetworkFacade {
 
             if let localTransactions = try localOperation?.extractNoCancellableResultData(),
                !localTransactions.isEmpty {
-                let manager = TransactionHistoryMergeManager(address: address,
-                                                             networkType: currentNetworkType,
-                                                             asset: asset,
-                                                             addressFactory: addressFactory)
-                return manager.merge(subscanItems: remoteTransactions,
-                                     localItems: localTransactions)
+                let manager = TransactionHistoryMergeManager(
+                    address: address,
+                    networkType: currentNetworkType,
+                    asset: asset,
+                    addressFactory: addressFactory
+                )
+                return manager.merge(
+                    subscanItems: remoteTransactions,
+                    localItems: localTransactions
+                )
             } else {
                 let transactions: [AssetTransactionData] = remoteTransactions.map { item in
-                    item.createTransactionForAddress(address,
-                                                     networkType: currentNetworkType,
-                                                     asset: asset,
-                                                     addressFactory: addressFactory)
+                    item.createTransactionForAddress(
+                        address,
+                        networkType: currentNetworkType,
+                        asset: asset,
+                        addressFactory: addressFactory
+                    )
                 }
 
-                return TransactionHistoryMergeResult(historyItems: transactions,
-                                                     identifiersToRemove: [])
+                return TransactionHistoryMergeResult(
+                    historyItems: transactions,
+                    identifiersToRemove: []
+                )
             }
         }
     }
 
     func createHistoryMapOperation(
         dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-        remoteOperation: BaseOperation<WalletRemoteHistoryData>) -> BaseOperation<AssetTransactionPageData?> {
+        remoteOperation: BaseOperation<WalletRemoteHistoryData>
+    ) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
             let newHistoryContext = try remoteOperation.extractNoCancellableResultData().context
 
-            return AssetTransactionPageData(transactions: mergeResult.historyItems,
-                                            context: newHistoryContext.toContext())
+            return AssetTransactionPageData(
+                transactions: mergeResult.historyItems,
+                context: newHistoryContext.toContext()
+            )
         }
     }
 }

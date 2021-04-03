@@ -1,7 +1,6 @@
 import UIKit
 
 final class StakingRewardPayoutsViewLayout: UIView {
-
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
@@ -21,7 +20,8 @@ final class StakingRewardPayoutsViewLayout: UIView {
         setupLayout()
     }
 
-    required init?(coder: NSCoder) {
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
@@ -41,13 +41,16 @@ final class StakingRewardPayoutsViewLayout: UIView {
             payoutButton.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight),
             payoutButton.leadingAnchor.constraint(
                 equalTo: leadingAnchor,
-                constant: UIConstants.horizontalInset),
+                constant: UIConstants.horizontalInset
+            ),
             payoutButton.trailingAnchor.constraint(
                 equalTo: trailingAnchor,
-                constant: -UIConstants.horizontalInset),
+                constant: -UIConstants.horizontalInset
+            ),
             payoutButton.bottomAnchor.constraint(
                 equalTo: safeAreaLayoutGuide.bottomAnchor,
-                constant: -UIConstants.actionBottomInset)
+                constant: -UIConstants.actionBottomInset
+            )
         ])
     }
 }

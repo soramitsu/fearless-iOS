@@ -15,9 +15,11 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
     private let asset: WalletAsset
     private let amountFormatterFactory: NumberFormatterFactoryProtocol
 
-    init(iconGenerator: IconGenerating,
-         asset: WalletAsset,
-         amountFormatterFactory: NumberFormatterFactoryProtocol) {
+    init(
+        iconGenerator: IconGenerating,
+        asset: WalletAsset,
+        amountFormatterFactory: NumberFormatterFactoryProtocol
+    ) {
         self.iconGenerator = iconGenerator
         self.asset = asset
         self.amountFormatterFactory = amountFormatterFactory
@@ -39,19 +41,24 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
 
     func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol {
         let userIcon = try? iconGenerator.generateFromAddress(validatorInfo.address)
-            .imageWithFillColor(.white,
-                                size: UIConstants.normalAddressIconSize,
-                                contentScale: UIScreen.main.scale)
+            .imageWithFillColor(
+                .white,
+                size: UIConstants.normalAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
 
         let viewModel: ValidatorInfoAccountViewModelProtocol =
-            ValidatorInfoAccountViewModel(name: validatorInfo.identity?.displayName,
-                                          address: validatorInfo.address,
-                                          icon: userIcon)
+            ValidatorInfoAccountViewModel(
+                name: validatorInfo.identity?.displayName,
+                address: validatorInfo.address,
+                icon: userIcon
+            )
 
         return viewModel
     }
 
     // MARK: - Private functions
+
     private func createLegalRow(with legal: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
             let title = R.string.localizable.identityLegalNameTitle(preferredLanguages: locale.rLanguages)
@@ -75,7 +82,7 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
 
     private func createTwitterRow(with twitter: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { _ in
-            return TitleWithSubtitleViewModel(title: "Twitter", subtitle: twitter)
+            TitleWithSubtitleViewModel(title: "Twitter", subtitle: twitter)
         }
     }
 
@@ -97,8 +104,10 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
             let subtitle = tokenFormatter.value(for: locale)
                 .string(from: totalStake) ?? ""
 
-            return TitleWithSubtitleViewModel(title: title,
-                                              subtitle: subtitle)
+            return TitleWithSubtitleViewModel(
+                title: title,
+                subtitle: subtitle
+            )
         }
     }
 
@@ -111,8 +120,8 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
     }
 
     private func createEstimatedRewardRow(
-        with stakeReturn: Decimal) -> LocalizableResource<TitleWithSubtitleViewModel> {
-
+        with stakeReturn: Decimal
+    ) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
             let percentageFormatter = NumberFormatter.percentAPY.localizableResource().value(for: locale)
 
@@ -122,64 +131,84 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
             let subtitle = percentageFormatter
                 .string(from: stakeReturn as NSNumber) ?? ""
 
-            return TitleWithSubtitleViewModel(title: title,
-                                              subtitle: subtitle)
+            return TitleWithSubtitleViewModel(
+                title: title,
+                subtitle: subtitle
+            )
         }
     }
 
     private func createIdentityViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Row]? {
+        from validatorInfo: ValidatorInfoProtocol
+    ) -> [ValidatorInfoViewController.Row]? {
         guard let identity = validatorInfo.identity else { return nil }
 
         var identityViewModel: [ValidatorInfoViewController.Row] = []
 
         if let legal = identity.legal {
-            identityViewModel.append((rowType: .legalName,
-                                      content: createLegalRow(with: legal)))
+            identityViewModel.append((
+                rowType: .legalName,
+                content: createLegalRow(with: legal)
+            ))
         }
 
         if let email = identity.email {
-            identityViewModel.append((rowType: .email,
-                                      content: createEmailRow(with: email)))
+            identityViewModel.append((
+                rowType: .email,
+                content: createEmailRow(with: email)
+            ))
         }
 
         if let web = identity.web {
-            identityViewModel.append((rowType: .web,
-                                      content: createWebRow(with: web)))
+            identityViewModel.append((
+                rowType: .web,
+                content: createWebRow(with: web)
+            ))
         }
 
         if let twitter = identity.twitter {
-            identityViewModel.append((rowType: .twitter,
-                                      content: createTwitterRow(with: twitter)))
+            identityViewModel.append((
+                rowType: .twitter,
+                content: createTwitterRow(with: twitter)
+            ))
         }
 
         if let riot = identity.riot {
-            identityViewModel.append((rowType: .riot,
-                                      content: createRiotRow(with: riot)))
+            identityViewModel.append((
+                rowType: .riot,
+                content: createRiotRow(with: riot)
+            ))
         }
 
-        guard identityViewModel.count > 0 else { return nil }
+        guard !identityViewModel.isEmpty else { return nil }
 
         return identityViewModel
     }
 
     private func createStakingViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Row]? {
-
+        from validatorInfo: ValidatorInfoProtocol
+    ) -> [ValidatorInfoViewController.Row]? {
         guard let stakeInfo = validatorInfo.stakeInfo else { return nil }
 
         var stakingViewModel: [ValidatorInfoViewController.Row] = []
 
-        stakingViewModel.append((rowType: .totalStake,
-                                 content: createTotalStakeRow(with: stakeInfo.totalStake)))
+        stakingViewModel.append((
+            rowType: .totalStake,
+            content: createTotalStakeRow(with: stakeInfo.totalStake)
+        ))
 
-        stakingViewModel.append((rowType: .nominators, content:
-                                    createNominatorsRow(with: stakeInfo.nominators)))
+        stakingViewModel.append((
+            rowType: .nominators,
+            content:
+            createNominatorsRow(with: stakeInfo.nominators)
+        ))
 
-        stakingViewModel.append((rowType: .estimatedReward,
-                                 createEstimatedRewardRow(with: stakeInfo.stakeReturn)))
+        stakingViewModel.append((
+            rowType: .estimatedReward,
+            createEstimatedRewardRow(with: stakeInfo.stakeReturn)
+        ))
 
-        guard stakingViewModel.count > 0 else { return nil }
+        guard !stakingViewModel.isEmpty else { return nil }
 
         return stakingViewModel
     }

@@ -17,12 +17,14 @@ class BaseAccountImportInteractor {
     let supportedNetworks: [Chain]
     let defaultNetwork: Chain
 
-    init(accountOperationFactory: AccountOperationFactoryProtocol,
-         accountRepository: AnyDataProviderRepository<AccountItem>,
-         operationManager: OperationManagerProtocol,
-         keystoreImportService: KeystoreImportServiceProtocol,
-         supportedNetworks: [Chain],
-         defaultNetwork: Chain) {
+    init(
+        accountOperationFactory: AccountOperationFactoryProtocol,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol,
+        keystoreImportService: KeystoreImportServiceProtocol,
+        supportedNetworks: [Chain],
+        defaultNetwork: Chain
+    ) {
         self.accountOperationFactory = accountOperationFactory
         self.accountRepository = accountRepository
         self.operationManager = operationManager
@@ -55,17 +57,19 @@ class BaseAccountImportInteractor {
     }
 
     private func provideMetadata() {
-        let metadata = AccountImportMetadata(availableSources: AccountImportSource.allCases,
-                                             defaultSource: .mnemonic,
-                                             availableNetworks: supportedNetworks,
-                                             defaultNetwork: defaultNetwork,
-                                             availableCryptoTypes: CryptoType.allCases,
-                                             defaultCryptoType: .sr25519)
+        let metadata = AccountImportMetadata(
+            availableSources: AccountImportSource.allCases,
+            defaultSource: .mnemonic,
+            availableNetworks: supportedNetworks,
+            defaultNetwork: defaultNetwork,
+            availableCryptoTypes: CryptoType.allCases,
+            defaultCryptoType: .sr25519
+        )
 
         presenter.didReceiveAccountImport(metadata: metadata)
     }
 
-    func importAccountUsingOperation(_ importOperation: BaseOperation<AccountItem>) {}
+    func importAccountUsingOperation(_: BaseOperation<AccountItem>) {}
 }
 
 extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
@@ -80,13 +84,17 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
             return
         }
 
-        let creationRequest = AccountCreationRequest(username: request.username,
-                                                     type: request.networkType,
-                                                     derivationPath: request.derivationPath,
-                                                     cryptoType: request.cryptoType)
+        let creationRequest = AccountCreationRequest(
+            username: request.username,
+            type: request.networkType,
+            derivationPath: request.derivationPath,
+            cryptoType: request.cryptoType
+        )
 
-        let accountOperation = accountOperationFactory.newAccountOperation(request: creationRequest,
-                                                                           mnemonic: mnemonic)
+        let accountOperation = accountOperationFactory.newAccountOperation(
+            request: creationRequest,
+            mnemonic: mnemonic
+        )
 
         importAccountUsingOperation(accountOperation)
     }
@@ -106,14 +114,13 @@ extension BaseAccountImportInteractor: AccountImportInteractorInputProtocol {
             let data = keystore.data(using: .utf8),
             let definition = try? jsonDecoder.decode(KeystoreDefinition.self, from: data),
             let info = try? AccountImportJsonFactory().createInfo(from: definition) {
-
             presenter.didSuggestKeystore(text: keystore, preferredInfo: info)
         }
     }
 }
 
 extension BaseAccountImportInteractor: KeystoreImportObserver {
-    func didUpdateDefinition(from oldDefinition: KeystoreDefinition?) {
+    func didUpdateDefinition(from _: KeystoreDefinition?) {
         handleIfNeededKeystoreImport()
     }
 }

@@ -12,10 +12,12 @@ class GitHubPhishingServiceFactory {
         let operationManager = OperationManagerFacade.sharedManager
 
         let gitHubPhishingService: ApplicationServiceProtocol =
-            GitHubPhishingAPIService(url: url,
-                                     operationFactory: networkOoperationFactory,
-                                     operationManager: operationManager,
-                                     storage: storage)
+            GitHubPhishingAPIService(
+                url: url,
+                operationFactory: networkOoperationFactory,
+                operationManager: operationManager,
+                storage: storage
+            )
 
         return gitHubPhishingService
     }

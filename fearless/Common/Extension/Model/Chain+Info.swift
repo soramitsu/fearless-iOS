@@ -77,7 +77,7 @@ extension Chain {
     }
 
     func preparedDefaultTypeDefPath() -> String? {
-        return R.file.runtimeDefaultJson.path()
+        R.file.runtimeDefaultJson.path()
     }
 
     func preparedNetworkTypeDefPath() -> String? {

@@ -14,7 +14,8 @@ extension AddAccount {
 
         func showAccountRestore(from view: OnboardingMainViewProtocol?) {
             guard let restorationController = AccountImportViewFactory
-                .createViewForAdding()?.controller else {
+                .createViewForAdding()?.controller
+            else {
                 return
             }
 
@@ -32,5 +33,4 @@ extension AddAccount {
             }
         }
     }
-
 }

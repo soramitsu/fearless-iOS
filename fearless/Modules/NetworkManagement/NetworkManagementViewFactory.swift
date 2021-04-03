@@ -10,32 +10,42 @@ final class NetworkManagementViewFactory: NetworkManagementViewFactoryProtocol {
         let facade = UserDataStorageFacade.shared
         let connectionsMapper = ManagedConnectionItemMapper()
         let observer: CoreDataContextObservable<ManagedConnectionItem, CDConnectionItem> =
-            CoreDataContextObservable(service: facade.databaseService,
-                                                 mapper: AnyCoreDataMapper(connectionsMapper),
-                                                 predicate: { _ in true })
-        let connectionsRepository = facade.createRepository(filter: nil,
-                                                            sortDescriptors: [NSSortDescriptor.connectionsByOrder],
-                                                            mapper: AnyCoreDataMapper(connectionsMapper))
+            CoreDataContextObservable(
+                service: facade.databaseService,
+                mapper: AnyCoreDataMapper(connectionsMapper),
+                predicate: { _ in true }
+            )
+        let connectionsRepository = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [NSSortDescriptor.connectionsByOrder],
+            mapper: AnyCoreDataMapper(connectionsMapper)
+        )
 
-        let presenter = NetworkManagementPresenter(localizationManager: LocalizationManager.shared,
-                                                   viewModelFactory: ManagedConnectionViewModelFactory())
+        let presenter = NetworkManagementPresenter(
+            localizationManager: LocalizationManager.shared,
+            viewModelFactory: ManagedConnectionViewModelFactory()
+        )
 
         let connectionsObservable = AnyDataProviderRepositoryObservable(observer)
 
         let accountsMapper = ManagedAccountItemMapper()
-        let accountsRepository = facade.createRepository(filter: nil,
-                                                         sortDescriptors: [NSSortDescriptor.accountsByOrder],
-                                                         mapper: AnyCoreDataMapper(accountsMapper))
+        let accountsRepository = facade.createRepository(
+            filter: nil,
+            sortDescriptors: [NSSortDescriptor.accountsByOrder],
+            mapper: AnyCoreDataMapper(accountsMapper)
+        )
 
         let anyConnectionsRepository = AnyDataProviderRepository(connectionsRepository)
         let anyConnectionsObservable = AnyDataProviderRepositoryObservable(connectionsObservable)
         let anyAccountRepository = AnyDataProviderRepository(accountsRepository)
-        let interactor = NetworkManagementInteractor(connectionsRepository: anyConnectionsRepository,
-                                                     connectionsObservable: anyConnectionsObservable,
-                                                     accountsRepository: anyAccountRepository,
-                                                     settings: SettingsManager.shared,
-                                                     operationManager: OperationManagerFacade.sharedManager,
-                                                     eventCenter: EventCenter.shared)
+        let interactor = NetworkManagementInteractor(
+            connectionsRepository: anyConnectionsRepository,
+            connectionsObservable: anyConnectionsObservable,
+            accountsRepository: anyAccountRepository,
+            settings: SettingsManager.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            eventCenter: EventCenter.shared
+        )
         let wireframe = NetworkManagementWireframe()
 
         view.presenter = presenter

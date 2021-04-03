@@ -8,10 +8,10 @@ struct ModalInfoFactory {
     static let headerHeight: CGFloat = 40.0
     static let footerHeight: CGFloat = 0.0
 
-    static func createFromBalanceContext(_ balanceContext: BalanceContext,
-                                         amountFormatter: LocalizableResource<NumberFormatter>)
-        -> UIViewController {
-
+    static func createFromBalanceContext(
+        _ balanceContext: BalanceContext,
+        amountFormatter: LocalizableResource<NumberFormatter>
+    ) -> UIViewController {
         let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
@@ -27,8 +27,10 @@ struct ModalInfoFactory {
         viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
         viewController.modalPresentationStyle = .custom
 
-        let viewModels = createViewModelsForContext(balanceContext,
-                                                    amountFormatter: amountFormatter)
+        let viewModels = createViewModelsForContext(
+            balanceContext,
+            amountFormatter: amountFormatter
+        )
         viewController.viewModels = viewModels
 
         let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
@@ -43,9 +45,10 @@ struct ModalInfoFactory {
         return viewController
     }
 
-    static func createTransferExistentialState(_ state: TransferExistentialState,
-                                               amountFormatter: LocalizableResource<NumberFormatter>)
-        -> UIViewController {
+    static func createTransferExistentialState(
+        _ state: TransferExistentialState,
+        amountFormatter: LocalizableResource<NumberFormatter>
+    ) -> UIViewController {
         let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
         viewController.cellHeight = Self.rowHeight
@@ -61,8 +64,10 @@ struct ModalInfoFactory {
         viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
         viewController.modalPresentationStyle = .custom
 
-        let viewModels = createTransferStateViewModels(state,
-                                                       amountFormatter: amountFormatter)
+        let viewModels = createTransferStateViewModels(
+            state,
+            amountFormatter: amountFormatter
+        )
         viewController.viewModels = viewModels
 
         let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
@@ -77,9 +82,10 @@ struct ModalInfoFactory {
         return viewController
     }
 
-    private static func createTransferStateViewModels(_ state: TransferExistentialState,
-                                                      amountFormatter: LocalizableResource<NumberFormatter>)
-        -> [LocalizableResource<TitleWithSubtitleViewModel>] {
+    private static func createTransferStateViewModels(
+        _ state: TransferExistentialState,
+        amountFormatter: LocalizableResource<NumberFormatter>
+    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
         [
             LocalizableResource { locale in
                 let title = R.string.localizable
@@ -119,9 +125,10 @@ struct ModalInfoFactory {
         ]
     }
 
-    private static func createViewModelsForContext(_ balanceContext: BalanceContext,
-                                                   amountFormatter: LocalizableResource<NumberFormatter>)
-        -> [LocalizableResource<TitleWithSubtitleViewModel>] {
+    private static func createViewModelsForContext(
+        _ balanceContext: BalanceContext,
+        amountFormatter: LocalizableResource<NumberFormatter>
+    ) -> [LocalizableResource<TitleWithSubtitleViewModel>] {
         [
             LocalizableResource { locale in
                 let title = R.string.localizable

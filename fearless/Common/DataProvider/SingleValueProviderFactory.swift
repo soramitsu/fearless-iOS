@@ -14,27 +14,29 @@ typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
     func getTotalReward(for address: String, assetId: WalletAssetId) throws
-    -> AnySingleValueProvider<TotalRewardItem>
+        -> AnySingleValueProvider<TotalRewardItem>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedAccountInfo>
+        -> AnyDataProvider<DecodedAccountInfo>
     func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedElectionStatus>
+        -> AnyDataProvider<DecodedElectionStatus>
     func getNominationProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedNomination>
+        -> AnyDataProvider<DecodedNomination>
     func getValidatorProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedValidator>
+        -> AnyDataProvider<DecodedValidator>
     func getLedgerInfoProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedLedgerInfo>
+        -> AnyDataProvider<DecodedLedgerInfo>
     func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedActiveEra>
+        -> AnyDataProvider<DecodedActiveEra>
     func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedPayee>
+        -> AnyDataProvider<DecodedPayee>
 }
 
 final class SingleValueProviderFactory {
-    static let shared = SingleValueProviderFactory(facade: SubstrateDataStorageFacade.shared,
-                                                   operationManager: OperationManagerFacade.sharedManager,
-                                                   logger: Logger.shared)
+    static let shared = SingleValueProviderFactory(
+        facade: SubstrateDataStorageFacade.shared,
+        operationManager: OperationManagerFacade.sharedManager,
+        logger: Logger.shared
+    )
 
     private var providers: [String: WeakWrapper] = [:]
 
@@ -47,9 +49,11 @@ final class SingleValueProviderFactory {
         self.facade = facade
         self.operationManager = operationManager
         self.logger = logger
-        self.stremableProviderFactory = SubstrateDataProviderFactory(facade: facade,
-                                                                     operationManager: operationManager,
-                                                                     logger: logger)
+        stremableProviderFactory = SubstrateDataProviderFactory(
+            facade: facade,
+            operationManager: operationManager,
+            logger: logger
+        )
     }
 
     private func priceIdentifier(for assetId: WalletAssetId) -> String {
@@ -64,12 +68,13 @@ final class SingleValueProviderFactory {
         providers = providers.filter { $0.value.target != nil }
     }
 
-    private func getDataProvider<T>(for remoteKey: Data,
-                                    path: StorageCodingPath,
-                                    runtimeService: RuntimeCodingServiceProtocol,
-                                    localKeyFactory: ChainStorageIdFactoryProtocol,
-                                    shouldUseFallback: Bool)
-    -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
+    private func getDataProvider<T>(
+        for remoteKey: Data,
+        path: StorageCodingPath,
+        runtimeService: RuntimeCodingServiceProtocol,
+        localKeyFactory: ChainStorageIdFactoryProtocol,
+        shouldUseFallback: Bool
+    ) -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         clearIfNeeded()
 
         let localKey = localKeyFactory.createIdentifier(for: remoteKey)
@@ -84,29 +89,34 @@ final class SingleValueProviderFactory {
 
         let trigger = DataProviderProxyTrigger()
         let source: StorageProviderSource<T> =
-            StorageProviderSource(itemIdentifier: localKey,
-                                  codingPath: path,
-                                  runtimeService: runtimeService,
-                                  provider: streamableProvider,
-                                  trigger: trigger,
-                                  shouldUseFallback: shouldUseFallback)
+            StorageProviderSource(
+                itemIdentifier: localKey,
+                codingPath: path,
+                runtimeService: runtimeService,
+                provider: streamableProvider,
+                trigger: trigger,
+                shouldUseFallback: shouldUseFallback
+            )
 
-        let dataProvider = DataProvider(source: AnyDataProviderSource(source),
-                                        repository: AnyDataProviderRepository(repository),
-                                        updateTrigger: trigger)
+        let dataProvider = DataProvider(
+            source: AnyDataProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
 
         providers[localKey] = WeakWrapper(target: dataProvider)
 
         return AnyDataProvider(dataProvider)
     }
 
-    private func getAccountIdKeyedProvider<T>(address: String,
-                                              path: StorageCodingPath,
-                                              hasher: StorageHasher,
-                                              runtimeService: RuntimeCodingServiceProtocol,
-                                              shouldUseFallback: Bool) throws
-    -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
-
+    private func getAccountIdKeyedProvider<T>(
+        address: String,
+        path: StorageCodingPath,
+        hasher: StorageHasher,
+        runtimeService: RuntimeCodingServiceProtocol,
+        shouldUseFallback: Bool
+    ) throws
+        -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         let addressFactory = SS58AddressFactory()
 
         let addressType = try addressFactory.extractAddressType(from: address)
@@ -114,32 +124,41 @@ final class SingleValueProviderFactory {
 
         let storageIdFactory = try ChainStorageIdFactory(chain: addressType.chain)
 
-        let remoteKey = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                                 storageName: path.itemName,
-                                                                 key: accountId,
-                                                                 hasher: hasher)
+        let remoteKey = try StorageKeyFactory().createStorageKey(
+            moduleName: path.moduleName,
+            storageName: path.itemName,
+            key: accountId,
+            hasher: hasher
+        )
 
-        return getDataProvider(for: remoteKey,
-                               path: path,
-                               runtimeService: runtimeService,
-                               localKeyFactory: storageIdFactory,
-                               shouldUseFallback: shouldUseFallback)
+        return getDataProvider(
+            for: remoteKey,
+            path: path,
+            runtimeService: runtimeService,
+            localKeyFactory: storageIdFactory,
+            shouldUseFallback: shouldUseFallback
+        )
     }
 
-    private func getProviderForChain<T>(_ chain: Chain,
-                                        path: StorageCodingPath,
-                                        runtimeService: RuntimeCodingServiceProtocol,
-                                        shouldUseFallback: Bool) throws
-    -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
+    private func getProviderForChain<T>(
+        _ chain: Chain,
+        path: StorageCodingPath,
+        runtimeService: RuntimeCodingServiceProtocol,
+        shouldUseFallback _: Bool
+    ) throws -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         let storageIdFactory = try ChainStorageIdFactory(chain: chain)
-        let remoteKey = try StorageKeyFactory().createStorageKey(moduleName: path.moduleName,
-                                                                 storageName: path.itemName)
+        let remoteKey = try StorageKeyFactory().createStorageKey(
+            moduleName: path.moduleName,
+            storageName: path.itemName
+        )
 
-        return getDataProvider(for: remoteKey,
-                               path: path,
-                               runtimeService: runtimeService,
-                               localKeyFactory: storageIdFactory,
-                               shouldUseFallback: true)
+        return getDataProvider(
+            for: remoteKey,
+            path: path,
+            runtimeService: runtimeService,
+            localKeyFactory: storageIdFactory,
+            shouldUseFallback: true
+        )
     }
 }
 
@@ -159,18 +178,22 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         let source = SubscanPriceSource(assetId: assetId)
 
         let trigger: DataProviderEventTrigger = [.onAddObserver, .onInitialization]
-        let provider = SingleValueProvider(targetIdentifier: identifier,
-                                           source: AnySingleValueProviderSource(source),
-                                           repository: AnyDataProviderRepository(repository),
-                                           updateTrigger: trigger)
+        let provider = SingleValueProvider(
+            targetIdentifier: identifier,
+            source: AnySingleValueProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
 
         providers[identifier] = WeakWrapper(target: provider)
 
         return AnySingleValueProvider(provider)
     }
 
-    func getTotalReward(for address: String,
-                        assetId: WalletAssetId) throws -> AnySingleValueProvider<TotalRewardItem> {
+    func getTotalReward(
+        for address: String,
+        assetId: WalletAssetId
+    ) throws -> AnySingleValueProvider<TotalRewardItem> {
         clearIfNeeded()
 
         let identifier = totalRewardIdentifier(for: address, assetId: assetId)
@@ -187,88 +210,116 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
 
         let trigger = DataProviderProxyTrigger()
 
-        let source = SubscanRewardSource(address: address,
-                                         assetId: assetId,
-                                         chain: type.chain,
-                                         targetIdentifier: identifier,
-                                         repository: AnyDataProviderRepository(repository),
-                                         operationFactory: SubscanOperationFactory(),
-                                         trigger: trigger,
-                                         operationManager: operationManager,
-                                         logger: logger)
+        let source = SubscanRewardSource(
+            address: address,
+            assetId: assetId,
+            chain: type.chain,
+            targetIdentifier: identifier,
+            repository: AnyDataProviderRepository(repository),
+            operationFactory: SubscanOperationFactory(),
+            trigger: trigger,
+            operationManager: operationManager,
+            logger: logger
+        )
 
-        let provider = SingleValueProvider(targetIdentifier: identifier,
-                                           source: AnySingleValueProviderSource(source),
-                                           repository: AnyDataProviderRepository(repository),
-                                           updateTrigger: trigger)
+        let provider = SingleValueProvider(
+            targetIdentifier: identifier,
+            source: AnySingleValueProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
 
         providers[identifier] = WeakWrapper(target: provider)
 
         return AnySingleValueProvider(provider)
     }
 
-    func getAccountProvider(for address: String,
-                            runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedAccountInfo> {
-        try getAccountIdKeyedProvider(address: address,
-                                      path: .account,
-                                      hasher: .blake128Concat,
-                                      runtimeService: runtimeService,
-                                      shouldUseFallback: false)
+    func getAccountProvider(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws
+        -> AnyDataProvider<DecodedAccountInfo> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .account,
+            hasher: .blake128Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
     }
 
-    func getElectionStatusProvider(chain: Chain,
-                                   runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedElectionStatus> {
-        try getProviderForChain(chain,
-                                path: .electionStatus,
-                                runtimeService: runtimeService,
-                                shouldUseFallback: true)
+    func getElectionStatusProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws
+        -> AnyDataProvider<DecodedElectionStatus> {
+        try getProviderForChain(
+            chain,
+            path: .electionStatus,
+            runtimeService: runtimeService,
+            shouldUseFallback: true
+        )
     }
 
-    func getNominationProvider(for address: String,
-                               runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedNomination> {
-        try getAccountIdKeyedProvider(address: address,
-                                      path: .nominators,
-                                      hasher: .twox64Concat,
-                                      runtimeService: runtimeService,
-                                      shouldUseFallback: false)
+    func getNominationProvider(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws
+        -> AnyDataProvider<DecodedNomination> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .nominators,
+            hasher: .twox64Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
     }
 
-    func getValidatorProvider(for address: String,
-                              runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedValidator> {
-        try getAccountIdKeyedProvider(address: address,
-                                      path: .validatorPrefs,
-                                      hasher: .twox64Concat,
-                                      runtimeService: runtimeService,
-                                      shouldUseFallback: false)
+    func getValidatorProvider(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws
+        -> AnyDataProvider<DecodedValidator> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .validatorPrefs,
+            hasher: .twox64Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
     }
 
     func getLedgerInfoProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedLedgerInfo> {
-        try getAccountIdKeyedProvider(address: address,
-                                      path: .stakingLedger,
-                                      hasher: .blake128Concat,
-                                      runtimeService: runtimeService,
-                                      shouldUseFallback: false)
+        -> AnyDataProvider<DecodedLedgerInfo> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .stakingLedger,
+            hasher: .blake128Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
     }
 
     func getActiveEra(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-    -> AnyDataProvider<DecodedActiveEra> {
-        try getProviderForChain(chain,
-                                path: .activeEra,
-                                runtimeService: runtimeService,
-                                shouldUseFallback: true)
+        -> AnyDataProvider<DecodedActiveEra> {
+        try getProviderForChain(
+            chain,
+            path: .activeEra,
+            runtimeService: runtimeService,
+            shouldUseFallback: true
+        )
     }
 
-    func getPayee(for address: String,
-                  runtimeService: RuntimeCodingServiceProtocol) throws -> AnyDataProvider<DecodedPayee> {
-        try getAccountIdKeyedProvider(address: address,
-                                      path: .payee,
-                                      hasher: .twox64Concat,
-                                      runtimeService: runtimeService,
-                                      shouldUseFallback: false)
+    func getPayee(
+        for address: String,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedPayee> {
+        try getAccountIdKeyedProvider(
+            address: address,
+            path: .payee,
+            hasher: .twox64Concat,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
     }
 }

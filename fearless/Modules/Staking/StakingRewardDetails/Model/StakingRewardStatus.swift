@@ -6,7 +6,6 @@ enum StakingRewardStatus {
 }
 
 extension StakingRewardStatus {
-
     func titleForLocale(_ locale: Locale?) -> String {
         switch self {
         case .claimable:

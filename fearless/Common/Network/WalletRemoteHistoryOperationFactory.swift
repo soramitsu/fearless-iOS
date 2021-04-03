@@ -8,7 +8,7 @@ struct WalletRemoteHistoryData {
 
 protocol WalletRemoteHistoryFactoryProtocol {
     func createOperationWrapper(for context: TransactionHistoryContext, address: String, count: Int)
-    -> CompoundOperationWrapper<WalletRemoteHistoryData>
+        -> CompoundOperationWrapper<WalletRemoteHistoryData>
 }
 
 final class WalletRemoteHistoryFactory {
@@ -22,7 +22,8 @@ final class WalletRemoteHistoryFactory {
 
     private func createTransfersOperationIfNeeded(
         for context: TransactionHistoryContext,
-        address: String, count: Int) -> BaseOperation<SubscanTransferData>? {
+        address: String, count: Int
+    ) -> BaseOperation<SubscanTransferData>? {
         guard !context.isTransfersComplete else {
             return nil
         }
@@ -34,7 +35,8 @@ final class WalletRemoteHistoryFactory {
 
     private func createRewardsOperationIfNeeded(
         for context: TransactionHistoryContext,
-        address: String, count: Int) -> BaseOperation<SubscanRewardData>? {
+        address: String, count: Int
+    ) -> BaseOperation<SubscanRewardData>? {
         guard !context.isRewardsComplete else {
             return nil
         }
@@ -48,7 +50,8 @@ final class WalletRemoteHistoryFactory {
         dependingOn transfersOperation: BaseOperation<SubscanTransferData>?,
         rewardsOperation: BaseOperation<SubscanRewardData>?,
         context: TransactionHistoryContext,
-        expecteCount: Int) -> BaseOperation<WalletRemoteHistoryData> {
+        expecteCount: Int
+    ) -> BaseOperation<WalletRemoteHistoryData> {
         ClosureOperation {
             let transferPageData = try transfersOperation?
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -63,22 +66,26 @@ final class WalletRemoteHistoryFactory {
             let isRewardComplete = rewards.count < expecteCount
             let rewardNextPage = rewardPageData != nil ? context.rewardsPage + 1 : context.rewardsPage
 
-            let newHistoryContext = TransactionHistoryContext(transfersPage: transferNextPage,
-                                                              isTransfersComplete: isTransferComplete,
-                                                              rewardsPage: rewardNextPage,
-                                                              isRewardsComplete: isRewardComplete)
+            let newHistoryContext = TransactionHistoryContext(
+                transfersPage: transferNextPage,
+                isTransfersComplete: isTransferComplete,
+                rewardsPage: rewardNextPage,
+                isRewardsComplete: isRewardComplete
+            )
 
             let resultItems: [WalletRemoteHistoryItemProtocol] = transfers + rewards
 
-            return WalletRemoteHistoryData(historyItems: resultItems,
-                                           context: newHistoryContext)
+            return WalletRemoteHistoryData(
+                historyItems: resultItems,
+                context: newHistoryContext
+            )
         }
     }
 }
 
 extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
     func createOperationWrapper(for context: TransactionHistoryContext, address: String, count: Int)
-    -> CompoundOperationWrapper<WalletRemoteHistoryData> {
+        -> CompoundOperationWrapper<WalletRemoteHistoryData> {
         guard !context.isComplete else {
             let result = WalletRemoteHistoryData(historyItems: [], context: context)
             return CompoundOperationWrapper.createWithResult(result)
@@ -89,10 +96,12 @@ extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
 
         let dependencies = (transfersOperation.map { [$0] } ?? []) + (rewardsOperation.map { [$0] } ?? [])
 
-        let mapOperation = createMapOperation(dependingOn: transfersOperation,
-                                              rewardsOperation: rewardsOperation,
-                                              context: context,
-                                              expecteCount: count)
+        let mapOperation = createMapOperation(
+            dependingOn: transfersOperation,
+            rewardsOperation: rewardsOperation,
+            context: context,
+            expecteCount: count
+        )
 
         dependencies.forEach { mapOperation.addDependency($0) }
 
