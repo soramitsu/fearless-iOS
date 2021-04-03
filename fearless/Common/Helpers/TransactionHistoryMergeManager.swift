@@ -9,7 +9,7 @@ struct TransactionHistoryMergeResult {
 
 enum TransactionHistoryMergeItem {
     case local(item: TransactionHistoryItem)
-    case remote(remote: SubscanTransferItemData)
+    case remote(remote: WalletRemoteHistoryItemProtocol)
 
     func compareWithItem(_ item: TransactionHistoryMergeItem) -> Bool {
         switch (self, item) {
@@ -28,24 +28,24 @@ enum TransactionHistoryMergeItem {
                 return true
             } else {
                 return compareBlockNumberIfExists(number1: localItem.blockNumber,
-                                                  number2: remoteItem.blockNumber,
+                                                  number2: remoteItem.itemBlockNumber,
                                                   timestamp1: localItem.timestamp,
-                                                  timestamp2: remoteItem.timestamp)
+                                                  timestamp2: remoteItem.itemTimestamp)
             }
         case (.remote(let remoteItem), .local(let localItem)):
             if localItem.status == .pending {
                 return false
             } else {
-                return compareBlockNumberIfExists(number1: remoteItem.blockNumber,
+                return compareBlockNumberIfExists(number1: remoteItem.itemBlockNumber,
                                                   number2: localItem.blockNumber,
-                                                  timestamp1: remoteItem.timestamp,
+                                                  timestamp1: remoteItem.itemTimestamp,
                                                   timestamp2: localItem.timestamp)
             }
         case (.remote(let remoteItem1), .remote(let remoteItem2)):
-            return compareBlockNumberIfExists(number1: remoteItem1.blockNumber,
-                                              number2: remoteItem2.blockNumber,
-                                              timestamp1: remoteItem1.timestamp,
-                                              timestamp2: remoteItem2.timestamp)
+            return compareBlockNumberIfExists(number1: remoteItem1.itemBlockNumber,
+                                              number2: remoteItem2.itemBlockNumber,
+                                              timestamp1: remoteItem1.itemTimestamp,
+                                              timestamp2: remoteItem2.itemTimestamp)
         }
     }
 
@@ -61,16 +61,16 @@ enum TransactionHistoryMergeItem {
                                                           asset: asset,
                                                           addressFactory: addressFactory)
         case .remote(let item):
-            return AssetTransactionData.createTransaction(from: item,
-                                                          address: address,
-                                                          networkType: networkType,
-                                                          asset: asset,
-                                                          addressFactory: addressFactory)
+            return item.createTransactionForAddress(
+                address,
+                networkType: networkType,
+                asset: asset,
+                addressFactory: addressFactory)
         }
     }
 
-    private func compareBlockNumberIfExists(number1: Int64?,
-                                            number2: Int64?,
+    private func compareBlockNumberIfExists(number1: UInt64?,
+                                            number2: UInt64?,
                                             timestamp1: Int64,
                                             timestamp2: Int64) -> Bool {
         if let number1 = number1, let number2 = number2 {
@@ -98,9 +98,9 @@ final class TransactionHistoryMergeManager {
         self.addressFactory = addressFactory
     }
 
-    func merge(subscanItems: [SubscanTransferItemData],
+    func merge(subscanItems: [WalletRemoteHistoryItemProtocol],
                localItems: [TransactionHistoryItem]) -> TransactionHistoryMergeResult {
-        let existingHashes = Set(subscanItems.map { $0.hash })
+        let existingHashes = Set(subscanItems.map { $0.identifier })
         let minSubscanItem = subscanItems.last
 
         let hashesToRemove: [String] = localItems.compactMap { item in
@@ -112,7 +112,7 @@ final class TransactionHistoryMergeManager {
                 return nil
             }
 
-            if item.timestamp < subscanItem.timestamp {
+            if item.timestamp < subscanItem.itemTimestamp {
                 return item.txHash
             }
 

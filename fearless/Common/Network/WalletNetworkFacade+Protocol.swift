@@ -94,8 +94,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         guard !historyContext.isComplete,
             let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
             let assetId = WalletAssetId(rawValue: asset.identifier),
-            let transferUrl = assetId.subscanUrl?.appendingPathComponent(SubscanApi.transfers),
-            let rewardUrl = assetId.subscanUrl?.appendingPathComponent(SubscanApi.rewards) else {
+            let baseUrl = assetId.subscanUrl else {
             let pageData = AssetTransactionPageData(transactions: [],
                                                     context: historyContext.toContext())
             let operation = BaseOperation<AssetTransactionPageData?>()
@@ -103,29 +102,12 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let transferInfo = HistoryInfo(address: address, row: pagination.count, page: historyContext.transfersPage)
-        let rewardInfo = RewardInfo(address: address, row: pagination.count, page: historyContext.rewardsPage)
+        let remoteHistoryFactory = WalletRemoteHistoryFactory(baseURL: baseUrl)
+        let remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(for: historyContext,
+                                                                               address: address,
+                                                                               count: pagination.count)
 
-        let transfersOperation = !historyContext.isTransfersComplete ?
-            subscanOperationFactory.fetchTransfersOperation(transferUrl, info: transferInfo) : nil
-
-        let rewardsOperation = !historyContext.isRewardsComplete ? subscanOperationFactory.fetchRewardsAndSlashesOperation(rewardUrl, info: rewardInfo) : nil
-
-        let remoteOperations: [Operation] = {
-            var operations: [Operation] = []
-
-            if let operation = transfersOperation {
-                operations.append(operation)
-            }
-
-            if let operation = rewardsOperation {
-                operations.append(operation)
-            }
-
-            return operations
-        }()
-
-        var dependencies: [Operation] = remoteOperations
+        var dependencies = remoteHistoryWrapper.allOperations
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 
@@ -133,18 +115,18 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let operation = txStorage.fetchAllOperation(with: RepositoryFetchOptions())
             dependencies.append(operation)
 
-            remoteOperations.forEach { operation.addDependency($0) }
+            remoteHistoryWrapper.allOperations.forEach { operation.addDependency($0) }
 
             localFetchOperation = operation
         } else {
             localFetchOperation = nil
         }
 
-        let mergeOperation = createHistoryMergeOperation(dependingOn: transfersOperation,
-                                                         rewards: rewardsOperation,
-                                                         localOperation: localFetchOperation,
-                                                         asset: asset,
-                                                         address: address)
+        let mergeOperation = createHistoryMergeOperation(
+            dependingOn: remoteHistoryWrapper.targetOperation,
+            localOperation: localFetchOperation,
+            asset: asset,
+            address: address)
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
@@ -162,10 +144,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         }
 
         let mapOperation = createHistoryMapOperation(dependingOn: mergeOperation,
-                                                     transferOperation: transfersOperation,
-                                                     rewardOperation: rewardsOperation,
-                                                     transferInfo: transferInfo,
-                                                     rewardInfo: rewardInfo)
+                                                     remoteOperation: remoteHistoryWrapper.targetOperation)
 
         dependencies.forEach { mapOperation.addDependency($0) }
 

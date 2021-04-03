@@ -26,5 +26,5 @@ struct SubscanTransferItemData: Decodable {
     let timestamp: Int64
     let amount: String
     let fee: String
-    let blockNumber: Int64?
+    let blockNumber: UInt64?
 }

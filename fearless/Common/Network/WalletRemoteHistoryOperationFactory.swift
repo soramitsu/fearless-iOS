@@ -23,7 +23,7 @@ final class WalletRemoteHistoryFactory {
     private func createTransfersOperationIfNeeded(
         for context: TransactionHistoryContext,
         address: String, count: Int) -> BaseOperation<SubscanTransferData>? {
-        guard context.isTransfersComplete else {
+        guard !context.isTransfersComplete else {
             return nil
         }
 
@@ -35,7 +35,7 @@ final class WalletRemoteHistoryFactory {
     private func createRewardsOperationIfNeeded(
         for context: TransactionHistoryContext,
         address: String, count: Int) -> BaseOperation<SubscanRewardData>? {
-        guard context.isComplete else {
+        guard !context.isRewardsComplete else {
             return nil
         }
 
@@ -79,7 +79,7 @@ final class WalletRemoteHistoryFactory {
 extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
     func createOperationWrapper(for context: TransactionHistoryContext, address: String, count: Int)
     -> CompoundOperationWrapper<WalletRemoteHistoryData> {
-        guard context.isComplete else {
+        guard !context.isComplete else {
             let result = WalletRemoteHistoryData(historyItems: [], context: context)
             return CompoundOperationWrapper.createWithResult(result)
         }

@@ -4,35 +4,32 @@ import CommonWallet
 import IrohaCrypto
 
 extension WalletNetworkFacade {
-    func createHistoryMergeOperation(dependingOn transfersOperation: BaseOperation<SubscanTransferData>?,
-                                     rewards: BaseOperation<SubscanRewardData>?,
-                                     localOperation: BaseOperation<[TransactionHistoryItem]>?,
-                                     asset: WalletAsset,
-                                     address: String)
+    func createHistoryMergeOperation(
+        dependingOn remoteOperation: BaseOperation<WalletRemoteHistoryData>?,
+        localOperation: BaseOperation<[TransactionHistoryItem]>?,
+        asset: WalletAsset,
+        address: String)
         -> BaseOperation<TransactionHistoryMergeResult> {
         let currentNetworkType = networkType
         let addressFactory = SS58AddressFactory()
 
         return ClosureOperation {
-            let pageData = try transfersOperation?
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+            let remoteTransactions = try remoteOperation?.extractNoCancellableResultData().historyItems ?? []
 
-            if let localTransactions = try localOperation?
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled),
-                !localTransactions.isEmpty {
+            if let localTransactions = try localOperation?.extractNoCancellableResultData(),
+               !localTransactions.isEmpty {
                 let manager = TransactionHistoryMergeManager(address: address,
                                                              networkType: currentNetworkType,
                                                              asset: asset,
                                                              addressFactory: addressFactory)
-                return manager.merge(subscanItems: pageData?.transfers ?? [],
+                return manager.merge(subscanItems: remoteTransactions,
                                      localItems: localTransactions)
             } else {
-                let transactions: [AssetTransactionData] = (pageData?.transfers ?? []).map { item in
-                    AssetTransactionData.createTransaction(from: item,
-                                                           address: address,
-                                                           networkType: currentNetworkType,
-                                                           asset: asset,
-                                                           addressFactory: addressFactory)
+                let transactions: [AssetTransactionData] = remoteTransactions.map { item in
+                    item.createTransactionForAddress(address,
+                                                     networkType: currentNetworkType,
+                                                     asset: asset,
+                                                     addressFactory: addressFactory)
                 }
 
                 return TransactionHistoryMergeResult(historyItems: transactions,
@@ -41,28 +38,12 @@ extension WalletNetworkFacade {
         }
     }
 
-    func createHistoryMapOperation(dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
-                                   transferOperation: BaseOperation<SubscanTransferData>?,
-                                   rewardOperation: BaseOperation<SubscanRewardData>?,
-                                   transferInfo: HistoryInfo,
-                                   rewardInfo: RewardInfo) -> BaseOperation<AssetTransactionPageData?> {
+    func createHistoryMapOperation(
+        dependingOn mergeOperation: BaseOperation<TransactionHistoryMergeResult>,
+        remoteOperation: BaseOperation<WalletRemoteHistoryData>) -> BaseOperation<AssetTransactionPageData?> {
         ClosureOperation {
-            let transferPageData = try transferOperation?
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let rewardPageData = try rewardOperation?
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-            let mergeResult = try mergeOperation
-                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-            let isTransferComplete = (transferPageData?.transfers?.count ?? 0) < transferInfo.row
-            let transferNextPage = transferPageData != nil ? transferInfo.page + 1 : transferInfo.page
-            let isRewardComplete = (rewardPageData?.items?.count ?? 0) < transferInfo.row
-            let rewardNextPage = rewardPageData != nil ? rewardInfo.page + 1 : rewardInfo.page
-
-            let newHistoryContext = TransactionHistoryContext(transfersPage: transferNextPage,
-                                                              isTransfersComplete: isTransferComplete,
-                                                              rewardsPage: rewardNextPage,
-                                                              isRewardsComplete: isRewardComplete)
+            let mergeResult = try mergeOperation.extractNoCancellableResultData()
+            let newHistoryContext = try remoteOperation.extractNoCancellableResultData().context
 
             return AssetTransactionPageData(transactions: mergeResult.historyItems,
                                             context: newHistoryContext.toContext())
