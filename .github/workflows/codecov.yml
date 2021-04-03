@@ -13,7 +13,7 @@ jobs:
     runs-on: macOS-latest
     steps:
       - name: Test
-        uses: actions/checkout@v2
+        uses: actions/checkout@v1
       - name: Build and Test
         run:  xcodebuild -workspace fearless.xcworkspace -scheme fearless -sdk iphonesimulator -destination 'platform=iOS Simulator,name=iPhone 8,OS=14.4' test
       - name: Upload coverage to Codecov
