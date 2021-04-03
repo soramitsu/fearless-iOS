@@ -18,9 +18,7 @@ final class ContactsViewModelFactory: ContactsFactoryWrapperProtocol {
         locale: Locale,
         delegate: ContactViewModelDelegate?,
         commandFactory: WalletCommandFactoryProtocol
-    )
-        -> ContactViewModelProtocol?
-    {
+    ) -> ContactViewModelProtocol? {
         do {
             guard parameters.accountId != contact.accountId else {
                 return nil
