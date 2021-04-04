@@ -12,6 +12,11 @@ protocol WalletRemoteHistoryFactoryProtocol {
 }
 
 final class WalletRemoteHistoryFactory {
+    struct MergeResult {
+        let items: [WalletRemoteHistoryItemProtocol]
+        let originalCounters: [WalletRemoteHistorySourceLabel: Int]
+    }
+
     let internalFactory = SubscanOperationFactory()
 
     let baseURL: URL
@@ -71,13 +76,12 @@ final class WalletRemoteHistoryFactory {
         return internalFactory.fetchExtrinsicsOperation(extrinsicsURL, info: info)
     }
 
-    private func createMapOperation(
+    private func createMergeOperation(
         dependingOn transfersOperation: BaseOperation<SubscanTransferData>?,
         rewardsOperation: BaseOperation<SubscanRewardData>?,
         extrinsicsOperation: BaseOperation<SubscanExtrinsicData>?,
-        context: TransactionHistoryContext,
-        expectedCount _: Int
-    ) -> BaseOperation<WalletRemoteHistoryData> {
+        context: TransactionHistoryContext
+    ) -> BaseOperation<MergeResult> {
         ClosureOperation {
             let transferPageData = try transfersOperation?
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -90,11 +94,18 @@ final class WalletRemoteHistoryFactory {
             let rewards = rewardPageData?.items ?? []
             let extrinsics = extrinsicPageData?.extrinsics ?? []
 
-            let isCompletedMapping: [WalletRemoteHistorySourceLabel: Bool] =
+            let completionMapping: [WalletRemoteHistorySourceLabel: Bool] =
                 [
                     .transfers: transfers.count < context.transfers.row,
                     .rewards: rewards.count < context.rewards.row,
                     .extrinsics: extrinsics.count < context.extrinsics.row
+                ]
+
+            let originalCounters: [WalletRemoteHistorySourceLabel: Int] =
+                [
+                    .transfers: transfers.count,
+                    .rewards: rewards.count,
+                    .extrinsics: extrinsics.count
                 ]
 
             let resultItems: [WalletRemoteHistoryItemProtocol] =
@@ -119,7 +130,7 @@ final class WalletRemoteHistoryFactory {
                         (extrinsicsIndex.map { [(WalletRemoteHistorySourceLabel.extrinsics, $0)] } ?? [])
                 )
                 .sorted { $0.1 < $1.1 }
-                .first { !(isCompletedMapping[$0.0] ?? false) }
+                .first { !(completionMapping[$0.0] ?? false) }
                 .map { $0.1 + 1 }
 
             let truncatedItems: [WalletRemoteHistoryItemProtocol] = {
@@ -130,16 +141,54 @@ final class WalletRemoteHistoryFactory {
                 }
             }()
 
+            return MergeResult(items: truncatedItems, originalCounters: originalCounters)
+        }
+    }
+
+    private func createMapOperation(
+        dependingOn mergeOperation: BaseOperation<MergeResult>,
+        context: TransactionHistoryContext
+    ) -> BaseOperation<WalletRemoteHistoryData> {
+        ClosureOperation {
+            let mergeResult = try mergeOperation.extractNoCancellableResultData()
+            let counters = mergeResult.items
+                .reduce(into: [WalletRemoteHistorySourceLabel: Int]()) { result, item in
+                    result[item.label] = (result[item.label] ?? 0) + 1
+                }
+
+            let nextContext = WalletRemoteHistorySourceLabel.allCases.reduce(context) { result, label in
+                let sourceContext = result.sourceContext(for: label)
+
+                guard !sourceContext.isComplete else {
+                    return result
+                }
+
+                let filteredCount = counters[label] ?? 0
+                let total = (sourceContext.page * sourceContext.row) + filteredCount
+                let row = total.firstDivider(from: (1 ... result.defaultRow).reversed()) ?? 1
+                let nextPage = total / row
+
+                let originalCount = mergeResult.originalCounters[label] ?? 0
+                let isCompleted = originalCount == filteredCount ? originalCount < sourceContext.row : false
+
+                let nextSourceContext = result.sourceContext(for: label)
+                    .byReplacingPage(nextPage)
+                    .byReplacingRow(row)
+                    .byReplacingCompletion(isCompleted)
+
+                return result.byReplacingSource(context: nextSourceContext, for: label)
+            }
+
             return WalletRemoteHistoryData(
-                historyItems: resultItems,
-                context: context
+                historyItems: mergeResult.items,
+                context: nextContext
             )
         }
     }
 }
 
 extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
-    func createOperationWrapper(for context: TransactionHistoryContext, address: String, count: Int)
+    func createOperationWrapper(for context: TransactionHistoryContext, address: String, count _: Int)
         -> CompoundOperationWrapper<WalletRemoteHistoryData> {
         guard !context.isComplete else {
             let result = WalletRemoteHistoryData(historyItems: [], context: context)
@@ -150,17 +199,24 @@ extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
         let rewardsOperation = createRewardsOperationIfNeeded(for: context, address: address)
         let extrinsicsOperation = createExtrinsicsOperationIfNeeded(for: context, address: address)
 
-        let dependencies = (transfersOperation.map { [$0] } ?? []) + (rewardsOperation.map { [$0] } ?? [])
+        let sourceOperations = (transfersOperation.map { [$0] } ?? []) +
+            (rewardsOperation.map { [$0] } ?? []) +
+            (extrinsicsOperation.map { [$0] } ?? [])
 
-        let mapOperation = createMapOperation(
+        let mergeOperation = createMergeOperation(
             dependingOn: transfersOperation,
             rewardsOperation: rewardsOperation,
             extrinsicsOperation: extrinsicsOperation,
-            context: context,
-            expectedCount: count
+            context: context
         )
 
-        dependencies.forEach { mapOperation.addDependency($0) }
+        sourceOperations.forEach { mergeOperation.addDependency($0) }
+
+        let mapOperation = createMapOperation(dependingOn: mergeOperation, context: context)
+
+        mapOperation.addDependency(mergeOperation)
+
+        let dependencies = sourceOperations + [mergeOperation]
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }

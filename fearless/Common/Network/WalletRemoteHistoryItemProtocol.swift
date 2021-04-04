@@ -2,7 +2,7 @@ import Foundation
 import CommonWallet
 import IrohaCrypto
 
-enum WalletRemoteHistorySourceLabel: Int {
+enum WalletRemoteHistorySourceLabel: Int, CaseIterable {
     case transfers
     case rewards
     case extrinsics
@@ -28,7 +28,7 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
     var itemBlockNumber: UInt64 { blockNumber }
     var itemExtrinsicIndex: UInt16 { extrinsicIndex }
     var itemTimestamp: Int64 { timestamp }
-    var label: WalletRemoteHistorySourceLabel { .transfers }
+    var label: WalletRemoteHistorySourceLabel { .rewards }
 
     func createTransactionForAddress(
         _ address: String,
@@ -51,7 +51,7 @@ extension SubscanTransferItemData: WalletRemoteHistoryItemProtocol {
     var itemBlockNumber: UInt64 { blockNumber }
     var itemExtrinsicIndex: UInt16 { extrinsicIndex.value }
     var itemTimestamp: Int64 { timestamp }
-    var label: WalletRemoteHistorySourceLabel { .rewards }
+    var label: WalletRemoteHistorySourceLabel { .transfers }
 
     func createTransactionForAddress(
         _ address: String,

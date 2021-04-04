@@ -17,12 +17,51 @@ struct TransactionHistorySourceContext {
         isComplete = Self.extract(for: Self.completeKey + keySuffix, from: context, defaultValue: false)
     }
 
+    init(
+        page: Int,
+        row: Int,
+        isComplete: Bool,
+        keySuffix: String
+    ) {
+        self.page = page
+        self.row = row
+        self.isComplete = isComplete
+        self.keySuffix = keySuffix
+    }
+
     func toContext() -> [String: String] {
         [
             Self.pageKey + keySuffix: String(page),
             Self.rowKey + keySuffix: String(row),
             Self.completeKey + keySuffix: String(isComplete)
         ]
+    }
+
+    func byReplacingPage(_ newPage: Int) -> TransactionHistorySourceContext {
+        TransactionHistorySourceContext(
+            page: newPage,
+            row: row,
+            isComplete: isComplete,
+            keySuffix: keySuffix
+        )
+    }
+
+    func byReplacingRow(_ newRow: Int) -> TransactionHistorySourceContext {
+        TransactionHistorySourceContext(
+            page: page,
+            row: newRow,
+            isComplete: isComplete,
+            keySuffix: keySuffix
+        )
+    }
+
+    func byReplacingCompletion(_ newCompletion: Bool) -> TransactionHistorySourceContext {
+        TransactionHistorySourceContext(
+            page: page,
+            row: row,
+            isComplete: newCompletion,
+            keySuffix: keySuffix
+        )
     }
 
     private static func extract<T: LosslessStringConvertible>(
@@ -88,7 +127,7 @@ extension TransactionHistoryContext {
 
     func toContext() -> [String: String] {
         [transfers, rewards, extrinsics].reduce([String: String]()) { result, item in
-            result.merging(item.toContext()) { s1, _ in s1 }
+            result.merging(item.toContext()) { str1, _ in str1 }
         }
     }
 
@@ -117,5 +156,30 @@ extension TransactionHistoryContext {
             extrinsics: value,
             defaultRow: defaultRow
         )
+    }
+
+    func sourceContext(for label: WalletRemoteHistorySourceLabel) -> TransactionHistorySourceContext {
+        switch label {
+        case .transfers:
+            return transfers
+        case .rewards:
+            return rewards
+        case .extrinsics:
+            return extrinsics
+        }
+    }
+
+    func byReplacingSource(
+        context: TransactionHistorySourceContext,
+        for label: WalletRemoteHistorySourceLabel
+    ) -> TransactionHistoryContext {
+        switch label {
+        case .transfers:
+            return byReplacingTransfers(context)
+        case .rewards:
+            return byReplacingRewards(context)
+        case .extrinsics:
+            return byReplacingExtrinsics(context)
+        }
     }
 }
