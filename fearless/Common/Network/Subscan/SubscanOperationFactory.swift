@@ -4,7 +4,7 @@ import RobinHood
 protocol SubscanOperationFactoryProtocol {
     func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData>
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData>
-    func fetchRewardsAndSlashesOperation(_ url: URL, info: RewardInfo) -> BaseOperation<SubscanRewardData>
+    func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData>
 }
 
 final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
@@ -68,7 +68,7 @@ final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
         return operation
     }
 
-    func fetchRewardsAndSlashesOperation(_ url: URL, info: RewardInfo) -> BaseOperation<SubscanRewardData> {
+    func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
             request.httpBody = try JSONEncoder().encode(info)

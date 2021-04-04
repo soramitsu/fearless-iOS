@@ -41,8 +41,8 @@ final class WalletRemoteHistoryFactory {
             return nil
         }
 
-        let rewardsURL = baseURL.appendingPathComponent(SubscanApi.rewards)
-        let rewardInfo = RewardInfo(address: address, row: count, page: context.rewardsPage)
+        let rewardsURL = baseURL.appendingPathComponent(SubscanApi.rewardsAndSlashes)
+        let rewardInfo = HistoryInfo(address: address, row: count, page: context.rewardsPage)
         return internalFactory.fetchRewardsAndSlashesOperation(rewardsURL, info: rewardInfo)
     }
 
