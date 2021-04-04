@@ -73,7 +73,15 @@ final class WalletRemoteHistoryFactory {
                 isRewardsComplete: isRewardComplete
             )
 
-            let resultItems: [WalletRemoteHistoryItemProtocol] = transfers + rewards
+            let resultItems: [WalletRemoteHistoryItemProtocol] = (transfers + rewards).sorted { item1, item2 in
+                if item1.itemBlockNumber > item2.itemBlockNumber {
+                    return true
+                } else if item1.itemBlockNumber < item2.itemBlockNumber {
+                    return false
+                }
+
+                return item1.itemExtrinsicIndex >= item2.itemExtrinsicIndex
+            }
 
             return WalletRemoteHistoryData(
                 historyItems: resultItems,

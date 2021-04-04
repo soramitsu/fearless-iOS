@@ -4,7 +4,8 @@ import IrohaCrypto
 
 protocol WalletRemoteHistoryItemProtocol {
     var identifier: String { get }
-    var itemBlockNumber: UInt64? { get }
+    var itemBlockNumber: UInt64 { get }
+    var itemExtrinsicIndex: UInt16 { get }
     var itemTimestamp: Int64 { get }
 
     func createTransactionForAddress(
@@ -17,7 +18,14 @@ protocol WalletRemoteHistoryItemProtocol {
 
 extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
     var identifier: String { "\(recordId)-\(eventIndex)" }
-    var itemBlockNumber: UInt64? { blockNumber }
+    var itemBlockNumber: UInt64 {
+        blockNumber
+    }
+
+    var itemExtrinsicIndex: UInt16 {
+        extrinsicIndex
+    }
+
     var itemTimestamp: Int64 { timestamp }
 
     func createTransactionForAddress(
@@ -38,7 +46,14 @@ extension SubscanRewardItemData: WalletRemoteHistoryItemProtocol {
 
 extension SubscanTransferItemData: WalletRemoteHistoryItemProtocol {
     var identifier: String { hash }
-    var itemBlockNumber: UInt64? { blockNumber }
+    var itemBlockNumber: UInt64 {
+        blockNumber
+    }
+
+    var itemExtrinsicIndex: UInt16 {
+        extrinsicIndex.value
+    }
+
     var itemTimestamp: Int64 { timestamp }
 
     func createTransactionForAddress(
