@@ -43,7 +43,7 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
             case .incoming, .reward:
                 amountLabel.text = "+ \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorGreen()!
-            case .outgoing, .slash:
+            case .outgoing, .slash, .extrinsic:
                 amountLabel.text = "- \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorWhite()!
             }
