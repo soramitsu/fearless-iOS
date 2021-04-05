@@ -10,7 +10,7 @@ struct SubscanNominateCall {
         guard let array = try? JSONDecoder().decode([InnerRepresentation]?.self, from: data) else { return nil }
         let rawControllerIds = array
             .map(\.value)
-            .map { $0.map(\.id) }
+            .map { $0.map(\.accountId) }
             .flatMap { $0 }
 
         let addressFactory = SS58AddressFactory()
@@ -30,26 +30,6 @@ extension SubscanNominateCall {
     private struct InnerRepresentation: Decodable {
         let name: String
         let type: String
-        let value: [TargetId]
+        let value: [SubscanExtrinsicsAccountId]
     }
-
-    // swiftlint:disable all
-    private struct TargetId: Decodable {
-        private enum CodingKeys: String, CodingKey {
-            case id = "Id"
-        }
-
-        let id: String
-
-        init(from decoder: Decoder) throws {
-            let container = try decoder.singleValueContainer()
-            if let id = try? container.decode(String.self) {
-                self.id = id
-            } else {
-                let container = try decoder.container(keyedBy: CodingKeys.self)
-                id = try container.decode(String.self, forKey: .id)
-            }
-        }
-    }
-    // swiftlint:enable all
 }

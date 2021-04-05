@@ -8,7 +8,7 @@ struct SubscanBondCall {
     private struct InnerRepresentation: Decodable {
         let name: String
         let type: String
-        let value: String
+        let value: SubscanExtrinsicsAccountId
     }
 
     init?(callArgs: JSON, chain: Chain) {
@@ -16,7 +16,7 @@ struct SubscanBondCall {
         guard let array = try? JSONDecoder().decode([InnerRepresentation]?.self, from: data) else { return nil }
         guard let controller = array.first(
             where: { $0.name == "controller" && $0.type == "Address" }) else { return nil }
-        guard let controllerAddressData = try? Data(hexString: controller.value) else { return nil }
+        guard let controllerAddressData = try? Data(hexString: controller.value.accountId) else { return nil }
         guard let controllerAddress = try? SS58AddressFactory().addressFromAccountId(
             data: controllerAddressData,
             type: chain.addressType
