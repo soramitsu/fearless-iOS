@@ -109,10 +109,10 @@ extension AssetTransactionData {
 
     static func createTransaction(
         from item: SubscanExtrinsicItemData,
-        address _: String,
+        address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory _: SS58AddressFactoryProtocol
+        addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let amount: Decimal = {
             guard let amountValue = BigUInt(item.fee) else {
@@ -121,6 +121,12 @@ extension AssetTransactionData {
 
             return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
         }()
+
+        let accountId = try? addressFactory.accountId(
+            fromAddress: address,
+            type: networkType
+        )
+        let peerId = accountId?.toHex() ?? address
 
         let status: AssetTransactionStatus
 
@@ -134,11 +140,11 @@ extension AssetTransactionData {
             transactionId: item.identifier,
             status: status,
             assetId: asset.identifier,
-            peerId: "",
-            peerFirstName: nil,
-            peerLastName: nil,
-            peerName: item.callModule,
-            details: item.callFunction,
+            peerId: peerId,
+            peerFirstName: item.callModule,
+            peerLastName: item.callFunction,
+            peerName: "\(item.callModule) \(item.callFunction)",
+            details: "",
             amount: AmountDecimal(value: amount),
             fees: [],
             timestamp: item.timestamp,

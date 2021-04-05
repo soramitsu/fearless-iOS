@@ -7,6 +7,7 @@ final class HistoryItemTableViewCell: UITableViewCell {
         static let verticalInset: CGFloat = 11
         static let iconSize: CGFloat = 32
         static let statusOffset: CGFloat = 4.0
+        static let titleAmountSpacing: CGFloat = 64.0
     }
 
     private let transactionTypeView = UIImageView()
@@ -15,26 +16,27 @@ final class HistoryItemTableViewCell: UITableViewCell {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
 
     private let subtitleLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
+        label.textColor = R.color.colorTransparentText()
         return label
     }()
 
     private let amountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
         return label
     }()
 
     private let timeLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
-        label.textColor = R.color.colorLightGray()
+        label.textColor = R.color.colorTransparentText()
         return label
     }()
 
@@ -91,7 +93,7 @@ final class HistoryItemTableViewCell: UITableViewCell {
         amountLabel.snp.makeConstraints { make in
             make.trailing.equalTo(contentView.snp.trailing).offset(-UIConstants.horizontalInset)
             make.top.equalTo(contentView.snp.top).offset(Constants.verticalInset)
-            make.leading.equalTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
+            make.leading.equalTo(titleLabel.snp.trailing).offset(Constants.titleAmountSpacing)
         }
 
         amountLabel.snp.contentHuggingHorizontalPriority = titleLabel.snp.contentHuggingHorizontalPriority + 1
@@ -182,7 +184,7 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
             case .rejected:
                 addStatusViewIfNeeded()
                 statusImageView?.image = R.image.iconTxFailed()
-                amountLabel.textColor = R.color.colorGray()!
+                amountLabel.textColor = R.color.colorTransparentText()
             case .pending:
                 addStatusViewIfNeeded()
                 statusImageView?.image = R.image.iconTxPending()

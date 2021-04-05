@@ -57,8 +57,6 @@ final class TransactionHistoryViewModelFactory {
             icon = nil
         }
 
-        let subtitle = "Transfer"
-
         if let currentIcon = icon {
             imageViewModel = WalletStaticImageViewModel(staticImage: currentIcon)
         } else {
@@ -69,7 +67,7 @@ final class TransactionHistoryViewModelFactory {
 
         return HistoryItemViewModel(
             title: data.peerName ?? "",
-            subtitle: subtitle,
+            subtitle: "Transfer",
             amount: amount,
             time: time,
             type: txType,
@@ -79,7 +77,7 @@ final class TransactionHistoryViewModelFactory {
         )
     }
 
-    private func createRewardAndSlashItemFromData(
+    private func createRewardOrSlashItemFromData(
         _ data: AssetTransactionData,
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale,
@@ -150,8 +148,8 @@ final class TransactionHistoryViewModelFactory {
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
         return HistoryItemViewModel(
-            title: data.details.capitalized,
-            subtitle: data.peerName?.capitalized ?? "",
+            title: data.peerLastName?.capitalized ?? "",
+            subtitle: data.peerFirstName?.capitalized ?? "",
             amount: amount,
             time: time,
             type: txType,
@@ -181,7 +179,7 @@ extension TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProtoco
                 txType: transactionType
             )
         case .reward, .slash:
-            return try createRewardAndSlashItemFromData(
+            return try createRewardOrSlashItemFromData(
                 data,
                 commandFactory: commandFactory,
                 locale: locale,

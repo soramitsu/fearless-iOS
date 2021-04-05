@@ -50,7 +50,7 @@ final class TransactionHistoryConfigurator {
     init(amountFormatterFactory: NumberFormatterFactoryProtocol, assets: [WalletAsset]) {
         viewModelFactory = TransactionHistoryViewModelFactory(
             amountFormatterFactory: amountFormatterFactory,
-            dateFormatter: DateFormatter.history,
+            dateFormatter: DateFormatter.txHistory,
             assets: assets
         )
     }
@@ -58,7 +58,7 @@ final class TransactionHistoryConfigurator {
     func configure(builder: HistoryModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
             R.string.localizable
-                .walletHistoryTitle(preferredLanguages: locale.rLanguages)
+                .walletHistoryTitleV1(preferredLanguages: locale.rLanguages)
         }
 
         builder

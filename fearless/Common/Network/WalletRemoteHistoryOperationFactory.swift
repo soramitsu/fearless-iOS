@@ -109,7 +109,7 @@ final class WalletRemoteHistoryFactory {
                 ]
 
             let resultItems: [WalletRemoteHistoryItemProtocol] =
-                (transfers + rewards + extrinsics).sorted { item1, item2 in
+                (rewards + extrinsics + transfers).sorted { item1, item2 in
                     if item1.itemBlockNumber > item2.itemBlockNumber {
                         return true
                     } else if item1.itemBlockNumber < item2.itemBlockNumber {
