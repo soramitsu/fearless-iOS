@@ -66,10 +66,7 @@ final class TransactionHistoryConfigurator {
             .with(emptyStateDataSource: WalletEmptyStateDataSource.history)
             .with(historyViewStyle: HistoryViewStyle.fearless)
             .with(transactionCellStyle: transactionCellStyle)
-            .with(
-                cellNib: UINib(resource: R.nib.historyItemTableViewCell),
-                for: HistoryConstants.historyCellId
-            )
+            .with(cellClass: HistoryItemTableViewCell.self, for: HistoryConstants.historyCellId)
             .with(transactionHeaderStyle: headerStyle)
             .with(supportsFilter: false)
             .with(includesFeeInAmount: false)
