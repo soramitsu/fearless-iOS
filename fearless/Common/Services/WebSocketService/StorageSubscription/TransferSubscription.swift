@@ -63,8 +63,8 @@ struct TransferSubscriptionResult {
     let encodedExtrinsic: String
     let call: TransferCallResult
     let extrinsicHash: Data
-    let blockNumber: Int64
-    let txIndex: Int16
+    let blockNumber: UInt64
+    let txIndex: UInt16
 }
 
 private typealias ResultAndFeeOperationWrapper =
@@ -366,8 +366,8 @@ extension TransferSubscription {
                         encodedExtrinsic: hexExtrinsic,
                         call: callResult,
                         extrinsicHash: extrinsicHash,
-                        blockNumber: Int64(blockNumber),
-                        txIndex: Int16(index)
+                        blockNumber: UInt64(blockNumber),
+                        txIndex: UInt16(index)
                     )
                 } catch {
                     return nil

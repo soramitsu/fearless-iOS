@@ -40,10 +40,10 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
             detailsLabel.text = itemViewModel.details
 
             switch itemViewModel.direction {
-            case .incoming:
+            case .incoming, .reward:
                 amountLabel.text = "+ \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorGreen()!
-            case .outgoing:
+            case .outgoing, .slash:
                 amountLabel.text = "- \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorWhite()!
             }

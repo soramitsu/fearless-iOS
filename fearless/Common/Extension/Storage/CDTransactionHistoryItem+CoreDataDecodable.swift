@@ -14,7 +14,7 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         amount = try container.decode(String.self, forKey: .amount)
         fee = try container.decode(String.self, forKey: .fee)
 
-        if let number = try container.decodeIfPresent(Int64.self, forKey: .blockNumber) {
+        if let number = try container.decodeIfPresent(UInt64.self, forKey: .blockNumber) {
             blockNumber = NSNumber(value: number)
         } else {
             blockNumber = nil
@@ -37,7 +37,7 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         try container.encodeIfPresent(timestamp, forKey: .timestamp)
         try container.encodeIfPresent(amount, forKey: .amount)
         try container.encodeIfPresent(fee, forKey: .fee)
-        try container.encodeIfPresent(blockNumber?.int64Value, forKey: .blockNumber)
+        try container.encodeIfPresent(blockNumber?.uint64Value, forKey: .blockNumber)
         try container.encodeIfPresent(txIndex?.int16Value, forKey: .txIndex)
     }
 }
