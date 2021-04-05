@@ -230,6 +230,7 @@
 		842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B524AE05C700D91AD8 /* EmailPresentable.swift */; };
 		842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */; };
 		84293E41261AF05E008E5EDD /* HistoryItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84293E40261AF05E008E5EDD /* HistoryItemTableViewCell.swift */; };
+		84293E58261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */; };
 		842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7824D063FD00C30A7A /* TriangularedView.swift */; };
 		842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */; };
 		842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */; };
@@ -1217,6 +1218,7 @@
 		842876B524AE05C700D91AD8 /* EmailPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailPresentable.swift; sourceTree = "<group>"; };
 		842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionItem.swift; sourceTree = "<group>"; };
 		84293E40261AF05E008E5EDD /* HistoryItemTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemTableViewCell.swift; sourceTree = "<group>"; };
+		84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteHistoryFilter.swift; sourceTree = "<group>"; };
 		842D1E7824D063FD00C30A7A /* TriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedView.swift; sourceTree = "<group>"; };
 		842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedButton.swift; sourceTree = "<group>"; };
 		842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Inspectable.swift"; sourceTree = "<group>"; };
@@ -3860,6 +3862,7 @@
 				84452F9225D5EE7300F47EC5 /* DataOperationFactory.swift */,
 				8418E71A26175E6900DCF6C8 /* WalletRemoteHistoryOperationFactory.swift */,
 				8418E71F2617602000DCF6C8 /* WalletRemoteHistoryItemProtocol.swift */,
+				84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -5952,6 +5955,7 @@
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
 				AE9EF264260A82B80026910A /* StoriesWireframe.swift in Sources */,
 				8494D87C252537E500614D8F /* SubscanError.swift in Sources */,
+				84293E58261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				843910A8253E3AF600E3C217 /* WebSocketSubscriptionFactory.swift in Sources */,
 				AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */,

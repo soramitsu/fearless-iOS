@@ -21,8 +21,11 @@ final class WalletRemoteHistoryFactory {
 
     let baseURL: URL
 
-    init(baseURL: URL) {
+    let filter: WalletRemoteHistoryFiltering?
+
+    init(baseURL: URL, filter: WalletRemoteHistoryFiltering? = nil) {
         self.baseURL = baseURL
+        self.filter = filter
     }
 
     private func createTransfersOperationIfNeeded(
@@ -147,7 +150,8 @@ final class WalletRemoteHistoryFactory {
 
     private func createMapOperation(
         dependingOn mergeOperation: BaseOperation<MergeResult>,
-        context: TransactionHistoryContext
+        context: TransactionHistoryContext,
+        filter: WalletRemoteHistoryFiltering?
     ) -> BaseOperation<WalletRemoteHistoryData> {
         ClosureOperation {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
@@ -163,13 +167,13 @@ final class WalletRemoteHistoryFactory {
                     return result
                 }
 
-                let filteredCount = counters[label] ?? 0
-                let total = (sourceContext.page * sourceContext.row) + filteredCount
+                let mergedCount = counters[label] ?? 0
+                let total = (sourceContext.page * sourceContext.row) + mergedCount
                 let row = total.firstDivider(from: (1 ... result.defaultRow).reversed()) ?? 1
                 let nextPage = total / row
 
                 let originalCount = mergeResult.originalCounters[label] ?? 0
-                let isCompleted = originalCount == filteredCount ? originalCount < sourceContext.row : false
+                let isCompleted = originalCount == mergedCount ? originalCount < sourceContext.row : false
 
                 let nextSourceContext = result.sourceContext(for: label)
                     .byReplacingPage(nextPage)
@@ -179,8 +183,16 @@ final class WalletRemoteHistoryFactory {
                 return result.byReplacingSource(context: nextSourceContext, for: label)
             }
 
+            let finalItems: [WalletRemoteHistoryItemProtocol]
+
+            if let filter = filter {
+                finalItems = mergeResult.items.filter { filter.includes(item: $0) }
+            } else {
+                finalItems = mergeResult.items
+            }
+
             return WalletRemoteHistoryData(
-                historyItems: mergeResult.items,
+                historyItems: finalItems,
                 context: nextContext
             )
         }
@@ -212,7 +224,7 @@ extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
 
         sourceOperations.forEach { mergeOperation.addDependency($0) }
 
-        let mapOperation = createMapOperation(dependingOn: mergeOperation, context: context)
+        let mapOperation = createMapOperation(dependingOn: mergeOperation, context: context, filter: filter)
 
         mapOperation.addDependency(mergeOperation)
 
