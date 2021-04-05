@@ -4,14 +4,18 @@ import RobinHood
 protocol SubscanOperationFactoryProtocol {
     func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData>
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData>
-    func fetchRewardsAndSlashesOperation(_ url: URL, info: RewardInfo) -> BaseOperation<SubscanRewardData>
+    func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData>
+    func fetchExtrinsicsOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanExtrinsicData>
 }
 
-final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
-    func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData> {
+final class SubscanOperationFactory {
+    private func fetchOperation<Request: Encodable, Response: Decodable>(
+        _ url: URL,
+        info: Request
+    ) -> BaseOperation<Response> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
-            request.httpBody = try JSONEncoder().encode(PriceInfo(time: time))
+            request.httpBody = try JSONEncoder().encode(info)
             request.setValue(
                 HttpContentType.json.rawValue,
                 forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
@@ -20,9 +24,9 @@ final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
             return request
         }
 
-        let resultFactory = AnyNetworkResultFactory<PriceData> { data in
+        let resultFactory = AnyNetworkResultFactory<Response> { data in
             let resultData = try JSONDecoder().decode(
-                SubscanStatusData<PriceData>.self,
+                SubscanStatusData<Response>.self,
                 from: data
             )
 
@@ -37,64 +41,23 @@ final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
 
         return operation
     }
+}
 
-    func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData> {
-        let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: url)
-            request.httpBody = try JSONEncoder().encode(info)
-            request.setValue(
-                HttpContentType.json.rawValue,
-                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
-            )
-            request.httpMethod = HttpMethod.post.rawValue
-            return request
-        }
-
-        let resultFactory = AnyNetworkResultFactory<SubscanTransferData> { data in
-            let resultData = try JSONDecoder().decode(
-                SubscanStatusData<SubscanTransferData>.self,
-                from: data
-            )
-
-            guard resultData.isSuccess, let history = resultData.data else {
-                throw SubscanError(statusData: resultData)
-            }
-
-            return history
-        }
-
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
-
-        return operation
+extension SubscanOperationFactory: SubscanOperationFactoryProtocol {
+    func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData> {
+        let info = PriceInfo(time: time)
+        return fetchOperation(url, info: info)
     }
 
-    func fetchRewardsAndSlashesOperation(_ url: URL, info: RewardInfo) -> BaseOperation<SubscanRewardData> {
-        let requestFactory = BlockNetworkRequestFactory {
-            var request = URLRequest(url: url)
-            request.httpBody = try JSONEncoder().encode(info)
-            request.setValue(
-                HttpContentType.json.rawValue,
-                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
-            )
-            request.httpMethod = HttpMethod.post.rawValue
-            return request
-        }
+    func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData> {
+        fetchOperation(url, info: info)
+    }
 
-        let resultFactory = AnyNetworkResultFactory<SubscanRewardData> { data in
-            let resultData = try JSONDecoder().decode(
-                SubscanStatusData<SubscanRewardData>.self,
-                from: data
-            )
+    func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData> {
+        fetchOperation(url, info: info)
+    }
 
-            guard resultData.isSuccess, let history = resultData.data else {
-                throw SubscanError(statusData: resultData)
-            }
-
-            return history
-        }
-
-        let operation = NetworkOperation(requestFactory: requestFactory, resultFactory: resultFactory)
-
-        return operation
+    func fetchExtrinsicsOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanExtrinsicData> {
+        fetchOperation(url, info: info)
     }
 }

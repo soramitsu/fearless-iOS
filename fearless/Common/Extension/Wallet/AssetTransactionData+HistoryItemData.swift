@@ -108,6 +108,47 @@ extension AssetTransactionData {
     }
 
     static func createTransaction(
+        from item: SubscanExtrinsicItemData,
+        address _: String,
+        networkType: SNAddressType,
+        asset: WalletAsset,
+        addressFactory _: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let amount: Decimal = {
+            guard let amountValue = BigUInt(item.fee) else {
+                return 0.0
+            }
+
+            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
+        }()
+
+        let status: AssetTransactionStatus
+
+        if let state = item.success {
+            status = state ? .commited : .rejected
+        } else {
+            status = .pending
+        }
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: "",
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: item.callModule,
+            details: item.callFunction,
+            amount: AmountDecimal(value: amount),
+            fees: [],
+            timestamp: item.timestamp,
+            type: TransactionType.extrinsic.rawValue,
+            reason: nil,
+            context: nil
+        )
+    }
+
+    static func createTransaction(
         from item: TransactionHistoryItem,
         address: String,
         networkType: SNAddressType,

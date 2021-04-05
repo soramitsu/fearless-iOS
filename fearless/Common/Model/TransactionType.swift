@@ -5,4 +5,5 @@ enum TransactionType: String {
     case outgoing = "OUTGOING"
     case reward = "REWARD"
     case slash = "SLASH"
+    case extrinsic = "EXTRINSIC"
 }

@@ -97,7 +97,10 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         _: WalletHistoryRequest,
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let historyContext = TransactionHistoryContext(context: pagination.context ?? [:])
+        let historyContext = TransactionHistoryContext(
+            context: pagination.context ?? [:],
+            defaultRow: pagination.count
+        )
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),

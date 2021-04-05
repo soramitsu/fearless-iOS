@@ -9,7 +9,8 @@ class RewardDataSourceTests: NetworkBaseTests {
             // given
 
             let storageFacade = SubstrateStorageTestFacade()
-            let url = WalletAssetId.westend.subscanUrl?.appendingPathComponent(SubscanApi.rewards)
+            let url = WalletAssetId.westend.subscanUrl?
+                .appendingPathComponent(SubscanApi.rewardsAndSlashes)
             TotalRewardMock.register(mock: .westendFirst, url: url!)
 
             let expectedRewardAfterFirst: Decimal = 1.0
