@@ -216,19 +216,19 @@ class RewardPayoutsServiceTests: XCTestCase {
     func testFetchNominationHistory() {
         let subscanOperationFactory = SubscanOperationFactory()
         let queue = OperationQueue()
-        let nominatorStachAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
+        let nominatorStashAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
         let chain = Chain.westend
 
         do {
 
             let controllersByStaking = try fetchControllersByStakingModule(
-                nominatorStachAccount: nominatorStachAccount,
+                nominatorStachAccount: nominatorStashAccount,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
             let controllersByUtility = try fetchControllersByUtilityModule(
-                nominatorStachAccount: nominatorStachAccount,
+                nominatorStachAccount: nominatorStashAccount,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
