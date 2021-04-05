@@ -13,7 +13,6 @@ protocol SubscanOperationFactoryProtocol {
 }
 
 final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
-
     func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData> {
         let requestFactory = BlockNetworkRequestFactory {
             var request = URLRequest(url: url)
@@ -113,7 +112,8 @@ final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
             request.httpBody = try JSONEncoder().encode(info)
             request.setValue(
                 HttpContentType.json.rawValue,
-                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue)
+                forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
+            )
             request.httpMethod = HttpMethod.post.rawValue
             return request
         }
@@ -121,7 +121,8 @@ final class SubscanOperationFactory: SubscanOperationFactoryProtocol {
         let resultFactory = AnyNetworkResultFactory<SubscanExtrinsicsData> { data in
             let resultData = try JSONDecoder().decode(
                 SubscanStatusData<SubscanExtrinsicsData>.self,
-                from: data)
+                from: data
+            )
 
             guard resultData.isSuccess, let extrinsics = resultData.data else {
                 throw SubscanError(statusData: resultData)

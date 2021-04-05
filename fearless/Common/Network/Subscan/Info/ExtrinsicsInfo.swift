@@ -9,7 +9,6 @@ struct ExtrinsicsInfo {
 }
 
 extension ExtrinsicsInfo: Encodable {
-
     private enum CodingKeys: String, CodingKey {
         case row
         case page
