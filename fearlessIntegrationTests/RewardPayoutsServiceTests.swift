@@ -216,8 +216,6 @@ class RewardPayoutsServiceTests: XCTestCase {
     func testFetchNominationHistory() {
         let subscanOperationFactory = SubscanOperationFactory()
         let queue = OperationQueue()
-        //let nominatorStachAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
-        //let nominatorStachAccount = "F2GF2vuTCCmx8PnUNpWHTd5hTzjdbufa2uxdq2uT7PC5s9k" // is validator
         let nominatorStachAccount = "Gv6dFDomBYgLrPXmFA1hgKqCBHZwhwwb868tqgrrnVwpXkz"
         let chain = Chain.kusama
 
@@ -235,13 +233,15 @@ class RewardPayoutsServiceTests: XCTestCase {
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
-            let allControllers = controllersByStaking + controllersByUtility
-            let nom = try fetchControllersForNominate(
+            let allControllers = Array(Set(controllersByStaking + controllersByUtility))
+            let nominators = try fetchControllersForNominate(
                 controllers: allControllers,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
-            print(nom)
+
+            let set = Set(nominators)
+            XCTAssert(!set.isEmpty)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -310,10 +310,12 @@ class RewardPayoutsServiceTests: XCTestCase {
                     address: address,
                     callName: "nominate",
                     subscanOperationFactory: subscanOperationFactory,
-                    queue: queue)
-                    .compactMap { SubscanBondCall(callArgs: $0, chain: chain) }
-                    .map { $0.controller }
+                    queue: queue
+                )
+                    .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
+                    .map { $0.controllers }
             }
+            .flatMap { $0 }
             .flatMap { $0 }
         return res
     }
