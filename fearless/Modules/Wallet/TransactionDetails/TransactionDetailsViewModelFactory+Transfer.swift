@@ -27,37 +27,22 @@ extension TransactionDetailsViewModelFactory {
             locale: locale
         )
 
-        if type == .incoming {
-            populateSender(
-                in: &viewModels,
-                address: peerAddress,
-                chain: chain,
-                commandFactory: commandFactory,
-                locale: locale
-            )
-            populateReceiver(
-                in: &viewModels,
-                address: address,
-                chain: chain,
-                commandFactory: commandFactory,
-                locale: locale
-            )
-        } else {
-            populateSender(
-                in: &viewModels,
-                address: address,
-                chain: chain,
-                commandFactory: commandFactory,
-                locale: locale
-            )
-            populateReceiver(
-                in: &viewModels,
-                address: peerAddress,
-                chain: chain,
-                commandFactory: commandFactory,
-                locale: locale
-            )
-        }
+        let (sender, receiver) = type == .incoming ? (peerAddress, address) : (address, peerAddress)
+
+        populateSender(
+            in: &viewModels,
+            address: sender,
+            chain: chain,
+            commandFactory: commandFactory,
+            locale: locale
+        )
+        populateReceiver(
+            in: &viewModels,
+            address: receiver,
+            chain: chain,
+            commandFactory: commandFactory,
+            locale: locale
+        )
 
         populateStatus(into: &viewModels, data: data, locale: locale)
         populateTime(into: &viewModels, data: data, locale: locale)
@@ -78,15 +63,11 @@ extension TransactionDetailsViewModelFactory {
 
         let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
 
-        var decimalAmount = data.amount.decimalValue
-
-        for fee in data.fees {
-            decimalAmount += fee.amount.decimalValue
-        }
+        let totalAmount = data.fees.reduce(data.amount.decimalValue) { $0 + $1.amount.decimalValue }
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+        guard let amount = formatter.value(for: locale).string(from: totalAmount) else {
             return nil
         }
 
