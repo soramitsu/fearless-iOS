@@ -15,10 +15,10 @@ extension TransactionDetailsViewModelFactory {
 
         var viewModels: [WalletFormViewBindingProtocol] = []
 
-        populateStatus(into: &viewModels, data: data, locale: locale)
-        populateTime(into: &viewModels, data: data, locale: locale)
-        populateTransferAmount(into: &viewModels, data: data, locale: locale)
-        populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        guard let type = TransactionType(rawValue: data.type), let peerAddress = data.peerName else {
+            return viewModels
+        }
+
         populateTransactionId(
             in: &viewModels,
             data: data,
@@ -26,10 +26,6 @@ extension TransactionDetailsViewModelFactory {
             commandFactory: commandFactory,
             locale: locale
         )
-
-        guard let type = TransactionType(rawValue: data.type), let peerAddress = data.peerName else {
-            return viewModels
-        }
 
         if type == .incoming {
             populateSender(
@@ -62,6 +58,11 @@ extension TransactionDetailsViewModelFactory {
                 locale: locale
             )
         }
+
+        populateStatus(into: &viewModels, data: data, locale: locale)
+        populateTime(into: &viewModels, data: data, locale: locale)
+        populateTransferAmount(into: &viewModels, data: data, locale: locale)
+        populateFeeAmount(in: &viewModels, data: data, locale: locale)
 
         return viewModels
     }
