@@ -5,6 +5,7 @@ import RobinHood
 import SoraFoundation
 import BigInt
 import FearlessUtils
+import IrohaCrypto
 
 class RewardPayoutsServiceTests: XCTestCase {
 
@@ -210,6 +211,194 @@ class RewardPayoutsServiceTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    func testFetchNominationHistory() {
+        let subscanOperationFactory = SubscanOperationFactory()
+        let queue = OperationQueue()
+        let nominatorStashAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
+        let chain = Chain.westend
+
+        do {
+
+            let controllersByStaking = try fetchControllersByStakingModule(
+                nominatorStashAccount: nominatorStashAccount,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let controllersByUtility = try fetchControllersByUtilityModule(
+                nominatorStashAccount: nominatorStashAccount,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let setOfControllersWhichCouldEverMakeNominations =
+                controllersByStaking.union(controllersByUtility)
+
+            let validatorsByNominate = try fetchValidatorsByNominate(
+                controllers: setOfControllersWhichCouldEverMakeNominations,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let validatorsByBatch = try fetchValidatorsByBatch(
+                controllers: setOfControllersWhichCouldEverMakeNominations,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory,
+                queue: queue)
+
+            let validatorIdsSet = validatorsByNominate.union(validatorsByBatch)
+
+            let expectedValidatorIdsSet = Set<String>([
+                "5HoSDmKXBXeD5HBj5haVUmWsjQEcp7Tt2QmYbCd8vrkeBK4b",
+                "5GR6SK9cj6c9uMaqZPpkMqVK99vukoRvS68ELEU2fRJ3EcNR",
+                "5FR5YJy3uwcEkXkRaaqsgARJ4C74V1zA8C6DRAECderYFGRk",
+                "5CFPcUJgYgWryPaV1aYjSbTpbTLu42V32Ytw1L9rfoMAsfGh",
+                "5DUGF2j9PsCdQ9okZfRoiCgbSeq3TUEAwuHvBQ3qjX4Nz4oR",
+                "5FbpwTP4usJ7dCFvtwzpew6NfXhtkvZH1jY4h6UfLztyD3Ng",
+                "5E2kbY5TTqGo6PZmZccAr4nkK6zGMSn73Bocen2gGBZGkcus",
+                "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB",
+                "5C8Pev9UHEtBgd1XKhg38U4PC49Azx8v5uphtxjWiXwmpsc7"
+            ])
+            XCTAssertEqual(validatorIdsSet, expectedValidatorIdsSet)
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    private func fetchControllersByStakingModule(
+        nominatorStashAccount: String,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> Set<String> {
+        let bondControllers = try fetchExtrinsicsParams(
+            moduleName: "staking",
+            address: nominatorStashAccount,
+            callName: "bond",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let setControllers = try fetchExtrinsicsParams(
+            moduleName: "staking",
+            address: nominatorStashAccount,
+            callName: "set_controller",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let controllers = (bondControllers + setControllers)
+            .compactMap { SubscanBondCall(callArgs: $0, chain: chain) }
+            .map { $0.controller }
+        return Set(controllers)
+    }
+
+    private func fetchControllersByUtilityModule(
+        nominatorStashAccount: String,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> Set<String> {
+        let batchControllers = try fetchExtrinsicsParams(
+            moduleName: "utility",
+            address: nominatorStashAccount,
+            callName: "batch",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let batchAllControllers = try fetchExtrinsicsParams(
+            moduleName: "utility",
+            address: nominatorStashAccount,
+            callName: "batch_all",
+            subscanOperationFactory: subscanOperationFactory,
+            queue: queue)
+
+        let controllers = (batchControllers + batchAllControllers)
+            .compactMap { SubscanFindControllersBatchCall(callArgs: $0, chain: chain) }
+            .flatMap { $0.controllers }
+        return Set(controllers)
+    }
+
+    private func fetchValidatorsByNominate(
+        controllers: Set<String>,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> Set<String> {
+        let validators = controllers
+            .compactMap { address in
+                try? fetchExtrinsicsParams(
+                    moduleName: "staking",
+                    address: address,
+                    callName: "nominate",
+                    subscanOperationFactory: subscanOperationFactory,
+                    queue: queue
+                )
+                    .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
+                    .map(\.validatorAddresses)
+            }
+            .flatMap { $0 }
+            .flatMap { $0 }
+        return Set(validators)
+    }
+
+    private func fetchValidatorsByBatch(
+        controllers: Set<String>,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> Set<String> {
+        let nominatorsBatch = controllers
+            .compactMap { address -> [String] in
+                let batch = try? fetchExtrinsicsParams(
+                    moduleName: "utility",
+                    address: address,
+                    callName: "batch",
+                    subscanOperationFactory: subscanOperationFactory,
+                    queue: queue
+                )
+
+                let batchAll = try? fetchExtrinsicsParams(
+                    moduleName: "utility",
+                    address: address,
+                    callName: "batch_all",
+                    subscanOperationFactory: subscanOperationFactory,
+                    queue: queue
+                )
+
+                return ((batch ?? []) + (batchAll ?? []))
+                    .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
+                    .flatMap(\.validatorAddresses)
+            }
+            .flatMap { $0 }
+
+        return Set(nominatorsBatch)
+    }
+
+    private func fetchExtrinsicsParams(
+        moduleName: String,
+        address: String,
+        callName: String,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [JSON] {
+        let extrinsicsInfo = ExtrinsicsInfo(
+            row: 100,
+            page: 0,
+            address: address,
+            moduleName: moduleName,
+            callName: callName)
+
+        let url = WalletAssetId.westend.subscanUrl!
+            .appendingPathComponent(SubscanApi.extrinsics)
+        let fetchOperation = subscanOperationFactory.fetchExtrinsics(url, info: extrinsicsInfo)
+
+        let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+
+        guard let extrinsics = try queryWrapper.targetOperation.extractNoCancellableResultData()
+                .extrinsics else { return [] }
+        return extrinsics.compactMap { $0.params }
     }
 
     private func createWebSocketService(
