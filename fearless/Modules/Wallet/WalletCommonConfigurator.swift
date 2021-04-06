@@ -38,10 +38,13 @@ struct WalletCommonConfigurator {
         )
 
         let singleProviderIdFactory = WalletSingleProviderIdFactory(addressType: networkType)
+        let transactionTypes = TransactionType.allCases.map { $0.toWalletType() }
+
         builder
             .with(language: language)
             .with(commandDecoratorFactory: decoratorFactory)
             .with(logger: Logger.shared)
+            .with(transactionTypeList: transactionTypes)
             .with(amountFormatterFactory: AmountFormatterFactory())
             .with(singleProviderIdentifierFactory: singleProviderIdFactory)
             .with(qrCoderFactory: qrCoderFactory)

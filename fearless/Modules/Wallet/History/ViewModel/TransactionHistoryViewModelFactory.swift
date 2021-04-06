@@ -12,17 +12,20 @@ final class TransactionHistoryViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
+    let chain: Chain
 
     let iconGenerator = PolkadotIconGenerator()
 
     init(
         amountFormatterFactory: NumberFormatterFactoryProtocol,
         dateFormatter: LocalizableResource<DateFormatter>,
-        assets: [WalletAsset]
+        assets: [WalletAsset],
+        chain: Chain
     ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.dateFormatter = dateFormatter
         self.assets = assets
+        self.chain = chain
     }
 
     private func createTransferItemFromData(
@@ -139,7 +142,7 @@ final class TransactionHistoryViewModelFactory {
 
         let imageViewModel: WalletImageViewModelProtocol?
 
-        if let icon = R.image.iconKusamaExtrinsic() {
+        if let icon = chain.extrinsicIcon {
             imageViewModel = WalletStaticImageViewModel(staticImage: icon)
         } else {
             imageViewModel = nil

@@ -67,17 +67,11 @@ extension AssetTransactionData {
         address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
-        addressFactory: SS58AddressFactoryProtocol
+        addressFactory _: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
         let status: AssetTransactionStatus
 
         status = .commited
-
-        let accountId = try? addressFactory.accountId(
-            fromAddress: address,
-            type: networkType
-        )
-        let peerId = accountId?.toHex() ?? address
 
         let amount: Decimal = {
             guard let amountValue = BigUInt(item.amount) else {
@@ -93,7 +87,7 @@ extension AssetTransactionData {
             transactionId: item.identifier,
             status: status,
             assetId: asset.identifier,
-            peerId: peerId,
+            peerId: item.extrinsicHash,
             peerFirstName: nil,
             peerLastName: nil,
             peerName: address,

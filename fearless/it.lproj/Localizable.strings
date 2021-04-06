@@ -314,3 +314,7 @@ Derivation path: %@";
 "staking.reward.details.date" = "";
 "staking.reward.details.era" = "";
 "staking.reward.details.reward" = "";
+"staking.reward" = "";
+"staking.slash" = "";
+"common.call" = "";
+"common.module" = "";
