@@ -35,23 +35,25 @@ extension TransactionDetailsViewModelFactory {
         populateTime(into: &viewModels, data: data, locale: locale)
 
         if let module = data.peerFirstName {
+            let title = R.string.localizable.commonModule(preferredLanguages: locale.rLanguages)
             populateTitleWithDetails(
                 into: &viewModels,
-                title: "Module",
+                title: title,
                 details: module.capitalized
             )
         }
 
         if let call = data.peerLastName {
+            let title = R.string.localizable.commonCall(preferredLanguages: locale.rLanguages)
             populateTitleWithDetails(
                 into: &viewModels,
-                title: "Call",
+                title: title,
                 details: call.capitalized
             )
         }
 
         let feeTitle = R.string.localizable
-            .walletSendFeeTitle(preferredLanguages: locale.rLanguages)
+            .commonNetworkFee(preferredLanguages: locale.rLanguages)
         populateAmount(into: &viewModels, title: feeTitle, data: data, locale: locale)
 
         return viewModels

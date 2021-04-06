@@ -17,17 +17,9 @@ extension TransactionDetailsViewModelFactory {
 
         var viewModels: [WalletFormViewBindingProtocol] = []
 
-        populateTransactionId(
+        populateEventId(
             in: &viewModels,
             data: data,
-            chain: chain,
-            commandFactory: commandFactory,
-            locale: locale
-        )
-
-        populateValidator(
-            in: &viewModels,
-            accountId: data.peerId,
             chain: chain,
             commandFactory: commandFactory,
             locale: locale
@@ -36,7 +28,9 @@ extension TransactionDetailsViewModelFactory {
         populateStatus(into: &viewModels, data: data, locale: locale)
         populateTime(into: &viewModels, data: data, locale: locale)
 
-        let title = isReward ? "Reward" : "Slash"
+        let title = isReward ?
+            R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages) :
+            R.string.localizable.stakingSlash(preferredLanguages: locale.rLanguages)
         populateAmount(into: &viewModels, title: title, data: data, locale: locale)
 
         return viewModels
@@ -50,26 +44,33 @@ extension TransactionDetailsViewModelFactory {
         nil
     }
 
-    private func populateValidator(
+    func populateEventId(
         in viewModelList: inout [WalletFormViewBindingProtocol],
-        accountId: String,
+        data: AssetTransactionData,
         chain: Chain,
         commandFactory: WalletCommandFactoryProtocol,
         locale: Locale
     ) {
-        let factory = SS58AddressFactory()
+        let title = R.string.localizable
+            .transactionDetailsHashTitle(preferredLanguages: locale.rLanguages)
 
-        if let peerId = try? Data(hexString: accountId),
-           let peerAddress = try? factory
-           .addressFromAccountId(data: peerId, type: chain.addressType) {
-            populatePeerViewModel(
-                in: &viewModelList,
-                title: "Validator",
-                address: peerAddress,
-                chain: chain,
-                commandFactory: commandFactory,
-                locale: locale
-            )
-        }
+        let actionIcon = R.image.iconMore()
+
+        let command = WalletExtrinsicOpenCommand(
+            extrinsicHash: data.peerId,
+            chain: chain,
+            commandFactory: commandFactory,
+            locale: locale
+        )
+
+        let viewModel = WalletCompoundDetailsViewModel(
+            title: title,
+            details: data.peerId,
+            mainIcon: nil,
+            actionIcon: actionIcon,
+            command: command,
+            enabled: true
+        )
+        viewModelList.append(viewModel)
     }
 }
