@@ -174,7 +174,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
 
         TransactionHistoryConfigurator(
             amountFormatterFactory: amountFormatterFactory,
-            assets: accountSettings.assets
+            assets: accountSettings.assets,
+            chain: networkType.chain
         )
         .configure(builder: builder.historyModuleBuilder)
 

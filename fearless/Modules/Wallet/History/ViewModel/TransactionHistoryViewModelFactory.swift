@@ -8,27 +8,31 @@ enum TransactionHistoryViewModelFactoryError: Error {
     case unsupportedType
 }
 
-final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProtocol {
+final class TransactionHistoryViewModelFactory {
     let amountFormatterFactory: NumberFormatterFactoryProtocol
     let dateFormatter: LocalizableResource<DateFormatter>
     let assets: [WalletAsset]
+    let chain: Chain
 
     let iconGenerator = PolkadotIconGenerator()
 
     init(
         amountFormatterFactory: NumberFormatterFactoryProtocol,
         dateFormatter: LocalizableResource<DateFormatter>,
-        assets: [WalletAsset]
+        assets: [WalletAsset],
+        chain: Chain
     ) {
         self.amountFormatterFactory = amountFormatterFactory
         self.dateFormatter = dateFormatter
         self.assets = assets
+        self.chain = chain
     }
 
-    func createItemFromData(
+    private func createTransferItemFromData(
         _ data: AssetTransactionData,
         commandFactory: WalletCommandFactoryProtocol,
-        locale: Locale
+        locale: Locale,
+        txType: TransactionType
     ) throws -> WalletViewModelProtocol {
         guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
             throw TransactionHistoryViewModelFactoryError.missingAsset
@@ -39,7 +43,7 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
             .string(from: data.amount.decimalValue)
             ?? ""
 
-        let details = dateFormatter.value(for: locale)
+        let time = dateFormatter.value(for: locale)
             .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
 
         let imageViewModel: WalletImageViewModelProtocol?
@@ -49,7 +53,7 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
             icon = try? iconGenerator.generateFromAddress(address)
                 .imageWithFillColor(
                     R.color.colorWhite()!,
-                    size: CGSize(width: 32.0, height: 32.0),
+                    size: UIConstants.normalAddressIconSize,
                     contentScale: UIScreen.main.scale
                 )
         } else {
@@ -62,20 +66,135 @@ final class TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProto
             imageViewModel = nil
         }
 
-        guard let transactionType = TransactionType(rawValue: data.type) else {
-            throw TransactionHistoryViewModelFactoryError.unsupportedType
+        let command = commandFactory.prepareTransactionDetailsCommand(with: data)
+
+        return HistoryItemViewModel(
+            title: data.peerName ?? "",
+            subtitle: "Transfer",
+            amount: amount,
+            time: time,
+            type: txType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
+    }
+
+    private func createRewardOrSlashItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale,
+        txType: TransactionType
+    ) throws -> WalletViewModelProtocol {
+        guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
+            throw TransactionHistoryViewModelFactoryError.missingAsset
+        }
+
+        let amount = amountFormatterFactory.createTokenFormatter(for: asset)
+            .value(for: locale)
+            .string(from: data.amount.decimalValue)
+            ?? ""
+
+        let time = dateFormatter.value(for: locale)
+            .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
+
+        let imageViewModel: WalletImageViewModelProtocol?
+
+        if let icon = R.image.iconRewardAndSlashes() {
+            imageViewModel = WalletStaticImageViewModel(staticImage: icon)
+        } else {
+            imageViewModel = nil
+        }
+
+        let command = commandFactory.prepareTransactionDetailsCommand(with: data)
+
+        let title = txType == .reward ? "Reward" : "Slash"
+
+        return HistoryItemViewModel(
+            title: title,
+            subtitle: "Staking",
+            amount: amount,
+            time: time,
+            type: txType,
+            status: data.status,
+            imageViewModel: imageViewModel,
+            command: command
+        )
+    }
+
+    private func createExtrinsicItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale,
+        txType: TransactionType
+    ) throws -> WalletViewModelProtocol {
+        guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
+            throw TransactionHistoryViewModelFactoryError.missingAsset
+        }
+
+        let amount = amountFormatterFactory.createTokenFormatter(for: asset)
+            .value(for: locale)
+            .string(from: data.amount.decimalValue)
+            ?? ""
+
+        let time = dateFormatter.value(for: locale)
+            .string(from: Date(timeIntervalSince1970: TimeInterval(data.timestamp)))
+
+        let imageViewModel: WalletImageViewModelProtocol?
+
+        if let icon = chain.extrinsicIcon {
+            imageViewModel = WalletStaticImageViewModel(staticImage: icon)
+        } else {
+            imageViewModel = nil
         }
 
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
         return HistoryItemViewModel(
-            title: data.peerName ?? "",
-            details: details,
+            title: data.peerLastName?.capitalized ?? "",
+            subtitle: data.peerFirstName?.capitalized ?? "",
             amount: amount,
-            direction: transactionType,
+            time: time,
+            type: txType,
             status: data.status,
             imageViewModel: imageViewModel,
             command: command
         )
+    }
+}
+
+extension TransactionHistoryViewModelFactory: HistoryItemViewModelFactoryProtocol {
+    func createItemFromData(
+        _ data: AssetTransactionData,
+        commandFactory: WalletCommandFactoryProtocol,
+        locale: Locale
+    ) throws -> WalletViewModelProtocol {
+        guard let transactionType = TransactionType(rawValue: data.type) else {
+            throw TransactionHistoryViewModelFactoryError.unsupportedType
+        }
+
+        switch transactionType {
+        case .incoming, .outgoing:
+            return try createTransferItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        case .reward, .slash:
+            return try createRewardOrSlashItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        case .extrinsic:
+            return try createExtrinsicItemFromData(
+                data,
+                commandFactory: commandFactory,
+                locale: locale,
+                txType: transactionType
+            )
+        }
     }
 }

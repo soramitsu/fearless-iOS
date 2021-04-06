@@ -97,12 +97,15 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         _: WalletHistoryRequest,
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let historyContext = TransactionHistoryContext(context: pagination.context ?? [:])
+        let historyContext = TransactionHistoryContext(
+            context: pagination.context ?? [:],
+            defaultRow: pagination.count
+        )
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
               let assetId = WalletAssetId(rawValue: asset.identifier),
-              let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.history)
+              let baseUrl = assetId.subscanUrl
         else {
             let pageData = AssetTransactionPageData(
                 transactions: [],
@@ -113,19 +116,26 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let info = HistoryInfo(address: address, row: pagination.count, page: historyContext.page)
+        let remoteHistoryFactory = WalletRemoteHistoryFactory(
+            baseURL: baseUrl,
+            filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
+        )
 
-        let fetchOperation = subscanOperationFactory.fetchHistoryOperation(url, info: info)
+        let remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(
+            for: historyContext,
+            address: address,
+            count: pagination.count
+        )
 
-        var dependencies: [Operation] = [fetchOperation]
+        var dependencies = remoteHistoryWrapper.allOperations
 
         let localFetchOperation: BaseOperation<[TransactionHistoryItem]>?
 
-        if info.page == 0 {
+        if pagination.context == nil {
             let operation = txStorage.fetchAllOperation(with: RepositoryFetchOptions())
             dependencies.append(operation)
 
-            operation.addDependency(fetchOperation)
+            remoteHistoryWrapper.allOperations.forEach { operation.addDependency($0) }
 
             localFetchOperation = operation
         } else {
@@ -133,17 +143,17 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         }
 
         let mergeOperation = createHistoryMergeOperation(
-            dependingOn: fetchOperation,
+            dependingOn: remoteHistoryWrapper.targetOperation,
             localOperation: localFetchOperation,
             asset: asset,
-            info: info
+            address: address
         )
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
         dependencies.append(mergeOperation)
 
-        if info.page == 0 {
+        if pagination.context == nil {
             let clearOperation = txStorage.saveOperation({ [] }, {
                 let mergeResult = try mergeOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -156,8 +166,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
 
         let mapOperation = createHistoryMapOperation(
             dependingOn: mergeOperation,
-            subscanOperation: fetchOperation,
-            info: info
+            remoteOperation: remoteHistoryWrapper.targetOperation
         )
 
         dependencies.forEach { mapOperation.addDependency($0) }

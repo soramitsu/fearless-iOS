@@ -47,18 +47,23 @@ final class TransactionHistoryConfigurator {
 
     let viewModelFactory: TransactionHistoryViewModelFactory
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol, assets: [WalletAsset]) {
+    init(
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        assets: [WalletAsset],
+        chain: Chain
+    ) {
         viewModelFactory = TransactionHistoryViewModelFactory(
             amountFormatterFactory: amountFormatterFactory,
-            dateFormatter: DateFormatter.history,
-            assets: assets
+            dateFormatter: DateFormatter.txHistory,
+            assets: assets,
+            chain: chain
         )
     }
 
     func configure(builder: HistoryModuleBuilderProtocol) {
         let title = LocalizableResource { locale in
             R.string.localizable
-                .walletHistoryTitle(preferredLanguages: locale.rLanguages)
+                .walletHistoryTitleV1(preferredLanguages: locale.rLanguages)
         }
 
         builder
@@ -66,10 +71,7 @@ final class TransactionHistoryConfigurator {
             .with(emptyStateDataSource: WalletEmptyStateDataSource.history)
             .with(historyViewStyle: HistoryViewStyle.fearless)
             .with(transactionCellStyle: transactionCellStyle)
-            .with(
-                cellNib: UINib(resource: R.nib.historyItemTableViewCell),
-                for: HistoryConstants.historyCellId
-            )
+            .with(cellClass: HistoryItemTableViewCell.self, for: HistoryConstants.historyCellId)
             .with(transactionHeaderStyle: headerStyle)
             .with(supportsFilter: false)
             .with(includesFeeInAmount: false)

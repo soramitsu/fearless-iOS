@@ -391,7 +391,10 @@ class RewardPayoutsServiceTests: XCTestCase {
 
         let url = WalletAssetId.westend.subscanUrl!
             .appendingPathComponent(SubscanApi.extrinsics)
-        let fetchOperation = subscanOperationFactory.fetchExtrinsics(url, info: extrinsicsInfo)
+        let fetchOperation = subscanOperationFactory.fetchExtrinsicsOperation(
+            url,
+            info: extrinsicsInfo
+        )
 
         let queryWrapper = CompoundOperationWrapper(targetOperation: fetchOperation)
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)

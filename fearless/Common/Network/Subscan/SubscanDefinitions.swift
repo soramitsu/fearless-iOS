@@ -3,9 +3,9 @@ import IrohaCrypto
 
 struct SubscanApi {
     static let price = "api/open/price"
-    static let history = "api/scan/transfers"
-    static let reward = "api/scan/account/reward_slash"
-    static let extrinsics = "api/scan/extrinsics"
+    static let transfers = "api/scan/transfers"
+    static let rewardsAndSlashes = "api/scan/account/reward_slash"
+    static let extrinsics = "/api/scan/extrinsics"
 }
 
 extension WalletAssetId {
