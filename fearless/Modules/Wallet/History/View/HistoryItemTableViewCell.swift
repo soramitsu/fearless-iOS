@@ -68,8 +68,8 @@ final class HistoryItemTableViewCell: UITableViewCell {
         contentView.addSubview(transactionTypeView)
 
         transactionTypeView.snp.makeConstraints { make in
-            make.leading.equalTo(contentView).offset(UIConstants.horizontalInset)
-            make.centerY.equalTo(contentView)
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
             make.width.equalTo(Constants.iconSize)
         }
 
@@ -77,7 +77,7 @@ final class HistoryItemTableViewCell: UITableViewCell {
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
-            make.top.equalTo(contentView).offset(Constants.verticalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
         }
 
         contentView.addSubview(subtitleLabel)
@@ -85,14 +85,14 @@ final class HistoryItemTableViewCell: UITableViewCell {
         subtitleLabel.snp.makeConstraints { make in
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
             make.top.equalTo(titleLabel.snp.bottom)
-            make.bottom.equalTo(contentView).offset(-Constants.verticalInset)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
         }
 
         contentView.addSubview(amountLabel)
 
         amountLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(contentView.snp.trailing).offset(-UIConstants.horizontalInset)
-            make.top.equalTo(contentView.snp.top).offset(Constants.verticalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
             make.leading.equalTo(titleLabel.snp.trailing).offset(Constants.titleAmountSpacing)
         }
 
@@ -103,9 +103,9 @@ final class HistoryItemTableViewCell: UITableViewCell {
         contentView.addSubview(timeLabel)
 
         timeLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(contentView).offset(-UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalTo(amountLabel.snp.bottom)
-            make.bottom.equalTo(contentView).offset(-Constants.verticalInset)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
             make.leading.equalTo(subtitleLabel.snp.trailing).offset(-UIConstants.horizontalInset)
         }
 
