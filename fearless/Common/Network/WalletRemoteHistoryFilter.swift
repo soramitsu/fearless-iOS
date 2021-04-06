@@ -22,7 +22,7 @@ extension WalletRemoteHistoryClosureFilter {
         let calls = ["transfer", "transfer_keep_alive", "force_transfer"]
 
         return WalletRemoteHistoryClosureFilter { item in
-            guard let extrinsic = item as? SubscanExtrinsicItemData else {
+            guard let extrinsic = item as? SubscanConcreteExtrinsicsItemData else {
                 return true
             }
 

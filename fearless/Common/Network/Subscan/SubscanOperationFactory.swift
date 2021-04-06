@@ -5,7 +5,9 @@ protocol SubscanOperationFactoryProtocol {
     func fetchPriceOperation(_ url: URL, time: Int64) -> BaseOperation<PriceData>
     func fetchTransfersOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanTransferData>
     func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData>
-    func fetchExtrinsicsOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanExtrinsicData>
+    func fetchConcreteExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) ->
+        BaseOperation<SubscanConcreteExtrinsicsData>
+    func fetchExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanExtrinsicsData>
 }
 
 final class SubscanOperationFactory {
@@ -57,7 +59,12 @@ extension SubscanOperationFactory: SubscanOperationFactoryProtocol {
         fetchOperation(url, info: info)
     }
 
-    func fetchExtrinsicsOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanExtrinsicData> {
+    func fetchConcreteExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) ->
+        BaseOperation<SubscanConcreteExtrinsicsData> {
+        fetchOperation(url, info: info)
+    }
+
+    func fetchExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanExtrinsicsData> {
         fetchOperation(url, info: info)
     }
 }

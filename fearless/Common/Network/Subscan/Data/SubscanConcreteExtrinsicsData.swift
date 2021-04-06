@@ -1,11 +1,11 @@
 import Foundation
 
-struct SubscanExtrinsicData: Decodable {
+struct SubscanConcreteExtrinsicsData: Decodable {
     let count: Int
-    let extrinsics: [SubscanExtrinsicItemData]?
+    let extrinsics: [SubscanConcreteExtrinsicsItemData]?
 }
 
-struct SubscanExtrinsicItemData: Decodable {
+struct SubscanConcreteExtrinsicsItemData: Decodable {
     enum CodingKeys: String, CodingKey {
         case hash = "extrinsic_hash"
         case timestamp = "block_timestamp"

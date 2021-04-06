@@ -69,7 +69,7 @@ extension SubscanTransferItemData: WalletRemoteHistoryItemProtocol {
     }
 }
 
-extension SubscanExtrinsicItemData: WalletRemoteHistoryItemProtocol {
+extension SubscanConcreteExtrinsicsItemData: WalletRemoteHistoryItemProtocol {
     var identifier: String { hash }
     var itemBlockNumber: UInt64 { blockNumber }
     var itemExtrinsicIndex: UInt16 { extrinsicIndex.value }

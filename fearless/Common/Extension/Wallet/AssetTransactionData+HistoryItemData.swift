@@ -102,7 +102,7 @@ extension AssetTransactionData {
     }
 
     static func createTransaction(
-        from item: SubscanExtrinsicItemData,
+        from item: SubscanConcreteExtrinsicsItemData,
         address: String,
         networkType: SNAddressType,
         asset: WalletAsset,

@@ -65,24 +65,27 @@ final class WalletRemoteHistoryFactory {
     private func createExtrinsicsOperationIfNeeded(
         for context: TransactionHistoryContext,
         address: String
-    ) -> BaseOperation<SubscanExtrinsicData>? {
+    ) -> BaseOperation<SubscanConcreteExtrinsicsData>? {
         guard !context.extrinsics.isComplete else {
             return nil
         }
 
         let extrinsicsURL = baseURL.appendingPathComponent(SubscanApi.extrinsics)
-        let info = HistoryInfo(
-            address: address,
+        let info = ExtrinsicsInfo(
             row: context.extrinsics.row,
-            page: context.extrinsics.page
+            page: context.extrinsics.page,
+            address: address,
+            moduleName: nil,
+            callName: nil
         )
-        return internalFactory.fetchExtrinsicsOperation(extrinsicsURL, info: info)
+
+        return internalFactory.fetchConcreteExtrinsicsOperation(extrinsicsURL, info: info)
     }
 
     private func createMergeOperation(
         dependingOn transfersOperation: BaseOperation<SubscanTransferData>?,
         rewardsOperation: BaseOperation<SubscanRewardData>?,
-        extrinsicsOperation: BaseOperation<SubscanExtrinsicData>?,
+        extrinsicsOperation: BaseOperation<SubscanConcreteExtrinsicsData>?,
         context: TransactionHistoryContext
     ) -> BaseOperation<MergeResult> {
         ClosureOperation {
