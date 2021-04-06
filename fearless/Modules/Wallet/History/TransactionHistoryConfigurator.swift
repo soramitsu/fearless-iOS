@@ -47,11 +47,16 @@ final class TransactionHistoryConfigurator {
 
     let viewModelFactory: TransactionHistoryViewModelFactory
 
-    init(amountFormatterFactory: NumberFormatterFactoryProtocol, assets: [WalletAsset]) {
+    init(
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        assets: [WalletAsset],
+        chain: Chain
+    ) {
         viewModelFactory = TransactionHistoryViewModelFactory(
             amountFormatterFactory: amountFormatterFactory,
             dateFormatter: DateFormatter.txHistory,
-            assets: assets
+            assets: assets,
+            chain: chain
         )
     }
 
