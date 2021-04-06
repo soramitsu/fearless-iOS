@@ -335,7 +335,7 @@ class RewardPayoutsServiceTests: XCTestCase {
                     queue: queue
                 )
                     .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
-                    .map(\.validatorIds)
+                    .map(\.validatorAddresses)
             }
             .flatMap { $0 }
             .flatMap { $0 }

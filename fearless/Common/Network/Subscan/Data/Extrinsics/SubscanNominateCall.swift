@@ -3,7 +3,7 @@ import Foundation
 import IrohaCrypto
 
 struct SubscanNominateCall {
-    let validatorIds: [String]
+    let validatorAddresses: [String]
 
     init?(callArgs: JSON, chain: Chain) {
         guard let data = callArgs.stringValue?.data(using: .utf8) else { return nil }
@@ -22,7 +22,7 @@ struct SubscanNominateCall {
                     type: chain.addressType
                 )
             }
-        validatorIds = decodedAddresses
+        validatorAddresses = decodedAddresses
     }
 }
 
