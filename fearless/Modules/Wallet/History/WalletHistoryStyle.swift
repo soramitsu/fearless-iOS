@@ -6,7 +6,7 @@ extension HistoryViewStyle {
         let borderStyle = WalletStrokeStyle(color: .clear, lineWidth: 0.0)
         let cornerRadius: CGFloat = 10.0
         let titleStyle = WalletTextStyle(
-            font: R.font.soraRc0040417SemiBold(size: 15.0)!,
+            font: .p0Paragraph,
             color: .white
         )
 

@@ -116,7 +116,11 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let remoteHistoryFactory = WalletRemoteHistoryFactory(baseURL: baseUrl)
+        let remoteHistoryFactory = WalletRemoteHistoryFactory(
+            baseURL: baseUrl,
+            filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
+        )
+
         let remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(
             for: historyContext,
             address: address,

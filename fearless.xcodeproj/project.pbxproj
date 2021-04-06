@@ -229,6 +229,8 @@
 		842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B124AE059700D91AD8 /* SocialMessage.swift */; };
 		842876B624AE05C700D91AD8 /* EmailPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876B524AE05C700D91AD8 /* EmailPresentable.swift */; };
 		842876C124AE2A5C00D91AD8 /* ConnectionItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */; };
+		84293E41261AF05E008E5EDD /* HistoryItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84293E40261AF05E008E5EDD /* HistoryItemTableViewCell.swift */; };
+		84293E58261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */; };
 		842D1E7924D063FD00C30A7A /* TriangularedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7824D063FD00C30A7A /* TriangularedView.swift */; };
 		842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */; };
 		842D1E7D24D0686D00C30A7A /* TriangularedButton+Inspectable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */; };
@@ -812,8 +814,6 @@
 		84FB1F69252694B600E0242B /* HistoryInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F68252694B600E0242B /* HistoryInfo.swift */; };
 		84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F6C2526987D00E0242B /* TransactionHistoryContext.swift */; };
 		84FB1F6F2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F6E2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift */; };
-		84FB1F73252700A200E0242B /* HistoryItemTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */; };
-		84FB1F75252700B400E0242B /* HistoryItemTableViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */; };
 		84FB1F77252705E900E0242B /* HistoryItemViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */; };
 		84FB1F792527065A00E0242B /* HistoryConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FB1F782527065A00E0242B /* HistoryConstants.swift */; };
 		84FD3DAF2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */; };
@@ -1217,6 +1217,8 @@
 		842876B124AE059700D91AD8 /* SocialMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SocialMessage.swift; sourceTree = "<group>"; };
 		842876B524AE05C700D91AD8 /* EmailPresentable.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmailPresentable.swift; sourceTree = "<group>"; };
 		842876C024AE2A5C00D91AD8 /* ConnectionItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectionItem.swift; sourceTree = "<group>"; };
+		84293E40261AF05E008E5EDD /* HistoryItemTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemTableViewCell.swift; sourceTree = "<group>"; };
+		84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletRemoteHistoryFilter.swift; sourceTree = "<group>"; };
 		842D1E7824D063FD00C30A7A /* TriangularedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedView.swift; sourceTree = "<group>"; };
 		842D1E7A24D0667E00C30A7A /* TriangularedButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TriangularedButton.swift; sourceTree = "<group>"; };
 		842D1E7C24D0686D00C30A7A /* TriangularedButton+Inspectable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TriangularedButton+Inspectable.swift"; sourceTree = "<group>"; };
@@ -1819,8 +1821,6 @@
 		84FB1F68252694B600E0242B /* HistoryInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryInfo.swift; sourceTree = "<group>"; };
 		84FB1F6C2526987D00E0242B /* TransactionHistoryContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryContext.swift; sourceTree = "<group>"; };
 		84FB1F6E2526AA6800E0242B /* TransactionHistoryViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryViewModelFactory.swift; sourceTree = "<group>"; };
-		84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemTableViewCell.swift; sourceTree = "<group>"; };
-		84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = HistoryItemTableViewCell.xib; sourceTree = "<group>"; };
 		84FB1F76252705E900E0242B /* HistoryItemViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryItemViewModel.swift; sourceTree = "<group>"; };
 		84FB1F782527065A00E0242B /* HistoryConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HistoryConstants.swift; sourceTree = "<group>"; };
 		84FD3DAE2540BEA000A234E3 /* TransactionHistoryItem+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionHistoryItem+Wallet.swift"; sourceTree = "<group>"; };
@@ -3862,6 +3862,7 @@
 				84452F9225D5EE7300F47EC5 /* DataOperationFactory.swift */,
 				8418E71A26175E6900DCF6C8 /* WalletRemoteHistoryOperationFactory.swift */,
 				8418E71F2617602000DCF6C8 /* WalletRemoteHistoryItemProtocol.swift */,
+				84293E57261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -4444,9 +4445,8 @@
 		84FB1F702526AB1200E0242B /* View */ = {
 			isa = PBXGroup;
 			children = (
-				84FB1F72252700A200E0242B /* HistoryItemTableViewCell.swift */,
-				84FB1F74252700B400E0242B /* HistoryItemTableViewCell.xib */,
 				84644B3225685915004EAA4B /* WalletHistoryBackgroundView.swift */,
+				84293E40261AF05E008E5EDD /* HistoryItemTableViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5002,7 +5002,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				84FB1F75252700B400E0242B /* HistoryItemTableViewCell.xib in Resources */,
 				8490142324A93027008F705E /* sora-Bold.otf in Resources */,
 				841937872544772F00CFA50C /* animatedBg.gif in Resources */,
 				84C1B98D24F55EB200FE5470 /* AccountTableViewCell.xib in Resources */,
@@ -5418,7 +5417,6 @@
 				84364D5E252FD09100281F9A /* AssetDetailsViewModel.swift in Sources */,
 				845BB8C925E45D1500E5FCDC /* BondCall.swift in Sources */,
 				AE2C84DA25EF98A900986716 /* ValidatorInfoPresenter.swift in Sources */,
-				84FB1F73252700A200E0242B /* HistoryItemTableViewCell.swift in Sources */,
 				845BB8D625E461FC00E5FCDC /* RewardDestination.swift in Sources */,
 				8490142D24A935FE008F705E /* WebPresentable.swift in Sources */,
 				842D1E7B24D0667E00C30A7A /* TriangularedButton.swift in Sources */,
@@ -5793,6 +5791,7 @@
 				843910B4253EE52100E3C217 /* WalletBalanceChanged.swift in Sources */,
 				84FAB0692542EBDE00319F74 /* SearchData+Contacts.swift in Sources */,
 				8428765924ADDE0200D91AD8 /* ProfileProtocol.swift in Sources */,
+				84293E41261AF05E008E5EDD /* HistoryItemTableViewCell.swift in Sources */,
 				84D8F15D24D8178000AF43E9 /* IconWithTitleViewModel.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
@@ -5956,6 +5955,7 @@
 				9D5926790B055C56FB74B282 /* AccountManagementProtocols.swift in Sources */,
 				AE9EF264260A82B80026910A /* StoriesWireframe.swift in Sources */,
 				8494D87C252537E500614D8F /* SubscanError.swift in Sources */,
+				84293E58261BABD1008E5EDD /* WalletRemoteHistoryFilter.swift in Sources */,
 				DAEE468553039B3600F64A0E /* AccountManagementWireframe.swift in Sources */,
 				843910A8253E3AF600E3C217 /* WebSocketSubscriptionFactory.swift in Sources */,
 				AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */,
