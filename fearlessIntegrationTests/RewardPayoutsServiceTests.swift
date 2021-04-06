@@ -250,7 +250,18 @@ class RewardPayoutsServiceTests: XCTestCase {
 
             let validatorIdsSet = validatorsByNominate.union(validatorsByBatch)
 
-            XCTAssert(validatorIdsSet.count == 9)
+            let expectedValidatorIdsSet = Set<String>([
+                "5HoSDmKXBXeD5HBj5haVUmWsjQEcp7Tt2QmYbCd8vrkeBK4b",
+                "5GR6SK9cj6c9uMaqZPpkMqVK99vukoRvS68ELEU2fRJ3EcNR",
+                "5FR5YJy3uwcEkXkRaaqsgARJ4C74V1zA8C6DRAECderYFGRk",
+                "5CFPcUJgYgWryPaV1aYjSbTpbTLu42V32Ytw1L9rfoMAsfGh",
+                "5DUGF2j9PsCdQ9okZfRoiCgbSeq3TUEAwuHvBQ3qjX4Nz4oR",
+                "5FbpwTP4usJ7dCFvtwzpew6NfXhtkvZH1jY4h6UfLztyD3Ng",
+                "5E2kbY5TTqGo6PZmZccAr4nkK6zGMSn73Bocen2gGBZGkcus",
+                "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB",
+                "5C8Pev9UHEtBgd1XKhg38U4PC49Azx8v5uphtxjWiXwmpsc7"
+            ])
+            XCTAssertEqual(validatorIdsSet, expectedValidatorIdsSet)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
