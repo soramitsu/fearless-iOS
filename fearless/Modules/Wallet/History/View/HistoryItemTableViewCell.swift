@@ -73,11 +73,28 @@ final class HistoryItemTableViewCell: UITableViewCell {
             make.width.equalTo(Constants.iconSize)
         }
 
+        contentView.addSubview(amountLabel)
+
+        amountLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
+        }
+
         contentView.addSubview(titleLabel)
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
             make.top.equalToSuperview().inset(Constants.verticalInset)
+            make.trailing.lessThanOrEqualTo(amountLabel.snp.leading)
+                .offset(-Constants.titleAmountSpacing)
+        }
+
+        contentView.addSubview(timeLabel)
+
+        timeLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalTo(amountLabel.snp.bottom)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
         }
 
         contentView.addSubview(subtitleLabel)
@@ -86,32 +103,9 @@ final class HistoryItemTableViewCell: UITableViewCell {
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
             make.top.equalTo(titleLabel.snp.bottom)
             make.bottom.equalToSuperview().inset(Constants.verticalInset)
+            make.trailing.lessThanOrEqualTo(timeLabel.snp.leading)
+                .offset(-UIConstants.horizontalInset)
         }
-
-        contentView.addSubview(amountLabel)
-
-        amountLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(Constants.verticalInset)
-            make.leading.equalTo(titleLabel.snp.trailing).offset(Constants.titleAmountSpacing)
-        }
-
-        amountLabel.snp.contentHuggingHorizontalPriority = titleLabel.snp.contentHuggingHorizontalPriority + 1
-        amountLabel.snp.contentCompressionResistanceHorizontalPriority =
-            titleLabel.snp.contentCompressionResistanceHorizontalPriority + 1
-
-        contentView.addSubview(timeLabel)
-
-        timeLabel.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalTo(amountLabel.snp.bottom)
-            make.bottom.equalToSuperview().inset(Constants.verticalInset)
-            make.leading.equalTo(subtitleLabel.snp.trailing).offset(-UIConstants.horizontalInset)
-        }
-
-        timeLabel.snp.contentHuggingHorizontalPriority = subtitleLabel.snp.contentHuggingHorizontalPriority + 1
-        timeLabel.snp.contentCompressionResistanceHorizontalPriority =
-            subtitleLabel.snp.contentCompressionResistanceHorizontalPriority + 1
     }
 
     private func addStatusViewIfNeeded() {
@@ -123,7 +117,7 @@ final class HistoryItemTableViewCell: UITableViewCell {
         contentView.addSubview(statusImageView)
 
         statusImageView.snp.makeConstraints { make in
-            make.trailing.equalTo(contentView).offset(-UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalTo(amountLabel)
         }
 
@@ -142,21 +136,12 @@ final class HistoryItemTableViewCell: UITableViewCell {
     private func updateAmountConstraints() {
         amountLabel.snp.updateConstraints { make in
             if let statusSize = statusImageView?.image?.size {
-                let offset = UIConstants.horizontalInset + statusSize.width + Constants.statusOffset
-                make.trailing.equalTo(contentView).offset(-offset)
+                let inset = UIConstants.horizontalInset + statusSize.width + Constants.statusOffset
+                make.trailing.equalToSuperview().inset(inset)
             } else {
-                make.trailing.trailing.equalTo(contentView).offset(-UIConstants.horizontalInset)
+                make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             }
         }
-
-        amountLabel.snp.contentHuggingHorizontalPriority = titleLabel.snp.contentHuggingHorizontalPriority + 1
-        statusImageView?.snp.contentHuggingHorizontalPriority =
-            amountLabel.snp.contentHuggingHorizontalPriority + 1
-
-        amountLabel.snp.contentCompressionResistanceHorizontalPriority =
-            titleLabel.snp.contentCompressionResistanceHorizontalPriority + 1
-        statusImageView?.snp.contentCompressionResistanceHorizontalPriority =
-            amountLabel.snp.contentCompressionResistanceHorizontalPriority + 1
     }
 }
 
