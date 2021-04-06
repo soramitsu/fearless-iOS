@@ -222,13 +222,13 @@ class RewardPayoutsServiceTests: XCTestCase {
         do {
 
             let controllersByStaking = try fetchControllersByStakingModule(
-                nominatorStachAccount: nominatorStashAccount,
+                nominatorStashAccount: nominatorStashAccount,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
             let controllersByUtility = try fetchControllersByUtilityModule(
-                nominatorStachAccount: nominatorStashAccount,
+                nominatorStashAccount: nominatorStashAccount,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
@@ -268,21 +268,21 @@ class RewardPayoutsServiceTests: XCTestCase {
     }
 
     private func fetchControllersByStakingModule(
-        nominatorStachAccount: String,
+        nominatorStashAccount: String,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         queue: OperationQueue
     ) throws -> Set<String> {
         let bondControllers = try fetchExtrinsicsParams(
             moduleName: "staking",
-            address: nominatorStachAccount,
+            address: nominatorStashAccount,
             callName: "bond",
             subscanOperationFactory: subscanOperationFactory,
             queue: queue)
 
         let setControllers = try fetchExtrinsicsParams(
             moduleName: "staking",
-            address: nominatorStachAccount,
+            address: nominatorStashAccount,
             callName: "set_controller",
             subscanOperationFactory: subscanOperationFactory,
             queue: queue)
@@ -294,21 +294,21 @@ class RewardPayoutsServiceTests: XCTestCase {
     }
 
     private func fetchControllersByUtilityModule(
-        nominatorStachAccount: String,
+        nominatorStashAccount: String,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         queue: OperationQueue
     ) throws -> Set<String> {
         let batchControllers = try fetchExtrinsicsParams(
             moduleName: "utility",
-            address: nominatorStachAccount,
+            address: nominatorStashAccount,
             callName: "batch",
             subscanOperationFactory: subscanOperationFactory,
             queue: queue)
 
         let batchAllControllers = try fetchExtrinsicsParams(
             moduleName: "utility",
-            address: nominatorStachAccount,
+            address: nominatorStashAccount,
             callName: "batch_all",
             subscanOperationFactory: subscanOperationFactory,
             queue: queue)
