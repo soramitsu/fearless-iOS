@@ -29,7 +29,17 @@ struct SubscanNominateCall {
 extension SubscanNominateCall {
     private struct InnerRepresentation: Decodable {
         let name: String
-        let type: String
         let value: [SubscanExtrinsicsAccountId]
+
+        enum CodingKeys: String, CodingKey {
+            case name
+            case value
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decode(String.self, forKey: .name)
+            value = (try? container.decodeIfPresent([SubscanExtrinsicsAccountId].self, forKey: .value)) ?? []
+        }
     }
 }

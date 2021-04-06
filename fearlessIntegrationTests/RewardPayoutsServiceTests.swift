@@ -236,20 +236,21 @@ class RewardPayoutsServiceTests: XCTestCase {
             let setOfControllersWhichCouldEverMakeNominations =
                 controllersByStaking.union(controllersByUtility)
 
-            let validatorsByNominate = try fetchNominatorsByNominate(
+            let validatorsByNominate = try fetchValidatorsByNominate(
                 controllers: setOfControllersWhichCouldEverMakeNominations,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
-            let validatorsByBatch = try fetchNominatorsByBatch(
+            let validatorsByBatch = try fetchValidatorsByBatch(
                 controllers: setOfControllersWhichCouldEverMakeNominations,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory,
                 queue: queue)
 
             let validatorIdsSet = validatorsByNominate.union(validatorsByBatch)
-            XCTAssert(!validatorIdsSet.isEmpty)
+
+            XCTAssert(validatorIdsSet.count == 9)
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
@@ -302,18 +303,18 @@ class RewardPayoutsServiceTests: XCTestCase {
             queue: queue)
 
         let controllers = (batchControllers + batchAllControllers)
-            .compactMap { SubscanBatchCall(callArgs: $0, chain: chain) }
+            .compactMap { SubscanFindControllersBatchCall(callArgs: $0, chain: chain) }
             .flatMap { $0.controllers }
         return Set(controllers)
     }
 
-    private func fetchNominatorsByNominate(
+    private func fetchValidatorsByNominate(
         controllers: Set<String>,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         queue: OperationQueue
     ) throws -> Set<String> {
-        let nominators = controllers
+        let validators = controllers
             .compactMap { address in
                 try? fetchExtrinsicsParams(
                     moduleName: "staking",
@@ -327,30 +328,40 @@ class RewardPayoutsServiceTests: XCTestCase {
             }
             .flatMap { $0 }
             .flatMap { $0 }
-        return Set(nominators)
+        return Set(validators)
     }
 
-    private func fetchNominatorsByBatch(
+    private func fetchValidatorsByBatch(
         controllers: Set<String>,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         queue: OperationQueue
     ) throws -> Set<String> {
-        let nominators = controllers
-            .compactMap { address in
-                try? fetchExtrinsicsParams(
+        let nominatorsBatch = controllers
+            .compactMap { address -> [String] in
+                let batch = try? fetchExtrinsicsParams(
                     moduleName: "utility",
                     address: address,
                     callName: "batch",
                     subscanOperationFactory: subscanOperationFactory,
                     queue: queue
                 )
-                .compactMap { SubscanBatchCall(callArgs: $0, chain: chain) }
-                .map { $0.controllers }
+
+                let batchAll = try? fetchExtrinsicsParams(
+                    moduleName: "utility",
+                    address: address,
+                    callName: "batch_all",
+                    subscanOperationFactory: subscanOperationFactory,
+                    queue: queue
+                )
+
+                return ((batch ?? []) + (batchAll ?? []))
+                    .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
+                    .flatMap(\.validatorAddresses)
             }
             .flatMap { $0 }
-            .flatMap { $0 }
-        return Set(nominators)
+
+        return Set(nominatorsBatch)
     }
 
     private func fetchExtrinsicsParams(

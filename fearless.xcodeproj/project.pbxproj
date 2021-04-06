@@ -961,9 +961,10 @@
 		F474D388260CBEE600013699 /* StakingRewardDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474D387260CBEE600013699 /* StakingRewardDetailsViewLayout.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
 		F48E2C75261AED5600DFEBC0 /* SubscanBondCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C74261AED5600DFEBC0 /* SubscanBondCall.swift */; };
-		F48E2C7D261AED8A00DFEBC0 /* SubscanBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C7C261AED8A00DFEBC0 /* SubscanBatchCall.swift */; };
+		F48E2C7D261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C7C261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift */; };
 		F48E2C82261AEF5500DFEBC0 /* SubscanNominateCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C81261AEF5500DFEBC0 /* SubscanNominateCall.swift */; };
 		F48E2C87261B1F6800DFEBC0 /* SubscanExtrinsicsAccountId.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C86261B1F6800DFEBC0 /* SubscanExtrinsicsAccountId.swift */; };
+		F48E2C8F261C1F4800DFEBC0 /* SubscanFindValidatorsBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C8E261C1F4800DFEBC0 /* SubscanFindValidatorsBatchCall.swift */; };
 		F4A12BF7260B61E900392C33 /* ManageStakingItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */; };
 		F4A8A329260DD0300059F2F1 /* AccountInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */; };
 		F4E1C5DE2612FA2A00C6C1FA /* RewardPayoutsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4E1C5DD2612FA2A00C6C1FA /* RewardPayoutsServiceTests.swift */; };
@@ -1981,9 +1982,10 @@
 		F474D328260CA14700013699 /* StakingRewardHistoryHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryHeaderView.swift; sourceTree = "<group>"; };
 		F474D387260CBEE600013699 /* StakingRewardDetailsViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewLayout.swift; sourceTree = "<group>"; };
 		F48E2C74261AED5600DFEBC0 /* SubscanBondCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanBondCall.swift; sourceTree = "<group>"; };
-		F48E2C7C261AED8A00DFEBC0 /* SubscanBatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanBatchCall.swift; sourceTree = "<group>"; };
+		F48E2C7C261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanFindControllersBatchCall.swift; sourceTree = "<group>"; };
 		F48E2C81261AEF5500DFEBC0 /* SubscanNominateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanNominateCall.swift; sourceTree = "<group>"; };
 		F48E2C86261B1F6800DFEBC0 /* SubscanExtrinsicsAccountId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanExtrinsicsAccountId.swift; sourceTree = "<group>"; };
+		F48E2C8E261C1F4800DFEBC0 /* SubscanFindValidatorsBatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanFindValidatorsBatchCall.swift; sourceTree = "<group>"; };
 		F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageStakingItem.swift; sourceTree = "<group>"; };
 		F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoTableViewCell.swift; sourceTree = "<group>"; };
 		F4E1C5DD2612FA2A00C6C1FA /* RewardPayoutsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardPayoutsServiceTests.swift; sourceTree = "<group>"; };
@@ -4862,9 +4864,10 @@
 			children = (
 				F4E339672614AAA80028B6B1 /* SubscanExtrinsicsData.swift */,
 				F48E2C74261AED5600DFEBC0 /* SubscanBondCall.swift */,
-				F48E2C7C261AED8A00DFEBC0 /* SubscanBatchCall.swift */,
+				F48E2C7C261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift */,
 				F48E2C81261AEF5500DFEBC0 /* SubscanNominateCall.swift */,
 				F48E2C86261B1F6800DFEBC0 /* SubscanExtrinsicsAccountId.swift */,
+				F48E2C8E261C1F4800DFEBC0 /* SubscanFindValidatorsBatchCall.swift */,
 			);
 			path = Extrinsics;
 			sourceTree = "<group>";
@@ -5505,6 +5508,7 @@
 				84364D55252FAD7100281F9A /* AssetDetailsConfigurator.swift in Sources */,
 				2A66CFAF25D10EDF0006E4C1 /* PhishingItem.swift in Sources */,
 				8490144B24A93D0B008F705E /* FearlessNavigationBar.swift in Sources */,
+				F48E2C8F261C1F4800DFEBC0 /* SubscanFindValidatorsBatchCall.swift in Sources */,
 				84F4393A25DAC48D00AEDA56 /* JSONRPCAliases.swift in Sources */,
 				843910D6253F8DAD00E3C217 /* NetworkAvailabilityLayerProtocols.swift in Sources */,
 				AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */,
@@ -5739,7 +5743,7 @@
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84E1CD11260DCD44001E81B5 /* SwitchAccount+AccountImportWireframe.swift in Sources */,
-				F48E2C7D261AED8A00DFEBC0 /* SubscanBatchCall.swift in Sources */,
+				F48E2C7D261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				849E0D1825D01FD000B33506 /* Multiaddress.swift in Sources */,
 				8430AB1726023D2D005B1066 /* BaseStashNextState.swift in Sources */,

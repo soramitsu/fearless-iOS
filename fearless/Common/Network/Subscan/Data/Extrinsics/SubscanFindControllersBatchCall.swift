@@ -2,7 +2,7 @@ import FearlessUtils
 import Foundation
 import IrohaCrypto
 
-struct SubscanBatchCall {
+struct SubscanFindControllersBatchCall {
     let controllers: [String]
 
     init?(callArgs: JSON, chain: Chain) {
@@ -12,13 +12,12 @@ struct SubscanBatchCall {
             .map(\.value)
             .map { wrappers -> [String] in
                 wrappers
-                    .filter { $0.call_function == .bond }
+                    .filter { $0.call_function == .bond || $0.call_function == .set_controller }
                     .map { wraper -> [String] in
                         wraper.call_args
                             .filter { $0.name == "controller" && $0.type == "Address" }
-                            .map(\.value_raw)
-                            .map { $0.dropFirst(2) }
-                            .map { String($0) }
+                            .compactMap(\.value)
+                            .map(\.accountId)
                     }
                     .flatMap { $0 }
             }
@@ -37,19 +36,19 @@ struct SubscanBatchCall {
     }
 }
 
-extension SubscanBatchCall {
+extension SubscanFindControllersBatchCall {
     private struct InnerRepresentation: Decodable {
         let name: String
         let type: String
         let value: [CallArgsWrapper]
     }
 
+    // swiftlint:disable all
     enum CallFunction: String, Decodable {
         case bond
-        case nominate
+        case set_controller
     }
 
-    // swiftlint:disable identifier_name
     private struct CallArgsWrapper: Decodable {
         let call_args: [CallArg]
         let call_function: CallFunction
@@ -58,7 +57,20 @@ extension SubscanBatchCall {
     private struct CallArg: Decodable {
         let name: String
         let type: String
-        let value_raw: String
+        let value: SubscanExtrinsicsAccountId?
+
+        enum CodingKeys: String, CodingKey {
+            case name
+            case type
+            case value
+        }
+
+        init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            name = try container.decode(String.self, forKey: .name)
+            type = try container.decode(String.self, forKey: .type)
+            value = try? container.decodeIfPresent(SubscanExtrinsicsAccountId.self, forKey: .value)
+        }
     }
-    // swiftlint:enable identifier_name
+    // swiftlint:enable all
 }
