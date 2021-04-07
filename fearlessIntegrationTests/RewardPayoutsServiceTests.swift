@@ -213,6 +213,96 @@ class RewardPayoutsServiceTests: XCTestCase {
         }
     }
 
+    func testValidatorExposureClippedAndPrefs() {
+        do {
+            let settings = InMemorySettingsManager()
+            let chain = Chain.westend
+            let storageFacade = SubstrateDataStorageFacade.shared
+            let queue = OperationQueue()
+
+            try AccountCreationHelper.createAccountFromMnemonic(
+                cryptoType: .sr25519,
+                networkType: chain,
+                keychain: InMemoryKeychain(),
+                settings: settings
+            )
+
+            let runtimeService = try createRuntimeService(
+                from: storageFacade,
+                operationManager: OperationManagerFacade.sharedManager,
+                chain: chain
+            )
+
+            runtimeService.setup()
+
+            let webSocketService = createWebSocketService(
+                storageFacade: storageFacade,
+                settings: settings
+            )
+            webSocketService.setup()
+
+            guard let engine = webSocketService.connection else {
+                XCTFail("No engine")
+                return
+            }
+
+            let factory = try fetchCoderFactory(
+                runtimeService: runtimeService,
+                storageFacade: storageFacade,
+                queue: queue
+            )
+
+            guard let activeEra = try fetchActiveEra(
+                    for: chain,
+                    storageFacade: storageFacade,
+                    codingFactory: factory,
+                    operationQueue: queue
+            ) else {
+                XCTFail("No era")
+                return
+            }
+
+            do {
+                let items = [
+                    "5HoSDmKXBXeD5HBj5haVUmWsjQEcp7Tt2QmYbCd8vrkeBK4b",
+                    "5GR6SK9cj6c9uMaqZPpkMqVK99vukoRvS68ELEU2fRJ3EcNR",
+                    "5FR5YJy3uwcEkXkRaaqsgARJ4C74V1zA8C6DRAECderYFGRk",
+                    "5CFPcUJgYgWryPaV1aYjSbTpbTLu42V32Ytw1L9rfoMAsfGh",
+                    "5DUGF2j9PsCdQ9okZfRoiCgbSeq3TUEAwuHvBQ3qjX4Nz4oR",
+                    "5FbpwTP4usJ7dCFvtwzpew6NfXhtkvZH1jY4h6UfLztyD3Ng",
+                    "5E2kbY5TTqGo6PZmZccAr4nkK6zGMSn73Bocen2gGBZGkcus",
+                    "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB",
+                    "5C8Pev9UHEtBgd1XKhg38U4PC49Azx8v5uphtxjWiXwmpsc7"
+                ]
+
+                let exposure: [StorageResponse<ValidatorExposure>] = try fetchValidatorProperties(
+                    storagePath: .validatorExposureClipped,
+                    addresses: items,
+                    era: activeEra,
+                    chain: chain,
+                    engine: engine,
+                    codingFactory: factory,
+                    queue: queue
+                )
+
+                let prefs: [StorageResponse<ValidatorPrefs>] = try fetchValidatorProperties(
+                    storagePath: .erasPrefs,
+                    addresses: items,
+                    era: activeEra,
+                    chain: chain,
+                    engine: engine,
+                    codingFactory: factory,
+                    queue: queue
+                )
+                XCTAssertEqual(prefs.count, exposure.count)
+            } catch {
+                XCTFail("Unexpected     error: \(error)")
+            }
+        } catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
     func testFetchNominationHistory() {
         let subscanOperationFactory = SubscanOperationFactory()
         let queue = OperationQueue()
@@ -543,6 +633,39 @@ class RewardPayoutsServiceTests: XCTestCase {
                 keyParams: params,
                 factory: { codingFactory },
                 storagePath: .rewardPointsPerValidator)
+
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+        return try queryWrapper.targetOperation.extractNoCancellableResultData()
+    }
+
+    private func fetchValidatorProperties<T: Decodable>(
+        storagePath: StorageCodingPath,
+        addresses: [String],
+        era: UInt32,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [StorageResponse<T>] {
+        let params1: () throws -> [String] = {
+            Array(repeating: String(era), count: addresses.count)
+        }
+
+        let addressFactory = SS58AddressFactory()
+        let params2: [Data] = try addresses.map {
+            try addressFactory.accountId(fromAddress: $0, type: chain.addressType)
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keyParams1: params1,
+                keyParams2: { params2 },
+                factory: { codingFactory },
+                storagePath: storagePath
+            )
 
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
