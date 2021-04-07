@@ -73,7 +73,7 @@ final class TransactionHistoryConfigurator {
             .with(transactionCellStyle: transactionCellStyle)
             .with(cellClass: HistoryItemTableViewCell.self, for: HistoryConstants.historyCellId)
             .with(transactionHeaderStyle: headerStyle)
-            .with(supportsFilter: false)
+            .with(supportsFilter: true)
             .with(includesFeeInAmount: false)
             .with(localizableTitle: title)
             .with(viewFactoryOverriding: WalletHistoryViewFactoryOverriding())
