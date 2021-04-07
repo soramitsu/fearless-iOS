@@ -294,6 +294,18 @@ class RewardPayoutsServiceTests: XCTestCase {
                     codingFactory: factory,
                     queue: queue
                 )
+
+                let ledgerEncoded = try fetchLedger(
+                    address: items[0],
+                    chain: chain,
+                    engine: engine,
+                    codingFactory: factory,
+                    queue: queue
+                )
+                guard let ledger = ledgerEncoded.underlyingValue else {
+                    XCTFail("No ledger")
+                    return
+                }
                 XCTAssertEqual(prefs.count, exposure.count)
             } catch {
                 XCTFail("Unexpected     error: \(error)")
@@ -669,5 +681,26 @@ class RewardPayoutsServiceTests: XCTestCase {
 
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
+    }
+
+    private func fetchLedger(
+        address: String,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> JSONScaleDecodable<StakingLedger> {
+        let accountId: Data = {
+            let addressFactory = SS58AddressFactory()
+            return try! addressFactory.accountId(fromAddress: address, type: chain.addressType)
+        }()
+        let key = try StorageKeyFactory().stakingInfoForControllerId(accountId).toHex(includePrefix: true)
+
+        let operation = JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
+                                                                                method: RPCMethod.getStorage,
+                                                                                parameters: [key])
+
+        queue.addOperations([operation], waitUntilFinished: true)
+        return try operation.extractNoCancellableResultData()
     }
 }
