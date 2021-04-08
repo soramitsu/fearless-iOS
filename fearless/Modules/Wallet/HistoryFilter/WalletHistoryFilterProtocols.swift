@@ -22,6 +22,7 @@ protocol WalletHistoryFilterWireframeProtocol: AnyObject {
 
 protocol WalletHistoryFilterViewFactoryProtocol: AnyObject {
     static func createView(
+        request: WalletHistoryRequest,
         commandFactory: WalletCommandFactoryProtocol,
         delegate: HistoryFilterEditingDelegate?
     ) -> WalletHistoryFilterViewProtocol?

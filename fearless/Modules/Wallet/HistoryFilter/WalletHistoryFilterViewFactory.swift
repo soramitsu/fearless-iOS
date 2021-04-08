@@ -4,10 +4,13 @@ import CommonWallet
 
 final class WalletHistoryFilterViewFactory: WalletHistoryFilterViewFactoryProtocol {
     static func createView(
+        request: WalletHistoryRequest,
         commandFactory: WalletCommandFactoryProtocol,
         delegate: HistoryFilterEditingDelegate?
     ) -> WalletHistoryFilterViewProtocol? {
-        let presenter = WalletHistoryFilterPresenter()
+        let filter = WalletHistoryFilter(string: request.filter)
+
+        let presenter = WalletHistoryFilterPresenter(filter: filter)
         let view = WalletHistoryFilterViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared

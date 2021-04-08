@@ -44,14 +44,28 @@ final class WalletHistoryFilterViewController: UIViewController, ViewHolder {
     }
 
     private func setupNavigationItem() {
-        let infoItem = UIBarButtonItem(
+        let resetItem = UIBarButtonItem(
             title: "",
             style: .plain,
             target: self,
             action: #selector(actionReset)
         )
 
-        navigationItem.rightBarButtonItem = infoItem
+        let normalAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorWhite()!,
+            .font: UIFont.p0Paragraph
+        ]
+
+        let highlightedAttributes: [NSAttributedString.Key: Any] = [
+            .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
+            .font: UIFont.p0Paragraph
+        ]
+
+        resetItem.setTitleTextAttributes(normalAttributes, for: .normal)
+        resetItem.setTitleTextAttributes(highlightedAttributes, for: .highlighted)
+        resetItem.setTitleTextAttributes(highlightedAttributes, for: .disabled)
+
+        navigationItem.rightBarButtonItem = resetItem
     }
 
     private func setupTableView() {

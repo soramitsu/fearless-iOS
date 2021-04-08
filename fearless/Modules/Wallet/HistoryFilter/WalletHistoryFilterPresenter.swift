@@ -6,9 +6,14 @@ final class WalletHistoryFilterPresenter {
     var wireframe: WalletHistoryFilterWireframeProtocol!
     var interactor: WalletHistoryFilterInteractorInputProtocol!
 
-    let initialFilter = WalletHistoryFilter.all
+    let initialFilter: WalletHistoryFilter
 
-    private(set) var currentFilter = WalletHistoryFilter.all
+    private(set) var currentFilter: WalletHistoryFilter
+
+    init(filter: WalletHistoryFilter) {
+        initialFilter = filter
+        currentFilter = filter
+    }
 
     private func createViewModel() -> WalletHistoryFilterViewModel {
         let items = WalletHistoryFilterRow.allCases.map { row in

@@ -3,13 +3,13 @@ import CommonWallet
 
 final class WalletHistoryFilterEditor: HistoryFilterEditing {
     func startEditing(
-        filter _: WalletHistoryRequest,
+        filter: WalletHistoryRequest,
         with _: [WalletAsset],
         commandFactory: WalletCommandFactoryProtocol,
         notifying delegate: HistoryFilterEditingDelegate?
     ) {
         guard let view = WalletHistoryFilterViewFactory
-            .createView(commandFactory: commandFactory, delegate: delegate) else {
+            .createView(request: filter, commandFactory: commandFactory, delegate: delegate) else {
             return
         }
 

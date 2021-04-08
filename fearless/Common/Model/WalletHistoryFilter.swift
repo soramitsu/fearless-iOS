@@ -14,3 +14,15 @@ struct WalletHistoryFilter: OptionSet {
         self.rawValue = rawValue
     }
 }
+
+extension WalletHistoryFilter {
+    init(string: String?) {
+        if let string = string, let filterValue = UInt8(string) {
+            self.init(rawValue: filterValue)
+        } else {
+            self = .all
+        }
+    }
+
+    func toString() -> String { String(rawValue) }
+}
