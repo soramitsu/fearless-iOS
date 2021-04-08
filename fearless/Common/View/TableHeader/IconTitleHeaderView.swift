@@ -1,8 +1,9 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class IconTitleHeaderView: UITableViewHeaderFooterView {
-    @IBOutlet private var titleView: ImageWithTitleView!
+    @IBOutlet private(set) var titleView: ImageWithTitleView!
 
     override func awakeFromNib() {
         super.awakeFromNib()

@@ -90,6 +90,9 @@ final class WalletHistoryFilterViewController: UIViewController, ViewHolder {
         rootView.applyButton.imageWithTitleView?.title = R.string.localizable
             .commonApply(preferredLanguages: languages)
         rootView.applyButton.invalidateLayout()
+
+        let title = R.string.localizable.walletFiltersHeader(preferredLanguages: languages)
+        rootView.headerView.bind(title: title, icon: nil)
     }
 
     private func updateActionsState() {
