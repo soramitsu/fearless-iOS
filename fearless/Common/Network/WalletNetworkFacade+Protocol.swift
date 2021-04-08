@@ -94,13 +94,33 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     }
 
     func fetchTransactionHistoryOperation(
-        _: WalletHistoryRequest,
+        _ request: WalletHistoryRequest,
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
-        let historyContext = TransactionHistoryContext(
+        var historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
         )
+
+        if let filterString = request.filter,
+           let filterValue = WalletHistoryFilter.RawValue(filterString) {
+            let filter = WalletHistoryFilter(rawValue: filterValue)
+
+            if !filter.contains(.transfers) {
+                historyContext = historyContext
+                    .byReplacingTransfers(historyContext.transfers.byReplacingCompletion(true))
+            }
+
+            if !filter.contains(.rewardsAndSlashes) {
+                historyContext = historyContext
+                    .byReplacingRewards(historyContext.rewards.byReplacingCompletion(true))
+            }
+
+            if !filter.contains(.extrinsics) {
+                historyContext = historyContext
+                    .byReplacingExtrinsics(historyContext.extrinsics.byReplacingCompletion(true))
+            }
+        }
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),

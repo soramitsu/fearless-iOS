@@ -6,9 +6,10 @@ final class WalletHistoryFilterEditor: HistoryFilterEditing {
         filter _: WalletHistoryRequest,
         with _: [WalletAsset],
         commandFactory: WalletCommandFactoryProtocol,
-        notifying _: HistoryFilterEditingDelegate?
+        notifying delegate: HistoryFilterEditingDelegate?
     ) {
-        guard let view = WalletHistoryFilterViewFactory.createView() else {
+        guard let view = WalletHistoryFilterViewFactory
+            .createView(commandFactory: commandFactory, delegate: delegate) else {
             return
         }
 

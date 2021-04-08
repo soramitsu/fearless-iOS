@@ -1,8 +1,12 @@
 import Foundation
 import SoraFoundation
+import CommonWallet
 
 final class WalletHistoryFilterViewFactory: WalletHistoryFilterViewFactoryProtocol {
-    static func createView() -> WalletHistoryFilterViewProtocol? {
+    static func createView(
+        commandFactory: WalletCommandFactoryProtocol,
+        delegate: HistoryFilterEditingDelegate?
+    ) -> WalletHistoryFilterViewProtocol? {
         let presenter = WalletHistoryFilterPresenter()
         let view = WalletHistoryFilterViewController(
             presenter: presenter,
@@ -10,7 +14,7 @@ final class WalletHistoryFilterViewFactory: WalletHistoryFilterViewFactoryProtoc
         )
 
         let interactor = WalletHistoryFilterInteractor()
-        let wireframe = WalletHistoryFilterWireframe()
+        let wireframe = WalletHistoryFilterWireframe(commandFactory: commandFactory, delegate: delegate)
 
         presenter.view = view
         presenter.interactor = interactor

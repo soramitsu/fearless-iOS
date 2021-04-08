@@ -1,3 +1,5 @@
+import CommonWallet
+
 protocol WalletHistoryFilterViewProtocol: ControllerBackedProtocol {
     func didReceive(viewModel: WalletHistoryFilterViewModel)
     func didConfirm(viewModel: WalletHistoryFilterViewModel)
@@ -14,8 +16,13 @@ protocol WalletHistoryFilterInteractorInputProtocol: AnyObject {}
 
 protocol WalletHistoryFilterInteractorOutputProtocol: AnyObject {}
 
-protocol WalletHistoryFilterWireframeProtocol: AnyObject {}
+protocol WalletHistoryFilterWireframeProtocol: AnyObject {
+    func proceed(from view: WalletHistoryFilterViewProtocol?, applying filter: WalletHistoryFilter)
+}
 
 protocol WalletHistoryFilterViewFactoryProtocol: AnyObject {
-    static func createView() -> WalletHistoryFilterViewProtocol?
+    static func createView(
+        commandFactory: WalletCommandFactoryProtocol,
+        delegate: HistoryFilterEditingDelegate?
+    ) -> WalletHistoryFilterViewProtocol?
 }

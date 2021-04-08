@@ -1,4 +1,5 @@
 import Foundation
+import CommonWallet
 
 final class WalletHistoryFilterPresenter {
     weak var view: WalletHistoryFilterViewProtocol?
@@ -43,7 +44,9 @@ extension WalletHistoryFilterPresenter: WalletHistoryFilterPresenterProtocol {
         }
     }
 
-    func apply() {}
+    func apply() {
+        wireframe.proceed(from: view, applying: currentFilter)
+    }
 
     func reset() {
         currentFilter = .all
