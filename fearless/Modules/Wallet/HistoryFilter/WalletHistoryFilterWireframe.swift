@@ -15,7 +15,7 @@ final class WalletHistoryFilterWireframe: WalletHistoryFilterWireframeProtocol {
 
     func proceed(from _: WalletHistoryFilterViewProtocol?, applying filter: WalletHistoryFilter) {
         var newRequest = WalletHistoryRequest()
-        newRequest.filter = String(filter.rawValue)
+        newRequest.filter = (filter != .all) ? String(filter.rawValue) : nil
 
         delegate?.historyFilterDidEdit(request: newRequest)
 
