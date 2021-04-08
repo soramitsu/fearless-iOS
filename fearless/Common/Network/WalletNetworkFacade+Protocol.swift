@@ -94,13 +94,15 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     }
 
     func fetchTransactionHistoryOperation(
-        _: WalletHistoryRequest,
+        _ request: WalletHistoryRequest,
         pagination: Pagination
     ) -> CompoundOperationWrapper<AssetTransactionPageData?> {
+        let filter = WalletHistoryFilter(string: request.filter)
+
         let historyContext = TransactionHistoryContext(
             context: pagination.context ?? [:],
             defaultRow: pagination.count
-        )
+        ).byApplying(filter: filter)
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),

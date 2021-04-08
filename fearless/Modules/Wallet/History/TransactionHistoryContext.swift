@@ -182,4 +182,36 @@ extension TransactionHistoryContext {
             return byReplacingExtrinsics(context)
         }
     }
+
+    func byApplying(filter: WalletHistoryFilter) -> TransactionHistoryContext {
+        WalletRemoteHistorySourceLabel.allCases.reduce(self) { context, source in
+            context.byApplyingIfNeeded(filter: filter, for: source)
+        }
+    }
+
+    private func byApplyingIfNeeded(
+        filter: WalletHistoryFilter,
+        for label: WalletRemoteHistorySourceLabel
+    ) -> TransactionHistoryContext {
+        switch label {
+        case .transfers:
+            if !filter.contains(.transfers) {
+                return byReplacingTransfers(transfers.byReplacingCompletion(true))
+            } else {
+                return self
+            }
+        case .rewards:
+            if !filter.contains(.rewardsAndSlashes) {
+                return byReplacingRewards(rewards.byReplacingCompletion(true))
+            } else {
+                return self
+            }
+        case .extrinsics:
+            if !filter.contains(.extrinsics) {
+                return byReplacingExtrinsics(extrinsics.byReplacingCompletion(true))
+            } else {
+                return self
+            }
+        }
+    }
 }
