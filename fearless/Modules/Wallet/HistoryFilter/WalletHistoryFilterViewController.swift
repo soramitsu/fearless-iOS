@@ -83,10 +83,12 @@ final class WalletHistoryFilterViewController: UIViewController, ViewHolder {
     private func setupLocalization() {
         let languages = localizationManager?.selectedLocale.rLanguages
 
-        title = "Filter"
-        navigationItem.rightBarButtonItem?.title = "Reset"
+        title = R.string.localizable.walletFiltersTitle(preferredLanguages: languages)
+        navigationItem.rightBarButtonItem?.title = R.string.localizable
+            .commonReset(preferredLanguages: languages)
 
-        rootView.applyButton.imageWithTitleView?.title = "Apply"
+        rootView.applyButton.imageWithTitleView?.title = R.string.localizable
+            .commonApply(preferredLanguages: languages)
         rootView.applyButton.invalidateLayout()
     }
 

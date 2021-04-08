@@ -9,16 +9,17 @@ enum WalletHistoryFilterRow: Int, CaseIterable {
     var title: LocalizableResource<String> {
         switch self {
         case .transfers:
-            return LocalizableResource { _ in
-                "Transfers"
+            return LocalizableResource { locale in
+                R.string.localizable.walletFiltersTransfers(preferredLanguages: locale.rLanguages)
             }
         case .rewardsAndSlashes:
-            return LocalizableResource { _ in
-                "Reward"
+            return LocalizableResource { locale in
+                R.string.localizable
+                    .walletFiltersRewardsAndSlashes(preferredLanguages: locale.rLanguages)
             }
         case .extrinsics:
-            return LocalizableResource { _ in
-                "Other transactions"
+            return LocalizableResource { locale in
+                R.string.localizable.walletFiltersExtrinsics(preferredLanguages: locale.rLanguages)
             }
         }
     }
