@@ -12,10 +12,6 @@ protocol WalletHistoryFilterPresenterProtocol: AnyObject {
     func reset()
 }
 
-protocol WalletHistoryFilterInteractorInputProtocol: AnyObject {}
-
-protocol WalletHistoryFilterInteractorOutputProtocol: AnyObject {}
-
 protocol WalletHistoryFilterWireframeProtocol: AnyObject {
     func proceed(from view: WalletHistoryFilterViewProtocol?, applying filter: WalletHistoryFilter)
 }

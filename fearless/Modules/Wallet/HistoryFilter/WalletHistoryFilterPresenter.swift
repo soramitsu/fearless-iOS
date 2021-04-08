@@ -4,7 +4,6 @@ import CommonWallet
 final class WalletHistoryFilterPresenter {
     weak var view: WalletHistoryFilterViewProtocol?
     var wireframe: WalletHistoryFilterWireframeProtocol!
-    var interactor: WalletHistoryFilterInteractorInputProtocol!
 
     let initialFilter: WalletHistoryFilter
 
@@ -58,5 +57,3 @@ extension WalletHistoryFilterPresenter: WalletHistoryFilterPresenterProtocol {
         view?.didReceive(viewModel: createViewModel())
     }
 }
-
-extension WalletHistoryFilterPresenter: WalletHistoryFilterInteractorOutputProtocol {}

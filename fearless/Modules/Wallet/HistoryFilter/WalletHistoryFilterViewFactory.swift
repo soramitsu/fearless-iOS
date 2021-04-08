@@ -16,13 +16,10 @@ final class WalletHistoryFilterViewFactory: WalletHistoryFilterViewFactoryProtoc
             localizationManager: LocalizationManager.shared
         )
 
-        let interactor = WalletHistoryFilterInteractor()
         let wireframe = WalletHistoryFilterWireframe(commandFactory: commandFactory, delegate: delegate)
 
         presenter.view = view
-        presenter.interactor = interactor
         presenter.wireframe = wireframe
-        interactor.presenter = presenter
 
         return view
     }
