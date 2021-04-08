@@ -1,6 +1,5 @@
 import UIKit
 import SoraUI
-import SnapKit
 
 final class IconTitleHeaderView: UITableViewHeaderFooterView {
     @IBOutlet private(set) var titleView: ImageWithTitleView!
