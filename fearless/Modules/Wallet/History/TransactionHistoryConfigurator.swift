@@ -77,5 +77,6 @@ final class TransactionHistoryConfigurator {
             .with(includesFeeInAmount: false)
             .with(localizableTitle: title)
             .with(viewFactoryOverriding: WalletHistoryViewFactoryOverriding())
+            .with(filterEditor: WalletHistoryFilterEditor())
     }
 }

@@ -9,42 +9,45 @@ final class WalletHistoryFilterPresenter {
 
     private(set) var currentFilter = WalletHistoryFilter.all
 
-    private func updateView() {
-        let viewModel = WalletHistoryFilterViewModel(
-            filter: currentFilter,
+    private func createViewModel() -> WalletHistoryFilterViewModel {
+        let items = WalletHistoryFilterRow.allCases.map { row in
+            WalletHistoryFilterItemViewModel(title: row.title, isOn: currentFilter.contains(row.filter))
+        }
+
+        return WalletHistoryFilterViewModel(
+            items: items,
             canApply: currentFilter != initialFilter,
             canReset: currentFilter != .all
         )
-
-        view?.didReceive(viewModel: viewModel)
     }
 }
 
 extension WalletHistoryFilterPresenter: WalletHistoryFilterPresenterProtocol {
     func setup() {
-        updateView()
+        view?.didReceive(viewModel: createViewModel())
     }
 
-    func toggleTransfers() {
-        currentFilter = currentFilter.symmetricDifference(.transfers)
-        updateView()
-    }
+    func toggleFilterItem(at index: Int) {
+        guard let filter = WalletHistoryFilterRow(rawValue: index)?.filter else {
+            return
+        }
 
-    func toggleRewardsAndSlashes() {
-        currentFilter = currentFilter.symmetricDifference(.rewardsAndSlashes)
-        updateView()
-    }
+        let newFilter = currentFilter.symmetricDifference(filter)
 
-    func toggleExtrinisics() {
-        currentFilter = currentFilter.symmetricDifference(.extrinsics)
-        updateView()
+        if newFilter != [] {
+            currentFilter = newFilter
+
+            view?.didConfirm(viewModel: createViewModel())
+        } else {
+            view?.didReceive(viewModel: createViewModel())
+        }
     }
 
     func apply() {}
 
     func reset() {
         currentFilter = .all
-        updateView()
+        view?.didReceive(viewModel: createViewModel())
     }
 }
 

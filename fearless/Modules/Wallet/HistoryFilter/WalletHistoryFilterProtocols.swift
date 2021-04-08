@@ -1,12 +1,11 @@
 protocol WalletHistoryFilterViewProtocol: ControllerBackedProtocol {
     func didReceive(viewModel: WalletHistoryFilterViewModel)
+    func didConfirm(viewModel: WalletHistoryFilterViewModel)
 }
 
 protocol WalletHistoryFilterPresenterProtocol: AnyObject {
     func setup()
-    func toggleTransfers()
-    func toggleRewardsAndSlashes()
-    func toggleExtrinisics()
+    func toggleFilterItem(at index: Int)
     func apply()
     func reset()
 }
