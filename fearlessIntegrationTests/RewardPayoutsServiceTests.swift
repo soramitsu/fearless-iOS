@@ -274,39 +274,105 @@ class RewardPayoutsServiceTests: XCTestCase {
                     "5GNy7frYA4BwWpKwxKAFWt4eBsZ9oAvXrp9SyDj6qzJAaNzB",
                     "5C8Pev9UHEtBgd1XKhg38U4PC49Azx8v5uphtxjWiXwmpsc7"
                 ]
+                let nominatorStashAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
-                let exposure: [StorageResponse<ValidatorExposure>] = try fetchValidatorProperties(
-                    storagePath: .validatorExposureClipped,
-                    addresses: items,
-                    era: activeEra,
-                    chain: chain,
-                    engine: engine,
-                    codingFactory: factory,
-                    queue: queue
-                )
+                let controllers = items
+                    .compactMap { accountId in
+                        try? fetchController(
+                            forStash: accountId,
+                            chain: chain,
+                            engine: engine,
+                            codingFactory: factory,
+                            queue: queue
+                        )
+                        .compactMap(\.value)
+                    }
+                    .flatMap { $0 }
 
-                let prefs: [StorageResponse<ValidatorPrefs>] = try fetchValidatorProperties(
-                    storagePath: .erasPrefs,
-                    addresses: items,
-                    era: activeEra,
-                    chain: chain,
-                    engine: engine,
-                    codingFactory: factory,
-                    queue: queue
-                )
+                let ledgers = try controllers
+                    .compactMap { controller -> DyStakingLedger in
+                        try! fetchLedger(
+                            controller: controller,
+                            chain: chain,
+                            engine: engine,
+                            codingFactory: factory,
+                            queue: queue
+                        )
+                        .first!.value!
+                    }
 
-                let ledgerEncoded = try fetchLedger(
-                    address: items[0],
-                    chain: chain,
-                    engine: engine,
-                    codingFactory: factory,
-                    queue: queue
-                )
-                guard let ledger = ledgerEncoded.underlyingValue else {
-                    XCTFail("No ledger")
-                    return
-                }
-                XCTAssertEqual(prefs.count, exposure.count)
+                let eras = Set<UInt32>(activeEra-84..<activeEra) // TODO use currentEra
+
+                let controllerUnclaimedRewardsErasStash = ledgers
+                    .map { ledger -> (Data, [UInt32]) in
+                        let claimedRewards = Set(ledger.claimedRewards.map(\.value))
+                        return (ledger.stash, Array(eras.subtracting(claimedRewards)))
+                    }
+
+                let ownAccountId = try SS58AddressFactory().accountId(fromAddress: nominatorStashAccount, type: chain.addressType)
+                let setOfValidators = try controllerUnclaimedRewardsErasStash
+                    .reduce(into: [Data: [(UInt32, ValidatorExposure, ValidatorPrefs)]]()) { dict, tuple in
+                        let (stashAccountId, unclaimedRewardsEras) = tuple
+                        let exposures: [(UInt32, ValidatorExposure)] = try fetchValidatorProperties(
+                            storagePath: .validatorExposureClipped,
+                            stashAccountId: stashAccountId,
+                            eras: unclaimedRewardsEras,
+                            chain: chain,
+                            engine: engine,
+                            codingFactory: factory,
+                            queue: queue
+                        ).filter { _, exposure in
+                            exposure.others.contains(where: { $0.who == ownAccountId })
+                        }
+
+                        let prefs: [(UInt32, ValidatorPrefs)] = try fetchValidatorProperties(
+                            storagePath: .erasPrefs,
+                            stashAccountId: stashAccountId,
+                            eras: unclaimedRewardsEras,
+                            chain: chain,
+                            engine: engine,
+                            codingFactory: factory,
+                            queue: queue
+                        )
+
+                        let res = unclaimedRewardsEras.reduce(into: [(UInt32, ValidatorExposure, ValidatorPrefs)](), { arr, era in
+                            if
+                                let exposure = exposures.first(where: { $0.0 == era }),
+                                let pref = prefs.first(where: { $0.0 == era}) {
+                                arr.append((era, exposure.1, pref.1))
+                            }
+                        })
+                        if !res.isEmpty {
+                            dict[stashAccountId] = res
+                        }
+                    }
+//
+                print(setOfValidators)
+
+                
+
+//                // for tuple in unclaimedErasLedgers {
+//                // 0 = tupleaddress, stash = tuple.ledger.stash
+//                let setOfValidators:Era->ExposureAndPregs for .. unclaimedErasLedgers {
+
+//                }
+//
+//                // для каждоый эры должно ыть соответствме между эрой и exposure + prefs валидоторов
+//
+//                // [era: [Address]]
+//
+//                for era in eras {
+//                    for valid in validators {
+//                        validators.drop { !others.contains { who == мы }}
+//                    }
+//                }
+//
+//                для тех эр, в которй не пустой массив валид нужно считать реварды по формуле 9
+//
+//
+//                объединяем все посчитанные реварыд и сортируем по эре -> список пэйаутов
+//
+//                XCTAssertEqual(prefs.count, exposure.count)
             } catch {
                 XCTFail("Unexpected     error: \(error)")
             }
@@ -650,57 +716,119 @@ class RewardPayoutsServiceTests: XCTestCase {
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
     }
 
-    private func fetchValidatorProperties<T: Decodable>(
-        storagePath: StorageCodingPath,
-        addresses: [String],
-        era: UInt32,
+    private func fetchController(
+        forStash stash: String,
         chain: Chain,
         engine: JSONRPCEngine,
         codingFactory: RuntimeCoderFactoryProtocol,
         queue: OperationQueue
-    ) throws -> [StorageResponse<T>] {
-        let params1: () throws -> [String] = {
-            Array(repeating: String(era), count: addresses.count)
-        }
-
-        let addressFactory = SS58AddressFactory()
-        let params2: [Data] = try addresses.map {
-            try addressFactory.accountId(fromAddress: $0, type: chain.addressType)
+    ) throws -> [StorageResponse<String>] {
+        let params: () throws -> [Data] = {
+            [try SS58AddressFactory().accountId(fromAddress: stash, type: chain.addressType)]
         }
 
         let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 
-        let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<String>]> =
             requestFactory.queryItems(
                 engine: engine,
-                keyParams1: params1,
-                keyParams2: { params2 },
+                keyParams: params,
                 factory: { codingFactory },
-                storagePath: storagePath
+                storagePath: .controller
             )
 
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
         return try queryWrapper.targetOperation.extractNoCancellableResultData()
     }
 
-    private func fetchLedger(
-        address: String,
+    private func fetchValidatorProperties<T: Decodable>(
+        storagePath: StorageCodingPath,
+        stashAccountId: Data,
+        eras: [UInt32],
         chain: Chain,
         engine: JSONRPCEngine,
         codingFactory: RuntimeCoderFactoryProtocol,
         queue: OperationQueue
-    ) throws -> JSONScaleDecodable<StakingLedger> {
-        let accountId: Data = {
-            let addressFactory = SS58AddressFactory()
-            return try! addressFactory.accountId(fromAddress: address, type: chain.addressType)
-        }()
-        let key = try StorageKeyFactory().stakingInfoForControllerId(accountId).toHex(includePrefix: true)
+    ) throws -> [(UInt32, T)] {
+        let params1: () throws -> [String] = {
+            eras.map(\.description)
+        }
 
-        let operation = JSONRPCListOperation<JSONScaleDecodable<StakingLedger>>(engine: engine,
-                                                                                method: RPCMethod.getStorage,
-                                                                                parameters: [key])
+        let params2: () throws -> [Data] = {
+            Array(repeating: stashAccountId, count: eras.count)
+        }
 
-        queue.addOperations([operation], waitUntilFinished: true)
-        return try operation.extractNoCancellableResultData()
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let factory = StorageKeyFactory()
+        let mapOperation = DoubleMapKeyEncodingOperation(
+            path: storagePath,
+            storageKeyFactory: factory,
+            keyParams1: try params1(),
+            keyParams2: try params2()
+        )
+        mapOperation.codingFactory = codingFactory
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keyParams1: params1,
+                keyParams2: params2,
+                factory: { codingFactory },
+                storagePath: storagePath
+            )
+
+        let closureOperation: BaseOperation<[(UInt32, T)]> = ClosureOperation {
+            let result = try mapOperation.extractNoCancellableResultData()
+            let dict = result
+                .enumerated()
+                .reduce(into: [Data: UInt32](), { dict, item in
+                    let era = eras[item.offset]
+                    dict[item.element] = era
+                })
+            let responses = try queryWrapper.targetOperation.extractNoCancellableResultData()
+            return responses
+                .compactMap { response in
+                    if let value = response.value, let era = dict[response.key] {
+                        return (era, value)
+                    } else { return nil }
+                }
+        }
+        ([mapOperation] + queryWrapper.allOperations)
+            .forEach { operation in
+                closureOperation.addDependency(operation)
+            }
+
+        queue.addOperations(
+            [mapOperation] + queryWrapper.allOperations + [closureOperation],
+            waitUntilFinished: true
+        )
+
+        return try closureOperation.extractNoCancellableResultData()
+    }
+
+    private func fetchLedger(
+        controller: String,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> [StorageResponse<DyStakingLedger>] {
+        let params: () throws -> [Data] = {
+            [try Data(hexString: controller)]
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<DyStakingLedger>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keyParams: params,
+                factory: { codingFactory },
+                storagePath: .stakingLedger
+            )
+
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+        return try queryWrapper.targetOperation.extractNoCancellableResultData()
     }
 }
