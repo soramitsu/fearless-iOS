@@ -213,7 +213,7 @@ class RewardPayoutsServiceTests: XCTestCase {
         }
     }
 
-    func testValidatorExposureClippedAndPrefs() {
+    func testCalculateRewardPayouts() {
         do {
             let settings = InMemorySettingsManager()
             let chain = Chain.westend
@@ -263,7 +263,7 @@ class RewardPayoutsServiceTests: XCTestCase {
             }
 
             do {
-                let items = [
+                let validatorStash = [
                     "5HoSDmKXBXeD5HBj5haVUmWsjQEcp7Tt2QmYbCd8vrkeBK4b",
                     "5GR6SK9cj6c9uMaqZPpkMqVK99vukoRvS68ELEU2fRJ3EcNR",
                     "5FR5YJy3uwcEkXkRaaqsgARJ4C74V1zA8C6DRAECderYFGRk",
@@ -276,7 +276,7 @@ class RewardPayoutsServiceTests: XCTestCase {
                 ]
                 let nominatorStashAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
-                let controllers = items
+                let controllers = validatorStash
                     .compactMap { accountId in
                         try? fetchController(
                             forStash: accountId,
