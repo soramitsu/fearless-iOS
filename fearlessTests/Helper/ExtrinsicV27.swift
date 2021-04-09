@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import BigInt
+@testable import fearless
 
 struct ExtrinsicV27: ScaleCodable {
     let version: UInt8

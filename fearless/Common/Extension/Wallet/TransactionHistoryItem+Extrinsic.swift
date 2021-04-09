@@ -15,11 +15,11 @@ extension TransactionHistoryItem {
                 return nil
             }
 
-            guard let txOrigin = result.extrinsic.sender else {
+            guard let txOrigin = result.extrinsic.transaction?.address.accountId else {
                 return nil
             }
 
-            guard let txReceiver = result.call.receiver else {
+            guard let txReceiver = result.call.receiver.accountId else {
                 return nil
             }
 

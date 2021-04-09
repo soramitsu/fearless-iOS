@@ -46,7 +46,7 @@ final class WalletNetworkOperationFactory {
 
     func createUpgradedInfoFetchOperation() -> CompoundOperationWrapper<Bool?> {
         do {
-            let remoteKey = try StorageKeyFactory().updatedDualRefCount()
+            let remoteKey = try StorageKeyFactory().updatedTripleRefCount()
             let localKey = try localStorageIdFactory.createIdentifier(for: remoteKey)
 
             return chainStorage.queryStorageByKey(localKey)
@@ -91,8 +91,8 @@ final class WalletNetworkOperationFactory {
                             return result
                         }
                     } else {
-                        if let value: AccountInfoV27 = try updateData.decodeUpdatedData(for: accountIdKey) {
-                            return AccountInfo(v27: value)
+                        if let value: AccountInfoV28 = try updateData.decodeUpdatedData(for: accountIdKey) {
+                            return AccountInfo(v28: value)
                         } else {
                             return result
                         }
@@ -140,7 +140,6 @@ final class WalletNetworkOperationFactory {
         let sender = accountSettings.accountId
         let currentCryptoType = cryptoType
 
-        let upgradedOperation = createUpgradedInfoFetchOperation()
         let nonceOperation = createExtrinsicNonceFetchOperation(chain)
         let runtimeVersionOperation = createRuntimeVersionOperation()
 
@@ -151,9 +150,6 @@ final class WalletNetworkOperationFactory {
 
                 let runtimeVersion = try runtimeVersionOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                let upgraded = (try upgradedOperation.targetOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
 
                 let receiverAccountId = try Data(hexString: receiver)
                 let senderAccountId = try Data(hexString: sender)
@@ -167,23 +163,12 @@ final class WalletNetworkOperationFactory {
                                                                moduleIndex: chain.balanceModuleIndex,
                                                                callIndex: chain.transferCallIndex)
 
-                let extrinsicData: Data
-
-                if upgraded {
-                    extrinsicData = try ExtrinsicFactory
-                        .transferExtrinsic(from: senderAccountId,
-                                           to: receiverAccountId,
-                                           amount: amount,
-                                           additionalParameters: additionalParameters,
-                                           signer: signer)
-                } else {
-                    extrinsicData = try ExtrinsicFactoryV27
-                        .transferExtrinsic(from: senderAccountId,
-                                           to: receiverAccountId,
-                                           amount: amount,
-                                           additionalParameters: additionalParameters,
-                                           signer: signer)
-                }
+                let extrinsicData: Data = try ExtrinsicFactory
+                    .transferExtrinsic(from: senderAccountId,
+                                       to: receiverAccountId,
+                                       amount: amount,
+                                       additionalParameters: additionalParameters,
+                                       signer: signer)
 
                 targetOperation.parameters = [extrinsicData.toHex(includePrefix: true)]
             } catch {
@@ -192,7 +177,6 @@ final class WalletNetworkOperationFactory {
         }
 
         let dependencies: [Operation] = [nonceOperation, runtimeVersionOperation]
-            + upgradedOperation.allOperations
 
         dependencies.forEach { targetOperation.addDependency($0)}
 
