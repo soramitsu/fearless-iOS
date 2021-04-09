@@ -62,7 +62,7 @@ final class WalletBuyCommand: WalletCommandProtocol {
 extension WalletBuyCommand: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
         let command = commandFactory?.prepareHideCommand(with: .dismiss)
-//        command.completionBlock = { try? self.handle(action: actions[index]) }
+        command?.completionBlock = { try? self.handle(action: self.actions[index]) }
         try? command?.execute()
     }
 }

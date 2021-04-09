@@ -30,7 +30,7 @@ enum HashFunction {
         case .SHA384: length = CC_SHA384_DIGEST_LENGTH
         case .SHA512: length = CC_SHA512_DIGEST_LENGTH
         }
-        
+
         return Int(length)
     }
 }

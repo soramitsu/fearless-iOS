@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import CommonCrypto.CommonHMAC
+import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
     // TODO: FLW-644 Replace with production value
@@ -75,17 +76,17 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         components?.percentEncodedQueryItems = queryItems
 
         let query = "?\(components?.percentEncodedQuery ?? "")"
-        
+
         // TODO: FLW-644 Replace with production value
         let hash = query
             .toHMAC(algorithm: .SHA256, key: "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY")
+
         let base64Hash =
-            Data(hash.utf8)
+            try? Data(hexString: hash)
                 .base64EncodedString()
                 .addingPercentEncoding(withAllowedCharacters: CharacterSet(charactersIn: "+/=").inverted)
 
         components?.percentEncodedQueryItems?.append(URLQueryItem(name: "signature", value: base64Hash))
-
         return components?.url
     }
 }
