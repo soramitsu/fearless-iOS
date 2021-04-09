@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-final class UpgradeV28Subscription: BaseStorageChildSubscription {
+final class UpgradeSubscription: BaseStorageChildSubscription {
     let eventCenter: EventCenterProtocol
 
     init(remoteStorageKey: Data,

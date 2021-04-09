@@ -13,7 +13,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let keyFactory = StorageKeyFactory()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: type.chain)
 
-        let upgradeV28Subscription = try createV28Subscription(storageKeyFactory: keyFactory,
+        let upgradeV30Subscription = try createV30Subscription(storageKeyFactory: keyFactory,
                                                                localStorageIdFactory: localStorageIdFactory)
 
         let transferSubscription = createTransferSubscription(address: address,
@@ -42,7 +42,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                                               storageKeyFactory: keyFactory)
 
         let children: [StorageChildSubscribing] = [
-            upgradeV28Subscription,
+            upgradeV30Subscription,
             accountSubscription,
             bondedSubscription,
             activeEraSubscription
@@ -121,21 +121,21 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                                   logger: Logger.shared)
     }
 
-    private func createV28Subscription(storageKeyFactory: StorageKeyFactoryProtocol,
+    private func createV30Subscription(storageKeyFactory: StorageKeyFactoryProtocol,
                                        localStorageIdFactory: ChainStorageIdFactoryProtocol)
-        throws -> UpgradeV28Subscription {
-        let remoteStorageKey = try storageKeyFactory.updatedDualRefCount()
+        throws -> UpgradeSubscription {
+        let remoteStorageKey = try storageKeyFactory.updatedTripleRefCount()
         let localStorageKey = try localStorageIdFactory.createIdentifier(for: remoteStorageKey)
 
         let storage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             SubstrateDataStorageFacade.shared.createRepository()
 
-        return UpgradeV28Subscription(remoteStorageKey: remoteStorageKey,
-                                      localStorageKey: localStorageKey,
-                                      storage: AnyDataProviderRepository(storage),
-                                      operationManager: OperationManagerFacade.sharedManager,
-                                      logger: Logger.shared,
-                                      eventCenter: EventCenter.shared)
+        return UpgradeSubscription(remoteStorageKey: remoteStorageKey,
+                                   localStorageKey: localStorageKey,
+                                   storage: AnyDataProviderRepository(storage),
+                                   operationManager: OperationManagerFacade.sharedManager,
+                                   logger: Logger.shared,
+                                   eventCenter: EventCenter.shared)
     }
 
     private func createTransferSubscription(address: String,

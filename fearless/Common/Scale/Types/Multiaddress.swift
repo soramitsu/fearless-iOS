@@ -56,3 +56,13 @@ enum Multiaddress: ScaleCodable {
         }
     }
 }
+
+extension Multiaddress {
+    var accountId: Data? {
+        if case .accountId(let value) = self {
+            return value
+        } else {
+            return nil
+        }
+    }
+}
