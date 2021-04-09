@@ -289,7 +289,7 @@ class RewardPayoutsServiceTests: XCTestCase {
                     }
                     .flatMap { $0 }
 
-                let ledgers = try controllers
+                let ledgers = controllers
                     .compactMap { controller -> DyStakingLedger in
                         try! fetchLedger(
                             controller: controller,
@@ -311,7 +311,7 @@ class RewardPayoutsServiceTests: XCTestCase {
 
                 let ownAccountId = try SS58AddressFactory().accountId(fromAddress: nominatorStashAccount, type: chain.addressType)
                 let setOfValidators = try controllerUnclaimedRewardsErasStash
-                    .reduce(into: [Data: [(UInt32, ValidatorExposure, ValidatorPrefs)]]()) { dict, tuple in
+                    .reduce(into: [Data: [(UInt32, ValidatorExposure, BigUInt)]]()) { dict, tuple in
                         let (stashAccountId, unclaimedRewardsEras) = tuple
                         let exposures: [(UInt32, ValidatorExposure)] = try fetchValidatorProperties(
                             storagePath: .validatorExposureClipped,
@@ -335,44 +335,106 @@ class RewardPayoutsServiceTests: XCTestCase {
                             queue: queue
                         )
 
-                        let res = unclaimedRewardsEras.reduce(into: [(UInt32, ValidatorExposure, ValidatorPrefs)](), { arr, era in
+                        let res = unclaimedRewardsEras.reduce(into: [(UInt32, ValidatorExposure, BigUInt)](), { arr, era in
                             if
                                 let exposure = exposures.first(where: { $0.0 == era }),
-                                let pref = prefs.first(where: { $0.0 == era}) {
-                                arr.append((era, exposure.1, pref.1))
+                                let pref = prefs.first(where: { $0.0 == era }) {
+                                arr.append((era, exposure.1, pref.1.commission))
                             }
                         })
                         if !res.isEmpty {
                             dict[stashAccountId] = res
                         }
                     }
-//
-                print(setOfValidators)
 
-                
+                let setOfEras: Set<UInt32> = setOfValidators
+                    .values
+                    .flatMap { $0 }
+                    .map { $0.0 }
+                    .reduce(into: Set<UInt32>(), { set, era in
+                        set.insert(era)
+                    })
 
-//                // for tuple in unclaimedErasLedgers {
-//                // 0 = tupleaddress, stash = tuple.ledger.stash
-//                let setOfValidators:Era->ExposureAndPregs for .. unclaimedErasLedgers {
+                let totalRewardsPerEra: [UInt32: BigUInt] = setOfEras
+                    .reduce(into: [UInt32: BigUInt](), { dict, era in
+                        let totalReward = try! fetchTotalReward(
+                            forEra: era,
+                            engine: engine,
+                            codingFactory: factory,
+                            queue: queue
+                        ).first!.value!.value
+                        dict[era] = totalReward
+                    })
 
-//                }
-//
-//                // для каждоый эры должно ыть соответствме между эрой и exposure + prefs валидоторов
-//
-//                // [era: [Address]]
-//
-//                for era in eras {
-//                    for valid in validators {
-//                        validators.drop { !others.contains { who == мы }}
-//                    }
-//                }
-//
-//                для тех эр, в которй не пустой массив валид нужно считать реварды по формуле 9
-//
-//
-//                объединяем все посчитанные реварыд и сортируем по эре -> список пэйаутов
-//
-//                XCTAssertEqual(prefs.count, exposure.count)
+                let rewardPointsByEra = setOfEras
+                    .reduce(into: [UInt32: EraRewardPoints](), { dict, era in
+                        let rewardPoints = try! fetchRewardPointsPerValidator(
+                            forEra: era,
+                            engine: engine,
+                            codingFactory: factory
+                        ).first!.value!
+                        dict[era] = rewardPoints
+                    })
+
+                let rewardPerEraPerValidator = setOfValidators
+                    .reduce(into: [Data: [UInt32: Decimal]]()) { resultDict, itemDict in
+                        let stashAccount = itemDict.key
+                        let array = itemDict.value
+
+                        let validatorRewardPerEra = totalRewardsPerEra
+                            .reduce(into: [UInt32: Decimal]()) { dict, totalRewardPerEra in
+                                let (era, totalReward) = totalRewardPerEra
+                                guard
+                                    let rewardPoints = rewardPointsByEra[era],
+                                    let totalRewardDecimal = Decimal.fromSubstrateAmount(
+                                        totalReward,
+                                        precision: chain.addressType.precision
+                                    )
+                                else { return }
+
+                                let validatorPoint = rewardPoints
+                                    .individual
+                                    .first(where: { $0.accountId == stashAccount })
+                                    .map(\.rewardPoint)!
+
+                                let ratio = Decimal(validatorPoint) / Decimal(rewardPoints.total)
+
+                                let validatorReward = totalRewardDecimal * ratio
+                                dict[era] = validatorReward
+                            }
+
+                        let rewardOfNominatorWithinEras = validatorRewardPerEra
+                            .reduce(into: [UInt32: Decimal]()) { dict, tuple in
+                                let (era, validatorRewardPerEra) = tuple
+                                guard
+                                    let validatorComission = array
+                                        .first(where: { $0.0 == era })
+                                        .map({ Decimal.fromSubstratePerbill(value: $0.2)! }),
+                                    let exposure = array
+                                        .first(where: { $0.0 == era })
+                                        .map({ $0.1 }),
+                                    let totalStake = Decimal.fromSubstrateAmount(
+                                        exposure.total,
+                                        precision: chain.addressType.precision
+                                    ),
+                                    let nominatorStake = exposure
+                                        .others
+                                        .first(where: { $0.who == ownAccountId })
+                                        .map({ Decimal.fromSubstrateAmount(
+                                            $0.value,
+                                            precision: chain.addressType.precision
+                                        )!})
+                                else { return }
+
+                                let nominatorReward = validatorRewardPerEra
+                                    * (Decimal(1) - validatorComission)
+                                    * nominatorStake / totalStake
+                                dict[era] = nominatorReward
+                            }
+
+                        resultDict[stashAccount] = rewardOfNominatorWithinEras
+                    }
+                XCTAssert(!rewardPerEraPerValidator.isEmpty)
             } catch {
                 XCTFail("Unexpected     error: \(error)")
             }
