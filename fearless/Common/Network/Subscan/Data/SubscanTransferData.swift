@@ -1,16 +1,11 @@
 import Foundation
 
-struct SubscanHistoryData: Decodable {
-    enum CodingKeys: String, CodingKey {
-        case count
-        case transactions = "transfers"
-    }
-
+struct SubscanTransferData: Decodable {
     let count: Int
-    let transactions: [SubscanHistoryItemData]?
+    let transfers: [SubscanTransferItemData]?
 }
 
-struct SubscanHistoryItemData: Decodable {
+struct SubscanTransferItemData: Decodable {
     enum CodingKeys: String, CodingKey {
         case sender = "from"
         case receiver = "to"
@@ -21,6 +16,7 @@ struct SubscanHistoryItemData: Decodable {
         case fee
         case blockNumber = "block_num"
         case finalized
+        case extrinsicIndex = "extrinsic_index"
     }
 
     let sender: String
@@ -31,5 +27,6 @@ struct SubscanHistoryItemData: Decodable {
     let timestamp: Int64
     let amount: String
     let fee: String
-    let blockNumber: Int64?
+    let blockNumber: UInt64
+    let extrinsicIndex: ExtrinisicIndexWrapper
 }

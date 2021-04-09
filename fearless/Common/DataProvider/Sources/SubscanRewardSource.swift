@@ -104,7 +104,7 @@ final class SubscanRewardSource {
     }
 
     private func fetch(page: Int) {
-        guard let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.reward) else {
+        guard let url = assetId.subscanUrl?.appendingPathComponent(SubscanApi.rewardsAndSlashes) else {
             finalize(with: SubscanRewardSourceError.unsupportedAsset)
             return
         }
@@ -113,7 +113,7 @@ final class SubscanRewardSource {
 
         localWrapper = createLocalFetchWrapper()
 
-        let info = RewardInfo(
+        let info = HistoryInfo(
             address: address,
             row: pageSize,
             page: page

@@ -5,7 +5,7 @@ import IrohaCrypto
 
 extension AssetTransactionData {
     static func createTransaction(
-        from item: SubscanHistoryItemData,
+        from item: SubscanTransferItemData,
         address: String,
         networkType: SNAddressType,
         asset: WalletAsset,
@@ -57,6 +57,92 @@ extension AssetTransactionData {
             fees: [fee],
             timestamp: item.timestamp,
             type: type.rawValue,
+            reason: nil,
+            context: nil
+        )
+    }
+
+    static func createTransaction(
+        from item: SubscanRewardItemData,
+        address: String,
+        networkType: SNAddressType,
+        asset: WalletAsset,
+        addressFactory _: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let status: AssetTransactionStatus
+
+        status = .commited
+
+        let amount: Decimal = {
+            guard let amountValue = BigUInt(item.amount) else {
+                return 0.0
+            }
+
+            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
+        }()
+
+        let type = TransactionType(rawValue: item.eventId.uppercased())
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: item.extrinsicHash,
+            peerFirstName: nil,
+            peerLastName: nil,
+            peerName: address,
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: [],
+            timestamp: item.timestamp,
+            type: type?.rawValue ?? "",
+            reason: nil,
+            context: nil
+        )
+    }
+
+    static func createTransaction(
+        from item: SubscanConcreteExtrinsicsItemData,
+        address: String,
+        networkType: SNAddressType,
+        asset: WalletAsset,
+        addressFactory: SS58AddressFactoryProtocol
+    ) -> AssetTransactionData {
+        let amount: Decimal = {
+            guard let amountValue = BigUInt(item.fee) else {
+                return 0.0
+            }
+
+            return Decimal.fromSubstrateAmount(amountValue, precision: networkType.precision) ?? 0.0
+        }()
+
+        let accountId = try? addressFactory.accountId(
+            fromAddress: address,
+            type: networkType
+        )
+        let peerId = accountId?.toHex() ?? address
+
+        let status: AssetTransactionStatus
+
+        if let state = item.success {
+            status = state ? .commited : .rejected
+        } else {
+            status = .pending
+        }
+
+        return AssetTransactionData(
+            transactionId: item.identifier,
+            status: status,
+            assetId: asset.identifier,
+            peerId: peerId,
+            peerFirstName: item.callModule,
+            peerLastName: item.callFunction,
+            peerName: "\(item.callModule) \(item.callFunction)",
+            details: "",
+            amount: AmountDecimal(value: amount),
+            fees: [],
+            timestamp: item.timestamp,
+            type: TransactionType.extrinsic.rawValue,
             reason: nil,
             context: nil
         )

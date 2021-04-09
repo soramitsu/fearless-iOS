@@ -27,8 +27,8 @@ struct TransactionHistoryItem: Codable {
     let timestamp: Int64
     let amount: String
     let fee: String
-    let blockNumber: Int64?
-    let txIndex: Int16?
+    let blockNumber: UInt64?
+    let txIndex: UInt16?
 }
 
 extension TransactionHistoryItem: Identifiable {

@@ -6,26 +6,29 @@ final class HistoryItemViewModel: WalletViewModelProtocol {
     var itemHeight: CGFloat { HistoryConstants.historyHeight }
 
     let title: String
-    let details: String
+    let subtitle: String
+    let time: String
     let amount: String
-    let direction: TransactionType
+    let type: TransactionType
     let status: AssetTransactionStatus
     let imageViewModel: WalletImageViewModelProtocol?
     let command: WalletCommandProtocol?
 
     init(
         title: String,
-        details: String,
+        subtitle: String,
         amount: String,
-        direction: TransactionType,
+        time: String,
+        type: TransactionType,
         status: AssetTransactionStatus,
         imageViewModel: WalletImageViewModelProtocol?,
         command: WalletCommandProtocol?
     ) {
         self.title = title
-        self.details = details
+        self.subtitle = subtitle
         self.amount = amount
-        self.direction = direction
+        self.time = time
+        self.type = type
         self.status = status
         self.imageViewModel = imageViewModel
         self.command = command

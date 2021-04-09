@@ -1,33 +1,147 @@
-import UIKit
+import Foundation
+import SnapKit
 import CommonWallet
 
 final class HistoryItemTableViewCell: UITableViewCell {
     private enum Constants {
-        static let trailingWithoutStatus: CGFloat = 12.0
-        static let trailingWithStatus: CGFloat = 36.0
+        static let verticalInset: CGFloat = 11
+        static let iconSize: CGFloat = 32
+        static let statusOffset: CGFloat = 4.0
+        static let titleAmountSpacing: CGFloat = 64.0
     }
 
-    @IBOutlet private var iconImageView: UIImageView!
-    @IBOutlet private var titleLabel: UILabel!
-    @IBOutlet private var detailsLabel: UILabel!
-    @IBOutlet private var amountLabel: UILabel!
-    @IBOutlet private var statusImageView: UIImageView!
-    @IBOutlet private var trailingConstraint: NSLayoutConstraint!
+    private let transactionTypeView = UIImageView()
+
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        label.lineBreakMode = .byTruncatingMiddle
+        return label
+    }()
+
+    private let subtitleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorTransparentText()
+        return label
+    }()
+
+    private let amountLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        return label
+    }()
+
+    private let timeLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorTransparentText()
+        return label
+    }()
+
+    private var statusImageView: UIImageView?
 
     var viewModel: WalletViewModelProtocol?
 
-    override func prepareForReuse() {
-        super.prepareForReuse()
+    override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
+        super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        (viewModel as? HistoryItemViewModel)?.imageViewModel?.cancel()
+        configure()
     }
 
-    override func awakeFromNib() {
-        super.awakeFromNib()
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
 
-        let selectedBackgroundView = UIView()
-        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
-        self.selectedBackgroundView = selectedBackgroundView
+    private func configure() {
+        backgroundColor = .clear
+
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()!
+
+        setupLayout()
+    }
+
+    private func setupLayout() {
+        contentView.addSubview(transactionTypeView)
+
+        transactionTypeView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(Constants.iconSize)
+        }
+
+        contentView.addSubview(amountLabel)
+
+        amountLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
+        }
+
+        contentView.addSubview(titleLabel)
+
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
+            make.trailing.lessThanOrEqualTo(amountLabel.snp.leading)
+                .offset(-Constants.titleAmountSpacing)
+        }
+
+        contentView.addSubview(timeLabel)
+
+        timeLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalTo(amountLabel.snp.bottom)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
+        }
+
+        contentView.addSubview(subtitleLabel)
+
+        subtitleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
+            make.top.equalTo(titleLabel.snp.bottom)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
+            make.trailing.lessThanOrEqualTo(timeLabel.snp.leading)
+                .offset(-UIConstants.horizontalInset)
+        }
+    }
+
+    private func addStatusViewIfNeeded() {
+        guard statusImageView == nil else {
+            return
+        }
+
+        let statusImageView = UIImageView()
+        contentView.addSubview(statusImageView)
+
+        statusImageView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalTo(amountLabel)
+        }
+
+        self.statusImageView = statusImageView
+    }
+
+    private func removeStatusView() {
+        guard statusImageView != nil else {
+            return
+        }
+
+        statusImageView?.removeFromSuperview()
+        statusImageView = nil
+    }
+
+    private func updateAmountConstraints() {
+        amountLabel.snp.updateConstraints { make in
+            if let statusSize = statusImageView?.image?.size {
+                let inset = UIConstants.horizontalInset + statusSize.width + Constants.statusOffset
+                make.trailing.equalToSuperview().inset(inset)
+            } else {
+                make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            }
+        }
     }
 }
 
@@ -37,38 +151,40 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
             self.viewModel = viewModel
 
             titleLabel.text = itemViewModel.title
-            detailsLabel.text = itemViewModel.details
+            subtitleLabel.text = itemViewModel.subtitle
+            timeLabel.text = itemViewModel.time
 
-            switch itemViewModel.direction {
-            case .incoming:
+            switch itemViewModel.type {
+            case .incoming, .reward:
                 amountLabel.text = "+ \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorGreen()!
-            case .outgoing:
+            case .outgoing, .slash, .extrinsic:
                 amountLabel.text = "- \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorWhite()!
             }
 
             switch itemViewModel.status {
             case .commited:
-                statusImageView.isHidden = true
-                trailingConstraint.constant = Constants.trailingWithoutStatus
+                removeStatusView()
             case .rejected:
-                statusImageView.isHidden = false
-                statusImageView.image = R.image.iconTxFailed()
-                amountLabel.textColor = R.color.colorGray()!
-                trailingConstraint.constant = Constants.trailingWithStatus
+                addStatusViewIfNeeded()
+                statusImageView?.image = R.image.iconTxFailed()
+                amountLabel.textColor = R.color.colorTransparentText()
             case .pending:
-                statusImageView.isHidden = false
-                statusImageView.image = R.image.iconTxPending()
+                addStatusViewIfNeeded()
+                statusImageView?.image = R.image.iconTxPending()
                 amountLabel.textColor = R.color.colorWhite()
-                trailingConstraint.constant = Constants.trailingWithStatus
             }
 
-            iconImageView.image = nil
+            transactionTypeView.image = nil
 
             itemViewModel.imageViewModel?.loadImage { [weak self] image, _ in
-                self?.iconImageView.image = image
+                self?.transactionTypeView.image = image
             }
+
+            updateAmountConstraints()
+
+            setNeedsLayout()
         }
     }
 }
