@@ -338,6 +338,7 @@
 		8478616E26208262004249C6 /* TransferCallV27.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8478616C26208262004249C6 /* TransferCallV27.swift */; };
 		8478617526208283004249C6 /* ExtrinsicV27.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8478616B26208262004249C6 /* ExtrinsicV27.swift */; };
 		8478617926208285004249C6 /* TransferCallV27.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8478616C26208262004249C6 /* TransferCallV27.swift */; };
+		8478617E262084D6004249C6 /* BigInt+Hex.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8478617D262084D6004249C6 /* BigInt+Hex.swift */; };
 		847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C961F255340F2002D288F /* ExportGenericViewController.swift */; };
 		847C962825534134002D288F /* ExportGenericProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962725534134002D288F /* ExportGenericProtocols.swift */; };
 		847C96302553426D002D288F /* ExportGenericViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847C962F2553426D002D288F /* ExportGenericViewModel.swift */; };
@@ -1004,6 +1005,7 @@
 		8475AE38258B958300B058F3 /* ErrorContent+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ErrorContent+Wallet.swift"; sourceTree = "<group>"; };
 		8478616B26208262004249C6 /* ExtrinsicV27.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ExtrinsicV27.swift; sourceTree = "<group>"; };
 		8478616C26208262004249C6 /* TransferCallV27.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TransferCallV27.swift; sourceTree = "<group>"; };
+		8478617D262084D6004249C6 /* BigInt+Hex.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BigInt+Hex.swift"; sourceTree = "<group>"; };
 		847C961F255340F2002D288F /* ExportGenericViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewController.swift; sourceTree = "<group>"; };
 		847C962725534134002D288F /* ExportGenericProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericProtocols.swift; sourceTree = "<group>"; };
 		847C962F2553426D002D288F /* ExportGenericViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportGenericViewModel.swift; sourceTree = "<group>"; };
@@ -2586,6 +2588,7 @@
 				8494D86A25247F9600614D8F /* Decimal+String.swift */,
 				846A2C4425271F0100731018 /* DateFormatter.swift */,
 				846A2C4C2529FBB700731018 /* NSPredicate+Filter.swift */,
+				8478617D262084D6004249C6 /* BigInt+Hex.swift */,
 			);
 			path = Foundation;
 			sourceTree = "<group>";
@@ -3805,6 +3808,7 @@
 				840882BD2514B3DC00177E20 /* ConnectionAccountImportInteractor.swift in Sources */,
 				842D1E8424D197C900C30A7A /* KeyboardAdoptable.swift in Sources */,
 				8490151F24ABC61F008F705E /* WalletAssetViewModelFactory.swift in Sources */,
+				8478617E262084D6004249C6 /* BigInt+Hex.swift in Sources */,
 				842876A524AE049B00D91AD8 /* SelectableTitleListViewModel.swift in Sources */,
 				847C96302553426D002D288F /* ExportGenericViewModel.swift in Sources */,
 				846AF8462525C93A00868F37 /* BalanceContext.swift in Sources */,
