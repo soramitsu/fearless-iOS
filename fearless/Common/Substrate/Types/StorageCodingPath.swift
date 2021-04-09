@@ -14,6 +14,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ActiveEra")
     }
 
+    static var currentEra: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "CurrentEra")
+    }
+
     static var erasStakers: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakers")
     }

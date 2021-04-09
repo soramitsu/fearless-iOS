@@ -258,7 +258,16 @@ class RewardPayoutsServiceTests: XCTestCase {
                     codingFactory: factory,
                     operationQueue: queue
             ) else {
-                XCTFail("No era")
+                XCTFail("No active era")
+                return
+            }
+
+            guard let currentEra = try fetchCurrentEra(
+                    engine: engine,
+                    codingFactory: factory,
+                    queue: queue
+            ) else {
+                XCTFail("No current era")
                 return
             }
 
@@ -301,7 +310,7 @@ class RewardPayoutsServiceTests: XCTestCase {
                         .first!.value!
                     }
 
-                let eras = Set<UInt32>(activeEra-84..<activeEra) // TODO use currentEra
+                let eras = Set<UInt32>(currentEra-84..<activeEra)
 
                 let controllerUnclaimedRewardsErasStash = ledgers
                     .map { ledger -> (Data, [UInt32]) in
@@ -729,6 +738,32 @@ class RewardPayoutsServiceTests: XCTestCase {
         operationQueue.addOperations([fetchOperation, decodingOperation], waitUntilFinished: true)
 
         return try decodingOperation.extractNoCancellableResultData().index
+    }
+
+    private func fetchCurrentEra(
+        engine: JSONRPCEngine,
+        codingFactory: RuntimeCoderFactoryProtocol,
+        queue: OperationQueue
+    ) throws -> UInt32? {
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let keys: () throws -> [Data] = {
+            let key = try StorageKeyFactory().currentEra()
+            return [key]
+        }
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keys: keys,
+                factory: { codingFactory },
+                storagePath: .currentEra
+            )
+
+        queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
+        let v = try queryWrapper.targetOperation.extractNoCancellableResultData()
+
+        return v.first?.value?.value
     }
 
     private func fetchTotalReward(
