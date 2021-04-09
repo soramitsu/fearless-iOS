@@ -262,14 +262,24 @@ class RewardPayoutsServiceTests: XCTestCase {
                 return
             }
 
-            guard let currentEra = try fetchCurrentEra(
-                    engine: engine,
-                    codingFactory: factory,
-                    queue: queue
+            guard let currentEra = try fetchUInt32Value(
+                storagePath: .currentEra,
+                engine: engine,
+                codingFactory: factory,
+                keys: { [try StorageKeyFactory().currentEra()] },
+                queue: queue
             ) else {
                 XCTFail("No current era")
                 return
             }
+
+            let historyDepth = try fetchUInt32Value(
+                storagePath: .historyDepth,
+                engine: engine,
+                codingFactory: factory,
+                keys: { [try StorageKeyFactory().historyDepth()] },
+                queue: queue
+            ) ?? 84
 
             do {
                 let validatorStash = [
@@ -310,7 +320,7 @@ class RewardPayoutsServiceTests: XCTestCase {
                         .first!.value!
                     }
 
-                let eras = Set<UInt32>(currentEra-84..<activeEra)
+                let eras = Set<UInt32>(currentEra-historyDepth..<activeEra)
 
                 let controllerUnclaimedRewardsErasStash = ledgers
                     .map { ledger -> (Data, [UInt32]) in
@@ -740,24 +750,21 @@ class RewardPayoutsServiceTests: XCTestCase {
         return try decodingOperation.extractNoCancellableResultData().index
     }
 
-    private func fetchCurrentEra(
+    private func fetchUInt32Value(
+        storagePath: StorageCodingPath,
         engine: JSONRPCEngine,
         codingFactory: RuntimeCoderFactoryProtocol,
+        keys: @escaping () throws -> [Data],
         queue: OperationQueue
     ) throws -> UInt32? {
         let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let keys: () throws -> [Data] = {
-            let key = try StorageKeyFactory().currentEra()
-            return [key]
-        }
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
             requestFactory.queryItems(
                 engine: engine,
                 keys: keys,
                 factory: { codingFactory },
-                storagePath: .currentEra
+                storagePath: storagePath
             )
 
         queue.addOperations(queryWrapper.allOperations, waitUntilFinished: true)
