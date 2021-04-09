@@ -18,6 +18,10 @@ final class RampProvider: PurchaseProviderProtocol {
         return self
     }
 
+    func with(colorCode _: String) -> Self {
+        self
+    }
+
     func with(callbackUrl: URL) -> Self {
         self.callbackUrl = callbackUrl
         return self
@@ -40,7 +44,7 @@ final class RampProvider: PurchaseProviderProtocol {
         }
 
         if let url = optionUrl {
-            let action = PurchaseAction(title: "Ramp", url: url)
+            let action = PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)
             return [action]
         } else {
             return []

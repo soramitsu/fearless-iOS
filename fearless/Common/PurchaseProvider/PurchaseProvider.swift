@@ -1,13 +1,16 @@
 import Foundation
+import UIKit.UIImage
 
 struct PurchaseAction {
     let title: String
     let url: URL
+    let icon: UIImage
 }
 
 protocol PurchaseProviderProtocol {
     func with(appName: String) -> Self
     func with(logoUrl: URL) -> Self
+    func with(colorCode: String) -> Self
     func with(callbackUrl: URL) -> Self
     func buildPurchaseAction(
         for chain: Chain,
@@ -32,6 +35,11 @@ extension PurchaseAggregator: PurchaseProviderProtocol {
 
     func with(logoUrl: URL) -> Self {
         providers = providers.map { $0.with(logoUrl: logoUrl) }
+        return self
+    }
+
+    func with(colorCode: String) -> Self {
+        providers = providers.map { $0.with(colorCode: colorCode) }
         return self
     }
 
