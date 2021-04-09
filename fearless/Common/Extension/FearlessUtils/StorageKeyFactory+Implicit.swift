@@ -2,9 +2,9 @@ import Foundation
 import FearlessUtils
 
 extension StorageKeyFactoryProtocol {
-    func updatedDualRefCount() throws -> Data {
+    func updatedTripleRefCount() throws -> Data {
         try createStorageKey(moduleName: "System",
-                             serviceName: "UpgradedToDualRefCount")
+                             serviceName: "UpgradedToTripleRefCount")
     }
 
     func accountInfoKeyForId(_ identifier: Data) throws -> Data {

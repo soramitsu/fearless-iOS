@@ -15,7 +15,7 @@ extension WalletNetworkFacade {
             let storageKeyFactory = StorageKeyFactory()
 
             let accountInfoKey = try storageKeyFactory.accountInfoKeyForId(accountId)
-            let upgradeKey = try storageKeyFactory.updatedDualRefCount()
+            let upgradeKey = try storageKeyFactory.updatedTripleRefCount()
             let eraKey = try storageKeyFactory.activeEra()
             let stakingInfoKey = try storageKeyFactory.stakingInfoForControllerId(accountId)
 
@@ -114,8 +114,8 @@ extension WalletNetworkFacade {
                 if isUpgraded {
                     return try AccountInfo(scaleDecoder: decoder)
                 } else {
-                    let v27 = try AccountInfoV27(scaleDecoder: decoder)
-                    return AccountInfo(v27: v27)
+                    let v28 = try AccountInfoV28(scaleDecoder: decoder)
+                    return AccountInfo(v28: v28)
                 }
             }
 
