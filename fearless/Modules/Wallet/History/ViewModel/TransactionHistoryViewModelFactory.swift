@@ -151,8 +151,8 @@ final class TransactionHistoryViewModelFactory {
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
         return HistoryItemViewModel(
-            title: data.peerLastName?.capitalized ?? "",
-            subtitle: data.peerFirstName?.capitalized ?? "",
+            title: data.peerLastName?.displayCall ?? "",
+            subtitle: data.peerFirstName?.displayModule ?? "",
             amount: amount,
             time: time,
             type: txType,

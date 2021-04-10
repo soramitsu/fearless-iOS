@@ -15,6 +15,8 @@ class AssetDetailsCommandProtocolMock: WalletPresentationCommandProtocolMock, As
 }
 
 class WalletHideCommandProtocolMock: WalletCommandProtocolMock, WalletHideCommandProtocol {
+    var completionBlock: (() -> Void)?
+
     var actionType: WalletHideActionType = .dismiss
     var animated: Bool = false
 }
