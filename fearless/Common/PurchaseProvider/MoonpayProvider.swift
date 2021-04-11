@@ -1,6 +1,5 @@
 import Foundation
 import FearlessUtils
-import CommonCrypto.CommonHMAC
 import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
@@ -10,14 +9,6 @@ final class MoonpayProvider: PurchaseProviderProtocol {
 
     private var colorCode: String?
     private var callbackUrl: URL?
-
-    func with(appName _: String) -> Self {
-        self
-    }
-
-    func with(logoUrl _: URL) -> Self {
-        self
-    }
 
     func with(colorCode: String) -> Self {
         self.colorCode = colorCode
@@ -53,30 +44,7 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         }
     }
 
-    private func buildURLForToken(_ token: String, address: String) -> URL? {
-        var components = URLComponents(string: Self.baseUrlString)
-
-        var queryItems = [
-            URLQueryItem(name: "apiKey", value: Self.pubToken),
-            URLQueryItem(name: "currencyCode", value: token),
-            URLQueryItem(name: "walletAddress", value: address),
-            URLQueryItem(name: "showWalletAddressForm", value: "true")
-        ]
-
-        if let colorCode = colorCode {
-            let percentEncodedValue = colorCode.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
-            queryItems.append(URLQueryItem(name: "colorCode", value: percentEncodedValue))
-        }
-
-        if let callbackUrl = callbackUrl?.absoluteString {
-            let percentEncodedValue = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
-            queryItems.append(URLQueryItem(name: "redirectURL", value: percentEncodedValue))
-        }
-
-        components?.percentEncodedQueryItems = queryItems
-
-        let query = "?\(components?.percentEncodedQuery ?? "")"
-
+    private func calculateHMAC(for query: String) -> String {
         // TODO: FLW-644 Replace with production value
         let hash = query
             .toHMAC(algorithm: .SHA256, key: "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY")
@@ -86,7 +54,40 @@ final class MoonpayProvider: PurchaseProviderProtocol {
                 .base64EncodedString()
                 .addingPercentEncoding(withAllowedCharacters: CharacterSet(charactersIn: "+/=").inverted)
 
-        components?.percentEncodedQueryItems?.append(URLQueryItem(name: "signature", value: base64Hash))
-        return components?.url
+        return base64Hash ?? ""
+    }
+
+    private func buildURLForToken(_ token: String, address: String) -> URL? {
+        guard var components = URLComponents(string: Self.baseUrlString) else { return nil }
+
+        var percentEncodedQueryItems = [
+            URLQueryItem(name: "apiKey", value: Self.pubToken),
+            URLQueryItem(name: "currencyCode", value: token),
+            URLQueryItem(name: "walletAddress", value: address),
+            URLQueryItem(name: "showWalletAddressForm", value: "true")
+        ]
+
+        if let colorCode = colorCode {
+            let percentEncodedValue = colorCode.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+            percentEncodedQueryItems.append(URLQueryItem(name: "colorCode", value: percentEncodedValue))
+        }
+
+        if let callbackUrl = callbackUrl?.absoluteString {
+            let percentEncodedValue = callbackUrl.addingPercentEncoding(withAllowedCharacters: .urlHostAllowed)
+            percentEncodedQueryItems.append(URLQueryItem(name: "redirectURL", value: percentEncodedValue))
+        }
+
+        components.percentEncodedQueryItems = percentEncodedQueryItems
+
+        let percentEncodedQuery = components.percentEncodedQuery ?? ""
+        let query = "?\(percentEncodedQuery)"
+        let signature = calculateHMAC(for: query)
+
+        components.percentEncodedQueryItems?.append(URLQueryItem(
+            name: "signature",
+            value: signature
+        ))
+
+        return components.url
     }
 }

@@ -18,10 +18,6 @@ final class RampProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func with(colorCode _: String) -> Self {
-        self
-    }
-
     func with(callbackUrl: URL) -> Self {
         self.callbackUrl = callbackUrl
         return self

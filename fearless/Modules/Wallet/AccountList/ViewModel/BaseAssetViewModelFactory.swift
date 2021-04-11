@@ -59,7 +59,7 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
 
         let buyCommand: WalletCommandProtocol?
         if !actions.isEmpty {
-            buyCommand = WalletBuyCommand(actions: actions, commandFactory: commandFactory)
+            buyCommand = WalletSelectPurchaseProviderCommand(actions: actions, commandFactory: commandFactory)
         } else {
             buyCommand = nil
         }

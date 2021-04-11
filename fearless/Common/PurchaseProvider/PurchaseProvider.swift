@@ -1,24 +1,6 @@
 import Foundation
 import UIKit.UIImage
 
-struct PurchaseAction {
-    let title: String
-    let url: URL
-    let icon: UIImage
-}
-
-protocol PurchaseProviderProtocol {
-    func with(appName: String) -> Self
-    func with(logoUrl: URL) -> Self
-    func with(colorCode: String) -> Self
-    func with(callbackUrl: URL) -> Self
-    func buildPurchaseAction(
-        for chain: Chain,
-        assetId: WalletAssetId?,
-        address: String
-    ) -> [PurchaseAction]
-}
-
 final class PurchaseAggregator {
     private var providers: [PurchaseProviderProtocol]
 
