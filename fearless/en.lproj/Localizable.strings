@@ -325,4 +325,5 @@ Derivation path: %@";
 "wallet.filters.transfers" = "Transfers";
 "wallet.filters.rewards.and.slashes" = "Rewards and Slashes";
 "wallet.filters.extrinsics" = "Other transactions";
-"wallet.filters.header" = "Show";   
+"wallet.filters.header" = "Show";
+"transfer.title" = "Transfer";

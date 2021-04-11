@@ -161,6 +161,7 @@
 "transaction.status.completed" = "Уңышлы";
 "transaction.status.failed" = "Уңышһыҙ";
 "transaction.status.pending" = "Барышта";
+"transaction.detail.status" = "Статус";
 "transaction.detail.date" = "Дата";
 "transaction.details.from" = "Кемдән";
 "wallet.balance.locked" = "Бикләнгән";
@@ -188,8 +189,10 @@
 "coming.soon" = "Тиҙҙән...";
 "wallet.receive.share.message" = "%@ минең адресым %@ алырға:";
 "coming.soon.dev.status" = "Эшләү торошон тикшерергә";
+"comming.soon.roadmap" = "Юл картаһын тикшерергә";
 "tabbar.polkaswap.title" = "Polkaswap";
 "account.export.action" = "Экспортлау";
+"account.export.warning.message" = "Серегеҙҙе тапшырыу ләкин күсереү - бик хәүефле аҙым. Алмаштырыуҙы/күсереүҙе дауам итергә теләйһегеҙ?";
 "account.export.warning.title" = "Һаҡ булығыҙ";
 "account.export.json.hint" = "Серһүҙ аккаунты шифрларға һәм JSON тергеҙеү өсөн кәрәк. Зинһар, дауам итеү өсөн серһүҙҙе индерегеҙ.";
 "common.set.password" = "Серһүҙҙе ҡуйығыҙ";
@@ -211,6 +214,7 @@
 Сид: %@\
 Деривация юлы: %@";
 "common.changed" = "Үҙгәрелде";
+"account.import.json.no.network" = "JSON селтәр мәғлүмәтен һаҡламай. Зинһар, был мәғлүмәтте индерегеҙ.";
 "account.import.wrong.network" = "%@ JSONда селтәр, ул %@ һайланған түгел. Һайланған селтәр аккаунт импорты өсөн ҡулланасаҡ.";
 "common.address" = "Адрес";
 "wallet.asset.buy" = "Һатып алырға";
@@ -229,15 +233,19 @@
 "staking.payout.title" = "Түләргә";
 "staking.reward.restake.subtitle" = "Күберәк награда алырға";
 "staking.reward.destination.desc" = "Беренсе йылдың килеме";
+"staking.payout.subtitle" = "Перевести вознаграждение";
 "staking.payouts.learn.more" = "Узнать больше про выплаты";
 "staking.reward.payout.account" = "Награда аккаунты";
 "staking.selected.accounts.mask" = "Аккаунттар(%d)";
-"staking.recommended.validators.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
 "common.learn.more" = "Узнать больше";
 "staking.custom.validators.title" = "Валидаторҙарҙы һайлағыҙ";
 "staking.recommended.validators.apy" = "Иҫәпләнгән әжер, APY";
 "staking.amount.too.big.error" = "Ғәфү итегеҙ, кәрәккән сумманы стек өсөн етерлек аҡса юҡ";
+"staking.title" = "Стекинг";
+"staking.estimate.earning.title" = "Килемде баһалағыҙ";
+"staking.month.period.title" = "Айлы";
+"staking.year.period.title" = "Йыллы";
 "staking.recommended.title" = "Валидаторҙар";
 "staking.recommended.section.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.section.desc" = "Алгоритм подготовил список рекомендованных валидаторов по следующим критериям:";
@@ -315,3 +323,4 @@
 "wallet.filters.rewards.and.slashes" = "";
 "wallet.filters.extrinsics" = "";
 "wallet.filters.header" = "";
+"transfer.title" = "";
