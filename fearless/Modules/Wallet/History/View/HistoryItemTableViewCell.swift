@@ -7,7 +7,8 @@ final class HistoryItemTableViewCell: UITableViewCell {
         static let verticalInset: CGFloat = 11
         static let iconSize: CGFloat = 32
         static let statusOffset: CGFloat = 4.0
-        static let titleAmountSpacing: CGFloat = 64.0
+        static let titleSpacingForTransfer: CGFloat = 64.0
+        static let titleSpacingForOthers: CGFloat = 8.0
     }
 
     private let transactionTypeView = UIImageView()
@@ -86,7 +87,7 @@ final class HistoryItemTableViewCell: UITableViewCell {
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2.0)
             make.top.equalToSuperview().inset(Constants.verticalInset)
             make.trailing.lessThanOrEqualTo(amountLabel.snp.leading)
-                .offset(-Constants.titleAmountSpacing)
+                .offset(-Constants.titleSpacingForTransfer)
         }
 
         contentView.addSubview(timeLabel)
@@ -161,6 +162,24 @@ extension HistoryItemTableViewCell: WalletViewProtocol {
             case .outgoing, .slash, .extrinsic:
                 amountLabel.text = "- \(itemViewModel.amount)"
                 amountLabel.textColor = R.color.colorWhite()!
+            }
+
+            switch itemViewModel.type {
+            case .incoming, .outgoing:
+                titleLabel.lineBreakMode = .byTruncatingMiddle
+
+                titleLabel.snp.updateConstraints { make in
+                    make.trailing.lessThanOrEqualTo(amountLabel.snp.leading)
+                        .offset(-Constants.titleSpacingForTransfer)
+                }
+
+            case .slash, .reward, .extrinsic:
+                titleLabel.lineBreakMode = .byTruncatingTail
+
+                titleLabel.snp.updateConstraints { make in
+                    make.trailing.lessThanOrEqualTo(amountLabel.snp.leading)
+                        .offset(-Constants.titleSpacingForOthers)
+                }
             }
 
             switch itemViewModel.status {
