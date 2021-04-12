@@ -41,22 +41,31 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
         do {
-            let mergeOperation = try createFetchFirstStepsOperation(
+            let mergeOperationWrapper = try createFetchFirstStepsOperation(
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation
             )
 
-            mergeOperation.completionBlock = {
-                switch mergeOperation.result {
-                case let .success(res):
-                    completion(.success(res.activeEra.description))
-                case let .failure(error):
+            let totalRewards = try createFetchTotalRewardOperation(
+                dependingOn: mergeOperationWrapper.targetOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation
+            )
+            totalRewards.allOperations.forEach { $0.addDependency(mergeOperationWrapper.targetOperation) }
+
+            let operations = [codingFactoryOperation]
+                + mergeOperationWrapper.allOperations
+                + totalRewards.allOperations
+
+            totalRewards.targetOperation.completionBlock = {
+                do {
+                    let res = try totalRewards.targetOperation.extractNoCancellableResultData()
+                    print(res)
+                } catch {
                     completion(.failure(error))
-                default:
-                    break
                 }
             }
-            let operations = [codingFactoryOperation, mergeOperation] + mergeOperation.dependencies
+
             operationManager.enqueue(operations: operations, in: .transient)
         } catch {
             logger?.debug(error.localizedDescription)
