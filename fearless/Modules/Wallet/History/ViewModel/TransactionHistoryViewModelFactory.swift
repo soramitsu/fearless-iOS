@@ -68,9 +68,11 @@ final class TransactionHistoryViewModelFactory {
 
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
+        let subtitle = R.string.localizable.transferTitle(preferredLanguages: locale.rLanguages)
+
         return HistoryItemViewModel(
             title: data.peerName ?? "",
-            subtitle: "Transfer",
+            subtitle: subtitle,
             amount: amount,
             time: time,
             type: txType,
@@ -108,11 +110,15 @@ final class TransactionHistoryViewModelFactory {
 
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
-        let title = txType == .reward ? "Reward" : "Slash"
+        let title = txType == .reward ?
+            R.string.localizable.stakingReward(preferredLanguages: locale.rLanguages) :
+            R.string.localizable.stakingSlash(preferredLanguages: locale.rLanguages)
+
+        let subtitle = R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
 
         return HistoryItemViewModel(
             title: title,
-            subtitle: "Staking",
+            subtitle: subtitle,
             amount: amount,
             time: time,
             type: txType,
@@ -151,8 +157,8 @@ final class TransactionHistoryViewModelFactory {
         let command = commandFactory.prepareTransactionDetailsCommand(with: data)
 
         return HistoryItemViewModel(
-            title: data.peerLastName?.capitalized ?? "",
-            subtitle: data.peerFirstName?.capitalized ?? "",
+            title: data.peerLastName?.displayCall ?? "",
+            subtitle: data.peerFirstName?.displayModule ?? "",
             amount: amount,
             time: time,
             type: txType,

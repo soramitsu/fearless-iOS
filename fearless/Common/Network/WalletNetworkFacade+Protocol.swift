@@ -111,8 +111,9 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
         else {
             let pageData = AssetTransactionPageData(
                 transactions: [],
-                context: historyContext.toContext()
+                context: nil
             )
+
             let operation = BaseOperation<AssetTransactionPageData?>()
             operation.result = .success(pageData)
             return CompoundOperationWrapper(targetOperation: operation)

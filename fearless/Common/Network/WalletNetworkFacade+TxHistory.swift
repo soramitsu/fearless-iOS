@@ -56,7 +56,7 @@ extension WalletNetworkFacade {
 
             return AssetTransactionPageData(
                 transactions: mergeResult.historyItems,
-                context: newHistoryContext.toContext()
+                context: !newHistoryContext.isComplete ? newHistoryContext.toContext() : nil
             )
         }
     }

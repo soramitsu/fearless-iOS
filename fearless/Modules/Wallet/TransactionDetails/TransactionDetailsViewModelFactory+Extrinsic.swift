@@ -39,7 +39,7 @@ extension TransactionDetailsViewModelFactory {
             populateTitleWithDetails(
                 into: &viewModels,
                 title: title,
-                details: module.capitalized
+                details: module.displayModule
             )
         }
 
@@ -48,7 +48,7 @@ extension TransactionDetailsViewModelFactory {
             populateTitleWithDetails(
                 into: &viewModels,
                 title: title,
-                details: call.capitalized
+                details: call.displayCall
             )
         }
 
