@@ -13,7 +13,7 @@ final class ServiceCoordinator {
     let validatorService: EraValidatorServiceProtocol
     let gitHubPhishingAPIService: ApplicationServiceProtocol
     let rewardCalculatorService: RewardCalculatorServiceProtocol
-    let payoutRewardsService: PayoutRewardsServiceProtocol
+    // let payoutRewardsService: PayoutRewardsServiceProtocol
     let settings: SettingsManagerProtocol
 
     init(
@@ -22,7 +22,7 @@ final class ServiceCoordinator {
         validatorService: EraValidatorServiceProtocol,
         gitHubPhishingAPIService: ApplicationServiceProtocol,
         rewardCalculatorService: RewardCalculatorServiceProtocol,
-        payoutRewardsService: PayoutRewardsServiceProtocol,
+        // payoutRewardsService _: PayoutRewardsServiceProtocol,
         settings: SettingsManagerProtocol
     ) {
         self.webSocketService = webSocketService
@@ -30,7 +30,7 @@ final class ServiceCoordinator {
         self.validatorService = validatorService
         self.gitHubPhishingAPIService = gitHubPhishingAPIService
         self.rewardCalculatorService = rewardCalculatorService
-        self.payoutRewardsService = payoutRewardsService
+        // self.payoutRewardsService = payoutRewardsService
         self.settings = settings
     }
 
@@ -65,7 +65,7 @@ final class ServiceCoordinator {
 
     private func updatePayoutRewardsService() {
         let chain = settings.selectedConnection.type.chain
-        payoutRewardsService.update(to: chain)
+        // payoutRewardsService.update(to: chain)
     }
 }
 
@@ -126,7 +126,7 @@ extension ServiceCoordinator {
             validatorService: validatorService,
             gitHubPhishingAPIService: gitHubPhishingAPIService,
             rewardCalculatorService: rewardCalculatorService,
-            payoutRewardsService: PayoutRewardsServiceFacade.sharedService,
+            // payoutRewardsService: PayoutRewardsServiceFacade.sharedService,
             settings: SettingsManager.shared
         )
     }
