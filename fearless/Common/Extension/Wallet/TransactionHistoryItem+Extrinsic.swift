@@ -16,11 +16,12 @@ extension TransactionHistoryItem {
                 return nil
             }
 
-            guard let txOrigin = result.extrinsic.sender else {
+            guard let txOrigin = try? result.extrinsic.signature?
+                .address.map(to: MultiAddress.self).accountId else {
                 return nil
             }
 
-            guard let txReceiver = result.call.receiver else {
+            guard let txReceiver = result.call.dest.accountId else {
                 return nil
             }
 
@@ -36,7 +37,7 @@ extension TransactionHistoryItem {
 
             let timestamp = Int64(Date().timeIntervalSince1970)
             let amount = Decimal.fromSubstrateAmount(
-                result.call.amount,
+                result.call.value,
                 precision: addressType.precision
             ) ?? .zero
 

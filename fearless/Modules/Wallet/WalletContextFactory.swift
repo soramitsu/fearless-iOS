@@ -85,7 +85,6 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let networkType = SettingsManager.shared.selectedConnection.type
 
         let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
-        let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
@@ -98,15 +97,21 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             remoteKeyFactory: remoteStorageKeyFactory,
             localKeyFactory: localStorageIdFactory
         )
+        let extrinsicFactory = ExtrinsicOperationFactory(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
 
         let nodeOperationFactory = WalletNetworkOperationFactory(
             engine: connection,
             requestFactory: requestFactory,
             runtimeService: runtimeService,
+            extrinsicFactory: extrinsicFactory,
             accountSettings: accountSettings,
             cryptoType: selectedAccount.cryptoType,
             accountSigner: accountSigner,
-            dummySigner: dummySigner,
             chainStorage:
             AnyDataProviderRepository(chainStorage),
             localStorageIdFactory: localStorageIdFactory
