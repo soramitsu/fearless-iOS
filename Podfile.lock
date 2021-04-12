@@ -38,7 +38,7 @@ PODS:
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
   - ReachabilitySwift (5.0.0)
-  - RobinHood (2.5.1)
+  - RobinHood (2.5.2)
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
@@ -108,7 +108,7 @@ DEPENDENCIES:
   - FireMock
   - R.swift
   - ReachabilitySwift
-  - RobinHood
+  - RobinHood (from `https://github.com/soramitsu/robinhood-ios.git`, commit `fdeb35605aff21eea17acaa7623c5b84e84e8870`)
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 0.9.0)
   - SoraKeystore
@@ -128,7 +128,6 @@ SPEC REPOS:
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
-    - RobinHood
     - scrypt.c
     - secp256k1.c
     - SnapKit
@@ -149,6 +148,9 @@ EXTERNAL SOURCES:
   FearlessUtils:
     :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  RobinHood:
+    :commit: fdeb35605aff21eea17acaa7623c5b84e84e8870
+    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
@@ -160,6 +162,9 @@ CHECKOUT OPTIONS:
   FearlessUtils:
     :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
+  RobinHood:
+    :commit: fdeb35605aff21eea17acaa7623c5b84e84e8870
+    :git: https://github.com/soramitsu/robinhood-ios.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
@@ -174,7 +179,7 @@ SPEC CHECKSUMS:
   R.swift: 56ec7e3aef34b9eee47a659e42462db2c1cc5ac3
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
-  RobinHood: 0ccabe29316ad308b691535e43367cf702a2205a
+  RobinHood: d0f8308b718423288babaa2932af7ec64d0240d1
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
@@ -189,6 +194,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 572514b8b8c9296fd16c9f07af16ff0214293714
+PODFILE CHECKSUM: 6f1f4d61d45adcbd75c60b045a7196a0c0345a7c
 
 COCOAPODS: 1.10.1

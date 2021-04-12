@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SoraFoundation
+import FearlessUtils
 
 enum WalletContextFactoryError: Error {
     case missingAccount
@@ -90,9 +91,18 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             substrateStorageFacade.createRepository()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: networkType.chain)
+        let remoteStorageKeyFactory = StorageKeyFactory()
+        let requestFactory = StorageRequestFactory(remoteFactory: remoteStorageKeyFactory)
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let localStorageRequestFactory = LocalStorageRequestFactory(
+            remoteKeyFactory: remoteStorageKeyFactory,
+            localKeyFactory: localStorageIdFactory
+        )
 
         let nodeOperationFactory = WalletNetworkOperationFactory(
             engine: connection,
+            requestFactory: requestFactory,
+            runtimeService: runtimeService,
             accountSettings: accountSettings,
             cryptoType: selectedAccount.cryptoType,
             accountSigner: accountSigner,
@@ -127,6 +137,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             nodeOperationFactory: nodeOperationFactory,
             subscanOperationFactory: subscanOperationFactory,
             chainStorage: AnyDataProviderRepository(chainStorage),
+            runtimeCodingService: runtimeService,
+            localStorageRequestFactory: localStorageRequestFactory,
             localStorageIdFactory: localStorageIdFactory,
             txStorage: AnyDataProviderRepository(txStorage),
             contactsOperationFactory: contactOperationFactory,

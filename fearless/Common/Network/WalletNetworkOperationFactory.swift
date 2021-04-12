@@ -8,6 +8,8 @@ import FearlessUtils
 final class WalletNetworkOperationFactory {
     let accountSettings: WalletAccountSettingsProtocol
     let engine: JSONRPCEngine
+    let requestFactory: StorageRequestFactoryProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
     let accountSigner: IRSignatureCreatorProtocol
     let dummySigner: IRSignatureCreatorProtocol
     let cryptoType: CryptoType
@@ -16,6 +18,8 @@ final class WalletNetworkOperationFactory {
 
     init(
         engine: JSONRPCEngine,
+        requestFactory: StorageRequestFactoryProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         accountSettings: WalletAccountSettingsProtocol,
         cryptoType: CryptoType,
         accountSigner: IRSignatureCreatorProtocol,
@@ -24,6 +28,8 @@ final class WalletNetworkOperationFactory {
         localStorageIdFactory: ChainStorageIdFactoryProtocol
     ) {
         self.engine = engine
+        self.requestFactory = requestFactory
+        self.runtimeService = runtimeService
         self.accountSettings = accountSettings
         self.cryptoType = cryptoType
         self.accountSigner = accountSigner
@@ -60,63 +66,27 @@ final class WalletNetworkOperationFactory {
         }
     }
 
-    func createAccountInfoFetchOperation(
-        _ accountId: Data
-    ) -> CompoundOperationWrapper<AccountInfo?> {
-        do {
-            let storageKeyFactory = StorageKeyFactory()
-            let accountIdKey = try storageKeyFactory.accountInfoKeyForId(accountId).toHex(includePrefix: true)
+    func createAccountInfoFetchOperation(_ accountId: Data) -> CompoundOperationWrapper<DyAccountInfo?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-            let upgradedOperation = createUpgradedInfoFetchOperation()
+        let wrapper: CompoundOperationWrapper<[StorageResponse<DyAccountInfo>]> = requestFactory.queryItems(
+            engine: engine,
+            keyParams: { [accountId] },
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: StorageCodingPath.account
+        )
 
-            let operation = JSONRPCOperation<[[String]], [StorageUpdate]>(
-                engine: engine,
-                method: RPCMethod.queryStorageAt,
-                parameters: [[accountIdKey]]
-            )
-
-            let mapOperation = ClosureOperation<AccountInfo?> {
-                let storageUpdates = try operation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
-
-                let storageUpdateDataList = storageUpdates.map { update in
-                    StorageUpdateData(update: update)
-                }
-
-                let upgraded = (try upgradedOperation.targetOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled)) ?? false
-
-                let accountInfo: AccountInfo? = try storageUpdateDataList.reduce(nil) { result, updateData in
-                    guard result == nil else {
-                        return result
-                    }
-
-                    if upgraded {
-                        if let value: AccountInfo = try updateData.decodeUpdatedData(for: accountIdKey) {
-                            return value
-                        } else {
-                            return result
-                        }
-                    } else {
-                        if let value: AccountInfoV27 = try updateData.decodeUpdatedData(for: accountIdKey) {
-                            return AccountInfo(v27: value)
-                        } else {
-                            return result
-                        }
-                    }
-                }
-
-                return accountInfo
-            }
-
-            let dependencies = [operation] + upgradedOperation.allOperations
-
-            dependencies.forEach { mapOperation.addDependency($0) }
-
-            return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
-        } catch {
-            return createCompoundOperation(result: .failure(error))
+        let mapOperation = ClosureOperation<DyAccountInfo?> {
+            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
         }
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let dependencies = [coderFactoryOperation] + wrapper.allOperations
+
+        dependencies.forEach { mapOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 
     func createExtrinsicNonceFetchOperation(_ chain: Chain, accountId: Data? = nil) -> BaseOperation<UInt32> {

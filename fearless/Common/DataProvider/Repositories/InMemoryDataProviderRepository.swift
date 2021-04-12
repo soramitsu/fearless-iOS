@@ -12,7 +12,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
     private let lock = NSLock()
 
     func fetchOperation(
-        by modelId: String,
+        by modelIdClosure: @escaping () throws -> String,
         options _: RepositoryFetchOptions
     ) -> BaseOperation<Model?> {
         ClosureOperation { [weak self] in
@@ -22,6 +22,7 @@ final class InMemoryDataProviderRepository<T: Identifiable>: DataProviderReposit
                 self?.lock.unlock()
             }
 
+            let modelId = try modelIdClosure()
             return self?.itemsById[modelId]
         }
     }

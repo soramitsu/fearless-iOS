@@ -158,12 +158,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable {
-        let currentRemoteFactory = remoteFactory
-
-        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(
-            path: storagePath,
-            storageKeyFactory: currentRemoteFactory
-        )
+        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(path: storagePath, storageKeyFactory: remoteFactory)
 
         keysOperation.configurationBlock = {
             do {
