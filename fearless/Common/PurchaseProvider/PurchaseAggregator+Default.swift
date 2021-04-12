@@ -5,7 +5,7 @@ extension PurchaseAggregator {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
         let purchaseProviders: [PurchaseProviderProtocol] = [
             RampProvider(),
-            MoonpayProvider()
+            MoonpayProviderFactory().createProvider()
         ]
         return PurchaseAggregator(providers: purchaseProviders)
             .with(appName: config.purchaseAppName)

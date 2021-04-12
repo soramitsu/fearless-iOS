@@ -42,9 +42,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
         // given
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
 
-        let apiKey = "pk_test_DMRuyL6Nf1qc9OzjPBmCFBeCGkFwiZs0"
-        // TODO: Obtain keys from one source
-//        let privateKey = "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY"
+        let apiKey = "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
         let redirectUrl = config.purchaseRedirect
         let colorCode = R.color.colorAccent()!.hexRGB
 
@@ -52,9 +50,9 @@ class WalletPurchaseProvidersTests: XCTestCase {
         let query = "apiKey=\(apiKey)&currencyCode=DOT&walletAddress=\(address)&showWalletAddressForm=true&colorCode=\(colorCode)&redirectURL=\(redirectUrl)"
             .addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
 
-        let expectedUrl = "https://buy.moonpay.com/?\(query)&signature=LRdpyxOJQXNnN%2BNAwXizf4Ptud5AJzo5CL2gLVHzonU%3D"
+        let expectedUrl = "https://buy.moonpay.com/?\(query)&signature=KvkXAp%2Fhy0rpb2WfQ399sM9YIOS4pDXUq2n7QjCedNs%3D"
 
-        let provider = MoonpayProvider()
+        let provider = MoonpayProviderFactory().createProvider()
             .with(colorCode: R.color.colorAccent()!.hexRGB)
             .with(callbackUrl: config.purchaseRedirect)
 

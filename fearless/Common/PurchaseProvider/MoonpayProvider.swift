@@ -3,12 +3,13 @@ import FearlessUtils
 import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
-    // TODO: FLW-644 Replace with production value
-    static let pubToken = "pk_test_DMRuyL6Nf1qc9OzjPBmCFBeCGkFwiZs0"
+    static let pubToken = "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
     static let baseUrlString = "https://buy.moonpay.com/"
 
     private var colorCode: String?
     private var callbackUrl: URL?
+
+    var hmacSigner: HmacSignerProtocol?
 
     func with(colorCode: String) -> Self {
         self.colorCode = colorCode
@@ -44,13 +45,13 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         }
     }
 
-    private func calculateHMAC(for query: String) -> String {
-        // TODO: FLW-644 Replace with production value
-        let hash = query
-            .toHMAC(algorithm: .SHA256, key: "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY")
+    private func calculateHmac(for query: String) throws -> String {
+        guard let signer = hmacSigner else { return "" }
+        let queryData = Data(query.utf8)
+        let signatureData = try signer.sign(queryData)
 
         let base64Hash =
-            try? Data(hexString: hash)
+            signatureData
                 .base64EncodedString()
                 .addingPercentEncoding(withAllowedCharacters: CharacterSet(charactersIn: "+/=").inverted)
 
@@ -81,11 +82,11 @@ final class MoonpayProvider: PurchaseProviderProtocol {
 
         let percentEncodedQuery = components.percentEncodedQuery ?? ""
         let query = "?\(percentEncodedQuery)"
-        let signature = calculateHMAC(for: query)
+        let signature = try? calculateHmac(for: query)
 
         components.percentEncodedQueryItems?.append(URLQueryItem(
             name: "signature",
-            value: signature
+            value: signature ?? ""
         ))
 
         return components.url
