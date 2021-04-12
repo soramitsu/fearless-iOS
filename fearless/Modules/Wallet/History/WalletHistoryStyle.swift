@@ -20,7 +20,8 @@ extension HistoryViewStyle {
             panIndicatorStyle: UIColor.white,
             shouldInsertFullscreenShadow: false,
             shadow: nil,
-            separatorStyle: nil
+            separatorStyle: nil,
+            pageLoadingIndicatorColor: R.color.colorTransparentText()
         )
     }
 }

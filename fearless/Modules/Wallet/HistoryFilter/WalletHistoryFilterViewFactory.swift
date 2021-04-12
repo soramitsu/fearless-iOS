@@ -16,7 +16,11 @@ final class WalletHistoryFilterViewFactory: WalletHistoryFilterViewFactoryProtoc
             localizationManager: LocalizationManager.shared
         )
 
-        let wireframe = WalletHistoryFilterWireframe(commandFactory: commandFactory, delegate: delegate)
+        let wireframe = WalletHistoryFilterWireframe(
+            originalRequest: request,
+            commandFactory: commandFactory,
+            delegate: delegate
+        )
 
         presenter.view = view
         presenter.wireframe = wireframe
