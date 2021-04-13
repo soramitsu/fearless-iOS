@@ -7,6 +7,10 @@ struct PayoutSteps1To3Result {
     let currentEra: EraIndex
     let activeEra: EraIndex
     let historyDepth: UInt32
+
+    var erasRange: [EraIndex] {
+        Array(currentEra - historyDepth ... activeEra - 1)
+    }
 }
 
 struct PayoutSteps4And5Result {
@@ -359,5 +363,24 @@ extension PayoutRewardsService {
             targetOperation: mergeOperation,
             dependencies: [mapOperation] + wrapper.allOperations
         )
+    }
+
+    func createUnclaimedEraByStashOperation(
+        ledgerInfoOperation: BaseOperation<[DyStakingLedger]>,
+        steps1to3Operation: BaseOperation<PayoutSteps1To3Result>
+    ) throws -> CompoundOperationWrapper<[Data: Set<EraIndex>]> {
+        let mergeOperation = ClosureOperation<[Data: Set<EraIndex>]> {
+            let ledgerInfo = try ledgerInfoOperation.extractNoCancellableResultData()
+            let erasRange = try steps1to3Operation.extractNoCancellableResultData().erasRange
+
+            return ledgerInfo
+                .reduce(into: [Data: Set<EraIndex>]()) { dict, ledger in
+                    let erasClaimedRewards = Set(ledger.claimedRewards.map(\.value))
+                    let erasUnclaimedRewards = Set(erasRange).subtracting(erasClaimedRewards)
+                    dict[ledger.stash] = erasUnclaimedRewards
+                }
+        }
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation)
     }
 }

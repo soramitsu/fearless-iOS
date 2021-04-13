@@ -93,15 +93,29 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     ledgerInfos.allOperations
                         .forEach { $0.addDependency(controllersWrapper.targetOperation) }
 
-                    ledgerInfos.targetOperation.completionBlock = {
+                    let unclaimedErasByStashOperation = try self.createUnclaimedEraByStashOperation(
+                        ledgerInfoOperation: ledgerInfos.targetOperation,
+                        steps1to3Operation: steps1to3OperationWrapper.targetOperation
+                    )
+                    unclaimedErasByStashOperation.allOperations.forEach { $0.addDependency(ledgerInfos.targetOperation)
+                        $0.addDependency(steps1to3OperationWrapper.targetOperation)
+                    }
+
+                    unclaimedErasByStashOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! ledgerInfos
+                        let res = try! unclaimedErasByStashOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
 
+                    let operations: [Operation] =
+                        validatorsWrapper.allOperations
+                            + controllersWrapper.allOperations
+                            + ledgerInfos.allOperations
+                            + unclaimedErasByStashOperation.allOperations
+
                     self.operationManager.enqueue(
-                        operations: validatorsWrapper.allOperations + controllersWrapper.allOperations + ledgerInfos.allOperations,
+                        operations: operations,
                         in: .transient
                     )
                 } catch {
@@ -113,15 +127,6 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                 + steps1to3OperationWrapper.allOperations
                 + steps4And5OperationWrapper.allOperations
                 + nominationHistoryStep6Controllers.allOperations
-
-            steps4And5OperationWrapper.targetOperation.completionBlock = {
-                do {
-                    let res = try steps4And5OperationWrapper.targetOperation.extractNoCancellableResultData()
-                    print(res)
-                } catch {
-                    completion(.failure(error))
-                }
-            }
 
             operationManager.enqueue(operations: operations, in: .transient)
         } catch {
