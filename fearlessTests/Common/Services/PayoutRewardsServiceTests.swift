@@ -33,7 +33,7 @@ class PayoutRewardsServiceTests: XCTestCase {
 
         let service = PayoutRewardsService(
             selectedAccountAddress: selectedAccount,
-            chain: .westend,
+            chain: chain,
             runtimeCodingService: runtimeService,
             engine: connection,
             operationManager: operationManager,

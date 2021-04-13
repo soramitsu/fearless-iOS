@@ -101,9 +101,17 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                         $0.addDependency(steps1to3OperationWrapper.targetOperation)
                     }
 
-                    unclaimedErasByStashOperation.targetOperation.completionBlock = {
+                    let exposureByEraOperation = try self.createValidatorInfoDataGroupedByValidatorStash(
+                        dependingOn: unclaimedErasByStashOperation.targetOperation,
+                        engine: self.engine,
+                        codingFactoryOperation: codingFactoryOperation
+                    )
+                    exposureByEraOperation.allOperations
+                        .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
+
+                    exposureByEraOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! unclaimedErasByStashOperation
+                        let res = try! exposureByEraOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
@@ -113,6 +121,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                             + controllersWrapper.allOperations
                             + ledgerInfos.allOperations
                             + unclaimedErasByStashOperation.allOperations
+                            + exposureByEraOperation.allOperations
 
                     self.operationManager.enqueue(
                         operations: operations,

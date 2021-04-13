@@ -383,4 +383,74 @@ extension PayoutRewardsService {
 
         return CompoundOperationWrapper(targetOperation: mergeOperation)
     }
+
+    func createValidatorInfoDataGroupedByValidatorStash(
+        dependingOn unclaimedRewardsOperation: BaseOperation<[Data: Set<EraIndex>]>,
+        engine _: JSONRPCEngine,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) throws -> CompoundOperationWrapper<[EraIndex: [(Data, ValidatorExposure)]]> {
+        let mapOperation = DoubleMapKeyEncodingOperation<String, Data>(
+            path: .validatorExposureClipped,
+            storageKeyFactory: StorageKeyFactory()
+        )
+
+        mapOperation.configurationBlock = {
+            do {
+                let unclaimedRewards = try unclaimedRewardsOperation
+                    .extractNoCancellableResultData()
+                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+                let params = unclaimedRewards
+                    .reduce(([String](), [Data]())) { tuple, keyValue in
+                        let eras = Array(keyValue.value.map(\.description))
+                        let accounIds = Array(repeating: keyValue.key, count: eras.count)
+                        return (tuple.0 + eras, tuple.1 + accounIds)
+                    }
+                mapOperation.keyParams1 = params.0
+                mapOperation.keyParams2 = params.1
+            } catch {
+                mapOperation.result = .failure(error)
+            }
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keys: { try mapOperation.extractNoCancellableResultData() },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .validatorExposureClipped
+            )
+        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
+
+        let mergeOperation = ClosureOperation<[EraIndex: [(Data, ValidatorExposure)]]> {
+            let unclaimedRewards = try unclaimedRewardsOperation
+                .extractNoCancellableResultData()
+            let params = unclaimedRewards
+                .reduce(([String](), [Data]())) { tuple, keyValue in
+                    let eras = Array(keyValue.value.map(\.description))
+                    let accounIds = Array(repeating: keyValue.key, count: eras.count)
+                    return (tuple.0 + eras, tuple.1 + accounIds)
+                }
+            let keys = try mapOperation.extractNoCancellableResultData()
+            let responses = try wrapper.targetOperation.extractNoCancellableResultData()
+            // .compactMap(\.value)
+            return responses
+                .reduce(into: [EraIndex: [(Data, ValidatorExposure)]]()) { dict, item in
+                    guard
+                        let exposure = item.value,
+                        let keyIndex = keys.firstIndex(of: item.key),
+                        let era = EraIndex(params.0[keyIndex])
+                    else { return }
+                    let accountId = params.1[keyIndex]
+                    dict[era]?.append((accountId, exposure))
+                }
+        }
+        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: [mapOperation] + wrapper.allOperations
+        )
+    }
 }
