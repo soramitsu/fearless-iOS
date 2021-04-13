@@ -41,42 +41,26 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
         do {
-            let mergeOperationWrapper = try createFetchFirstStepsOperation(
+            let steps1to3OperationWrapper = try createSteps1To3OperationWrapper(
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation
             )
 
-            let totalRewards = try createFetchTotalRewardOperation(
-                dependingOn: mergeOperationWrapper.targetOperation,
+            let steps4And5OperationWrapper = try createSteps4And5OperationWrapper(
+                dependingOn: steps1to3OperationWrapper.targetOperation,
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation
             )
-            totalRewards.allOperations.forEach { $0.addDependency(mergeOperationWrapper.targetOperation) }
-
-            let validatorRewardPoints = try createValidatorRewardPointsOperation(
-                dependingOn: mergeOperationWrapper.targetOperation,
-                engine: engine,
-                codingFactoryOperation: codingFactoryOperation
-            )
-            validatorRewardPoints.allOperations.forEach { $0.addDependency(mergeOperationWrapper.targetOperation) }
+            steps4And5OperationWrapper.allOperations
+                .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
             let operations = [codingFactoryOperation]
-                + mergeOperationWrapper.allOperations
-                + totalRewards.allOperations
-                + validatorRewardPoints.allOperations
+                + steps1to3OperationWrapper.allOperations
+                + steps4And5OperationWrapper.allOperations
 
-            totalRewards.targetOperation.completionBlock = {
+            steps4And5OperationWrapper.targetOperation.completionBlock = {
                 do {
-                    let res = try totalRewards.targetOperation.extractNoCancellableResultData()
-                    print(res)
-                } catch {
-                    completion(.failure(error))
-                }
-            }
-
-            validatorRewardPoints.targetOperation.completionBlock = {
-                do {
-                    let res = try validatorRewardPoints.targetOperation.extractNoCancellableResultData()
+                    let res = try steps4And5OperationWrapper.targetOperation.extractNoCancellableResultData()
                     print(res)
                 } catch {
                     completion(.failure(error))

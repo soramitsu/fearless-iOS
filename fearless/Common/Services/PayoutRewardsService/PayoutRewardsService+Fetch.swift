@@ -2,17 +2,22 @@ import RobinHood
 import FearlessUtils
 import BigInt
 
-struct PayoutFirstStepsResult {
+struct PayoutSteps1To3Result {
     let currentEra: EraIndex
     let activeEra: EraIndex
     let historyDepth: UInt32
 }
 
+struct PayoutSteps4And5Result {
+    let totalValidatorRewardByEra: [EraIndex: BigUInt]
+    let validatorPointsDistributionByEra: [EraIndex: EraRewardPoints]
+}
+
 extension PayoutRewardsService {
-    func createFetchFirstStepsOperation(
+    func createSteps1To3OperationWrapper(
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<PayoutFirstStepsResult> {
+    ) throws -> CompoundOperationWrapper<PayoutSteps1To3Result> {
         let currentEra = createCurrentEraWrapper(
             engine: engine,
             codingFactory: { try codingFactoryOperation.extractNoCancellableResultData() }
@@ -31,7 +36,7 @@ extension PayoutRewardsService {
         )
         historyDepth.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let mergeOperation = ClosureOperation<PayoutFirstStepsResult> {
+        let mergeOperation = ClosureOperation<PayoutSteps1To3Result> {
             guard
                 let currentEra = try currentEra.targetOperation.extractNoCancellableResultData()
                 .first?.value?.value,
@@ -43,7 +48,7 @@ extension PayoutRewardsService {
                 throw PayoutError.unknown
             }
 
-            return PayoutFirstStepsResult(
+            return PayoutSteps1To3Result(
                 currentEra: currentEra,
                 activeEra: activeEra,
                 historyDepth: historyDepth
@@ -54,15 +59,54 @@ extension PayoutRewardsService {
         activeEra.allOperations.forEach { mergeOperation.addDependency($0) }
         historyDepth.allOperations.forEach { mergeOperation.addDependency($0) }
 
-        let res = CompoundOperationWrapper(
+        return CompoundOperationWrapper(
             targetOperation: mergeOperation,
             dependencies: currentEra.allOperations + activeEra.allOperations + historyDepth.allOperations
         )
-        return res
+    }
+
+    func createSteps4And5OperationWrapper(
+        dependingOn baseOperation: BaseOperation<PayoutSteps1To3Result>,
+        engine: JSONRPCEngine,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) throws -> CompoundOperationWrapper<PayoutSteps4And5Result> {
+        let totalRewardOperation = try createFetchTotalRewardOperation(
+            dependingOn: baseOperation,
+            engine: engine,
+            codingFactoryOperation: codingFactoryOperation
+        )
+        totalRewardOperation.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+
+        let validatorRewardPoints = try createValidatorRewardPointsOperation(
+            dependingOn: baseOperation,
+            engine: engine,
+            codingFactoryOperation: codingFactoryOperation
+        )
+        validatorRewardPoints.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+
+        let mergeOperation = ClosureOperation<PayoutSteps4And5Result> {
+            let totalValidatorRewardByEra = try totalRewardOperation
+                .targetOperation.extractNoCancellableResultData()
+            let validatorRewardPoints = try validatorRewardPoints
+                .targetOperation.extractNoCancellableResultData()
+
+            return PayoutSteps4And5Result(
+                totalValidatorRewardByEra: totalValidatorRewardByEra,
+                validatorPointsDistributionByEra: validatorRewardPoints
+            )
+        }
+
+        let mergeOperationDependencies = totalRewardOperation.allOperations + validatorRewardPoints.allOperations
+        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: mergeOperationDependencies
+        )
     }
 
     func createFetchTotalRewardOperation(
-        dependingOn basedOperation: BaseOperation<PayoutFirstStepsResult>,
+        dependingOn basedOperation: BaseOperation<PayoutSteps1To3Result>,
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) throws -> CompoundOperationWrapper<[EraIndex: BigUInt]> {
@@ -121,7 +165,7 @@ extension PayoutRewardsService {
     }
 
     func createValidatorRewardPointsOperation(
-        dependingOn baseOperation: BaseOperation<PayoutFirstStepsResult>,
+        dependingOn baseOperation: BaseOperation<PayoutSteps1To3Result>,
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) throws -> CompoundOperationWrapper<[EraIndex: EraRewardPoints]> {
