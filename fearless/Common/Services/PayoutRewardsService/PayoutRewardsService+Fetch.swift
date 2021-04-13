@@ -317,4 +317,47 @@ extension PayoutRewardsService {
             dependencies: [mapOperation] + wrapper.allOperations
         )
     }
+
+    func createLedgerInfoOperation(
+        dependingOn controllersOperation: BaseOperation<[Data]>,
+        engine: JSONRPCEngine,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) throws -> CompoundOperationWrapper<[DyStakingLedger]> {
+        let mapOperation = MapKeyEncodingOperation<Data>(
+            path: .stakingLedger,
+            storageKeyFactory: StorageKeyFactory()
+        )
+
+        mapOperation.configurationBlock = {
+            do {
+                let controllers = try controllersOperation.extractNoCancellableResultData()
+                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+                mapOperation.keyParams = controllers
+            } catch {
+                mapOperation.result = .failure(error)
+            }
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<DyStakingLedger>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keys: { try mapOperation.extractNoCancellableResultData() },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .stakingLedger
+            )
+        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
+
+        let mergeOperation = ClosureOperation<[DyStakingLedger]> {
+            try wrapper.targetOperation.extractNoCancellableResultData()
+                .compactMap(\.value)
+        }
+        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: [mapOperation] + wrapper.allOperations
+        )
+    }
 }

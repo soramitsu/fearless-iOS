@@ -85,15 +85,23 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     controllersWrapper.allOperations
                         .forEach { $0.addDependency(validatorsWrapper.targetOperation) }
 
-                    controllersWrapper.targetOperation.completionBlock = {
+                    let ledgerInfos = try self.createLedgerInfoOperation(
+                        dependingOn: controllersWrapper.targetOperation,
+                        engine: self.engine,
+                        codingFactoryOperation: codingFactoryOperation
+                    )
+                    ledgerInfos.allOperations
+                        .forEach { $0.addDependency(controllersWrapper.targetOperation) }
+
+                    ledgerInfos.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! controllersWrapper
+                        let res = try! ledgerInfos
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
 
                     self.operationManager.enqueue(
-                        operations: validatorsWrapper.allOperations + controllersWrapper.allOperations,
+                        operations: validatorsWrapper.allOperations + controllersWrapper.allOperations + ledgerInfos.allOperations,
                         in: .transient
                     )
                 } catch {
