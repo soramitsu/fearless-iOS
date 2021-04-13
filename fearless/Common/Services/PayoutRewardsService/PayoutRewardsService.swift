@@ -59,7 +59,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             steps4And5OperationWrapper.allOperations
                 .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
-            let nominationHistoryStep6Controllers = try createControllersOperation(
+            let nominationHistoryStep6Controllers = try createControllersStep6Operation(
                 nominatorAccount: selectedAccountAddress,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory
@@ -76,15 +76,24 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                         subscanOperationFactory: self.subscanOperationFactory
                     )
 
-                    validatorsWrapper.targetOperation.completionBlock = {
+                    let controllersWrapper = try self.createControllersByValidatorStashOperation(
+                        dependingOn: validatorsWrapper.targetOperation,
+                        chain: self.chain,
+                        engine: self.engine,
+                        codingFactoryOperation: codingFactoryOperation
+                    )
+                    controllersWrapper.allOperations
+                        .forEach { $0.addDependency(validatorsWrapper.targetOperation) }
+
+                    controllersWrapper.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! validatorsWrapper
+                        let res = try! controllersWrapper
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
 
                     self.operationManager.enqueue(
-                        operations: validatorsWrapper.allOperations,
+                        operations: validatorsWrapper.allOperations + controllersWrapper.allOperations,
                         in: .transient
                     )
                 } catch {

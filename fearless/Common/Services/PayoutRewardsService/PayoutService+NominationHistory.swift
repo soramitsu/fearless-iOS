@@ -3,7 +3,7 @@ import FearlessUtils
 import BigInt
 
 extension PayoutRewardsService {
-    func createControllersOperation(
+    func createControllersStep6Operation(
         nominatorAccount: String,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol

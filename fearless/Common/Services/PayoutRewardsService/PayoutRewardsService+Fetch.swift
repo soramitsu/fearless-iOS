@@ -1,6 +1,7 @@
 import RobinHood
 import FearlessUtils
 import BigInt
+import IrohaCrypto
 
 struct PayoutSteps1To3Result {
     let currentEra: EraIndex
@@ -267,6 +268,53 @@ extension PayoutRewardsService {
             keys: { [try keyFactory.historyDepth()] },
             factory: codingFactory,
             storagePath: .historyDepth
+        )
+    }
+
+    func createControllersByValidatorStashOperation(
+        dependingOn validatorStashOperation: BaseOperation<Set<String>>,
+        chain: Chain,
+        engine: JSONRPCEngine,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
+    ) throws -> CompoundOperationWrapper<[Data]> {
+        let mapOperation = MapKeyEncodingOperation<Data>(
+            path: .controller,
+            storageKeyFactory: StorageKeyFactory()
+        )
+
+        mapOperation.configurationBlock = {
+            do {
+                let addresses = try validatorStashOperation.extractNoCancellableResultData()
+                let addressFactory = SS58AddressFactory()
+                let accountIds = addresses
+                    .compactMap { try? addressFactory.accountId(fromAddress: $0, type: chain.addressType) }
+                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+                mapOperation.keyParams = accountIds
+            } catch {
+                mapOperation.result = .failure(error)
+            }
+        }
+
+        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<Data>]> =
+            requestFactory.queryItems(
+                engine: engine,
+                keys: { try mapOperation.extractNoCancellableResultData() },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .controller
+            )
+        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
+
+        let mergeOperation = ClosureOperation<[Data]> {
+            try wrapper.targetOperation.extractNoCancellableResultData()
+                .compactMap(\.value)
+        }
+        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: [mapOperation] + wrapper.allOperations
         )
     }
 }
