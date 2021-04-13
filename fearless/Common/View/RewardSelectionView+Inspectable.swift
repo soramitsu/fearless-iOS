@@ -304,11 +304,22 @@ extension RewardSelectionView {
     @IBInspectable
     private var _selectionIcon: UIImage? {
         get {
-            iconView.image
+            iconView.image(for: .selected)
         }
 
         set {
-            iconView.image = newValue
+            iconView.setImage(newValue, for: .selected)
+        }
+    }
+
+    @IBInspectable
+    private var _defaultIcon: UIImage? {
+        get {
+            iconView.image(for: .normal)
+        }
+
+        set {
+            iconView.setImage(newValue, for: .normal)
         }
     }
 }
