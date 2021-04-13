@@ -40,3 +40,20 @@ enum ElectionStatus: Decodable, Equatable, ScaleDecodable {
         }
     }
 }
+
+extension ElectionStatus {
+    init(phase: ElectionPhase) {
+        switch phase {
+        case .off:
+            self = .close
+        case .signed:
+            self = .open(blockNumber: 0)
+        case let .unsigned(isOpen, blockNumber):
+            if isOpen {
+                self = .open(blockNumber: blockNumber)
+            } else {
+                self = .close
+            }
+        }
+    }
+}
