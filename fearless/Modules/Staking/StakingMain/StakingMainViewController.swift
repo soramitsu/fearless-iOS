@@ -391,7 +391,7 @@ extension StakingMainViewController: ValidationViewDelegate {
     }
 
     func validationViewDidReceiveStatusAction(_: ValidationView) {
-        presenter.performNominationStatusAction()
+        presenter.performValidationStatusAction()
     }
 }
 

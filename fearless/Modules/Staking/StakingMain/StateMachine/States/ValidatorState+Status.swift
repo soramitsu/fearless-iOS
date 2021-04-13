@@ -30,24 +30,22 @@ extension ValidatorState {
     }
 
     func createStatusPresentableViewModel(
-        for minimumStake: BigUInt?,
-        locale: Locale?
+        for locale: Locale?
     ) -> AlertPresentableViewModel? {
         switch status {
         case .active:
-            return createActiveStatus(for: minimumStake, locale: locale)
+            return createActiveStatus(for: locale)
         case .inactive:
-            return createInactiveStatus(for: minimumStake, locale: locale)
+            return createInactiveStatus(for: locale)
         case .election:
-            return createElectionStatus(for: minimumStake, locale: locale)
+            return createElectionStatus(for: locale)
         case .undefined:
-            return createUndefinedStatus(for: minimumStake, locale: locale)
+            return createUndefinedStatus(for: locale)
         }
     }
 
     private func createActiveStatus(
-        for _: BigUInt?,
-        locale: Locale?
+        for locale: Locale?
     ) -> AlertPresentableViewModel? {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
@@ -64,25 +62,13 @@ extension ValidatorState {
     }
 
     private func createInactiveStatus(
-        for minimumStake: BigUInt?,
-        locale: Locale?
+        for locale: Locale?
     ) -> AlertPresentableViewModel? {
-        guard let minimumStake = minimumStake else {
-            return nil
-        }
-
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
             .stakingNominatorStatusAlertInactiveTitle(preferredLanguages: locale?.rLanguages)
-        let message: String
-
-        if ledgerInfo.active < minimumStake {
-            message = R.string.localizable
-                .stakingNominatorStatusAlertLowStake(preferredLanguages: locale?.rLanguages)
-        } else {
-            message = R.string.localizable
-                .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)
-        }
+        let message = R.string.localizable
+            .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)
 
         return AlertPresentableViewModel(
             title: title,
@@ -93,8 +79,7 @@ extension ValidatorState {
     }
 
     private func createElectionStatus(
-        for _: BigUInt?,
-        locale: Locale?
+        for locale: Locale?
     ) -> AlertPresentableViewModel? {
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable
@@ -111,8 +96,7 @@ extension ValidatorState {
     }
 
     private func createUndefinedStatus(
-        for _: BigUInt?,
-        locale _: Locale?
+        for _: Locale?
     ) -> AlertPresentableViewModel? {
         nil
     }

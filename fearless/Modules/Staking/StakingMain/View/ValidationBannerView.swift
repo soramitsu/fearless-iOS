@@ -1,6 +1,6 @@
 import UIKit
 
-final class ValidationDummyView: LocalizableView {
+final class ValidationBannerView: LocalizableView {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var detailsLabel: UILabel!
 
