@@ -237,8 +237,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         scrollView.layoutIfNeeded()
     }
 
-    private func applyValidator() {
-        _ = setupValidatorViewIfNeeded()
+    private func applyValidator(viewModel: LocalizableResource<ValidationViewModelProtocol>) {
+        let validationView = setupValidatorViewIfNeeded()
+        validationView?.delegate = self
+        validationView?.bind(viewModel: viewModel)
     }
 }
 
@@ -305,8 +307,8 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyNoStash(viewModel: viewModel)
         case let .nominator(viewModel):
             applyNomination(viewModel: viewModel)
-        case .validator:
-            applyValidator()
+        case let .validator(viewModel):
+            applyValidator(viewModel: viewModel)
         }
     }
 }
@@ -379,6 +381,16 @@ extension StakingMainViewController: NominationViewDelegate {
     }
 
     func nominationViewDidReceiveStatusAction(_: NominationView) {
+        presenter.performNominationStatusAction()
+    }
+}
+
+extension StakingMainViewController: ValidationViewDelegate {
+    func validationViewDidReceiveMoreAction(_: ValidationView) {
+        presenter.performManageStakingAction()
+    }
+
+    func validationViewDidReceiveStatusAction(_: ValidationView) {
         presenter.performNominationStatusAction()
     }
 }
