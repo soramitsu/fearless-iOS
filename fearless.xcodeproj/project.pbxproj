@@ -162,8 +162,8 @@
 		841937832544455C00CFA50C /* AccountShareFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841937822544455C00CFA50C /* AccountShareFactory.swift */; };
 		841937872544772F00CFA50C /* animatedBg.gif in Resources */ = {isa = PBXBuildFile; fileRef = 841937862544772F00CFA50C /* animatedBg.gif */; };
 		841B45292603D91800C08693 /* EraValidatorsServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */; };
-		841B456D26048F9600C08693 /* ValidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B456C26048F9600C08693 /* ValidationView.swift */; };
-		841B45722604903100C08693 /* ValidationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 841B45712604903100C08693 /* ValidationView.xib */; };
+		841B456D26048F9600C08693 /* ValidationBannerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841B456C26048F9600C08693 /* ValidationBannerView.swift */; };
+		841B45722604903100C08693 /* ValidationBannerView.xib in Resources */ = {isa = PBXBuildFile; fileRef = 841B45712604903100C08693 /* ValidationBannerView.xib */; };
 		841E6AF625EC12100007DDFE /* PreparedNomination.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AF525EC12100007DDFE /* PreparedNomination.swift */; };
 		841E6AFE25EC12DE0007DDFE /* SelectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */; };
 		841E6B0A25EC1C140007DDFE /* ValidatorOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */; };
@@ -906,6 +906,10 @@
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
 		AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */; };
 		AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84403D8725E92A9C00494FD4 /* InitiatedBonding.swift */; };
+		AEF507C8262573870098574D /* ValidationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AEF507C7262573870098574D /* ValidationView.xib */; };
+		AEF507CD262573970098574D /* ValidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF507CC262573970098574D /* ValidationView.swift */; };
+		AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF507F126259DF00098574D /* ValidationViewModel.swift */; };
+		AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF507F62625A3280098574D /* ValidatorState+Status.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
 		AEFA82BC4285117096BCBB16 /* StakingPayoutConfirmationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */; };
@@ -1161,8 +1165,8 @@
 		841937822544455C00CFA50C /* AccountShareFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountShareFactory.swift; sourceTree = "<group>"; };
 		841937862544772F00CFA50C /* animatedBg.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; path = animatedBg.gif; sourceTree = "<group>"; };
 		841B45282603D91800C08693 /* EraValidatorsServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraValidatorsServiceStub.swift; sourceTree = "<group>"; };
-		841B456C26048F9600C08693 /* ValidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationView.swift; sourceTree = "<group>"; };
-		841B45712604903100C08693 /* ValidationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidationView.xib; sourceTree = "<group>"; };
+		841B456C26048F9600C08693 /* ValidationBannerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationBannerView.swift; sourceTree = "<group>"; };
+		841B45712604903100C08693 /* ValidationBannerView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidationBannerView.xib; sourceTree = "<group>"; };
 		841E6AF525EC12100007DDFE /* PreparedNomination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreparedNomination.swift; sourceTree = "<group>"; };
 		841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedValidatorInfo.swift; sourceTree = "<group>"; };
 		841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorOperationFactory.swift; sourceTree = "<group>"; };
@@ -1926,6 +1930,10 @@
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
 		AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorFacade.swift; sourceTree = "<group>"; };
 		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
+		AEF507C7262573870098574D /* ValidationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidationView.xib; sourceTree = "<group>"; };
+		AEF507CC262573970098574D /* ValidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationView.swift; sourceTree = "<group>"; };
+		AEF507F126259DF00098574D /* ValidationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationViewModel.swift; sourceTree = "<group>"; };
+		AEF507F62625A3280098574D /* ValidatorState+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ValidatorState+Status.swift"; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		AEFC6D612600A772000BD310 /* StoriesPreviewCollectionItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesPreviewCollectionItem.xib; sourceTree = "<group>"; };
@@ -2743,6 +2751,7 @@
 				8430AAFF2602338D005B1066 /* PendingNominatorState.swift */,
 				8430AB042602339B005B1066 /* PendingValidatorState.swift */,
 				8430AB1126023C9F005B1066 /* PendingBondedState.swift */,
+				AEF507F62625A3280098574D /* ValidatorState+Status.swift */,
 			);
 			path = States;
 			sourceTree = "<group>";
@@ -4559,6 +4568,7 @@
 				84873B0326029B75000A83EE /* StakingEstimationViewModel.swift */,
 				84873B0826029CBD000A83EE /* StakingStateViewModelFactory.swift */,
 				AE4A71D32607B1440017C663 /* NetworkStakingInfoViewModel.swift */,
+				AEF507F126259DF00098574D /* ValidationViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -4685,10 +4695,12 @@
 				84C3F76C260164CE00D47501 /* NominationView.swift */,
 				849528DD2603697B009DC845 /* RewardEstimationView.xib */,
 				849528E226036997009DC845 /* RewardEstimationView.swift */,
-				841B456C26048F9600C08693 /* ValidationView.swift */,
-				841B45712604903100C08693 /* ValidationView.xib */,
+				841B456C26048F9600C08693 /* ValidationBannerView.swift */,
+				841B45712604903100C08693 /* ValidationBannerView.xib */,
 				84FFE504261290830054EA63 /* NetworkInfoView.swift */,
 				84FFE50C261290BC0054EA63 /* NetworkInfoView.xib */,
+				AEF507C7262573870098574D /* ValidationView.xib */,
+				AEF507CC262573970098574D /* ValidationView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5110,7 +5122,7 @@
 				8428768D24AE046300D91AD8 /* AboutHeaderView.xib in Resources */,
 				AE8972A325F2232C008EC414 /* ValidatorInfoInformationCell.xib in Resources */,
 				849014B824AA87E3008F705E /* PinSetupViewController.xib in Resources */,
-				841B45722604903100C08693 /* ValidationView.xib in Resources */,
+				841B45722604903100C08693 /* ValidationBannerView.xib in Resources */,
 				84C3F768260164B700D47501 /* NominationView.xib in Resources */,
 				AE2C850B25F0D84E00986716 /* ValidatorInfoViewController.xib in Resources */,
 				84D8F16924D821ED00AF43E9 /* IconWithTitleTableViewCell.xib in Resources */,
@@ -5139,6 +5151,7 @@
 				84FFE50D261290BC0054EA63 /* NetworkInfoView.xib in Resources */,
 				84364D5A252FAF1700281F9A /* AssetDetailsView.xib in Resources */,
 				AE89723F25F16B93008EC414 /* ValidatorInfoAccountCell.xib in Resources */,
+				AEF507C8262573870098574D /* ValidationView.xib in Resources */,
 				15A4328BC2309959C6E9FE85 /* AddConnectionViewController.xib in Resources */,
 				51FFF192C62958E4214CD10F /* CommingSoonViewController.xib in Resources */,
 				2624D8CEBB61A185A5E8B994 /* AccountExportPasswordViewController.xib in Resources */,
@@ -5697,6 +5710,7 @@
 				84F30E9725FD3C5300039D09 /* EventEmittingStorageSubscription.swift in Sources */,
 				8494D85E25246E9A00614D8F /* WalletTokenViewModel.swift in Sources */,
 				2AB7A7FF25CD0E8000767D87 /* GitHubPhishingAPIService.swift in Sources */,
+				AEF507F72625A3280098574D /* ValidatorState+Status.swift in Sources */,
 				843910D9253F8DFB00E3C217 /* StatusPresentable.swift in Sources */,
 				8490151D24ABC57A008F705E /* AssetStyleFactory.swift in Sources */,
 				847C963D255351BB002D288F /* ScrollableContainerView.swift in Sources */,
@@ -5740,7 +5754,7 @@
 				84F4A9182550331D000CF0A3 /* ExportOption.swift in Sources */,
 				84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */,
 				847297A2260B3146009B86D0 /* ChangeTargetsRecommendationsWireframe.swift in Sources */,
-				841B456D26048F9600C08693 /* ValidationView.swift in Sources */,
+				841B456D26048F9600C08693 /* ValidationBannerView.swift in Sources */,
 				84A2C90224E07E440020D3B7 /* CryptoType+Utils.swift in Sources */,
 				AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */,
 				84D33996262250B800130A89 /* String+Substrate.swift in Sources */,
@@ -5753,6 +5767,7 @@
 				AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,
+				AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */,
 				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				840882BF2514B3FE00177E20 /* SelectConnection+AccountConfirmInteractor.swift in Sources */,
@@ -5954,6 +5969,7 @@
 				AE9EF26E260A82D50026910A /* SlideViewModel.swift in Sources */,
 				84754C9A2513871300854599 /* SNAddressType+Codable.swift in Sources */,
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,
+				AEF507CD262573970098574D /* ValidationView.swift in Sources */,
 				84C3F76D260164CE00D47501 /* NominationView.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,
