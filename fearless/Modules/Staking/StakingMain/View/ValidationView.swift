@@ -50,7 +50,7 @@ final class ValidationView: UIView, LocalizableViewProtocol {
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable
-            .stakingStake(preferredLanguages: locale.rLanguages)
+            .stakingValidatorSummaryTitle(preferredLanguages: locale.rLanguages)
         stakedTitleLabel.text = R.string.localizable
             .stakingMainTotalStakedTitle(preferredLanguages: locale.rLanguages)
         rewardTitleLabel.text = R.string.localizable

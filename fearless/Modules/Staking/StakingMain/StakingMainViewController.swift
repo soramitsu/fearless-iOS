@@ -208,12 +208,12 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         return stateView
     }
 
-    private func setupValidatorViewIfNeeded() -> ValidationDummyView? {
-        if let validationView = stateView as? ValidationDummyView {
+    private func setupValidatorViewIfNeeded() -> ValidationView? {
+        if let validationView = stateView as? ValidationView {
             return validationView
         }
 
-        let stateView = setupNibStateView { R.nib.validationDummyView(owner: nil) }
+        let stateView = setupNibStateView { R.nib.validationView(owner: nil) }
 
         stateView?.locale = localizationManager?.selectedLocale ?? Locale.current
 
