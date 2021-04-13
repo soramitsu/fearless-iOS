@@ -3,9 +3,10 @@ import RobinHood
 import FearlessUtils
 
 final class ElectionStatusSource: DataProviderSourceProtocol {
-    enum LastSeen: Equatable {
+    enum LastSeen {
         case waiting
         case received(value: ChainStorageItem?, shouldDecodeAsPhase: Bool)
+        case failure(error: Error)
 
         var data: Data? {
             switch self {
@@ -13,6 +14,8 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
                 return nil
             case let .received(item, _):
                 return item?.data
+            case .failure:
+                return nil
             }
         }
 
@@ -22,6 +25,16 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
                 return nil
             case let .received(_, shouldDecodeAsPhase):
                 return shouldDecodeAsPhase
+            case .failure:
+                return nil
+            }
+        }
+
+        var error: Error? {
+            if case let .failure(error) = self {
+                return error
+            } else {
+                return nil
             }
         }
     }
@@ -37,7 +50,6 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
     let logger: LoggerProtocol?
 
     private var lastSeenResult: LastSeen = .waiting
-    private var lastSeenError: Error?
     private var provider: StreamableProvider<ChainStorageItem>?
 
     private var lock = NSLock()
@@ -65,24 +77,38 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
     // MARK: Private
 
     private func replaceAndNotifyIfNeeded(_ newItem: ChainStorageItem?, shouldDecodeAsPhase: Bool) {
-        let newValue = LastSeen.received(value: newItem, shouldDecodeAsPhase: shouldDecodeAsPhase)
-        if newValue != lastSeenResult || lastSeenError != nil {
-            lock.lock()
+        if updateResultIfNeeded(newItem, shouldDecodeAsPhase: shouldDecodeAsPhase) {
+            trigger.delegate?.didTrigger()
+        }
+    }
 
-            lastSeenError = nil
+    private func updateResultIfNeeded(_ newItem: ChainStorageItem?, shouldDecodeAsPhase: Bool) -> Bool {
+        lock.lock()
+
+        defer {
+            lock.unlock()
+        }
+
+        let newValue = LastSeen.received(value: newItem, shouldDecodeAsPhase: shouldDecodeAsPhase)
+
+        if
+            newValue.data != lastSeenResult.data ||
+            newValue.shouldDecodeAsPhase != lastSeenResult.shouldDecodeAsPhase {
             lastSeenResult = newValue
 
-            lock.unlock()
-
-            trigger.delegate?.didTrigger()
+            return true
+        } else {
+            return false
         }
     }
 
     private func replaceAndNotifyError(_ error: Error) {
         lock.lock()
 
-        lastSeenResult = .waiting
-        lastSeenError = error
+        lastSeenResult = .failure(error: error)
+
+        provider?.removeObserver(self)
+        provider = nil
 
         lock.unlock()
 
@@ -90,6 +116,8 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
     }
 
     private func resolveKeyAndSubscribe() {
+        lastSeenResult = .waiting
+
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
         let remoteKeyOperation = ClosureOperation<(Data, Bool)?> {
@@ -97,14 +125,14 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            if metadata.getStorageMetadata(for: .electionPhase) != nil {
-                let key = try storageKeyFactory.key(from: .electionPhase)
-                return (key, true)
-            }
-
             if metadata.getStorageMetadata(for: .electionStatus) != nil {
                 let key = try storageKeyFactory.key(from: .electionStatus)
                 return (key, false)
+            }
+
+            if metadata.getStorageMetadata(for: .electionPhase) != nil {
+                let key = try storageKeyFactory.key(from: .electionPhase)
+                return (key, true)
             }
 
             return nil
@@ -113,18 +141,25 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
         remoteKeyOperation.addDependency(coderFactoryOperation)
 
         remoteKeyOperation.completionBlock = { [weak self] in
-            do {
-                if let remoteKeyTuple = try remoteKeyOperation.extractNoCancellableResultData() {
-                    self?.subscribe(to: remoteKeyTuple.0, shouldDecodeAsPhase: remoteKeyTuple.1)
-                } else {
-                    self?.logger?.warning("No remote key found for election status")
-                }
-            } catch {
-                self?.logger?.error("Election status key resolution error: \(error)")
-            }
+            self?.handleRemoteKey(result: remoteKeyOperation.result)
         }
 
         operationManager.enqueue(operations: [coderFactoryOperation, remoteKeyOperation], in: .transient)
+    }
+
+    private func handleRemoteKey(result: Result<(Data, Bool)?, Error>?) {
+        switch result {
+        case let .success(remoteKeyTuple):
+            if let remoteKeyTuple = remoteKeyTuple {
+                subscribe(to: remoteKeyTuple.0, shouldDecodeAsPhase: remoteKeyTuple.1)
+            } else {
+                replaceAndNotifyError(CommonError.undefined)
+            }
+        case let .failure(error):
+            replaceAndNotifyError(error)
+        case .none:
+            replaceAndNotifyError(CommonError.undefined)
+        }
     }
 
     private func subscribe(to remoteKey: Data, shouldDecodeAsPhase: Bool) {
@@ -152,7 +187,7 @@ final class ElectionStatusSource: DataProviderSourceProtocol {
     }
 
     private func prepareDecodingOperation() -> CompoundOperationWrapper<ElectionStatus?> {
-        if let error = lastSeenError {
+        if let error = lastSeenResult.error {
             return CompoundOperationWrapper<ElectionStatus?>.createWithError(error)
         }
 
@@ -204,6 +239,11 @@ extension ElectionStatusSource {
         let dependencies = baseOperationWrapper.allOperations
         dependencies.forEach { mappingOperation.addDependency($0) }
 
+        if lastSeenResult.error != nil {
+            // user needs data but we have some errors, try to repeat subscription
+            resolveKeyAndSubscribe()
+        }
+
         return CompoundOperationWrapper(
             targetOperation: mappingOperation,
             dependencies: dependencies
@@ -230,6 +270,11 @@ extension ElectionStatusSource {
 
         let dependencies = baseOperationWrapper.allOperations
         dependencies.forEach { mappingOperation.addDependency($0) }
+
+        if lastSeenResult.error != nil {
+            // user needs data but we have some errors, try to repeat subscription
+            resolveKeyAndSubscribe()
+        }
 
         return CompoundOperationWrapper(
             targetOperation: mappingOperation,

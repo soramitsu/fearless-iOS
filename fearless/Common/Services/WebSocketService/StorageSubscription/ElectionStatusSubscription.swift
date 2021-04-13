@@ -14,6 +14,10 @@ final class ElectionStatusSubscription: WebSocketSubscribing {
     private var subscription: StorageChildSubscribing?
     private var subscriptionId: UInt16?
 
+    deinit {
+        unsubscribeRemote()
+    }
+
     init(
         engine: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -38,12 +42,12 @@ final class ElectionStatusSubscription: WebSocketSubscribing {
 
             let storageKeyFactory = StorageKeyFactory()
 
-            if metadata.getStorageMetadata(for: .electionPhase) != nil {
-                return try storageKeyFactory.key(from: .electionPhase)
-            }
-
             if metadata.getStorageMetadata(for: .electionStatus) != nil {
                 return try storageKeyFactory.key(from: .electionStatus)
+            }
+
+            if metadata.getStorageMetadata(for: .electionPhase) != nil {
+                return try storageKeyFactory.key(from: .electionPhase)
             }
 
             return Data()
@@ -120,5 +124,17 @@ final class ElectionStatusSubscription: WebSocketSubscribing {
                 logger?.debug("Did handle new election status nil")
             }
         }
+    }
+
+    private func unsubscribeRemote() {
+        mutex.lock()
+
+        if let subscriptionId = subscriptionId {
+            engine.cancelForIdentifier(subscriptionId)
+        }
+
+        subscription = nil
+
+        mutex.unlock()
     }
 }
