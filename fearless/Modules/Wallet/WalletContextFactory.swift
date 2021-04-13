@@ -4,6 +4,7 @@ import SoraKeystore
 import RobinHood
 import IrohaCrypto
 import SoraFoundation
+import FearlessUtils
 
 enum WalletContextFactoryError: Error {
     case missingAccount
@@ -84,19 +85,33 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
         let networkType = SettingsManager.shared.selectedConnection.type
 
         let accountSigner = SigningWrapper(keystore: Keychain(), settings: SettingsManager.shared)
-        let dummySigner = try DummySigner(cryptoType: selectedAccount.cryptoType)
 
         let substrateStorageFacade = SubstrateDataStorageFacade.shared
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             substrateStorageFacade.createRepository()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: networkType.chain)
+        let remoteStorageKeyFactory = StorageKeyFactory()
+        let requestFactory = StorageRequestFactory(remoteFactory: remoteStorageKeyFactory)
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let localStorageRequestFactory = LocalStorageRequestFactory(
+            remoteKeyFactory: remoteStorageKeyFactory,
+            localKeyFactory: localStorageIdFactory
+        )
+        let extrinsicFactory = ExtrinsicOperationFactory(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection
+        )
 
         let nodeOperationFactory = WalletNetworkOperationFactory(
             engine: connection,
+            requestFactory: requestFactory,
+            runtimeService: runtimeService,
+            extrinsicFactory: extrinsicFactory,
             accountSettings: accountSettings,
             cryptoType: selectedAccount.cryptoType,
             accountSigner: accountSigner,
-            dummySigner: dummySigner,
             chainStorage:
             AnyDataProviderRepository(chainStorage),
             localStorageIdFactory: localStorageIdFactory
@@ -127,6 +142,8 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             nodeOperationFactory: nodeOperationFactory,
             subscanOperationFactory: subscanOperationFactory,
             chainStorage: AnyDataProviderRepository(chainStorage),
+            runtimeCodingService: runtimeService,
+            localStorageRequestFactory: localStorageRequestFactory,
             localStorageIdFactory: localStorageIdFactory,
             txStorage: AnyDataProviderRepository(txStorage),
             contactsOperationFactory: contactOperationFactory,
