@@ -19,16 +19,9 @@ extension ValidatorState {
             let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
 
             if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
+                .first(where: { $0.accountId == accountId }) != nil {
                 return .active(era: eraStakers.era)
             }
-
-            if !eraStakers.validators.contains(where: { (validatorInfo) -> Bool in
-                validatorInfo.accountId == accountId
-            }) {
-                return .waiting
-            }
-
             return .inactive(era: eraStakers.era)
 
         } catch {
@@ -45,8 +38,6 @@ extension ValidatorState {
             return createActiveStatus(for: minimumStake, locale: locale)
         case .inactive:
             return createInactiveStatus(for: minimumStake, locale: locale)
-        case .waiting:
-            return createWaitingStatus(for: minimumStake, locale: locale)
         case .election:
             return createElectionStatus(for: minimumStake, locale: locale)
         case .undefined:
@@ -92,24 +83,6 @@ extension ValidatorState {
             message = R.string.localizable
                 .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale?.rLanguages)
         }
-
-        return AlertPresentableViewModel(
-            title: title,
-            message: message,
-            actions: [],
-            closeAction: closeAction
-        )
-    }
-
-    private func createWaitingStatus(
-        for _: BigUInt?,
-        locale: Locale?
-    ) -> AlertPresentableViewModel? {
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable
-            .stakingNominatorStatusWaiting(preferredLanguages: locale?.rLanguages)
-        let message = R.string.localizable
-            .stakingNominatorStatusAlertWaitingMessage(preferredLanguages: locale?.rLanguages)
 
         return AlertPresentableViewModel(
             title: title,
