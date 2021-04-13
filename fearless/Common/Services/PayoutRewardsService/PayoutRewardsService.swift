@@ -59,29 +59,47 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             steps4And5OperationWrapper.allOperations
                 .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
-            let nominationHistoryStep6 = try createNominationHistoryOperation(
+            let nominationHistoryStep6Controllers = try createControllersOperation(
                 nominatorAccount: selectedAccountAddress,
                 chain: chain,
                 subscanOperationFactory: subscanOperationFactory
             )
 
-            let operations = [codingFactoryOperation]
-                + steps1to3OperationWrapper.allOperations
-                + steps4And5OperationWrapper.allOperations
-                + nominationHistoryStep6.allOperations
-
-            steps4And5OperationWrapper.targetOperation.completionBlock = {
+            nominationHistoryStep6Controllers.targetOperation.completionBlock = {
                 do {
-                    let res = try steps4And5OperationWrapper.targetOperation.extractNoCancellableResultData()
-                    print(res)
+                    let controllersSet = try nominationHistoryStep6Controllers
+                        .targetOperation.extractNoCancellableResultData()
+
+                    let validatorsWrapper = try self.createFindValidatorsOperation(
+                        controllers: controllersSet,
+                        chain: self.chain,
+                        subscanOperationFactory: self.subscanOperationFactory
+                    )
+
+                    validatorsWrapper.targetOperation.completionBlock = {
+                        // swiftlint:disable force_try
+                        let res = try! validatorsWrapper
+                            .targetOperation.extractNoCancellableResultData()
+                        print(res)
+                    }
+
+                    self.operationManager.enqueue(
+                        operations: validatorsWrapper.allOperations,
+                        in: .transient
+                    )
                 } catch {
                     completion(.failure(error))
                 }
             }
 
-            nominationHistoryStep6.targetOperation.completionBlock = {
+            let operations = [codingFactoryOperation]
+                + steps1to3OperationWrapper.allOperations
+                + steps4And5OperationWrapper.allOperations
+                + nominationHistoryStep6Controllers.allOperations
+
+            steps4And5OperationWrapper.targetOperation.completionBlock = {
                 do {
-                    let res = try nominationHistoryStep6.targetOperation.extractNoCancellableResultData()
+                    let res = try steps4And5OperationWrapper.targetOperation.extractNoCancellableResultData()
                     print(res)
                 } catch {
                     completion(.failure(error))

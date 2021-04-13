@@ -3,7 +3,7 @@ import FearlessUtils
 import BigInt
 
 extension PayoutRewardsService {
-    func createNominationHistoryOperation(
+    func createControllersOperation(
         nominatorAccount: String,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol
@@ -19,20 +19,7 @@ extension PayoutRewardsService {
             chain: chain,
             subscanOperationFactory: subscanOperationFactory
         )
-//
-//        let validatorsByNominate = try fetchValidatorsByNominate(
-//            controllers: setOfControllersWhichCouldEverMakeNominations,
-//            chain: chain,
-//            subscanOperationFactory: subscanOperationFactory,
-//            queue: queue)
-//
-//        let validatorsByBatch = try fetchValidatorsByBatch(
-//            controllers: setOfControllersWhichCouldEverMakeNominations,
-//            chain: chain,
-//            subscanOperationFactory: subscanOperationFactory,
-//            queue: queue)
-//
-//        let validatorIdsSet = validatorsByNominate.union(validatorsByBatch)
+
         let mergeOperation = ClosureOperation<Set<String>> {
             let controllersByStaking = try controllersByStakingOperation.targetOperation
                 .extractNoCancellableResultData()
@@ -136,88 +123,76 @@ extension PayoutRewardsService {
         )
     }
 
-//
-//    private func fetchControllersByUtilityModule(
-//        nominatorStashAccount: String,
-//        chain: Chain,
-//        subscanOperationFactory: SubscanOperationFactoryProtocol,
-//        queue: OperationQueue
-//    ) throws -> Set<String> {
-//        let batchControllers = try fetchExtrinsicsParams(
-//            moduleName: "utility",
-//            address: nominatorStashAccount,
-//            callName: "batch",
-//            subscanOperationFactory: subscanOperationFactory,
-//            queue: queue)
-//
-//        let batchAllControllers = try fetchExtrinsicsParams(
-//            moduleName: "utility",
-//            address: nominatorStashAccount,
-//            callName: "batch_all",
-//            subscanOperationFactory: subscanOperationFactory,
-//            queue: queue)
-//
-//        let controllers = (batchControllers + batchAllControllers)
-//            .compactMap { SubscanFindControllersBatchCall(callArgs: $0, chain: chain) }
-//            .flatMap { $0.controllers }
-//        return Set(controllers)
-//    }
-//
-//    private func fetchValidatorsByNominate(
-//        controllers: Set<String>,
-//        chain: Chain,
-//        subscanOperationFactory: SubscanOperationFactoryProtocol,
-//        queue: OperationQueue
-//    ) throws -> Set<String> {
-//        let validators = controllers
-//            .compactMap { address in
-//                try? fetchExtrinsicsParams(
-//                    moduleName: "staking",
-//                    address: address,
-//                    callName: "nominate",
-//                    subscanOperationFactory: subscanOperationFactory,
-//                    queue: queue
-//                )
-//                .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
-//                .map(\.validatorAddresses)
-//            }
-//            .flatMap { $0 }
-//            .flatMap { $0 }
-//        return Set(validators)
-//    }
-//
-//    private func fetchValidatorsByBatch(
-//        controllers: Set<String>,
-//        chain: Chain,
-//        subscanOperationFactory: SubscanOperationFactoryProtocol,
-//        queue: OperationQueue
-//    ) throws -> Set<String> {
-//        let nominatorsBatch = controllers
-//            .compactMap { address -> [String] in
-//                let batch = try? fetchExtrinsicsParams(
-//                    moduleName: "utility",
-//                    address: address,
-//                    callName: "batch",
-//                    subscanOperationFactory: subscanOperationFactory,
-//                    queue: queue
-//                )
-//
-//                let batchAll = try? fetchExtrinsicsParams(
-//                    moduleName: "utility",
-//                    address: address,
-//                    callName: "batch_all",
-//                    subscanOperationFactory: subscanOperationFactory,
-//                    queue: queue
-//                )
-//
-//                return ((batch ?? []) + (batchAll ?? []))
-//                    .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
-//                    .flatMap(\.validatorAddresses)
-//            }
-//            .flatMap { $0 }
-//
-//        return Set(nominatorsBatch)
-//    }
+    func createFindValidatorsOperation(
+        controllers: Set<String>,
+        chain: Chain,
+        subscanOperationFactory: SubscanOperationFactoryProtocol
+    ) throws -> CompoundOperationWrapper<Set<String>> {
+        let validatorsByNominateWrappers = try controllers
+            .map { address in
+                try createFetchExtrinsicsDataOperation(
+                    moduleName: "staking",
+                    address: address,
+                    callName: "nominate",
+                    subscanOperationFactory: subscanOperationFactory
+                )
+            }
+
+        let validatorsByBatchWrappers = try controllers
+            .map { address in
+                try createFetchExtrinsicsDataOperation(
+                    moduleName: "utility",
+                    address: address,
+                    callName: "batch",
+                    subscanOperationFactory: subscanOperationFactory
+                )
+            }
+
+        let validatorsByBatchAllWrappers = try controllers
+            .map { address in
+                try createFetchExtrinsicsDataOperation(
+                    moduleName: "utility",
+                    address: address,
+                    callName: "batch_all",
+                    subscanOperationFactory: subscanOperationFactory
+                )
+            }
+
+        let mergeOperation = ClosureOperation<Set<String>> {
+            let validatorsByNominate = try validatorsByNominateWrappers
+                .map { try $0.targetOperation.extractNoCancellableResultData() }
+                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
+                    extrinsicsData.extrinsics
+                }
+                .flatMap { $0 }
+                .compactMap(\.params)
+                .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
+                .map(\.validatorAddresses)
+                .flatMap { $0 }
+
+            let validatorsBatch = try (validatorsByBatchWrappers + validatorsByBatchAllWrappers)
+                .map { try $0.targetOperation.extractNoCancellableResultData() }
+                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
+                    extrinsicsData.extrinsics
+                }
+                .flatMap { $0 }
+                .compactMap(\.params)
+                .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
+                .map(\.validatorAddresses)
+                .flatMap { $0 }
+
+            return Set<String>(validatorsByNominate + validatorsBatch)
+        }
+        let mergeOperationDependencies =
+            (validatorsByNominateWrappers + validatorsByBatchWrappers + validatorsByBatchAllWrappers)
+                .map(\.allOperations).flatMap { $0 }
+        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(
+            targetOperation: mergeOperation,
+            dependencies: mergeOperationDependencies
+        )
+    }
 
     private func createFetchExtrinsicsDataOperation(
         moduleName: String,
