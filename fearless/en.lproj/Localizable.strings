@@ -328,3 +328,4 @@ Derivation path: %@";
 "wallet.filters.extrinsics" = "Other transactions";
 "wallet.filters.header" = "Show";
 "transfer.title" = "Transfer";
+"common.available.format" = "Available: %@";

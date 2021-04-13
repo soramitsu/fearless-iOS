@@ -8,7 +8,6 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingAmountPresenterProtocol!
 
     @IBOutlet private var stackView: UIStackView!
-    @IBOutlet private var amountTitleLabel: UILabel!
     @IBOutlet private var amountInputView: AmountInputView!
     @IBOutlet private var feeTitleLabel: UILabel!
     @IBOutlet private var feeDetailsLabel: UILabel!
@@ -157,7 +156,6 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
 
         title = R.string.localizable.stakingTitle(preferredLanguages: languages)
-        amountTitleLabel.text = R.string.localizable.stakingAmountTitle(preferredLanguages: languages)
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
         feeTitleLabel.text = R.string.localizable
@@ -200,7 +198,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         if let viewModel = assetViewModel?.value(for: locale) {
             amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(
+                .commonAvailableFormat(
                     viewModel.balance ?? "",
                     preferredLanguages: locale.rLanguages
                 )

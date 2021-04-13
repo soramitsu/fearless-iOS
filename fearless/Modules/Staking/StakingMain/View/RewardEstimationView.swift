@@ -84,7 +84,7 @@ final class RewardEstimationView: LocalizableView {
     private func applyWidgetViewModel() {
         if let viewModel = widgetViewModel?.assetBalance.value(for: locale) {
             amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(
+                .commonAvailableFormat(
                     viewModel.balance ?? "",
                     preferredLanguages: locale.rLanguages
                 )

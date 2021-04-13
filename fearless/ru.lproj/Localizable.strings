@@ -328,3 +328,4 @@ a type of password.";
 "wallet.filters.extrinsics" = "";
 "wallet.filters.header" = "";
 "transfer.title" = "";
+"common.available.format" = "%@";
