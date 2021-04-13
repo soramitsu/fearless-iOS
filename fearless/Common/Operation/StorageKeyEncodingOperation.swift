@@ -8,7 +8,7 @@ enum StorageKeyEncodingOperationError: Error {
     case invalidStoragePath
 }
 
-final class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
+class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
     var keyParams: [T]?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -81,7 +81,7 @@ final class MapKeyEncodingOperation<T: Encodable>: BaseOperation<[Data]> {
     }
 }
 
-final class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOperation<[Data]> {
+class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOperation<[Data]> {
     var keyParams1: [T1]?
     var keyParams2: [T2]?
     var codingFactory: RuntimeCoderFactoryProtocol?
@@ -171,5 +171,29 @@ final class DoubleMapKeyEncodingOperation<T1: Encodable, T2: Encodable>: BaseOpe
         let encoder = factory.createEncoder()
         try encoder.append(param, ofType: type)
         return try encoder.encode()
+    }
+}
+
+extension MapKeyEncodingOperation {
+    func localWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
+        baseLocalWrapper(for: factory)
+    }
+}
+
+extension DoubleMapKeyEncodingOperation {
+    func localWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
+        baseLocalWrapper(for: factory)
+    }
+}
+
+private extension BaseOperation where ResultType == [Data] {
+    func baseLocalWrapper(for factory: ChainStorageIdFactoryProtocol) -> CompoundOperationWrapper<[String]> {
+        let mapOperation = ClosureOperation<[String]> {
+            let keys = try self.extractNoCancellableResultData()
+            return keys.map { factory.createIdentifier(for: $0) }
+        }
+
+        mapOperation.addDependency(self)
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: [self])
     }
 }

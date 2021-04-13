@@ -9,4 +9,8 @@ extension RuntimeCall {
     static func nominate(_ args: NominateCall) -> RuntimeCall<NominateCall> {
         RuntimeCall<NominateCall>(moduleName: "Staking", callName: "nominate", args: args)
     }
+
+    static func transfer(_ args: TransferCall) -> RuntimeCall<TransferCall> {
+        RuntimeCall<TransferCall>(moduleName: "Balances", callName: "transfer", args: args)
+    }
 }

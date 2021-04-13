@@ -44,8 +44,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         let transferSubscription = createTransferSubscription(
             address: address,
             engine: engine,
-            networkType: type,
-            localStorageIdFactory: localStorageIdFactory
+            networkType: type
         )
 
         let accountSubscription =
@@ -192,15 +191,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     private func createTransferSubscription(
         address: String,
         engine: JSONRPCEngine,
-        networkType: SNAddressType,
-        localStorageIdFactory: ChainStorageIdFactoryProtocol
+        networkType: SNAddressType
     ) -> TransferSubscription {
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             storageFacade.createRepository(filter: filter)
-
-        let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
 
         let contactOperationFactory = WalletContactOperationFactory(
             storageFacade: storageFacade,
@@ -212,9 +207,8 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             address: address,
             chain: networkType.chain,
             addressFactory: addressFactory,
+            runtimeService: runtimeService,
             txStorage: AnyDataProviderRepository(txStorage),
-            chainStorage: AnyDataProviderRepository(chainStorage),
-            localIdFactory: localStorageIdFactory,
             contactOperationFactory: contactOperationFactory,
             operationManager: OperationManagerFacade.sharedManager,
             eventCenter: EventCenter.shared,
