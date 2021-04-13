@@ -10,6 +10,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let providerFactory: SubstrateDataProviderFactoryProtocol
+    let subscanOperationFactory: SubscanOperationFactoryProtocol
     let logger: LoggerProtocol?
 
     let syncQueue = DispatchQueue(
@@ -18,22 +19,26 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     )
 
     private(set) var activeEra: UInt32?
-    private(set) var chain: Chain?
+    private let chain: Chain
     private var isActive: Bool = false
 
     init(
         selectedAccountAddress: String,
+        chain: Chain,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
         providerFactory: SubstrateDataProviderFactoryProtocol,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
+        self.chain = chain
         self.runtimeCodingService = runtimeCodingService
         self.engine = engine
         self.operationManager = operationManager
         self.providerFactory = providerFactory
+        self.subscanOperationFactory = subscanOperationFactory
         self.logger = logger
     }
 
@@ -54,13 +59,29 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             steps4And5OperationWrapper.allOperations
                 .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
+            let nominationHistoryStep6 = try createNominationHistoryOperation(
+                nominatorAccount: selectedAccountAddress,
+                chain: chain,
+                subscanOperationFactory: subscanOperationFactory
+            )
+
             let operations = [codingFactoryOperation]
                 + steps1to3OperationWrapper.allOperations
                 + steps4And5OperationWrapper.allOperations
+                + nominationHistoryStep6.allOperations
 
             steps4And5OperationWrapper.targetOperation.completionBlock = {
                 do {
                     let res = try steps4And5OperationWrapper.targetOperation.extractNoCancellableResultData()
+                    print(res)
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+
+            nominationHistoryStep6.targetOperation.completionBlock = {
+                do {
+                    let res = try nominationHistoryStep6.targetOperation.extractNoCancellableResultData()
                     print(res)
                 } catch {
                     completion(.failure(error))

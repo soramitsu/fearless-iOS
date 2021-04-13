@@ -24,7 +24,7 @@ class PayoutRewardsServiceTests: XCTestCase {
             keychain: InMemoryKeychain(),
             settings: settings
         )
-        let selectedAccount = settings.selectedAccount!.address
+        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT" // settings.selectedAccount!.address
 
         WebSocketService.shared.setup()
         let connection = WebSocketService.shared.connection!
@@ -33,10 +33,12 @@ class PayoutRewardsServiceTests: XCTestCase {
 
         let service = PayoutRewardsService(
             selectedAccountAddress: selectedAccount,
+            chain: .westend,
             runtimeCodingService: runtimeService,
             engine: connection,
             operationManager: operationManager,
-            providerFactory: providerFactory
+            providerFactory: providerFactory,
+            subscanOperationFactory: SubscanOperationFactory()
         )
 
         let expectation = XCTestExpectation()
@@ -44,6 +46,6 @@ class PayoutRewardsServiceTests: XCTestCase {
             print(result)
             expectation.fulfill()
         }
-        wait(for: [expectation], timeout: 5)
+        wait(for: [expectation], timeout: 10)
     }
 }
