@@ -156,7 +156,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     private func setupLocalization() {
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
 
-        title = R.string.localizable.stakingSetupTitle(preferredLanguages: languages)
+        title = R.string.localizable.stakingTitle(preferredLanguages: languages)
         amountTitleLabel.text = R.string.localizable.stakingAmountTitle(preferredLanguages: languages)
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
