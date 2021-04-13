@@ -161,7 +161,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         feeTitleLabel.text = R.string.localizable
             .commonNetworkFee(preferredLanguages: languages)
         rewardDestinationTitleLabel.text = R.string.localizable
-            .stakingRewardDestinationChoose(preferredLanguages: languages)
+            .stakingRewardDestinationTitle(preferredLanguages: languages)
         restakeView.title = R.string.localizable.stakingRestakeTitle(preferredLanguages: languages)
         restakeView.subtitle = R.string.localizable
             .stakingRewardRestakeSubtitle(preferredLanguages: languages)
