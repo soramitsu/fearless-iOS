@@ -53,13 +53,30 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             )
             totalRewards.allOperations.forEach { $0.addDependency(mergeOperationWrapper.targetOperation) }
 
+            let validatorRewardPoints = try createValidatorRewardPointsOperation(
+                dependingOn: mergeOperationWrapper.targetOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation
+            )
+            validatorRewardPoints.allOperations.forEach { $0.addDependency(mergeOperationWrapper.targetOperation) }
+
             let operations = [codingFactoryOperation]
                 + mergeOperationWrapper.allOperations
                 + totalRewards.allOperations
+                + validatorRewardPoints.allOperations
 
             totalRewards.targetOperation.completionBlock = {
                 do {
                     let res = try totalRewards.targetOperation.extractNoCancellableResultData()
+                    print(res)
+                } catch {
+                    completion(.failure(error))
+                }
+            }
+
+            validatorRewardPoints.targetOperation.completionBlock = {
+                do {
+                    let res = try validatorRewardPoints.targetOperation.extractNoCancellableResultData()
                     print(res)
                 } catch {
                     completion(.failure(error))
