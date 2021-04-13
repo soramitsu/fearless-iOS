@@ -38,11 +38,9 @@ final class ValidationView: UIView, LocalizableViewProtocol {
         applyLocalization()
     }
 
-    // TODO: Change
-    private var localizableViewModel: LocalizableResource<NominationViewModelProtocol>?
+    private var localizableViewModel: LocalizableResource<ValidationViewModelProtocol>?
 
-    // TODO: Change
-    func bind(viewModel: LocalizableResource<NominationViewModelProtocol>) {
+    func bind(viewModel: LocalizableResource<ValidationViewModelProtocol>) {
         localizableViewModel = viewModel
 
         applyViewModel()

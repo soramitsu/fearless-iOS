@@ -920,6 +920,7 @@
 		AEF505102616769F0098574D /* InitiatedBonding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84403D8725E92A9C00494FD4 /* InitiatedBonding.swift */; };
 		AEF507C8262573870098574D /* ValidationView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AEF507C7262573870098574D /* ValidationView.xib */; };
 		AEF507CD262573970098574D /* ValidationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF507CC262573970098574D /* ValidationView.swift */; };
+		AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF507F126259DF00098574D /* ValidationViewModel.swift */; };
 		AEF73FB525DBA24300407D41 /* PhishingCheckExecutor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */; };
 		AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */; };
 		AEFA82BC4285117096BCBB16 /* StakingPayoutConfirmationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBFDF844248CD43AAD13139F /* StakingPayoutConfirmationInteractor.swift */; };
@@ -1954,6 +1955,7 @@
 		AEE4E37125ECF83F00D6DF31 /* StakingInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingInfoTests.swift; sourceTree = "<group>"; };
 		AEF507C7262573870098574D /* ValidationView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidationView.xib; sourceTree = "<group>"; };
 		AEF507CC262573970098574D /* ValidationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationView.swift; sourceTree = "<group>"; };
+		AEF507F126259DF00098574D /* ValidationViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidationViewModel.swift; sourceTree = "<group>"; };
 		AEF73FB425DBA24300407D41 /* PhishingCheckExecutor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhishingCheckExecutor.swift; sourceTree = "<group>"; };
 		AEF7404D25E6DC9400407D41 /* RewardCalculatorEngine.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorEngine.swift; sourceTree = "<group>"; };
 		AEFC6D612600A772000BD310 /* StoriesPreviewCollectionItem.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesPreviewCollectionItem.xib; sourceTree = "<group>"; };
@@ -4599,6 +4601,7 @@
 				84873B0326029B75000A83EE /* StakingEstimationViewModel.swift */,
 				84873B0826029CBD000A83EE /* StakingStateViewModelFactory.swift */,
 				AE4A71D32607B1440017C663 /* NetworkStakingInfoViewModel.swift */,
+				AEF507F126259DF00098574D /* ValidationViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -5800,6 +5803,7 @@
 				AE9EF278260B2E160026910A /* StoriesFactory.swift in Sources */,
 				8494D8702525321700614D8F /* SubscanDefinitions.swift in Sources */,
 				84D8F16124D8193200AF43E9 /* IconWithTitleTableViewCell.swift in Sources */,
+				AEF507F226259DF00098574D /* ValidationViewModel.swift in Sources */,
 				8428763824AD67E300D91AD8 /* JSONRPCData.swift in Sources */,
 				848FFE8B25E69A6000652AA5 /* EraValidatorServiceProtocol.swift in Sources */,
 				840882BF2514B3FE00177E20 /* SelectConnection+AccountConfirmInteractor.swift in Sources */,
