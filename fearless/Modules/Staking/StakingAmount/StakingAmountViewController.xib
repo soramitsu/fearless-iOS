@@ -234,7 +234,7 @@
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_earningTitleFontName" value="sora-rc004-0417-Bold"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="earningTitle" value="4.12 KSM +35.51%"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="earningTitle" value="4.12 KSM"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_earningTitleFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
@@ -249,13 +249,13 @@
                                                 <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
                                                     <color key="value" name="colorGray"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value="First year earnings"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value=" +35.51% APY"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_earningsSubtitleFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="earningsSubtitleColor">
-                                                    <color key="value" name="colorGray"/>
+                                                    <color key="value" name="colorSuccessGreen"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                                                     <real key="value" value="13"/>
@@ -303,7 +303,7 @@
                                                     <real key="value" value="14"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_earningTitleFontName" value="sora-rc004-0417-Bold"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="earningTitle" value="2.15 KSM +21.3%"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="earningTitle" value="2.15 KSM"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_earningTitleFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
@@ -318,13 +318,13 @@
                                                 <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
                                                     <color key="value" name="colorGray"/>
                                                 </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value="First year earnings"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Regular"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value="+21.3% APY"/>
+                                                <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Bold"/>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_earningsSubtitleFontSize">
                                                     <real key="value" value="12"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="earningsSubtitleColor">
-                                                    <color key="value" name="colorGray"/>
+                                                    <color key="value" name="colorSuccessGreen"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                                                     <real key="value" value="13"/>
@@ -521,13 +521,13 @@
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
         <designable name="aky-7w-5YB">
-            <size key="intrinsicContentSize" width="-1" height="63.5"/>
+            <size key="intrinsicContentSize" width="-1" height="61"/>
         </designable>
         <designable name="mtd-NS-dJc">
             <size key="intrinsicContentSize" width="43.5" height="32"/>
         </designable>
         <designable name="zh8-Bo-IF1">
-            <size key="intrinsicContentSize" width="-1" height="63.5"/>
+            <size key="intrinsicContentSize" width="-1" height="61"/>
         </designable>
     </designables>
     <resources>
@@ -553,6 +553,9 @@
         </namedColor>
         <namedColor name="colorPink">
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorSuccessGreen">
+            <color red="0.054901960784313725" green="0.82745098039215681" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

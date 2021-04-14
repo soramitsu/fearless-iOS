@@ -24,8 +24,14 @@ extension NumberFormatter {
     static var percentAPY: NumberFormatter {
         let numberFormatter = NumberFormatter.percent
         numberFormatter.minimumFractionDigits = 2
-        numberFormatter.positivePrefix = ""
+        numberFormatter.positivePrefix = "+"
         numberFormatter.percentSymbol = "% APY"
+        return numberFormatter
+    }
+
+    static var percentAPR: NumberFormatter {
+        let numberFormatter = NumberFormatter.percentAPY
+        numberFormatter.percentSymbol = "% APR"
         return numberFormatter
     }
 

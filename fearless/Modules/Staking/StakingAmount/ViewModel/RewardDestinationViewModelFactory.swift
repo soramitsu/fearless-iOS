@@ -72,21 +72,24 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
     ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         LocalizableResource { locale in
             let amountFormatter = amountFormatter.value(for: locale)
-            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+            let percentageAPYFormatter = NumberFormatter.percentAPY.localizableResource().value(for: locale)
+            let percentageAPRFormatter = NumberFormatter.percentAPR.localizableResource().value(for: locale)
+
+            let zeroAmount = amountFormatter.string(from: 0.0) ?? "0"
 
             let restakeAmount = model.restakeReturn > 0.0 ?
                 amountFormatter.string(from: model.restakeReturn) : nil
-            let restakePercentage = percentageFormatter.string(from: model.restakeReturnPercentage as NSNumber)
+            let restakePercentage = percentageAPYFormatter.string(from: model.restakeReturnPercentage as NSNumber)
 
             let payoutAmount = model.payoutReturn > 0.0 ?
                 amountFormatter.string(from: model.payoutReturn) : nil
-            let payoutPercentage = percentageFormatter
+            let payoutPercentage = percentageAPRFormatter
                 .string(from: model.payoutReturnPercentage as NSNumber)
 
             let rewardViewModel = DestinationReturnViewModel(
-                restakeAmount: restakeAmount ?? "",
+                restakeAmount: restakeAmount ?? zeroAmount,
                 restakePercentage: restakePercentage ?? "",
-                payoutAmount: payoutAmount ?? "",
+                payoutAmount: payoutAmount ?? zeroAmount,
                 payoutPercentage: payoutPercentage ?? ""
             )
 

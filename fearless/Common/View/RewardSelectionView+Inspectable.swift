@@ -175,64 +175,6 @@ extension RewardSelectionView {
     }
 
     @IBInspectable
-    var subtitle: String? {
-        get {
-            subtitleLabel.text
-        }
-
-        set {
-            subtitleLabel.text = newValue
-            setNeedsLayout()
-        }
-    }
-
-    @IBInspectable
-    private var _subtitleFontName: String? {
-        get {
-            subtitleLabel.font.fontName
-        }
-
-        set(newValue) {
-            guard let fontName = newValue else {
-                subtitleLabel.font = nil
-                return
-            }
-
-            let pointSize = subtitleLabel.font.pointSize
-
-            subtitleLabel.font = UIFont(name: fontName, size: pointSize)
-
-            setNeedsLayout()
-        }
-    }
-
-    @IBInspectable
-    private var _subtitleFontSize: CGFloat {
-        get {
-            subtitleLabel.font.pointSize
-        }
-
-        set(newValue) {
-            let fontName = subtitleLabel.font.fontName
-
-            subtitleLabel.font = UIFont(name: fontName, size: newValue)
-
-            setNeedsLayout()
-        }
-    }
-
-    @IBInspectable
-    var subtitleColor: UIColor? {
-        get {
-            subtitleLabel.textColor
-        }
-
-        set {
-            subtitleLabel.textColor = newValue
-        }
-    }
-
-    @IBInspectable
     var earningsSubtitle: String? {
         get {
             earningsSubtitleLabel.text
