@@ -167,7 +167,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         learnMoreView.title = R.string.localizable
             .stakingRewardsLearnMore(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: languages)
+            .commonContinue(preferredLanguages: languages)
 
         applyAsset()
         applyFee()
