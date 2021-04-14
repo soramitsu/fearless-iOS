@@ -5,7 +5,7 @@ class RewardSelectionView: BackgroundedContentControl {
     private(set) var titleLabel: UILabel!
     private(set) var earningsTitleLabel: UILabel!
     private(set) var earningsSubtitleLabel: UILabel!
-    private(set) var iconView: UIButton!
+    private(set) var iconView: UIImageView!
 
     var triangularedBackgroundView: TriangularedView? {
         backgroundView as? TriangularedView
@@ -174,7 +174,7 @@ class RewardSelectionView: BackgroundedContentControl {
         }
 
         if iconView == nil {
-            iconView = UIButton()
+            iconView = UIImageView()
             iconView.contentMode = .center
             contentView?.addSubview(iconView)
         }
@@ -185,6 +185,6 @@ class RewardSelectionView: BackgroundedContentControl {
     }
 
     private func applySelectionState() {
-        iconView.isSelected = isSelected
+        iconView.isHidden = !isSelected
     }
 }
