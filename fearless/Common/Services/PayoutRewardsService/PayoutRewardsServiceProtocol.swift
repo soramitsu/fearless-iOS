@@ -1,6 +1,6 @@
 import Foundation
 
-typealias PayoutRewardsClosure = (Result<String, Error>) -> Void
+typealias PayoutRewardsClosure = (Result<[Data: [(EraIndex, Decimal)]], Error>) -> Void
 
 /// StakingPayoutService
 protocol PayoutRewardsServiceProtocol {

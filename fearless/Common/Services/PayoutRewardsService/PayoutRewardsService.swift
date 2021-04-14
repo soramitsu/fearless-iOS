@@ -144,9 +144,9 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
                     rewardOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! rewardOperation
+                        let rewards = try! rewardOperation
                             .targetOperation.extractNoCancellableResultData()
-                        print(res)
+                        completion(.success(rewards))
                     }
 
                     let operations: [Operation] =
@@ -297,8 +297,4 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
         return CompoundOperationWrapper(targetOperation: mergeOperation)
     }
-}
-
-struct NominatorReward {
-    let rewardByStash: [Data: [(EraIndex, ValidatorExposure, ValidatorPrefs)]]
 }
