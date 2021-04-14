@@ -67,7 +67,19 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {}
+extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
+    func showEmptyView() {
+        rootView.payoutButton.isHidden = true
+        rootView.emptyImageView.isHidden = false
+        rootView.emptyLabel.isHidden = false
+    }
+
+    func hideEmptyView() {
+        rootView.payoutButton.isHidden = false
+        rootView.emptyImageView.isHidden = true
+        rootView.emptyLabel.isHidden = true
+    }
+}
 
 extension StakingRewardPayoutsViewController: Localizable {
     private func setupLocalization() {

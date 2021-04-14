@@ -1,6 +1,9 @@
 import SoraFoundation
 
-protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable {}
+protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable {
+    func showEmptyView()
+    func hideEmptyView()
+}
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func setup()

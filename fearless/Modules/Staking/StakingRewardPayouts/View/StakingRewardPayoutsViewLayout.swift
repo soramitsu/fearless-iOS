@@ -15,6 +15,17 @@ final class StakingRewardPayoutsViewLayout: UIView {
         return button
     }()
 
+    let emptyImageView: UIView = UIImageView(image: R.image.iconEmptyHistory())
+    let emptyLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Your rewards\nwill appear here"
+        label.numberOfLines = 0
+        label.textAlignment = .center
+        label.textColor = R.color.colorGray()
+        label.font = .p2Paragraph
+        return label
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -27,30 +38,27 @@ final class StakingRewardPayoutsViewLayout: UIView {
 
     private func setupLayout() {
         addSubview(tableView)
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            tableView.topAnchor.constraint(equalTo: safeAreaLayoutGuide.topAnchor),
-            tableView.leadingAnchor.constraint(equalTo: leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: trailingAnchor),
-            tableView.bottomAnchor.constraint(equalTo: bottomAnchor)
-        ])
+        tableView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.bottom.trailing.equalToSuperview()
+        }
 
         addSubview(payoutButton)
-        payoutButton.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            payoutButton.heightAnchor.constraint(equalToConstant: UIConstants.actionHeight),
-            payoutButton.leadingAnchor.constraint(
-                equalTo: leadingAnchor,
-                constant: UIConstants.horizontalInset
-            ),
-            payoutButton.trailingAnchor.constraint(
-                equalTo: trailingAnchor,
-                constant: -UIConstants.horizontalInset
-            ),
-            payoutButton.bottomAnchor.constraint(
-                equalTo: safeAreaLayoutGuide.bottomAnchor,
-                constant: -UIConstants.actionBottomInset
-            )
-        ])
+        payoutButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        addSubview(emptyLabel)
+        emptyLabel.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+        }
+
+        addSubview(emptyImageView)
+        emptyImageView.snp.makeConstraints { make in
+            make.bottom.equalTo(emptyLabel.snp.top)
+            make.centerX.equalToSuperview()
+        }
     }
 }
