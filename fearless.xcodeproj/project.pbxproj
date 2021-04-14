@@ -626,6 +626,11 @@
 		84A2C90724E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */; };
 		84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */; };
 		84A2CD5325685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */; };
+		84A6170826257DFD007B75E1 /* ElectionPhase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A6170726257DFD007B75E1 /* ElectionPhase.swift */; };
+		84A617162625947B007B75E1 /* ElectionStatusSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A617152625947B007B75E1 /* ElectionStatusSubscription.swift */; };
+		84A6171B2625AC3E007B75E1 /* CallCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A6171A2625AC3E007B75E1 /* CallCodingPath.swift */; };
+		84A617262625AF51007B75E1 /* RuntimeMetadata+Internal.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A617252625AF51007B75E1 /* RuntimeMetadata+Internal.swift */; };
+		84A6172E2625CAB8007B75E1 /* ElectionStatusSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84A6172D2625CAB8007B75E1 /* ElectionStatusSource.swift */; };
 		84ACEBF2261E664900AAE665 /* WalletHistoryFilterViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACEBF1261E664900AAE665 /* WalletHistoryFilterViewModel.swift */; };
 		84ACEBFA261E684A00AAE665 /* WalletHistoryFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACEBF9261E684A00AAE665 /* WalletHistoryFilter.swift */; };
 		84ACEBFF261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84ACEBFE261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift */; };
@@ -1642,6 +1647,11 @@
 		84A2C90624E09DC20020D3B7 /* AccountOperationFactoryError+Presentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AccountOperationFactoryError+Presentable.swift"; sourceTree = "<group>"; };
 		84A2C90B24E192F50020D3B7 /* ShakeAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShakeAnimator.swift; sourceTree = "<group>"; };
 		84A2CD5225685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryViewFactoryOverriding.swift; sourceTree = "<group>"; };
+		84A6170726257DFD007B75E1 /* ElectionPhase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectionPhase.swift; sourceTree = "<group>"; };
+		84A617152625947B007B75E1 /* ElectionStatusSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectionStatusSubscription.swift; sourceTree = "<group>"; };
+		84A6171A2625AC3E007B75E1 /* CallCodingPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CallCodingPath.swift; sourceTree = "<group>"; };
+		84A617252625AF51007B75E1 /* RuntimeMetadata+Internal.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuntimeMetadata+Internal.swift"; sourceTree = "<group>"; };
+		84A6172D2625CAB8007B75E1 /* ElectionStatusSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectionStatusSource.swift; sourceTree = "<group>"; };
 		84ACEBF1261E664900AAE665 /* WalletHistoryFilterViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterViewModel.swift; sourceTree = "<group>"; };
 		84ACEBF9261E684A00AAE665 /* WalletHistoryFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilter.swift; sourceTree = "<group>"; };
 		84ACEBFE261E6C7C00AAE665 /* WalletHistoryFilterViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletHistoryFilterViewLayout.swift; sourceTree = "<group>"; };
@@ -2817,6 +2827,7 @@
 				8463A73725E3AA47003B8160 /* DyAccountInfo.swift */,
 				84F98D8925E3DD3F0040418E /* StorageCodingPath.swift */,
 				84DB4E6B25EA740600A6DF41 /* ConstantCodingPath.swift */,
+				84A6171A2625AC3E007B75E1 /* CallCodingPath.swift */,
 				848FFE9925E6E0E400652AA5 /* ValidatorExposure.swift */,
 				84F2FEFE25E7ADE7008338D5 /* ValidatorPrefs.swift */,
 				84BE207725E7D62100B4748C /* ActiveEraInfo.swift */,
@@ -2830,6 +2841,7 @@
 				84F30EDD25FF978D00039D09 /* ElectionStatus.swift */,
 				84F30EEB25FFF40C00039D09 /* Nomination.swift */,
 				F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */,
+				84A6170726257DFD007B75E1 /* ElectionPhase.swift */,
 			);
 			path = Types;
 			sourceTree = "<group>";
@@ -2841,6 +2853,7 @@
 				849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */,
 				845BB8BF25E4508800E5FCDC /* SS58FactoryExtensions.swift */,
 				842349C42624E98C0066ACFE /* MultiAddress+Query.swift */,
+				84A617252625AF51007B75E1 /* RuntimeMetadata+Internal.swift */,
 			);
 			path = FearlessUtils;
 			sourceTree = "<group>";
@@ -3037,6 +3050,7 @@
 				8463A71E25E39E07003B8160 /* StorageProviderSource.swift */,
 				84F4386F25D9BC3900AEDA56 /* EmptyStreamableSource.swift */,
 				841494442604E7D8000D8D1A /* SubscanRewardSource.swift */,
+				84A6172D2625CAB8007B75E1 /* ElectionStatusSource.swift */,
 			);
 			path = Sources;
 			sourceTree = "<group>";
@@ -3219,6 +3233,7 @@
 				84F30E9625FD3C5300039D09 /* EventEmittingStorageSubscription.swift */,
 				84F30E9B25FD3DBC00039D09 /* EmptyHandlingStorageSubscription.swift */,
 				84F30EA025FD3EE700039D09 /* ChildSubscriptionFactory.swift */,
+				84A617152625947B007B75E1 /* ElectionStatusSubscription.swift */,
 			);
 			path = StorageSubscription;
 			sourceTree = "<group>";
@@ -5525,6 +5540,7 @@
 				843910BB253F021E00E3C217 /* WalletStakingChanged.swift in Sources */,
 				84EBC55F24F71D6A00459D15 /* UITableViewCell+ReorderColor.swift in Sources */,
 				84D8F17124D856D300AF43E9 /* SNAddressType+ViewModel.swift in Sources */,
+				84A617262625AF51007B75E1 /* RuntimeMetadata+Internal.swift in Sources */,
 				842876B324AE059700D91AD8 /* AboutData.swift in Sources */,
 				84EBC55B24F660F500459D15 /* SelectedAccountChanged.swift in Sources */,
 				84452F9325D5EE7300F47EC5 /* DataOperationFactory.swift in Sources */,
@@ -6023,6 +6039,7 @@
 				84969732251CE71500C39524 /* WalletAssetId.swift in Sources */,
 				8436EDEF25896722004D9E97 /* PurchaseAggregator+Default.swift in Sources */,
 				8467FD5524EFD254005D486C /* StorageFacadeProtocol.swift in Sources */,
+				84A6170826257DFD007B75E1 /* ElectionPhase.swift in Sources */,
 				9E15912C35D50C6D738FD04C /* AccountConfirmProtocols.swift in Sources */,
 				84EBC53C24F6401F00459D15 /* BaseAccountImportInteractor.swift in Sources */,
 				8463A70A25E30017003B8160 /* SubscanPriceSource.swift in Sources */,
@@ -6073,6 +6090,7 @@
 				84C91FAA261E724F002796B9 /* SwitchTableViewCell.swift in Sources */,
 				84644A0725670B03004EAA4B /* TriangularedBlurView.swift in Sources */,
 				153B25C7D48B571CFF0FA62C /* AccountInfoWireframe.swift in Sources */,
+				84A6171B2625AC3E007B75E1 /* CallCodingPath.swift in Sources */,
 				8488ECD7258CDCBC004591CC /* PurchaseCompletionHandler.swift in Sources */,
 				84FAB06B2542F2C700319F74 /* ContactsViewModelFactory.swift in Sources */,
 				84FAB0782543791A00319F74 /* ContactContext.swift in Sources */,
@@ -6115,6 +6133,7 @@
 				84265E062523D7BE005EEE2D /* WalletInputAmountView.swift in Sources */,
 				612FCA358D3DD9405477C445 /* AddConnectionWireframe.swift in Sources */,
 				AE9EF269260A82C30026910A /* StoriesProtocols.swift in Sources */,
+				84A617162625947B007B75E1 /* ElectionStatusSubscription.swift in Sources */,
 				2A66CF4F25D109780006E4C1 /* CDPhishingItem+CoreDataDecodable.swift in Sources */,
 				8460517225536E3F00A1F0B4 /* ExportGenericViewModelBinder.swift in Sources */,
 				EF707B3A929EFA51B874E43A /* AddConnectionPresenter.swift in Sources */,
@@ -6133,6 +6152,7 @@
 				843910C9253F591D00E3C217 /* ScaleDecoderOperation.swift in Sources */,
 				84DF219F25346696005454AE /* WalletAccountInfoCommand.swift in Sources */,
 				668141E18654C64F5023815A /* ModifyConnectionViewFactory.swift in Sources */,
+				84A6172E2625CAB8007B75E1 /* ElectionStatusSource.swift in Sources */,
 				4B9B7184914B75D9B0317953 /* CommingSoonProtocols.swift in Sources */,
 				596365A03768C86B620820A1 /* CommingSoonWireframe.swift in Sources */,
 				AE9EF273260A82FB0026910A /* StorySlide.swift in Sources */,
