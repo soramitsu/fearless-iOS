@@ -49,7 +49,6 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
-        rootView.tableView.registerHeaderFooterView(withClass: StakingRewardHistoryHeaderView.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
@@ -85,13 +84,6 @@ extension StakingRewardPayoutsViewController: Localizable {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView: StakingRewardHistoryHeaderView = tableView.dequeueReusableHeaderFooterView()
-        let model = stubCellData[section].0
-        headerView.bind(model: model)
-        return headerView
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.handleSelectedHistory(at: indexPath)
@@ -100,53 +92,43 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
     // TODO: delete stub data
-    var stubCellData: [(String, [StakingRewardHistoryTableCell.ViewModel])] {
+    var stubCellData: [StakingRewardHistoryTableCell.ViewModel] {
         [
-            ("DEC 15, 2021 (era #1,615)".uppercased(), [
-                .init(
-                    addressOrName: "SORAMITSU",
-                    daysLeftText: "2 days left",
-                    ksmAmountText: "+0.012 KSM",
-                    usdAmountText: "$1.4"
-                )
-            ]),
-            ("Feb 1, 2021 (era #1,685)".uppercased(), [
-                .init(
-                    addressOrName: "SORAMITSU",
-                    daysLeftText: "16 days left",
-                    ksmAmountText: "+0.012 KSM",
-                    usdAmountText: "$1.4"
-                )
-            ]),
-            ("Feb 2, 2021 (era #1,688)".uppercased(), [
-                .init(
-                    addressOrName: "✨👍✨ Day7 ✨👍✨",
-                    daysLeftText: "17 days left",
-                    ksmAmountText: "+0.002 KSM",
-                    usdAmountText: "$0.3"
-                ),
-                .init(
-                    addressOrName: "✨👍✨ Day7 ✨👍✨ aaaa aaaa aaaa aaa",
-                    daysLeftText: "17 days left",
-                    ksmAmountText: "+0.002 KSM",
-                    usdAmountText: "$0.3"
-                )
-            ])
+            .init(
+                addressOrName: "SORAMITSU",
+                daysLeftText: "2 days left",
+                ksmAmountText: "+0.012 KSM",
+                usdAmountText: "$1.4"
+            ),
+            .init(
+                addressOrName: "SORAMITSU",
+                daysLeftText: "16 days left",
+                ksmAmountText: "+0.012 KSM",
+                usdAmountText: "$1.4"
+            ),
+            .init(
+                addressOrName: "✨👍✨ Day7 ✨👍✨",
+                daysLeftText: "17 days left",
+                ksmAmountText: "+0.002 KSM",
+                usdAmountText: "$0.3"
+            ),
+            .init(
+                addressOrName: "✨👍✨ Day7 ✨👍✨ aaaa aaaa aaaa aaa",
+                daysLeftText: "17 days left",
+                ksmAmountText: "+0.002 KSM",
+                usdAmountText: "$0.3"
+            )
         ]
     }
 
-    func numberOfSections(in _: UITableView) -> Int {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         stubCellData.count
-    }
-
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        stubCellData[section].1.count
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
-        let model = stubCellData[indexPath.section].1[indexPath.row]
+        let model = stubCellData[indexPath.row]
         cell.bind(model: model)
         return cell
     }
