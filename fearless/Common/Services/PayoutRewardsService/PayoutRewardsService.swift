@@ -101,7 +101,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                         $0.addDependency(steps1to3OperationWrapper.targetOperation)
                     }
 
-                    let exposureByEraOperation = try self.createValidatorInfoDataGroupedByValidatorStash(
+                    let exposureByEraOperation = try self.validatorExposureGroupedByEraOperation(
                         dependingOn: unclaimedErasByStashOperation.targetOperation,
                         engine: self.engine,
                         codingFactoryOperation: codingFactoryOperation
@@ -109,9 +109,17 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     exposureByEraOperation.allOperations
                         .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
 
-                    exposureByEraOperation.targetOperation.completionBlock = {
+                    let prefsByEraOperation = try self.validatorPrefsGroupedByEraOperation(
+                        dependingOn: unclaimedErasByStashOperation.targetOperation,
+                        engine: self.engine,
+                        codingFactoryOperation: codingFactoryOperation
+                    )
+                    prefsByEraOperation.allOperations
+                        .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
+
+                    prefsByEraOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! exposureByEraOperation
+                        let res = try! prefsByEraOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
@@ -122,6 +130,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                             + ledgerInfos.allOperations
                             + unclaimedErasByStashOperation.allOperations
                             + exposureByEraOperation.allOperations
+                            + prefsByEraOperation.allOperations
 
                     self.operationManager.enqueue(
                         operations: operations,
