@@ -70,9 +70,9 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
         accountView.title = R.string.localizable
-            .stakingRewardPayoutAccount(preferredLanguages: languages)
+            .stakingRewardDestinationTitle(preferredLanguages: languages)
 
-        accountView.actionImage = R.image.iconSmallArrow()
+        accountView.actionImage = R.image.iconSmallArrowDown()
 
         accountView.addTarget(
             self,
