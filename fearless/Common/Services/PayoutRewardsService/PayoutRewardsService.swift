@@ -1,6 +1,7 @@
 import Foundation
 import FearlessUtils
 import RobinHood
+import BigInt
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     func update(to _: Chain) {}
@@ -117,9 +118,19 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     prefsByEraOperation.allOperations
                         .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
 
-                    exposureByEraOperation.targetOperation.completionBlock = {
+                    let rewardPerValidatorOperation = try self.calculateRewardPerValidatorOperation(
+                        steps4And5Oparation: steps4And5OperationWrapper.targetOperation,
+                        ledgerInfoOperation: ledgerInfos.targetOperation,
+                        chain: self.chain
+                    )
+                    rewardPerValidatorOperation.allOperations.forEach {
+                        $0.addDependency(steps4And5OperationWrapper.targetOperation)
+                        $0.addDependency(ledgerInfos.targetOperation)
+                    }
+
+                    rewardPerValidatorOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! exposureByEraOperation
+                        let res = try! rewardPerValidatorOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
@@ -131,6 +142,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                             + unclaimedErasByStashOperation.allOperations
                             + exposureByEraOperation.allOperations
                             + prefsByEraOperation.allOperations
+                            + rewardPerValidatorOperation.allOperations
 
                     self.operationManager.enqueue(
                         operations: operations,
@@ -152,4 +164,60 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             completion(.failure(error))
         }
     }
+
+//    func calculateNominatorsRewardOperation(
+//        steps4And5Oparation: BaseOperation<PayoutSteps4And5Result>,
+//        exposureByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorExposure)]]>,
+//        prefsByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorPrefs)]]>
+//    ) throws -> CompoundOperationWrapper<NominatorReward> {
+//
+//    }
+
+    func calculateRewardPerValidatorOperation(
+        steps4And5Oparation: BaseOperation<PayoutSteps4And5Result>,
+        ledgerInfoOperation: BaseOperation<[DyStakingLedger]>,
+        chain: Chain
+    ) throws -> CompoundOperationWrapper<[Data: [EraIndex: Decimal]]> {
+        let mergeOperation = ClosureOperation<[Data: [EraIndex: Decimal]]> {
+            let steps4And5Result = try steps4And5Oparation
+                .extractNoCancellableResultData()
+            let ledgerInfo = try ledgerInfoOperation.extractNoCancellableResultData()
+            let stashes = ledgerInfo.map(\.stash)
+
+            let totalRewardsByEra = steps4And5Result.totalValidatorRewardByEra
+            let pointsByEra = steps4And5Result.validatorPointsDistributionByEra
+
+            return stashes
+                .reduce(into: [Data: [EraIndex: Decimal]]()) { dict, stash in
+                    let validatorRewardByEra = totalRewardsByEra
+                        .reduce(into: [EraIndex: Decimal]()) { dict, totalRewardByEra in
+                            let (era, totalReward) = totalRewardByEra
+                            guard
+                                let rewardPoints = pointsByEra[era],
+                                let totalRewardDecimal = Decimal.fromSubstrateAmount(
+                                    totalReward,
+                                    precision: chain.addressType.precision
+                                ),
+                                let validatorPoint = rewardPoints
+                                .individual
+                                .first(where: { $0.accountId == stash })
+                                .map(\.rewardPoint)
+                            else { return }
+
+                            let ratio = Decimal(validatorPoint) / Decimal(rewardPoints.total)
+
+                            let validatorReward = totalRewardDecimal * ratio
+                            dict[era] = validatorReward
+                        }
+                    
+                    dict[stash] = validatorRewardByEra
+                }
+        }
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation)
+    }
+}
+
+struct NominatorReward {
+    let rewardByStash: [Data: [(EraIndex, ValidatorExposure, ValidatorPrefs)]]
 }
