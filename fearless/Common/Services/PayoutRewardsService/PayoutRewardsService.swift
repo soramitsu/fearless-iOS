@@ -44,6 +44,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.logger = logger
     }
 
+    // swiftlint:disable function_body_length
     func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure) {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
@@ -99,7 +100,8 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                         ledgerInfoOperation: ledgerInfos.targetOperation,
                         steps1to3Operation: steps1to3OperationWrapper.targetOperation
                     )
-                    unclaimedErasByStashOperation.allOperations.forEach { $0.addDependency(ledgerInfos.targetOperation)
+                    unclaimedErasByStashOperation.allOperations.forEach {
+                        $0.addDependency(ledgerInfos.targetOperation)
                         $0.addDependency(steps1to3OperationWrapper.targetOperation)
                     }
 
@@ -143,10 +145,21 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     }
 
                     rewardOperation.targetOperation.completionBlock = {
-                        // swiftlint:disable force_try
-                        let rewards = try! rewardOperation
-                            .targetOperation.extractNoCancellableResultData()
-                        completion(.success(rewards))
+                        do {
+                            let rewards = try rewardOperation
+                                .targetOperation.extractNoCancellableResultData()
+                            let payoutItems = rewards
+                                .reduce(into: [PayoutItem]()) { items, rewardsDict in
+                                    let item = PayoutItem(
+                                        validatorAccount: rewardsDict.key,
+                                        rewardsByEra: rewardsDict.value
+                                    )
+                                    items.append(item)
+                                }
+                            completion(.success(payoutItems))
+                        } catch {
+                            completion(.failure(error))
+                        }
                     }
 
                     let operations: [Operation] =

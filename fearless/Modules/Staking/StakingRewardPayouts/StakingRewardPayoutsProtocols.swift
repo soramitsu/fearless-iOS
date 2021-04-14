@@ -5,6 +5,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable
     func stopLoading()
     func showEmptyView()
     func hideEmptyView()
+    func showRetryState()
     func reloadTable(with cellViewModels: [StakingRewardHistoryCellViewModel])
 }
 
@@ -14,9 +15,13 @@ protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func handlePayoutAction()
 }
 
-protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {}
+protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {}
+protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
+    func didReceive(result: Result<[PayoutItem], Error>)
+}
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
     func showRewardDetails(from view: ControllerBackedProtocol?)

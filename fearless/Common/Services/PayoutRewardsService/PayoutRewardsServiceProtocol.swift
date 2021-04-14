@@ -1,6 +1,11 @@
 import Foundation
 
-typealias PayoutRewardsClosure = (Result<[Data: [(EraIndex, Decimal)]], Error>) -> Void
+typealias PayoutRewardsClosure = (Result<[PayoutItem], Error>) -> Void
+
+struct PayoutItem {
+    let validatorAccount: Data
+    let rewardsByEra: [(EraIndex, Decimal)]
+}
 
 /// StakingPayoutService
 protocol PayoutRewardsServiceProtocol {

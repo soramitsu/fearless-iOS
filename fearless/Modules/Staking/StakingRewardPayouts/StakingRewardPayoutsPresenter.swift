@@ -10,11 +10,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {
         view?.hideEmptyView()
         view?.startLoading()
-
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak view] in
-            view?.stopLoading()
-            view?.showEmptyView()
-        }
+        interactor.setup()
     }
 
     func handleSelectedHistory(at _: IndexPath) {
@@ -25,6 +21,40 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func handlePayoutAction() {
         wireframe.showRewardDetails(from: view)
     }
+
+    private func createCellViewModels(
+        for payouts: [PayoutItem]
+    ) -> [StakingRewardHistoryCellViewModel] {
+        payouts.map { payoutByValidator -> [StakingRewardHistoryCellViewModel] in
+            payoutByValidator.rewardsByEra.map { era, reward in
+                StakingRewardHistoryCellViewModel(
+                    addressOrName: payoutByValidator.validatorAccount.description,
+                    daysLeftText: era.description,
+                    ksmAmountText: "\(reward.description) KSM",
+                    usdAmountText: "$\((reward / 10.0).description)"
+                )
+            }
+        }
+        .flatMap { $0 }
+    }
 }
 
-extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {}
+extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
+    func didReceive(result: Result<[PayoutItem], Error>) {
+        DispatchQueue.main.async {
+            self.view?.stopLoading()
+
+            switch result {
+            case let .success(payouts):
+                if payouts.isEmpty {
+                    self.view?.showEmptyView()
+                } else {
+                    let cellViewModels = self.createCellViewModels(for: payouts)
+                    self.view?.reloadTable(with: cellViewModels)
+                }
+            case let .failure(error):
+                self.view?.showRetryState()
+            }
+        }
+    }
+}

@@ -69,6 +69,10 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 }
 
 extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
+    func showRetryState() {
+        // TODO:
+    }
+
     func showEmptyView() {
         rootView.payoutButton.isHidden = true
         rootView.emptyImageView.isHidden = false
