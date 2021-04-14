@@ -7,6 +7,7 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     // MARK: Properties -
 
     let presenter: StakingRewardPayoutsPresenterProtocol
+    private var cellViewModels: [StakingRewardHistoryCellViewModel] = []
 
     // MARK: Init -
 
@@ -79,6 +80,21 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
         rootView.emptyImageView.isHidden = true
         rootView.emptyLabel.isHidden = true
     }
+
+    func reloadTable(with cellViewModels: [StakingRewardHistoryCellViewModel]) {
+        self.cellViewModels = cellViewModels
+        rootView.tableView.reloadData()
+    }
+
+    func startLoading() {
+        rootView.activityIndicatorView.startAnimating()
+        rootView.payoutButton.isHidden = true
+    }
+
+    func stopLoading() {
+        rootView.activityIndicatorView.stopAnimating()
+        rootView.payoutButton.isHidden = false
+    }
 }
 
 extension StakingRewardPayoutsViewController: Localizable {
@@ -103,44 +119,14 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
-    // TODO: delete stub data
-    var stubCellData: [StakingRewardHistoryTableCell.ViewModel] {
-        [
-            .init(
-                addressOrName: "SORAMITSU",
-                daysLeftText: "2 days left",
-                ksmAmountText: "+0.012 KSM",
-                usdAmountText: "$1.4"
-            ),
-            .init(
-                addressOrName: "SORAMITSU",
-                daysLeftText: "16 days left",
-                ksmAmountText: "+0.012 KSM",
-                usdAmountText: "$1.4"
-            ),
-            .init(
-                addressOrName: "✨👍✨ Day7 ✨👍✨",
-                daysLeftText: "17 days left",
-                ksmAmountText: "+0.002 KSM",
-                usdAmountText: "$0.3"
-            ),
-            .init(
-                addressOrName: "✨👍✨ Day7 ✨👍✨ aaaa aaaa aaaa aaa",
-                daysLeftText: "17 days left",
-                ksmAmountText: "+0.002 KSM",
-                usdAmountText: "$0.3"
-            )
-        ]
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        stubCellData.count
+        cellViewModels.count
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
-        let model = stubCellData[indexPath.row]
+        let model = cellViewModels[indexPath.row]
         cell.bind(model: model)
         return cell
     }

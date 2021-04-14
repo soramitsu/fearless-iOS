@@ -7,7 +7,15 @@ final class StakingRewardPayoutsPresenter {
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
-    func setup() {}
+    func setup() {
+        view?.hideEmptyView()
+        view?.startLoading()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak view] in
+            view?.stopLoading()
+            view?.showEmptyView()
+        }
+    }
 
     func handleSelectedHistory(at _: IndexPath) {
         // TODO: get model by indexPath -> pass to wireframe

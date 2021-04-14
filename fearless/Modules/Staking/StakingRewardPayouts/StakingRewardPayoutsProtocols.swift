@@ -1,8 +1,11 @@
 import SoraFoundation
 
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable {
+    func startLoading()
+    func stopLoading()
     func showEmptyView()
     func hideEmptyView()
+    func reloadTable(with cellViewModels: [StakingRewardHistoryCellViewModel])
 }
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {

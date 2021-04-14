@@ -26,6 +26,12 @@ final class StakingRewardPayoutsViewLayout: UIView {
         return label
     }()
 
+    let activityIndicatorView: UIActivityIndicatorView = {
+        let activityIndicator = UIActivityIndicatorView(style: .white)
+        activityIndicator.hidesWhenStopped = true
+        return activityIndicator
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -60,5 +66,8 @@ final class StakingRewardPayoutsViewLayout: UIView {
             make.bottom.equalTo(emptyLabel.snp.top)
             make.centerX.equalToSuperview()
         }
+
+        addSubview(activityIndicatorView)
+        activityIndicatorView.snp.makeConstraints { $0.center.equalToSuperview() }
     }
 }

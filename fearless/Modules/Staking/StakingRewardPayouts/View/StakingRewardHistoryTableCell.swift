@@ -124,14 +124,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
 }
 
 extension StakingRewardHistoryTableCell {
-    struct ViewModel {
-        let addressOrName: String
-        let daysLeftText: String
-        let ksmAmountText: String
-        let usdAmountText: String
-    }
-
-    func bind(model: ViewModel) {
+    func bind(model: StakingRewardHistoryCellViewModel) {
         addressLabel.text = model.addressOrName
         daysLeftLabel.text = model.daysLeftText
         ksmAmountLabel.text = model.ksmAmountText
