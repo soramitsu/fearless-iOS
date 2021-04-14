@@ -2,6 +2,7 @@ import Foundation
 import FearlessUtils
 import RobinHood
 import BigInt
+import IrohaCrypto
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     func update(to _: Chain) {}
@@ -128,9 +129,22 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                         $0.addDependency(ledgerInfos.targetOperation)
                     }
 
-                    rewardPerValidatorOperation.targetOperation.completionBlock = {
+                    let rewardOperation = try self.calculateRewardOperation(
+                        rewardPerValidatorOparation: rewardPerValidatorOperation.targetOperation,
+                        exposureByEraOperation: exposureByEraOperation.targetOperation,
+                        prefsByEraOperation: prefsByEraOperation.targetOperation,
+                        nominatorStashAccount: self.selectedAccountAddress,
+                        chain: self.chain
+                    )
+                    rewardOperation.allOperations.forEach {
+                        $0.addDependency(rewardPerValidatorOperation.targetOperation)
+                        $0.addDependency(exposureByEraOperation.targetOperation)
+                        $0.addDependency(prefsByEraOperation.targetOperation)
+                    }
+
+                    rewardOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! rewardPerValidatorOperation
+                        let res = try! rewardOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }
@@ -143,6 +157,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                             + exposureByEraOperation.allOperations
                             + prefsByEraOperation.allOperations
                             + rewardPerValidatorOperation.allOperations
+                            + rewardOperation.allOperations
 
                     self.operationManager.enqueue(
                         operations: operations,
@@ -165,13 +180,79 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         }
     }
 
-//    func calculateNominatorsRewardOperation(
-//        steps4And5Oparation: BaseOperation<PayoutSteps4And5Result>,
-//        exposureByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorExposure)]]>,
-//        prefsByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorPrefs)]]>
-//    ) throws -> CompoundOperationWrapper<NominatorReward> {
-//
-//    }
+    func calculateRewardOperation(
+        rewardPerValidatorOparation: BaseOperation<[Data: [EraIndex: Decimal]]>,
+        exposureByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorExposure)]]>,
+        prefsByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorPrefs)]]>,
+        nominatorStashAccount: String,
+        chain: Chain
+    ) throws -> CompoundOperationWrapper<[Data: [(EraIndex, Decimal)]]> {
+        let ownAccountId = try SS58AddressFactory().accountId(
+            fromAddress: nominatorStashAccount,
+            type: chain.addressType
+        )
+
+        let mergeOperation = ClosureOperation<[Data: [(EraIndex, Decimal)]]> {
+            let rewardPerValidator = try rewardPerValidatorOparation
+                .extractNoCancellableResultData()
+            let exposureByEra = try exposureByEraOperation
+                .extractNoCancellableResultData()
+            let prefsByEra = try prefsByEraOperation
+                .extractNoCancellableResultData()
+
+            return rewardPerValidator
+                .reduce(into: [Data: [(EraIndex, Decimal)]]()) { dict, item in
+                    let (stash, validatorRewardPerEra) = (item.key, item.value)
+
+                    let nominatorRewardByEra = validatorRewardPerEra
+                        .reduce(into: [(EraIndex, Decimal)]()) { array, tuple in
+                            let (era, validatorRewardPerEra) = tuple
+
+                            guard
+                                let prefs = prefsByEra[era],
+                                let validatorComission = prefs
+                                .first(where: { $0.0 == stash })
+                                .map(\.1.commission)
+                                .map({ Decimal.fromSubstratePerbill(value: $0)! }),
+                                let exposure = exposureByEra[era],
+                                let maybeTotalStake = exposure
+                                .first(where: { $0.0 == stash })
+                                .map(\.1.total)
+                                .map({ Decimal.fromSubstrateAmount(
+                                    $0,
+                                    precision: chain.addressType.precision
+                                ) }),
+                                let totalStake = maybeTotalStake,
+                                let maybeMominatorStake = exposure
+                                .first(where: { $0.0 == stash })
+                                .map(\.1)
+                                .map({ exposure -> Decimal? in
+                                    exposure.others
+                                        .first(where: { $0.who == ownAccountId })
+                                        .map { Decimal.fromSubstrateAmount(
+                                            $0.value,
+                                            precision: chain.addressType.precision
+                                        )! }
+                                }),
+                                let nominatorStake = maybeMominatorStake
+                            else {
+                                return
+                            }
+                            let nominatorReward = validatorRewardPerEra
+                                * (Decimal(1) - validatorComission)
+                                * nominatorStake / totalStake
+
+                            array.append((era, nominatorReward))
+                        }
+
+                    if !nominatorRewardByEra.isEmpty {
+                        dict[stash] = nominatorRewardByEra
+                    }
+                }
+        }
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation)
+    }
 
     func calculateRewardPerValidatorOperation(
         steps4And5Oparation: BaseOperation<PayoutSteps4And5Result>,
@@ -209,7 +290,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                             let validatorReward = totalRewardDecimal * ratio
                             dict[era] = validatorReward
                         }
-                    
+
                     dict[stash] = validatorRewardByEra
                 }
         }
