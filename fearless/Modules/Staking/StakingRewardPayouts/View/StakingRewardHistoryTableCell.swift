@@ -13,6 +13,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
     private let addressLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
+        label.lineBreakMode = .byTruncatingMiddle
         label.textColor = R.color.colorWhite()
         return label
     }()
@@ -127,7 +128,7 @@ extension StakingRewardHistoryTableCell {
     func bind(model: StakingRewardHistoryCellViewModel) {
         addressLabel.text = model.addressOrName
         daysLeftLabel.text = model.daysLeftText
-        ksmAmountLabel.text = model.ksmAmountText
+        ksmAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
     }
 }

@@ -1,9 +1,9 @@
 import Foundation
+import SoraKeystore
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
     static func createView() -> StakingRewardPayoutsViewProtocol? {
-        let presenter = StakingRewardPayoutsPresenter()
-        let view = StakingRewardPayoutsViewController(presenter: presenter)
+        guard let connection = WebSocketService.shared.connection else { return nil }
 
         let chain = Chain.westend
         let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
@@ -11,7 +11,19 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let operationManager = OperationManagerFacade.sharedManager
         let logger = Logger.shared
 
-        guard let connection = WebSocketService.shared.connection else { return nil }
+        let settings = SettingsManager.shared
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+        let presenter = StakingRewardPayoutsPresenter(
+            chain: chain,
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+        let view = StakingRewardPayoutsViewController(presenter: presenter)
 
         let providerFactory = SubstrateDataProviderFactory(
             facade: storageFacade,
