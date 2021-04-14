@@ -329,3 +329,4 @@ Derivation path: %@";
 "wallet.filters.header" = "Show";
 "transfer.title" = "Transfer";
 "common.available.format" = "Available: %@";
+"staking.rewards.learn.more" = "Learn more about rewards";
