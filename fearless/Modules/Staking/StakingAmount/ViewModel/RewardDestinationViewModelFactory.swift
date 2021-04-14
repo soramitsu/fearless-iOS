@@ -70,23 +70,30 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         amountFormatter: LocalizableResource<TokenAmountFormatter>,
         type: RewardDestinationTypeViewModel
     ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
-        LocalizableResource { locale in
+        let percentageAPYFormatter = NumberFormatter.positivePercentAPY.localizableResource()
+        let percentageAPRFormatter = NumberFormatter.positivePercentAPR.localizableResource()
+
+        return LocalizableResource { locale in
             let amountFormatter = amountFormatter.value(for: locale)
-            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+
+            let zeroAmount = amountFormatter.string(from: 0.0) ?? "0"
 
             let restakeAmount = model.restakeReturn > 0.0 ?
                 amountFormatter.string(from: model.restakeReturn) : nil
-            let restakePercentage = percentageFormatter.string(from: model.restakeReturnPercentage as NSNumber)
+            let restakePercentage = percentageAPYFormatter
+                .value(for: locale)
+                .string(from: model.restakeReturnPercentage as NSNumber)
 
             let payoutAmount = model.payoutReturn > 0.0 ?
                 amountFormatter.string(from: model.payoutReturn) : nil
-            let payoutPercentage = percentageFormatter
+            let payoutPercentage = percentageAPRFormatter
+                .value(for: locale)
                 .string(from: model.payoutReturnPercentage as NSNumber)
 
             let rewardViewModel = DestinationReturnViewModel(
-                restakeAmount: restakeAmount ?? "",
+                restakeAmount: restakeAmount ?? zeroAmount,
                 restakePercentage: restakePercentage ?? "",
-                payoutAmount: payoutAmount ?? "",
+                payoutAmount: payoutAmount ?? zeroAmount,
                 payoutPercentage: payoutPercentage ?? ""
             )
 

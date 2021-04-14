@@ -3,7 +3,6 @@ import SoraUI
 
 class RewardSelectionView: BackgroundedContentControl {
     private(set) var titleLabel: UILabel!
-    private(set) var subtitleLabel: UILabel!
     private(set) var earningsTitleLabel: UILabel!
     private(set) var earningsSubtitleLabel: UILabel!
     private(set) var iconView: UIImageView!
@@ -37,14 +36,11 @@ class RewardSelectionView: BackgroundedContentControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        let topContentHeight = max(
-            titleLabel.intrinsicContentSize.height,
+        let topContentHeight =
             earningsTitleLabel.intrinsicContentSize.height
-        )
-        let bottomContentHeight = max(
-            subtitleLabel.intrinsicContentSize.height,
+
+        let bottomContentHeight =
             earningsSubtitleLabel.intrinsicContentSize.height
-        )
 
         let height = contentInsets.top + topContentHeight + verticalSpacing
             + bottomContentHeight + contentInsets.bottom
@@ -75,6 +71,12 @@ class RewardSelectionView: BackgroundedContentControl {
 
         contentView?.frame = bounds
 
+        layoutMiddleContent()
+        layoutTopContent()
+        layoutBottomContent()
+    }
+
+    private func layoutMiddleContent() {
         iconView.frame = CGRect(
             x: bounds.minX,
             y: bounds.minY,
@@ -82,23 +84,21 @@ class RewardSelectionView: BackgroundedContentControl {
             height: bounds.height
         )
 
-        layoutTopContent()
-        layoutBottomContent()
-    }
-
-    private func layoutTopContent() {
         let availableWidth = bounds.width - selectionWidth - contentInsets.right
         let titleSize = titleLabel.intrinsicContentSize
-        let earningsSize = earningsTitleLabel.intrinsicContentSize
-
-        let centerY = bounds.minY + contentInsets.top + max(titleSize.height, earningsSize.height) / 2.0
 
         titleLabel.frame = CGRect(
             x: bounds.minX + selectionWidth,
-            y: centerY - titleSize.height / 2.0,
+            y: (bounds.height - titleSize.height) / 2.0,
             width: min(availableWidth, titleSize.width),
             height: titleSize.height
         )
+    }
+
+    private func layoutTopContent() {
+        let earningsSize = earningsTitleLabel.intrinsicContentSize
+
+        let centerY = bounds.minY + contentInsets.top + earningsSize.height / 2.0
 
         let estimatedEarningsWidth = bounds.maxX - contentInsets.right
             - titleLabel.frame.maxX - horizontalSpacing
@@ -113,22 +113,13 @@ class RewardSelectionView: BackgroundedContentControl {
     }
 
     private func layoutBottomContent() {
-        let availableWidth = bounds.width - selectionWidth - contentInsets.right
-        let subtitleSize = subtitleLabel.intrinsicContentSize
         let earningsSize = earningsSubtitleLabel.intrinsicContentSize
 
         let centerY = bounds.maxY - contentInsets.bottom -
-            max(subtitleSize.height, earningsSize.height) / 2.0
-
-        subtitleLabel.frame = CGRect(
-            x: bounds.minX + selectionWidth,
-            y: centerY - subtitleSize.height / 2.0,
-            width: min(availableWidth, subtitleSize.width),
-            height: subtitleSize.height
-        )
+            earningsSize.height / 2.0
 
         let estimatedEarningsWidth = bounds.maxX - contentInsets.right
-            - subtitleLabel.frame.maxX - horizontalSpacing
+            - titleLabel.frame.maxX - horizontalSpacing
         let earningsWidth = max(min(estimatedEarningsWidth, earningsSize.width), 0.0)
 
         earningsSubtitleLabel.frame = CGRect(
@@ -175,11 +166,6 @@ class RewardSelectionView: BackgroundedContentControl {
         if earningsTitleLabel == nil {
             earningsTitleLabel = UILabel()
             contentView?.addSubview(earningsTitleLabel)
-        }
-
-        if subtitleLabel == nil {
-            subtitleLabel = UILabel()
-            contentView?.addSubview(subtitleLabel)
         }
 
         if earningsSubtitleLabel == nil {
