@@ -11,7 +11,7 @@ final class StakingAmountWireframe: StakingAmountWireframeProtocol {
     ) {
         let title = LocalizableResource { locale in
             R.string.localizable
-                .stakingRewardPayoutAccount(preferredLanguages: locale.rLanguages)
+                .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
         }
 
         guard let picker = ModalPickerFactory.createPickerList(
