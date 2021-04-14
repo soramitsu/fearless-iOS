@@ -13,7 +13,9 @@ final class StakingRewardPayoutsInteractor {
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
         payoutService.fetchPayoutRewards { [weak presenter] result in
-            presenter?.didReceive(result: result)
+            DispatchQueue.main.async {
+                presenter?.didReceive(result: result)
+            }
         }
     }
 }

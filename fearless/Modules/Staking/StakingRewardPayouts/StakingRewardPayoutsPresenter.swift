@@ -51,23 +51,21 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
     func didReceive(result: Result<[PayoutItem], Error>) {
-        DispatchQueue.main.async {
-            self.view?.stopLoading()
+        view?.stopLoading()
 
-            switch result {
-            case let .success(payouts):
-                if payouts.isEmpty {
-                    self.view?.showEmptyView()
-                } else {
-                    let viewModel = StakingRewardReloadViewModel(
-                        cellViewModels: self.createCellViewModels(for: payouts),
-                        bottomButtonTitle: self.defineBottomButtonTitle(for: payouts)
-                    )
-                    self.view?.reload(with: viewModel)
-                }
-            case let .failure(error):
-                self.view?.showRetryState()
+        switch result {
+        case let .success(payouts):
+            if payouts.isEmpty {
+                view?.showEmptyView()
+            } else {
+                let viewModel = StakingPayoutViewModel(
+                    cellViewModels: createCellViewModels(for: payouts),
+                    bottomButtonTitle: defineBottomButtonTitle(for: payouts)
+                )
+                view?.reload(with: viewModel)
             }
+        case let .failure(error):
+            view?.showRetryState()
         }
     }
 }
