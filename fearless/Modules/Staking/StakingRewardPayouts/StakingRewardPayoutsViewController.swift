@@ -85,8 +85,9 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
         rootView.emptyLabel.isHidden = true
     }
 
-    func reloadTable(with cellViewModels: [StakingRewardHistoryCellViewModel]) {
-        self.cellViewModels = cellViewModels
+    func reload(with viewModel: StakingRewardReloadViewModel) {
+        cellViewModels = viewModel.cellViewModels
+        rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
         rootView.tableView.reloadData()
     }
 

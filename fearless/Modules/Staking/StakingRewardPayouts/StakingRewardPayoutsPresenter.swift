@@ -37,6 +37,16 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         }
         .flatMap { $0 }
     }
+
+    private func defineBottomButtonTitle(
+        for payouts: [PayoutItem]
+    ) -> String {
+        let totalReward = payouts
+            .reduce(into: Decimal(0)) { reward, payout in
+                reward += payout.totalReward
+            }
+        return totalReward.description
+    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
@@ -49,12 +59,24 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
                 if payouts.isEmpty {
                     self.view?.showEmptyView()
                 } else {
-                    let cellViewModels = self.createCellViewModels(for: payouts)
-                    self.view?.reloadTable(with: cellViewModels)
+                    let viewModel = StakingRewardReloadViewModel(
+                        cellViewModels: self.createCellViewModels(for: payouts),
+                        bottomButtonTitle: self.defineBottomButtonTitle(for: payouts)
+                    )
+                    self.view?.reload(with: viewModel)
                 }
             case let .failure(error):
                 self.view?.showRetryState()
             }
         }
+    }
+}
+
+extension PayoutItem {
+    var totalReward: Decimal {
+        rewardsByEra
+            .reduce(into: Decimal(0)) { totalReward, tuple in
+                totalReward += tuple.1
+            }
     }
 }

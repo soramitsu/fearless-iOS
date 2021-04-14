@@ -978,6 +978,7 @@
 		F462B364260C88050005AB01 /* UITableView+Reuse.swift in Sources */ = {isa = PBXBuildFile; fileRef = F462B363260C88050005AB01 /* UITableView+Reuse.swift */; };
 		F474D388260CBEE600013699 /* StakingRewardDetailsViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F474D387260CBEE600013699 /* StakingRewardDetailsViewLayout.swift */; };
 		F47F5A7A2626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */; };
+		F47F5A822626FDB9009BCFF4 /* StakingRewardReloadViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A812626FDB9009BCFF4 /* StakingRewardReloadViewModel.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
 		F48E2C75261AED5600DFEBC0 /* SubscanBondCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C74261AED5600DFEBC0 /* SubscanBondCall.swift */; };
 		F48E2C7D261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F48E2C7C261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift */; };
@@ -2022,6 +2023,7 @@
 		F462B363260C88050005AB01 /* UITableView+Reuse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UITableView+Reuse.swift"; sourceTree = "<group>"; };
 		F474D387260CBEE600013699 /* StakingRewardDetailsViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewLayout.swift; sourceTree = "<group>"; };
 		F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryViewModel.swift; sourceTree = "<group>"; };
+		F47F5A812626FDB9009BCFF4 /* StakingRewardReloadViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardReloadViewModel.swift; sourceTree = "<group>"; };
 		F48E2C74261AED5600DFEBC0 /* SubscanBondCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanBondCall.swift; sourceTree = "<group>"; };
 		F48E2C7C261AED8A00DFEBC0 /* SubscanFindControllersBatchCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanFindControllersBatchCall.swift; sourceTree = "<group>"; };
 		F48E2C81261AEF5500DFEBC0 /* SubscanNominateCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanNominateCall.swift; sourceTree = "<group>"; };
@@ -4942,6 +4944,7 @@
 			isa = PBXGroup;
 			children = (
 				F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */,
+				F47F5A812626FDB9009BCFF4 /* StakingRewardReloadViewModel.swift */,
 			);
 			path = ViewModel;
 			sourceTree = "<group>";
@@ -5961,6 +5964,7 @@
 				84EBC54324F656D100459D15 /* SortDescriptor+Storage.swift in Sources */,
 				8494D8742525331B00614D8F /* PriceInfo.swift in Sources */,
 				84DB4E1E25E93B1700A6DF41 /* Identity.swift in Sources */,
+				F47F5A822626FDB9009BCFF4 /* StakingRewardReloadViewModel.swift in Sources */,
 				F400A7C2260CE1670061D576 /* StakingRewardStatus.swift in Sources */,
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,

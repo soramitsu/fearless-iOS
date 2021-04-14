@@ -6,7 +6,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable
     func showEmptyView()
     func hideEmptyView()
     func showRetryState()
-    func reloadTable(with cellViewModels: [StakingRewardHistoryCellViewModel])
+    func reload(with viewModel: StakingRewardReloadViewModel)
 }
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
