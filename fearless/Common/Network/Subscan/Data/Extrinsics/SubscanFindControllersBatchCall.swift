@@ -12,7 +12,7 @@ struct SubscanFindControllersBatchCall {
             .map(\.value)
             .map { wrappers -> [String] in
                 wrappers
-                    .filter { $0.call_function == .bond || $0.call_function == .set_controller }
+                    .filter { $0.call_function == CallFunction.bond.rawValue || $0.call_function == CallFunction.set_controller.rawValue }
                     .map { wraper -> [String] in
                         wraper.call_args
                             .filter { $0.name == "controller" && $0.type == "Address" }
@@ -51,7 +51,7 @@ extension SubscanFindControllersBatchCall {
 
     private struct CallArgsWrapper: Decodable {
         let call_args: [CallArg]
-        let call_function: CallFunction
+        let call_function: String
     }
 
     private struct CallArg: Decodable {

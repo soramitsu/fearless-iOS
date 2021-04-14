@@ -1,6 +1,7 @@
 import RobinHood
 import FearlessUtils
 import BigInt
+import IrohaCrypto
 
 extension PayoutRewardsService {
     func createControllersStep6Operation(
@@ -127,7 +128,7 @@ extension PayoutRewardsService {
         controllers: Set<String>,
         chain: Chain,
         subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<Set<String>> {
+    ) throws -> CompoundOperationWrapper<[Data]> {
         let validatorsByNominateWrappers = try controllers
             .map { address in
                 try createFetchExtrinsicsDataOperation(
@@ -158,7 +159,7 @@ extension PayoutRewardsService {
                 )
             }
 
-        let mergeOperation = ClosureOperation<Set<String>> {
+        let mergeOperation = ClosureOperation<[Data]> {
             let validatorsByNominate = try validatorsByNominateWrappers
                 .map { try $0.targetOperation.extractNoCancellableResultData() }
                 .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
@@ -181,8 +182,12 @@ extension PayoutRewardsService {
                 .map(\.validatorAddresses)
                 .flatMap { $0 }
 
-            return Set<String>(validatorsByNominate + validatorsBatch)
+            let validatorsSet = Set<String>(validatorsByNominate + validatorsBatch)
+
+            let addressFactory = SS58AddressFactory()
+            return try validatorsSet.map { try addressFactory.accountId(from: $0) }
         }
+
         let mergeOperationDependencies =
             (validatorsByNominateWrappers + validatorsByBatchWrappers + validatorsByBatchAllWrappers)
                 .map(\.allOperations).flatMap { $0 }
@@ -208,7 +213,7 @@ extension PayoutRewardsService {
             callName: callName
         )
 
-        let url = WalletAssetId.westend.subscanUrl!
+        let url = subscanBaseURL
             .appendingPathComponent(SubscanApi.extrinsics)
         let fetchOperation = subscanOperationFactory
             .fetchExtrinsicsOperation(url, info: extrinsicsInfo)
