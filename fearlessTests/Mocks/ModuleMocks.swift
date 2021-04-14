@@ -17524,6 +17524,21 @@ import SoraFoundation
     
     
     
+     func performValidationStatusAction()  {
+        
+    return cuckoo_manager.call("performValidationStatusAction()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.performValidationStatusAction())
+        
+    }
+    
+    
+    
      func updateAmount(_ newValue: Decimal)  {
         
     return cuckoo_manager.call("updateAmount(_: Decimal)",
@@ -17601,6 +17616,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performNominationStatusAction()", parameterMatchers: matchers))
 	    }
 	    
+	    func performValidationStatusAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performValidationStatusAction()", parameterMatchers: matchers))
+	    }
+	    
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal)> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "updateAmount(_: Decimal)", parameterMatchers: matchers))
@@ -17663,6 +17683,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func performValidationStatusAction() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("performValidationStatusAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.__DoNotUse<(Decimal), Void> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return cuckoo_manager.verify("updateAmount(_: Decimal)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -17706,6 +17732,10 @@ import SoraFoundation
     }
     
      func performNominationStatusAction()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func performValidationStatusAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -85,4 +85,8 @@ extension StorageCodingPath {
     static var validatorExposureClipped: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakersClipped")
     }
+
+    static var electionPhase: StorageCodingPath {
+        StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
+    }
 }

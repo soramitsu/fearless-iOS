@@ -77,6 +77,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             networkType: type
         )
 
+        let electionStatusSubscription = try createElectionStatusSubscription(
+            childSubscriptionFactory,
+            engine: engine
+        )
+
         let stakingResolver = createStakingResolver(
             address: address,
             childSubscriptionFactory: childSubscriptionFactory,
@@ -95,6 +100,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return [globalSubscriptionContainer,
                 accountSubscriptionContainer,
                 runtimeSubscription,
+                electionStatusSubscription,
                 stakingResolver,
                 stakingSubscription]
     }
@@ -109,12 +115,9 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let totalIssuanceSubscription = try createTotalIssuanceSubscription(factory)
 
-        let electionStatusSubscription = try createElectionStatusSubscription(factory)
-
         let historyDepthSubscription = try createHistoryDepthSubscription(factory)
 
         let subscriptions: [StorageChildSubscribing] = [
-            electionStatusSubscription,
             upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
@@ -169,14 +172,20 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createElectionStatusSubscription(_ factory: ChildSubscriptionFactoryProtocol)
-        throws -> StorageChildSubscribing {
-        let path = StorageCodingPath.electionStatus
-        let remoteStorageKey = try storageKeyFactory.createStorageKey(
-            moduleName: path.moduleName,
-            storageName: path.itemName
+    private func createElectionStatusSubscription(
+        _ factory: ChildSubscriptionFactoryProtocol,
+        engine: JSONRPCEngine
+    )
+        throws -> WebSocketSubscribing {
+        let subscription = ElectionStatusSubscription(
+            engine: engine,
+            runtimeService: runtimeService,
+            childSubscriptionFactory: factory,
+            operationManager: operationManager,
+            logger: logger
         )
-        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
+
+        return subscription
     }
 
     private func createV28Subscription(_ factory: ChildSubscriptionFactoryProtocol)
