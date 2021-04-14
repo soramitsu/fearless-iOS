@@ -16,14 +16,9 @@ enum WalletPrimitiveFactoryError: Error {
 }
 
 final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
-    let keystore: KeystoreProtocol
     let settings: SettingsManagerProtocol
 
-    init(
-        keystore: KeystoreProtocol,
-        settings: SettingsManagerProtocol
-    ) {
-        self.keystore = keystore
+    init(settings: SettingsManagerProtocol) {
         self.settings = settings
     }
 
