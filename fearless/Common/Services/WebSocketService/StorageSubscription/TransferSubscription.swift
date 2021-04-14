@@ -231,8 +231,6 @@ extension TransferSubscription {
     private func createParseOperation(
         dependingOn fetchOperation: BaseOperation<SignedBlock>
     ) -> CompoundOperationWrapper<[TransferSubscriptionResult]> {
-        let currentChain = chain
-
         let coderOperation = runtimeService.fetchCoderFactoryOperation()
 
         let decodingOperation = ClosureOperation<[TransferSubscriptionResult]> {
@@ -247,7 +245,6 @@ extension TransferSubscription {
             let blockNumber = UInt32(blockNumberData)
 
             let coderFactory = try coderOperation.extractNoCancellableResultData()
-            let metadata = coderFactory.metadata
 
             return block.extrinsics.enumerated().compactMap { index, hexExtrinsic in
                 do {
@@ -258,19 +255,15 @@ extension TransferSubscription {
 
                     let extrinsic: Extrinsic = try decoder.read(of: GenericType.extrinsic.name)
                     let genericCall = try extrinsic.call.map(to: RuntimeCall<TransferCall>.self)
-
-                    guard
-                        let moduleIndex = metadata.getModuleIndex(genericCall.moduleName),
-                        moduleIndex == currentChain.balanceModuleIndex,
-                        let callIndex = metadata
-                        .getCallIndex(in: genericCall.moduleName, callName: genericCall.callName) else {
-                        return nil
-                    }
+                    let callPath = CallCodingPath(
+                        moduleName: genericCall.moduleName,
+                        callName: genericCall.callName
+                    )
 
                     let isValidTransfer = [
-                        currentChain.transferCallIndex,
-                        currentChain.keepAliveTransferCallIndex
-                    ].contains(callIndex)
+                        CallCodingPath.transfer,
+                        CallCodingPath.transferKeepAlive
+                    ].contains(callPath)
 
                     guard isValidTransfer else {
                         return nil
