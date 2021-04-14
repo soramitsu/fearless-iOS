@@ -117,9 +117,9 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     prefsByEraOperation.allOperations
                         .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
 
-                    prefsByEraOperation.targetOperation.completionBlock = {
+                    exposureByEraOperation.targetOperation.completionBlock = {
                         // swiftlint:disable force_try
-                        let res = try! prefsByEraOperation
+                        let res = try! exposureByEraOperation
                             .targetOperation.extractNoCancellableResultData()
                         print(res)
                     }

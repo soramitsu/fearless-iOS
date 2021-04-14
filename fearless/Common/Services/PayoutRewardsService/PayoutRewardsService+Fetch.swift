@@ -443,7 +443,12 @@ extension PayoutRewardsService {
                         let era = EraIndex(params.0[keyIndex])
                     else { return }
                     let accountId = params.1[keyIndex]
-                    dict[era]?.append((accountId, exposure))
+                    if var array = dict[era] {
+                        array.append((accountId, exposure))
+                        dict[era] = array
+                    } else {
+                        dict[era] = [(accountId, exposure)]
+                    }
                 }
         }
         wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
