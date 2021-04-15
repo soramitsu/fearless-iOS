@@ -51,10 +51,8 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             steps4And5OperationWrapper.allOperations
                 .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
-            let nominationHistoryStep6Controllers = try createControllersStep6Operation(
-                nominatorAccount: selectedAccountAddress,
-                chain: chain,
-                subscanOperationFactory: subscanOperationFactory
+            let nominationHistoryStep6Controllers = createControllersStep6Operation(
+                nominatorStashAddress: selectedAccountAddress
             )
 
             nominationHistoryStep6Controllers.allOperations
@@ -84,7 +82,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
     private func continueValidatorsFetch(
         dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        nominationHistoryWrapper: CompoundOperationWrapper<Set<String>>,
+        nominationHistoryWrapper: CompoundOperationWrapper<Set<AccountId>>,
         stakingOverviewWrapper: CompoundOperationWrapper<PayoutSteps1To3Result>,
         eraRewardOverviewWrapper: CompoundOperationWrapper<PayoutSteps4And5Result>,
         completion: @escaping PayoutRewardsClosure
