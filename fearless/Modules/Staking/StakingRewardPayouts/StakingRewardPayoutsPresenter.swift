@@ -83,6 +83,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
 
         switch result {
         case let .success(payoutInfo):
+            payoutItems = payoutInfo.payouts
+
             if payoutInfo.payouts.isEmpty {
                 view?.showEmptyView()
             } else {
