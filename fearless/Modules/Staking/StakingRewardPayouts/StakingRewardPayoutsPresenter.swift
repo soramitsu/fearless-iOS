@@ -53,7 +53,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             return StakingRewardHistoryCellViewModel(
                 addressOrName: addressTitle(payout.validator),
                 daysLeftText: daysLeftText,
-                tokenAmountText: tokenAmountText(payout.reward),
+                tokenAmountText: "+" + tokenAmountText(payout.reward),
                 usdAmountText: "$0"
             )
         }
@@ -67,7 +67,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     private func tokenAmountText(_ value: Decimal) -> String {
-        "+" + balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
+        balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
     }
 
     private func daysLeftAttributedString(
@@ -100,6 +100,12 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         let amountText = tokenAmountText(totalReward)
         return "Payout all (\(amountText))"
     }
+
+    private func payoutsInfoSortedByNearestEra(_ info: PayoutsInfo) -> PayoutsInfo {
+        let payouts = info.payouts
+            .sorted(by: { $0.era > $1.era })
+        return PayoutsInfo(activeEra: info.activeEra, payouts: payouts)
+    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
@@ -108,14 +114,15 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
 
         switch result {
         case let .success(payoutInfo):
-            payoutItems = payoutInfo.payouts
+            let sortedPayouts = payoutsInfoSortedByNearestEra(payoutInfo)
+            payoutItems = sortedPayouts.payouts
 
             if payoutInfo.payouts.isEmpty {
                 view?.showEmptyView()
             } else {
                 let viewModel = StakingPayoutViewModel(
-                    cellViewModels: createCellViewModels(for: payoutInfo),
-                    bottomButtonTitle: defineBottomButtonTitle(for: payoutInfo.payouts)
+                    cellViewModels: createCellViewModels(for: sortedPayouts),
+                    bottomButtonTitle: defineBottomButtonTitle(for: sortedPayouts.payouts)
                 )
                 view?.reload(with: viewModel)
             }
