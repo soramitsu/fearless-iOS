@@ -24,22 +24,23 @@ final class StakingRewardDetailsPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    private func createViewModel(payoutItem: PayoutInfo) -> StakingRewardDetailsViewModel {
+    private func createViewModel() -> StakingRewardDetailsViewModel {
+        let dateText = formattedDateText(payoutEra: payoutInfo.era, activeEra: activeEra, chain: chain)
         let rows: [RewardDetailsRow] = [
             .validatorInfo(.init(
                 name: "Validator",
-                address: addressTitle(payoutItem.validator),
+                address: addressTitle(payoutInfo.validator),
                 icon: R.image.iconAccount()
             )),
             .date(.init(
                 titleText: R.string.localizable.stakingRewardDetailsDate(),
-                valueText: "Feb 2, 2021"
+                valueText: dateText
             )),
             .era(.init(
                 titleText: R.string.localizable.stakingRewardDetailsEra(),
-                valueText: "#\(payoutItem.era.description)"
+                valueText: "#\(payoutInfo.era.description)"
             )),
-            .reward(.init(ksmAmountText: tokenAmountText(payoutItem.reward), usdAmountText: "$0"))
+            .reward(.init(ksmAmountText: tokenAmountText(payoutInfo.reward), usdAmountText: "$0"))
         ]
         return .init(rows: rows)
     }
@@ -54,11 +55,23 @@ final class StakingRewardDetailsPresenter {
     private func tokenAmountText(_ value: Decimal) -> String {
         balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
     }
+
+    private func formattedDateText(payoutEra: EraIndex, activeEra: EraIndex, chain: Chain) -> String {
+        let pastDays = (activeEra - payoutEra) / UInt32(chain.erasPerDay)
+        guard let daysAgo = Calendar.current
+            .date(byAdding: .day, value: -Int(pastDays), to: Date())
+        else { return "" }
+
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "MMM d, yyyy"
+
+        return dateFormatter.string(from: daysAgo)
+    }
 }
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     func setup() {
-        let viewModel = createViewModel(payoutItem: payoutInfo)
+        let viewModel = createViewModel()
         view?.reload(with: viewModel)
     }
 
