@@ -2,13 +2,13 @@ import Foundation
 import SoraFoundation
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
-    static func createView() -> StakingRewardDetailsViewProtocol? {
+    static func createView(payoutItem: StakingPayoutItem) -> StakingRewardDetailsViewProtocol? {
         let presenter = StakingRewardDetailsPresenter()
         let view = StakingRewardDetailsViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
-        let interactor = StakingRewardDetailsInteractor()
+        let interactor = StakingRewardDetailsInteractor(payoutItem: payoutItem)
         let wireframe = StakingRewardDetailsWireframe()
 
         presenter.view = view

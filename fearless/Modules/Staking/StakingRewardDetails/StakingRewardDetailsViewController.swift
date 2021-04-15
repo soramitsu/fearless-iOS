@@ -15,6 +15,8 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
         self.localizationManager = localizationManager
     }
 
+    private var rows: [RewardDetailsRow] = []
+
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -58,7 +60,12 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {}
+extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {
+    func reload(with viewModel: StakingRewardDetailsViewModel) {
+        rows = viewModel.rows
+        rootView.tableView.reloadData()
+    }
+}
 
 extension StakingRewardDetailsViewController: Localizable {
     private func setupLocalization() {
@@ -95,47 +102,13 @@ extension StakingRewardDetailsViewController: UITableViewDelegate {
 }
 
 extension StakingRewardDetailsViewController: UITableViewDataSource {
-    // TODO: delete stub data
-    var stubCellData: [RewardDetailsRow] {
-        let locale = localizationManager?.selectedLocale
-        let rewardStatus = StakingRewardStatus.claimable
-        let statusViewModel = StakingRewardStatusViewModel(
-            title: R.string.localizable.stakingRewardDetailsStatus(preferredLanguages: locale?.rLanguages),
-            statusText: rewardStatus.titleForLocale(locale),
-            icon: rewardStatus.icon
-        )
-
-        return [
-            .status(statusViewModel),
-            .date(.init(
-                titleText: R.string.localizable.stakingRewardDetailsDate(),
-                valueText: "3 March 2020"
-            )),
-            .era(.init(
-                titleText: R.string.localizable.stakingRewardDetailsEra(),
-                valueText: "#1690"
-            )),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01")),
-            .validatorInfo(.init(
-                name: "Validator",
-                address: "✨👍✨ Day7 ✨👍✨",
-                icon: R.image.iconAccount()
-            )),
-            .validatorInfo(.init(
-                name: "Payout account",
-                address: "🐟 ANDREY",
-                icon: R.image.iconAccount()
-            ))
-        ]
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        stubCellData.count
+        rows.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: handle current locale
-        switch stubCellData[indexPath.row] {
+        switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsStatusTableCell.self)!

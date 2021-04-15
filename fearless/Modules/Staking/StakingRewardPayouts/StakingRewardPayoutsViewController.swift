@@ -119,7 +119,7 @@ extension StakingRewardPayoutsViewController: Localizable {
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        presenter.handleSelectedHistory(at: indexPath)
+        presenter.handleSelectedHistory(at: indexPath.row)
     }
 }
 

@@ -11,6 +11,7 @@ final class StakingRewardPayoutsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
+    private var payoutItems: [StakingPayoutItem] = []
 
     init(
         chain: Chain,
@@ -28,29 +29,42 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         interactor.setup()
     }
 
-    func handleSelectedHistory(at _: IndexPath) {
-        // TODO: get model by indexPath -> pass to wireframe
-        wireframe.showRewardDetails(from: view)
+    func handleSelectedHistory(at index: Int) {
+        guard index > 0, index < payoutItems.count else {
+            return
+        }
+        let payoutItem = payoutItems[index]
+        wireframe.showRewardDetails(from: view, payoutItem: payoutItem)
     }
 
     func handlePayoutAction() {
-        wireframe.showRewardDetails(from: view)
+        // wireframe.showRewardDetails(from: view)
     }
 
-    private func createCellViewModels(
-        for payouts: [PayoutItem]
-    ) -> [StakingRewardHistoryCellViewModel] {
-        payouts.map { payoutByValidator -> [StakingRewardHistoryCellViewModel] in
+    private func createPayoutItems(from payouts: [PayoutItem]) -> [StakingPayoutItem] {
+        payouts.map { payoutByValidator -> [StakingPayoutItem] in
             payoutByValidator.rewardsByEra.map { era, reward in
-                StakingRewardHistoryCellViewModel(
-                    addressOrName: self.addressTitle(payoutByValidator.validatorAccount),
-                    daysLeftText: era.description,
-                    tokenAmountText: "+" + self.tokenAmountText(reward),
-                    usdAmountText: "$1.4"
+                StakingPayoutItem(
+                    validator: payoutByValidator.validatorAccount,
+                    era: era,
+                    reward: reward
                 )
             }
         }
         .flatMap { $0 }
+    }
+
+    private func createCellViewModels(
+        for payouts: [StakingPayoutItem]
+    ) -> [StakingRewardHistoryCellViewModel] {
+        payouts.map { payout in
+            StakingRewardHistoryCellViewModel(
+                addressOrName: self.addressTitle(payout.validator),
+                daysLeftText: payout.era.description,
+                tokenAmountText: "+" + self.tokenAmountText(payout.reward),
+                usdAmountText: "$0"
+            )
+        }
     }
 
     private func addressTitle(_ accountId: Data) -> String {
@@ -85,13 +99,22 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             if payouts.isEmpty {
                 view?.showEmptyView()
             } else {
+                let payoutItems = createPayoutItems(from: payouts)
+                self.payoutItems = payoutItems
                 let viewModel = StakingPayoutViewModel(
-                    cellViewModels: createCellViewModels(for: payouts),
+                    cellViewModels: createCellViewModels(for: payoutItems),
                     bottomButtonTitle: defineBottomButtonTitle(for: payouts)
                 )
                 view?.reload(with: viewModel)
             }
         case let .failure(error):
+            payoutItems = []
+            let emptyViewModel = StakingPayoutViewModel(
+                cellViewModels: [],
+                bottomButtonTitle: ""
+            )
+            view?.reload(with: emptyViewModel)
+
             view?.showRetryState()
         }
     }
