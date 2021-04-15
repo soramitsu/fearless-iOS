@@ -120,13 +120,15 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func handleSelectedHistory(at index: Int) {
-        let payoutItems = payoutsInfo?.payouts ?? []
-
-        guard index >= 0, index < payoutItems.count else {
+        guard
+            let payoutsInfo = payoutsInfo,
+            index >= 0,
+            index < payoutsInfo.payouts.count
+        else {
             return
         }
-        let payoutItem = payoutItems[index]
-        wireframe.showRewardDetails(from: view, payoutItem: payoutItem, chain: chain)
+        let payoutInfo = payoutsInfo.payouts[index]
+        wireframe.showRewardDetails(from: view, payoutInfo: payoutInfo, activeEra: 0, chain: chain)
     }
 
     func handlePayoutAction() {
