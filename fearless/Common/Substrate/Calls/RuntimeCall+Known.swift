@@ -13,4 +13,8 @@ extension RuntimeCall {
     static func transfer(_ args: TransferCall) -> RuntimeCall<TransferCall> {
         RuntimeCall<TransferCall>(moduleName: "Balances", callName: "transfer", args: args)
     }
+
+    static func payout(_ args: PayoutCall) -> RuntimeCall<PayoutCall> {
+        RuntimeCall<PayoutCall>(moduleName: "Staking", callName: "payout_stakers", args: args)
+    }
 }
