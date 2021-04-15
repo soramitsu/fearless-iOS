@@ -1,6 +1,8 @@
 import SoraFoundation
 
-protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable {}
+protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
+}
 
 protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
     func setup()
@@ -21,7 +23,9 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
     func didReceive(feeError: Error)
 }
 
-protocol StakingPayoutConfirmationWireframeProtocol: AnyObject {}
+protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+    func complete(from view: StakingPayoutConfirmationViewProtocol?)
+}
 
 protocol StakingPayoutConfirmationViewFactoryProtocol: AnyObject {
     static func createView(payouts: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol?
