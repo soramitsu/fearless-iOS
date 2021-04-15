@@ -3,7 +3,7 @@ import Foundation
 final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol {
     func showRewardDetails(
         from view: ControllerBackedProtocol?,
-        payoutItem: StakingPayoutItem,
+        payoutItem: PayoutInfo,
         chain: Chain
     ) {
         guard

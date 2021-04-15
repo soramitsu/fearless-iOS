@@ -9,10 +9,10 @@ final class StakingRewardDetailsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let addressFactory = SS58AddressFactory()
-    private let payoutItem: StakingPayoutItem
+    private let payoutItem: PayoutInfo
 
     init(
-        payoutItem: StakingPayoutItem,
+        payoutItem: PayoutInfo,
         chain: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
@@ -21,7 +21,7 @@ final class StakingRewardDetailsPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    private func createViewModel(payoutItem: StakingPayoutItem) -> StakingRewardDetailsViewModel {
+    private func createViewModel(payoutItem: PayoutInfo) -> StakingRewardDetailsViewModel {
         let rows: [RewardDetailsRow] = [
             .validatorInfo(.init(
                 name: "Validator",

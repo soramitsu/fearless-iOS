@@ -20,13 +20,13 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
-    func didReceive(result: Result<[PayoutItem], Error>)
+    func didReceive(result: Result<PayoutsInfo, Error>)
 }
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
     func showRewardDetails(
         from view: ControllerBackedProtocol?,
-        payoutItem: StakingPayoutItem,
+        payoutItem: PayoutInfo,
         chain: Chain
     )
 

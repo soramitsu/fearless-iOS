@@ -30,7 +30,7 @@ class StakingConfirmTests: XCTestCase {
                                                             keychain: keychain,
                                                             settings: settings)
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keychain, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
         let view = MockStakingConfirmViewProtocol()
