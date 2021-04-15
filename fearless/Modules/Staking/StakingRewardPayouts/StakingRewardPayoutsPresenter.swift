@@ -45,10 +45,15 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         for payoutsInfo: PayoutsInfo
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
-            StakingRewardHistoryCellViewModel(
+            let daysLeftText = daysLeftAttributedString(
+                activeEra: payoutsInfo.activeEra,
+                payoutEra: payout.era,
+                historyDepth: 84
+            )
+            return StakingRewardHistoryCellViewModel(
                 addressOrName: addressTitle(payout.validator),
-                daysLeftText: eraText(activeEra: payoutsInfo.activeEra, payoutEra: payout.era),
-                tokenAmountText: "+" + self.tokenAmountText(payout.reward),
+                daysLeftText: daysLeftText,
+                tokenAmountText: tokenAmountText(payout.reward),
                 usdAmountText: "$0"
             )
         }
@@ -62,14 +67,27 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     private func tokenAmountText(_ value: Decimal) -> String {
-        balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
+        "+" + balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
     }
 
-    private func eraText(activeEra: EraIndex, payoutEra: EraIndex) -> String {
+    private func daysLeftAttributedString(
+        activeEra: EraIndex,
+        payoutEra: EraIndex,
+        historyDepth: UInt32
+    ) -> NSAttributedString {
         let eraDistance = (activeEra - payoutEra)
         let daysLeft = eraDistance / UInt32(chain.erasPerDay)
-        let daysLeftText = daysLeft == 1 ? "day left" : " days left"
-        return daysLeft.description + daysLeftText
+        let daysLeftText = daysLeft == 1 ? " day left" : " days left"
+
+        let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
+        let textColor: UIColor = daysLeft < historyDepthDays ?
+            R.color.colorRed()! : R.color.colorLightGray()!
+
+        let attrubutedString = NSAttributedString(
+            string: daysLeft.description + daysLeftText,
+            attributes: [.foregroundColor: textColor]
+        )
+        return attrubutedString
     }
 
     private func defineBottomButtonTitle(
