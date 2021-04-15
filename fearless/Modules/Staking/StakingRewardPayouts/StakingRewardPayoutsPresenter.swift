@@ -29,7 +29,7 @@ final class StakingRewardPayoutsPresenter {
             let daysLeftText = daysLeftAttributedString(
                 activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
-                historyDepth: 84
+                historyDepth: payoutsInfo.historyDepth
             )
 
             return StakingRewardHistoryCellViewModel(
