@@ -10,8 +10,7 @@ final class ControllerMapper: Mapping {
             return nil
         }
 
-        guard let paramsData = extractArguments(input),
-              let params = try? JSONDecoder().decode(JSON.self, from: paramsData) else {
+        guard let params = extractArguments(input) else {
             return nil
         }
 
@@ -26,9 +25,23 @@ final class ControllerMapper: Mapping {
         return try? Data(hexString: controllerHex)
     }
 
-    private func extractArguments(_ input: InputType) -> Data? {
-        input.params?.stringValue?.data(using: .utf8) ??
+    private func extractArguments(_ input: InputType) -> JSON? {
+        if input.params?.arrayValue != nil {
+            return input.params
+        }
+
+        if input.call_args?.arrayValue != nil {
+            return input.call_args
+        }
+
+        let optParamsData = input.params?.stringValue?.data(using: .utf8) ??
             input.call_args?.stringValue?.data(using: .utf8)
+
+        if let paramsData = optParamsData {
+            return try? JSONDecoder().decode(JSON.self, from: paramsData)
+        }
+
+        return nil
     }
 
     private func ensureCall(_ input: JSON) -> Bool {

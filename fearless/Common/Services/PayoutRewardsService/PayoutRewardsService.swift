@@ -92,9 +92,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                 .targetOperation.extractNoCancellableResultData()
 
             let validatorsWrapper = try createFindValidatorsOperation(
-                controllers: controllersSet,
-                chain: chain,
-                subscanOperationFactory: subscanOperationFactory
+                controllers: controllersSet
             )
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(

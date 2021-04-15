@@ -11,7 +11,7 @@ class PayoutRewardsServiceTests: XCTestCase {
         let settings = SettingsManager.shared
         let assetId = WalletAssetId.westend
         let chain = assetId.chain!
-        let selectedAccount = "5CZbJ5rdD9QmxzYKXqTLLKWQTCDnKPd8LnUqmuJejquwZj6V"
+        let selectedAccount = "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,

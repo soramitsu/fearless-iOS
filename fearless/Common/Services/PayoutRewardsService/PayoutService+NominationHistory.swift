@@ -104,74 +104,60 @@ extension PayoutRewardsService {
 
     func createFindValidatorsOperation(
         controllers: Set<AccountId>
-    ) throws -> CompoundOperationWrapper<[Data]> {
-        let validatorsByNominateWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
+    ) throws -> CompoundOperationWrapper<[AccountId]> {
+        let addressFactory = SS58AddressFactory()
+
+        let validatorsOperations: [[BaseOperation<Set<AccountId>>]] =
+            try controllers.map { controller in
+                let address = try addressFactory
+                    .addressFromAccountId(data: controller, type: chain.addressType)
+
+                let mapper = AnyMapper(mapper: NominateMapper())
+
+                let validatorsByNominate = createSubscanQueryOperation(
+                    address: address,
                     moduleName: "staking",
-                    address: address,
                     callName: "nominate",
-                    subscanOperationFactory: subscanOperationFactory
+                    mapper: mapper,
+                    reducer: AnyReducer(reducer: NominationsReducer())
                 )
-            }
 
-        let validatorsByBatchWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
-                    moduleName: "utility",
+                let validatorsByBatch = createSubscanQueryOperation(
                     address: address,
+                    moduleName: "utility",
                     callName: "batch",
-                    subscanOperationFactory: subscanOperationFactory
+                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
+                    reducer: AnyReducer(reducer: NominationsListReducer())
                 )
+
+                let validatorsByBatchAll = createSubscanQueryOperation(
+                    address: address,
+                    moduleName: "utility",
+                    callName: "batch_all",
+                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
+                    reducer: AnyReducer(reducer: NominationsListReducer())
+                )
+
+                return [validatorsByNominate, validatorsByBatch, validatorsByBatchAll]
             }
 
-        let validatorsByBatchAllWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
-                    moduleName: "utility",
-                    address: address,
-                    callName: "batch_all",
-                    subscanOperationFactory: subscanOperationFactory
-                )
-            }
+        let dependecies = validatorsOperations.flatMap { $0 }
 
         let mergeOperation = ClosureOperation<[Data]> {
-            let validatorsByNominate = try validatorsByNominateWrappers
-                .map { try $0.targetOperation.extractNoCancellableResultData() }
-                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
-                    extrinsicsData.extrinsics
-                }
-                .flatMap { $0 }
-                .compactMap(\.params)
-                .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
-                .map(\.validatorAddresses)
-                .flatMap { $0 }
+            let allSets = try dependecies.map { try $0.extractNoCancellableResultData() }
 
-            let validatorsBatch = try (validatorsByBatchWrappers + validatorsByBatchAllWrappers)
-                .map { try $0.targetOperation.extractNoCancellableResultData() }
-                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
-                    extrinsicsData.extrinsics
-                }
-                .flatMap { $0 }
-                .compactMap(\.params)
-                .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
-                .map(\.validatorAddresses)
-                .flatMap { $0 }
+            let resultSet = allSets.reduce(into: Set<AccountId>()) { result, item in
+                result = result.union(item)
+            }
 
-            let validatorsSet = Set<String>(validatorsByNominate + validatorsBatch)
-
-            let addressFactory = SS58AddressFactory()
-            return try validatorsSet.map { try addressFactory.accountId(from: $0) }
+            return Array(resultSet)
         }
 
-        let mergeOperationDependencies =
-            (validatorsByNominateWrappers + validatorsByBatchWrappers + validatorsByBatchAllWrappers)
-                .map(\.allOperations).flatMap { $0 }
-        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+        dependecies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: mergeOperationDependencies
+            dependencies: dependecies
         )
     }
 
@@ -196,27 +182,5 @@ extension PayoutRewardsService {
             subscanOperationFactory: subscanOperationFactory,
             operationManager: operationManager
         ).longrunOperation()
-    }
-
-    private func createFetchExtrinsicsDataOperation(
-        moduleName: String,
-        address: String,
-        callName: String,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<SubscanExtrinsicsData> {
-        let extrinsicsInfo = ExtrinsicsInfo(
-            row: 100,
-            page: 0,
-            address: address,
-            moduleName: moduleName,
-            callName: callName
-        )
-
-        let url = subscanBaseURL
-            .appendingPathComponent(SubscanApi.extrinsics)
-        let fetchOperation = subscanOperationFactory
-            .fetchExtrinsicsOperation(url, info: extrinsicsInfo)
-
-        return CompoundOperationWrapper(targetOperation: fetchOperation)
     }
 }
