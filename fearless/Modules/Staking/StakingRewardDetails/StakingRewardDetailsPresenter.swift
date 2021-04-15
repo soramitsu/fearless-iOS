@@ -53,7 +53,19 @@ final class StakingRewardDetailsPresenter {
     }
 
     private func tokenAmountText(_ value: Decimal) -> String {
-        balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        return balanceViewModelFactory.amountFromValue(value).value(for: locale)
+    }
+
+    private func priceText(_ amount: Decimal, priceData: PriceData?) -> String {
+        guard let priceData = priceData else {
+            return ""
+        }
+
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        let price = balanceViewModelFactory
+            .priceFromAmount(amount, priceData: priceData).value(for: locale)
+        return price
     }
 
     private func formattedDateText(payoutEra: EraIndex, activeEra: EraIndex, chain: Chain) -> String {
