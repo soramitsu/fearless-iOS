@@ -325,3 +325,5 @@ Ruta de derivación: %@";
 "wallet.filters.extrinsics" = "";
 "wallet.filters.header" = "";
 "transfer.title" = "";
+"common.available.format" = "%@";
+"staking.rewards.learn.more" = "";

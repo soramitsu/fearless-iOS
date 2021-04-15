@@ -10,7 +10,7 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let keystore = Keychain()
         let networkType = settings.selectedConnection.type
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(

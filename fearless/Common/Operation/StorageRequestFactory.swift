@@ -99,8 +99,20 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
                 result[item.0] = item.1
             }
 
+            let originalIndexedKeys = try keys().enumerated().reduce(into: [Data: Int]()) { result, item in
+                result[item.element] = item.offset
+            }
+
             return allKeys.map { key in
                 StorageResponse(key: key, data: keyedEncodedItems[key], value: keyedItems[key])
+            }.sorted { response1, response2 in
+                guard
+                    let index1 = originalIndexedKeys[response1.key],
+                    let index2 = originalIndexedKeys[response2.key] else {
+                    return false
+                }
+
+                return index1 < index2
             }
         }
 

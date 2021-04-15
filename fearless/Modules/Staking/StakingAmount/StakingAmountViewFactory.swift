@@ -14,16 +14,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
         guard let presenter = createPresenter(
             amount: amount,
-            settings: settings,
-            keystore: keystore
+            settings: settings
         ) else {
             return nil
         }
 
         guard let interactor = createInteractor(
             connection: connection,
-            settings: settings,
-            keystore: keystore
+            settings: settings
         ) else {
             return nil
         }
@@ -45,11 +43,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
     private static func createPresenter(
         amount: Decimal?,
-        settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol
+        settings: SettingsManagerProtocol
     ) -> StakingAmountPresenter? {
         let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         guard let selectedAccount = settings.selectedAccount else {
@@ -77,11 +74,10 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
 
     private static func createInteractor(
         connection: JSONRPCEngine,
-        settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol
+        settings: SettingsManagerProtocol
     ) -> StakingAmountInteractor? {
         let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         guard let selectedAccount = settings.selectedAccount,

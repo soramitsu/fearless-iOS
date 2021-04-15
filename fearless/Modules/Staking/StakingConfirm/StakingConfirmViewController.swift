@@ -184,7 +184,7 @@ final class StakingConfirmViewController: UIViewController {
         }
 
         balanceView.balanceText = R.string.localizable
-            .commonBalanceFormat(
+            .commonAvailableFormat(
                 viewModel.balance ?? "",
                 preferredLanguages: locale.rLanguages
             )

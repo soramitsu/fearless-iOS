@@ -11,7 +11,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func setup()
-    func handleSelectedHistory(at indexPath: IndexPath)
+    func handleSelectedHistory(at index: Int)
     func handlePayoutAction()
 }
 
@@ -20,11 +20,15 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
-    func didReceive(result: Result<[PayoutItem], Error>)
+    func didReceive(result: Result<PayoutsInfo, Error>)
 }
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
-    func showRewardDetails(from view: ControllerBackedProtocol?)
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        payoutItem: PayoutInfo,
+        chain: Chain
+    )
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {

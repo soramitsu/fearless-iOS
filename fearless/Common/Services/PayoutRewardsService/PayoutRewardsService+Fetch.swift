@@ -20,38 +20,51 @@ struct PayoutSteps4And5Result {
 
 extension PayoutRewardsService {
     func createSteps1To3OperationWrapper(
-        engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) throws -> CompoundOperationWrapper<PayoutSteps1To3Result> {
-        let currentEra = createCurrentEraWrapper(
-            engine: engine,
-            codingFactory: { try codingFactoryOperation.extractNoCancellableResultData() }
-        )
+        let keyFactory = StorageKeyFactory()
+
+        let currentEra: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try keyFactory.currentEra()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .currentEra
+            )
+
         currentEra.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let activeEra = createActiveEraWrapper(
-            engine: engine,
-            codingFactory: { try codingFactoryOperation.extractNoCancellableResultData() }
-        )
+        let activeEra: CompoundOperationWrapper<[StorageResponse<ActiveEraInfo>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try keyFactory.activeEra()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .activeEra
+            )
         activeEra.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let historyDepth = createHistoryDepthWrapper(
-            engine: engine,
-            codingFactory: { try codingFactoryOperation.extractNoCancellableResultData() }
-        )
-        historyDepth.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+        let historyDepthWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keys: { [try keyFactory.historyDepth()] },
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .historyDepth
+            )
+
+        historyDepthWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<PayoutSteps1To3Result> {
             guard
                 let currentEra = try currentEra.targetOperation.extractNoCancellableResultData()
                 .first?.value?.value,
                 let activeEra = try activeEra.targetOperation.extractNoCancellableResultData()
-                .first?.value?.index,
-                let historyDepth = try historyDepth.targetOperation.extractNoCancellableResultData()
-                .first?.value?.value
+                .first?.value?.index
             else {
                 throw PayoutError.unknown
             }
+
+            let historyDepth = try historyDepthWrapper.targetOperation.extractNoCancellableResultData()
+                .first?.value?.value ?? 84
 
             return PayoutSteps1To3Result(
                 currentEra: currentEra,
@@ -62,11 +75,11 @@ extension PayoutRewardsService {
 
         currentEra.allOperations.forEach { mergeOperation.addDependency($0) }
         activeEra.allOperations.forEach { mergeOperation.addDependency($0) }
-        historyDepth.allOperations.forEach { mergeOperation.addDependency($0) }
+        historyDepthWrapper.allOperations.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: currentEra.allOperations + activeEra.allOperations + historyDepth.allOperations
+            dependencies: currentEra.allOperations + activeEra.allOperations + historyDepthWrapper.allOperations
         )
     }
 
@@ -75,18 +88,22 @@ extension PayoutRewardsService {
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) throws -> CompoundOperationWrapper<PayoutSteps4And5Result> {
-        let totalRewardOperation = try createFetchTotalRewardOperation(
-            dependingOn: baseOperation,
-            engine: engine,
-            codingFactoryOperation: codingFactoryOperation
-        )
+        let totalRewardOperation: CompoundOperationWrapper<[EraIndex: StringScaleMapper<BigUInt>]> =
+            try createFetchHistoryByEraOperation(
+                dependingOn: baseOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation,
+                path: .totalValidatorReward
+            )
         totalRewardOperation.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-        let validatorRewardPoints = try createValidatorRewardPointsOperation(
-            dependingOn: baseOperation,
-            engine: engine,
-            codingFactoryOperation: codingFactoryOperation
-        )
+        let validatorRewardPoints: CompoundOperationWrapper<[EraIndex: EraRewardPoints]> =
+            try createFetchHistoryByEraOperation(
+                dependingOn: baseOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation,
+                path: .rewardPointsPerValidator
+            )
         validatorRewardPoints.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
         let mergeOperation = ClosureOperation<PayoutSteps4And5Result> {
@@ -96,7 +113,7 @@ extension PayoutRewardsService {
                 .targetOperation.extractNoCancellableResultData()
 
             return PayoutSteps4And5Result(
-                totalValidatorRewardByEra: totalValidatorRewardByEra,
+                totalValidatorRewardByEra: totalValidatorRewardByEra.mapValues { $0.value },
                 validatorPointsDistributionByEra: validatorRewardPoints
             )
         }
@@ -110,427 +127,234 @@ extension PayoutRewardsService {
         )
     }
 
-    func createFetchTotalRewardOperation(
+    func createFetchHistoryByEraOperation<T: Decodable>(
         dependingOn basedOperation: BaseOperation<PayoutSteps1To3Result>,
         engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[EraIndex: BigUInt]> {
-        let mapOperation = MapKeyEncodingOperation<String>(
-            path: .totalValidatorReward,
-            storageKeyFactory: StorageKeyFactory()
-        )
-
-        mapOperation.configurationBlock = {
-            do {
-                let result = try basedOperation.extractNoCancellableResultData()
-                let eras = result.currentEra - result.historyDepth ... result.activeEra - 1
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                mapOperation.keyParams = eras.map(\.description)
-            } catch {
-                mapOperation.result = .failure(error)
-            }
-        }
-
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<BigUInt>>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .totalValidatorReward
-            )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
-
-        let mergeOperation = ClosureOperation<[EraIndex: BigUInt]> {
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: StorageCodingPath
+    ) throws -> CompoundOperationWrapper<[EraIndex: T]> {
+        let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
             let result = try basedOperation.extractNoCancellableResultData()
-            let eras = Array(result.currentEra - result.historyDepth ... result.activeEra - 1)
-            let keys = try mapOperation.extractNoCancellableResultData()
+            let eras = result.currentEra - result.historyDepth ... result.activeEra - 1
+            return eras.map { StringScaleMapper(value: $0) }
+        }
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: keyParams,
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: path
+            )
+
+        let mergeOperation = ClosureOperation<[EraIndex: T]> {
+            let eras = try keyParams()
 
             let results = try wrapper.targetOperation.extractNoCancellableResultData()
-                .reduce(into: [EraIndex: BigUInt]()) { dict, item in
-                    guard let eraIndex = keys.firstIndex(of: item.key) else {
-                        return
-                    }
-                    guard let itemValue = item.value?.value else {
+                .enumerated()
+                .reduce(into: [EraIndex: T]()) { dict, item in
+                    guard let result = item.element.value else {
                         return
                     }
 
-                    let era = eras[eraIndex]
-                    dict[era] = itemValue
+                    let era = eras[item.offset].value
+
+                    dict[era] = result
                 }
             return results
         }
+
         wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
+            dependencies: wrapper.allOperations
         )
     }
 
-    func createValidatorRewardPointsOperation(
-        dependingOn baseOperation: BaseOperation<PayoutSteps1To3Result>,
-        engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[EraIndex: EraRewardPoints]> {
-        let mapOperation = MapKeyEncodingOperation<String>(
-            path: .rewardPointsPerValidator,
-            storageKeyFactory: StorageKeyFactory()
-        )
-
-        mapOperation.configurationBlock = {
-            do {
-                let result = try baseOperation.extractNoCancellableResultData()
-                let eras = result.currentEra - result.historyDepth ... result.activeEra - 1
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                mapOperation.keyParams = eras.map(\.description)
-            } catch {
-                mapOperation.result = .failure(error)
-            }
+    func createFetchAndMapOperation<T: Encodable, R: Decodable>(
+        dependingOn depedencyOperation: BaseOperation<[T]>,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: StorageCodingPath
+    ) throws -> CompoundOperationWrapper<[R]> {
+        let keyParams: () throws -> [T] = {
+            try depedencyOperation.extractNoCancellableResultData()
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<EraRewardPoints>]> =
-            requestFactory.queryItems(
+        let wrapper: CompoundOperationWrapper<[StorageResponse<R>]> =
+            storageRequestFactory.queryItems(
                 engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
+                keyParams: keyParams,
                 factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .rewardPointsPerValidator
+                storagePath: path
             )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
 
-        let mergeOperation = ClosureOperation<[EraIndex: EraRewardPoints]> {
-            let result = try baseOperation.extractNoCancellableResultData()
-            let eras = Array(result.currentEra - result.historyDepth ... result.activeEra - 1)
-            let keys = try mapOperation.extractNoCancellableResultData()
-
-            let results = try wrapper.targetOperation.extractNoCancellableResultData()
-                .reduce(into: [EraIndex: EraRewardPoints]()) { dict, item in
-                    guard let eraIndex = keys.firstIndex(of: item.key) else {
-                        return
-                    }
-                    guard let itemValue = item.value else {
-                        return
-                    }
-
-                    let era = eras[eraIndex]
-                    dict[era] = itemValue
-                }
-            return results
-        }
-        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
-        )
-    }
-
-    private func createCurrentEraWrapper(
-        engine: JSONRPCEngine,
-        codingFactory: @escaping () throws -> RuntimeCoderFactoryProtocol
-    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
-        let keyFactory = StorageKeyFactory()
-        let requestFactory = StorageRequestFactory(remoteFactory: keyFactory)
-
-        let queryWrapper: CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { [try keyFactory.currentEra()] },
-                factory: codingFactory,
-                storagePath: .currentEra
-            )
-        return queryWrapper
-    }
-
-    private func createActiveEraWrapper(
-        engine: JSONRPCEngine,
-        codingFactory: @escaping () throws -> RuntimeCoderFactoryProtocol
-    ) -> CompoundOperationWrapper<[StorageResponse<ActiveEraInfo>]> {
-        let keyFactory = StorageKeyFactory()
-        let requestFactory = StorageRequestFactory(remoteFactory: keyFactory)
-
-        return requestFactory.queryItems(
-            engine: engine,
-            keys: { [try keyFactory.activeEra()] },
-            factory: codingFactory,
-            storagePath: .activeEra
-        )
-    }
-
-    private func createHistoryDepthWrapper(
-        engine: JSONRPCEngine,
-        codingFactory: @escaping () throws -> RuntimeCoderFactoryProtocol
-    ) -> CompoundOperationWrapper<[StorageResponse<StringScaleMapper<UInt32>>]> {
-        let keyFactory = StorageKeyFactory()
-        let requestFactory = StorageRequestFactory(remoteFactory: keyFactory)
-
-        return requestFactory.queryItems(
-            engine: engine,
-            keys: { [try keyFactory.historyDepth()] },
-            factory: codingFactory,
-            storagePath: .historyDepth
-        )
-    }
-
-    func createControllersByValidatorStashOperation(
-        dependingOn validatorStashOperation: BaseOperation<Set<String>>,
-        chain: Chain,
-        engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[Data]> {
-        let mapOperation = MapKeyEncodingOperation<Data>(
-            path: .controller,
-            storageKeyFactory: StorageKeyFactory()
-        )
-
-        mapOperation.configurationBlock = {
-            do {
-                let addresses = try validatorStashOperation.extractNoCancellableResultData()
-                let addressFactory = SS58AddressFactory()
-                let accountIds = addresses
-                    .compactMap { try? addressFactory.accountId(fromAddress: $0, type: chain.addressType) }
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                mapOperation.keyParams = accountIds
-            } catch {
-                mapOperation.result = .failure(error)
-            }
-        }
-
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<Data>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .controller
-            )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
-
-        let mergeOperation = ClosureOperation<[Data]> {
+        let mapOperation = ClosureOperation<[R]> {
             try wrapper.targetOperation.extractNoCancellableResultData()
                 .compactMap(\.value)
         }
-        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
+
+        wrapper.allOperations.forEach { mapOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
-        )
-    }
-
-    func createLedgerInfoOperation(
-        dependingOn controllersOperation: BaseOperation<[Data]>,
-        engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[DyStakingLedger]> {
-        let mapOperation = MapKeyEncodingOperation<Data>(
-            path: .stakingLedger,
-            storageKeyFactory: StorageKeyFactory()
-        )
-
-        mapOperation.configurationBlock = {
-            do {
-                let controllers = try controllersOperation.extractNoCancellableResultData()
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                mapOperation.keyParams = controllers
-            } catch {
-                mapOperation.result = .failure(error)
-            }
-        }
-
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<DyStakingLedger>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .stakingLedger
-            )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
-
-        let mergeOperation = ClosureOperation<[DyStakingLedger]> {
-            try wrapper.targetOperation.extractNoCancellableResultData()
-                .compactMap(\.value)
-        }
-        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
-
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
+            targetOperation: mapOperation,
+            dependencies: wrapper.allOperations
         )
     }
 
     func createUnclaimedEraByStashOperation(
         ledgerInfoOperation: BaseOperation<[DyStakingLedger]>,
         steps1to3Operation: BaseOperation<PayoutSteps1To3Result>
-    ) throws -> CompoundOperationWrapper<[Data: Set<EraIndex>]> {
-        let mergeOperation = ClosureOperation<[Data: Set<EraIndex>]> {
+    ) throws -> BaseOperation<[Data: [EraIndex]]> {
+        ClosureOperation<[Data: [EraIndex]]> {
             let ledgerInfo = try ledgerInfoOperation.extractNoCancellableResultData()
             let erasRange = try steps1to3Operation.extractNoCancellableResultData().erasRange
 
             return ledgerInfo
-                .reduce(into: [Data: Set<EraIndex>]()) { dict, ledger in
+                .reduce(into: [Data: [EraIndex]]()) { dict, ledger in
                     let erasClaimedRewards = Set(ledger.claimedRewards.map(\.value))
                     let erasUnclaimedRewards = Set(erasRange).subtracting(erasClaimedRewards)
-                    dict[ledger.stash] = erasUnclaimedRewards
+                    dict[ledger.stash] = Array(erasUnclaimedRewards)
                 }
         }
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation)
     }
 
-    func validatorExposureGroupedByEraOperation(
-        dependingOn unclaimedRewardsOperation: BaseOperation<[Data: Set<EraIndex>]>,
-        engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[EraIndex: [(Data, ValidatorExposure)]]> {
-        let mapOperation = DoubleMapKeyEncodingOperation<String, Data>(
-            path: .validatorExposureClipped,
-            storageKeyFactory: StorageKeyFactory()
-        )
-
-        mapOperation.configurationBlock = {
-            do {
-                let unclaimedRewards = try unclaimedRewardsOperation
-                    .extractNoCancellableResultData()
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                let params = unclaimedRewards
-                    .reduce(([String](), [Data]())) { tuple, keyValue in
-                        let eras = Array(keyValue.value.map(\.description))
-                        let accounIds = Array(repeating: keyValue.key, count: eras.count)
-                        return (tuple.0 + eras, tuple.1 + accounIds)
-                    }
-                mapOperation.keyParams1 = params.0
-                mapOperation.keyParams2 = params.1
-            } catch {
-                mapOperation.result = .failure(error)
+    func createCreateHistoryByEraAccountIdOperation<T: Decodable>(
+        dependingOn erasMapping: BaseOperation<[Data: [EraIndex]]>,
+        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        path: StorageCodingPath
+    ) throws -> CompoundOperationWrapper<[EraIndex: [Data: T]]> {
+        let keys: () throws -> [(EraIndex, Data)] = {
+            try erasMapping.extractNoCancellableResultData().flatMap { keyValue in
+                keyValue.value.map { ($0, keyValue.key) }
             }
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .validatorExposureClipped
-            )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
-
-        let mergeOperation = ClosureOperation<[EraIndex: [(Data, ValidatorExposure)]]> {
-            let unclaimedRewards = try unclaimedRewardsOperation
-                .extractNoCancellableResultData()
-            let params = unclaimedRewards
-                .reduce(([String](), [Data]())) { tuple, keyValue in
-                    let eras = Array(keyValue.value.map(\.description))
-                    let accounIds = Array(repeating: keyValue.key, count: eras.count)
-                    return (tuple.0 + eras, tuple.1 + accounIds)
-                }
-            let keys = try mapOperation.extractNoCancellableResultData()
-            let responses = try wrapper.targetOperation.extractNoCancellableResultData()
-
-            return responses
-                .reduce(into: [EraIndex: [(Data, ValidatorExposure)]]()) { dict, item in
-                    guard
-                        let exposure = item.value,
-                        let keyIndex = keys.firstIndex(of: item.key),
-                        let era = EraIndex(params.0[keyIndex])
-                    else { return }
-                    let accountId = params.1[keyIndex]
-                    if var array = dict[era] {
-                        array.append((accountId, exposure))
-                        dict[era] = array
-                    } else {
-                        dict[era] = [(accountId, exposure)]
-                    }
-                }
+        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
+            try keys().map { StringScaleMapper(value: $0.0) }
         }
+
+        let keyParams2: () throws -> [Data] = {
+            try keys().map(\.1)
+        }
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams1: keyParams1,
+                keyParams2: keyParams2,
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                storagePath: path
+            )
+
+        let mergeOperation = ClosureOperation<[EraIndex: [Data: T]]> {
+            let responses = try wrapper.targetOperation.extractNoCancellableResultData()
+            let keys = try keys()
+
+            return responses.enumerated().reduce(into: [EraIndex: [Data: T]]()) { result, item in
+                guard let value = item.element.value else {
+                    return
+                }
+
+                let key = keys[item.offset]
+
+                var valueByAccountId = result[key.0] ?? [Data: T]()
+                valueByAccountId[key.1] = value
+                result[key.0] = valueByAccountId
+            }
+        }
+
         wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
+            dependencies: wrapper.allOperations
         )
     }
 
-    func validatorPrefsGroupedByEraOperation(
-        dependingOn unclaimedRewardsOperation: BaseOperation<[Data: Set<EraIndex>]>,
-        engine: JSONRPCEngine,
-        codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) throws -> CompoundOperationWrapper<[EraIndex: [(Data, ValidatorPrefs)]]> {
-        let mapOperation = DoubleMapKeyEncodingOperation<String, Data>(
-            path: .erasPrefs,
-            storageKeyFactory: StorageKeyFactory()
-        )
+    func createEraValidatorsInfoOperation(
+        dependingOn exposureOperation: BaseOperation<[EraIndex: [Data: ValidatorExposure]]>,
+        dependingOn prefsOperation: BaseOperation<[EraIndex: [Data: ValidatorPrefs]]>
+    ) -> BaseOperation<[EraIndex: [EraValidatorInfo]]> {
+        ClosureOperation {
+            let exposuresMapping = try exposureOperation.extractNoCancellableResultData()
+            let prefsMapping = try prefsOperation.extractNoCancellableResultData()
 
-        mapOperation.configurationBlock = {
-            do {
-                let unclaimedRewards = try unclaimedRewardsOperation
-                    .extractNoCancellableResultData()
-                mapOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
-                let params = unclaimedRewards
-                    .reduce(([String](), [Data]())) { tuple, keyValue in
-                        let eras = Array(keyValue.value.map(\.description))
-                        let accounIds = Array(repeating: keyValue.key, count: eras.count)
-                        return (tuple.0 + eras, tuple.1 + accounIds)
-                    }
-                mapOperation.keyParams1 = params.0
-                mapOperation.keyParams2 = params.1
-            } catch {
-                mapOperation.result = .failure(error)
-            }
-        }
+            return exposuresMapping
+                .reduce(into: [EraIndex: [EraValidatorInfo]]()) { result, exposureMapping in
+                    let infoList = exposureMapping.value
+                        .reduce([EraValidatorInfo]()) { validators, accountIdExposure in
+                            guard
+                                let eraPrefs = prefsMapping[exposureMapping.key],
+                                let accountIdPrefs = eraPrefs[accountIdExposure.key] else {
+                                return validators
+                            }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+                            let info = EraValidatorInfo(
+                                accountId: accountIdExposure.key,
+                                exposure: accountIdExposure.value,
+                                prefs: accountIdPrefs
+                            )
+                            return validators + [info]
+                        }
 
-        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
-            requestFactory.queryItems(
-                engine: engine,
-                keys: { try mapOperation.extractNoCancellableResultData() },
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                storagePath: .erasPrefs
-            )
-        wrapper.allOperations.forEach { $0.addDependency(mapOperation) }
-
-        let mergeOperation = ClosureOperation<[EraIndex: [(Data, ValidatorPrefs)]]> {
-            let unclaimedRewards = try unclaimedRewardsOperation
-                .extractNoCancellableResultData()
-            let params = unclaimedRewards
-                .reduce(([String](), [Data]())) { tuple, keyValue in
-                    let eras = Array(keyValue.value.map(\.description))
-                    let accounIds = Array(repeating: keyValue.key, count: eras.count)
-                    return (tuple.0 + eras, tuple.1 + accounIds)
+                    let eraIndex = exposureMapping.key
+                    result[eraIndex] = infoList
                 }
-            let keys = try mapOperation.extractNoCancellableResultData()
-            let responses = try wrapper.targetOperation.extractNoCancellableResultData()
+        }
+    }
 
-            return responses
-                .reduce(into: [EraIndex: [(Data, ValidatorPrefs)]]()) { dict, item in
+    func calculatePayouts(
+        dependingOn eraValdatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>,
+        eraRewardOverview: BaseOperation<PayoutSteps4And5Result>,
+        stakingOverviewOperation: BaseOperation<PayoutSteps1To3Result>
+    ) throws -> BaseOperation<PayoutsInfo> {
+        let nominatorAccountId = try SS58AddressFactory().accountId(from: selectedAccountAddress)
+        let amountPrecision = chain.addressType.precision
+
+        return ClosureOperation<PayoutsInfo> {
+            let validatorsByEra = try eraValdatorsOperation.extractNoCancellableResultData()
+            let eraRewardOverview = try eraRewardOverview.extractNoCancellableResultData()
+            let totalRewardByEra = eraRewardOverview.totalValidatorRewardByEra
+            let pointsByEra = eraRewardOverview.validatorPointsDistributionByEra
+
+            let payouts = validatorsByEra.reduce([PayoutInfo]()) { result, eraMapping in
+                let era = eraMapping.key
+                guard
+                    let totalRewardAmount = totalRewardByEra[era],
+                    let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: amountPrecision),
+                    let points = pointsByEra[era] else {
+                    return result
+                }
+
+                let eraPayouts: [PayoutInfo] = eraMapping.value.compactMap { validatorInfo in
                     guard
-                        let prefs = item.value,
-                        let keyIndex = keys.firstIndex(of: item.key),
-                        let era = EraIndex(params.0[keyIndex])
-                    else { return }
-                    let accountId = params.1[keyIndex]
-                    if var array = dict[era] {
-                        array.append((accountId, prefs))
-                        dict[era] = array
-                    } else {
-                        dict[era] = [(accountId, prefs)]
+                        let nominatorStakeAmount = validatorInfo.exposure.others
+                        .first(where: { $0.who == nominatorAccountId })?.value,
+                        let nominatorStake = Decimal
+                        .fromSubstrateAmount(nominatorStakeAmount, precision: amountPrecision),
+                        let comission = Decimal.fromSubstratePerbill(value: validatorInfo.prefs.commission),
+                        let validatorPoints = points.individual
+                        .first(where: { $0.accountId == validatorInfo.accountId })?.rewardPoint,
+                        let totalStake = Decimal
+                        .fromSubstrateAmount(validatorInfo.exposure.total, precision: amountPrecision) else {
+                        return nil
                     }
-                }
-        }
-        wrapper.allOperations.forEach { mergeOperation.addDependency($0) }
 
-        return CompoundOperationWrapper(
-            targetOperation: mergeOperation,
-            dependencies: [mapOperation] + wrapper.allOperations
-        )
+                    let rewardFraction = Decimal(validatorPoints) / Decimal(points.total)
+                    let validatorTotalReward = totalReward * rewardFraction
+                    let nominatorReward = validatorTotalReward * (1 - comission) *
+                        (nominatorStake / totalStake)
+
+                    return PayoutInfo(era: era, validator: validatorInfo.accountId, reward: nominatorReward)
+                }
+
+                return result + eraPayouts
+            }
+
+            let activeEra = try stakingOverviewOperation.extractNoCancellableResultData().activeEra
+
+            return PayoutsInfo(activeEra: activeEra, payouts: payouts)
+        }
     }
 }

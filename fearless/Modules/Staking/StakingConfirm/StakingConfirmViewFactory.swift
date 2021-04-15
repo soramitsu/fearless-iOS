@@ -36,7 +36,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
         guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
@@ -88,10 +88,10 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
     private static func createPresenter(
         settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol
+        keystore _: KeystoreProtocol
     ) -> StakingConfirmPresenter? {
         let networkType = settings.selectedConnection.type
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
         let confirmViewModelFactory = StakingConfirmViewModelFactory()
@@ -115,7 +115,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol
     ) -> StakingBaseConfirmInteractor? {
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
         guard let selectedAccount = settings.selectedAccount,

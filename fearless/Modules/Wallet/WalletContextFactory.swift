@@ -17,25 +17,21 @@ protocol WalletContextFactoryProtocol {
 }
 
 final class WalletContextFactory {
-    let keychain: KeystoreProtocol
     let settings: SettingsManagerProtocol
     let applicationConfig: ApplicationConfigProtocol
     let logger: LoggerProtocol
     let primitiveFactory: WalletPrimitiveFactoryProtocol
 
     init(
-        keychain: KeystoreProtocol = Keychain(),
         settings: SettingsManagerProtocol = SettingsManager.shared,
         applicationConfig: ApplicationConfigProtocol = ApplicationConfig.shared,
         logger: LoggerProtocol = Logger.shared
     ) {
-        self.keychain = keychain
         self.settings = settings
         self.applicationConfig = applicationConfig
         self.logger = logger
 
         primitiveFactory = WalletPrimitiveFactory(
-            keystore: keychain,
             settings: settings
         )
     }

@@ -10,7 +10,7 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let keystore = Keychain()
         let logger = Logger.shared
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
         // MARK: - View
 

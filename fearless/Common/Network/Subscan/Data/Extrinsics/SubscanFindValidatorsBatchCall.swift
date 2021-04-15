@@ -59,12 +59,14 @@ extension SubscanFindValidatorsBatchCall {
 
         init(from decoder: Decoder) throws {
             let container = try decoder.container(keyedBy: CodingKeys.self)
-            call_function = try container.decode(CallFunction.self, forKey: .call_function)
-            if call_function == .nominate {
+            let call = try? container.decode(String.self, forKey: .call_function)
+            if call == CallFunction.nominate.rawValue {
                 call_args = try container.decode([CallArg].self, forKey: .call_args)
             } else {
                 call_args = []
             }
+
+            call_function = .nominate
         }
     }
 
