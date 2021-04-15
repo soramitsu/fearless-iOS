@@ -42,12 +42,12 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     private func createCellViewModels(
-        for payouts: [PayoutInfo]
+        for payoutsInfo: PayoutsInfo
     ) -> [StakingRewardHistoryCellViewModel] {
-        payouts.map { payout in
+        payoutsInfo.payouts.map { payout in
             StakingRewardHistoryCellViewModel(
-                addressOrName: self.addressTitle(payout.validator),
-                daysLeftText: payout.era.description,
+                addressOrName: addressTitle(payout.validator),
+                daysLeftText: eraText(activeEra: payoutsInfo.activeEra, payoutEra: payout.era),
                 tokenAmountText: "+" + self.tokenAmountText(payout.reward),
                 usdAmountText: "$0"
             )
@@ -63,6 +63,13 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
     private func tokenAmountText(_ value: Decimal) -> String {
         balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
+    }
+
+    private func eraText(activeEra: EraIndex, payoutEra: EraIndex) -> String {
+        let eraDistance = (activeEra - payoutEra)
+        let daysLeft = eraDistance / UInt32(chain.erasPerDay)
+        let daysLeftText = daysLeft == 1 ? "day left" : " days left"
+        return daysLeft.description + daysLeftText
     }
 
     private func defineBottomButtonTitle(
@@ -89,7 +96,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
                 view?.showEmptyView()
             } else {
                 let viewModel = StakingPayoutViewModel(
-                    cellViewModels: createCellViewModels(for: payoutInfo.payouts),
+                    cellViewModels: createCellViewModels(for: payoutInfo),
                     bottomButtonTitle: defineBottomButtonTitle(for: payoutInfo.payouts)
                 )
                 view?.reload(with: viewModel)
