@@ -52,10 +52,10 @@ final class NominateMapper: Mapping {
             input.call_function?.stringValue ??
             input.call_name?.stringValue
 
-        return callName == "nominate"
+        return callName?.lowercased() == "nominate"
     }
 
     private func ensureModule(_ input: JSON) -> Bool {
-        input.call_module_function?.stringValue == "Staking"
+        input.call_module?.stringValue?.lowercased() == "staking"
     }
 }

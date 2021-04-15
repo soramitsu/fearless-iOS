@@ -15,7 +15,7 @@ final class ControllerMapper: Mapping {
         }
 
         let controllerArg = params.arrayValue?
-            .first(where: { $0.name?.stringValue == "controller" })
+            .first(where: { $0.name?.stringValue?.lowercased() == "controller" })
 
         guard let controllerHex = controllerArg?.value?.stringValue ??
             controllerArg?.value?.Id?.stringValue else {
@@ -53,10 +53,10 @@ final class ControllerMapper: Mapping {
             return false
         }
 
-        return ["bond", "set_controller"].contains(callName)
+        return ["bond", "set_controller"].contains(callName.lowercased())
     }
 
     private func ensureModule(_ input: JSON) -> Bool {
-        input.call_module?.stringValue == "Staking"
+        input.call_module?.stringValue?.lowercased() == "staking"
     }
 }

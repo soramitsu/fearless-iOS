@@ -9,9 +9,9 @@ class PayoutRewardsServiceTests: XCTestCase {
         let operationManager = OperationManagerFacade.sharedManager
 
         let settings = SettingsManager.shared
-        let assetId = WalletAssetId.westend
+        let assetId = WalletAssetId.kusama
         let chain = assetId.chain!
-        let selectedAccount = "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"
+        let selectedAccount = "FkLeVVgvntQNEUXSApUAs1fh9JxGxMuM15fFStzVx6tWZC1"
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,
@@ -40,7 +40,16 @@ class PayoutRewardsServiceTests: XCTestCase {
 
         let expectation = XCTestExpectation()
         service.fetchPayoutRewards { result in
-            print(result)
+            switch result {
+            case .success(let info):
+                let totalReward = info.payouts.reduce(Decimal(0.0)) { $0 + $1.reward }
+                let eras = info.payouts.map { $0.era }.sorted()
+                Logger.shared.info("Active era: \(info.activeEra)")
+                Logger.shared.info("Total reward: \(totalReward)")
+                Logger.shared.info("Eras: \(eras)")
+            case .failure(let error):
+                Logger.shared.error("Did receive error: \(error)")
+            }
             expectation.fulfill()
         }
         wait(for: [expectation], timeout: 30)

@@ -12,7 +12,7 @@ final class BatchMapper<R>: Mapping {
     }
 
     func map(input: JSON) -> OutputType {
-        let call = input.params?.value?.arrayValue ?? []
+        let call = extractArguments(input)?.arrayValue?.first?.value?.arrayValue ?? []
 
         return call.map { innerMapper.map(input: $0) }
     }
