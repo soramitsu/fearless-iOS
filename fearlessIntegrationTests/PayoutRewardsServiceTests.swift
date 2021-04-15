@@ -9,9 +9,9 @@ class PayoutRewardsServiceTests: XCTestCase {
         let operationManager = OperationManagerFacade.sharedManager
 
         let settings = SettingsManager.shared
-        let assetId = WalletAssetId.kusama
+        let assetId = WalletAssetId.westend
         let chain = assetId.chain!
-        let selectedAccount = "FkLeVVgvntQNEUXSApUAs1fh9JxGxMuM15fFStzVx6tWZC1"
+        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,
