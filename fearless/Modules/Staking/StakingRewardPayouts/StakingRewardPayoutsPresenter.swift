@@ -12,6 +12,7 @@ final class StakingRewardPayoutsPresenter {
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
     private var payoutItems: [PayoutInfo] = []
+    private var priceData: PriceData?
 
     init(
         chain: Chain,
@@ -19,6 +20,65 @@ final class StakingRewardPayoutsPresenter {
     ) {
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+    }
+
+    private func createCellViewModels(
+        for payouts: [PayoutInfo]
+    ) -> [StakingRewardHistoryCellViewModel] {
+        payouts.map { payout in
+            StakingRewardHistoryCellViewModel(
+                addressOrName: self.addressTitle(payout.validator),
+                daysLeftText: payout.era.description,
+                tokenAmountText: "+" + self.tokenAmountText(payout.reward),
+                usdAmountText: priceText(payout.reward, priceData: priceData)
+            )
+        }
+    }
+
+    private func addressTitle(_ accountId: Data) -> String {
+        if let address = try? addressFactory.addressFromAccountId(data: accountId, type: chain.addressType) {
+            return address
+        }
+        return ""
+    }
+
+    private func tokenAmountText(_ value: Decimal) -> String {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        return balanceViewModelFactory.amountFromValue(value).value(for: locale)
+    }
+
+    private func priceText(_ amount: Decimal, priceData: PriceData?) -> String {
+        guard let priceData = priceData else {
+            return "$0"
+        }
+
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        let price = balanceViewModelFactory
+            .priceFromAmount(amount, priceData: priceData).value(for: locale)
+        return price
+    }
+
+    private func defineBottomButtonTitle(
+        for payouts: [PayoutInfo]
+    ) -> String {
+        let totalReward = payouts
+            .reduce(into: Decimal(0)) { reward, payout in
+                reward += payout.reward
+            }
+        let amountText = tokenAmountText(totalReward)
+        return "Payout all (\(amountText))"
+    }
+
+    private func updateView() {
+        if payoutItems.isEmpty {
+            view?.showEmptyView()
+        } else {
+            let viewModel = StakingPayoutViewModel(
+                cellViewModels: createCellViewModels(for: payoutItems),
+                bottomButtonTitle: defineBottomButtonTitle(for: payoutItems)
+            )
+            view?.reload(with: viewModel)
+        }
     }
 }
 
@@ -40,41 +100,6 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func handlePayoutAction() {
         wireframe.showPayoutConfirmation(from: view)
     }
-
-    private func createCellViewModels(
-        for payouts: [PayoutInfo]
-    ) -> [StakingRewardHistoryCellViewModel] {
-        payouts.map { payout in
-            StakingRewardHistoryCellViewModel(
-                addressOrName: self.addressTitle(payout.validator),
-                daysLeftText: payout.era.description,
-                tokenAmountText: "+" + self.tokenAmountText(payout.reward),
-                usdAmountText: "$0"
-            )
-        }
-    }
-
-    private func addressTitle(_ accountId: Data) -> String {
-        if let address = try? addressFactory.addressFromAccountId(data: accountId, type: chain.addressType) {
-            return address
-        }
-        return ""
-    }
-
-    private func tokenAmountText(_ value: Decimal) -> String {
-        balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
-    }
-
-    private func defineBottomButtonTitle(
-        for payouts: [PayoutInfo]
-    ) -> String {
-        let totalReward = payouts
-            .reduce(into: Decimal(0)) { reward, payout in
-                reward += payout.reward
-            }
-        let amountText = tokenAmountText(totalReward)
-        return "Payout all (\(amountText))"
-    }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
@@ -84,16 +109,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         switch result {
         case let .success(payoutInfo):
             payoutItems = payoutInfo.payouts
-
-            if payoutInfo.payouts.isEmpty {
-                view?.showEmptyView()
-            } else {
-                let viewModel = StakingPayoutViewModel(
-                    cellViewModels: createCellViewModels(for: payoutInfo.payouts),
-                    bottomButtonTitle: defineBottomButtonTitle(for: payoutInfo.payouts)
-                )
-                view?.reload(with: viewModel)
-            }
+            updateView()
         case .failure:
             payoutItems = []
             let emptyViewModel = StakingPayoutViewModel(
@@ -103,6 +119,20 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
             view?.reload(with: emptyViewModel)
 
             view?.showRetryState()
+        }
+    }
+
+    func didReceive(priceResult: Result<PriceData?, Error>) {
+        switch priceResult {
+        case let .success(priceData):
+            self.priceData = priceData
+
+            if !payoutItems.isEmpty {
+                updateView()
+            }
+        case .failure:
+            priceData = nil
+            updateView()
         }
     }
 }

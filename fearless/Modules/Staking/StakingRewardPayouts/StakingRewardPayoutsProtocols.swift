@@ -21,6 +21,7 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
     func didReceive(result: Result<PayoutsInfo, Error>)
+    func didReceive(priceResult: Result<PriceData?, Error>)
 }
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
