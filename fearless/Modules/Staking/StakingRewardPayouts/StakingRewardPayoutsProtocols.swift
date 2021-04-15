@@ -24,7 +24,11 @@ protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
-    func showRewardDetails(from view: ControllerBackedProtocol?, payoutItem: StakingPayoutItem)
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        payoutItem: StakingPayoutItem,
+        chain: Chain
+    )
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {

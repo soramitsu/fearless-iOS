@@ -1,9 +1,13 @@
 import Foundation
 
 final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol {
-    func showRewardDetails(from view: ControllerBackedProtocol?, payoutItem: StakingPayoutItem) {
+    func showRewardDetails(
+        from view: ControllerBackedProtocol?,
+        payoutItem: StakingPayoutItem,
+        chain: Chain
+    ) {
         guard
-            let rewardDetails = StakingRewardDetailsViewFactory.createView(payoutItem: payoutItem)
+            let rewardDetails = StakingRewardDetailsViewFactory.createView(payoutItem: payoutItem, chain: chain)
         else { return }
         view?.controller
             .navigationController?

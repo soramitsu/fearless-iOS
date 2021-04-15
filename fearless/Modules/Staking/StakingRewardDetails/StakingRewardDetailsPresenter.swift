@@ -1,16 +1,28 @@
 import Foundation
+import IrohaCrypto
 
 final class StakingRewardDetailsPresenter {
     weak var view: StakingRewardDetailsViewProtocol?
     var wireframe: StakingRewardDetailsWireframeProtocol!
     var interactor: StakingRewardDetailsInteractorInputProtocol!
 
+    private let chain: Chain
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let addressFactory = SS58AddressFactory()
+
+    init(
+        chain: Chain,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    ) {
+        self.chain = chain
+        self.balanceViewModelFactory = balanceViewModelFactory
+    }
+
     private func createViewModel(payoutItem: StakingPayoutItem) -> StakingRewardDetailsViewModel {
-        let tokenAmount = payoutItem.reward.description
         let rows: [RewardDetailsRow] = [
             .validatorInfo(.init(
                 name: "Validator",
-                address: "✨👍✨ Day7 ✨👍✨",
+                address: addressTitle(payoutItem.validator),
                 icon: R.image.iconAccount()
             )),
             .date(.init(
@@ -21,9 +33,20 @@ final class StakingRewardDetailsPresenter {
                 titleText: R.string.localizable.stakingRewardDetailsEra(),
                 valueText: "#\(payoutItem.era.description)"
             )),
-            .reward(.init(ksmAmountText: tokenAmount, usdAmountText: "$0"))
+            .reward(.init(ksmAmountText: tokenAmountText(payoutItem.reward), usdAmountText: "$0"))
         ]
         return .init(rows: rows)
+    }
+
+    private func addressTitle(_ accountId: Data) -> String {
+        if let address = try? addressFactory.addressFromAccountId(data: accountId, type: chain.addressType) {
+            return address
+        }
+        return ""
+    }
+
+    private func tokenAmountText(_ value: Decimal) -> String {
+        balanceViewModelFactory.amountFromValue(value).value(for: .autoupdatingCurrent)
     }
 }
 

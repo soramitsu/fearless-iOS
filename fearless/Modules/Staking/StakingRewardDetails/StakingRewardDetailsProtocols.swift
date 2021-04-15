@@ -22,5 +22,5 @@ protocol StakingRewardDetailsWireframeProtocol: AnyObject {
 }
 
 protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {
-    static func createView(payoutItem: StakingPayoutItem) -> StakingRewardDetailsViewProtocol?
+    static func createView(payoutItem: StakingPayoutItem, chain: Chain) -> StakingRewardDetailsViewProtocol?
 }

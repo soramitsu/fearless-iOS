@@ -34,7 +34,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             return
         }
         let payoutItem = payoutItems[index]
-        wireframe.showRewardDetails(from: view, payoutItem: payoutItem)
+        wireframe.showRewardDetails(from: view, payoutItem: payoutItem, chain: chain)
     }
 
     func handlePayoutAction() {
