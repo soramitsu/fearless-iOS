@@ -30,7 +30,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func handleSelectedHistory(at index: Int) {
-        guard index > 0, index < payoutItems.count else {
+        guard index >= 0, index < payoutItems.count else {
             return
         }
         let payoutItem = payoutItems[index]
