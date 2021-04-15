@@ -44,8 +44,6 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 
     private func setupButtonLocalization() {
         // TODO:
-        let title = R.string.localizable.stakingRewardPayoutsPayoutAll("0.00345 KSM")
-        rootView.payoutButton.imageWithTitleView?.title = title
     }
 
     private func setupTable() {
