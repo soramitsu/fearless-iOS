@@ -11,7 +11,7 @@ final class StakingRewardPayoutsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
-    private var payoutItems: [PayoutInfo] = []
+    private var payoutsInfo: PayoutsInfo?
     private var priceData: PriceData?
 
     init(
@@ -23,12 +23,18 @@ final class StakingRewardPayoutsPresenter {
     }
 
     private func createCellViewModels(
-        for payouts: [PayoutInfo]
+        for payoutsInfo: PayoutsInfo
     ) -> [StakingRewardHistoryCellViewModel] {
-        payouts.map { payout in
-            StakingRewardHistoryCellViewModel(
+        payoutsInfo.payouts.map { payout in
+            let daysLeftText = daysLeftAttributedString(
+                activeEra: payoutsInfo.activeEra,
+                payoutEra: payout.era,
+                historyDepth: 84
+            )
+
+            return StakingRewardHistoryCellViewModel(
                 addressOrName: self.addressTitle(payout.validator),
-                daysLeftText: payout.era.description,
+                daysLeftText: daysLeftText,
                 tokenAmountText: "+" + self.tokenAmountText(payout.reward),
                 usdAmountText: priceText(payout.reward, priceData: priceData)
             )
@@ -58,6 +64,26 @@ final class StakingRewardPayoutsPresenter {
         return price
     }
 
+    private func daysLeftAttributedString(
+        activeEra: EraIndex,
+        payoutEra: EraIndex,
+        historyDepth: UInt32
+    ) -> NSAttributedString {
+        let eraDistance = historyDepth - (activeEra - payoutEra)
+        let daysLeft = eraDistance / UInt32(chain.erasPerDay)
+        let daysLeftText = daysLeft == 1 ? " day left" : " days left"
+
+        let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
+        let textColor: UIColor = daysLeft < historyDepthDays ?
+            R.color.colorRed()! : R.color.colorLightGray()!
+
+        let attrubutedString = NSAttributedString(
+            string: daysLeft.description + daysLeftText,
+            attributes: [.foregroundColor: textColor]
+        )
+        return attrubutedString
+    }
+
     private func defineBottomButtonTitle(
         for payouts: [PayoutInfo]
     ) -> String {
@@ -70,12 +96,16 @@ final class StakingRewardPayoutsPresenter {
     }
 
     private func updateView() {
-        if payoutItems.isEmpty {
+        guard let payoutsInfo = payoutsInfo else {
+            return
+        }
+
+        if payoutsInfo.payouts.isEmpty {
             view?.showEmptyView()
         } else {
             let viewModel = StakingPayoutViewModel(
-                cellViewModels: createCellViewModels(for: payoutItems),
-                bottomButtonTitle: defineBottomButtonTitle(for: payoutItems)
+                cellViewModels: createCellViewModels(for: payoutsInfo),
+                bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
             )
             view?.reload(with: viewModel)
         }
@@ -90,6 +120,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func handleSelectedHistory(at index: Int) {
+        let payoutItems = payoutsInfo?.payouts ?? []
+
         guard index >= 0, index < payoutItems.count else {
             return
         }
@@ -107,11 +139,10 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         view?.stopLoading()
 
         switch result {
-        case let .success(payoutInfo):
-            payoutItems = payoutInfo.payouts
+        case let .success(payoutsInfo):
+            self.payoutsInfo = payoutsInfo
             updateView()
         case .failure:
-            payoutItems = []
             let emptyViewModel = StakingPayoutViewModel(
                 cellViewModels: [],
                 bottomButtonTitle: ""
@@ -126,10 +157,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         switch priceResult {
         case let .success(priceData):
             self.priceData = priceData
-
-            if !payoutItems.isEmpty {
-                updateView()
-            }
+            updateView()
         case .failure:
             priceData = nil
             updateView()
