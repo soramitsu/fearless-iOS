@@ -11,7 +11,7 @@ final class StakingRewardPayoutsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
-    private var payoutItems: [StakingPayoutItem] = []
+    private var payoutItems: [PayoutInfo] = []
 
     init(
         chain: Chain,
@@ -41,21 +41,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
         // wireframe.showRewardDetails(from: view)
     }
 
-    private func createPayoutItems(from payouts: [PayoutItem]) -> [StakingPayoutItem] {
-        payouts.map { payoutByValidator -> [StakingPayoutItem] in
-            payoutByValidator.rewardsByEra.map { era, reward in
-                StakingPayoutItem(
-                    validator: payoutByValidator.validatorAccount,
-                    era: era,
-                    reward: reward
-                )
-            }
-        }
-        .flatMap { $0 }
-    }
-
     private func createCellViewModels(
-        for payouts: [StakingPayoutItem]
+        for payouts: [PayoutInfo]
     ) -> [StakingRewardHistoryCellViewModel] {
         payouts.map { payout in
             StakingRewardHistoryCellViewModel(
@@ -79,11 +66,11 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     private func defineBottomButtonTitle(
-        for payouts: [PayoutItem]
+        for payouts: [PayoutInfo]
     ) -> String {
         let totalReward = payouts
             .reduce(into: Decimal(0)) { reward, payout in
-                reward += payout.totalReward
+                reward += payout.reward
             }
         let amountText = tokenAmountText(totalReward)
         return "Payout all (\(amountText))"
@@ -91,23 +78,21 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
-    func didReceive(result: Result<[PayoutItem], Error>) {
+    func didReceive(result: Result<PayoutsInfo, Error>) {
         view?.stopLoading()
 
         switch result {
-        case let .success(payouts):
-            if payouts.isEmpty {
+        case let .success(payoutInfo):
+            if payoutInfo.payouts.isEmpty {
                 view?.showEmptyView()
             } else {
-                let payoutItems = createPayoutItems(from: payouts)
-                self.payoutItems = payoutItems
                 let viewModel = StakingPayoutViewModel(
-                    cellViewModels: createCellViewModels(for: payoutItems),
-                    bottomButtonTitle: defineBottomButtonTitle(for: payouts)
+                    cellViewModels: createCellViewModels(for: payoutInfo.payouts),
+                    bottomButtonTitle: defineBottomButtonTitle(for: payoutInfo.payouts)
                 )
                 view?.reload(with: viewModel)
             }
-        case let .failure(error):
+        case .failure:
             payoutItems = []
             let emptyViewModel = StakingPayoutViewModel(
                 cellViewModels: [],
@@ -117,14 +102,5 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
 
             view?.showRetryState()
         }
-    }
-}
-
-extension PayoutItem {
-    var totalReward: Decimal {
-        rewardsByEra
-            .reduce(into: Decimal(0)) { totalReward, tuple in
-                totalReward += tuple.1
-            }
     }
 }

@@ -1,22 +1,30 @@
 import Foundation
 import SoraKeystore
+import FearlessUtils
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
     static func createView() -> StakingRewardPayoutsViewProtocol? {
-        guard let connection = WebSocketService.shared.connection else { return nil }
-
-        let chain = Chain.westend
-        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
-        let storageFacade = SubstrateDataStorageFacade.shared
-        let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
-
         let settings = SettingsManager.shared
+        let connection = settings.selectedConnection
+
+        guard let selectedAccount = settings.selectedAccount else { return nil }
+
+        let chain = connection.type.chain
+
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier),
+              let subscanUrl = assetId.subscanUrl else {
+            return nil
+        }
+
+        guard let engine = WebSocketService.shared.connection else { return nil }
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: chain.addressType,
+            selectedAddressType: connection.type,
             limit: StakingConstants.maxAmount
         )
         let presenter = StakingRewardPayoutsPresenter(
@@ -25,21 +33,20 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         )
         let view = StakingRewardPayoutsViewController(presenter: presenter)
 
-        let providerFactory = SubstrateDataProviderFactory(
-            facade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
+        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 
         let payoutService = PayoutRewardsService(
-            selectedAccountAddress: selectedAccount,
+            selectedAccountAddress: selectedAccount.address,
             chain: chain,
+            subscanBaseURL: subscanUrl,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
-            engine: connection,
-            operationManager: operationManager,
-            providerFactory: providerFactory,
-            subscanOperationFactory: SubscanOperationFactory()
+            storageRequestFactory: storageRequestFactory,
+            engine: engine,
+            operationManager: OperationManagerFacade.sharedManager,
+            subscanOperationFactory: SubscanOperationFactory(),
+            logger: Logger.shared
         )
+
         let interactor = StakingRewardPayoutsInteractor(payoutService: payoutService)
         let wireframe = StakingRewardPayoutsWireframe()
 

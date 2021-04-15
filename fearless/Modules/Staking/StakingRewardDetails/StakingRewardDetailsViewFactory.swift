@@ -3,7 +3,7 @@ import SoraFoundation
 import SoraKeystore
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
-    static func createView(payoutItem: StakingPayoutItem, chain: Chain) -> StakingRewardDetailsViewProtocol? {
+    static func createView(payoutItem: PayoutInfo, chain: Chain) -> StakingRewardDetailsViewProtocol? {
         let settings = SettingsManager.shared
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 

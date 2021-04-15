@@ -1,218 +1,186 @@
 import RobinHood
 import FearlessUtils
 import BigInt
+import IrohaCrypto
 
 extension PayoutRewardsService {
     func createControllersStep6Operation(
-        nominatorAccount: String,
-        chain: Chain,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<Set<String>> {
-        let controllersByStakingOperation = try createControllersByStakingOperation(
-            nominatorStashAccount: nominatorAccount,
-            chain: chain,
-            subscanOperationFactory: subscanOperationFactory
-        )
+        nominatorStashAddress: String
+    ) -> CompoundOperationWrapper<Set<AccountId>> {
+        let controllersByStakingOperation =
+            createControllersByStakingOperation(nominatorStashAccount: nominatorStashAddress)
 
-        let controllersByUtilityOperation = try createControllersByUtilityOperation(
-            nominatorStashAccount: nominatorAccount,
-            chain: chain,
-            subscanOperationFactory: subscanOperationFactory
-        )
+        let controllersByUtilityOperation =
+            createControllersByUtilityOperation(nominatorStashAccount: nominatorStashAddress)
 
-        let mergeOperation = ClosureOperation<Set<String>> {
-            let controllersByStaking = try controllersByStakingOperation.targetOperation
-                .extractNoCancellableResultData()
-            let controllersByUtility = try controllersByUtilityOperation.targetOperation
-                .extractNoCancellableResultData()
+        let mergeOperation = ClosureOperation<Set<AccountId>> {
+            let stakingIds = try controllersByStakingOperation
+                .targetOperation.extractNoCancellableResultData()
+            let batchIds = try controllersByUtilityOperation
+                .targetOperation.extractNoCancellableResultData()
 
-            let controllersWhichCouldEverMakeNominations =
-                controllersByStaking.union(controllersByUtility)
-            return controllersWhichCouldEverMakeNominations
+            return stakingIds.union(batchIds)
         }
-        let mergeOperationDependencies =
-            controllersByStakingOperation.allOperations + controllersByUtilityOperation.allOperations
-        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        let dependencies = controllersByStakingOperation.allOperations + controllersByUtilityOperation.allOperations
+        dependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: mergeOperationDependencies
+            dependencies: dependencies
         )
     }
 
-    private func createControllersByStakingOperation(
-        nominatorStashAccount: String,
-        chain: Chain,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<Set<String>> {
-        let bondWrapper = try createFetchExtrinsicsDataOperation(
-            moduleName: "staking",
+    private func createControllersByStakingOperation(nominatorStashAccount: String)
+        -> CompoundOperationWrapper<Set<AccountId>> {
+        let bondOperation = createSubscanQueryOperation(
             address: nominatorStashAccount,
+            moduleName: "staking",
             callName: "bond",
-            subscanOperationFactory: subscanOperationFactory
+            mapper: AnyMapper(mapper: ControllerMapper()),
+            reducer: AnyReducer(reducer: ControllersReducer())
         )
 
-        let setControllerWrapper = try createFetchExtrinsicsDataOperation(
-            moduleName: "staking",
+        let setControllerOperation = createSubscanQueryOperation(
             address: nominatorStashAccount,
+            moduleName: "staking",
             callName: "set_controller",
-            subscanOperationFactory: subscanOperationFactory
+            mapper: AnyMapper(mapper: ControllerMapper()),
+            reducer: AnyReducer(reducer: ControllersReducer())
         )
 
-        let mergeOperation = ClosureOperation<Set<String>> {
-            let bondExtrinsics = try bondWrapper.targetOperation.extractNoCancellableResultData()
-                .extrinsics ?? []
-            let setControllerExtrinsics = try setControllerWrapper.targetOperation.extractNoCancellableResultData()
-                .extrinsics ?? []
+        let mergeOperation = ClosureOperation<Set<AccountId>> {
+            let bondIds = try bondOperation.extractNoCancellableResultData()
+            let setControllerIds = try setControllerOperation.extractNoCancellableResultData()
 
-            let controllers = (bondExtrinsics + setControllerExtrinsics)
-                .compactMap(\.params)
-                .map { SubscanBondCall(callArgs: $0, chain: chain) }
-                .compactMap { $0?.controller }
-
-            return Set<String>(controllers)
+            return bondIds.union(setControllerIds)
         }
-        let mergeOperationDependencies = bondWrapper.allOperations + setControllerWrapper.allOperations
-        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        let dependencies = [bondOperation, setControllerOperation]
+        dependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: mergeOperationDependencies
+            dependencies: dependencies
         )
     }
 
     private func createControllersByUtilityOperation(
-        nominatorStashAccount: String,
-        chain: Chain,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<Set<String>> {
-        let batchWrapper = try createFetchExtrinsicsDataOperation(
-            moduleName: "utility",
+        nominatorStashAccount: String
+    ) -> CompoundOperationWrapper<Set<Data>> {
+        let controllerMapper = AnyMapper(mapper: ControllerMapper())
+
+        let batchOperation = createSubscanQueryOperation(
             address: nominatorStashAccount,
+            moduleName: "utility",
             callName: "batch",
-            subscanOperationFactory: subscanOperationFactory
+            mapper: AnyMapper(mapper: BatchMapper(innerMapper: controllerMapper)),
+            reducer: AnyReducer(reducer: ControllersListReducer())
         )
 
-        let batchAllWrapper = try createFetchExtrinsicsDataOperation(
-            moduleName: "utility",
+        let batchAllOperation = createSubscanQueryOperation(
             address: nominatorStashAccount,
+            moduleName: "utility",
             callName: "batch_all",
-            subscanOperationFactory: subscanOperationFactory
+            mapper: AnyMapper(mapper: BatchMapper(innerMapper: controllerMapper)),
+            reducer: AnyReducer(reducer: ControllersListReducer())
         )
 
-        let mergeOperation = ClosureOperation<Set<String>> {
-            let batchExtrinsics = try batchWrapper.targetOperation.extractNoCancellableResultData()
-                .extrinsics ?? []
-            let batchAllExtrinsics = try batchAllWrapper.targetOperation.extractNoCancellableResultData()
-                .extrinsics ?? []
+        let mergeOperation = ClosureOperation<Set<AccountId>> {
+            let batchIds = try batchOperation.extractNoCancellableResultData()
+            let batchAllIds = try batchAllOperation.extractNoCancellableResultData()
 
-            let controllers = (batchExtrinsics + batchAllExtrinsics)
-                .compactMap(\.params)
-                .map { SubscanFindControllersBatchCall(callArgs: $0, chain: chain) }
-                .compactMap { $0?.controllers }
-                .flatMap { $0 }
-
-            return Set<String>(controllers)
+            return batchIds.union(batchAllIds)
         }
-        let mergeOperationDependencies = batchWrapper.allOperations + batchAllWrapper.allOperations
-        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        let dependencies = [batchOperation, batchAllOperation]
+        dependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: mergeOperationDependencies
+            dependencies: dependencies
         )
     }
 
     func createFindValidatorsOperation(
-        controllers: Set<String>,
-        chain: Chain,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<Set<String>> {
-        let validatorsByNominateWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
+        controllers: Set<AccountId>
+    ) throws -> CompoundOperationWrapper<[AccountId]> {
+        let addressFactory = SS58AddressFactory()
+
+        let validatorsOperations: [[BaseOperation<Set<AccountId>>]] =
+            try controllers.map { controller in
+                let address = try addressFactory
+                    .addressFromAccountId(data: controller, type: chain.addressType)
+
+                let mapper = AnyMapper(mapper: NominateMapper())
+
+                let validatorsByNominate = createSubscanQueryOperation(
+                    address: address,
                     moduleName: "staking",
-                    address: address,
                     callName: "nominate",
-                    subscanOperationFactory: subscanOperationFactory
+                    mapper: mapper,
+                    reducer: AnyReducer(reducer: NominationsReducer())
                 )
-            }
 
-        let validatorsByBatchWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
-                    moduleName: "utility",
+                let validatorsByBatch = createSubscanQueryOperation(
                     address: address,
+                    moduleName: "utility",
                     callName: "batch",
-                    subscanOperationFactory: subscanOperationFactory
+                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
+                    reducer: AnyReducer(reducer: NominationsListReducer())
                 )
-            }
 
-        let validatorsByBatchAllWrappers = try controllers
-            .map { address in
-                try createFetchExtrinsicsDataOperation(
-                    moduleName: "utility",
+                let validatorsByBatchAll = createSubscanQueryOperation(
                     address: address,
+                    moduleName: "utility",
                     callName: "batch_all",
-                    subscanOperationFactory: subscanOperationFactory
+                    mapper: AnyMapper(mapper: BatchMapper(innerMapper: mapper)),
+                    reducer: AnyReducer(reducer: NominationsListReducer())
                 )
+
+                return [validatorsByNominate, validatorsByBatch, validatorsByBatchAll]
             }
 
-        let mergeOperation = ClosureOperation<Set<String>> {
-            let validatorsByNominate = try validatorsByNominateWrappers
-                .map { try $0.targetOperation.extractNoCancellableResultData() }
-                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
-                    extrinsicsData.extrinsics
-                }
-                .flatMap { $0 }
-                .compactMap(\.params)
-                .compactMap { SubscanNominateCall(callArgs: $0, chain: chain) }
-                .map(\.validatorAddresses)
-                .flatMap { $0 }
+        let dependecies = validatorsOperations.flatMap { $0 }
 
-            let validatorsBatch = try (validatorsByBatchWrappers + validatorsByBatchAllWrappers)
-                .map { try $0.targetOperation.extractNoCancellableResultData() }
-                .compactMap { extrinsicsData -> [SubscanExtrinsicsItemData]? in
-                    extrinsicsData.extrinsics
-                }
-                .flatMap { $0 }
-                .compactMap(\.params)
-                .compactMap { SubscanFindValidatorsBatchCall(callArgs: $0, chain: chain) }
-                .map(\.validatorAddresses)
-                .flatMap { $0 }
+        let mergeOperation = ClosureOperation<[Data]> {
+            let allSets = try dependecies.map { try $0.extractNoCancellableResultData() }
 
-            return Set<String>(validatorsByNominate + validatorsBatch)
+            let resultSet = allSets.reduce(into: Set<AccountId>()) { result, item in
+                result = result.union(item)
+            }
+
+            return Array(resultSet)
         }
-        let mergeOperationDependencies =
-            (validatorsByNominateWrappers + validatorsByBatchWrappers + validatorsByBatchAllWrappers)
-                .map(\.allOperations).flatMap { $0 }
-        mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
+
+        dependecies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
             targetOperation: mergeOperation,
-            dependencies: mergeOperationDependencies
+            dependencies: dependecies
         )
     }
 
-    private func createFetchExtrinsicsDataOperation(
-        moduleName: String,
+    private func createSubscanQueryOperation<T>(
         address: String,
+        moduleName: String,
         callName: String,
-        subscanOperationFactory: SubscanOperationFactoryProtocol
-    ) throws -> CompoundOperationWrapper<SubscanExtrinsicsData> {
-        let extrinsicsInfo = ExtrinsicsInfo(
-            row: 100,
-            page: 0,
-            address: address,
-            moduleName: moduleName,
-            callName: callName
-        )
-
-        let url = WalletAssetId.westend.subscanUrl!
+        mapper: AnyMapper<JSON, T>,
+        reducer: AnyReducer<T, Set<AccountId>>
+    ) -> BaseOperation<Set<AccountId>> {
+        let url = subscanBaseURL
             .appendingPathComponent(SubscanApi.extrinsics)
-        let fetchOperation = subscanOperationFactory
-            .fetchExtrinsicsOperation(url, info: extrinsicsInfo)
 
-        return CompoundOperationWrapper(targetOperation: fetchOperation)
+        let params = SubscanQueryParams(address: address, moduleName: moduleName, callName: callName)
+
+        return SubscanQueryService(
+            url: url,
+            params: params,
+            mapper: mapper,
+            reducer: reducer,
+            initialResultValue: [],
+            subscanOperationFactory: subscanOperationFactory,
+            operationManager: operationManager
+        ).longrunOperation()
     }
 }

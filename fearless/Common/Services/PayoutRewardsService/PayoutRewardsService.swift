@@ -5,41 +5,34 @@ import BigInt
 import IrohaCrypto
 
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
-    func update(to _: Chain) {}
-
     let selectedAccountAddress: String
+    let chain: Chain
+    let subscanBaseURL: URL
     let runtimeCodingService: RuntimeCodingServiceProtocol
+    let storageRequestFactory: StorageRequestFactoryProtocol
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
-    let providerFactory: SubstrateDataProviderFactoryProtocol
     let subscanOperationFactory: SubscanOperationFactoryProtocol
     let logger: LoggerProtocol?
-
-    let syncQueue = DispatchQueue(
-        label: "jp.co.fearless.payout.\(UUID().uuidString)",
-        qos: .userInitiated
-    )
-
-    private(set) var activeEra: UInt32?
-    private let chain: Chain
-    private var isActive: Bool = false
 
     init(
         selectedAccountAddress: String,
         chain: Chain,
+        subscanBaseURL: URL,
         runtimeCodingService: RuntimeCodingServiceProtocol,
+        storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        providerFactory: SubstrateDataProviderFactoryProtocol,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
+        self.subscanBaseURL = subscanBaseURL
         self.runtimeCodingService = runtimeCodingService
+        self.storageRequestFactory = storageRequestFactory
         self.engine = engine
         self.operationManager = operationManager
-        self.providerFactory = providerFactory
         self.subscanOperationFactory = subscanOperationFactory
         self.logger = logger
     }
@@ -50,7 +43,6 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
         do {
             let steps1to3OperationWrapper = try createSteps1To3OperationWrapper(
-                engine: engine,
                 codingFactoryOperation: codingFactoryOperation
             )
 
@@ -62,123 +54,21 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             steps4And5OperationWrapper.allOperations
                 .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
-            let nominationHistoryStep6Controllers = try createControllersStep6Operation(
-                nominatorAccount: selectedAccountAddress,
-                chain: chain,
-                subscanOperationFactory: subscanOperationFactory
+            let nominationHistoryStep6Controllers = createControllersStep6Operation(
+                nominatorStashAddress: selectedAccountAddress
             )
 
-            nominationHistoryStep6Controllers.targetOperation.completionBlock = {
-                do {
-                    let controllersSet = try nominationHistoryStep6Controllers
-                        .targetOperation.extractNoCancellableResultData()
+            nominationHistoryStep6Controllers.allOperations
+                .forEach { $0.addDependency(steps4And5OperationWrapper.targetOperation) }
 
-                    let validatorsWrapper = try self.createFindValidatorsOperation(
-                        controllers: controllersSet,
-                        chain: self.chain,
-                        subscanOperationFactory: self.subscanOperationFactory
-                    )
-
-                    let controllersWrapper = try self.createControllersByValidatorStashOperation(
-                        dependingOn: validatorsWrapper.targetOperation,
-                        chain: self.chain,
-                        engine: self.engine,
-                        codingFactoryOperation: codingFactoryOperation
-                    )
-                    controllersWrapper.allOperations
-                        .forEach { $0.addDependency(validatorsWrapper.targetOperation) }
-
-                    let ledgerInfos = try self.createLedgerInfoOperation(
-                        dependingOn: controllersWrapper.targetOperation,
-                        engine: self.engine,
-                        codingFactoryOperation: codingFactoryOperation
-                    )
-                    ledgerInfos.allOperations
-                        .forEach { $0.addDependency(controllersWrapper.targetOperation) }
-
-                    let unclaimedErasByStashOperation = try self.createUnclaimedEraByStashOperation(
-                        ledgerInfoOperation: ledgerInfos.targetOperation,
-                        steps1to3Operation: steps1to3OperationWrapper.targetOperation
-                    )
-                    unclaimedErasByStashOperation.allOperations.forEach {
-                        $0.addDependency(ledgerInfos.targetOperation)
-                        $0.addDependency(steps1to3OperationWrapper.targetOperation)
-                    }
-
-                    let exposureByEraOperation = try self.validatorExposureGroupedByEraOperation(
-                        dependingOn: unclaimedErasByStashOperation.targetOperation,
-                        engine: self.engine,
-                        codingFactoryOperation: codingFactoryOperation
-                    )
-                    exposureByEraOperation.allOperations
-                        .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
-
-                    let prefsByEraOperation = try self.validatorPrefsGroupedByEraOperation(
-                        dependingOn: unclaimedErasByStashOperation.targetOperation,
-                        engine: self.engine,
-                        codingFactoryOperation: codingFactoryOperation
-                    )
-                    prefsByEraOperation.allOperations
-                        .forEach { $0.addDependency(unclaimedErasByStashOperation.targetOperation) }
-
-                    let rewardPerValidatorOperation = try self.calculateRewardPerValidatorOperation(
-                        steps4And5Oparation: steps4And5OperationWrapper.targetOperation,
-                        ledgerInfoOperation: ledgerInfos.targetOperation,
-                        chain: self.chain
-                    )
-                    rewardPerValidatorOperation.allOperations.forEach {
-                        $0.addDependency(steps4And5OperationWrapper.targetOperation)
-                        $0.addDependency(ledgerInfos.targetOperation)
-                    }
-
-                    let rewardOperation = try self.calculateRewardOperation(
-                        rewardPerValidatorOparation: rewardPerValidatorOperation.targetOperation,
-                        exposureByEraOperation: exposureByEraOperation.targetOperation,
-                        prefsByEraOperation: prefsByEraOperation.targetOperation,
-                        nominatorStashAccount: self.selectedAccountAddress,
-                        chain: self.chain
-                    )
-                    rewardOperation.allOperations.forEach {
-                        $0.addDependency(rewardPerValidatorOperation.targetOperation)
-                        $0.addDependency(exposureByEraOperation.targetOperation)
-                        $0.addDependency(prefsByEraOperation.targetOperation)
-                    }
-
-                    rewardOperation.targetOperation.completionBlock = {
-                        do {
-                            let rewards = try rewardOperation
-                                .targetOperation.extractNoCancellableResultData()
-                            let payoutItems = rewards
-                                .reduce(into: [PayoutItem]()) { items, rewardsDict in
-                                    let item = PayoutItem(
-                                        validatorAccount: rewardsDict.key,
-                                        rewardsByEra: rewardsDict.value
-                                    )
-                                    items.append(item)
-                                }
-                            completion(.success(payoutItems))
-                        } catch {
-                            completion(.failure(error))
-                        }
-                    }
-
-                    let operations: [Operation] =
-                        validatorsWrapper.allOperations
-                            + controllersWrapper.allOperations
-                            + ledgerInfos.allOperations
-                            + unclaimedErasByStashOperation.allOperations
-                            + exposureByEraOperation.allOperations
-                            + prefsByEraOperation.allOperations
-                            + rewardPerValidatorOperation.allOperations
-                            + rewardOperation.allOperations
-
-                    self.operationManager.enqueue(
-                        operations: operations,
-                        in: .transient
-                    )
-                } catch {
-                    completion(.failure(error))
-                }
+            nominationHistoryStep6Controllers.targetOperation.completionBlock = { [weak self] in
+                self?.continueValidatorsFetch(
+                    dependingOn: codingFactoryOperation,
+                    nominationHistoryWrapper: nominationHistoryStep6Controllers,
+                    stakingOverviewWrapper: steps1to3OperationWrapper,
+                    eraRewardOverviewWrapper: steps4And5OperationWrapper,
+                    completion: completion
+                )
             }
 
             let operations = [codingFactoryOperation]
@@ -193,121 +83,103 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         }
     }
 
-    func calculateRewardOperation(
-        rewardPerValidatorOparation: BaseOperation<[Data: [EraIndex: Decimal]]>,
-        exposureByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorExposure)]]>,
-        prefsByEraOperation: BaseOperation<[EraIndex: [(Data, ValidatorPrefs)]]>,
-        nominatorStashAccount: String,
-        chain: Chain
-    ) throws -> CompoundOperationWrapper<[Data: [(EraIndex, Decimal)]]> {
-        let ownAccountId = try SS58AddressFactory().accountId(
-            fromAddress: nominatorStashAccount,
-            type: chain.addressType
-        )
+    private func continueValidatorsFetch(
+        dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
+        nominationHistoryWrapper: CompoundOperationWrapper<Set<AccountId>>,
+        stakingOverviewWrapper: CompoundOperationWrapper<PayoutSteps1To3Result>,
+        eraRewardOverviewWrapper: CompoundOperationWrapper<PayoutSteps4And5Result>,
+        completion: @escaping PayoutRewardsClosure
+    ) {
+        do {
+            let controllersSet = try nominationHistoryWrapper
+                .targetOperation.extractNoCancellableResultData()
 
-        let mergeOperation = ClosureOperation<[Data: [(EraIndex, Decimal)]]> {
-            let rewardPerValidator = try rewardPerValidatorOparation
-                .extractNoCancellableResultData()
-            let exposureByEra = try exposureByEraOperation
-                .extractNoCancellableResultData()
-            let prefsByEra = try prefsByEraOperation
-                .extractNoCancellableResultData()
+            let validatorsWrapper = try createFindValidatorsOperation(
+                controllers: controllersSet
+            )
 
-            return rewardPerValidator
-                .reduce(into: [Data: [(EraIndex, Decimal)]]()) { dict, item in
-                    let (stash, validatorRewardPerEra) = (item.key, item.value)
+            let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
+                dependingOn: validatorsWrapper.targetOperation,
+                codingFactoryOperation: codingFactoryOperation,
+                path: .controller
+            )
+            controllersWrapper.allOperations
+                .forEach { $0.addDependency(validatorsWrapper.targetOperation) }
 
-                    let nominatorRewardByEra = validatorRewardPerEra
-                        .reduce(into: [(EraIndex, Decimal)]()) { array, tuple in
-                            let (era, validatorRewardPerEra) = tuple
+            let ledgerInfos: CompoundOperationWrapper<[DyStakingLedger]> =
+                try createFetchAndMapOperation(
+                    dependingOn: controllersWrapper.targetOperation,
+                    codingFactoryOperation: codingFactoryOperation,
+                    path: .stakingLedger
+                )
 
-                            guard
-                                let prefs = prefsByEra[era],
-                                let validatorComission = prefs
-                                .first(where: { $0.0 == stash })
-                                .map(\.1.commission)
-                                .map({ Decimal.fromSubstratePerbill(value: $0)! }),
-                                let exposure = exposureByEra[era],
-                                let maybeTotalStake = exposure
-                                .first(where: { $0.0 == stash })
-                                .map(\.1.total)
-                                .map({ Decimal.fromSubstrateAmount(
-                                    $0,
-                                    precision: chain.addressType.precision
-                                ) }),
-                                let totalStake = maybeTotalStake,
-                                let maybeMominatorStake = exposure
-                                .first(where: { $0.0 == stash })
-                                .map(\.1)
-                                .map({ exposure -> Decimal? in
-                                    exposure.others
-                                        .first(where: { $0.who == ownAccountId })
-                                        .map { Decimal.fromSubstrateAmount(
-                                            $0.value,
-                                            precision: chain.addressType.precision
-                                        )! }
-                                }),
-                                let nominatorStake = maybeMominatorStake
-                            else {
-                                return
-                            }
-                            let nominatorReward = validatorRewardPerEra
-                                * (Decimal(1) - validatorComission)
-                                * nominatorStake / totalStake
+            ledgerInfos.allOperations
+                .forEach { $0.addDependency(controllersWrapper.targetOperation) }
 
-                            array.append((era, nominatorReward))
-                        }
+            let unclaimedErasByStashOperation = try createUnclaimedEraByStashOperation(
+                ledgerInfoOperation: ledgerInfos.targetOperation,
+                steps1to3Operation: stakingOverviewWrapper.targetOperation
+            )
 
-                    if !nominatorRewardByEra.isEmpty {
-                        dict[stash] = nominatorRewardByEra
-                    }
+            unclaimedErasByStashOperation.addDependency(ledgerInfos.targetOperation)
+            unclaimedErasByStashOperation.addDependency(stakingOverviewWrapper.targetOperation)
+
+            let exposuresByEraWrapper: CompoundOperationWrapper<[EraIndex: [Data: ValidatorExposure]]> =
+                try createCreateHistoryByEraAccountIdOperation(
+                    dependingOn: unclaimedErasByStashOperation,
+                    codingFactoryOperation: codingFactoryOperation,
+                    path: .validatorExposureClipped
+                )
+
+            exposuresByEraWrapper.allOperations
+                .forEach { $0.addDependency(unclaimedErasByStashOperation) }
+
+            let prefsByEraWrapper: CompoundOperationWrapper<[EraIndex: [Data: ValidatorPrefs]]> =
+                try createCreateHistoryByEraAccountIdOperation(
+                    dependingOn: unclaimedErasByStashOperation,
+                    codingFactoryOperation: codingFactoryOperation,
+                    path: .erasPrefs
+                )
+
+            prefsByEraWrapper.allOperations
+                .forEach { $0.addDependency(unclaimedErasByStashOperation) }
+
+            let eraInfoOperation = createEraValidatorsInfoOperation(
+                dependingOn: exposuresByEraWrapper.targetOperation,
+                dependingOn: prefsByEraWrapper.targetOperation
+            )
+
+            exposuresByEraWrapper.allOperations.forEach { eraInfoOperation.addDependency($0) }
+            prefsByEraWrapper.allOperations.forEach { eraInfoOperation.addDependency($0) }
+
+            let payoutOperation = try calculatePayouts(
+                dependingOn: eraInfoOperation,
+                eraRewardOverview: eraRewardOverviewWrapper.targetOperation,
+                stakingOverviewOperation: stakingOverviewWrapper.targetOperation
+            )
+
+            payoutOperation.addDependency(eraInfoOperation)
+
+            let firstOperations = validatorsWrapper.allOperations + controllersWrapper.allOperations
+                + ledgerInfos.allOperations
+            let secondOperations = [unclaimedErasByStashOperation] + exposuresByEraWrapper.allOperations
+                + prefsByEraWrapper.allOperations + [eraInfoOperation, payoutOperation]
+
+            payoutOperation.completionBlock = {
+                do {
+                    let payouts = try payoutOperation.extractNoCancellableResultData()
+                    completion(.success(payouts))
+                } catch {
+                    completion(.failure(error))
                 }
+            }
+
+            operationManager.enqueue(
+                operations: firstOperations + secondOperations,
+                in: .transient
+            )
+        } catch {
+            completion(.failure(error))
         }
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation)
-    }
-
-    func calculateRewardPerValidatorOperation(
-        steps4And5Oparation: BaseOperation<PayoutSteps4And5Result>,
-        ledgerInfoOperation: BaseOperation<[DyStakingLedger]>,
-        chain: Chain
-    ) throws -> CompoundOperationWrapper<[Data: [EraIndex: Decimal]]> {
-        let mergeOperation = ClosureOperation<[Data: [EraIndex: Decimal]]> {
-            let steps4And5Result = try steps4And5Oparation
-                .extractNoCancellableResultData()
-            let ledgerInfo = try ledgerInfoOperation.extractNoCancellableResultData()
-            let stashes = ledgerInfo.map(\.stash)
-
-            let totalRewardsByEra = steps4And5Result.totalValidatorRewardByEra
-            let pointsByEra = steps4And5Result.validatorPointsDistributionByEra
-
-            return stashes
-                .reduce(into: [Data: [EraIndex: Decimal]]()) { dict, stash in
-                    let validatorRewardByEra = totalRewardsByEra
-                        .reduce(into: [EraIndex: Decimal]()) { dict, totalRewardByEra in
-                            let (era, totalReward) = totalRewardByEra
-                            guard
-                                let rewardPoints = pointsByEra[era],
-                                let totalRewardDecimal = Decimal.fromSubstrateAmount(
-                                    totalReward,
-                                    precision: chain.addressType.precision
-                                ),
-                                let validatorPoint = rewardPoints
-                                .individual
-                                .first(where: { $0.accountId == stash })
-                                .map(\.rewardPoint)
-                            else { return }
-
-                            let ratio = Decimal(validatorPoint) / Decimal(rewardPoints.total)
-
-                            let validatorReward = totalRewardDecimal * ratio
-                            dict[era] = validatorReward
-                        }
-
-                    dict[stash] = validatorRewardByEra
-                }
-        }
-
-        return CompoundOperationWrapper(targetOperation: mergeOperation)
     }
 }

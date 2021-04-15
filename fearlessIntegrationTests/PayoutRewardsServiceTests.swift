@@ -1,53 +1,54 @@
 import XCTest
 import SoraKeystore
+import FearlessUtils
 @testable import fearless
 
 class PayoutRewardsServiceTests: XCTestCase {
 
     func testPayoutRewardsList() {
-        let storageFacade = SubstrateStorageTestFacade()
         let operationManager = OperationManagerFacade.sharedManager
-        let logger = Logger.shared
 
-        let providerFactory = SubstrateDataProviderFactory(
-            facade: storageFacade,
-            operationManager: operationManager,
-            logger: logger
-        )
-
-        let settings = InMemorySettingsManager()
-        let chain = Chain.westend
+        let settings = SettingsManager.shared
+        let assetId = WalletAssetId.westend
+        let chain = assetId.chain!
+        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,
             networkType: chain,
-            keychain: InMemoryKeychain(),
+            keychain: Keychain(),
             settings: settings
         )
-        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
 
         WebSocketService.shared.setup()
         let connection = WebSocketService.shared.connection!
         let runtimeService = RuntimeRegistryFacade.sharedService
         runtimeService.setup()
 
+        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+
         let service = PayoutRewardsService(
             selectedAccountAddress: selectedAccount,
             chain: chain,
+            subscanBaseURL: assetId.subscanUrl!,
             runtimeCodingService: runtimeService,
+            storageRequestFactory: storageRequestFactory,
             engine: connection,
             operationManager: operationManager,
-            providerFactory: providerFactory,
             subscanOperationFactory: SubscanOperationFactory()
         )
 
         let expectation = XCTestExpectation()
         service.fetchPayoutRewards { result in
             switch result {
-            case let .success(rewards):
-                XCTAssert(!rewards.isEmpty)
-            case let .failure(error):
-                XCTFail(error.localizedDescription)
+            case .success(let info):
+                let totalReward = info.payouts.reduce(Decimal(0.0)) { $0 + $1.reward }
+                let eras = info.payouts.map { $0.era }.sorted()
+                Logger.shared.info("Active era: \(info.activeEra)")
+                Logger.shared.info("Total reward: \(totalReward)")
+                Logger.shared.info("Eras: \(eras)")
+            case .failure(let error):
+                Logger.shared.error("Did receive error: \(error)")
             }
             expectation.fulfill()
         }
