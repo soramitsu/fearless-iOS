@@ -7,17 +7,14 @@ protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable
 protocol StakingRewardDetailsPresenterProtocol: AnyObject {
     func setup()
     func handlePayoutAction()
+    func handleValidatorAccountAction()
 }
 
-protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {
-    func setup()
-}
+protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}
 
-protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {
-    func didRecieve(payoutItem: StakingPayoutItem)
-}
+protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {}
 
-protocol StakingRewardDetailsWireframeProtocol: AnyObject {
+protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresentable {
     func showPayoutConfirmation(from view: ControllerBackedProtocol?)
 }
 

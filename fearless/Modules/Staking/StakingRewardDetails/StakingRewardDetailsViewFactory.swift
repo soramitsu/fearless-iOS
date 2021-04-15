@@ -14,6 +14,7 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
         )
 
         let presenter = StakingRewardDetailsPresenter(
+            payoutItem: payoutItem,
             chain: chain,
             balanceViewModelFactory: balanceViewModelFactory
         )
@@ -21,7 +22,7 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
-        let interactor = StakingRewardDetailsInteractor(payoutItem: payoutItem)
+        let interactor = StakingRewardDetailsInteractor()
         let wireframe = StakingRewardDetailsWireframe()
 
         presenter.view = view

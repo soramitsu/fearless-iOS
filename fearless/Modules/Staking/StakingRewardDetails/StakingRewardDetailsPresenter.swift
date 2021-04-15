@@ -9,11 +9,14 @@ final class StakingRewardDetailsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let addressFactory = SS58AddressFactory()
+    private let payoutItem: StakingPayoutItem
 
     init(
+        payoutItem: StakingPayoutItem,
         chain: Chain,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
+        self.payoutItem = payoutItem
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
     }
@@ -52,17 +55,28 @@ final class StakingRewardDetailsPresenter {
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     func setup() {
-        interactor.setup()
+        let viewModel = createViewModel(payoutItem: payoutItem)
+        view?.reload(with: viewModel)
     }
 
     func handlePayoutAction() {
         wireframe.showPayoutConfirmation(from: view)
     }
-}
 
-extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {
-    func didRecieve(payoutItem: StakingPayoutItem) {
-        let viewModel = createViewModel(payoutItem: payoutItem)
-        view?.reload(with: viewModel)
+    func handleValidatorAccountAction() {
+        guard
+            let view = view,
+            let address = try? addressFactory.addressFromAccountId(
+                data: payoutItem.validator, type: chain.addressType
+            )
+        else { return }
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: .autoupdatingCurrent
+        )
     }
 }
+
+extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {}

@@ -97,7 +97,13 @@ extension StakingRewardDetailsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
-        // TODO: FLW-677
+        let row = rows[indexPath.row]
+        switch row {
+        case .validatorInfo:
+            presenter.handleValidatorAccountAction()
+        default:
+            break
+        }
     }
 }
 
