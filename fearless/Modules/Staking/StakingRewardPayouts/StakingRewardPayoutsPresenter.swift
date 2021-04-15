@@ -11,7 +11,7 @@ final class StakingRewardPayoutsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private lazy var formatterFactory = AmountFormatterFactory()
-    private var payoutItems: [PayoutInfo] = []
+    private var payoutsInfo: PayoutsInfo?
 
     init(
         chain: Chain,
@@ -30,11 +30,15 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func handleSelectedHistory(at index: Int) {
-        guard index >= 0, index < payoutItems.count else {
+        guard
+            let payoutsInfo = payoutsInfo,
+            index >= 0,
+            index < payoutsInfo.payouts.count
+        else {
             return
         }
-        let payoutItem = payoutItems[index]
-        wireframe.showRewardDetails(from: view, payoutItem: payoutItem, chain: chain)
+        let payoutInfo = payoutsInfo.payouts[index]
+        wireframe.showRewardDetails(from: view, payoutInfo: payoutInfo, activeEra: 0, chain: chain)
     }
 
     func handlePayoutAction() {
@@ -113,11 +117,11 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         view?.stopLoading()
 
         switch result {
-        case let .success(payoutInfo):
-            let sortedPayouts = payoutsInfoSortedByNearestEra(payoutInfo)
-            payoutItems = sortedPayouts.payouts
+        case let .success(payoutsInfo):
+            let sortedPayouts = payoutsInfoSortedByNearestEra(payoutsInfo)
+            self.payoutsInfo = sortedPayouts
 
-            if payoutInfo.payouts.isEmpty {
+            if payoutsInfo.payouts.isEmpty {
                 view?.showEmptyView()
             } else {
                 let viewModel = StakingPayoutViewModel(
@@ -127,7 +131,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
                 view?.reload(with: viewModel)
             }
         case .failure:
-            payoutItems = []
+            payoutsInfo = nil
             let emptyViewModel = StakingPayoutViewModel(
                 cellViewModels: [],
                 bottomButtonTitle: ""
