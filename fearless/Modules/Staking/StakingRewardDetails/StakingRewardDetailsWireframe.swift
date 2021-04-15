@@ -2,7 +2,7 @@ import Foundation
 
 final class StakingRewardDetailsWireframe: StakingRewardDetailsWireframeProtocol {
     func showPayoutConfirmation(from view: ControllerBackedProtocol?) {
-        guard let confirmationView = StakingPayoutConfirmationViewFactory.createView() else { return }
+        guard let confirmationView = StakingPayoutConfirmationViewFactory.createView(payouts: []) else { return }
 
         view?.controller
             .navigationController?

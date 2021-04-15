@@ -59,7 +59,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let validatorId = try addressFactory.accountId(from: validatorAddress)
 
         let call = PayoutCall(
-            validator_stash: validatorId,
+            validatorStash: validatorId,
             era: era
         )
 

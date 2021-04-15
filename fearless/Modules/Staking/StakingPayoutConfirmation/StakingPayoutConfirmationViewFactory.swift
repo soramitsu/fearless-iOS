@@ -3,7 +3,7 @@ import SoraFoundation
 import SoraKeystore
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
-    static func createView(payouts _: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol? {
+    static func createView(payouts: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol? {
         guard let connection = WebSocketService.shared.connection else {
             return nil
         }
@@ -11,7 +11,21 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
-        let presenter = StakingPayoutConfirmationPresenter()
+        let networkType = settings.selectedConnection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let presenter = StakingPayoutConfirmationPresenter(
+            balanceViewModelFactory: balanceViewModelFactory, asset: asset,
+            logger: Logger.shared
+        )
+
         let view = StakingPayoutConfirmationViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
@@ -21,7 +35,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             connection: connection,
             settings: settings,
             keystore: keystore,
-            payouts: [PayoutInfo]
+            payouts: payouts
         ) else {
             return nil
         }
@@ -39,7 +53,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         connection: JSONRPCEngine,
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol,
-        payouts _: [PayoutInfo]
+        payouts: [PayoutInfo]
     ) -> StakingPayoutConfirmationInteractor? {
         guard let selectedAccount = settings.selectedAccount
         else {
@@ -64,7 +78,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         return StakingPayoutConfirmationInteractor(
             extrinsicService: extrinsicService,
             signer: signer,
-            settings: settings
+            settings: settings,
+            payouts: payouts
         )
     }
 }
