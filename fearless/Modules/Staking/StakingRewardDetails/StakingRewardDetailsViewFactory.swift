@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import FearlessUtils
 
 final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProtocol {
     static func createView(input: StakingRewardDetailsInput) -> StakingRewardDetailsViewProtocol? {
@@ -17,7 +18,8 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             payoutInfo: input.payoutInfo,
             activeEra: input.activeEra,
             chain: input.chain,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            iconGenerator: PolkadotIconGenerator()
         )
         let view = StakingRewardDetailsViewController(
             presenter: presenter,
