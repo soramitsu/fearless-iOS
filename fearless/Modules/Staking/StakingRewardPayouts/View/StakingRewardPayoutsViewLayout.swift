@@ -5,7 +5,7 @@ final class StakingRewardPayoutsViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
+        tableView.backgroundColor = .clear
         tableView.separatorStyle = .none
         return tableView
     }()
@@ -16,25 +16,9 @@ final class StakingRewardPayoutsViewLayout: UIView {
         return button
     }()
 
-    let emptyImageView: UIView = UIImageView(image: R.image.iconEmptyHistory())
-    let emptyLabel: UILabel = {
-        let label = UILabel()
-        label.text = "Your rewards\nwill appear here"
-        label.numberOfLines = 0
-        label.textAlignment = .center
-        label.textColor = R.color.colorGray()
-        label.font = .p2Paragraph
-        return label
-    }()
-
-    let activityIndicatorView: UIActivityIndicatorView = {
-        let activityIndicator = UIActivityIndicatorView(style: .white)
-        activityIndicator.hidesWhenStopped = true
-        return activityIndicator
-    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
+        backgroundColor = R.color.colorBlack()
         setupLayout()
     }
 
@@ -66,22 +50,8 @@ final class StakingRewardPayoutsViewLayout: UIView {
         addSubview(payoutButton)
         payoutButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
-
-        addSubview(emptyLabel)
-        emptyLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
-
-        addSubview(emptyImageView)
-        emptyImageView.snp.makeConstraints { make in
-            make.bottom.equalTo(emptyLabel.snp.top)
-            make.centerX.equalToSuperview()
-        }
-
-        addSubview(activityIndicatorView)
-        activityIndicatorView.snp.makeConstraints { $0.center.equalToSuperview() }
     }
 }

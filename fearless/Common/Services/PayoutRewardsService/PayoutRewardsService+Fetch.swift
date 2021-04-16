@@ -352,9 +352,14 @@ extension PayoutRewardsService {
                 return result + eraPayouts
             }
 
-            let activeEra = try stakingOverviewOperation.extractNoCancellableResultData().activeEra
+            let overview = try stakingOverviewOperation.extractNoCancellableResultData()
+            let sortedPayouts = payouts.sorted { $0.era < $1.era }
 
-            return PayoutsInfo(activeEra: activeEra, payouts: payouts)
+            return PayoutsInfo(
+                activeEra: overview.activeEra,
+                historyDepth: overview.historyDepth,
+                payouts: sortedPayouts
+            )
         }
     }
 }

@@ -2,6 +2,7 @@ import Foundation
 
 struct PayoutsInfo {
     let activeEra: EraIndex
+    let historyDepth: UInt32
     let payouts: [PayoutInfo]
 }
 

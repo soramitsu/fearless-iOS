@@ -47,7 +47,13 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             logger: Logger.shared
         )
 
-        let interactor = StakingRewardPayoutsInteractor(payoutService: payoutService)
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+
+        let interactor = StakingRewardPayoutsInteractor(
+            payoutService: payoutService,
+            priceProvider: priceProvider
+        )
         let wireframe = StakingRewardPayoutsWireframe()
 
         presenter.view = view
