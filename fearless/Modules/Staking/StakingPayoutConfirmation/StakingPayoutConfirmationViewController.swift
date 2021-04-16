@@ -101,7 +101,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
     private func setupTranformViewLocalization(_ locale: Locale) {
         guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
 
-        let feeString = feeViewModel.amount + "  " feeViewModel.price
+        let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
 
         let viewModel = TransferConfirmAccessoryViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
