@@ -40,7 +40,7 @@ final class StakingRewardDetailsPresenter {
         let rows: [RewardDetailsRow] = [
             .validatorInfo(.init(
                 name: "Validator",
-                address: addressTitle(payoutInfo.validator),
+                address: addressTitle(payoutInfo),
                 icon: validatorIcon
             )),
             .date(.init(
@@ -56,8 +56,13 @@ final class StakingRewardDetailsPresenter {
         return .init(rows: rows)
     }
 
-    private func addressTitle(_ accountId: Data) -> String {
-        if let address = try? addressFactory.addressFromAccountId(data: accountId, type: chain.addressType) {
+    private func addressTitle(_ payout: PayoutInfo) -> String {
+        if let displayName = payout.identity?.displayName {
+            return displayName
+        }
+
+        if let address = try? addressFactory
+            .addressFromAccountId(data: payout.validator, type: chain.addressType) {
             return address
         }
         return ""
