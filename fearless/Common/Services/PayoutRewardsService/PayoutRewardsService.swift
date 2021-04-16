@@ -13,6 +13,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let subscanOperationFactory: SubscanOperationFactoryProtocol
+    let identityOperationFactory: IdentityOperationFactoryProtocol
     let logger: LoggerProtocol?
 
     init(
@@ -24,6 +25,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
+        identityOperationFactory: IdentityOperationFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
@@ -34,6 +36,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.engine = engine
         self.operationManager = operationManager
         self.subscanOperationFactory = subscanOperationFactory
+        self.identityOperationFactory = identityOperationFactory
         self.logger = logger
     }
 
@@ -152,18 +155,28 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             exposuresByEraWrapper.allOperations.forEach { eraInfoOperation.addDependency($0) }
             prefsByEraWrapper.allOperations.forEach { eraInfoOperation.addDependency($0) }
 
+            let identityWrapper = createIdentityFetchOperation(
+                dependingOn: eraInfoOperation,
+                codingFactoryOperation: codingFactoryOperation
+            )
+
+            identityWrapper.allOperations.forEach { $0.addDependency(eraInfoOperation) }
+
             let payoutOperation = try calculatePayouts(
                 dependingOn: eraInfoOperation,
                 eraRewardOverview: eraRewardOverviewWrapper.targetOperation,
-                stakingOverviewOperation: stakingOverviewWrapper.targetOperation
+                stakingOverviewOperation: stakingOverviewWrapper.targetOperation,
+                identityOperation: identityWrapper.targetOperation
             )
 
             payoutOperation.addDependency(eraInfoOperation)
+            payoutOperation.addDependency(identityWrapper.targetOperation)
 
             let firstOperations = validatorsWrapper.allOperations + controllersWrapper.allOperations
                 + ledgerInfos.allOperations
             let secondOperations = [unclaimedErasByStashOperation] + exposuresByEraWrapper.allOperations
-                + prefsByEraWrapper.allOperations + [eraInfoOperation, payoutOperation]
+                + prefsByEraWrapper.allOperations + identityWrapper.allOperations
+                + [eraInfoOperation, payoutOperation]
 
             payoutOperation.completionBlock = {
                 do {

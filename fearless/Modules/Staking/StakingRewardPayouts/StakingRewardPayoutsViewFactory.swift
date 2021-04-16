@@ -35,6 +35,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
+
         let payoutService = PayoutRewardsService(
             selectedAccountAddress: selectedAccount.address,
             chain: chain,
@@ -44,6 +46,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             engine: engine,
             operationManager: OperationManagerFacade.sharedManager,
             subscanOperationFactory: SubscanOperationFactory(),
+            identityOperationFactory: identityOperationFactory,
             logger: Logger.shared
         )
 
