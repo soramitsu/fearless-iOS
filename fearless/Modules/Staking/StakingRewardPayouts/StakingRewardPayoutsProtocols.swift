@@ -4,7 +4,8 @@ import SoraUI
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
     Localizable,
     LoadableViewProtocol,
-    EmptyStateViewOwnerProtocol {
+    EmptyStateViewOwnerProtocol,
+    ErrorStateViewProtocol {
     func showRetryState()
     func reload(with viewModel: StakingPayoutViewModel)
 }

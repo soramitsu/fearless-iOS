@@ -145,14 +145,17 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputPro
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
             updateView()
-        case .failure:
+        case let .failure(error):
             let emptyViewModel = StakingPayoutViewModel(
                 cellViewModels: [],
                 bottomButtonTitle: ""
             )
             view?.reload(with: emptyViewModel)
 
-            view?.showRetryState()
+            view?.showError(error) { [weak self] in
+                self?.view?.hideError()
+                self?.setup()
+            }
         }
     }
 
