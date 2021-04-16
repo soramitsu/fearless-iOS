@@ -2582,6 +2582,7 @@
 		841E6B0825EC1B560007DDFE /* Operations */ = {
 			isa = PBXGroup;
 			children = (
+				84A15488262888CA0050D557 /* IdentityOperationFactory.swift */,
 				841E6B0925EC1C140007DDFE /* ValidatorOperationFactory.swift */,
 				AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */,
 			);
@@ -3827,7 +3828,6 @@
 				84F2FEF925E797E8008338D5 /* StorageRequestFactory.swift */,
 				840D8917262429C900AB231B /* LocalStorageRequestFactory.swift */,
 				840D891C26242AE500AB231B /* StorageRequest.swift */,
-				84A15488262888CA0050D557 /* IdentityOperationFactory.swift */,
 			);
 			path = Operation;
 			sourceTree = "<group>";

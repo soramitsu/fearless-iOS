@@ -32,6 +32,7 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
         let runtimeService = RuntimeRegistryFacade.sharedService
         let storageOperationFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
         let operationManager = OperationManagerFacade.sharedManager
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
         let chain = SettingsManager.shared.selectedConnection.type.chain
 
@@ -42,7 +43,8 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
             rewardService: rewardService,
             storageRequestFactory: storageOperationFactory,
             runtimeService: runtimeService,
-            engine: engine
+            engine: engine,
+            identityOperationFactory: identityOperationFactory
         )
 
         let interactor = RecommendedValidatorsInteractor(
