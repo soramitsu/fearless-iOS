@@ -1,5 +1,6 @@
 import Foundation
 import IrohaCrypto
+import FearlessUtils
 
 final class StakingRewardDetailsPresenter {
     weak var view: StakingRewardDetailsViewProtocol?
@@ -9,28 +10,38 @@ final class StakingRewardDetailsPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let addressFactory = SS58AddressFactory()
+    private let validatorAddress: String?
     private let payoutInfo: PayoutInfo
     private let activeEra: EraIndex
+    private let iconGenerator: IconGenerating
 
     init(
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
         chain: Chain,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        iconGenerator: IconGenerating
     ) {
         self.payoutInfo = payoutInfo
         self.activeEra = activeEra
         self.chain = chain
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.iconGenerator = iconGenerator
+        validatorAddress = try? addressFactory.addressFromAccountId(
+            data: payoutInfo.validator,
+            type: chain.addressType
+        )
     }
 
     private func createViewModel() -> StakingRewardDetailsViewModel {
         let dateText = formattedDateText(payoutEra: payoutInfo.era, activeEra: activeEra, chain: chain)
+        let validatorIcon = getValidatorIcon(validatorAddress: validatorAddress)
+
         let rows: [RewardDetailsRow] = [
             .validatorInfo(.init(
                 name: "Validator",
                 address: addressTitle(payoutInfo.validator),
-                icon: R.image.iconAccount()
+                icon: validatorIcon
             )),
             .date(.init(
                 titleText: R.string.localizable.stakingRewardDetailsDate(),
@@ -79,6 +90,16 @@ final class StakingRewardDetailsPresenter {
 
         return dateFormatter.string(from: daysAgo)
     }
+
+    private func getValidatorIcon(validatorAddress: String?) -> UIImage? {
+        guard let address = validatorAddress else { return nil }
+        return try? iconGenerator.generateFromAddress(address)
+            .imageWithFillColor(
+                .white,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
+    }
 }
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
@@ -94,9 +115,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     func handleValidatorAccountAction() {
         guard
             let view = view,
-            let address = try? addressFactory.addressFromAccountId(
-                data: payoutInfo.validator, type: chain.addressType
-            )
+            let address = validatorAddress
         else { return }
         wireframe.presentAccountOptions(
             from: view,
