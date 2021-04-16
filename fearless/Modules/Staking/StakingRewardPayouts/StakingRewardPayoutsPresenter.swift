@@ -115,7 +115,7 @@ final class StakingRewardPayoutsPresenter {
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {
         view?.hideEmptyView()
-        view?.startLoading()
+        view?.didStartLoading()
         interactor.setup()
     }
 
@@ -143,7 +143,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
     func didReceive(result: Result<PayoutsInfo, Error>) {
-        view?.stopLoading()
+        view?.didStopLoading()
 
         switch result {
         case let .success(payoutsInfo):

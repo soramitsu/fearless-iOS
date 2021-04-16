@@ -53,6 +53,7 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupPayoutButtonAction() {
+        rootView.payoutButton.isHidden = true
         rootView.payoutButton.addTarget(
             self,
             action: #selector(handlePayoutButtonAction),
@@ -72,13 +73,11 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
     }
 
     func showEmptyView() {
-        rootView.payoutButton.isHidden = true
         rootView.emptyImageView.isHidden = false
         rootView.emptyLabel.isHidden = false
     }
 
     func hideEmptyView() {
-        rootView.payoutButton.isHidden = false
         rootView.emptyImageView.isHidden = true
         rootView.emptyLabel.isHidden = true
     }
@@ -86,17 +85,8 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
     func reload(with viewModel: StakingPayoutViewModel) {
         cellViewModels = viewModel.cellViewModels
         rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
-        rootView.tableView.reloadData()
-    }
-
-    func startLoading() {
-        rootView.activityIndicatorView.startAnimating()
-        rootView.payoutButton.isHidden = true
-    }
-
-    func stopLoading() {
-        rootView.activityIndicatorView.stopAnimating()
         rootView.payoutButton.isHidden = false
+        rootView.tableView.reloadData()
     }
 }
 
