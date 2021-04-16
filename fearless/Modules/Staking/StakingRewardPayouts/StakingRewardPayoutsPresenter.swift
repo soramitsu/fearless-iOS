@@ -100,21 +100,17 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
-        if payoutsInfo.payouts.isEmpty {
-            view?.showEmptyView()
-        } else {
-            let viewModel = StakingPayoutViewModel(
-                cellViewModels: createCellViewModels(for: payoutsInfo),
-                bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
-            )
-            view?.reload(with: viewModel)
-        }
+        let viewModel = StakingPayoutViewModel(
+            cellViewModels: createCellViewModels(for: payoutsInfo),
+            bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
+        )
+        view?.reload(with: viewModel)
+        view?.reloadEmptyState(animated: true)
     }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {
-        view?.hideEmptyView()
         view?.didStartLoading()
         interactor.setup()
     }

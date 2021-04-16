@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRewardPayoutsViewLayout
@@ -72,20 +73,10 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
         // TODO:
     }
 
-    func showEmptyView() {
-        rootView.emptyImageView.isHidden = false
-        rootView.emptyLabel.isHidden = false
-    }
-
-    func hideEmptyView() {
-        rootView.emptyImageView.isHidden = true
-        rootView.emptyLabel.isHidden = true
-    }
-
     func reload(with viewModel: StakingPayoutViewModel) {
         cellViewModels = viewModel.cellViewModels
         rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
-        rootView.payoutButton.isHidden = false
+        rootView.payoutButton.isHidden = viewModel.cellViewModels.isEmpty
         rootView.tableView.reloadData()
     }
 }
@@ -98,6 +89,7 @@ extension StakingRewardPayoutsViewController: Localizable {
 
     func applyLocalization() {
         if isViewLoaded {
+            reloadEmptyState(animated: false)
             setupLocalization()
             view.setNeedsLayout()
         }
@@ -122,5 +114,26 @@ extension StakingRewardPayoutsViewController: UITableViewDataSource {
         let model = cellViewModels[indexPath.row]
         cell.bind(model: model)
         return cell
+    }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? { nil }
+    var verticalSpacingForEmptyState: CGFloat? { 0 }
+    var imageForEmptyState: UIImage? { R.image.iconEmptyHistory() }
+    var titleForEmptyState: String? { "Your rewards\nwill appear here" }
+    var titleColorForEmptyState: UIColor? { R.color.colorLightGray() }
+    var titleFontForEmptyState: UIFont? { .p2Paragraph }
+    var trimStrategyForEmptyState: EmptyStateView.TrimStrategy { .none }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        cellViewModels.isEmpty
     }
 }
