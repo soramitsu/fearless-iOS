@@ -34,7 +34,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 
     private func provideFee() {
-        #warning("Not implemented")
         if let fee = fee {
             let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
             view?.didReceive(feeViewModel: viewModel)

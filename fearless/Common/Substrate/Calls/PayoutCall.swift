@@ -2,6 +2,11 @@ import Foundation
 import FearlessUtils
 
 struct PayoutCall: Codable {
-    var validatorStash: Data // TODO: Add conversion from CamelCase to snake_case
+    enum CodingKeys: String, CodingKey {
+        case validatorStash = "validator_stash"
+        case era
+    }
+
+    var validatorStash: Data
     @StringCodable var era: EraIndex
 }

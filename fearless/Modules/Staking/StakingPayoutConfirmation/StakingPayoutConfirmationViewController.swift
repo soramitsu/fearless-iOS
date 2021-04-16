@@ -43,44 +43,11 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
-
-    private func applyFeeViewModel() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let viewModel = feeViewModel?.value(for: locale) {
-//            activityIndicatorView.stopAnimating()
-//            feeDetailsLabel.isHidden = false
-
-            let amountAttributedString = NSMutableAttributedString(
-                string: viewModel.amount + "  ",
-                attributes: [
-                    .foregroundColor: R.color.colorWhite()!,
-                    .font: UIFont.p1Paragraph
-                ]
-            )
-
-            if let price = viewModel.price {
-                let priceAttributedString = NSAttributedString(
-                    string: price,
-                    attributes: [
-                        .foregroundColor: R.color.colorGray()!,
-                        .font: UIFont.p1Paragraph
-                    ]
-                )
-                amountAttributedString.append(priceAttributedString)
-            }
-
-//            feeDetailsLabel.attributedText = amountAttributedString
-        } else {
-//            feeDetailsLabel.isHidden = true
-//            activityIndicatorView.startAnimating()
-        }
-    }
 }
 
 extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         self.feeViewModel = feeViewModel
-        applyFeeViewModel()
         let locale = localizationManager?.selectedLocale ?? Locale.current
         setupTranformViewLocalization(locale)
     }
@@ -101,7 +68,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
     private func setupTranformViewLocalization(_ locale: Locale) {
         guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
 
-        let feeString = feeViewModel.amount + "  " feeViewModel.price
+        let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
 
         let viewModel = TransferConfirmAccessoryViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
