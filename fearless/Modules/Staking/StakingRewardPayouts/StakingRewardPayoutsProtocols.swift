@@ -1,10 +1,10 @@
 import SoraFoundation
+import SoraUI
 
-protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol, Localizable {
-    func startLoading()
-    func stopLoading()
-    func showEmptyView()
-    func hideEmptyView()
+protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
+    Localizable,
+    LoadableViewProtocol,
+    EmptyStateViewOwnerProtocol {
     func showRetryState()
     func reload(with viewModel: StakingPayoutViewModel)
 }
