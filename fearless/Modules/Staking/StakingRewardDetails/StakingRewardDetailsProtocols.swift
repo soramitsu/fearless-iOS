@@ -15,7 +15,7 @@ protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}
 protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {}
 
 protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresentable {
-    func showPayoutConfirmation(from view: ControllerBackedProtocol?)
+    func showPayoutConfirmation(for payoutInfo: PayoutInfo, from view: ControllerBackedProtocol?)
 }
 
 protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {

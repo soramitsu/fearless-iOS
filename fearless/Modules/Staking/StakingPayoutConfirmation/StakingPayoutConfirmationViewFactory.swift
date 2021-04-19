@@ -42,6 +42,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let wireframe = StakingPayoutConfirmationWireframe()
 
+        presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter

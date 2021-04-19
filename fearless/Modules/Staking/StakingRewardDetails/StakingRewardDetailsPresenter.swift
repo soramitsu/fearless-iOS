@@ -109,7 +109,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     }
 
     func handlePayoutAction() {
-        wireframe.showPayoutConfirmation(from: view)
+        wireframe.showPayoutConfirmation(for: payoutInfo, from: view)
     }
 
     func handleValidatorAccountAction() {

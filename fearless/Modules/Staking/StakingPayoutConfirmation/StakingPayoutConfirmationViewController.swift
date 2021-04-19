@@ -29,9 +29,26 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupInitialFeeView()
         applyLocalization()
         setupTable()
         presenter.setup()
+    }
+
+    // MARK: - Private functions
+
+    private func setupInitialFeeView() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        let viewModel = TransferConfirmAccessoryViewModel(
+            title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            icon: nil,
+            action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
+            numberOfLines: 1,
+            amount: "",
+            shouldAllowAction: false
+        )
+        rootView.transferConfirmView.bind(viewModel: viewModel)
     }
 
     private func setupTable() {
@@ -43,48 +60,19 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
-
-    private func applyFeeViewModel() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let viewModel = feeViewModel?.value(for: locale) {
-//            activityIndicatorView.stopAnimating()
-//            feeDetailsLabel.isHidden = false
-
-            let amountAttributedString = NSMutableAttributedString(
-                string: viewModel.amount + "  ",
-                attributes: [
-                    .foregroundColor: R.color.colorWhite()!,
-                    .font: UIFont.p1Paragraph
-                ]
-            )
-
-            if let price = viewModel.price {
-                let priceAttributedString = NSAttributedString(
-                    string: price,
-                    attributes: [
-                        .foregroundColor: R.color.colorGray()!,
-                        .font: UIFont.p1Paragraph
-                    ]
-                )
-                amountAttributedString.append(priceAttributedString)
-            }
-
-//            feeDetailsLabel.attributedText = amountAttributedString
-        } else {
-//            feeDetailsLabel.isHidden = true
-//            activityIndicatorView.startAnimating()
-        }
-    }
 }
+
+// MARK: - StakingPayoutConfirmationViewProtocol
 
 extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         self.feeViewModel = feeViewModel
-        applyFeeViewModel()
         let locale = localizationManager?.selectedLocale ?? Locale.current
         setupTranformViewLocalization(locale)
     }
 }
+
+// MARK: - Localizible
 
 extension StakingPayoutConfirmationViewController: Localizable {
     private func setupLocalization() {
@@ -106,7 +94,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
         let viewModel = TransferConfirmAccessoryViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
             icon: nil,
-            action: R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages),
+            action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
             amount: feeString,
             shouldAllowAction: true
@@ -123,6 +111,8 @@ extension StakingPayoutConfirmationViewController: Localizable {
     }
 }
 
+// MARK: - UITableViewDelegate
+
 extension StakingPayoutConfirmationViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
@@ -130,6 +120,8 @@ extension StakingPayoutConfirmationViewController: UITableViewDelegate {
         // TODO: FLW-677
     }
 }
+
+// MARK: - UITableViewDataSource
 
 extension StakingPayoutConfirmationViewController: UITableViewDataSource {
     // TODO: delete stub data

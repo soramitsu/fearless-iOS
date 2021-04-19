@@ -133,7 +133,8 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     }
 
     func handlePayoutAction() {
-        wireframe.showPayoutConfirmation(from: view)
+        guard let payouts = payoutsInfo?.payouts else { return }
+        wireframe.showPayoutConfirmation(for: payouts, from: view)
     }
 }
 
