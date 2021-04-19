@@ -6,6 +6,7 @@ protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Locali
 
 protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
     func setup()
+    func proceed()
 }
 
 protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {

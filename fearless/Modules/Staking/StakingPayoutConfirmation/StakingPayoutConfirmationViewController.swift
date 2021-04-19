@@ -37,7 +37,9 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     // MARK: - Private functions
 
-    @objc private func confirmAction() {}
+    @objc private func confirmAction() {
+        presenter.proceed()
+    }
 
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
