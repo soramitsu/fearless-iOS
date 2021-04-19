@@ -112,7 +112,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 0.9.0)
   - SoraKeystore
-  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `2bf52ff938e7c367ef485181b0047e16e3ffbbeb`)
+  - SoraUI (from `https://github.com/soramitsu/UIkit-iOS.git`, commit `adfb9dd336f6b6dad5f5acdb35c64ec91a4e907e`)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftFormat/CLI
   - SwiftGifOrigin (~> 1.7.0)
@@ -149,7 +149,7 @@ EXTERNAL SOURCES:
     :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   SoraUI:
-    :commit: 2bf52ff938e7c367ef485181b0047e16e3ffbbeb
+    :commit: adfb9dd336f6b6dad5f5acdb35c64ec91a4e907e
     :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :branch: feature/without-origin
@@ -163,7 +163,7 @@ CHECKOUT OPTIONS:
     :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
     :git: https://github.com/soramitsu/fearless-utils-iOS.git
   SoraUI:
-    :commit: 2bf52ff938e7c367ef485181b0047e16e3ffbbeb
+    :commit: adfb9dd336f6b6dad5f5acdb35c64ec91a4e907e
     :git: https://github.com/soramitsu/UIkit-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
@@ -194,6 +194,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 3a3b421b7d05807b7a5cb6516baee1d626de8674
+PODFILE CHECKSUM: 1d9f6c1f66ab6a2ff2a5dceed12b29ddc258ead5
 
 COCOAPODS: 1.10.1
