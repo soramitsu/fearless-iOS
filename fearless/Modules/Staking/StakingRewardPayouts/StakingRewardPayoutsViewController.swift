@@ -8,12 +8,17 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     // MARK: Properties -
 
     let presenter: StakingRewardPayoutsPresenterProtocol
+    private let localizationManager: LocalizationManagerProtocol?
     private var viewState: StakingRewardPayoutsViewState?
 
     // MARK: Init -
 
-    init(presenter: StakingRewardPayoutsPresenterProtocol) {
+    init(
+        presenter: StakingRewardPayoutsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -140,11 +145,15 @@ extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
 
 extension StakingRewardPayoutsViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        guard let state = viewState else { return nil }
+        guard
+            let state = viewState,
+            let locale = localizationManager?.selectedLocale
+        else { return nil }
+
         switch state {
         case let .error(error):
             let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = error.localizedDescription
+            errorView.errorDescriptionLabel.text = error.value(for: locale)
             errorView.delegate = self
             return errorView
         case .emptyList:

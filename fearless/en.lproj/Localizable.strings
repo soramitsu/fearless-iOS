@@ -330,3 +330,4 @@ Derivation path: %@";
 "transfer.title" = "Transfer";
 "common.available.format" = "Available: %@";
 "staking.rewards.learn.more" = "Learn more about rewards";
+"common.error.no.data.retrieved" = "No data retrieved.";

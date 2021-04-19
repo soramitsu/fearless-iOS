@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SoraFoundation
 import FearlessUtils
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
@@ -31,7 +32,10 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             chain: chain,
             balanceViewModelFactory: balanceViewModelFactory
         )
-        let view = StakingRewardPayoutsViewController(presenter: presenter)
+        let view = StakingRewardPayoutsViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
 
         let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
 

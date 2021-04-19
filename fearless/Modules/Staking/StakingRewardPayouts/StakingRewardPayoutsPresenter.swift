@@ -154,16 +154,19 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
-    func didReceive(result: Result<PayoutsInfo, Error>) {
+    func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>) {
         view?.reload(with: .loading(false))
 
         switch result {
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
             updateView()
-        case let .failure(error):
+        case .failure:
             payoutsInfo = nil
-            view?.reload(with: .error(error))
+            let errorDescription = LocalizableResource { locale in
+                R.string.localizable.commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
+            }
+            view?.reload(with: .error(errorDescription))
         }
     }
 

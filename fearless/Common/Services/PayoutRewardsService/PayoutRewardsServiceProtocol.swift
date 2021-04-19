@@ -1,16 +1,12 @@
 import Foundation
 
-typealias PayoutRewardsClosure = (Result<PayoutsInfo, Error>) -> Void
+typealias PayoutRewardsClosure = (Result<PayoutsInfo, PayoutRewardsServiceError>) -> Void
 
 /// StakingPayoutService
 protocol PayoutRewardsServiceProtocol {
     func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure)
 }
 
-enum PayoutError: LocalizedError {
+enum PayoutRewardsServiceError: Error {
     case unknown
-
-    var errorDescription: String? {
-        "No data retrieved." // TODO: localize
-    }
 }

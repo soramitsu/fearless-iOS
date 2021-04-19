@@ -12,7 +12,7 @@ enum StakingRewardPayoutsViewState {
     case loading(Bool)
     case payoutsList(StakingPayoutViewModel)
     case emptyList
-    case error(Error)
+    case error(LocalizableResource<String>)
 }
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
@@ -27,7 +27,7 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
-    func didReceive(result: Result<PayoutsInfo, Error>)
+    func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)
     func didReceive(priceResult: Result<PriceData?, Error>)
 }
 
