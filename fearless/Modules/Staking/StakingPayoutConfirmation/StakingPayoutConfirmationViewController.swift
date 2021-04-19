@@ -37,6 +37,10 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     // MARK: - Private functions
 
+    @objc private func confirmAction() {
+        
+    }
+
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
@@ -49,6 +53,15 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
             shouldAllowAction: false
         )
         rootView.transferConfirmView.bind(viewModel: viewModel)
+
+        if #available(iOS 14, *) {
+            rootView.transferConfirmView.actionButton.addAction(UIAction(title: "", handler: { [weak self] _ in
+                self?.confirmAction()
+            }), for: .touchUpInside)
+        } else {
+            rootView.transferConfirmView.actionButton
+                .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
+        }
     }
 
     private func setupTable() {
@@ -140,10 +153,6 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
             .destination(.init(
                 titleText: R.string.localizable.stakingRewardDestinationTitle(),
                 valueText: R.string.localizable.stakingRestakeTitle()
-            )),
-            .era(.init(
-                titleText: R.string.localizable.stakingRewardDetailsEra(),
-                valueText: "#1690"
             )),
             .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
         ]
