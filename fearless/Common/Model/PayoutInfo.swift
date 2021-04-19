@@ -10,4 +10,5 @@ struct PayoutInfo {
     let era: EraIndex
     let validator: Data
     let reward: Decimal
+    let identity: AccountIdentity?
 }

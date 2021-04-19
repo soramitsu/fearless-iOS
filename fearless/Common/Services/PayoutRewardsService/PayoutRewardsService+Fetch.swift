@@ -304,21 +304,48 @@ extension PayoutRewardsService {
         }
     }
 
+    func createIdentityFetchOperation(
+        dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>
+    ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
+        let accountIdClosure: () throws -> [AccountId] = {
+            let validatorsByEras = try eraValidatorsOperation.extractNoCancellableResultData()
+
+            let accountIds = validatorsByEras.reduce(into: Set<AccountId>()) { result, mapping in
+                mapping.value.forEach { validatorInfo in
+                    result.insert(validatorInfo.accountId)
+                }
+            }
+
+            return Array(accountIds)
+        }
+
+        return identityOperationFactory.createIdentityWrapper(
+            for: accountIdClosure,
+            engine: engine,
+            runtimeService: runtimeCodingService,
+            chain: chain
+        )
+    }
+
     func calculatePayouts(
-        dependingOn eraValdatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>,
+        dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>,
         eraRewardOverview: BaseOperation<PayoutSteps4And5Result>,
-        stakingOverviewOperation: BaseOperation<PayoutSteps1To3Result>
+        stakingOverviewOperation: BaseOperation<PayoutSteps1To3Result>,
+        identityOperation: BaseOperation<[AccountAddress: AccountIdentity]>
     ) throws -> BaseOperation<PayoutsInfo> {
-        let nominatorAccountId = try SS58AddressFactory().accountId(from: selectedAccountAddress)
-        let amountPrecision = chain.addressType.precision
+        let addressFactory = SS58AddressFactory()
+        let nominatorAccountId = try addressFactory.accountId(from: selectedAccountAddress)
+        let addressType = chain.addressType
+        let amountPrecision = addressType.precision
 
         return ClosureOperation<PayoutsInfo> {
-            let validatorsByEra = try eraValdatorsOperation.extractNoCancellableResultData()
+            let validatorsByEra = try eraValidatorsOperation.extractNoCancellableResultData()
             let eraRewardOverview = try eraRewardOverview.extractNoCancellableResultData()
             let totalRewardByEra = eraRewardOverview.totalValidatorRewardByEra
             let pointsByEra = eraRewardOverview.validatorPointsDistributionByEra
+            let identities = try identityOperation.extractNoCancellableResultData()
 
-            let payouts = validatorsByEra.reduce([PayoutInfo]()) { result, eraMapping in
+            let payouts = try validatorsByEra.reduce([PayoutInfo]()) { result, eraMapping in
                 let era = eraMapping.key
                 guard
                     let totalRewardAmount = totalRewardByEra[era],
@@ -327,7 +354,7 @@ extension PayoutRewardsService {
                     return result
                 }
 
-                let eraPayouts: [PayoutInfo] = eraMapping.value.compactMap { validatorInfo in
+                let eraPayouts: [PayoutInfo] = try eraMapping.value.compactMap { validatorInfo in
                     guard
                         let nominatorStakeAmount = validatorInfo.exposure.others
                         .first(where: { $0.who == nominatorAccountId })?.value,
@@ -346,7 +373,15 @@ extension PayoutRewardsService {
                     let nominatorReward = validatorTotalReward * (1 - comission) *
                         (nominatorStake / totalStake)
 
-                    return PayoutInfo(era: era, validator: validatorInfo.accountId, reward: nominatorReward)
+                    let validatorAddress = try addressFactory
+                        .addressFromAccountId(data: validatorInfo.accountId, type: addressType)
+
+                    return PayoutInfo(
+                        era: era,
+                        validator: validatorInfo.accountId,
+                        reward: nominatorReward,
+                        identity: identities[validatorAddress]
+                    )
                 }
 
                 return result + eraPayouts

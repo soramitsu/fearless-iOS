@@ -33,7 +33,7 @@ final class StakingRewardPayoutsPresenter {
             )
 
             return StakingRewardHistoryCellViewModel(
-                addressOrName: self.addressTitle(payout.validator),
+                addressOrName: self.addressTitle(payout),
                 daysLeftText: daysLeftText,
                 tokenAmountText: "+" + self.tokenAmountText(payout.reward),
                 usdAmountText: priceText(payout.reward, priceData: priceData)
@@ -41,10 +41,16 @@ final class StakingRewardPayoutsPresenter {
         }
     }
 
-    private func addressTitle(_ accountId: Data) -> String {
-        if let address = try? addressFactory.addressFromAccountId(data: accountId, type: chain.addressType) {
+    private func addressTitle(_ payout: PayoutInfo) -> String {
+        if let displayName = payout.identity?.displayName {
+            return displayName
+        }
+
+        if let address = try? addressFactory
+            .addressFromAccountId(data: payout.validator, type: chain.addressType) {
             return address
         }
+
         return ""
     }
 

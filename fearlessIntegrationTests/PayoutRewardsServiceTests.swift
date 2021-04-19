@@ -9,9 +9,9 @@ class PayoutRewardsServiceTests: XCTestCase {
         let operationManager = OperationManagerFacade.sharedManager
 
         let settings = SettingsManager.shared
-        let assetId = WalletAssetId.westend
+        let assetId = WalletAssetId.kusama
         let chain = assetId.chain!
-        let selectedAccount = "5DEwU2U97RnBHCpfwHMDfJC7pqAdfWaPFib9wiZcr2ephSfT"
+        let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
 
         try! AccountCreationHelper.createAccountFromMnemonic(
             cryptoType: .sr25519,
@@ -26,6 +26,7 @@ class PayoutRewardsServiceTests: XCTestCase {
         runtimeService.setup()
 
         let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let identityOperation = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
         let service = PayoutRewardsService(
             selectedAccountAddress: selectedAccount,
@@ -35,7 +36,8 @@ class PayoutRewardsServiceTests: XCTestCase {
             storageRequestFactory: storageRequestFactory,
             engine: connection,
             operationManager: operationManager,
-            subscanOperationFactory: SubscanOperationFactory()
+            subscanOperationFactory: SubscanOperationFactory(),
+            identityOperationFactory: identityOperation
         )
 
         let expectation = XCTestExpectation()
