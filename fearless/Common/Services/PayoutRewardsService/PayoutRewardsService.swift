@@ -178,13 +178,13 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                 + [eraInfoOperation, payoutOperation]
 
             payoutOperation.completionBlock = {
-                completion(.failure(PayoutError.unknown))
-//                do {
-//                    let payouts = try payoutOperation.extractNoCancellableResultData()
-//                    completion(.success(payouts))
-//                } catch {
-//                    completion(.failure(PayoutError.unknown))
-//                }
+                // completion(.failure(PayoutError.unknown))
+                do {
+                    let payouts = try payoutOperation.extractNoCancellableResultData()
+                    completion(.success(payouts))
+                } catch {
+                    completion(.failure(PayoutError.unknown))
+                }
             }
 
             operationManager.enqueue(

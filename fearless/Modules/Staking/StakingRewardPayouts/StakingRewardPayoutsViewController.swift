@@ -150,6 +150,9 @@ extension StakingRewardPayoutsViewController: EmptyStateDataSource {
         case .emptyList:
             let emptyView = EmptyStateView()
             emptyView.image = R.image.iconEmptyHistory()
+            emptyView.title = "Your rewards\nwill appear here" // TODO:
+            emptyView.titleColor = R.color.colorLightGray()!
+            emptyView.titleFont = .p2Paragraph
             return emptyView
         case .loading, .payoutsList:
             return nil
