@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import CommonWallet
 import RobinHood
+import IrohaCrypto
 
 final class StakingPayoutConfirmationInteractor {
     let extrinsicService: ExtrinsicServiceProtocol
@@ -29,18 +30,17 @@ final class StakingPayoutConfirmationInteractor {
     // MARK: - Private functions
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
-
-        let controllerAddress = selectedAccount.address
+        let addressFactory = SS58AddressFactory()
+        let callFactory = SubstrateCallFactory()
+        let chain = settings.selectedConnection.type.chain
 
         let closure: ExtrinsicBuilderClosure = { builder in
-            let callFactory = SubstrateCallFactory()
-
             try self.payouts.forEach { payout in
+                let address = try addressFactory
+                    .addressFromAccountId(data: payout.validator, type: chain.addressType)
+
                 let payoutCall = try callFactory.payout(
-                    validatorAddress: controllerAddress,
+                    validatorAddress: address,
                     era: payout.era
                 )
 
