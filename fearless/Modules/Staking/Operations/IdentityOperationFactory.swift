@@ -21,7 +21,7 @@ final class IdentityOperationFactory {
 
     private func createSuperIdentityOperation(
         dependingOn coderFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        accountIds: @escaping () throws -> [Data],
+        accountIds: @escaping () throws -> [AccountId],
         engine: JSONRPCEngine
     ) -> SuperIdentityWrapper {
         let path = StorageCodingPath.superIdentity
@@ -50,7 +50,7 @@ final class IdentityOperationFactory {
 
             let superIdentities = try superOperation.extractNoCancellableResultData()
             let identities = try identityOperation.extractNoCancellableResultData()
-                .reduce(into: [String: Identity]()) { result, item in
+                .reduce(into: [AccountAddress: Identity]()) { result, item in
                     if let value = item.value {
                         let address = try addressFactory
                             .addressFromAccountId(
@@ -99,15 +99,15 @@ final class IdentityOperationFactory {
     }
 
     private func createIdentityWrapper(
-        dependingOn superIdentity: SuperIdentityOperation,
-        runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
+        dependingOn superIdentityOperation: SuperIdentityOperation,
+        runtimeOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         engine: JSONRPCEngine,
         chain: Chain
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let path = StorageCodingPath.identity
 
         let keyParams: () throws -> [Data] = {
-            let responses = try superIdentity.extractNoCancellableResultData()
+            let responses = try superIdentityOperation.extractNoCancellableResultData()
             return responses.map { response in
                 if let value = response.value {
                     return value.parentAccountId
@@ -118,7 +118,7 @@ final class IdentityOperationFactory {
         }
 
         let factory: () throws -> RuntimeCoderFactoryProtocol = {
-            try runtime.extractNoCancellableResultData()
+            try runtimeOperation.extractNoCancellableResultData()
         }
 
         let identityWrapper: IdentityWrapper = requestFactory.queryItems(
@@ -129,7 +129,7 @@ final class IdentityOperationFactory {
         )
 
         let mergeOperation = createIdentityMergeOperation(
-            dependingOn: superIdentity,
+            dependingOn: superIdentityOperation,
             identityOperation: identityWrapper.targetOperation,
             chain: chain
         )
@@ -164,7 +164,7 @@ extension IdentityOperationFactory: IdentityOperationFactoryProtocol {
 
         let identityWrapper = createIdentityWrapper(
             dependingOn: superIdentityWrapper.targetOperation,
-            runtime: coderFactoryOperation,
+            runtimeOperation: coderFactoryOperation,
             engine: engine,
             chain: chain
         )

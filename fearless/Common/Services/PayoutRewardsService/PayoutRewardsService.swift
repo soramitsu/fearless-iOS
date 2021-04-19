@@ -156,8 +156,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             prefsByEraWrapper.allOperations.forEach { eraInfoOperation.addDependency($0) }
 
             let identityWrapper = createIdentityFetchOperation(
-                dependingOn: eraInfoOperation,
-                codingFactoryOperation: codingFactoryOperation
+                dependingOn: eraInfoOperation
             )
 
             identityWrapper.allOperations.forEach { $0.addDependency(eraInfoOperation) }

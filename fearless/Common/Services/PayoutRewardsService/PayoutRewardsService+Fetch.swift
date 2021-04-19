@@ -305,8 +305,7 @@ extension PayoutRewardsService {
     }
 
     func createIdentityFetchOperation(
-        dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>,
-        codingFactoryOperation _: BaseOperation<RuntimeCoderFactoryProtocol>
+        dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>
     ) -> CompoundOperationWrapper<[AccountAddress: AccountIdentity]> {
         let accountIdClosure: () throws -> [AccountId] = {
             let validatorsByEras = try eraValidatorsOperation.extractNoCancellableResultData()
