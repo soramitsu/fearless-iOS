@@ -9,6 +9,7 @@ final class StakingPayoutConfirmationPresenter {
 
     private var fee: Decimal?
     private var priceData: PriceData?
+    private var balance: Decimal?
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let logger: LoggerProtocol?
@@ -32,6 +33,23 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         interactor.setup()
         interactor.estimateFee()
     }
+
+    func proceed() {
+        guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
+            }
+
+            return
+        }
+
+        interactor.submitPayout(for: balance ?? 0.0, lastFee: fee)
+    }
+
+    // MARK: - Private functions
 
     private func provideFee() {
         if let fee = fee {
@@ -95,9 +113,26 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         } else {
             fee = nil
         }
+
+        provideFee()
     }
 
     func didReceive(feeError: Error) {
         handle(error: feeError)
+    }
+
+    func didReceive(balance: DyAccountData?) {
+        if let availableValue = balance?.available {
+            self.balance = Decimal.fromSubstrateAmount(
+                availableValue,
+                precision: asset.precision
+            )
+        } else {
+            self.balance = 0.0
+        }
+    }
+
+    func didReceive(balanceError: Error) {
+        handle(error: balanceError)
     }
 }
