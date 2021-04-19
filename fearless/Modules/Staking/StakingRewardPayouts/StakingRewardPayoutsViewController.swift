@@ -143,7 +143,7 @@ extension StakingRewardPayoutsViewController: EmptyStateDataSource {
         guard let state = viewState else { return nil }
         switch state {
         case let .error(error):
-            let errorView = ErrorView()
+            let errorView = ErrorStateView()
             errorView.errorDescriptionLabel.text = error.localizedDescription
             errorView.delegate = self
             return errorView
@@ -170,7 +170,7 @@ extension StakingRewardPayoutsViewController: EmptyStateDelegate {
 }
 
 extension StakingRewardPayoutsViewController: ErrorStateViewDelegate {
-    func didRetry(errorView _: ErrorView) {
+    func didRetry(errorView _: ErrorStateView) {
         presenter.reload()
     }
 }
