@@ -63,7 +63,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        // TODO: Replace StakingConfirmError with another type
         if let confirmError = error as? StakingConfirmError {
             guard let view = view else {
                 return
