@@ -4,16 +4,22 @@ import SoraUI
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
     Localizable,
     LoadableViewProtocol,
-    EmptyStateViewOwnerProtocol,
-    ErrorStateViewProtocol {
-    func showRetryState()
-    func reload(with viewModel: StakingPayoutViewModel)
+    EmptyStateViewOwnerProtocol {
+    func reload(with state: StakingRewardPayoutsViewState)
+}
+
+enum StakingRewardPayoutsViewState {
+    case loading(Bool)
+    case payoutsList(StakingPayoutViewModel)
+    case emptyList
+    case error(Error)
 }
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func setup()
     func handleSelectedHistory(at index: Int)
     func handlePayoutAction()
+    func reload()
 }
 
 protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {

@@ -1,6 +1,13 @@
 import UIKit
+import SoraUI
+
+protocol ErrorStateViewDelegate: AnyObject {
+    func didRetry(errorView: ErrorView)
+}
 
 class ErrorView: UIView {
+    weak var delegate: ErrorStateViewDelegate?
+
     let iconImageView = UIImageView(image: R.image.iconLoadingError())
 
     let errorDescriptionLabel: UILabel = {

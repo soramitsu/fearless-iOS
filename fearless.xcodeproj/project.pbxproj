@@ -981,7 +981,6 @@
 		F20C8D17ABF18B7104E14394 /* StakingAmountInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 312DE7ADA5ABC3214AD3D4AD /* StakingAmountInteractor.swift */; };
 		F3D2AC37709EAF088A594B73 /* AccountManagementViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = D2FCA2DD3A8898D64CBC9F97 /* AccountManagementViewController.swift */; };
 		F400A7C2260CE1670061D576 /* StakingRewardStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = F400A7C1260CE1670061D576 /* StakingRewardStatus.swift */; };
-		F406B0D626299C44004FDCCC /* ErrorStateViewProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = F406B0D526299C44004FDCCC /* ErrorStateViewProtocol.swift */; };
 		F406B0DB26299CC6004FDCCC /* UIControl+Action.swift in Sources */ = {isa = PBXBuildFile; fileRef = F406B0DA26299CC6004FDCCC /* UIControl+Action.swift */; };
 		F406B0E626299E34004FDCCC /* ErrorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F406B0E526299E34004FDCCC /* ErrorView.swift */; };
 		F40D0AED260CCDE600CBD43B /* RewardDetailsRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = F40D0AEC260CCDE600CBD43B /* RewardDetailsRow.swift */; };
@@ -2044,7 +2043,6 @@
 		F2B676982F60C55530BDD569 /* AccountManagementPresenter.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountManagementPresenter.swift; sourceTree = "<group>"; };
 		F3E916D32F1FC6D61B853C08 /* NetworkManagementViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = NetworkManagementViewFactory.swift; sourceTree = "<group>"; };
 		F400A7C1260CE1670061D576 /* StakingRewardStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardStatus.swift; sourceTree = "<group>"; };
-		F406B0D526299C44004FDCCC /* ErrorStateViewProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorStateViewProtocol.swift; sourceTree = "<group>"; };
 		F406B0DA26299CC6004FDCCC /* UIControl+Action.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIControl+Action.swift"; sourceTree = "<group>"; };
 		F406B0E526299E34004FDCCC /* ErrorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorView.swift; sourceTree = "<group>"; };
 		F40D0AEC260CCDE600CBD43B /* RewardDetailsRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDetailsRow.swift; sourceTree = "<group>"; };
@@ -3706,7 +3704,6 @@
 				849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */,
 				847DD8DB26034B99003DE053 /* LocalizableViewProtocol.swift */,
 				842348E82614F6EA002127AF /* SkeletonLoadable.swift */,
-				F406B0D526299C44004FDCCC /* ErrorStateViewProtocol.swift */,
 			);
 			path = Protocols;
 			sourceTree = "<group>";
@@ -6049,7 +6046,6 @@
 				F461740A260DFD3600E8FA3D /* StakingPayoutConfirmationViewLayout.swift in Sources */,
 				8428765424ADDE0200D91AD8 /* ProfileViewModelFactory.swift in Sources */,
 				84E1CD02260DCC62001E81B5 /* SwitchAccount+OnboardingMainWireframe.swift in Sources */,
-				F406B0D626299C44004FDCCC /* ErrorStateViewProtocol.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
 				AE74EB5725F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift in Sources */,
 				8494D860252470F400614D8F /* WalletFearlessFormDefining.swift in Sources */,

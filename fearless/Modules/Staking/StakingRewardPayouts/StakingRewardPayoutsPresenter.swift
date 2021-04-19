@@ -100,18 +100,28 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
+        guard !payoutsInfo.payouts.isEmpty else {
+            view?.reload(with: .emptyList)
+            return
+        }
+
         let viewModel = StakingPayoutViewModel(
             cellViewModels: createCellViewModels(for: payoutsInfo),
             bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
         )
-        view?.reload(with: viewModel)
-        view?.reloadEmptyState(animated: true)
+        let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
+        view?.reload(with: viewState)
     }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {
-        view?.didStartLoading()
+        view?.reload(with: .loading(true))
+        interactor.setup()
+    }
+
+    func reload() {
+        view?.reload(with: .loading(true))
         interactor.setup()
     }
 
@@ -139,23 +149,15 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
     func didReceive(result: Result<PayoutsInfo, Error>) {
-        view?.didStopLoading()
+        view?.reload(with: .loading(false))
 
         switch result {
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
             updateView()
         case let .failure(error):
-            let emptyViewModel = StakingPayoutViewModel(
-                cellViewModels: [],
-                bottomButtonTitle: ""
-            )
-            view?.reload(with: emptyViewModel)
-
-            view?.showError(error) { [weak self] in
-                self?.view?.hideError()
-                self?.setup()
-            }
+            payoutsInfo = nil
+            view?.reload(with: .error(error))
         }
     }
 
