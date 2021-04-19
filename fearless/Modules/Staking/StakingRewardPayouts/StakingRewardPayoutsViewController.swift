@@ -8,12 +8,17 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     // MARK: Properties -
 
     let presenter: StakingRewardPayoutsPresenterProtocol
-    private var cellViewModels: [StakingRewardHistoryCellViewModel] = []
+    private let localizationManager: LocalizationManagerProtocol?
+    private var viewState: StakingRewardPayoutsViewState?
 
     // MARK: Init -
 
-    init(presenter: StakingRewardPayoutsPresenterProtocol) {
+    init(
+        presenter: StakingRewardPayoutsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -69,15 +74,21 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
 }
 
 extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
-    func showRetryState() {
-        // TODO:
-    }
+    func reload(with state: StakingRewardPayoutsViewState) {
+        viewState = state
 
-    func reload(with viewModel: StakingPayoutViewModel) {
-        cellViewModels = viewModel.cellViewModels
-        rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
-        rootView.payoutButton.isHidden = viewModel.cellViewModels.isEmpty
-        rootView.tableView.reloadData()
+        switch state {
+        case let .loading(isLoading):
+            isLoading ? didStartLoading() : didStopLoading()
+        case let .payoutsList(viewModel):
+            rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
+            rootView.payoutButton.isHidden = false
+            rootView.tableView.reloadData()
+        case .emptyList, .error:
+            rootView.payoutButton.isHidden = true
+            rootView.tableView.reloadData()
+        }
+        reloadEmptyState(animated: true)
     }
 }
 
@@ -105,13 +116,23 @@ extension StakingRewardPayoutsViewController: UITableViewDelegate {
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        cellViewModels.count
+        guard let state = viewState else { return 0 }
+        if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
+            return viewModel.cellViewModels.count
+        }
+        return 0
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard
+            let state = viewState,
+            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state
+        else {
+            return UITableViewCell()
+        }
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
-        let model = cellViewModels[indexPath.row]
+        let model = viewModel.cellViewModels[indexPath.row]
         cell.bind(model: model)
         return cell
     }
@@ -123,17 +144,45 @@ extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
 }
 
 extension StakingRewardPayoutsViewController: EmptyStateDataSource {
-    var viewForEmptyState: UIView? { nil }
-    var verticalSpacingForEmptyState: CGFloat? { 0 }
-    var imageForEmptyState: UIImage? { R.image.iconEmptyHistory() }
-    var titleForEmptyState: String? { "Your rewards\nwill appear here" }
-    var titleColorForEmptyState: UIColor? { R.color.colorLightGray() }
-    var titleFontForEmptyState: UIFont? { .p2Paragraph }
-    var trimStrategyForEmptyState: EmptyStateView.TrimStrategy { .none }
+    var viewForEmptyState: UIView? {
+        guard
+            let state = viewState,
+            let locale = localizationManager?.selectedLocale
+        else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error.value(for: locale)
+            errorView.delegate = self
+            return errorView
+        case .emptyList:
+            let emptyView = EmptyStateView()
+            emptyView.image = R.image.iconEmptyHistory()
+            emptyView.title = "Your rewards\nwill appear here" // TODO:
+            emptyView.titleColor = R.color.colorLightGray()!
+            emptyView.titleFont = .p2Paragraph
+            return emptyView
+        case .loading, .payoutsList:
+            return nil
+        }
+    }
 }
 
 extension StakingRewardPayoutsViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
-        cellViewModels.isEmpty
+        guard let state = viewState else { return false }
+        switch state {
+        case .error, .emptyList:
+            return true
+        case .loading, .payoutsList:
+            return false
+        }
+    }
+}
+
+extension StakingRewardPayoutsViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }

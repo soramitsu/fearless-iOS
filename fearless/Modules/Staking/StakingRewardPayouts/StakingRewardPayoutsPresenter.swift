@@ -106,18 +106,28 @@ final class StakingRewardPayoutsPresenter {
             return
         }
 
+        guard !payoutsInfo.payouts.isEmpty else {
+            view?.reload(with: .emptyList)
+            return
+        }
+
         let viewModel = StakingPayoutViewModel(
             cellViewModels: createCellViewModels(for: payoutsInfo),
             bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
         )
-        view?.reload(with: viewModel)
-        view?.reloadEmptyState(animated: true)
+        let viewState = StakingRewardPayoutsViewState.payoutsList(viewModel)
+        view?.reload(with: viewState)
     }
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
     func setup() {
-        view?.didStartLoading()
+        view?.reload(with: .loading(true))
+        interactor.setup()
+    }
+
+    func reload() {
+        view?.reload(with: .loading(true))
         interactor.setup()
     }
 
@@ -144,21 +154,19 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 }
 
 extension StakingRewardPayoutsPresenter: StakingRewardPayoutsInteractorOutputProtocol {
-    func didReceive(result: Result<PayoutsInfo, Error>) {
-        view?.didStopLoading()
+    func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>) {
+        view?.reload(with: .loading(false))
 
         switch result {
         case let .success(payoutsInfo):
             self.payoutsInfo = payoutsInfo
             updateView()
         case .failure:
-            let emptyViewModel = StakingPayoutViewModel(
-                cellViewModels: [],
-                bottomButtonTitle: ""
-            )
-            view?.reload(with: emptyViewModel)
-
-            view?.showRetryState()
+            payoutsInfo = nil
+            let errorDescription = LocalizableResource { locale in
+                R.string.localizable.commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
+            }
+            view?.reload(with: .error(errorDescription))
         }
     }
 
