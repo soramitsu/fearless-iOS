@@ -51,6 +51,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 
     // MARK: - Private functions
+
     private func provideFee() {
         if let fee = fee {
             let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
@@ -88,6 +89,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 }
 
 // MARK: - StakingPayoutConfirmationInteractorOutputProtocol
+
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
     func didStartPayout() {
         view?.didStartLoading()
