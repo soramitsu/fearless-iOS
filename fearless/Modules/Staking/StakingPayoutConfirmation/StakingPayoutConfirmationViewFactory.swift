@@ -76,9 +76,20 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             settings: settings
         )
 
+        let providerFactory = SingleValueProviderFactory.shared
+        guard let balanceProvider = try? providerFactory
+            .getAccountProvider(
+                for: selectedAccount.address,
+                runtimeService: RuntimeRegistryFacade.sharedService
+            )
+        else {
+            return nil
+        }
+
         return StakingPayoutConfirmationInteractor(
             extrinsicService: extrinsicService,
             signer: signer,
+            balanceProvider: balanceProvider,
             settings: settings,
             payouts: payouts
         )

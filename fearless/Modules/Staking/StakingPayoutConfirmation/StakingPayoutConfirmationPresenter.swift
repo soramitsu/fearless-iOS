@@ -46,8 +46,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             return
         }
 
-//        interactor.submitNomination(for: balance ?? 0.0, lastFee: fee)
-        interactor.submitPayout(for: 0.0, lastFee: fee)
+        interactor.submitPayout(for: balance ?? 0.0, lastFee: fee)
     }
 
     // MARK: - Private functions
@@ -64,7 +63,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        // TODO: Replace StakingConfirmError with another type
         if let confirmError = error as? StakingConfirmError {
             guard let view = view else {
                 return
