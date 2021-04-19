@@ -30,6 +30,7 @@ class ErrorView: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        retryButton.addTarget(self, action: #selector(handleRetryAction), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -44,6 +45,11 @@ class ErrorView: UIView {
         stackView.alignment = .center
 
         addSubview(stackView)
-        stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        stackView.snp.makeConstraints { $0.center.equalToSuperview() }
+    }
+
+    @objc
+    func handleRetryAction() {
+        delegate?.didRetry(errorView: self)
     }
 }

@@ -79,15 +79,11 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
             rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
             rootView.payoutButton.isHidden = false
             rootView.tableView.reloadData()
-        case .emptyList:
+        case .emptyList, .error:
             rootView.payoutButton.isHidden = true
             rootView.tableView.reloadData()
-            reloadEmptyState(animated: true)
-        case .error:
-            rootView.payoutButton.isHidden = true
-            rootView.tableView.reloadData()
-            reloadEmptyState(animated: true)
         }
+        reloadEmptyState(animated: true)
     }
 }
 
@@ -143,28 +139,14 @@ extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
 }
 
 extension StakingRewardPayoutsViewController: EmptyStateDataSource {
-    var imageForEmptyState: UIImage? { nil }
-    var titleForEmptyState: String? { nil }
-    var titleColorForEmptyState: UIColor? { nil }
-    var titleFontForEmptyState: UIFont? { nil }
-    var verticalSpacingForEmptyState: CGFloat? { 16 }
-    var trimStrategyForEmptyState: EmptyStateView.TrimStrategy { .none }
-
     var viewForEmptyState: UIView? {
         guard let state = viewState else { return nil }
         switch state {
         case let .error(error):
-//            let errorView = ErrorView(coder: <#NSCoder#>)
-//            errorView.errorDescriptionLabel.text = error.localizedDescription
-//            errorView.title = error.localizedDescription
-//            errorView.delegate = self
-//            return errorView
-            let emptyView = EmptyStateView()
-            emptyView.image = R.image.iconLoadingError()
-            emptyView.title = error.localizedDescription
-            emptyView.titleFont = .p2Paragraph
-            emptyView.titleColor = R.color.colorLightGray()!
-            return emptyView
+            let errorView = ErrorView()
+            errorView.errorDescriptionLabel.text = error.localizedDescription
+            errorView.delegate = self
+            return errorView
         case .emptyList:
             let emptyView = EmptyStateView()
             emptyView.image = R.image.iconEmptyHistory()
