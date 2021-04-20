@@ -24,6 +24,9 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
 
     func didReceive(balance: DyAccountData?)
     func didReceive(balanceError: Error)
+
+    func didReceive(price: PriceData?)
+    func didReceive(priceError: Error)
 }
 
 protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

@@ -141,4 +141,13 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
     func didReceive(balanceError: Error) {
         handle(error: balanceError)
     }
+
+    func didReceive(price: PriceData?) {
+        priceData = price
+        provideFee()
+    }
+
+    func didReceive(priceError: Error) {
+        handle(error: priceError)
+    }
 }
