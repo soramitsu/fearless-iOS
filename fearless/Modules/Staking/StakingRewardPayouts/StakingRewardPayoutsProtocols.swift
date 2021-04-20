@@ -10,7 +10,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
 
 enum StakingRewardPayoutsViewState {
     case loading(Bool)
-    case payoutsList(StakingPayoutViewModel)
+    case payoutsList(LocalizableResource<StakingPayoutViewModel>)
     case emptyList
     case error(LocalizableResource<String>)
 }
@@ -40,7 +40,10 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         chain: Chain
     )
 
-    func showPayoutConfirmation(from view: ControllerBackedProtocol?)
+    func showPayoutConfirmation(
+        for payouts: [PayoutInfo],
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {

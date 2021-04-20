@@ -102,6 +102,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
+        #warning("Logger is missing")
         return StakingConfirmPresenter(
             confirmationViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,

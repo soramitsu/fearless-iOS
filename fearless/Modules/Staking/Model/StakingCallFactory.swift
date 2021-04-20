@@ -11,6 +11,8 @@ protocol SubstrateCallFactoryProtocol {
     ) throws -> RuntimeCall<BondCall>
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
+
+    func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -51,5 +53,14 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let call = NominateCall(targets: addresses)
 
         return RuntimeCall<NominateCall>.nominate(call)
+    }
+
+    func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall> {
+        let call = PayoutCall(
+            validatorStash: validatorId,
+            era: era
+        )
+
+        return RuntimeCall<PayoutCall>.payout(call)
     }
 }
