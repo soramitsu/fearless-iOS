@@ -28,9 +28,13 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             selectedAddressType: connection.type,
             limit: StakingConstants.maxAmount
         )
-        let presenter = StakingRewardPayoutsPresenter(
+        let payoutsViewModelFactory = StakingPayoutViewModelFactory(
             chain: chain,
             balanceViewModelFactory: balanceViewModelFactory
+        )
+        let presenter = StakingRewardPayoutsPresenter(
+            chain: chain,
+            viewModelFactory: payoutsViewModelFactory
         )
         let view = StakingRewardPayoutsViewController(
             presenter: presenter,
