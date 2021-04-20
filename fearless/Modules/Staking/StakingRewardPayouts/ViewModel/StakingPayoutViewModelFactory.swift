@@ -6,7 +6,7 @@ protocol StakingPayoutViewModelFactoryProtocol {
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?
-    ) -> StakingPayoutViewModel
+    ) -> LocalizableResource<StakingPayoutViewModel>
 }
 
 final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol {
@@ -26,11 +26,13 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     func createPayoutsViewModel(
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?
-    ) -> StakingPayoutViewModel {
-        StakingPayoutViewModel(
-            cellViewModels: createCellViewModels(for: payoutsInfo, priceData: priceData),
-            bottomButtonTitle: defineBottomButtonTitle(for: payoutsInfo.payouts)
-        )
+    ) -> LocalizableResource<StakingPayoutViewModel> {
+        LocalizableResource<StakingPayoutViewModel> { _ in
+            StakingPayoutViewModel(
+                cellViewModels: self.createCellViewModels(for: payoutsInfo, priceData: priceData),
+                bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts)
+            )
+        }
     }
 
     private func createCellViewModels(

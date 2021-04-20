@@ -11,6 +11,10 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     private let localizationManager: LocalizationManagerProtocol?
     private var viewState: StakingRewardPayoutsViewState?
 
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
+
     // MARK: Init -
 
     init(
@@ -81,7 +85,8 @@ extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
         case let .loading(isLoading):
             isLoading ? didStartLoading() : didStopLoading()
         case let .payoutsList(viewModel):
-            rootView.payoutButton.imageWithTitleView?.title = viewModel.bottomButtonTitle
+            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            rootView.payoutButton.imageWithTitleView?.title = buttonTitle
             rootView.payoutButton.isHidden = false
             rootView.tableView.reloadData()
         case .emptyList, .error:
@@ -118,7 +123,7 @@ extension StakingRewardPayoutsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         guard let state = viewState else { return 0 }
         if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
-            return viewModel.cellViewModels.count
+            return viewModel.value(for: selectedLocale).cellViewModels.count
         }
         return 0
     }
@@ -132,7 +137,7 @@ extension StakingRewardPayoutsViewController: UITableViewDataSource {
         }
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
-        let model = viewModel.cellViewModels[indexPath.row]
+        let model = viewModel.value(for: selectedLocale).cellViewModels[indexPath.row]
         cell.bind(model: model)
         return cell
     }
