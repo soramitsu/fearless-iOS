@@ -7,35 +7,32 @@ import IrohaCrypto
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let selectedAccountAddress: String
     let chain: Chain
-    let subscanBaseURL: URL
+    let validatorsResolutionFactory: PayoutValidatorsFactoryProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
-    let subscanOperationFactory: SubscanOperationFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
     let logger: LoggerProtocol?
 
     init(
         selectedAccountAddress: String,
         chain: Chain,
-        subscanBaseURL: URL,
+        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        subscanOperationFactory: SubscanOperationFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
-        self.subscanBaseURL = subscanBaseURL
+        self.validatorsResolutionFactory = validatorsResolutionFactory
         self.runtimeCodingService = runtimeCodingService
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
         self.operationManager = operationManager
-        self.subscanOperationFactory = subscanOperationFactory
         self.identityOperationFactory = identityOperationFactory
         self.logger = logger
     }
@@ -62,7 +59,8 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     $0.addDependency(codingFactoryOperation)
                 }
 
-            let validatorsWrapper = createValidatorsResolutionWrapper(for: selectedAccountAddress)
+            let validatorsWrapper = validatorsResolutionFactory
+                .createResolutionOperation(for: selectedAccountAddress)
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
                 dependingOn: validatorsWrapper.targetOperation,
