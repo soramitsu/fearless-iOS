@@ -6,6 +6,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     let presenter: StakingPayoutConfirmationPresenterProtocol
 
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+
     init(
         presenter: StakingPayoutConfirmationPresenterProtocol,
         localizationManager: LocalizationManagerProtocol?
@@ -43,7 +45,13 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     }
 }
 
-extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {}
+extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        self.feeViewModel = feeViewModel
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        setupTranformViewLocalization(locale)
+    }
+}
 
 extension StakingPayoutConfirmationViewController: Localizable {
     private func setupLocalization() {
@@ -58,13 +66,16 @@ extension StakingPayoutConfirmationViewController: Localizable {
     }
 
     private func setupTranformViewLocalization(_ locale: Locale) {
-        // TODO: get viewModel from presenter
+        guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
+
+        let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
+
         let viewModel = TransferConfirmAccessoryViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
             icon: nil,
             action: R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
-            amount: "0.001 KSM",
+            amount: feeString,
             shouldAllowAction: true
         )
         rootView.transferConfirmView.bind(viewModel: viewModel)

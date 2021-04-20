@@ -39,7 +39,10 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         chain: Chain
     )
 
-    func showPayoutConfirmation(from view: ControllerBackedProtocol?)
+    func showPayoutConfirmation(
+        for payouts: [PayoutInfo],
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {

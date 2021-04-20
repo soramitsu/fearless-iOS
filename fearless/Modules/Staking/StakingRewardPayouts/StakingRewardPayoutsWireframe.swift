@@ -20,8 +20,9 @@ final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol
             .pushViewController(rewardDetails.controller, animated: true)
     }
 
-    func showPayoutConfirmation(from view: ControllerBackedProtocol?) {
-        guard let confirmationView = StakingPayoutConfirmationViewFactory.createView() else { return }
+    func showPayoutConfirmation(for payouts: [PayoutInfo], from view: ControllerBackedProtocol?) {
+        guard let confirmationView = StakingPayoutConfirmationViewFactory
+            .createView(payouts: payouts) else { return }
 
         view?.controller
             .navigationController?
