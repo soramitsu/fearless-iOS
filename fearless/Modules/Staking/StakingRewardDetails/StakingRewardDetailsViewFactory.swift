@@ -14,12 +14,15 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             limit: StakingConstants.maxAmount
         )
 
-        let presenter = StakingRewardDetailsPresenter(
-            payoutInfo: input.payoutInfo,
-            activeEra: input.activeEra,
-            chain: input.chain,
+        let viewModelFactory = StakingRewardDetailsViewModelFactory(
+            input: input,
             balanceViewModelFactory: balanceViewModelFactory,
             iconGenerator: PolkadotIconGenerator()
+        )
+        let presenter = StakingRewardDetailsPresenter(
+            payoutInfo: input.payoutInfo,
+            chain: input.chain,
+            viewModelFactory: viewModelFactory
         )
         let view = StakingRewardDetailsViewController(
             presenter: presenter,

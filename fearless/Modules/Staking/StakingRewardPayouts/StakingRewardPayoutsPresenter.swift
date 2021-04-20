@@ -57,6 +57,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             from: view,
             payoutInfo: payoutInfo,
             activeEra: payoutsInfo.activeEra,
+            historyDepth: payoutsInfo.historyDepth,
             chain: chain
         )
     }
