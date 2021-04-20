@@ -47,5 +47,6 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingRewardPayoutsViewProtocol?
+    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
+    static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
 }
