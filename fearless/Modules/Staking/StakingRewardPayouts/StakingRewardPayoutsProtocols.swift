@@ -5,14 +5,21 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
     Localizable,
     LoadableViewProtocol,
     EmptyStateViewOwnerProtocol {
-    func showRetryState()
-    func reload(with viewModel: StakingPayoutViewModel)
+    func reload(with state: StakingRewardPayoutsViewState)
+}
+
+enum StakingRewardPayoutsViewState {
+    case loading(Bool)
+    case payoutsList(LocalizableResource<StakingPayoutViewModel>)
+    case emptyList
+    case error(LocalizableResource<String>)
 }
 
 protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
     func setup()
     func handleSelectedHistory(at index: Int)
     func handlePayoutAction()
+    func reload()
 }
 
 protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
@@ -20,7 +27,7 @@ protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
-    func didReceive(result: Result<PayoutsInfo, Error>)
+    func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)
     func didReceive(priceResult: Result<PriceData?, Error>)
 }
 

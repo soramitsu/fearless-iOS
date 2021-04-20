@@ -82,7 +82,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             operationManager.enqueue(operations: operations, in: .transient)
         } catch {
             logger?.debug(error.localizedDescription)
-            completion(.failure(error))
+            completion(.failure(PayoutRewardsServiceError.unknown))
         }
     }
 
@@ -182,7 +182,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     let payouts = try payoutOperation.extractNoCancellableResultData()
                     completion(.success(payouts))
                 } catch {
-                    completion(.failure(error))
+                    completion(.failure(PayoutRewardsServiceError.unknown))
                 }
             }
 
@@ -191,7 +191,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                 in: .transient
             )
         } catch {
-            completion(.failure(error))
+            completion(.failure(PayoutRewardsServiceError.unknown))
         }
     }
 }
