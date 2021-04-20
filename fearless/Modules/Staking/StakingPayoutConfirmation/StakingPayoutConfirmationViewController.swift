@@ -120,7 +120,7 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
                 titleText: R.string.localizable.stakingRewardDetailsEra(),
                 valueText: "#1690"
             )),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
+            .reward(.init(tokenAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
         ]
     }
 
