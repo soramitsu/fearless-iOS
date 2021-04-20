@@ -306,33 +306,31 @@ extension PayoutRewardsService {
     }
 
     func calculatePayouts(
+        for payoutInfoFactory: PayoutInfoFactoryProtocol,
         dependingOn eraValidatorsOperation: BaseOperation<[EraIndex: [EraValidatorInfo]]>,
         erasRewardOperation: BaseOperation<ErasRewardDistribution>,
         historyRangeOperation: BaseOperation<ChainHistoryRange>,
         identityOperation: BaseOperation<[AccountAddress: AccountIdentity]>
     ) throws -> BaseOperation<PayoutsInfo> {
         let addressFactory = SS58AddressFactory()
-        let nominatorAccountId = try addressFactory.accountId(from: selectedAccountAddress)
-        let addressType = chain.addressType
+        let targetAccountId = try addressFactory.accountId(from: selectedAccountAddress)
 
         return ClosureOperation<PayoutsInfo> {
             let validatorsByEra = try eraValidatorsOperation.extractNoCancellableResultData()
-            let eraRewardOverview = try erasRewardOperation.extractNoCancellableResultData()
+            let erasRewardDistribution = try erasRewardOperation.extractNoCancellableResultData()
             let identities = try identityOperation.extractNoCancellableResultData()
-
-            let calculationFactory = NominatorPayoutsInfoFactory(
-                accountId: nominatorAccountId,
-                addressType: addressType,
-                erasRewardDistribution: eraRewardOverview,
-                identities: identities,
-                addressFactory: addressFactory
-            )
 
             let payouts = try validatorsByEra.reduce([PayoutInfo]()) { result, eraMapping in
                 let era = eraMapping.key
 
                 let eraPayouts: [PayoutInfo] = try eraMapping.value.compactMap { validatorInfo in
-                    try calculationFactory.calculate(for: era, validatorInfo: validatorInfo)
+                    try payoutInfoFactory.calculate(
+                        for: targetAccountId,
+                        era: era,
+                        validatorInfo: validatorInfo,
+                        erasRewardDistribution: erasRewardDistribution,
+                        identities: identities
+                    )
                 }
 
                 return result + eraPayouts

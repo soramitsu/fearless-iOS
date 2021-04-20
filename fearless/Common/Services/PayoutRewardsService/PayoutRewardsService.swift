@@ -13,6 +13,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
+    let payoutInfoFactory: PayoutInfoFactoryProtocol
     let logger: LoggerProtocol?
 
     init(
@@ -24,6 +25,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
+        payoutInfoFactory: PayoutInfoFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
@@ -34,6 +36,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.engine = engine
         self.operationManager = operationManager
         self.identityOperationFactory = identityOperationFactory
+        self.payoutInfoFactory = payoutInfoFactory
         self.logger = logger
     }
 
@@ -126,6 +129,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             identityWrapper.allOperations.forEach { $0.addDependency(eraInfoOperation) }
 
             let payoutOperation = try calculatePayouts(
+                for: payoutInfoFactory,
                 dependingOn: eraInfoOperation,
                 erasRewardOperation: erasRewardDistributionWrapper.targetOperation,
                 historyRangeOperation: historyRangeWrapper.targetOperation,

@@ -1,6 +1,7 @@
 import XCTest
 import SoraKeystore
 import FearlessUtils
+import IrohaCrypto
 @testable import fearless
 
 class PayoutRewardsServiceTests: XCTestCase {
@@ -34,6 +35,10 @@ class PayoutRewardsServiceTests: XCTestCase {
         )
 
         let identityOperation = IdentityOperationFactory(requestFactory: storageRequestFactory)
+        let payoutInfoFactory = NominatorPayoutInfoFactory(
+            addressType: chain.addressType,
+            addressFactory: SS58AddressFactory()
+        )
 
         let service = PayoutRewardsService(
             selectedAccountAddress: selectedAccount,
@@ -43,7 +48,8 @@ class PayoutRewardsServiceTests: XCTestCase {
             storageRequestFactory: storageRequestFactory,
             engine: connection,
             operationManager: operationManager,
-            identityOperationFactory: identityOperation
+            identityOperationFactory: identityOperation,
+            payoutInfoFactory: payoutInfoFactory
         )
 
         let expectation = XCTestExpectation()

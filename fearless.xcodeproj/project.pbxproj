@@ -441,6 +441,8 @@
 		847119C0262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119BF262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift */; };
 		847119C8262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */; };
 		847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */; };
+		847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */; };
+		847119DD262EFAA300716580 /* ValidatorPayoutInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */; };
 		84729741260A9C13009B86D0 /* DisplayAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84729740260A9C13009B86D0 /* DisplayAddress.swift */; };
 		8472974D260A9CDF009B86D0 /* StakingConfirmationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8472974C260A9CDF009B86D0 /* StakingConfirmationModel.swift */; };
 		84729758260AA519009B86D0 /* StakingBaseConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */; };
@@ -599,7 +601,7 @@
 		8490152924ABCFDA008F705E /* WalletCommandDecorator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */; };
 		8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */; };
 		8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490152D24ABD0F5008F705E /* Logger+Wallet.swift */; };
-		8490386B262E22DC0016D541 /* NominatorPayoutsInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490386A262E22DC0016D541 /* NominatorPayoutsInfoFactory.swift */; };
+		8490386B262E22DC0016D541 /* NominatorPayoutInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */; };
 		8492448F2514CB9E00477C1B /* SelectConnection+AccountCreateInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8492448E2514CB9E00477C1B /* SelectConnection+AccountCreateInteractor.swift */; };
 		849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849244912514EDE800477C1B /* SelectableViewModel.swift */; };
 		8494D8552524633300614D8F /* WalletTransferTokenView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8494D8542524633300614D8F /* WalletTransferTokenView.swift */; };
@@ -1478,6 +1480,8 @@
 		847119BF262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutValidatorsFactoryProtocol.swift; sourceTree = "<group>"; };
 		847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutValidatorsForNominatorFactory.swift; sourceTree = "<group>"; };
 		847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutValidatorForValidatorFactory.swift; sourceTree = "<group>"; };
+		847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutInfoFactoryProtocol.swift; sourceTree = "<group>"; };
+		847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorPayoutInfoFactory.swift; sourceTree = "<group>"; };
 		84729740260A9C13009B86D0 /* DisplayAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayAddress.swift; sourceTree = "<group>"; };
 		8472974C260A9CDF009B86D0 /* StakingConfirmationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmationModel.swift; sourceTree = "<group>"; };
 		84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBaseConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -1646,7 +1650,7 @@
 		8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCommandDecorator.swift; sourceTree = "<group>"; };
 		8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletCommonConfigurator.swift; sourceTree = "<group>"; };
 		8490152D24ABD0F5008F705E /* Logger+Wallet.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Logger+Wallet.swift"; sourceTree = "<group>"; };
-		8490386A262E22DC0016D541 /* NominatorPayoutsInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominatorPayoutsInfoFactory.swift; sourceTree = "<group>"; };
+		8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NominatorPayoutInfoFactory.swift; sourceTree = "<group>"; };
 		8492448E2514CB9E00477C1B /* SelectConnection+AccountCreateInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectConnection+AccountCreateInteractor.swift"; sourceTree = "<group>"; };
 		849244912514EDE800477C1B /* SelectableViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectableViewModel.swift; sourceTree = "<group>"; };
 		8494D8542524633300614D8F /* WalletTransferTokenView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletTransferTokenView.swift; sourceTree = "<group>"; };
@@ -5058,7 +5062,9 @@
 				849ABE762628103200011A2A /* ControllersListReducer.swift */,
 				849ABE7B2628116F00011A2A /* NominationsReducer.swift */,
 				849ABE80262811CF00011A2A /* NominationsListReducer.swift */,
-				8490386A262E22DC0016D541 /* NominatorPayoutsInfoFactory.swift */,
+				847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */,
+				8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */,
+				847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */,
 				847119BF262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift */,
 				847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */,
 				847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */,
@@ -5797,6 +5803,7 @@
 				84D2F45F25EF0599008B914D /* SelectedValidatorCell.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
+				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
 				84F2FF0F25E7D059008338D5 /* EraValidatorFacade.swift in Sources */,
 				846A2C50252A063800731018 /* WalletSelectAccountCommandFactory.swift in Sources */,
 				8490147624A94A37008F705E /* RootInteractor.swift in Sources */,
@@ -5948,7 +5955,7 @@
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84E1CD11260DCD44001E81B5 /* SwitchAccount+AccountImportWireframe.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
-				8490386B262E22DC0016D541 /* NominatorPayoutsInfoFactory.swift in Sources */,
+				8490386B262E22DC0016D541 /* NominatorPayoutInfoFactory.swift in Sources */,
 				8430AB1726023D2D005B1066 /* BaseStashNextState.swift in Sources */,
 				849ABE5B2627739400011A2A /* ListReducing.swift in Sources */,
 				843910CC253F7E6500E3C217 /* SubstrateDataModel.xcdatamodeld in Sources */,
@@ -6185,6 +6192,7 @@
 				8468B87224F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift in Sources */,
 				9DFB37659A6B911A4D54623E /* AccountConfirmInteractor.swift in Sources */,
 				84155DEB253980F900A27058 /* WebSocketService.swift in Sources */,
+				847119DD262EFAA300716580 /* ValidatorPayoutInfoFactory.swift in Sources */,
 				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				840DCC0025E0779A00D45C6A /* RewardSelectionView+Inspectable.swift in Sources */,
 				8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */,

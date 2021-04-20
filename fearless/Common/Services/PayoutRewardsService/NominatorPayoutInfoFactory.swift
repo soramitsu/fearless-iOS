@@ -1,28 +1,22 @@
 import Foundation
 import IrohaCrypto
 
-final class NominatorPayoutsInfoFactory {
-    let accountId: Data
+final class NominatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     let addressType: SNAddressType
-    let erasRewardDistribution: ErasRewardDistribution
-    let identities: [AccountAddress: AccountIdentity]
     let addressFactory: SS58AddressFactoryProtocol
 
-    init(
-        accountId: Data,
-        addressType: SNAddressType,
-        erasRewardDistribution: ErasRewardDistribution,
-        identities: [AccountAddress: AccountIdentity],
-        addressFactory: SS58AddressFactoryProtocol
-    ) {
-        self.accountId = accountId
+    init(addressType: SNAddressType, addressFactory: SS58AddressFactoryProtocol) {
         self.addressType = addressType
-        self.erasRewardDistribution = erasRewardDistribution
-        self.identities = identities
         self.addressFactory = addressFactory
     }
 
-    func calculate(for era: EraIndex, validatorInfo: EraValidatorInfo) throws -> PayoutInfo? {
+    func calculate(
+        for accountId: AccountId,
+        era: EraIndex,
+        validatorInfo: EraValidatorInfo,
+        erasRewardDistribution: ErasRewardDistribution,
+        identities: [AccountAddress: AccountIdentity]
+    ) throws -> PayoutInfo? {
         guard
             let totalRewardAmount = erasRewardDistribution.totalValidatorRewardByEra[era],
             let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: addressType.precision),

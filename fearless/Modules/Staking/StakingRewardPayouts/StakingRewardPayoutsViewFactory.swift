@@ -2,6 +2,7 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import FearlessUtils
+import IrohaCrypto
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
     static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
@@ -50,6 +51,11 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
+        let payoutInfoFactory = NominatorPayoutInfoFactory(
+            addressType: chain.addressType,
+            addressFactory: SS58AddressFactory()
+        )
+
         let payoutService = PayoutRewardsService(
             selectedAccountAddress: stashAddress,
             chain: chain,
@@ -59,6 +65,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             engine: engine,
             operationManager: operationManager,
             identityOperationFactory: identityOperationFactory,
+            payoutInfoFactory: payoutInfoFactory,
             logger: Logger.shared
         )
 
