@@ -47,13 +47,16 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        title = R.string.localizable.stakingRewardPayoutsTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable
+            .stakingRewardPayoutsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupButtonLocalization() {
-        // TODO:
+        guard let state = viewState else { return }
+        if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
+            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            rootView.payoutButton.imageWithTitleView?.title = buttonTitle
+        }
     }
 
     private func setupTable() {
@@ -150,21 +153,19 @@ extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
 
 extension StakingRewardPayoutsViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        guard
-            let state = viewState,
-            let locale = localizationManager?.selectedLocale
-        else { return nil }
+        guard let state = viewState else { return nil }
 
         switch state {
         case let .error(error):
             let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = error.value(for: locale)
+            errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
             errorView.delegate = self
             return errorView
         case .emptyList:
             let emptyView = EmptyStateView()
             emptyView.image = R.image.iconEmptyHistory()
-            emptyView.title = "Your rewards\nwill appear here" // TODO:
+            emptyView.title = R.string.localizable
+                .stakingRewardPayoutsEmptyRewards(preferredLanguages: selectedLocale.rLanguages)
             emptyView.titleColor = R.color.colorLightGray()!
             emptyView.titleFont = .p2Paragraph
             return emptyView
