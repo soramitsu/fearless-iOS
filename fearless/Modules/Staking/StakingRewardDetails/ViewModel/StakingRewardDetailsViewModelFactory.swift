@@ -4,82 +4,79 @@ import SoraFoundation
 import FearlessUtils
 
 protocol StakingRewardDetailsViewModelFactoryProtocol {
-    func createViewModel(priceData: PriceData?) -> LocalizableResource<StakingRewardDetailsViewModel>
-    var validatorAddress: AccountAddress? { get }
+    func createViewModel(
+        input: StakingRewardDetailsInput,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingRewardDetailsViewModel>
+    func validatorAddress(from data: Data, addressType: SNAddressType) -> AccountAddress?
 }
 
 final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelFactoryProtocol {
-    let payoutInfo: PayoutInfo
-    let chain: Chain
-    let activeEra: EraIndex
-    let historyDepth: UInt32
-
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    private let addressFactory = SS58AddressFactory()
+    private lazy var addressFactory = SS58AddressFactory()
     private let iconGenerator: IconGenerating
 
-    var validatorAddress: AccountAddress? {
-        try? addressFactory.addressFromAccountId(
-            data: payoutInfo.validator,
-            type: chain.addressType
-        )
-    }
-
     init(
-        input: StakingRewardDetailsInput,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         iconGenerator: IconGenerating
     ) {
-        payoutInfo = input.payoutInfo
-        chain = input.chain
-        activeEra = input.activeEra
-        historyDepth = input.historyDepth
         self.balanceViewModelFactory = balanceViewModelFactory
         self.iconGenerator = iconGenerator
     }
 
-    func createViewModel(priceData: PriceData?) -> LocalizableResource<StakingRewardDetailsViewModel> {
+    func createViewModel(
+        input: StakingRewardDetailsInput,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingRewardDetailsViewModel> {
         LocalizableResource { locale in
             let rows: [RewardDetailsRow] = [
                 .validatorInfo(.init(
                     name: R.string.localizable.stakingRewardDetailsValidator(preferredLanguages: locale.rLanguages),
-                    address: self.addressTitle(),
-                    icon: self.getValidatorIcon()
+                    address: self.addressTitle(payoutInfo: input.payoutInfo, chain: input.chain),
+                    icon: self.getValidatorIcon(validatorAccount: input.payoutInfo.validator, chain: input.chain)
                 )),
                 .date(.init(
                     titleText: R.string.localizable.stakingRewardDetailsDate(preferredLanguages: locale.rLanguages),
-                    valueText: self.formattedDateText()
+                    valueText: self.formattedDateText(
+                        activeEra: input.activeEra,
+                        payoutEra: input.payoutInfo.era,
+                        chain: input.chain
+                    )
                 )),
                 .era(.init(
                     titleText: R.string.localizable.stakingRewardDetailsEra(preferredLanguages: locale.rLanguages),
-                    valueText: "#\(self.payoutInfo.era.description)"
+                    valueText: "#\(input.payoutInfo.era.description)"
                 )),
                 .reward(.init(
-                    tokenAmountText: self.tokenAmountText(locale: locale),
-                    usdAmountText: self.priceText(priceData: priceData, locale: locale)
+                    tokenAmountText: self.tokenAmountText(payoutInfo: input.payoutInfo, locale: locale),
+                    usdAmountText: self.priceText(payoutInfo: input.payoutInfo, priceData: priceData, locale: locale)
                 ))
             ]
             return StakingRewardDetailsViewModel(rows: rows)
         }
     }
 
-    private func addressTitle() -> String {
+    func validatorAddress(from data: Data, addressType: SNAddressType) -> AccountAddress? {
+        try? addressFactory
+            .addressFromAccountId(data: data, type: addressType)
+    }
+
+    private func addressTitle(payoutInfo: PayoutInfo, chain: Chain) -> String {
         if let displayName = payoutInfo.identity?.displayName {
             return displayName
         }
 
-        if let address = try? addressFactory
-            .addressFromAccountId(data: payoutInfo.validator, type: chain.addressType) {
+        if let address = validatorAddress(from: payoutInfo.validator, addressType: chain.addressType) {
             return address
         }
         return ""
     }
 
-    private func tokenAmountText(locale: Locale) -> String {
+    private func tokenAmountText(payoutInfo: PayoutInfo, locale: Locale) -> String {
         balanceViewModelFactory.amountFromValue(payoutInfo.reward).value(for: locale)
     }
 
-    private func priceText(priceData: PriceData?, locale: Locale) -> String {
+    private func priceText(payoutInfo: PayoutInfo, priceData: PriceData?, locale: Locale) -> String {
         guard let priceData = priceData else {
             return ""
         }
@@ -89,8 +86,12 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         return price
     }
 
-    private func formattedDateText() -> String {
-        let pastDays = (activeEra - payoutInfo.era) / UInt32(chain.erasPerDay)
+    private func formattedDateText(
+        activeEra: EraIndex,
+        payoutEra: EraIndex,
+        chain: Chain
+    ) -> String {
+        let pastDays = (activeEra - payoutEra) / UInt32(chain.erasPerDay)
         guard let daysAgo = Calendar.current
             .date(byAdding: .day, value: -Int(pastDays), to: Date())
         else { return "" }
@@ -101,8 +102,9 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         return dateFormatter.string(from: daysAgo)
     }
 
-    private func getValidatorIcon() -> UIImage? {
-        guard let address = validatorAddress else { return nil }
+    private func getValidatorIcon(validatorAccount: Data, chain: Chain) -> UIImage? {
+        guard let address = validatorAddress(from: validatorAccount, addressType: chain.addressType)
+        else { return nil }
         return try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
                 .white,

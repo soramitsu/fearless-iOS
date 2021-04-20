@@ -15,13 +15,11 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
         )
 
         let viewModelFactory = StakingRewardDetailsViewModelFactory(
-            input: input,
             balanceViewModelFactory: balanceViewModelFactory,
             iconGenerator: PolkadotIconGenerator()
         )
         let presenter = StakingRewardDetailsPresenter(
-            payoutInfo: input.payoutInfo,
-            chain: input.chain,
+            input: input,
             viewModelFactory: viewModelFactory
         )
         let view = StakingRewardDetailsViewController(
