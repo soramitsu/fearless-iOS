@@ -32,7 +32,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
         wireframe.showPayoutConfirmation(from: view, payoutInfo: payoutInfo)
     }
 
-    func handleValidatorAccountAction() {
+    func handleValidatorAccountAction(locale: Locale) {
         guard
             let view = view,
             let address = viewModelFactory.validatorAddress
@@ -41,7 +41,7 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
             from: view,
             address: address,
             chain: chain,
-            locale: .autoupdatingCurrent
+            locale: locale
         )
     }
 }

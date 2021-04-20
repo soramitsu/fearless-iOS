@@ -7,7 +7,7 @@ protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable
 protocol StakingRewardDetailsPresenterProtocol: AnyObject {
     func setup()
     func handlePayoutAction()
-    func handleValidatorAccountAction()
+    func handleValidatorAccountAction(locale: Locale)
 }
 
 protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}

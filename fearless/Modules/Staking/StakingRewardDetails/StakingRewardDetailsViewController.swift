@@ -64,7 +64,7 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
 
     @objc
     private func handleValidatorAction() {
-        presenter.handleValidatorAccountAction()
+        presenter.handleValidatorAccountAction(locale: selectedLocale)
     }
 }
 
@@ -111,7 +111,6 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: handle current locale
         switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(

@@ -42,16 +42,16 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         LocalizableResource { locale in
             let rows: [RewardDetailsRow] = [
                 .validatorInfo(.init(
-                    name: "Validator",
+                    name: R.string.localizable.stakingRewardDetailsValidator(preferredLanguages: locale.rLanguages),
                     address: self.addressTitle(),
                     icon: self.getValidatorIcon()
                 )),
                 .date(.init(
-                    titleText: R.string.localizable.stakingRewardDetailsDate(),
+                    titleText: R.string.localizable.stakingRewardDetailsDate(preferredLanguages: locale.rLanguages),
                     valueText: self.formattedDateText()
                 )),
                 .era(.init(
-                    titleText: R.string.localizable.stakingRewardDetailsEra(),
+                    titleText: R.string.localizable.stakingRewardDetailsEra(preferredLanguages: locale.rLanguages),
                     valueText: "#\(self.payoutInfo.era.description)"
                 )),
                 .reward(.init(
