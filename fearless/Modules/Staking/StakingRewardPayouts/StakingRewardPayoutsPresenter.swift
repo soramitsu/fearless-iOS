@@ -41,7 +41,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
     func reload() {
         view?.reload(with: .loading(true))
-        interactor.setup()
+        interactor.reload()
     }
 
     func handleSelectedHistory(at index: Int) {

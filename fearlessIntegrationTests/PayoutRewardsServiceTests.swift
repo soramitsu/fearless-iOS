@@ -41,19 +41,25 @@ class PayoutRewardsServiceTests: XCTestCase {
         )
 
         let expectation = XCTestExpectation()
-        service.fetchPayoutRewards { result in
-            switch result {
-            case .success(let info):
+
+        let wrapper = service.fetchPayoutsOperationWrapper()
+        wrapper.targetOperation.completionBlock = {
+            do {
+                let info = try wrapper.targetOperation.extractNoCancellableResultData()
                 let totalReward = info.payouts.reduce(Decimal(0.0)) { $0 + $1.reward }
                 let eras = info.payouts.map { $0.era }.sorted()
                 Logger.shared.info("Active era: \(info.activeEra)")
                 Logger.shared.info("Total reward: \(totalReward)")
                 Logger.shared.info("Eras: \(eras)")
-            case .failure(let error):
+            } catch {
                 Logger.shared.error("Did receive error: \(error)")
             }
+
             expectation.fulfill()
         }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+
         wait(for: [expectation], timeout: 30)
     }
 }

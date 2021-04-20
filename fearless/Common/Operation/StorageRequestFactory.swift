@@ -42,43 +42,12 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         self.remoteFactory = remoteFactory
     }
 
-    func queryItems<T>(
-        engine: JSONRPCEngine,
-        keys: @escaping () throws -> [Data],
-        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
-    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
-        let queryOperation = JSONRPCQueryOperation(
-            engine: engine,
-            method: RPCMethod.queryStorageAt
-        )
-        queryOperation.configurationBlock = {
-            do {
-                let keys = try keys().map { $0.toHex(includePrefix: true) }
-                queryOperation.parameters = [keys]
-            } catch {
-                queryOperation.result = .failure(error)
-            }
-        }
-
-        let decodingOperation = StorageDecodingListOperation<T>(path: storagePath)
-        decodingOperation.configurationBlock = {
-            do {
-                let result = try queryOperation.extractNoCancellableResultData()
-
-                decodingOperation.codingFactory = try factory()
-
-                decodingOperation.dataList = result
-                    .flatMap { StorageUpdateData(update: $0).changes }
-                    .compactMap(\.value)
-            } catch {
-                decodingOperation.result = .failure(error)
-            }
-        }
-
-        decodingOperation.addDependency(queryOperation)
-
-        let mapOperation = ClosureOperation<[StorageResponse<T>]> {
+    private func createMergeOperation<T>(
+        dependingOn queryOperation: JSONRPCQueryOperation,
+        decodingOperation: BaseOperation<[T?]>,
+        keys: @escaping () throws -> [Data]
+    ) -> ClosureOperation<[StorageResponse<T>]> {
+        ClosureOperation<[StorageResponse<T>]> {
             let result = try queryOperation.extractNoCancellableResultData()
 
             let resultChangesData = result.flatMap { StorageUpdateData(update: $0).changes }
@@ -91,11 +60,9 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
             let allKeys = resultChangesData.map(\.key)
 
-            let allNonzeroKeys = resultChangesData.compactMap { $0.value != nil ? $0.key : nil }
-
             let items = try decodingOperation.extractNoCancellableResultData()
 
-            let keyedItems = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { result, item in
+            let keyedItems = zip(allKeys, items).reduce(into: [Data: T]()) { result, item in
                 result[item.0] = item.1
             }
 
@@ -115,13 +82,56 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
                 return index1 < index2
             }
         }
+    }
 
-        mapOperation.addDependency(decodingOperation)
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keys: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
+        let queryOperation = JSONRPCQueryOperation(
+            engine: engine,
+            method: RPCMethod.queryStorageAt
+        )
+        queryOperation.configurationBlock = {
+            do {
+                let keys = try keys().map { $0.toHex(includePrefix: true) }
+                queryOperation.parameters = [keys]
+            } catch {
+                queryOperation.result = .failure(error)
+            }
+        }
+
+        let decodingOperation = StorageFallbackDecodingListOperation<T>(path: storagePath)
+        decodingOperation.configurationBlock = {
+            do {
+                let result = try queryOperation.extractNoCancellableResultData()
+
+                decodingOperation.codingFactory = try factory()
+
+                decodingOperation.dataList = result
+                    .flatMap { StorageUpdateData(update: $0).changes }
+                    .map(\.value)
+            } catch {
+                decodingOperation.result = .failure(error)
+            }
+        }
+
+        decodingOperation.addDependency(queryOperation)
+
+        let mergeOperation = createMergeOperation(
+            dependingOn: queryOperation,
+            decodingOperation: decodingOperation,
+            keys: keys
+        )
+
+        mergeOperation.addDependency(decodingOperation)
 
         let dependencies = [queryOperation, decodingOperation]
 
         return CompoundOperationWrapper(
-            targetOperation: mapOperation,
+            targetOperation: mergeOperation,
             dependencies: dependencies
         )
     }

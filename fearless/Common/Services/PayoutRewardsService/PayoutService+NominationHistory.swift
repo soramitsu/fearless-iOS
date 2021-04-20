@@ -4,7 +4,35 @@ import BigInt
 import IrohaCrypto
 
 extension PayoutRewardsService {
-    func createControllersStep6Operation(
+    func createValidatorsResolutionWrapper(for address: AccountAddress)
+        -> CompoundOperationWrapper<[AccountId]> {
+        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+
+        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
+            operationManager: operationManager
+        ) { [weak self] in
+            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
+
+            if let wrapper = try self?.createValidatorsQueryWrapper(controllers: controllers) {
+                return [wrapper]
+            } else {
+                throw BaseOperationError.parentOperationCancelled
+            }
+        }.longrunOperation()
+
+        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
+
+        let mapOperation = ClosureOperation<[AccountId]> {
+            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
+        }
+
+        mapOperation.addDependency(validatorsOperation)
+        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    func createControllersQueryWrapper(
         nominatorStashAddress: String
     ) -> CompoundOperationWrapper<Set<AccountId>> {
         let controllersByStakingOperation =
@@ -102,7 +130,7 @@ extension PayoutRewardsService {
         )
     }
 
-    func createFindValidatorsOperation(
+    func createValidatorsQueryWrapper(
         controllers: Set<AccountId>
     ) throws -> CompoundOperationWrapper<[AccountId]> {
         let addressFactory = SS58AddressFactory()
