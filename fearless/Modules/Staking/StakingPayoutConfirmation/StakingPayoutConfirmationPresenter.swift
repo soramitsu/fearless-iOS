@@ -49,7 +49,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         let lastBalance = balance ?? 0.0
 
         guard lastBalance >= fee else {
-            didFailPayout(error: StakingConfirmError.notEnoughFunds)
+            didFailPayout(error: StakingPayoutConfirmError.notEnoughFunds)
             return
         }
 
@@ -70,7 +70,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        if let confirmError = error as? StakingConfirmError {
+        if let confirmError = error as? StakingPayoutConfirmError {
             guard let view = view else {
                 return
             }
@@ -80,8 +80,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
                 wireframe.presentAmountTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
-            case let .missingController(address):
-                wireframe.presentMissingController(from: view, address: address, locale: locale)
             case .extrinsicFailed:
                 wireframe.presentExtrinsicFailed(from: view, locale: locale)
             }
