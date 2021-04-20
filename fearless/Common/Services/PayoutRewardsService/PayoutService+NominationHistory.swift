@@ -10,10 +10,14 @@ extension PayoutRewardsService {
 
         let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
             operationManager: operationManager
-        ) {
+        ) { [weak self] in
             let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
-            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
-            return [wrapper]
+
+            if let wrapper = try self?.createValidatorsQueryWrapper(controllers: controllers) {
+                return [wrapper]
+            } else {
+                throw BaseOperationError.parentOperationCancelled
+            }
         }.longrunOperation()
 
         validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
