@@ -27,30 +27,32 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         payoutsInfo: PayoutsInfo,
         priceData: PriceData?
     ) -> LocalizableResource<StakingPayoutViewModel> {
-        LocalizableResource<StakingPayoutViewModel> { _ in
+        LocalizableResource<StakingPayoutViewModel> { locale in
             StakingPayoutViewModel(
-                cellViewModels: self.createCellViewModels(for: payoutsInfo, priceData: priceData),
-                bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts)
+                cellViewModels: self.createCellViewModels(for: payoutsInfo, priceData: priceData, locale: locale),
+                bottomButtonTitle: self.defineBottomButtonTitle(for: payoutsInfo.payouts, locale: locale)
             )
         }
     }
 
     private func createCellViewModels(
         for payoutsInfo: PayoutsInfo,
-        priceData: PriceData?
+        priceData: PriceData?,
+        locale: Locale
     ) -> [StakingRewardHistoryCellViewModel] {
         payoutsInfo.payouts.map { payout in
             let daysLeftText = daysLeftAttributedString(
                 activeEra: payoutsInfo.activeEra,
                 payoutEra: payout.era,
-                historyDepth: payoutsInfo.historyDepth
+                historyDepth: payoutsInfo.historyDepth,
+                locale: locale
             )
 
             return StakingRewardHistoryCellViewModel(
                 addressOrName: self.addressTitle(payout),
                 daysLeftText: daysLeftText,
-                tokenAmountText: "+" + self.tokenAmountText(payout.reward),
-                usdAmountText: priceText(payout.reward, priceData: priceData)
+                tokenAmountText: "+" + self.tokenAmountText(payout.reward, locale: locale),
+                usdAmountText: priceText(payout.reward, priceData: priceData, locale: locale)
             )
         }
     }
@@ -68,26 +70,25 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         return ""
     }
 
-    private func tokenAmountText(_ value: Decimal) -> String {
-        // let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-        balanceViewModelFactory.amountFromValue(value).value(for: .current)
+    private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
+        balanceViewModelFactory.amountFromValue(value).value(for: locale)
     }
 
-    private func priceText(_ amount: Decimal, priceData: PriceData?) -> String {
+    private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String {
         guard let priceData = priceData else {
             return "$0"
         }
 
-        // let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         let price = balanceViewModelFactory
-            .priceFromAmount(amount, priceData: priceData).value(for: .current)
+            .priceFromAmount(amount, priceData: priceData).value(for: locale)
         return price
     }
 
     private func daysLeftAttributedString(
         activeEra: EraIndex,
         payoutEra: EraIndex,
-        historyDepth: UInt32
+        historyDepth: UInt32,
+        locale _: Locale
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
         let daysLeft = eraDistance / UInt32(chain.erasPerDay)
@@ -105,13 +106,14 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     }
 
     private func defineBottomButtonTitle(
-        for payouts: [PayoutInfo]
+        for payouts: [PayoutInfo],
+        locale: Locale
     ) -> String {
         let totalReward = payouts
             .reduce(into: Decimal(0)) { reward, payout in
                 reward += payout.reward
             }
-        let amountText = tokenAmountText(totalReward)
+        let amountText = tokenAmountText(totalReward, locale: locale)
         return "Payout all (\(amountText))"
     }
 }
