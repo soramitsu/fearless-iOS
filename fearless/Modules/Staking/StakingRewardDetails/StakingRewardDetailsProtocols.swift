@@ -10,9 +10,13 @@ protocol StakingRewardDetailsPresenterProtocol: AnyObject {
     func handleValidatorAccountAction(locale: Locale)
 }
 
-protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}
+protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {}
+protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {
+    func didReceive(priceResult: Result<PriceData?, Error>)
+}
 
 protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresentable {
     func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo)

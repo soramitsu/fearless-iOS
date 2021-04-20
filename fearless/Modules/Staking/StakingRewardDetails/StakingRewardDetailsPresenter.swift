@@ -10,6 +10,7 @@ final class StakingRewardDetailsPresenter {
     private let payoutInfo: PayoutInfo
     private let chain: Chain
     private let viewModelFactory: StakingRewardDetailsViewModelFactoryProtocol
+    private var priceData: PriceData?
 
     init(
         payoutInfo: PayoutInfo,
@@ -20,12 +21,17 @@ final class StakingRewardDetailsPresenter {
         self.chain = chain
         self.viewModelFactory = viewModelFactory
     }
+
+    private func updateView() {
+        let viewModel = viewModelFactory.createViewModel(priceData: priceData)
+        view?.reload(with: viewModel)
+    }
 }
 
 extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     func setup() {
-        let viewModel = viewModelFactory.createViewModel()
-        view?.reload(with: viewModel)
+        updateView()
+        interactor.setup()
     }
 
     func handlePayoutAction() {
@@ -46,4 +52,15 @@ extension StakingRewardDetailsPresenter: StakingRewardDetailsPresenterProtocol {
     }
 }
 
-extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {}
+extension StakingRewardDetailsPresenter: StakingRewardDetailsInteractorOutputProtocol {
+    func didReceive(priceResult: Result<PriceData?, Error>) {
+        switch priceResult {
+        case let .success(priceData):
+            self.priceData = priceData
+            updateView()
+        case .failure:
+            priceData = nil
+            updateView()
+        }
+    }
+}

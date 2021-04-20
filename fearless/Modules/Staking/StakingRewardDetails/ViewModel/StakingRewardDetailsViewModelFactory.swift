@@ -4,7 +4,7 @@ import SoraFoundation
 import FearlessUtils
 
 protocol StakingRewardDetailsViewModelFactoryProtocol {
-    func createViewModel() -> LocalizableResource<StakingRewardDetailsViewModel>
+    func createViewModel(priceData: PriceData?) -> LocalizableResource<StakingRewardDetailsViewModel>
     var validatorAddress: AccountAddress? { get }
 }
 
@@ -38,7 +38,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         self.iconGenerator = iconGenerator
     }
 
-    func createViewModel() -> LocalizableResource<StakingRewardDetailsViewModel> {
+    func createViewModel(priceData: PriceData?) -> LocalizableResource<StakingRewardDetailsViewModel> {
         LocalizableResource { locale in
             let rows: [RewardDetailsRow] = [
                 .validatorInfo(.init(
@@ -56,7 +56,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
                 )),
                 .reward(.init(
                     ksmAmountText: self.tokenAmountText(locale: locale),
-                    usdAmountText: "$0"
+                    usdAmountText: self.priceText(priceData: priceData, locale: locale)
                 ))
             ]
             return StakingRewardDetailsViewModel(rows: rows)
@@ -79,13 +79,13 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         balanceViewModelFactory.amountFromValue(payoutInfo.reward).value(for: locale)
     }
 
-    private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String {
+    private func priceText(priceData: PriceData?, locale: Locale) -> String {
         guard let priceData = priceData else {
             return ""
         }
 
         let price = balanceViewModelFactory
-            .priceFromAmount(amount, priceData: priceData).value(for: locale)
+            .priceFromAmount(payoutInfo.reward, priceData: priceData).value(for: locale)
         return price
     }
 

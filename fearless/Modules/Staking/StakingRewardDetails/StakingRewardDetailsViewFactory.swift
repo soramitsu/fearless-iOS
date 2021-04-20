@@ -28,7 +28,15 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
-        let interactor = StakingRewardDetailsInteractor()
+
+        let asset = primitiveFactory.createAssetForAddressType(input.chain.addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+        let interactor = StakingRewardDetailsInteractor(priceProvider: priceProvider)
         let wireframe = StakingRewardDetailsWireframe()
 
         presenter.view = view
