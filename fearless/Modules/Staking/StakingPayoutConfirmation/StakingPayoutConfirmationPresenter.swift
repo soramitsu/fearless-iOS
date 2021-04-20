@@ -46,7 +46,14 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             return
         }
 
-        interactor.submitPayout(for: balance ?? 0.0, lastFee: fee)
+        let lastBalance = balance ?? 0.0
+
+        guard lastBalance >= fee else {
+            didFailPayout(error: StakingConfirmError.notEnoughFunds)
+            return
+        }
+
+        interactor.submitPayout()
     }
 
     // MARK: - Private functions

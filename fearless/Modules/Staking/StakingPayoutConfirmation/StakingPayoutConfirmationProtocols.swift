@@ -10,7 +10,7 @@ protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
 
 protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
     func setup()
-    func submitPayout(for lastBalance: Decimal, lastFee: Decimal)
+    func submitPayout()
     func estimateFee()
 }
 

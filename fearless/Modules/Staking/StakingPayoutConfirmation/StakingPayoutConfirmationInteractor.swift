@@ -78,12 +78,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
         subscribeToAccountChanges()
     }
 
-    func submitPayout(for lastBalance: Decimal, lastFee: Decimal) {
-        guard lastBalance >= lastFee else {
-            presenter.didFailPayout(error: StakingConfirmError.notEnoughFunds)
-            return
-        }
-
+    func submitPayout() {
         guard let closure = createExtrinsicBuilderClosure() else {
             return
         }
