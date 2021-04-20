@@ -4,12 +4,10 @@ import SoraFoundation
 import FearlessUtils
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
-    static func createView() -> StakingRewardPayoutsViewProtocol? {
+    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
         let operationManager = OperationManagerFacade.sharedManager
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
 
         let chain = connection.type.chain
 
@@ -47,7 +45,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
         let payoutService = PayoutRewardsService(
-            selectedAccountAddress: selectedAccount.address,
+            selectedAccountAddress: stashAddress,
             chain: chain,
             subscanBaseURL: subscanUrl,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
@@ -75,5 +73,10 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         interactor.presenter = presenter
 
         return view
+    }
+
+    static func createViewForValidator(stashAddress _: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
+        // TODO: FLW-753
+        nil
     }
 }
