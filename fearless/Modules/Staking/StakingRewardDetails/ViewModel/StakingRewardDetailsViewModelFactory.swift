@@ -55,7 +55,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
                     valueText: "#\(self.payoutInfo.era.description)"
                 )),
                 .reward(.init(
-                    ksmAmountText: self.tokenAmountText(locale: locale),
+                    tokenAmountText: self.tokenAmountText(locale: locale),
                     usdAmountText: self.priceText(priceData: priceData, locale: locale)
                 ))
             ]
