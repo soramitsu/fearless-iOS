@@ -50,18 +50,6 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-            let erasRewardDistributionWrapper = try createErasRewardDistributionOperationWrapper(
-                dependingOn: historyRangeWrapper.targetOperation,
-                engine: engine,
-                codingFactoryOperation: codingFactoryOperation
-            )
-
-            erasRewardDistributionWrapper.allOperations
-                .forEach {
-                    $0.addDependency(historyRangeWrapper.targetOperation)
-                    $0.addDependency(codingFactoryOperation)
-                }
-
             let validatorsWrapper = validatorsResolutionFactory
                 .createResolutionOperation(for: selectedAccountAddress)
 
@@ -93,6 +81,16 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             unclaimedErasByStashOperation.addDependency(ledgerInfos.targetOperation)
             unclaimedErasByStashOperation.addDependency(historyRangeWrapper.targetOperation)
+
+            let erasRewardDistributionWrapper = try createErasRewardDistributionOperationWrapper(
+                dependingOn: unclaimedErasByStashOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation
+            )
+
+            erasRewardDistributionWrapper.allOperations.forEach {
+                $0.addDependency(unclaimedErasByStashOperation)
+            }
 
             let exposuresByEraWrapper: CompoundOperationWrapper<[EraIndex: [Data: ValidatorExposure]]> =
                 try createCreateHistoryByEraAccountIdOperation(

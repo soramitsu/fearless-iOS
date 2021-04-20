@@ -62,27 +62,44 @@ extension PayoutRewardsService {
     }
 
     func createErasRewardDistributionOperationWrapper(
-        dependingOn historyRangeOperation: BaseOperation<ChainHistoryRange>,
+        dependingOn unclaimedErasOperation: BaseOperation<[AccountId: [EraIndex]]>,
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
     ) throws -> CompoundOperationWrapper<ErasRewardDistribution> {
+        let erasOperation = ClosureOperation<[EraIndex]> {
+            let unclaimedErasResult = try unclaimedErasOperation.extractNoCancellableResultData()
+            let eras = unclaimedErasResult.reduce(into: Set<EraIndex>()) { result, accountIdMapping in
+                accountIdMapping.value.forEach { result.insert($0) }
+            }
+
+            return Array(eras)
+        }
+
         let totalRewardOperation: CompoundOperationWrapper<[EraIndex: StringScaleMapper<BigUInt>]> =
             try createFetchHistoryByEraOperation(
-                dependingOn: historyRangeOperation,
+                dependingOn: erasOperation,
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation,
                 path: .totalValidatorReward
             )
-        totalRewardOperation.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+
+        totalRewardOperation.allOperations.forEach {
+            $0.addDependency(codingFactoryOperation)
+            $0.addDependency(erasOperation)
+        }
 
         let validatorRewardPoints: CompoundOperationWrapper<[EraIndex: EraRewardPoints]> =
             try createFetchHistoryByEraOperation(
-                dependingOn: historyRangeOperation,
+                dependingOn: erasOperation,
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation,
                 path: .rewardPointsPerValidator
             )
-        validatorRewardPoints.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+
+        validatorRewardPoints.allOperations.forEach {
+            $0.addDependency(codingFactoryOperation)
+            $0.addDependency(erasOperation)
+        }
 
         let mergeOperation = ClosureOperation<ErasRewardDistribution> {
             let totalValidatorRewardByEra = try totalRewardOperation
@@ -96,7 +113,7 @@ extension PayoutRewardsService {
             )
         }
 
-        let mergeOperationDependencies = totalRewardOperation.allOperations + validatorRewardPoints.allOperations
+        let mergeOperationDependencies = [erasOperation] + totalRewardOperation.allOperations + validatorRewardPoints.allOperations
         mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(
@@ -106,14 +123,13 @@ extension PayoutRewardsService {
     }
 
     func createFetchHistoryByEraOperation<T: Decodable>(
-        dependingOn historyRangeOperation: BaseOperation<ChainHistoryRange>,
+        dependingOn erasOperation: BaseOperation<[EraIndex]>,
         engine: JSONRPCEngine,
         codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
         path: StorageCodingPath
     ) throws -> CompoundOperationWrapper<[EraIndex: T]> {
         let keyParams: () throws -> [StringScaleMapper<EraIndex>] = {
-            let result = try historyRangeOperation.extractNoCancellableResultData()
-            let eras = result.currentEra - result.historyDepth ... result.activeEra - 1
+            let eras = try erasOperation.extractNoCancellableResultData()
             return eras.map { StringScaleMapper(value: $0) }
         }
 
