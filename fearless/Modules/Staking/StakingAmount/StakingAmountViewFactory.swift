@@ -6,7 +6,6 @@ import SoraFoundation
 final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
     static func createView(with amount: Decimal?) -> StakingAmountViewProtocol? {
         let settings = SettingsManager.shared
-        let keystore = Keychain()
 
         guard let connection = WebSocketService.shared.connection else {
             return nil
