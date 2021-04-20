@@ -37,6 +37,7 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
+        historyDepth: UInt32,
         chain: Chain
     )
 

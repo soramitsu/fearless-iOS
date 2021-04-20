@@ -14,18 +14,27 @@ final class StakingRewardDetailsViewFactory: StakingRewardDetailsViewFactoryProt
             limit: StakingConstants.maxAmount
         )
 
-        let presenter = StakingRewardDetailsPresenter(
-            payoutInfo: input.payoutInfo,
-            activeEra: input.activeEra,
-            chain: input.chain,
+        let viewModelFactory = StakingRewardDetailsViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory,
             iconGenerator: PolkadotIconGenerator()
+        )
+        let presenter = StakingRewardDetailsPresenter(
+            input: input,
+            viewModelFactory: viewModelFactory
         )
         let view = StakingRewardDetailsViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
-        let interactor = StakingRewardDetailsInteractor()
+
+        let asset = primitiveFactory.createAssetForAddressType(input.chain.addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+        let interactor = StakingRewardDetailsInteractor(priceProvider: priceProvider)
         let wireframe = StakingRewardDetailsWireframe()
 
         presenter.view = view

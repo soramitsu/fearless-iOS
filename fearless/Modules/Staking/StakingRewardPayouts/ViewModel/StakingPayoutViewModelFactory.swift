@@ -88,18 +88,19 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         activeEra: EraIndex,
         payoutEra: EraIndex,
         historyDepth: UInt32,
-        locale _: Locale
+        locale: Locale
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
-        let daysLeft = eraDistance / UInt32(chain.erasPerDay)
-        let daysLeftText = daysLeft == 1 ? " day left" : " days left"
+        let daysLeft = Int(eraDistance) / chain.erasPerDay
+        let daysLeftText = R.string.localizable
+            .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
         let textColor: UIColor = daysLeft < historyDepthDays ?
             R.color.colorRed()! : R.color.colorLightGray()!
 
         let attrubutedString = NSAttributedString(
-            string: daysLeft.description + daysLeftText,
+            string: daysLeftText,
             attributes: [.foregroundColor: textColor]
         )
         return attrubutedString
@@ -114,6 +115,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 reward += payout.reward
             }
         let amountText = tokenAmountText(totalReward, locale: locale)
-        return "Payout all (\(amountText))"
+        return R.string.localizable.stakingRewardPayoutsPayoutAll(amountText, preferredLanguages: locale.rLanguages)
     }
 }
