@@ -30,17 +30,12 @@ final class StakingPayoutConfirmationInteractor {
     // MARK: - Private functions
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        let addressFactory = SS58AddressFactory()
         let callFactory = SubstrateCallFactory()
-        let chain = settings.selectedConnection.type.chain
 
         let closure: ExtrinsicBuilderClosure = { builder in
             try self.payouts.forEach { payout in
-                let address = try addressFactory
-                    .addressFromAccountId(data: payout.validator, type: chain.addressType)
-
                 let payoutCall = try callFactory.payout(
-                    validatorAddress: address,
+                    validatorId: payout.validator,
                     era: payout.era
                 )
 
