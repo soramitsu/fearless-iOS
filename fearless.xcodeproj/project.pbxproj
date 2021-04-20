@@ -442,7 +442,7 @@
 		847119C8262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */; };
 		847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */; };
 		847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */; };
-		847119DD262EFAA300716580 /* ValidatorPayoutInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */; };
+		847119EB262EFF3800716580 /* ValidatorPayoutInfoFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 847119EA262EFF3800716580 /* ValidatorPayoutInfoFactory.swift */; };
 		84729741260A9C13009B86D0 /* DisplayAddress.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84729740260A9C13009B86D0 /* DisplayAddress.swift */; };
 		8472974D260A9CDF009B86D0 /* StakingConfirmationModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8472974C260A9CDF009B86D0 /* StakingConfirmationModel.swift */; };
 		84729758260AA519009B86D0 /* StakingBaseConfirmInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */; };
@@ -1481,7 +1481,7 @@
 		847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutValidatorsForNominatorFactory.swift; sourceTree = "<group>"; };
 		847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutValidatorForValidatorFactory.swift; sourceTree = "<group>"; };
 		847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutInfoFactoryProtocol.swift; sourceTree = "<group>"; };
-		847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorPayoutInfoFactory.swift; sourceTree = "<group>"; };
+		847119EA262EFF3800716580 /* ValidatorPayoutInfoFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorPayoutInfoFactory.swift; sourceTree = "<group>"; };
 		84729740260A9C13009B86D0 /* DisplayAddress.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisplayAddress.swift; sourceTree = "<group>"; };
 		8472974C260A9CDF009B86D0 /* StakingConfirmationModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmationModel.swift; sourceTree = "<group>"; };
 		84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBaseConfirmInteractor.swift; sourceTree = "<group>"; };
@@ -5063,8 +5063,8 @@
 				849ABE7B2628116F00011A2A /* NominationsReducer.swift */,
 				849ABE80262811CF00011A2A /* NominationsListReducer.swift */,
 				847119D4262EF95A00716580 /* PayoutInfoFactoryProtocol.swift */,
+				847119EA262EFF3800716580 /* ValidatorPayoutInfoFactory.swift */,
 				8490386A262E22DC0016D541 /* NominatorPayoutInfoFactory.swift */,
-				847119DC262EFAA300716580 /* ValidatorPayoutInfoFactory.swift */,
 				847119BF262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift */,
 				847119C7262EF45400716580 /* PayoutValidatorsForNominatorFactory.swift */,
 				847119CC262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift */,
@@ -5767,6 +5767,7 @@
 				843C49DF24DF3CB300B71DDA /* AccountImportMetadata.swift in Sources */,
 				845BB8E025E463D500E5FCDC /* RuntimeCall+Known.swift in Sources */,
 				8463A72525E3A82A003B8160 /* DataProviderProxyTrigger.swift in Sources */,
+				847119EB262EFF3800716580 /* ValidatorPayoutInfoFactory.swift in Sources */,
 				847372E4260F60C300232D6A /* SelectConnection.swift in Sources */,
 				AEF7404E25E6DC9400407D41 /* RewardCalculatorEngine.swift in Sources */,
 				84C74363251E4C2F009576C6 /* DummySigner.swift in Sources */,
@@ -6192,7 +6193,6 @@
 				8468B87224F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift in Sources */,
 				9DFB37659A6B911A4D54623E /* AccountConfirmInteractor.swift in Sources */,
 				84155DEB253980F900A27058 /* WebSocketService.swift in Sources */,
-				847119DD262EFAA300716580 /* ValidatorPayoutInfoFactory.swift in Sources */,
 				849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */,
 				840DCC0025E0779A00D45C6A /* RewardSelectionView+Inspectable.swift in Sources */,
 				8D9BC9C36DC891CDD900A895 /* AccountConfirmViewController.swift in Sources */,

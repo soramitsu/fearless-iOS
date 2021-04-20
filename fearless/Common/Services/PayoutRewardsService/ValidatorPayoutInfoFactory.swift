@@ -1,7 +1,7 @@
 import Foundation
 import IrohaCrypto
 
-final class ValidatorPayoutInfoFactory {
+final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     let addressType: SNAddressType
     let addressFactory: SS58AddressFactoryProtocol
 
