@@ -56,7 +56,12 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         keystore: KeystoreProtocol,
         payouts: [PayoutInfo]
     ) -> StakingPayoutConfirmationInteractor? {
-        guard let selectedAccount = settings.selectedAccount
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
+
+        guard let selectedAccount = settings.selectedAccount,
+              let assetId = WalletAssetId(rawValue: asset.identifier)
         else {
             return nil
         }
@@ -77,6 +82,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         )
 
         let providerFactory = SingleValueProviderFactory.shared
+
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(
                 for: selectedAccount.address,
@@ -86,10 +92,13 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             return nil
         }
 
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+
         return StakingPayoutConfirmationInteractor(
             extrinsicService: extrinsicService,
             signer: signer,
             balanceProvider: balanceProvider,
+            priceProvider: priceProvider,
             settings: settings,
             payouts: payouts
         )

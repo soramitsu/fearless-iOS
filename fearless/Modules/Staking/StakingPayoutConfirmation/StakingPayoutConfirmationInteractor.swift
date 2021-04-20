@@ -5,11 +5,12 @@ import RobinHood
 import IrohaCrypto
 
 final class StakingPayoutConfirmationInteractor {
-    let extrinsicService: ExtrinsicServiceProtocol
-    let signer: SigningWrapperProtocol
-    let balanceProvider: AnyDataProvider<DecodedAccountInfo>
-    let settings: SettingsManagerProtocol
-    let payouts: [PayoutInfo]
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private let signer: SigningWrapperProtocol
+    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
+    private let priceProvider: AnySingleValueProvider<PriceData>
+    private let settings: SettingsManagerProtocol
+    private let payouts: [PayoutInfo]
 
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
@@ -17,12 +18,14 @@ final class StakingPayoutConfirmationInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         signer: SigningWrapperProtocol,
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        priceProvider: AnySingleValueProvider<PriceData>,
         settings: SettingsManagerProtocol,
         payouts: [PayoutInfo]
     ) {
         self.extrinsicService = extrinsicService
         self.signer = signer
         self.balanceProvider = balanceProvider
+        self.priceProvider = priceProvider
         self.settings = settings
         self.payouts = payouts
     }
@@ -30,17 +33,12 @@ final class StakingPayoutConfirmationInteractor {
     // MARK: - Private functions
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        let addressFactory = SS58AddressFactory()
         let callFactory = SubstrateCallFactory()
-        let chain = settings.selectedConnection.type.chain
 
         let closure: ExtrinsicBuilderClosure = { builder in
             try self.payouts.forEach { payout in
-                let address = try addressFactory
-                    .addressFromAccountId(data: payout.validator, type: chain.addressType)
-
                 let payoutCall = try callFactory.payout(
-                    validatorAddress: address,
+                    validatorId: payout.validator,
                     era: payout.era
                 )
 
@@ -76,6 +74,41 @@ final class StakingPayoutConfirmationInteractor {
             options: options
         )
     }
+
+    private func subscribeToPriceChanges() {
+        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
+            if changes.isEmpty {
+                self?.presenter.didReceive(price: nil)
+            } else {
+                for change in changes {
+                    switch change {
+                    case let .insert(item), let .update(item):
+                        self?.presenter.didReceive(price: item)
+                    case .delete:
+                        self?.presenter.didReceive(price: nil)
+                    }
+                }
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(priceError: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        priceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
@@ -83,12 +116,7 @@ extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteract
         subscribeToAccountChanges()
     }
 
-    func submitPayout(for lastBalance: Decimal, lastFee: Decimal) {
-        guard lastBalance >= lastFee else {
-            presenter.didFailPayout(error: StakingConfirmError.notEnoughFunds)
-            return
-        }
-
+    func submitPayout() {
         guard let closure = createExtrinsicBuilderClosure() else {
             return
         }

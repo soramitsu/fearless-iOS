@@ -1,12 +1,12 @@
 import Foundation
 
-typealias PayoutRewardsClosure = (Result<PayoutsInfo, Error>) -> Void
+typealias PayoutRewardsClosure = (Result<PayoutsInfo, PayoutRewardsServiceError>) -> Void
 
 /// StakingPayoutService
 protocol PayoutRewardsServiceProtocol {
     func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure)
 }
 
-enum PayoutError: Error {
+enum PayoutRewardsServiceError: Error {
     case unknown
 }

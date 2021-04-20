@@ -60,7 +60,7 @@ extension PayoutRewardsService {
                 let activeEra = try activeEra.targetOperation.extractNoCancellableResultData()
                 .first?.value?.index
             else {
-                throw PayoutError.unknown
+                throw PayoutRewardsServiceError.unknown
             }
 
             let historyDepth = try historyDepthWrapper.targetOperation.extractNoCancellableResultData()

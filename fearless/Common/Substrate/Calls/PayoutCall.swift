@@ -7,6 +7,6 @@ struct PayoutCall: Codable {
         case era
     }
 
-    var validatorStash: Data
+    let validatorStash: Data
     @StringCodable var era: EraIndex
 }
