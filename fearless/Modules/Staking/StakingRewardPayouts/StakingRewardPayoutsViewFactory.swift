@@ -72,7 +72,10 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         guard let engine = WebSocketService.shared.connection else { return nil }
 
-        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
 
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 

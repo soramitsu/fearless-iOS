@@ -87,7 +87,10 @@ extension WalletContextFactory: WalletContextFactoryProtocol {
             substrateStorageFacade.createRepository()
         let localStorageIdFactory = try ChainStorageIdFactory(chain: networkType.chain)
         let remoteStorageKeyFactory = StorageKeyFactory()
-        let requestFactory = StorageRequestFactory(remoteFactory: remoteStorageKeyFactory)
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: remoteStorageKeyFactory,
+            operationManager: OperationManagerFacade.sharedManager
+        )
         let runtimeService = RuntimeRegistryFacade.sharedService
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: remoteStorageKeyFactory,

@@ -26,7 +26,10 @@ class PayoutRewardsServiceTests: XCTestCase {
         let runtimeService = RuntimeRegistryFacade.sharedService
         runtimeService.setup()
 
-        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
         let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
             chain: chain,
             subscanBaseURL: assetId.subscanUrl!,
@@ -95,7 +98,10 @@ class PayoutRewardsServiceTests: XCTestCase {
         let runtimeService = RuntimeRegistryFacade.sharedService
         runtimeService.setup()
 
-        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
         let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory()
 
         let identityOperation = IdentityOperationFactory(requestFactory: storageRequestFactory)
