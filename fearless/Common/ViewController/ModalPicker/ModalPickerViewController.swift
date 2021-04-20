@@ -151,8 +151,8 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
 
             selectedIndex = indexPath.row
 
-            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
             presenter?.hide(view: self, animated: true)
+            delegate?.modalPickerDidSelectModelAtIndex(indexPath.row, context: context)
         }
     }
 

@@ -53,8 +53,6 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showRewardPayouts(from view: ControllerBackedProtocol?) {
-        view?.controller.dismiss(animated: false, completion: nil)
-
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createView() else { return }
 
         let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
