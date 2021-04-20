@@ -331,3 +331,4 @@ Derivation path: %@";
 "common.available.format" = "Available: %@";
 "staking.rewards.learn.more" = "Learn more about rewards";
 "common.error.no.data.retrieved" = "No data retrieved.";
+"staking.reward.payouts.empty.rewards" = "Your rewards\nwill appear here";

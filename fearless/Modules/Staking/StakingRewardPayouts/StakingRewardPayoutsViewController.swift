@@ -153,21 +153,19 @@ extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
 
 extension StakingRewardPayoutsViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
-        guard
-            let state = viewState,
-            let locale = localizationManager?.selectedLocale
-        else { return nil }
+        guard let state = viewState else { return nil }
 
         switch state {
         case let .error(error):
             let errorView = ErrorStateView()
-            errorView.errorDescriptionLabel.text = error.value(for: locale)
+            errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
             errorView.delegate = self
             return errorView
         case .emptyList:
             let emptyView = EmptyStateView()
             emptyView.image = R.image.iconEmptyHistory()
-            emptyView.title = "Your rewards\nwill appear here" // TODO:
+            emptyView.title = R.string.localizable
+                .stakingRewardPayoutsEmptyRewards(preferredLanguages: selectedLocale.rLanguages)
             emptyView.titleColor = R.color.colorLightGray()!
             emptyView.titleFont = .p2Paragraph
             return emptyView
