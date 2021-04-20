@@ -114,6 +114,6 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
                 reward += payout.reward
             }
         let amountText = tokenAmountText(totalReward, locale: locale)
-        return "Payout all (\(amountText))"
+        return R.string.localizable.stakingRewardPayoutsPayoutAll(amountText, preferredLanguages: locale.rLanguages)
     }
 }
