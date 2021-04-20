@@ -88,11 +88,11 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         activeEra: EraIndex,
         payoutEra: EraIndex,
         historyDepth: UInt32,
-        locale _: Locale
+        locale: Locale
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
-        let daysLeft = eraDistance / UInt32(chain.erasPerDay)
-        let daysLeftText = daysLeft == 1 ? " day left" : " days left"
+        let daysLeft = Int(eraDistance) / chain.erasPerDay
+        let daysLeftText = R.string.localizable.payoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
         let textColor: UIColor = daysLeft < historyDepthDays ?
