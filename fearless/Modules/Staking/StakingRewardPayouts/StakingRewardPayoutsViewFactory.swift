@@ -76,6 +76,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     }
 
     static func createViewForValidator(stashAddress _: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
+        // TODO: FLW-753
         nil
     }
 }
