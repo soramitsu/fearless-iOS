@@ -10,7 +10,7 @@ protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
 
 enum StakingRewardPayoutsViewState {
     case loading(Bool)
-    case payoutsList(StakingPayoutViewModel)
+    case payoutsList(LocalizableResource<StakingPayoutViewModel>)
     case emptyList
     case error(LocalizableResource<String>)
 }
