@@ -47,13 +47,16 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        title = R.string.localizable.stakingRewardPayoutsTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable
+            .stakingRewardPayoutsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupButtonLocalization() {
-        // TODO:
+        guard let state = viewState else { return }
+        if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
+            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            rootView.payoutButton.imageWithTitleView?.title = buttonTitle
+        }
     }
 
     private func setupTable() {
