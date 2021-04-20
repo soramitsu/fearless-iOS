@@ -7,6 +7,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
     static func createView() -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
+        let operationManager = OperationManagerFacade.sharedManager
 
         guard let selectedAccount = settings.selectedAccount else { return nil }
 
@@ -48,7 +49,7 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             engine: engine,
-            operationManager: OperationManagerFacade.sharedManager,
+            operationManager: operationManager,
             subscanOperationFactory: SubscanOperationFactory(),
             identityOperationFactory: identityOperationFactory,
             logger: Logger.shared
@@ -59,7 +60,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let interactor = StakingRewardPayoutsInteractor(
             payoutService: payoutService,
-            priceProvider: priceProvider
+            priceProvider: priceProvider,
+            operationManager: operationManager
         )
         let wireframe = StakingRewardPayoutsWireframe()
 

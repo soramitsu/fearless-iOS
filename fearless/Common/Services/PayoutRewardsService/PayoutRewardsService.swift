@@ -40,10 +40,10 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.logger = logger
     }
 
-    func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure) {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-
+    func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
+            let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+
             let historyRangeWrapper = try createChainHistoryRangeOperationWrapper(
                 codingFactoryOperation: codingFactoryOperation
             )
@@ -139,36 +139,25 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             payoutOperation.addDependency(erasRewardDistributionWrapper.targetOperation)
             payoutOperation.addDependency(historyRangeWrapper.targetOperation)
 
-            let firstOperations = [codingFactoryOperation] + historyRangeWrapper.allOperations
+            let overviewOperations = [codingFactoryOperation] + historyRangeWrapper.allOperations
                 + erasRewardDistributionWrapper.allOperations
-                + validatorsWrapper.allOperations
-            let secondOperations = controllersWrapper.allOperations
-                + ledgerInfos.allOperations + [unclaimedErasByStashOperation] + exposuresByEraWrapper.allOperations
+            let validatorsResolutionOperations = validatorsWrapper.allOperations
+                + controllersWrapper.allOperations + ledgerInfos.allOperations
+                + [unclaimedErasByStashOperation]
+            let validatorsAndEraInfoOperations = exposuresByEraWrapper.allOperations
+                + prefsByEraWrapper.allOperations + identityWrapper.allOperations
+                + [eraInfoOperation]
 
-            let thirdOperations = prefsByEraWrapper.allOperations + identityWrapper.allOperations
-                + [eraInfoOperation, payoutOperation]
+            let dependencies = overviewOperations + validatorsResolutionOperations
+                + validatorsAndEraInfoOperations
 
-            payoutOperation.completionBlock = {
-                do {
-                    let payouts = try payoutOperation.extractNoCancellableResultData()
-                    completion(.success(payouts))
-                } catch {
-                    completion(.failure(PayoutRewardsServiceError.unknown))
-                }
-            }
-
-            operationManager.enqueue(
-                operations: firstOperations + secondOperations + thirdOperations,
-                in: .transient
+            return CompoundOperationWrapper(
+                targetOperation: payoutOperation,
+                dependencies: dependencies
             )
-        } catch {
-            logger?.error("Did receive error: \(error)")
 
-            if let serviceError = error as? PayoutRewardsServiceError {
-                completion(.failure(serviceError))
-            } else {
-                completion(.failure(.unknown))
-            }
+        } catch {
+            return CompoundOperationWrapper.createWithError(error)
         }
     }
 }

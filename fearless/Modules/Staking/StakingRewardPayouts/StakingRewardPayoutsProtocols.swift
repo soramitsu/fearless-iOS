@@ -24,6 +24,7 @@ protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
 
 protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
     func setup()
+    func reload()
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {

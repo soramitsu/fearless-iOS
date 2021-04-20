@@ -1,10 +1,8 @@
 import Foundation
+import RobinHood
 
-typealias PayoutRewardsClosure = (Result<PayoutsInfo, PayoutRewardsServiceError>) -> Void
-
-/// StakingPayoutService
 protocol PayoutRewardsServiceProtocol {
-    func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure)
+    func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo>
 }
 
 enum PayoutRewardsServiceError: Error {
