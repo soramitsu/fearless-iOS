@@ -2,13 +2,6 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 
-protocol StakingPayoutViewModelFactoryProtocol {
-    func createPayoutsViewModel(
-        payoutsInfo: PayoutsInfo,
-        priceData: PriceData?
-    ) -> LocalizableResource<StakingPayoutViewModel>
-}
-
 final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol {
     private let addressFactory = SS58AddressFactory()
     private let chain: Chain

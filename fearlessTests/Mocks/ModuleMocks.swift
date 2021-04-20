@@ -21750,6 +21750,97 @@ import SoraUI
 }
 
 
+
+ class MockStakingPayoutViewModelFactoryProtocol: StakingPayoutViewModelFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingPayoutViewModelFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingPayoutViewModelFactoryProtocol
+     typealias Verification = __VerificationProxy_StakingPayoutViewModelFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingPayoutViewModelFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingPayoutViewModelFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel> {
+        
+    return cuckoo_manager.call("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>",
+            parameters: (payoutsInfo, priceData),
+            escapingParameters: (payoutsInfo, priceData),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData))
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingPayoutViewModelFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.ProtocolStubFunction<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingPayoutViewModelFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.__DoNotUse<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
+	        return cuckoo_manager.verify("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingPayoutViewModelFactoryProtocolStub: StakingPayoutViewModelFactoryProtocol {
+    
+
+    
+
+    
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>  {
+        return DefaultValueRegistry.defaultValue(for: (LocalizableResource<StakingPayoutViewModel>).self)
+    }
+    
+}
+
+
 import Cuckoo
 @testable import fearless
 

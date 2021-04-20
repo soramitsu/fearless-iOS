@@ -50,3 +50,10 @@ protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
     static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
     static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
 }
+
+protocol StakingPayoutViewModelFactoryProtocol {
+    func createPayoutsViewModel(
+        payoutsInfo: PayoutsInfo,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingPayoutViewModel>
+}
