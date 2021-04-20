@@ -46,7 +46,7 @@ extension PayoutRewardsService {
                 let historyDepth = try historyDepthWrapper.targetOperation.extractNoCancellableResultData()
                 .first?.value?.value
             else {
-                throw PayoutError.unknown
+                throw PayoutRewardsServiceError.unknown
             }
 
             return ChainHistoryRange(

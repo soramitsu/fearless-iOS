@@ -61,38 +61,38 @@ PODS:
     - SoraFoundation/NotificationHandlers
   - SoraFoundation/ViewModel (0.9.1)
   - SoraKeystore (0.1.5)
-  - SoraUI (1.10.0):
-    - SoraUI/AdaptiveDesign (= 1.10.0)
-    - SoraUI/Animator (= 1.10.0)
-    - SoraUI/Camera (= 1.10.0)
-    - SoraUI/Controls (= 1.10.0)
-    - SoraUI/DetailsView (= 1.10.0)
-    - SoraUI/EmptyState (= 1.10.0)
-    - SoraUI/Helpers (= 1.10.0)
-    - SoraUI/LoadingView (= 1.10.0)
-    - SoraUI/ModalPresentation (= 1.10.0)
-    - SoraUI/PageLoader (= 1.10.0)
-    - SoraUI/PinView (= 1.10.0)
-    - SoraUI/Skrull (= 1.10.0)
-  - SoraUI/AdaptiveDesign (1.10.0)
-  - SoraUI/Animator (1.10.0)
-  - SoraUI/Camera (1.10.0)
-  - SoraUI/Controls (1.10.0):
+  - SoraUI (1.10.1):
+    - SoraUI/AdaptiveDesign (= 1.10.1)
+    - SoraUI/Animator (= 1.10.1)
+    - SoraUI/Camera (= 1.10.1)
+    - SoraUI/Controls (= 1.10.1)
+    - SoraUI/DetailsView (= 1.10.1)
+    - SoraUI/EmptyState (= 1.10.1)
+    - SoraUI/Helpers (= 1.10.1)
+    - SoraUI/LoadingView (= 1.10.1)
+    - SoraUI/ModalPresentation (= 1.10.1)
+    - SoraUI/PageLoader (= 1.10.1)
+    - SoraUI/PinView (= 1.10.1)
+    - SoraUI/Skrull (= 1.10.1)
+  - SoraUI/AdaptiveDesign (1.10.1)
+  - SoraUI/Animator (1.10.1)
+  - SoraUI/Camera (1.10.1)
+  - SoraUI/Controls (1.10.1):
     - SoraUI/Animator
-  - SoraUI/DetailsView (1.10.0):
+  - SoraUI/DetailsView (1.10.1):
     - SoraUI/Controls
-  - SoraUI/EmptyState (1.10.0):
+  - SoraUI/EmptyState (1.10.1):
     - SoraUI/Animator
-  - SoraUI/Helpers (1.10.0)
-  - SoraUI/LoadingView (1.10.0):
+  - SoraUI/Helpers (1.10.1)
+  - SoraUI/LoadingView (1.10.1):
     - SoraUI/Controls
-  - SoraUI/ModalPresentation (1.10.0):
+  - SoraUI/ModalPresentation (1.10.1):
     - SoraUI/Animator
     - SoraUI/Controls
-  - SoraUI/PageLoader (1.10.0)
-  - SoraUI/PinView (1.10.0):
+  - SoraUI/PageLoader (1.10.1)
+  - SoraUI/PinView (1.10.1):
     - SoraUI/Controls
-  - SoraUI/Skrull (1.10.0)
+  - SoraUI/Skrull (1.10.1)
   - Starscream (4.0.4)
   - SwiftFormat/CLI (0.47.13)
   - SwiftGifOrigin (1.7.0)
@@ -112,7 +112,7 @@ DEPENDENCIES:
   - SnapKit (~> 5.0.0)
   - SoraFoundation (~> 0.9.0)
   - SoraKeystore
-  - SoraUI (= 1.10.0)
+  - SoraUI (~> 1.10.1)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
   - SwiftFormat/CLI
   - SwiftGifOrigin (~> 1.7.0)
@@ -180,7 +180,7 @@ SPEC CHECKSUMS:
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
   SoraFoundation: 664b374247c33b5498bdb77ec3e308c3bf5be7af
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
-  SoraUI: 00d6c45c2c9dbcae54517cbfc2e5836a7c8101a7
+  SoraUI: bd2260bcc0a01c35c2b10e724e4243dac3016710
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
@@ -189,6 +189,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 1fa3fbe857e624e6b483ef83bf7a392e5a90e55d
+PODFILE CHECKSUM: 984931a80fde64c62995cda3717bbc7dcf4f6ac2
 
 COCOAPODS: 1.10.1
