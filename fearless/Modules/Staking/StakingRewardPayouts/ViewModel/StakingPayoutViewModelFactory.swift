@@ -92,14 +92,15 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
     ) -> NSAttributedString {
         let eraDistance = historyDepth - (activeEra - payoutEra)
         let daysLeft = Int(eraDistance) / chain.erasPerDay
-        let daysLeftText = R.string.localizable.payoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+        let daysLeftText = R.string.localizable
+            .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
 
         let historyDepthDays = (historyDepth / 2) / UInt32(chain.erasPerDay)
         let textColor: UIColor = daysLeft < historyDepthDays ?
             R.color.colorRed()! : R.color.colorLightGray()!
 
         let attrubutedString = NSAttributedString(
-            string: daysLeft.description + daysLeftText,
+            string: daysLeftText,
             attributes: [.foregroundColor: textColor]
         )
         return attrubutedString
