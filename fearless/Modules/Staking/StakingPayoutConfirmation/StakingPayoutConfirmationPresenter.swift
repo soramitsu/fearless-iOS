@@ -11,16 +11,19 @@ final class StakingPayoutConfirmationPresenter {
     private var priceData: PriceData?
     private var balance: Decimal?
 
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let logger: LoggerProtocol?
-    let asset: WalletAsset
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
+    private let logger: LoggerProtocol?
+    private let asset: WalletAsset
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
         self.asset = asset
         self.logger = logger
     }
@@ -149,5 +152,14 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
 
     func didReceive(priceError: Error) {
         handle(error: priceError)
+    }
+
+    func didRecieve(account: AccountItem, rewardAmount: Decimal) {
+        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
+            with: account,
+            rewardAmount: rewardAmount
+        )
+
+        view?.didRecieve(viewModel: viewModel)
     }
 }

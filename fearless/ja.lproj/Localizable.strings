@@ -261,7 +261,7 @@ a type of password.";
 "fee.not.yet.loaded.title" = "料金計算中";
 "fee.not.yet.loaded.message" = "料金が計算されるまでお待ちください";
 "staking.setup.amount.too.low" = "%s ）未満を賭けることはできません";
-"staking.confirm.title" = "確認";
+"common.confirm.title" = "確認";
 "staking.reward.destination.title" = "報酬先";
 "staking.stash.title" = "ウォレットアカウント";
 "staking.setup.sent.message" = "ステーキングセットアップトランザクションが送信されました";

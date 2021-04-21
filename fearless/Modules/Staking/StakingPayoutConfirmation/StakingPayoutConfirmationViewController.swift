@@ -7,6 +7,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     let presenter: StakingPayoutConfirmationPresenterProtocol
 
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var viewModel: [RewardDetailsRow]?
 
     init(
         presenter: StakingPayoutConfirmationPresenterProtocol,
@@ -72,16 +73,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         ])
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
-    }
-}
 
-// MARK: - StakingPayoutConfirmationViewProtocol
-
-extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {
-    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
-        self.feeViewModel = feeViewModel
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        setupTranformViewLocalization(locale)
+        rootView.tableView.allowsSelection = false
     }
 }
 
@@ -96,7 +89,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
     }
 
     private func setupTitleLocalization(_ locale: Locale) {
-        title = R.string.localizable.stakingConfirmTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages)
     }
 
     private func setupTranformViewLocalization(_ locale: Locale) {
@@ -159,34 +152,50 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
     }
 
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        stubCellData.count
+        viewModel?.count ?? 0
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: handle current locale
-        switch stubCellData[indexPath.row] {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        switch viewModel?[indexPath.row] {
         case let .destination(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsLabelTableCell.self)!
             cell.bind(model: viewModel)
             return cell
-        case let .era(eraViewModel):
-            let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
-            cell.bind(model: eraViewModel)
-            return cell
+
         case let .reward(rewardViewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsRewardTableCell.self)!
-            cell.bind(model: rewardViewModel)
+            cell.bind(
+                title: R.string.localizable.stakingRewardDetailsReward(preferredLanguages: locale.rLanguages),
+                model: rewardViewModel
+            )
             return cell
+
         case let .validatorInfo(model):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
             cell.bind(model: model)
             return cell
+
         default:
             fatalError()
         }
+    }
+}
+
+// MARK: - StakingPayoutConfirmationViewProtocol
+
+extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationViewProtocol {
+    func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        self.feeViewModel = feeViewModel
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        setupTranformViewLocalization(locale)
+    }
+
+    func didRecieve(viewModel: [RewardDetailsRow]) {
+        self.viewModel = viewModel
     }
 }

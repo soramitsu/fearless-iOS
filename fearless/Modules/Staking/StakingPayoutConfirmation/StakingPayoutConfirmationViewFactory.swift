@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import FearlessUtils
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
     static func createView(payouts: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol? {
@@ -21,8 +22,16 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             limit: StakingConstants.maxAmount
         )
 
+        let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(
+            iconGenerator: PolkadotIconGenerator(),
+            asset: asset,
+            amountFormatterFactory: AmountFormatterFactory()
+        )
+
         let presenter = StakingPayoutConfirmationPresenter(
-            balanceViewModelFactory: balanceViewModelFactory, asset: asset,
+            balanceViewModelFactory: balanceViewModelFactory,
+            payoutConfirmViewModelFactory: payoutConfirmViewModelFactory,
+            asset: asset,
             logger: Logger.shared
         )
 

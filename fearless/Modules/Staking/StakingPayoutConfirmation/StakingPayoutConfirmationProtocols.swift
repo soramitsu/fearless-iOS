@@ -1,6 +1,7 @@
 import SoraFoundation
 
 protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
+    func didRecieve(viewModel: [RewardDetailsRow])
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
@@ -28,6 +29,8 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
 
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
+
+    func didRecieve(account: AccountItem, rewardAmount: Decimal)
 }
 
 protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

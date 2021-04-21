@@ -261,7 +261,7 @@
 "fee.not.yet.loaded.title" = "Расчет комиссии в процессе";
 "fee.not.yet.loaded.message" = "Зинһар көтөгөҙ, транзакцияның хаҡы иҫәпләнә";
 "staking.setup.amount.too.low" = "Минимумдан кәмерәк ( %s )";
-"staking.confirm.title" = "Раҫлау";
+"common.confirm.title" = "Раҫлау";
 "staking.reward.destination.title" = "Награда";
 "staking.stash.title" = "Янсыҡ аккаунты";
 "staking.setup.sent.message" = "Стекинг транзакцияһы ебәрелде";

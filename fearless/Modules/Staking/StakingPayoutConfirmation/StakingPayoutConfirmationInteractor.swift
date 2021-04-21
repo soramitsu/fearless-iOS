@@ -109,11 +109,24 @@ final class StakingPayoutConfirmationInteractor {
             options: options
         )
     }
+
+    private func getRewardData() {
+        guard let account = settings.selectedAccount else { return }
+
+        let rewardDestination: RewardDestinationTypeViewModel // TODO: Get reward destination type
+        let rewardAmount = payouts.map(\.reward).reduce(0, +)
+
+        presenter.didRecieve(
+            account: account,
+            rewardAmount: rewardAmount
+        )
+    }
 }
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
         subscribeToAccountChanges()
+        getRewardData()
     }
 
     func submitPayout() {

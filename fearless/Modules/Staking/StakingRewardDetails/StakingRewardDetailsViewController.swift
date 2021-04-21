@@ -111,6 +111,8 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         // TODO: handle current locale
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
         switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(
@@ -130,7 +132,10 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
         case let .reward(rewardViewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsRewardTableCell.self)!
-            cell.bind(model: rewardViewModel)
+            cell.bind(
+                title: R.string.localizable.stakingRewardDetailsReward(preferredLanguages: locale.rLanguages),
+                model: rewardViewModel
+            )
             return cell
         case let .validatorInfo(model):
             let cell = tableView.dequeueReusableCellWithType(
