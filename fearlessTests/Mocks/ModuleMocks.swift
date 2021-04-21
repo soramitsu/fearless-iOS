@@ -20850,6 +20850,1000 @@ import SoraFoundation
 import Cuckoo
 @testable import fearless
 
+import SoraFoundation
+import SoraUI
+
+
+ class MockStakingRewardPayoutsViewProtocol: StakingRewardPayoutsViewProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingRewardPayoutsViewProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingRewardPayoutsViewProtocol
+     typealias Verification = __VerificationProxy_StakingRewardPayoutsViewProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingRewardPayoutsViewProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingRewardPayoutsViewProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var isSetup: Bool {
+        get {
+            return cuckoo_manager.getter("isSetup",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.isSetup)
+        }
+        
+    }
+    
+    
+    
+     var controller: UIViewController {
+        get {
+            return cuckoo_manager.getter("controller",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.controller)
+        }
+        
+    }
+    
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return cuckoo_manager.getter("localizationManager",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager)
+        }
+        
+        set {
+            cuckoo_manager.setter("localizationManager",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.localizationManager = newValue)
+        }
+        
+    }
+    
+    
+    
+     var loadableContentView: UIView! {
+        get {
+            return cuckoo_manager.getter("loadableContentView",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.loadableContentView)
+        }
+        
+    }
+    
+    
+    
+     var shouldDisableInteractionWhenLoading: Bool {
+        get {
+            return cuckoo_manager.getter("shouldDisableInteractionWhenLoading",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.shouldDisableInteractionWhenLoading)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func reload(with state: StakingRewardPayoutsViewState)  {
+        
+    return cuckoo_manager.call("reload(with: StakingRewardPayoutsViewState)",
+            parameters: (state),
+            escapingParameters: (state),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload(with: state))
+        
+    }
+    
+    
+    
+    public func applyLocalization()  {
+        
+    return cuckoo_manager.call("applyLocalization()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.applyLocalization())
+        
+    }
+    
+    
+    
+     func didStartLoading()  {
+        
+    return cuckoo_manager.call("didStartLoading()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didStartLoading())
+        
+    }
+    
+    
+    
+     func didStopLoading()  {
+        
+    return cuckoo_manager.call("didStopLoading()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didStopLoading())
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingRewardPayoutsViewProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStakingRewardPayoutsViewProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup")
+	    }
+	    
+	    
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStakingRewardPayoutsViewProtocol, UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller")
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockStakingRewardPayoutsViewProtocol, LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager")
+	    }
+	    
+	    
+	    var loadableContentView: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStakingRewardPayoutsViewProtocol, UIView?> {
+	        return .init(manager: cuckoo_manager, name: "loadableContentView")
+	    }
+	    
+	    
+	    var shouldDisableInteractionWhenLoading: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockStakingRewardPayoutsViewProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "shouldDisableInteractionWhenLoading")
+	    }
+	    
+	    
+	    func reload<M1: Cuckoo.Matchable>(with state: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingRewardPayoutsViewState)> where M1.MatchedType == StakingRewardPayoutsViewState {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingRewardPayoutsViewState)>] = [wrap(matchable: state) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsViewProtocol.self, method: "reload(with: StakingRewardPayoutsViewState)", parameterMatchers: matchers))
+	    }
+	    
+	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsViewProtocol.self, method: "applyLocalization()", parameterMatchers: matchers))
+	    }
+	    
+	    func didStartLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
+	    }
+	    
+	    func didStopLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsViewProtocol.self, method: "didStopLoading()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingRewardPayoutsViewProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var isSetup: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "isSetup", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var controller: Cuckoo.VerifyReadOnlyProperty<UIViewController> {
+	        return .init(manager: cuckoo_manager, name: "controller", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var localizationManager: Cuckoo.VerifyOptionalProperty<LocalizationManagerProtocol> {
+	        return .init(manager: cuckoo_manager, name: "localizationManager", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var loadableContentView: Cuckoo.VerifyReadOnlyProperty<UIView?> {
+	        return .init(manager: cuckoo_manager, name: "loadableContentView", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var shouldDisableInteractionWhenLoading: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "shouldDisableInteractionWhenLoading", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func reload<M1: Cuckoo.Matchable>(with state: M1) -> Cuckoo.__DoNotUse<(StakingRewardPayoutsViewState), Void> where M1.MatchedType == StakingRewardPayoutsViewState {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingRewardPayoutsViewState)>] = [wrap(matchable: state) { $0 }]
+	        return cuckoo_manager.verify("reload(with: StakingRewardPayoutsViewState)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func applyLocalization() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("applyLocalization()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didStartLoading() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didStartLoading()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didStopLoading() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didStopLoading()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingRewardPayoutsViewProtocolStub: StakingRewardPayoutsViewProtocol {
+    
+    
+     var isSetup: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+    
+     var controller: UIViewController {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UIViewController).self)
+        }
+        
+    }
+    
+    
+    public var localizationManager: LocalizationManagerProtocol? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (LocalizationManagerProtocol?).self)
+        }
+        
+        set { }
+        
+    }
+    
+    
+     var loadableContentView: UIView! {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UIView?).self)
+        }
+        
+    }
+    
+    
+     var shouldDisableInteractionWhenLoading: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
+        }
+        
+    }
+    
+
+    
+
+    
+     func reload(with state: StakingRewardPayoutsViewState)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+    public func applyLocalization()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didStartLoading()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didStopLoading()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockStakingRewardPayoutsPresenterProtocol: StakingRewardPayoutsPresenterProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingRewardPayoutsPresenterProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingRewardPayoutsPresenterProtocol
+     typealias Verification = __VerificationProxy_StakingRewardPayoutsPresenterProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingRewardPayoutsPresenterProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingRewardPayoutsPresenterProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func handleSelectedHistory(at index: Int)  {
+        
+    return cuckoo_manager.call("handleSelectedHistory(at: Int)",
+            parameters: (index),
+            escapingParameters: (index),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handleSelectedHistory(at: index))
+        
+    }
+    
+    
+    
+     func handlePayoutAction()  {
+        
+    return cuckoo_manager.call("handlePayoutAction()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handlePayoutAction())
+        
+    }
+    
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingRewardPayoutsPresenterProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func handleSelectedHistory<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "handleSelectedHistory(at: Int)", parameterMatchers: matchers))
+	    }
+	    
+	    func handlePayoutAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "handlePayoutAction()", parameterMatchers: matchers))
+	    }
+	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsPresenterProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingRewardPayoutsPresenterProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func handleSelectedHistory<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
+	        return cuckoo_manager.verify("handleSelectedHistory(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func handlePayoutAction() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("handlePayoutAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingRewardPayoutsPresenterProtocolStub: StakingRewardPayoutsPresenterProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func handleSelectedHistory(at index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func handlePayoutAction()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func reload()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockStakingRewardPayoutsInteractorInputProtocol: StakingRewardPayoutsInteractorInputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingRewardPayoutsInteractorInputProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingRewardPayoutsInteractorInputProtocol
+     typealias Verification = __VerificationProxy_StakingRewardPayoutsInteractorInputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingRewardPayoutsInteractorInputProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingRewardPayoutsInteractorInputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+    
+    
+     func reload()  {
+        
+    return cuckoo_manager.call("reload()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.reload())
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingRewardPayoutsInteractorInputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func reload() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorInputProtocol.self, method: "reload()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingRewardPayoutsInteractorInputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func reload() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("reload()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingRewardPayoutsInteractorInputProtocolStub: StakingRewardPayoutsInteractorInputProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func reload()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockStakingRewardPayoutsInteractorOutputProtocol: StakingRewardPayoutsInteractorOutputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingRewardPayoutsInteractorOutputProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingRewardPayoutsInteractorOutputProtocol
+     typealias Verification = __VerificationProxy_StakingRewardPayoutsInteractorOutputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingRewardPayoutsInteractorOutputProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingRewardPayoutsInteractorOutputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)  {
+        
+    return cuckoo_manager.call("didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(result: result))
+        
+    }
+    
+    
+    
+     func didReceive(priceResult: Result<PriceData?, Error>)  {
+        
+    return cuckoo_manager.call("didReceive(priceResult: Result<PriceData?, Error>)",
+            parameters: (priceResult),
+            escapingParameters: (priceResult),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(priceResult: priceResult))
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingRewardPayoutsInteractorOutputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<PayoutsInfo, PayoutRewardsServiceError>)> where M1.MatchedType == Result<PayoutsInfo, PayoutRewardsServiceError> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PayoutsInfo, PayoutRewardsServiceError>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorOutputProtocol.self, method: "didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(priceResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<PriceData?, Error>)> where M1.MatchedType == Result<PriceData?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PriceData?, Error>)>] = [wrap(matchable: priceResult) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsInteractorOutputProtocol.self, method: "didReceive(priceResult: Result<PriceData?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingRewardPayoutsInteractorOutputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<PayoutsInfo, PayoutRewardsServiceError>), Void> where M1.MatchedType == Result<PayoutsInfo, PayoutRewardsServiceError> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PayoutsInfo, PayoutRewardsServiceError>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(priceResult: M1) -> Cuckoo.__DoNotUse<(Result<PriceData?, Error>), Void> where M1.MatchedType == Result<PriceData?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<PriceData?, Error>)>] = [wrap(matchable: priceResult) { $0 }]
+	        return cuckoo_manager.verify("didReceive(priceResult: Result<PriceData?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingRewardPayoutsInteractorOutputProtocolStub: StakingRewardPayoutsInteractorOutputProtocol {
+    
+
+    
+
+    
+     func didReceive(result: Result<PayoutsInfo, PayoutRewardsServiceError>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceive(priceResult: Result<PriceData?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockStakingRewardPayoutsWireframeProtocol: StakingRewardPayoutsWireframeProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingRewardPayoutsWireframeProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingRewardPayoutsWireframeProtocol
+     typealias Verification = __VerificationProxy_StakingRewardPayoutsWireframeProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingRewardPayoutsWireframeProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingRewardPayoutsWireframeProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chain: Chain)  {
+        
+    return cuckoo_manager.call("showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chain: Chain)",
+            parameters: (view, payoutInfo, activeEra, historyDepth, chain),
+            escapingParameters: (view, payoutInfo, activeEra, historyDepth, chain),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showRewardDetails(from: view, payoutInfo: payoutInfo, activeEra: activeEra, historyDepth: historyDepth, chain: chain))
+        
+    }
+    
+    
+    
+     func showPayoutConfirmation(for payouts: [PayoutInfo], from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("showPayoutConfirmation(for: [PayoutInfo], from: ControllerBackedProtocol?)",
+            parameters: (payouts, view),
+            escapingParameters: (payouts, view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showPayoutConfirmation(for: payouts, from: view))
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingRewardPayoutsWireframeProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chain: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, Chain)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, Chain)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chain) { $0.4 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsWireframeProtocol.self, method: "showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chain: Chain)", parameterMatchers: matchers))
+	    }
+	    
+	    func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for payouts: M1, from view: M2) -> Cuckoo.ProtocolStubNoReturnFunction<([PayoutInfo], ControllerBackedProtocol?)> where M1.MatchedType == [PayoutInfo], M2.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingRewardPayoutsWireframeProtocol.self, method: "showPayoutConfirmation(for: [PayoutInfo], from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingRewardPayoutsWireframeProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, M5: Cuckoo.Matchable>(from view: M1, payoutInfo: M2, activeEra: M3, historyDepth: M4, chain: M5) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, Chain), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == PayoutInfo, M3.MatchedType == EraIndex, M4.MatchedType == UInt32, M5.MatchedType == Chain {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, PayoutInfo, EraIndex, UInt32, Chain)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: payoutInfo) { $0.1 }, wrap(matchable: activeEra) { $0.2 }, wrap(matchable: historyDepth) { $0.3 }, wrap(matchable: chain) { $0.4 }]
+	        return cuckoo_manager.verify("showRewardDetails(from: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chain: Chain)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func showPayoutConfirmation<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(for payouts: M1, from view: M2) -> Cuckoo.__DoNotUse<([PayoutInfo], ControllerBackedProtocol?), Void> where M1.MatchedType == [PayoutInfo], M2.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<([PayoutInfo], ControllerBackedProtocol?)>] = [wrap(matchable: payouts) { $0.0 }, wrap(matchable: view) { $0.1 }]
+	        return cuckoo_manager.verify("showPayoutConfirmation(for: [PayoutInfo], from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingRewardPayoutsWireframeProtocolStub: StakingRewardPayoutsWireframeProtocol {
+    
+
+    
+
+    
+     func showRewardDetails(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo, activeEra: EraIndex, historyDepth: UInt32, chain: Chain)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showPayoutConfirmation(for payouts: [PayoutInfo], from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockStakingPayoutViewModelFactoryProtocol: StakingPayoutViewModelFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingPayoutViewModelFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingPayoutViewModelFactoryProtocol
+     typealias Verification = __VerificationProxy_StakingPayoutViewModelFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingPayoutViewModelFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingPayoutViewModelFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel> {
+        
+    return cuckoo_manager.call("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>",
+            parameters: (payoutsInfo, priceData),
+            escapingParameters: (payoutsInfo, priceData),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createPayoutsViewModel(payoutsInfo: payoutsInfo, priceData: priceData))
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingPayoutViewModelFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.ProtocolStubFunction<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutViewModelFactoryProtocol.self, method: "createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingPayoutViewModelFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createPayoutsViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable>(payoutsInfo: M1, priceData: M2) -> Cuckoo.__DoNotUse<(PayoutsInfo, PriceData?), LocalizableResource<StakingPayoutViewModel>> where M1.MatchedType == PayoutsInfo, M2.OptionalMatchedType == PriceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(PayoutsInfo, PriceData?)>] = [wrap(matchable: payoutsInfo) { $0.0 }, wrap(matchable: priceData) { $0.1 }]
+	        return cuckoo_manager.verify("createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingPayoutViewModelFactoryProtocolStub: StakingPayoutViewModelFactoryProtocol {
+    
+
+    
+
+    
+     func createPayoutsViewModel(payoutsInfo: PayoutsInfo, priceData: PriceData?) -> LocalizableResource<StakingPayoutViewModel>  {
+        return DefaultValueRegistry.defaultValue(for: (LocalizableResource<StakingPayoutViewModel>).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+
 import Foundation
 import SoraFoundation
 
