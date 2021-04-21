@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import FearlessUtils
+import RobinHood
 
 final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewFactoryProtocol {
     static func createView(payouts: [PayoutInfo]) -> StakingPayoutConfirmationViewProtocol? {
@@ -73,7 +74,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
         guard let selectedAccount = settings.selectedAccount,
-              let assetId = WalletAssetId(rawValue: asset.identifier)
+              let assetId = WalletAssetId(rawValue: asset.identifier),
+              let chain = assetId.chain
         else {
             return nil
         }
@@ -111,6 +113,9 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
         return StakingPayoutConfirmationInteractor(
             providerFactory: providerFactory,
             substrateProviderFactory: substrateProviderFactory,
@@ -119,9 +124,12 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
             signer: signer,
             balanceProvider: balanceProvider,
             priceProvider: priceProvider,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: operationManager,
             settings: settings,
             logger: Logger.shared,
-            payouts: payouts
+            payouts: payouts,
+            chain: chain
         )
     }
 }

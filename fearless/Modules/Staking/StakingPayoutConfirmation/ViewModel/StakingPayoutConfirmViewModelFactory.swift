@@ -7,7 +7,7 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
     func createPayoutConfirmViewModel(
         with account: AccountItem,
         rewardAmount: Decimal,
-        rewardDestination: RewardDestination<AccountAddress>?,
+        rewardDestination: RewardDestination<DisplayAddress>?,
         priceData: PriceData?
     ) -> [LocalizableResource<PayoutConfirmViewModel>]
 }
@@ -50,9 +50,9 @@ final class StakingPayoutConfirmViewModelFactory {
     }
 
     private func createRewardDestinationAccountRow(
-        with address: AccountAddress
+        with displayAddress: DisplayAddress
     ) -> LocalizableResource<PayoutConfirmViewModel> {
-        let userIcon = try? iconGenerator.generateFromAddress(address)
+        let userIcon = try? iconGenerator.generateFromAddress(displayAddress.address)
             .imageWithFillColor(
                 .white,
                 size: UIConstants.smallAddressIconSize,
@@ -63,9 +63,12 @@ final class StakingPayoutConfirmViewModelFactory {
             let title = R.string.localizable
                 .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
 
+            let name = displayAddress.username.isEmpty ? displayAddress.address
+                : displayAddress.username
+
             return .accountInfo(.init(
                 title: title,
-                name: address,
+                name: name,
                 icon: userIcon
             ))
         }
@@ -98,7 +101,7 @@ final class StakingPayoutConfirmViewModelFactory {
     }
 
     private func createRewardDestinationRow(
-        with rewardDestination: RewardDestination<AccountAddress>) -> LocalizableResource<PayoutConfirmViewModel> {
+        with rewardDestination: RewardDestination<DisplayAddress>) -> LocalizableResource<PayoutConfirmViewModel> {
         switch rewardDestination {
         case .restake:
             return createRewardDestinationRestakeRow()
@@ -113,7 +116,7 @@ extension StakingPayoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFac
     (
         with account: AccountItem,
         rewardAmount: Decimal,
-        rewardDestination: RewardDestination<AccountAddress>?,
+        rewardDestination: RewardDestination<DisplayAddress>?,
         priceData: PriceData?
     )
         -> [LocalizableResource<PayoutConfirmViewModel>] {

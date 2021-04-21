@@ -12,9 +12,12 @@ final class StakingPayoutConfirmationInteractor {
     private let signer: SigningWrapperProtocol
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let priceProvider: AnySingleValueProvider<PriceData>
+    private let accountRepository: AnyDataProviderRepository<AccountItem>
     private let settings: SettingsManagerProtocol
+    private let operationManager: OperationManagerProtocol
     private let logger: LoggerProtocol?
     private let payouts: [PayoutInfo]
+    private let chain: Chain
 
     var stashControllerProvider: StreamableProvider<StashItem>?
     var payeeProvider: AnyDataProvider<DecodedPayee>?
@@ -29,9 +32,12 @@ final class StakingPayoutConfirmationInteractor {
         signer: SigningWrapperProtocol,
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
         priceProvider: AnySingleValueProvider<PriceData>,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        operationManager: OperationManagerProtocol,
         settings: SettingsManagerProtocol,
         logger: LoggerProtocol? = nil,
-        payouts: [PayoutInfo]
+        payouts: [PayoutInfo],
+        chain: Chain
     ) {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
@@ -40,9 +46,12 @@ final class StakingPayoutConfirmationInteractor {
         self.signer = signer
         self.balanceProvider = balanceProvider
         self.priceProvider = priceProvider
+        self.accountRepository = accountRepository
+        self.operationManager = operationManager
         self.settings = settings
         self.logger = logger
         self.payouts = payouts
+        self.chain = chain
     }
 
     // MARK: - Private functions
@@ -50,7 +59,7 @@ final class StakingPayoutConfirmationInteractor {
     private func handle(stashItem: StashItem?) {
         if let stashItem = stashItem {
             clearPayeeProvider()
-            subscribeToPayee(address: stashItem.stash)
+            subscribeToPayee(from: stashItem)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -162,13 +171,13 @@ final class StakingPayoutConfirmationInteractor {
         stashControllerProvider = provider
     }
 
-    func subscribeToPayee(address: String) {
+    func subscribeToPayee(from stashItem: StashItem) {
         guard payeeProvider == nil else {
             return
         }
 
         guard let payeeProvider = try? providerFactory
-            .getPayee(for: address, runtimeService: runtimeService)
+            .getPayee(for: stashItem.stash, runtimeService: runtimeService)
         else {
             logger?.error("Can't create payee provider")
             return
@@ -177,13 +186,13 @@ final class StakingPayoutConfirmationInteractor {
         self.payeeProvider = payeeProvider
 
         let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
-            if let payee = changes.reduceToLastChange() {
-                self?.presenter.didReceive(rawRewardDest: payee.item)
+            if let rewardDestination = changes.reduceToLastChange() {
+                self?.handle(rewardDestinationArg: rewardDestination.item, stashItem: stashItem)
             }
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(payeeError: error)
+            self?.presenter.didReceive(rewardDestinationError: error)
             return
         }
 
@@ -199,6 +208,53 @@ final class StakingPayoutConfirmationInteractor {
             failing: failureClosure,
             options: options
         )
+    }
+
+    private func handle(rewardDestinationArg: RewardDestinationArg?, stashItem: StashItem) {
+        guard let rewardDestinationArg = rewardDestinationArg else {
+            presenter.didReceive(rewardDestination: nil)
+            return
+        }
+
+        do {
+            let rewardDestination = try RewardDestination(
+                payee: rewardDestinationArg,
+                stashItem: stashItem,
+                chain: chain
+            )
+
+            switch rewardDestination {
+            case .restake:
+                presenter.didReceive(rewardDestination: .restake)
+            case let .payout(payoutAddress):
+                providerRewardDestination(for: payoutAddress)
+            }
+
+        } catch {
+            presenter.didReceive(rewardDestinationError: error)
+        }
+    }
+
+    private func providerRewardDestination(for payoutAddress: AccountAddress) {
+        let queryOperation = accountRepository
+            .fetchOperation(by: payoutAddress, options: RepositoryFetchOptions())
+
+        queryOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let account = try queryOperation.extractNoCancellableResultData()
+                    let displayAddress = DisplayAddress(
+                        address: payoutAddress,
+                        username: account?.username ?? ""
+                    )
+                    self.presenter.didReceive(rewardDestination: .payout(account: displayAddress))
+                } catch {
+                    self.presenter.didReceive(rewardDestinationError: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [queryOperation], in: .transient)
     }
 
     private func clearPayeeProvider() {

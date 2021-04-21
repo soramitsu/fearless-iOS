@@ -13,19 +13,13 @@ final class StakingPayoutConfirmationPresenter {
     private var priceData: PriceData?
     private var account: AccountItem?
     private var stashItem: StashItem?
-    private var rawRewardDest: RewardDestinationArg?
+    private var rewardDestination: RewardDestination<DisplayAddress>?
 
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
     private let chain: Chain
     private let asset: WalletAsset
     private let logger: LoggerProtocol?
-
-    private var rewardDestination: RewardDestination<AccountAddress>? {
-        guard let stashItem = self.stashItem,
-              let rawRewardDest = rawRewardDest else { return nil }
-        return try? RewardDestination<AccountAddress>(payee: rawRewardDest, stashItem: stashItem, chain: chain)
-    }
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
@@ -150,7 +144,6 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
     func didReceive(stashItem: StashItem?) {
-        // TODO: Remove logging after debug
         if let stashItem = stashItem {
             logger?.debug("Stash: \(stashItem.stash)")
             logger?.debug("Controller: \(stashItem.controller)")
@@ -165,20 +158,20 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         handle(error: stashItemError)
     }
 
-    func didReceive(rawRewardDest: RewardDestinationArg?) {
-        if let payee = rawRewardDest {
-            logger?.debug("Payee: \(payee)")
+    func didReceive(rewardDestination: RewardDestination<DisplayAddress>?) {
+        if let rewardDestination = rewardDestination {
+            logger?.debug("Payee: \(rewardDestination)")
         } else {
             logger?.debug("No payee received")
         }
 
-        self.rawRewardDest = rawRewardDest
+        self.rewardDestination = rewardDestination
 
         provideViewModel()
     }
 
-    func didReceive(payeeError: Error) {
-        handle(error: payeeError)
+    func didReceive(rewardDestinationError: Error) {
+        handle(error: rewardDestinationError)
     }
 
     func didStartPayout() {

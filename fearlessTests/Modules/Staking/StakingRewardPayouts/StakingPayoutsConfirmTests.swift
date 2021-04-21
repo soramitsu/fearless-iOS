@@ -19,7 +19,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let storageFacade = SubstrateStorageTestFacade()
         let operationManager = OperationManager()
 
-        let addressType = SNAddressType.kusamaMain
+        let addressType = chain.addressType
         try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
                                                             keychain: keychain,
                                                             settings: settings)
@@ -55,19 +55,23 @@ class StakingPayoutsConfirmTests: XCTestCase {
         let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
                                                                     operationManager: operationManager)
 
-        let interactor = StakingPayoutConfirmationInteractor(providerFactory: providerFactory,
-                                                             substrateProviderFactory: substrateProviderFactory,
-                                                             extrinsicService: extrinsicService,
-                                                             runtimeService: runtimeCodingService,
-                                                             signer: signer,
-                                                             balanceProvider: AnyDataProvider(balanceProvider),
-                                                             priceProvider: AnySingleValueProvider(priceProvider),
-                                                             settings: settings,
-                                                             payouts: [PayoutInfo(era: 1000,
-                                                                                  validator: accountId,
-                                                                                  reward: 100.0,
-                                                                                  identity: nil)]
-            )
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+
+        let interactor = StakingPayoutConfirmationInteractor(
+            providerFactory: providerFactory,
+            substrateProviderFactory: substrateProviderFactory,
+            extrinsicService: extrinsicService,
+            runtimeService: runtimeCodingService,
+            signer: signer,
+            balanceProvider: AnyDataProvider(balanceProvider),
+            priceProvider: AnySingleValueProvider(priceProvider),
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: OperationManager(),
+            settings: settings,
+            payouts: [PayoutInfo(era: 1000, validator: accountId, reward: 100.0, identity: nil)],
+            chain: chain
+        )
         
         presenter.view = view
         presenter.wireframe = wireframe
