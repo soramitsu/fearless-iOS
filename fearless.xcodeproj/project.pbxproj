@@ -932,6 +932,7 @@
 		AEBE174C262FF4DB00DF257C /* RewardConfirmRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* RewardConfirmRow.swift */; };
 		AEBE1752262FF74000DF257C /* StakingPayoutConfirmRewardTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE1751262FF74000DF257C /* StakingPayoutConfirmRewardTableCell.swift */; };
 		AEBE1757262FF77E00DF257C /* StakingRewardConfirmBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE1756262FF77E00DF257C /* StakingRewardConfirmBaseTableCell.swift */; };
+		AEBE175C2630140000DF257C /* StakingPayoutConfirmInfoViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE175B2630140000DF257C /* StakingPayoutConfirmInfoViewCell.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
@@ -1990,6 +1991,7 @@
 		AEBE174B262FF4DB00DF257C /* RewardConfirmRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardConfirmRow.swift; sourceTree = "<group>"; };
 		AEBE1751262FF74000DF257C /* StakingPayoutConfirmRewardTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmRewardTableCell.swift; sourceTree = "<group>"; };
 		AEBE1756262FF77E00DF257C /* StakingRewardConfirmBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardConfirmBaseTableCell.swift; sourceTree = "<group>"; };
+		AEBE175B2630140000DF257C /* StakingPayoutConfirmInfoViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmInfoViewCell.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
@@ -4795,6 +4797,7 @@
 			children = (
 				AEBE1751262FF74000DF257C /* StakingPayoutConfirmRewardTableCell.swift */,
 				AEBE1756262FF77E00DF257C /* StakingRewardConfirmBaseTableCell.swift */,
+				AEBE175B2630140000DF257C /* StakingPayoutConfirmInfoViewCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -6131,6 +6134,7 @@
 				84BE20A325E860DC00B4748C /* WebSocketServiceFactory.swift in Sources */,
 				84F4387525D9C6EB00AEDA56 /* SubstrateDataProviderFactory.swift in Sources */,
 				8430AB002602338D005B1066 /* PendingNominatorState.swift in Sources */,
+				AEBE175C2630140000DF257C /* StakingPayoutConfirmInfoViewCell.swift in Sources */,
 				AE7129BC2608C069000AA3F5 /* NetworkStakingInfoOperationFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				AE2C84E425EF98C700986716 /* ValidatorInfoViewController.swift in Sources */,

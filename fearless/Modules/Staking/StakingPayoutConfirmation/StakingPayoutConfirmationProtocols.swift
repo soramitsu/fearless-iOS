@@ -8,6 +8,7 @@ protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Locali
 protocol StakingPayoutConfirmationPresenterProtocol: AnyObject {
     func setup()
     func proceed()
+    func presentAccountOptions()
 }
 
 protocol StakingPayoutConfirmationInteractorInputProtocol: AnyObject {
@@ -33,7 +34,10 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
     func didRecieve(account: AccountItem, rewardAmount: Decimal)
 }
 
-protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol StakingPayoutConfirmationWireframeProtocol: AlertPresentable,
+    ErrorPresentable,
+    StakingErrorPresentable,
+    AddressOptionsPresentable {
     func complete(from view: StakingPayoutConfirmationViewProtocol?)
 }
 

@@ -1,6 +1,6 @@
 import UIKit
 
-class StakingRewardConfirmBaseTableCell: UITableViewCell {
+class StakingPayoutConfirmBaseTableCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

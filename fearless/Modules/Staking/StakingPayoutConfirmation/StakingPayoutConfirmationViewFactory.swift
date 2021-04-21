@@ -23,9 +23,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         )
 
         let payoutConfirmViewModelFactory = StakingPayoutConfirmViewModelFactory(
-            iconGenerator: PolkadotIconGenerator(),
             asset: asset,
-            amountFormatterFactory: AmountFormatterFactory()
+            balanceViewModelFactory: balanceViewModelFactory
         )
 
         let presenter = StakingPayoutConfirmationPresenter(

@@ -42,6 +42,11 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         presenter.proceed()
     }
 
+    @objc
+    private func presentAccountOptionsAction() {
+        presenter.presentAccountOptions()
+    }
+
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
@@ -68,7 +73,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
             AccountInfoTableViewCell.self,
-            StakingPayoutConfirmRewardTableCell.self
+            StakingPayoutConfirmRewardTableCell.self,
+            StakingPayoutConfirmInfoViewCell.self
         ])
 
         rootView.tableView.dataSource = self
@@ -137,11 +143,25 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         case let .accountInfo(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
+            cell.detailsView.fillColor = .clear
+            cell.detailsView.highlightedFillColor = R.color.colorHighlightedPink()!
+            cell.detailsView.strokeColor = R.color.colorStrokeGray()!
+            cell.detailsView.borderWidth = 1
             cell.bind(model: viewModel)
+
+            if #available(iOS 14, *) {
+                cell.detailsView.addAction(UIAction(title: "", handler: { [weak self] _ in
+                    self?.presentAccountOptionsAction()
+                }), for: .touchUpInside)
+            } else {
+                cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
+            }
             return cell
 
-        default:
-            fatalError()
+        case let .restakeDestination(viewModel):
+            let cell = tableView.dequeueReusableCellWithType(StakingPayoutConfirmInfoViewCell.self)!
+            cell.bind(model: viewModel)
+            return cell
         }
     }
 }
@@ -157,5 +177,6 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
 
     func didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>]) {
         self.viewModel = viewModel
+        rootView.tableView.reloadData()
     }
 }

@@ -7,10 +7,13 @@ final class StakingPayoutConfirmationPresenter {
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
 
-    private var fee: Decimal?
-    private var priceData: PriceData?
     private var balance: Decimal?
+    private var fee: Decimal?
+    private var rewardAmount: Decimal = 0.0
+    private var priceData: PriceData?
+    private var account: AccountItem?
 
+    private var rewardDestination: RewardDestination<AccountItem> = .restake
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
     private let logger: LoggerProtocol?
@@ -59,6 +62,21 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         interactor.submitPayout()
     }
 
+    func presentAccountOptions() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let view = view,
+           let chain = WalletAssetId(rawValue: asset.identifier)?.chain,
+           let account = self.account {
+            wireframe.presentAccountOptions(
+                from: view,
+                address: account.address,
+                chain: chain,
+                locale: locale
+            )
+        }
+    }
+
     // MARK: - Private functions
 
     private func provideFee() {
@@ -68,6 +86,19 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         } else {
             view?.didReceive(feeViewModel: nil)
         }
+    }
+
+    private func provideViewModel() {
+        guard let account = self.account else { return }
+
+        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
+            with: account,
+            rewardAmount: rewardAmount,
+            rewardDestination: rewardDestination,
+            priceData: priceData
+        )
+
+        view?.didRecieve(viewModel: viewModel)
     }
 
     private func handle(error: Error) {
@@ -148,6 +179,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
     func didReceive(price: PriceData?) {
         priceData = price
         provideFee()
+        provideViewModel()
     }
 
     func didReceive(priceError: Error) {
@@ -155,11 +187,9 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
     }
 
     func didRecieve(account: AccountItem, rewardAmount: Decimal) {
-        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
-            with: account,
-            rewardAmount: rewardAmount
-        )
+        self.account = account
+        self.rewardAmount = rewardAmount
 
-        view?.didRecieve(viewModel: viewModel)
+        provideViewModel()
     }
 }

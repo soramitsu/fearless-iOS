@@ -8,8 +8,7 @@ struct PayoutAccountViewModel {
 
 struct PayoutRewardAmountViewModel {
     let title: String
-    let tokenAmount: String
-    let fiatAmount: String
+    let priceData: BalanceViewModelProtocol
 }
 
 enum RewardConfirmRow {

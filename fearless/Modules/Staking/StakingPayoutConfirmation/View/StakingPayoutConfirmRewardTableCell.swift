@@ -1,6 +1,6 @@
 import UIKit
 
-final class StakingPayoutConfirmRewardTableCell: StakingRewardConfirmBaseTableCell {
+final class StakingPayoutConfirmRewardTableCell: StakingPayoutConfirmBaseTableCell {
     let tokenAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -36,7 +36,7 @@ final class StakingPayoutConfirmRewardTableCell: StakingRewardConfirmBaseTableCe
         model: PayoutRewardAmountViewModel
     ) {
         titleLabel.text = model.title
-        tokenAmountLabel.text = model.tokenAmount
-        fiatAmountLabel.text = model.fiatAmount
+        tokenAmountLabel.text = model.priceData.amount
+        fiatAmountLabel.text = model.priceData.price
     }
 }
