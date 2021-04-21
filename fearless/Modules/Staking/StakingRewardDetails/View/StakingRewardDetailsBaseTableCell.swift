@@ -12,6 +12,7 @@ class StakingRewardDetailsBaseTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .clear
+        selectionStyle = .none
         separatorInset = .init(
             top: 0,
             left: UIConstants.horizontalInset,

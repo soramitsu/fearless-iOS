@@ -414,7 +414,10 @@ class CalculatorServiceTests: XCTestCase {
             identifers.map { $0 }
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: OperationManager()
+        )
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<ValidatorPrefs>]> =
             requestFactory.queryItems(engine: engine,

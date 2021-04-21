@@ -5,6 +5,8 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 import xxHash_Swift
+import SoraKeystore
+import SoraFoundation
 
 class JSONRPCTests: XCTestCase {
     struct RpcInterface: Decodable {
@@ -286,5 +288,126 @@ class JSONRPCTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    func testMultipleChangesQuery() throws {
+        try performTestMultipleChangesQuery(keysCount: 100)
+        try performTestMultipleChangesQuery(keysCount: 1000)
+        try performTestMultipleChangesQuery(keysCount: 1999)
+        try performTestMultipleChangesQuery(keysCount: 3000)
+        try performTestMultipleChangesQuery(keysCount: 3001)
+        try performTestMultipleChangesQuery(keysCount: 1001)
+        try performTestMultipleChangesQuery(keysCount: 0)
+    }
+
+    func performTestMultipleChangesQuery(keysCount: Int) throws {
+        // given
+
+        let settings = InMemorySettingsManager()
+        let keychain = InMemoryKeychain()
+        let chain = Chain.kusama
+        let storageFacade = SubstrateStorageTestFacade()
+
+        try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
+                                                            networkType: chain,
+                                                            keychain: keychain,
+                                                            settings: settings)
+
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let runtimeService = try createRuntimeService(from: storageFacade,
+                                                      operationManager: operationManager,
+                                                      chain: chain)
+
+        runtimeService.setup()
+
+        let webSocketService = createWebSocketService(storageFacade: storageFacade,
+                                                      settings: settings)
+        webSocketService.setup()
+
+        let address = "GqpApQStgzzGxYa1XQZQUq9L3aXhukxDWABccbeHEh7zPYR"
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let accountId = try SS58AddressFactory().accountId(from: address)
+
+        let keyParams1: () throws -> [StringScaleMapper<EraIndex>] = {
+            (0..<EraIndex(keysCount)).map { StringScaleMapper(value: $0) }
+        }
+
+        let keyParams2: () throws -> [AccountId] = {
+            (0..<keysCount).map { _ in accountId }
+        }
+
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let factoryClosure: () throws -> RuntimeCoderFactoryProtocol = {
+            try coderFactoryOperation.extractNoCancellableResultData()
+        }
+
+        // when
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<ValidatorExposure>]> = storageRequestFactory.queryItems(
+            engine: webSocketService.connection!,
+            keyParams1: keyParams1,
+            keyParams2: keyParams2,
+            factory: factoryClosure,
+            storagePath: .erasStakers
+        )
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        OperationQueue().addOperations(
+            [coderFactoryOperation] + wrapper.allOperations,
+            waitUntilFinished: true
+        )
+
+        let resultsCount = try wrapper.targetOperation.extractNoCancellableResultData().count
+
+        // then
+
+        XCTAssertEqual(keysCount, resultsCount)
+    }
+
+    private func createRuntimeService(from storageFacade: StorageFacadeProtocol,
+                                      operationManager: OperationManagerProtocol,
+                                      chain: Chain,
+                                      logger: LoggerProtocol? = nil) throws
+    -> RuntimeRegistryService {
+        let providerFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                           operationManager: operationManager,
+                                                           logger: logger)
+
+        let topDirectory = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first ??
+            FileManager.default.temporaryDirectory
+        let runtimeDirectory = topDirectory.appendingPathComponent("runtime").path
+        let filesRepository = RuntimeFilesOperationFacade(repository: FileRepository(),
+                                                          directoryPath: runtimeDirectory)
+
+        return RuntimeRegistryService(chain: chain,
+                                      metadataProviderFactory: providerFactory,
+                                      dataOperationFactory: DataOperationFactory(),
+                                      filesOperationFacade: filesRepository,
+                                      operationManager: operationManager,
+                                      eventCenter: EventCenter.shared,
+                                      logger: logger)
+    }
+
+    private func createWebSocketService(storageFacade: StorageFacadeProtocol,
+                                        settings: SettingsManagerProtocol) -> WebSocketServiceProtocol {
+        let connectionItem = settings.selectedConnection
+        let address = settings.selectedAccount?.address
+
+        let settings = WebSocketServiceSettings(url: connectionItem.url,
+                                                addressType: connectionItem.type,
+                                                address: address)
+        let factory = WebSocketSubscriptionFactory(storageFacade: storageFacade)
+        return WebSocketService(settings: settings,
+                                connectionFactory: WebSocketEngineFactory(),
+                                subscriptionsFactory: factory,
+                                applicationHandler: ApplicationHandler())
     }
 }

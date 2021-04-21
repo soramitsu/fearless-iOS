@@ -33,8 +33,7 @@ class StakingMainTests: XCTestCase {
         let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
         let eraValidatorService = EraValidatorServiceStub.westendStub()
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keychain,
-                                                      settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: Logger.shared)

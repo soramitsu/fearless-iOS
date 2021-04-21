@@ -6,3 +6,9 @@ enum StakingConfirmError: Error {
     case feeNotReceived
     case extrinsicFailed
 }
+
+enum StakingPayoutConfirmError: Error {
+    case notEnoughFunds
+    case feeNotReceived
+    case extrinsicFailed
+}

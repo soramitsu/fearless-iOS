@@ -15,6 +15,11 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
         self.localizationManager = localizationManager
     }
 
+    private var rows: [RewardDetailsRow] = []
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
+
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
@@ -56,9 +61,19 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     private func handlePayoutButtonAction() {
         presenter.handlePayoutAction()
     }
+
+    @objc
+    private func handleValidatorAction() {
+        presenter.handleValidatorAccountAction(locale: selectedLocale)
+    }
 }
 
-extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {}
+extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {
+    func reload(with viewModel: LocalizableResource<StakingRewardDetailsViewModel>) {
+        rows = viewModel.value(for: selectedLocale).rows
+        rootView.tableView.reloadData()
+    }
+}
 
 extension StakingRewardDetailsViewController: Localizable {
     private func setupLocalization() {
@@ -75,13 +90,11 @@ extension StakingRewardDetailsViewController: Localizable {
     }
 
     private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupButtonLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let title = R.string.localizable.stakingRewardDetailsPayout(preferredLanguages: locale.rLanguages)
+        let title = R.string.localizable.stakingRewardDetailsPayout(preferredLanguages: selectedLocale.rLanguages)
         rootView.payoutButton.imageWithTitleView?.title = title
     }
 }
@@ -89,53 +102,16 @@ extension StakingRewardDetailsViewController: Localizable {
 extension StakingRewardDetailsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        // TODO: FLW-677
     }
 }
 
 extension StakingRewardDetailsViewController: UITableViewDataSource {
-    // TODO: delete stub data
-    var stubCellData: [RewardDetailsRow] {
-        let locale = localizationManager?.selectedLocale
-        let rewardStatus = StakingRewardStatus.claimable
-        let statusViewModel = StakingRewardStatusViewModel(
-            title: R.string.localizable.stakingRewardDetailsStatus(preferredLanguages: locale?.rLanguages),
-            statusText: rewardStatus.titleForLocale(locale),
-            icon: rewardStatus.icon
-        )
-
-        return [
-            .status(statusViewModel),
-            .date(.init(
-                titleText: R.string.localizable.stakingRewardDetailsDate(),
-                valueText: "3 March 2020"
-            )),
-            .era(.init(
-                titleText: R.string.localizable.stakingRewardDetailsEra(),
-                valueText: "#1690"
-            )),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01")),
-            .validatorInfo(.init(
-                name: "Validator",
-                address: "✨👍✨ Day7 ✨👍✨",
-                icon: R.image.iconAccount()
-            )),
-            .validatorInfo(.init(
-                name: "Payout account",
-                address: "🐟 ANDREY",
-                icon: R.image.iconAccount()
-            ))
-        ]
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        stubCellData.count
+        rows.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        // TODO: handle current locale
-        switch stubCellData[indexPath.row] {
+        switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(
                 StakingRewardDetailsStatusTableCell.self)!
@@ -160,6 +136,7 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
             cell.bind(model: model)
+            cell.detailsView.addTarget(self, action: #selector(handleValidatorAction), for: .touchUpInside)
             return cell
         default:
             return UITableViewCell()
