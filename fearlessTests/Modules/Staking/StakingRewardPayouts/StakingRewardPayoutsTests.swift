@@ -1,6 +1,7 @@
 import XCTest
 import Cuckoo
 import RobinHood
+import SoraFoundation
 @testable import fearless
 
 class StakingRewardPayoutsTests: XCTestCase {
@@ -60,5 +61,58 @@ class StakingRewardPayoutsTests: XCTestCase {
         )
         verify(view, times(3)).reload(with: any())
         XCTAssert(payoutServiceThatReturnsError.fetchPayoutsCounter == 1)
+    }
+
+    func testRewardDetails_whenUserSelectTableRow() {
+        // given
+        let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
+        let wireframe = MockStakingRewardPayoutsWireframeProtocol()
+
+        let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
+        let presenter = StakingRewardPayoutsPresenter(
+            chain: .westend,
+            viewModelFactory: viewModelFactory
+        )
+        presenter.wireframe = wireframe
+        presenter.interactor = interactor
+
+        let viewController = StakingRewardPayoutsViewController(presenter: presenter, localizationManager: nil)
+        presenter.view = viewController
+
+        stub(interactor) { stub in
+            when(stub).setup().then {
+                if case let Result.success(payoutsInfo) = PayoutRewardsServiceStub.dummy().result {
+                    presenter.didReceive(result: .success(payoutsInfo))
+                }
+            }
+        }
+
+        stub(viewModelFactory) { stub in
+            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any()).then { _ in
+                LocalizableResource { _ in
+                    StakingPayoutViewModel(
+                        cellViewModels: [],
+                        bottomButtonTitle: ""
+                    )
+                }
+            }
+        }
+
+        let showRewardDetailsExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub)
+                .showRewardDetails(from: any(), payoutInfo: any(), activeEra: any(), historyDepth: any(), chain: any())
+                .then { _ in
+                    showRewardDetailsExpectation.fulfill()
+                }
+        }
+
+        // when
+        let tableView = viewController.rootView.tableView
+        viewController.loadView()
+        tableView.delegate?.tableView?(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
+
+        // then
+        wait(for: [showRewardDetailsExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }
