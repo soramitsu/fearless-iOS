@@ -63,7 +63,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         XCTAssert(payoutServiceThatReturnsError.fetchPayoutsCounter == 1)
     }
 
-    func testRewardDetails_whenUserSelectTableRow() {
+    func testShowRewardDetails_whenUserSelectTableRow() {
         // given
         let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
         let wireframe = MockStakingRewardPayoutsWireframeProtocol()
@@ -114,5 +114,57 @@ class StakingRewardPayoutsTests: XCTestCase {
 
         // then
         wait(for: [showRewardDetailsExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testShowPayoutConfirmation_whenUserTapsPayoutButton() {
+        // given
+        let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
+        let wireframe = MockStakingRewardPayoutsWireframeProtocol()
+
+        let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
+        let presenter = StakingRewardPayoutsPresenter(
+            chain: .westend,
+            viewModelFactory: viewModelFactory
+        )
+        presenter.wireframe = wireframe
+        presenter.interactor = interactor
+
+        let viewController = StakingRewardPayoutsViewController(presenter: presenter, localizationManager: nil)
+        presenter.view = viewController
+
+        stub(interactor) { stub in
+            when(stub).setup().then {
+                if case let Result.success(payoutsInfo) = PayoutRewardsServiceStub.dummy().result {
+                    presenter.didReceive(result: .success(payoutsInfo))
+                }
+            }
+        }
+
+        stub(viewModelFactory) { stub in
+            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any()).then { _ in
+                LocalizableResource { _ in
+                    StakingPayoutViewModel(
+                        cellViewModels: [],
+                        bottomButtonTitle: "Payout all"
+                    )
+                }
+            }
+        }
+
+        let showPayoutConfirmationExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub)
+                .showPayoutConfirmation(for: any(), from: any())
+                .then { _ in
+                    showPayoutConfirmationExpectation.fulfill()
+                }
+        }
+
+        // when
+        let payoutButton = viewController.rootView.payoutButton
+        payoutButton.sendActions(for: .touchUpInside)
+
+        // then
+        wait(for: [showPayoutConfirmationExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }
