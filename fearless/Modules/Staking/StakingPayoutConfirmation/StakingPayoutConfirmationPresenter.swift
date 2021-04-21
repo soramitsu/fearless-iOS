@@ -12,21 +12,31 @@ final class StakingPayoutConfirmationPresenter {
     private var rewardAmount: Decimal = 0.0
     private var priceData: PriceData?
     private var account: AccountItem?
+    private var stashItem: StashItem?
+    private var rawRewardDest: RewardDestinationArg?
 
-    private var rewardDestination: RewardDestination<AccountItem> = .restake
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
-    private let logger: LoggerProtocol?
+    private let chain: Chain
     private let asset: WalletAsset
+    private let logger: LoggerProtocol?
+
+    private var rewardDestination: RewardDestination<AccountAddress>? {
+        guard let stashItem = self.stashItem,
+              let rawRewardDest = rawRewardDest else { return nil }
+        return try? RewardDestination<AccountAddress>(payee: rawRewardDest, stashItem: stashItem, chain: chain)
+    }
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
+        chain: Chain,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
+        self.chain = chain
         self.asset = asset
         self.logger = logger
     }
@@ -128,6 +138,38 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 // MARK: - StakingPayoutConfirmationInteractorOutputProtocol
 
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
+    func didReceive(stashItem: StashItem?) {
+        // TODO: Remove logging after debug
+        if let stashItem = stashItem {
+            logger?.debug("Stash: \(stashItem.stash)")
+            logger?.debug("Controller: \(stashItem.controller)")
+        } else {
+            logger?.debug("No stash found")
+        }
+
+        self.stashItem = stashItem
+    }
+
+    func didReceive(stashItemError: Error) {
+        handle(error: stashItemError)
+    }
+
+    func didReceive(rawRewardDest: RewardDestinationArg?) {
+        if let payee = rawRewardDest {
+            logger?.debug("Payee: \(payee)")
+        } else {
+            logger?.debug("No payee received")
+        }
+
+        self.rawRewardDest = rawRewardDest
+
+        provideViewModel()
+    }
+
+    func didReceive(payeeError: Error) {
+        handle(error: payeeError)
+    }
+
     func didStartPayout() {
         view?.didStartLoading()
     }

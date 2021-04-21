@@ -31,6 +31,12 @@ protocol StakingPayoutConfirmationInteractorOutputProtocol: AnyObject {
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
 
+    func didReceive(stashItem: StashItem?)
+    func didReceive(stashItemError: Error)
+
+    func didReceive(rawRewardDest: RewardDestinationArg?)
+    func didReceive(payeeError: Error)
+
     func didRecieve(account: AccountItem, rewardAmount: Decimal)
 }
 

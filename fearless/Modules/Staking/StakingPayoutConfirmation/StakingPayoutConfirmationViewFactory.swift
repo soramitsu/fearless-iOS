@@ -15,6 +15,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
+        let chain = settings.selectedConnection.type.chain
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -30,6 +31,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let presenter = StakingPayoutConfirmationPresenter(
             balanceViewModelFactory: balanceViewModelFactory,
             payoutConfirmViewModelFactory: payoutConfirmViewModelFactory,
+            chain: chain,
             asset: asset,
             logger: Logger.shared
         )
@@ -66,6 +68,8 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
     ) -> StakingPayoutConfirmationInteractor? {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
+        let runtimeService = RuntimeRegistryFacade.sharedService
+
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
         guard let selectedAccount = settings.selectedAccount,
@@ -79,7 +83,7 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         let extrinsicService = ExtrinsicService(
             address: selectedAccount.address,
             cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
@@ -94,20 +98,29 @@ final class StakingPayoutConfirmationViewFactory: StakingPayoutConfirmationViewF
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(
                 for: selectedAccount.address,
-                runtimeService: RuntimeRegistryFacade.sharedService
+                runtimeService: runtimeService
             )
         else {
             return nil
         }
 
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
         return StakingPayoutConfirmationInteractor(
+            providerFactory: providerFactory,
+            substrateProviderFactory: substrateProviderFactory,
             extrinsicService: extrinsicService,
+            runtimeService: runtimeService,
             signer: signer,
             balanceProvider: balanceProvider,
             priceProvider: priceProvider,
             settings: settings,
+            logger: Logger.shared,
             payouts: payouts
         )
     }

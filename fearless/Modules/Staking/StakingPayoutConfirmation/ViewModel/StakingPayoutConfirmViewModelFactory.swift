@@ -7,7 +7,7 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
     func createPayoutConfirmViewModel(
         with account: AccountItem,
         rewardAmount: Decimal,
-        rewardDestination: RewardDestination<AccountItem>,
+        rewardDestination: RewardDestination<AccountAddress>?,
         priceData: PriceData?
     ) -> [LocalizableResource<RewardConfirmRow>]
 }
@@ -49,8 +49,10 @@ final class StakingPayoutConfirmViewModelFactory {
         }
     }
 
-    private func createRewardDestinationAccountRow(with account: AccountItem) -> LocalizableResource<RewardConfirmRow> {
-        let userIcon = try? iconGenerator.generateFromAddress(account.address)
+    private func createRewardDestinationAccountRow(
+        with address: AccountAddress
+    ) -> LocalizableResource<RewardConfirmRow> {
+        let userIcon = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
                 .white,
                 size: UIConstants.smallAddressIconSize,
@@ -63,7 +65,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
             return .accountInfo(.init(
                 title: title,
-                name: account.username,
+                name: address,
                 icon: userIcon
             ))
         }
@@ -96,7 +98,7 @@ final class StakingPayoutConfirmViewModelFactory {
     }
 
     private func createRewardDestinationRow(
-        with rewardDestination: RewardDestination<AccountItem>) -> LocalizableResource<RewardConfirmRow> {
+        with rewardDestination: RewardDestination<AccountAddress>) -> LocalizableResource<RewardConfirmRow> {
         switch rewardDestination {
         case .restake:
             return createRewardDestinationRestakeRow()
@@ -111,14 +113,18 @@ extension StakingPayoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFac
     (
         with account: AccountItem,
         rewardAmount: Decimal,
-        rewardDestination: RewardDestination<AccountItem>,
+        rewardDestination: RewardDestination<AccountAddress>?,
         priceData: PriceData?
     )
         -> [LocalizableResource<RewardConfirmRow>] {
         var viewModel: [LocalizableResource<RewardConfirmRow>] = []
 
         viewModel.append(createAccountRow(with: account))
-        viewModel.append(createRewardDestinationRow(with: rewardDestination))
+
+        if let rewardDestination = rewardDestination {
+            viewModel.append(createRewardDestinationRow(with: rewardDestination))
+        }
+
         viewModel.append(createRewardAmountRow(with: rewardAmount, priceData: priceData))
 
         return viewModel

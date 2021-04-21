@@ -5,32 +5,56 @@ import RobinHood
 import IrohaCrypto
 
 final class StakingPayoutConfirmationInteractor {
+    private let providerFactory: SingleValueProviderFactoryProtocol
+    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let runtimeService: RuntimeCodingServiceProtocol
     private let signer: SigningWrapperProtocol
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let settings: SettingsManagerProtocol
+    private let logger: LoggerProtocol
     private let payouts: [PayoutInfo]
+
+    var stashControllerProvider: StreamableProvider<StashItem>?
+    var payeeProvider: AnyDataProvider<DecodedPayee>?
 
     weak var presenter: StakingPayoutConfirmationInteractorOutputProtocol!
 
     init(
+        providerFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         signer: SigningWrapperProtocol,
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
         priceProvider: AnySingleValueProvider<PriceData>,
         settings: SettingsManagerProtocol,
+        logger: LoggerProtocol,
         payouts: [PayoutInfo]
     ) {
+        self.providerFactory = providerFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicService = extrinsicService
+        self.runtimeService = runtimeService
         self.signer = signer
         self.balanceProvider = balanceProvider
         self.priceProvider = priceProvider
         self.settings = settings
+        self.logger = logger
         self.payouts = payouts
     }
 
     // MARK: - Private functions
+
+    private func handle(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            clearPayeeProvider()
+            subscribeToPayee(address: stashItem.stash)
+        }
+
+        presenter?.didReceive(stashItem: stashItem)
+    }
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
         let callFactory = SubstrateCallFactory()
@@ -110,10 +134,81 @@ final class StakingPayoutConfirmationInteractor {
         )
     }
 
+    private func subscribeToStashControllerProvider() {
+        guard stashControllerProvider == nil, let selectedAccount = settings.selectedAccount else {
+            return
+        }
+
+        let provider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
+
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
+            let stashItem = changes.reduceToLastChange()
+            self?.handle(stashItem: stashItem)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceive(stashItemError: error)
+            return
+        }
+
+        provider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
+
+        stashControllerProvider = provider
+    }
+
+    func subscribeToPayee(address: String) {
+        guard payeeProvider == nil else {
+            return
+        }
+
+        guard let payeeProvider = try? providerFactory
+            .getPayee(for: address, runtimeService: runtimeService)
+        else {
+            logger.error("Can't create payee provider")
+            return
+        }
+
+        self.payeeProvider = payeeProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
+            if let payee = changes.reduceToLastChange() {
+                self?.presenter.didReceive(rawRewardDest: payee.item)
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(payeeError: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        payeeProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    private func clearPayeeProvider() {
+        payeeProvider?.removeObserver(self)
+        payeeProvider = nil
+    }
+
     private func getRewardData() {
         guard let account = settings.selectedAccount else { return }
 
-        let rewardDestination: RewardDestinationTypeViewModel // TODO: Get reward destination type
         let rewardAmount = payouts.map(\.reward).reduce(0, +)
 
         presenter.didRecieve(
@@ -125,6 +220,7 @@ final class StakingPayoutConfirmationInteractor {
 
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
+        subscribeToStashControllerProvider()
         subscribeToAccountChanges()
         subscribeToPriceChanges()
         getRewardData()
