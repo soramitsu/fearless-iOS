@@ -11,7 +11,7 @@ struct PayoutRewardAmountViewModel {
     let priceData: BalanceViewModelProtocol
 }
 
-enum RewardConfirmRow {
+enum PayoutConfirmViewModel {
     case accountInfo(PayoutAccountViewModel)
     case restakeDestination(TitleWithSubtitleViewModel)
     case rewardAmountViewModel(PayoutRewardAmountViewModel)

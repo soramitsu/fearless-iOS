@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol StakingPayoutConfirmationViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
-    func didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>])
+    func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 

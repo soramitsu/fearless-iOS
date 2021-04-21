@@ -7,7 +7,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     let presenter: StakingPayoutConfirmationPresenterProtocol
 
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
-    private var viewModel: [LocalizableResource<RewardConfirmRow>] = []
+    private var viewModel: [LocalizableResource<PayoutConfirmViewModel>] = []
 
     init(
         presenter: StakingPayoutConfirmationPresenterProtocol,
@@ -60,14 +60,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         )
         rootView.payoutConfirmView.bind(viewModel: viewModel)
 
-        if #available(iOS 14, *) {
-            rootView.payoutConfirmView.actionButton.addAction(UIAction(title: "", handler: { [weak self] _ in
-                self?.confirmAction()
-            }), for: .touchUpInside)
-        } else {
-            rootView.payoutConfirmView.actionButton
-                .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
-        }
+        rootView.payoutConfirmView.actionButton
+            .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
     }
 
     private func setupTable() {
@@ -89,14 +83,14 @@ extension StakingPayoutConfirmationViewController: Localizable {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
         setupTitleLocalization(locale)
-        setupTranformViewLocalization(locale)
+        setupConfirmViewLocalization(locale)
     }
 
     private func setupTitleLocalization(_ locale: Locale) {
         title = R.string.localizable.commonConfirmTitle(preferredLanguages: locale.rLanguages)
     }
 
-    private func setupTranformViewLocalization(_ locale: Locale) {
+    private func setupConfirmViewLocalization(_ locale: Locale) {
         guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
 
         let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
@@ -149,14 +143,8 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
             cell.detailsView.strokeColor = R.color.colorStrokeGray()!
             cell.detailsView.borderWidth = 1
             cell.bind(model: viewModel)
+            cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
 
-            if #available(iOS 14, *) {
-                cell.detailsView.addAction(UIAction(title: "", handler: { [weak self] _ in
-                    self?.presentAccountOptionsAction()
-                }), for: .touchUpInside)
-            } else {
-                cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
-            }
             return cell
 
         case let .restakeDestination(viewModel):
@@ -173,10 +161,10 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         self.feeViewModel = feeViewModel
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        setupTranformViewLocalization(locale)
+        setupConfirmViewLocalization(locale)
     }
 
-    func didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>]) {
+    func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>]) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
     }

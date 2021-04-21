@@ -11,6 +11,10 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
+        let chain: Chain = .westend
+
+        let storageFacade = SubstrateStorageTestFacade()
+        let operationManager = OperationManager()
 
         let addressType = SNAddressType.kusamaMain
         try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
@@ -27,20 +31,37 @@ class StakingPayoutsConfirmTests: XCTestCase {
                                                               selectedAddressType: addressType,
                                                               limit: StakingConstants.maxAmount)
 
+        let viewModelFactory = StakingPayoutConfirmViewModelFactory(asset: asset,
+                                                                    balanceViewModelFactory: balanceViewModelFactory)
+
         let presenter = StakingPayoutConfirmationPresenter(balanceViewModelFactory: balanceViewModelFactory,
-                                                           asset: asset)
+                                                           payoutConfirmViewModelFactory: viewModelFactory,
+                                                           chain: chain,
+                                                           asset: asset,
+                                                           logger: nil)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
         let signer = try DummySigner(cryptoType: .sr25519)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
 
-        let interactor = StakingPayoutConfirmationInteractor(extrinsicService: extrinsicService,
+        let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
+
+        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
+
+        let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                                    operationManager: operationManager)
+
+        let interactor = StakingPayoutConfirmationInteractor(providerFactory: providerFactory,
+                                                             substrateProviderFactory: substrateProviderFactory,
+                                                             extrinsicService: extrinsicService,
+                                                             runtimeService: runtimeCodingService,
                                                              signer: signer,
                                                              balanceProvider: AnyDataProvider(balanceProvider),
                                                              priceProvider: AnySingleValueProvider(priceProvider),
                                                              settings: settings,
-                                                             payouts: [])
+                                                             payouts: []
+            )
         
         presenter.view = view
         presenter.wireframe = wireframe
@@ -50,12 +71,17 @@ class StakingPayoutsConfirmTests: XCTestCase {
         // when
 
         let feeExpectation = XCTestExpectation()
+        let viewModelExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceive(feeViewModel: any()).then { viewModel in
                 if viewModel != nil {
                     feeExpectation.fulfill()
                 }
+            }
+
+            when(stub).didRecieve(viewModel: any()).then {_ in
+                viewModelExpectation.fulfill()
             }
 
             when(stub).didStartLoading().thenDoNothing()
@@ -76,7 +102,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         // then
 
-        wait(for: [feeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [feeExpectation, viewModelExpectation], timeout: Constants.defaultExpectationDuration)
 
         // when
 

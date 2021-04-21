@@ -69,6 +69,11 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             return
         }
 
+        guard rewardAmount >= fee else {
+            didFailPayout(error: StakingPayoutConfirmError.tinyPayout)
+            return
+        }
+
         interactor.submitPayout()
     }
 
@@ -121,11 +126,17 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 
             switch confirmError {
             case .notEnoughFunds:
-                wireframe.presentAmountTooHigh(from: view, locale: locale)
+                wireframe.presentPayoutFeeTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
             case .extrinsicFailed:
                 wireframe.presentExtrinsicFailed(from: view, locale: locale)
+            case .tinyPayout:
+                wireframe.presentRewardIsLessThanFee(
+                    from: view,
+                    action: { self.interactor?.submitPayout() },
+                    locale: locale
+                )
             }
         } else {
             if !wireframe.present(error: error, from: view, locale: locale) {

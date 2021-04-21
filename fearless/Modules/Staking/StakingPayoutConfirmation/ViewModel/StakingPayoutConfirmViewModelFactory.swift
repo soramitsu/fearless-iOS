@@ -9,7 +9,7 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
         rewardAmount: Decimal,
         rewardDestination: RewardDestination<AccountAddress>?,
         priceData: PriceData?
-    ) -> [LocalizableResource<RewardConfirmRow>]
+    ) -> [LocalizableResource<PayoutConfirmViewModel>]
 }
 
 final class StakingPayoutConfirmViewModelFactory {
@@ -29,7 +29,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
     // MARK: - Private functions
 
-    private func createAccountRow(with account: AccountItem) -> LocalizableResource<RewardConfirmRow> {
+    private func createAccountRow(with account: AccountItem) -> LocalizableResource<PayoutConfirmViewModel> {
         let userIcon = try? iconGenerator.generateFromAddress(account.address)
             .imageWithFillColor(
                 .white,
@@ -51,7 +51,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
     private func createRewardDestinationAccountRow(
         with address: AccountAddress
-    ) -> LocalizableResource<RewardConfirmRow> {
+    ) -> LocalizableResource<PayoutConfirmViewModel> {
         let userIcon = try? iconGenerator.generateFromAddress(address)
             .imageWithFillColor(
                 .white,
@@ -71,7 +71,7 @@ final class StakingPayoutConfirmViewModelFactory {
         }
     }
 
-    private func createRewardDestinationRestakeRow() -> LocalizableResource<RewardConfirmRow> {
+    private func createRewardDestinationRestakeRow() -> LocalizableResource<PayoutConfirmViewModel> {
         LocalizableResource { locale in
             let title = R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
             let subtitle = R.string.localizable.stakingRestakeTitle(preferredLanguages: locale.rLanguages)
@@ -85,7 +85,7 @@ final class StakingPayoutConfirmViewModelFactory {
         with amount: Decimal,
         priceData: PriceData?
     )
-        -> LocalizableResource<RewardConfirmRow> {
+        -> LocalizableResource<PayoutConfirmViewModel> {
         LocalizableResource { locale in
 
             let title = R.string.localizable
@@ -98,7 +98,7 @@ final class StakingPayoutConfirmViewModelFactory {
     }
 
     private func createRewardDestinationRow(
-        with rewardDestination: RewardDestination<AccountAddress>) -> LocalizableResource<RewardConfirmRow> {
+        with rewardDestination: RewardDestination<AccountAddress>) -> LocalizableResource<PayoutConfirmViewModel> {
         switch rewardDestination {
         case .restake:
             return createRewardDestinationRestakeRow()
@@ -116,8 +116,8 @@ extension StakingPayoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFac
         rewardDestination: RewardDestination<AccountAddress>?,
         priceData: PriceData?
     )
-        -> [LocalizableResource<RewardConfirmRow>] {
-        var viewModel: [LocalizableResource<RewardConfirmRow>] = []
+        -> [LocalizableResource<PayoutConfirmViewModel>] {
+        var viewModel: [LocalizableResource<PayoutConfirmViewModel>] = []
 
         viewModel.append(createAccountRow(with: account))
 

@@ -13,7 +13,7 @@ final class StakingPayoutConfirmationInteractor {
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let settings: SettingsManagerProtocol
-    private let logger: LoggerProtocol
+    private let logger: LoggerProtocol?
     private let payouts: [PayoutInfo]
 
     var stashControllerProvider: StreamableProvider<StashItem>?
@@ -30,7 +30,7 @@ final class StakingPayoutConfirmationInteractor {
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
         priceProvider: AnySingleValueProvider<PriceData>,
         settings: SettingsManagerProtocol,
-        logger: LoggerProtocol,
+        logger: LoggerProtocol? = nil,
         payouts: [PayoutInfo]
     ) {
         self.providerFactory = providerFactory
@@ -170,7 +170,7 @@ final class StakingPayoutConfirmationInteractor {
         guard let payeeProvider = try? providerFactory
             .getPayee(for: address, runtimeService: runtimeService)
         else {
-            logger.error("Can't create payee provider")
+            logger?.error("Can't create payee provider")
             return
         }
 
