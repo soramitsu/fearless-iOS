@@ -40,66 +40,29 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
         self.logger = logger
     }
 
-    // swiftlint:disable function_body_length
-    func fetchPayoutRewards(completion: @escaping PayoutRewardsClosure) {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-
+    func fetchPayoutsOperationWrapper() -> CompoundOperationWrapper<PayoutsInfo> {
         do {
-            let steps1to3OperationWrapper = try createSteps1To3OperationWrapper(
+            let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+
+            let historyRangeWrapper = try createChainHistoryRangeOperationWrapper(
                 codingFactoryOperation: codingFactoryOperation
             )
 
-            let steps4And5OperationWrapper = try createSteps4And5OperationWrapper(
-                dependingOn: steps1to3OperationWrapper.targetOperation,
+            historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
+
+            let erasRewardDistributionWrapper = try createErasRewardDistributionOperationWrapper(
+                dependingOn: historyRangeWrapper.targetOperation,
                 engine: engine,
                 codingFactoryOperation: codingFactoryOperation
             )
-            steps4And5OperationWrapper.allOperations
-                .forEach { $0.addDependency(steps1to3OperationWrapper.targetOperation) }
 
-            let nominationHistoryStep6Controllers = createControllersStep6Operation(
-                nominatorStashAddress: selectedAccountAddress
-            )
+            erasRewardDistributionWrapper.allOperations
+                .forEach {
+                    $0.addDependency(historyRangeWrapper.targetOperation)
+                    $0.addDependency(codingFactoryOperation)
+                }
 
-            nominationHistoryStep6Controllers.allOperations
-                .forEach { $0.addDependency(steps4And5OperationWrapper.targetOperation) }
-
-            nominationHistoryStep6Controllers.targetOperation.completionBlock = { [weak self] in
-                self?.continueValidatorsFetch(
-                    dependingOn: codingFactoryOperation,
-                    nominationHistoryWrapper: nominationHistoryStep6Controllers,
-                    stakingOverviewWrapper: steps1to3OperationWrapper,
-                    eraRewardOverviewWrapper: steps4And5OperationWrapper,
-                    completion: completion
-                )
-            }
-
-            let operations = [codingFactoryOperation]
-                + steps1to3OperationWrapper.allOperations
-                + steps4And5OperationWrapper.allOperations
-                + nominationHistoryStep6Controllers.allOperations
-
-            operationManager.enqueue(operations: operations, in: .transient)
-        } catch {
-            logger?.debug(error.localizedDescription)
-            completion(.failure(PayoutRewardsServiceError.unknown))
-        }
-    }
-
-    private func continueValidatorsFetch(
-        dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>,
-        nominationHistoryWrapper: CompoundOperationWrapper<Set<AccountId>>,
-        stakingOverviewWrapper: CompoundOperationWrapper<PayoutSteps1To3Result>,
-        eraRewardOverviewWrapper: CompoundOperationWrapper<PayoutSteps4And5Result>,
-        completion: @escaping PayoutRewardsClosure
-    ) {
-        do {
-            let controllersSet = try nominationHistoryWrapper
-                .targetOperation.extractNoCancellableResultData()
-
-            let validatorsWrapper = try createFindValidatorsOperation(
-                controllers: controllersSet
-            )
+            let validatorsWrapper = createValidatorsResolutionWrapper(for: selectedAccountAddress)
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
                 dependingOn: validatorsWrapper.targetOperation,
@@ -107,7 +70,10 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                 path: .controller
             )
             controllersWrapper.allOperations
-                .forEach { $0.addDependency(validatorsWrapper.targetOperation) }
+                .forEach {
+                    $0.addDependency(validatorsWrapper.targetOperation)
+                    $0.addDependency(codingFactoryOperation)
+                }
 
             let ledgerInfos: CompoundOperationWrapper<[DyStakingLedger]> =
                 try createFetchAndMapOperation(
@@ -121,11 +87,11 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             let unclaimedErasByStashOperation = try createUnclaimedEraByStashOperation(
                 ledgerInfoOperation: ledgerInfos.targetOperation,
-                steps1to3Operation: stakingOverviewWrapper.targetOperation
+                historyRangeOperation: historyRangeWrapper.targetOperation
             )
 
             unclaimedErasByStashOperation.addDependency(ledgerInfos.targetOperation)
-            unclaimedErasByStashOperation.addDependency(stakingOverviewWrapper.targetOperation)
+            unclaimedErasByStashOperation.addDependency(historyRangeWrapper.targetOperation)
 
             let exposuresByEraWrapper: CompoundOperationWrapper<[EraIndex: [Data: ValidatorExposure]]> =
                 try createCreateHistoryByEraAccountIdOperation(
@@ -163,35 +129,35 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             let payoutOperation = try calculatePayouts(
                 dependingOn: eraInfoOperation,
-                eraRewardOverview: eraRewardOverviewWrapper.targetOperation,
-                stakingOverviewOperation: stakingOverviewWrapper.targetOperation,
+                erasRewardOperation: erasRewardDistributionWrapper.targetOperation,
+                historyRangeOperation: historyRangeWrapper.targetOperation,
                 identityOperation: identityWrapper.targetOperation
             )
 
             payoutOperation.addDependency(eraInfoOperation)
             payoutOperation.addDependency(identityWrapper.targetOperation)
+            payoutOperation.addDependency(erasRewardDistributionWrapper.targetOperation)
+            payoutOperation.addDependency(historyRangeWrapper.targetOperation)
 
-            let firstOperations = validatorsWrapper.allOperations + controllersWrapper.allOperations
-                + ledgerInfos.allOperations
-            let secondOperations = [unclaimedErasByStashOperation] + exposuresByEraWrapper.allOperations
+            let overviewOperations = [codingFactoryOperation] + historyRangeWrapper.allOperations
+                + erasRewardDistributionWrapper.allOperations
+            let validatorsResolutionOperations = validatorsWrapper.allOperations
+                + controllersWrapper.allOperations + ledgerInfos.allOperations
+                + [unclaimedErasByStashOperation]
+            let validatorsAndEraInfoOperations = exposuresByEraWrapper.allOperations
                 + prefsByEraWrapper.allOperations + identityWrapper.allOperations
-                + [eraInfoOperation, payoutOperation]
+                + [eraInfoOperation]
 
-            payoutOperation.completionBlock = {
-                do {
-                    let payouts = try payoutOperation.extractNoCancellableResultData()
-                    completion(.success(payouts))
-                } catch {
-                    completion(.failure(PayoutRewardsServiceError.unknown))
-                }
-            }
+            let dependencies = overviewOperations + validatorsResolutionOperations
+                + validatorsAndEraInfoOperations
 
-            operationManager.enqueue(
-                operations: firstOperations + secondOperations,
-                in: .transient
+            return CompoundOperationWrapper(
+                targetOperation: payoutOperation,
+                dependencies: dependencies
             )
+
         } catch {
-            completion(.failure(PayoutRewardsServiceError.unknown))
+            return CompoundOperationWrapper.createWithError(error)
         }
     }
 }

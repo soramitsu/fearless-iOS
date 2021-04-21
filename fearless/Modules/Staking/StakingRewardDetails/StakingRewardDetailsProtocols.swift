@@ -1,21 +1,25 @@
 import SoraFoundation
 
 protocol StakingRewardDetailsViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(with viewModel: StakingRewardDetailsViewModel)
+    func reload(with viewModel: LocalizableResource<StakingRewardDetailsViewModel>)
 }
 
 protocol StakingRewardDetailsPresenterProtocol: AnyObject {
     func setup()
     func handlePayoutAction()
-    func handleValidatorAccountAction()
+    func handleValidatorAccountAction(locale: Locale)
 }
 
-protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {}
+protocol StakingRewardDetailsInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {}
+protocol StakingRewardDetailsInteractorOutputProtocol: AnyObject {
+    func didReceive(priceResult: Result<PriceData?, Error>)
+}
 
 protocol StakingRewardDetailsWireframeProtocol: AnyObject, AddressOptionsPresentable {
-    func showPayoutConfirmation(for payoutInfo: PayoutInfo, from view: ControllerBackedProtocol?)
+    func showPayoutConfirmation(from view: ControllerBackedProtocol?, payoutInfo: PayoutInfo)
 }
 
 protocol StakingRewardDetailsViewFactoryProtocol: AnyObject {
@@ -26,4 +30,5 @@ struct StakingRewardDetailsInput {
     let payoutInfo: PayoutInfo
     let chain: Chain
     let activeEra: EraIndex
+    let historyDepth: UInt32
 }

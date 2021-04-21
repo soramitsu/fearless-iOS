@@ -6,13 +6,24 @@ final class StakingRewardPayoutsInteractor {
 
     private let payoutService: PayoutRewardsServiceProtocol
     private let priceProvider: AnySingleValueProvider<PriceData>
+    private let operationManager: OperationManagerProtocol
+
+    private var payoutOperationsWrapper: CompoundOperationWrapper<PayoutsInfo>?
+
+    deinit {
+        let wrapper = payoutOperationsWrapper
+        payoutOperationsWrapper = nil
+        wrapper?.cancel()
+    }
 
     init(
         payoutService: PayoutRewardsServiceProtocol,
-        priceProvider: AnySingleValueProvider<PriceData>
+        priceProvider: AnySingleValueProvider<PriceData>,
+        operationManager: OperationManagerProtocol
     ) {
         self.payoutService = payoutService
         self.priceProvider = priceProvider
+        self.operationManager = operationManager
     }
 
     private func subscribeToPriceChanges() {
@@ -53,11 +64,38 @@ final class StakingRewardPayoutsInteractor {
 extension StakingRewardPayoutsInteractor: StakingRewardPayoutsInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
+        reload()
+    }
 
-        payoutService.fetchPayoutRewards { [weak presenter] result in
+    func reload() {
+        guard payoutOperationsWrapper == nil else {
+            return
+        }
+
+        let wrapper = payoutService.fetchPayoutsOperationWrapper()
+        wrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
-                presenter?.didReceive(result: result)
+                do {
+                    guard let currentWrapper = self?.payoutOperationsWrapper else {
+                        return
+                    }
+
+                    self?.payoutOperationsWrapper = nil
+
+                    let payoutsInfo = try currentWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter?.didReceive(result: .success(payoutsInfo))
+                } catch {
+                    if let serviceError = error as? PayoutRewardsServiceError {
+                        self?.presenter.didReceive(result: .failure(serviceError))
+                    } else {
+                        self?.presenter.didReceive(result: .failure(.unknown))
+                    }
+                }
             }
         }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+
+        payoutOperationsWrapper = wrapper
     }
 }

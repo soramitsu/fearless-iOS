@@ -102,13 +102,11 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
-        let logger = Logger.shared
-
         return StakingConfirmPresenter(
             confirmationViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             asset: asset,
-            logger: logger
+            logger: Logger.shared
         )
     }
 

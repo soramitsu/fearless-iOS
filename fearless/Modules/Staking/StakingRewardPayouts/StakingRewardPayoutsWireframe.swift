@@ -5,12 +5,14 @@ final class StakingRewardPayoutsWireframe: StakingRewardPayoutsWireframeProtocol
         from view: ControllerBackedProtocol?,
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
+        historyDepth: UInt32,
         chain: Chain
     ) {
         let input = StakingRewardDetailsInput(
             payoutInfo: payoutInfo,
             chain: chain,
-            activeEra: activeEra
+            activeEra: activeEra,
+            historyDepth: historyDepth
         )
         guard
             let rewardDetails = StakingRewardDetailsViewFactory.createView(input: input)

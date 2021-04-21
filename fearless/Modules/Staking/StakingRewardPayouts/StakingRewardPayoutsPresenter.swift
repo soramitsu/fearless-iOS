@@ -41,7 +41,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
 
     func reload() {
         view?.reload(with: .loading(true))
-        interactor.setup()
+        interactor.reload()
     }
 
     func handleSelectedHistory(at index: Int) {
@@ -57,6 +57,7 @@ extension StakingRewardPayoutsPresenter: StakingRewardPayoutsPresenterProtocol {
             from: view,
             payoutInfo: payoutInfo,
             activeEra: payoutsInfo.activeEra,
+            historyDepth: payoutsInfo.historyDepth,
             chain: chain
         )
     }

@@ -24,6 +24,7 @@ protocol StakingRewardPayoutsPresenterProtocol: AnyObject {
 
 protocol StakingRewardPayoutsInteractorInputProtocol: AnyObject {
     func setup()
+    func reload()
 }
 
 protocol StakingRewardPayoutsInteractorOutputProtocol: AnyObject {
@@ -36,6 +37,7 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
         from view: ControllerBackedProtocol?,
         payoutInfo: PayoutInfo,
         activeEra: EraIndex,
+        historyDepth: UInt32,
         chain: Chain
     )
 
@@ -46,5 +48,6 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
 }
 
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingRewardPayoutsViewProtocol?
+    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
+    static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
 }

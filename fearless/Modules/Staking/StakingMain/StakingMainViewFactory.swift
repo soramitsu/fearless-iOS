@@ -7,7 +7,6 @@ import RobinHood
 final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
     static func createView() -> StakingMainViewProtocol? {
         let settings = SettingsManager.shared
-        let keystore = Keychain()
         let logger = Logger.shared
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)

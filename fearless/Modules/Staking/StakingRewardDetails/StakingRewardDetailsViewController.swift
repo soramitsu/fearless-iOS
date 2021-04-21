@@ -16,6 +16,9 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     }
 
     private var rows: [RewardDetailsRow] = []
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -61,13 +64,13 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
 
     @objc
     private func handleValidatorAction() {
-        presenter.handleValidatorAccountAction()
+        presenter.handleValidatorAccountAction(locale: selectedLocale)
     }
 }
 
 extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {
-    func reload(with viewModel: StakingRewardDetailsViewModel) {
-        rows = viewModel.rows
+    func reload(with viewModel: LocalizableResource<StakingRewardDetailsViewModel>) {
+        rows = viewModel.value(for: selectedLocale).rows
         rootView.tableView.reloadData()
     }
 }
@@ -87,13 +90,11 @@ extension StakingRewardDetailsViewController: Localizable {
     }
 
     private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable.stakingRewardDetailsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupButtonLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let title = R.string.localizable.stakingRewardDetailsPayout(preferredLanguages: locale.rLanguages)
+        let title = R.string.localizable.stakingRewardDetailsPayout(preferredLanguages: selectedLocale.rLanguages)
         rootView.payoutButton.imageWithTitleView?.title = title
     }
 }

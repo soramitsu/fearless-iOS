@@ -4,11 +4,10 @@ import SoraFoundation
 import FearlessUtils
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
-    static func createView() -> StakingRewardPayoutsViewProtocol? {
+    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
-
-        guard let selectedAccount = settings.selectedAccount else { return nil }
+        let operationManager = OperationManagerFacade.sharedManager
 
         let chain = connection.type.chain
 
@@ -46,13 +45,13 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
 
         let payoutService = PayoutRewardsService(
-            selectedAccountAddress: selectedAccount.address,
+            selectedAccountAddress: stashAddress,
             chain: chain,
             subscanBaseURL: subscanUrl,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             storageRequestFactory: storageRequestFactory,
             engine: engine,
-            operationManager: OperationManagerFacade.sharedManager,
+            operationManager: operationManager,
             subscanOperationFactory: SubscanOperationFactory(),
             identityOperationFactory: identityOperationFactory,
             logger: Logger.shared
@@ -63,7 +62,8 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
 
         let interactor = StakingRewardPayoutsInteractor(
             payoutService: payoutService,
-            priceProvider: priceProvider
+            priceProvider: priceProvider,
+            operationManager: operationManager
         )
         let wireframe = StakingRewardPayoutsWireframe()
 
@@ -73,5 +73,10 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         interactor.presenter = presenter
 
         return view
+    }
+
+    static func createViewForValidator(stashAddress _: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
+        // TODO: FLW-753
+        nil
     }
 }
