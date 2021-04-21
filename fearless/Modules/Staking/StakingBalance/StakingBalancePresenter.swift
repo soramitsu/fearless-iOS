@@ -31,3 +31,5 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         wireframe.showRedeem(from: view)
     }
 }
+
+extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {}

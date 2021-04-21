@@ -20,7 +20,3 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
     func showUnbond(from view: ControllerBackedProtocol?)
     func showRedeem(from view: ControllerBackedProtocol?)
 }
-
-protocol StakingBalanceViewFactoryProtocol: AnyObject {
-    static func createView() -> StakingBalanceViewProtocol?
-}
