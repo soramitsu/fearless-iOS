@@ -42,6 +42,9 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .clear
+        let selectedBackgroundView = UIView()
+        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
+        self.selectedBackgroundView = selectedBackgroundView
         setupLayout()
     }
 
