@@ -63,7 +63,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         XCTAssert(payoutServiceThatReturnsError.fetchPayoutsCounter == 1)
     }
 
-    func testShowRewardDetails_whenUserSelectTableRow() {
+    func testShowRewardDetailsWhenUserSelectTableRow() {
         // given
         let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
         let wireframe = MockStakingRewardPayoutsWireframeProtocol()
@@ -116,7 +116,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         wait(for: [showRewardDetailsExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
-    func testShowPayoutConfirmation_whenUserTapsPayoutButton() {
+    func testShowPayoutConfirmationWhenUserTapsPayoutButton() {
         // given
         let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
         let wireframe = MockStakingRewardPayoutsWireframeProtocol()
