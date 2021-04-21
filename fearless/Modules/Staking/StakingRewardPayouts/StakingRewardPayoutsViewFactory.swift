@@ -2,9 +2,12 @@ import Foundation
 import SoraKeystore
 import SoraFoundation
 import FearlessUtils
+import IrohaCrypto
 
 final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProtocol {
-    static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
+    static func createViewForNominator(
+        stashAddress: AccountAddress
+    ) -> StakingRewardPayoutsViewProtocol? {
         let settings = SettingsManager.shared
         let connection = settings.selectedConnection
         let operationManager = OperationManagerFacade.sharedManager
@@ -20,7 +23,94 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             return nil
         }
 
+        let validatorsResolutionFactory = PayoutValidatorsForNominatorFactory(
+            chain: chain,
+            subscanBaseURL: subscanUrl,
+            subscanOperationFactory: SubscanOperationFactory(),
+            operationManager: operationManager
+        )
+
+        let payoutInfoFactory = NominatorPayoutInfoFactory(
+            addressType: chain.addressType,
+            addressFactory: SS58AddressFactory()
+        )
+
+        return createView(
+            for: stashAddress,
+            validatorsResolutionFactory: validatorsResolutionFactory,
+            payoutInfoFactory: payoutInfoFactory
+        )
+    }
+
+    static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
+        let connection = SettingsManager.shared.selectedConnection
+        let chain = connection.type.chain
+
+        let validatorsResolutionFactory = PayoutValidatorsForValidatorFactory()
+
+        let payoutInfoFactory = ValidatorPayoutInfoFactory(
+            addressType: chain.addressType,
+            addressFactory: SS58AddressFactory()
+        )
+
+        return createView(
+            for: stashAddress,
+            validatorsResolutionFactory: validatorsResolutionFactory,
+            payoutInfoFactory: payoutInfoFactory
+        )
+    }
+
+    private static func createView(
+        for stashAddress: AccountAddress,
+        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
+        payoutInfoFactory: PayoutInfoFactoryProtocol
+    ) -> StakingRewardPayoutsViewProtocol? {
+        let settings = SettingsManager.shared
+        let connection = settings.selectedConnection
+        let operationManager = OperationManagerFacade.sharedManager
+        let chain = connection.type.chain
+
         guard let engine = WebSocketService.shared.connection else { return nil }
+
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
+        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
+
+        let payoutService = PayoutRewardsService(
+            selectedAccountAddress: stashAddress,
+            chain: chain,
+            validatorsResolutionFactory: validatorsResolutionFactory,
+            runtimeCodingService: RuntimeRegistryFacade.sharedService,
+            storageRequestFactory: storageRequestFactory,
+            engine: engine,
+            operationManager: operationManager,
+            identityOperationFactory: identityOperationFactory,
+            payoutInfoFactory: payoutInfoFactory,
+            logger: Logger.shared
+        )
+
+        return createView(for: payoutService)
+    }
+
+    private static func createView(
+        for payoutService: PayoutRewardsServiceProtocol
+    ) -> StakingRewardPayoutsViewProtocol? {
+        let settings = SettingsManager.shared
+        let connection = settings.selectedConnection
+        let operationManager = OperationManagerFacade.sharedManager
+
+        let chain = connection.type.chain
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -40,23 +130,6 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
             localizationManager: LocalizationManager.shared
         )
 
-        let storageRequestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
-
-        let identityOperationFactory = IdentityOperationFactory(requestFactory: storageRequestFactory)
-
-        let payoutService = PayoutRewardsService(
-            selectedAccountAddress: stashAddress,
-            chain: chain,
-            subscanBaseURL: subscanUrl,
-            runtimeCodingService: RuntimeRegistryFacade.sharedService,
-            storageRequestFactory: storageRequestFactory,
-            engine: engine,
-            operationManager: operationManager,
-            subscanOperationFactory: SubscanOperationFactory(),
-            identityOperationFactory: identityOperationFactory,
-            logger: Logger.shared
-        )
-
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
@@ -73,10 +146,5 @@ final class StakingRewardPayoutsViewFactory: StakingRewardPayoutsViewFactoryProt
         interactor.presenter = presenter
 
         return view
-    }
-
-    static func createViewForValidator(stashAddress _: AccountAddress) -> StakingRewardPayoutsViewProtocol? {
-        // TODO: FLW-753
-        nil
     }
 }

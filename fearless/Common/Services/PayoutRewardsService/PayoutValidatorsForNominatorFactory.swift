@@ -1,38 +1,27 @@
+import Foundation
 import RobinHood
 import FearlessUtils
-import BigInt
 import IrohaCrypto
 
-extension PayoutRewardsService {
-    func createValidatorsResolutionWrapper(for address: AccountAddress)
-        -> CompoundOperationWrapper<[AccountId]> {
-        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+final class PayoutValidatorsForNominatorFactory {
+    let chain: Chain
+    let subscanBaseURL: URL
+    let subscanOperationFactory: SubscanOperationFactoryProtocol
+    let operationManager: OperationManagerProtocol
 
-        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
-            operationManager: operationManager
-        ) { [weak self] in
-            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
-
-            if let wrapper = try self?.createValidatorsQueryWrapper(controllers: controllers) {
-                return [wrapper]
-            } else {
-                throw BaseOperationError.parentOperationCancelled
-            }
-        }.longrunOperation()
-
-        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
-
-        let mapOperation = ClosureOperation<[AccountId]> {
-            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
-        }
-
-        mapOperation.addDependency(validatorsOperation)
-        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
-
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    init(
+        chain: Chain,
+        subscanBaseURL: URL,
+        subscanOperationFactory: SubscanOperationFactoryProtocol,
+        operationManager: OperationManagerProtocol
+    ) {
+        self.chain = chain
+        self.subscanBaseURL = subscanBaseURL
+        self.subscanOperationFactory = subscanOperationFactory
+        self.operationManager = operationManager
     }
 
-    func createControllersQueryWrapper(
+    private func createControllersQueryWrapper(
         nominatorStashAddress: String
     ) -> CompoundOperationWrapper<Set<AccountId>> {
         let controllersByStakingOperation =
@@ -130,7 +119,7 @@ extension PayoutRewardsService {
         )
     }
 
-    func createValidatorsQueryWrapper(
+    private func createValidatorsQueryWrapper(
         controllers: Set<AccountId>
     ) throws -> CompoundOperationWrapper<[AccountId]> {
         let addressFactory = SS58AddressFactory()
@@ -210,5 +199,31 @@ extension PayoutRewardsService {
             subscanOperationFactory: subscanOperationFactory,
             operationManager: operationManager
         ).longrunOperation()
+    }
+}
+
+extension PayoutValidatorsForNominatorFactory: PayoutValidatorsFactoryProtocol {
+    func createResolutionOperation(for address: AccountAddress) -> CompoundOperationWrapper<[AccountId]> {
+        let controllersQueryWrapper = createControllersQueryWrapper(nominatorStashAddress: address)
+
+        let validatorsOperation: BaseOperation<[[AccountId]]> = OperationCombiningService<[AccountId]>(
+            operationManager: operationManager
+        ) {
+            let controllers = try controllersQueryWrapper.targetOperation.extractNoCancellableResultData()
+            let wrapper = try self.createValidatorsQueryWrapper(controllers: controllers)
+
+            return [wrapper]
+        }.longrunOperation()
+
+        validatorsOperation.addDependency(controllersQueryWrapper.targetOperation)
+
+        let mapOperation = ClosureOperation<[AccountId]> {
+            try validatorsOperation.extractNoCancellableResultData().flatMap { $0 }
+        }
+
+        mapOperation.addDependency(validatorsOperation)
+        let dependencies = controllersQueryWrapper.allOperations + [validatorsOperation]
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 }

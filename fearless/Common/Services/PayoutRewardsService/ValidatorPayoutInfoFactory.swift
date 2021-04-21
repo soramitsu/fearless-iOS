@@ -1,28 +1,22 @@
 import Foundation
 import IrohaCrypto
 
-final class NominatorPayoutsInfoFactory {
-    let accountId: Data
+final class ValidatorPayoutInfoFactory: PayoutInfoFactoryProtocol {
     let addressType: SNAddressType
-    let erasRewardDistribution: ErasRewardDistribution
-    let identities: [AccountAddress: AccountIdentity]
     let addressFactory: SS58AddressFactoryProtocol
 
-    init(
-        accountId: Data,
-        addressType: SNAddressType,
-        erasRewardDistribution: ErasRewardDistribution,
-        identities: [AccountAddress: AccountIdentity],
-        addressFactory: SS58AddressFactoryProtocol
-    ) {
-        self.accountId = accountId
+    init(addressType: SNAddressType, addressFactory: SS58AddressFactoryProtocol) {
         self.addressType = addressType
-        self.erasRewardDistribution = erasRewardDistribution
-        self.identities = identities
         self.addressFactory = addressFactory
     }
 
-    func calculate(for era: EraIndex, validatorInfo: EraValidatorInfo) throws -> PayoutInfo? {
+    func calculate(
+        for _: AccountId,
+        era: EraIndex,
+        validatorInfo: EraValidatorInfo,
+        erasRewardDistribution: ErasRewardDistribution,
+        identities: [AccountAddress: AccountIdentity]
+    ) throws -> PayoutInfo? {
         guard
             let totalRewardAmount = erasRewardDistribution.totalValidatorRewardByEra[era],
             let totalReward = Decimal.fromSubstrateAmount(totalRewardAmount, precision: addressType.precision),
@@ -31,10 +25,8 @@ final class NominatorPayoutsInfoFactory {
         }
 
         guard
-            let nominatorStakeAmount = validatorInfo.exposure.others
-            .first(where: { $0.who == accountId })?.value,
-            let nominatorStake = Decimal
-            .fromSubstrateAmount(nominatorStakeAmount, precision: addressType.precision),
+            let ownStake = Decimal
+            .fromSubstrateAmount(validatorInfo.exposure.own, precision: addressType.precision),
             let comission = Decimal.fromSubstratePerbill(value: validatorInfo.prefs.commission),
             let validatorPoints = points.individual
             .first(where: { $0.accountId == validatorInfo.accountId })?.rewardPoint,
@@ -45,8 +37,9 @@ final class NominatorPayoutsInfoFactory {
 
         let rewardFraction = Decimal(validatorPoints) / Decimal(points.total)
         let validatorTotalReward = totalReward * rewardFraction
-        let nominatorReward = validatorTotalReward * (1 - comission) *
-            (nominatorStake / totalStake)
+        let stakeReward = validatorTotalReward * (1 - comission) *
+            (ownStake / totalStake)
+        let commissionReward = validatorTotalReward * comission
 
         let validatorAddress = try addressFactory
             .addressFromAccountId(data: validatorInfo.accountId, type: addressType)
@@ -54,7 +47,7 @@ final class NominatorPayoutsInfoFactory {
         return PayoutInfo(
             era: era,
             validator: validatorInfo.accountId,
-            reward: nominatorReward,
+            reward: commissionReward + stakeReward,
             identity: identities[validatorAddress]
         )
     }

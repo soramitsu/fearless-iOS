@@ -12,7 +12,6 @@ class ValidatorInfoTests: XCTestCase {
         // given
 
         let settings = InMemorySettingsManager()
-        let keychain = InMemoryKeychain()
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
         let view = MockValidatorInfoViewProtocol()
