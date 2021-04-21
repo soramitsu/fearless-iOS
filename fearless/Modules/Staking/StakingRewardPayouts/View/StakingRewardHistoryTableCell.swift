@@ -24,7 +24,7 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         return label
     }()
 
-    private let ksmAmountLabel: UILabel = {
+    private let tokenAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
@@ -42,6 +42,9 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .clear
+        let selectedBackgroundView = UIView()
+        selectedBackgroundView.backgroundColor = R.color.colorAccent()!.withAlphaComponent(0.3)
+        self.selectedBackgroundView = selectedBackgroundView
         setupLayout()
     }
 
@@ -50,85 +53,48 @@ final class StakingRewardHistoryTableCell: UITableViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 
-    // swiftlint:disable function_body_length
     private func setupLayout() {
         contentView.addSubview(transactionTypeView)
-        transactionTypeView.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            transactionTypeView.leadingAnchor.constraint(
-                equalTo: contentView.leadingAnchor,
-                constant: UIConstants.horizontalInset
-            ),
-            transactionTypeView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
-            transactionTypeView.widthAnchor.constraint(equalToConstant: Constants.iconSize)
-        ])
+        transactionTypeView.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
+            make.width.equalTo(Constants.iconSize)
+        }
 
         contentView.addSubview(addressLabel)
-        addressLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            addressLabel.leadingAnchor.constraint(
-                equalTo: transactionTypeView.trailingAnchor,
-                constant: UIConstants.horizontalInset / 2
-            ),
-            addressLabel.topAnchor.constraint(
-                equalTo: contentView.topAnchor,
-                constant: Constants.verticalInset
-            )
-        ])
+        addressLabel.snp.makeConstraints { make in
+            make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
+        }
 
         contentView.addSubview(daysLeftLabel)
-        daysLeftLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            daysLeftLabel.leadingAnchor.constraint(
-                equalTo: transactionTypeView.trailingAnchor,
-                constant: UIConstants.horizontalInset / 2
-            ),
-            daysLeftLabel.topAnchor.constraint(equalTo: addressLabel.bottomAnchor),
-            daysLeftLabel.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -Constants.verticalInset
-            )
-        ])
+        daysLeftLabel.snp.makeConstraints { make in
+            make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2)
+            make.top.equalTo(addressLabel.snp.bottom)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
+        }
 
-        contentView.addSubview(ksmAmountLabel)
-        ksmAmountLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            ksmAmountLabel.trailingAnchor.constraint(
-                equalTo: contentView.trailingAnchor,
-                constant: -UIConstants.horizontalInset
-            ),
-            ksmAmountLabel.topAnchor.constraint(
-                equalTo: contentView.topAnchor,
-                constant: Constants.verticalInset
-            ),
-            addressLabel.trailingAnchor.constraint(
-                lessThanOrEqualTo: ksmAmountLabel.leadingAnchor,
-                constant: -UIConstants.horizontalInset
-            )
-        ])
+        contentView.addSubview(tokenAmountLabel)
+        tokenAmountLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
+            make.leading.greaterThanOrEqualTo(addressLabel.snp.trailing).offset(UIConstants.horizontalInset / 2)
+        }
 
         contentView.addSubview(usdAmountLabel)
-        usdAmountLabel.translatesAutoresizingMaskIntoConstraints = false
-        NSLayoutConstraint.activate([
-            usdAmountLabel.trailingAnchor.constraint(
-                equalTo: contentView.trailingAnchor,
-                constant: -UIConstants.horizontalInset
-            ),
-            usdAmountLabel.topAnchor.constraint(equalTo: ksmAmountLabel.bottomAnchor),
-            usdAmountLabel.bottomAnchor.constraint(
-                equalTo: contentView.bottomAnchor,
-                constant: -Constants.verticalInset
-            )
-        ])
+        usdAmountLabel.snp.makeConstraints { make in
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalTo(tokenAmountLabel.snp.bottom)
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
+        }
     }
-    // swiftlint:enable function_body_length
 }
 
 extension StakingRewardHistoryTableCell {
     func bind(model: StakingRewardHistoryCellViewModel) {
         addressLabel.text = model.addressOrName
         daysLeftLabel.attributedText = model.daysLeftText
-        ksmAmountLabel.text = model.tokenAmountText
+        tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
     }
 }

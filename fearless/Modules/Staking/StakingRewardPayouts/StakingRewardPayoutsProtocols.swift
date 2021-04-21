@@ -3,8 +3,7 @@ import SoraUI
 
 protocol StakingRewardPayoutsViewProtocol: ControllerBackedProtocol,
     Localizable,
-    LoadableViewProtocol,
-    EmptyStateViewOwnerProtocol {
+    LoadableViewProtocol {
     func reload(with state: StakingRewardPayoutsViewState)
 }
 
@@ -50,4 +49,11 @@ protocol StakingRewardPayoutsWireframeProtocol: AnyObject {
 protocol StakingRewardPayoutsViewFactoryProtocol: AnyObject {
     static func createViewForNominator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
     static func createViewForValidator(stashAddress: AccountAddress) -> StakingRewardPayoutsViewProtocol?
+}
+
+protocol StakingPayoutViewModelFactoryProtocol {
+    func createPayoutsViewModel(
+        payoutsInfo: PayoutsInfo,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingPayoutViewModel>
 }

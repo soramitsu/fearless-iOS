@@ -94,6 +94,29 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         mutex.unlock()
     }
 
+    private func createRequest(for stashItem: StashItem) throws -> [(StorageCodingPath, Data)] {
+        var requests: [(StorageCodingPath, Data)] = []
+
+        let stashId = try addressFactory.accountId(from: stashItem.stash)
+
+        if stashItem.stash != address {
+            requests.append((.controller, stashId))
+            requests.append((.account, stashId))
+        }
+
+        if stashItem.controller != address {
+            let controllerId = try addressFactory.accountId(from: stashItem.controller)
+            requests.append((.stakingLedger, controllerId))
+            requests.append((.account, controllerId))
+        }
+
+        requests.append((.nominators, stashId))
+        requests.append((.validatorPrefs, stashId))
+        requests.append((.payee, stashId))
+
+        return requests
+    }
+
     private func subscribeRemote(for stashItem: StashItem) {
         mutex.lock()
 
@@ -102,22 +125,7 @@ final class StakingAccountSubscription: WebSocketSubscribing {
         }
 
         do {
-            var requests: [(StorageCodingPath, Data)] = []
-
-            let stashId = try addressFactory.accountId(from: stashItem.stash)
-
-            if stashItem.stash != address {
-                requests.append((.controller, stashId))
-            }
-
-            if stashItem.controller != address {
-                let controllerId = try addressFactory.accountId(from: stashItem.controller)
-                requests.append((.stakingLedger, controllerId))
-            }
-
-            requests.append((.nominators, stashId))
-            requests.append((.validatorPrefs, stashId))
-            requests.append((.payee, stashId))
+            let requests = try createRequest(for: stashItem)
 
             let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 

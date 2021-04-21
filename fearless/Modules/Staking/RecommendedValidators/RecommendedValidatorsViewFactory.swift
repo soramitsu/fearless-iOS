@@ -30,8 +30,11 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
 
         let eraValidatorService = EraValidatorFacade.sharedService
         let runtimeService = RuntimeRegistryFacade.sharedService
-        let storageOperationFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
         let operationManager = OperationManagerFacade.sharedManager
+        let storageOperationFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
         let identityOperationFactory = IdentityOperationFactory(requestFactory: storageOperationFactory)
 
         let chain = SettingsManager.shared.selectedConnection.type.chain

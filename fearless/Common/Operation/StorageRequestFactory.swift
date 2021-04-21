@@ -37,18 +37,20 @@ protocol StorageRequestFactoryProtocol {
 
 final class StorageRequestFactory: StorageRequestFactoryProtocol {
     let remoteFactory: StorageKeyFactoryProtocol
+    let operationManager: OperationManagerProtocol
 
-    init(remoteFactory: StorageKeyFactoryProtocol) {
+    init(remoteFactory: StorageKeyFactoryProtocol, operationManager: OperationManagerProtocol) {
         self.remoteFactory = remoteFactory
+        self.operationManager = operationManager
     }
 
     private func createMergeOperation<T>(
-        dependingOn queryOperation: JSONRPCQueryOperation,
+        dependingOn queryOperation: BaseOperation<[[StorageUpdate]]>,
         decodingOperation: BaseOperation<[T?]>,
         keys: @escaping () throws -> [Data]
     ) -> ClosureOperation<[StorageResponse<T>]> {
         ClosureOperation<[StorageResponse<T>]> {
-            let result = try queryOperation.extractNoCancellableResultData()
+            let result = try queryOperation.extractNoCancellableResultData().flatMap { $0 }
 
             let resultChangesData = result.flatMap { StorageUpdateData(update: $0).changes }
 
@@ -84,29 +86,57 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         }
     }
 
+    private func createQueryOperation(
+        for keys: @escaping () throws -> [Data],
+        engine: JSONRPCEngine
+    ) -> BaseOperation<[[StorageUpdate]]> {
+        OperationCombiningService<[StorageUpdate]>(
+            operationManager: operationManager) {
+            let keys = try keys().map { $0.toHex(includePrefix: true) }
+
+            let itemsPerPage = 1000
+            let pageCount = (keys.count % itemsPerPage == 0) ?
+                keys.count / itemsPerPage : (keys.count / itemsPerPage + 1)
+
+            let wrappers: [CompoundOperationWrapper<[StorageUpdate]>] = (0 ..< pageCount).map { pageIndex in
+                let pageStart = pageIndex * itemsPerPage
+                let pageEnd = pageStart + itemsPerPage
+                let subkeys = (pageEnd < keys.count) ?
+                    Array(keys[pageStart ..< pageEnd]) :
+                    Array(keys.suffix(from: pageStart))
+
+                let queryOperation = JSONRPCQueryOperation(
+                    engine: engine,
+                    method: RPCMethod.queryStorageAt,
+                    parameters: [subkeys]
+                )
+
+                return CompoundOperationWrapper(targetOperation: queryOperation)
+            }
+
+            if !wrappers.isEmpty {
+                for index in 1 ..< wrappers.count {
+                    wrappers[index].allOperations
+                        .forEach { $0.addDependency(wrappers[0].targetOperation) }
+                }
+            }
+
+            return wrappers
+        }.longrunOperation()
+    }
+
     func queryItems<T>(
         engine: JSONRPCEngine,
         keys: @escaping () throws -> [Data],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
         storagePath: StorageCodingPath
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
-        let queryOperation = JSONRPCQueryOperation(
-            engine: engine,
-            method: RPCMethod.queryStorageAt
-        )
-        queryOperation.configurationBlock = {
-            do {
-                let keys = try keys().map { $0.toHex(includePrefix: true) }
-                queryOperation.parameters = [keys]
-            } catch {
-                queryOperation.result = .failure(error)
-            }
-        }
+        let queryOperation = createQueryOperation(for: keys, engine: engine)
 
         let decodingOperation = StorageFallbackDecodingListOperation<T>(path: storagePath)
         decodingOperation.configurationBlock = {
             do {
-                let result = try queryOperation.extractNoCancellableResultData()
+                let result = try queryOperation.extractNoCancellableResultData().flatMap { $0 }
 
                 decodingOperation.codingFactory = try factory()
 

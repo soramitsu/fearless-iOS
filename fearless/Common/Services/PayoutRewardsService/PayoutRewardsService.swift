@@ -7,36 +7,36 @@ import IrohaCrypto
 final class PayoutRewardsService: PayoutRewardsServiceProtocol {
     let selectedAccountAddress: String
     let chain: Chain
-    let subscanBaseURL: URL
+    let validatorsResolutionFactory: PayoutValidatorsFactoryProtocol
     let runtimeCodingService: RuntimeCodingServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let engine: JSONRPCEngine
     let operationManager: OperationManagerProtocol
-    let subscanOperationFactory: SubscanOperationFactoryProtocol
     let identityOperationFactory: IdentityOperationFactoryProtocol
+    let payoutInfoFactory: PayoutInfoFactoryProtocol
     let logger: LoggerProtocol?
 
     init(
         selectedAccountAddress: String,
         chain: Chain,
-        subscanBaseURL: URL,
+        validatorsResolutionFactory: PayoutValidatorsFactoryProtocol,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol,
-        subscanOperationFactory: SubscanOperationFactoryProtocol,
         identityOperationFactory: IdentityOperationFactoryProtocol,
+        payoutInfoFactory: PayoutInfoFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
-        self.subscanBaseURL = subscanBaseURL
+        self.validatorsResolutionFactory = validatorsResolutionFactory
         self.runtimeCodingService = runtimeCodingService
         self.storageRequestFactory = storageRequestFactory
         self.engine = engine
         self.operationManager = operationManager
-        self.subscanOperationFactory = subscanOperationFactory
         self.identityOperationFactory = identityOperationFactory
+        self.payoutInfoFactory = payoutInfoFactory
         self.logger = logger
     }
 
@@ -50,19 +50,8 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             historyRangeWrapper.allOperations.forEach { $0.addDependency(codingFactoryOperation) }
 
-            let erasRewardDistributionWrapper = try createErasRewardDistributionOperationWrapper(
-                dependingOn: historyRangeWrapper.targetOperation,
-                engine: engine,
-                codingFactoryOperation: codingFactoryOperation
-            )
-
-            erasRewardDistributionWrapper.allOperations
-                .forEach {
-                    $0.addDependency(historyRangeWrapper.targetOperation)
-                    $0.addDependency(codingFactoryOperation)
-                }
-
-            let validatorsWrapper = createValidatorsResolutionWrapper(for: selectedAccountAddress)
+            let validatorsWrapper = validatorsResolutionFactory
+                .createResolutionOperation(for: selectedAccountAddress)
 
             let controllersWrapper: CompoundOperationWrapper<[Data]> = try createFetchAndMapOperation(
                 dependingOn: validatorsWrapper.targetOperation,
@@ -92,6 +81,16 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
 
             unclaimedErasByStashOperation.addDependency(ledgerInfos.targetOperation)
             unclaimedErasByStashOperation.addDependency(historyRangeWrapper.targetOperation)
+
+            let erasRewardDistributionWrapper = try createErasRewardDistributionOperationWrapper(
+                dependingOn: unclaimedErasByStashOperation,
+                engine: engine,
+                codingFactoryOperation: codingFactoryOperation
+            )
+
+            erasRewardDistributionWrapper.allOperations.forEach {
+                $0.addDependency(unclaimedErasByStashOperation)
+            }
 
             let exposuresByEraWrapper: CompoundOperationWrapper<[EraIndex: [Data: ValidatorExposure]]> =
                 try createCreateHistoryByEraAccountIdOperation(
@@ -128,6 +127,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             identityWrapper.allOperations.forEach { $0.addDependency(eraInfoOperation) }
 
             let payoutOperation = try calculatePayouts(
+                for: payoutInfoFactory,
                 dependingOn: eraInfoOperation,
                 erasRewardOperation: erasRewardDistributionWrapper.targetOperation,
                 historyRangeOperation: historyRangeWrapper.targetOperation,

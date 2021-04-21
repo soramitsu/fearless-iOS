@@ -2,7 +2,7 @@ import UIKit
 
 final class AccountInfoTableViewCell: UITableViewCell {
     let detailsView: DetailsTriangularedView = {
-        let detailsView = UIFactory().createDetailsView(with: .smallIconTitleSubtitle, filled: true)
+        let detailsView = UIFactory().createDetailsView(with: .smallIconTitleSubtitle, filled: false)
         detailsView.titleLabel.lineBreakMode = .byTruncatingMiddle
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
         detailsView.actionImage = R.image.iconMore()
