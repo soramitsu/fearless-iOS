@@ -50,4 +50,12 @@ final class AccountInfoTableViewCell: UITableViewCell {
 
         setNeedsLayout()
     }
+
+    func bind(model: PayoutAccountViewModel) {
+        detailsView.title = model.title
+        detailsView.subtitle = model.name
+        detailsView.iconImage = model.icon
+
+        setNeedsLayout()
+    }
 }

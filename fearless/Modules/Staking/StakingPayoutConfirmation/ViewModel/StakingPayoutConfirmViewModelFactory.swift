@@ -7,7 +7,7 @@ protocol StakingPayoutConfirmViewModelFactoryProtocol {
     func createPayoutConfirmViewModel(
         with account: AccountItem,
         rewardAmount: Decimal
-    ) -> [RewardDetailsRow]
+    ) -> [LocalizableResource<RewardConfirmRow>]
 }
 
 final class StakingPayoutConfirmViewModelFactory {
@@ -27,16 +27,27 @@ final class StakingPayoutConfirmViewModelFactory {
 
     // MARK: - Private functions
 
-    private func createAccountRow(with account: AccountItem) -> RewardDetailsRow {
-        // TODO: Create separate structure: title, name, icon
-        .validatorInfo(.init(
-            name: account.username,
-            address: account.address,
-            icon: nil
-        ))
+    private func createAccountRow(with account: AccountItem) -> LocalizableResource<RewardConfirmRow> {
+        let userIcon = try? iconGenerator.generateFromAddress(account.address)
+            .imageWithFillColor(
+                .white,
+                size: UIConstants.smallAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
+
+        return LocalizableResource { locale in
+            let title = R.string.localizable
+                .accountInfoTitle(preferredLanguages: locale.rLanguages)
+
+            return .accountInfo(.init(
+                title: title,
+                name: account.username,
+                icon: userIcon
+            ))
+        }
     }
 
-    private func createRewardAmountRow(with amount: Decimal) -> LocalizableResource<RewardDetailsRow> {
+    private func createRewardAmountRow(with amount: Decimal) -> LocalizableResource<RewardConfirmRow> {
         let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
         return LocalizableResource { locale in
 
@@ -46,19 +57,25 @@ final class StakingPayoutConfirmViewModelFactory {
             let amount = tokenFormatter.value(for: locale)
                 .string(from: amount) ?? ""
 
-            let price = ""
+            let price = "" // TODO: Add price
 
-            return .reward(.init(ksmAmountText: amount, usdAmountText: price))
+            return .rewardAmountViewModel(.init(title: title, tokenAmount: amount, fiatAmount: price))
         }
     }
 }
 
 extension StakingPayoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol {
-    func createPayoutConfirmViewModel(with account: AccountItem, rewardAmount _: Decimal) -> [RewardDetailsRow] {
-        var viewModel: [RewardDetailsRow] = []
+    func createPayoutConfirmViewModel
+    (
+        with account: AccountItem,
+        rewardAmount: Decimal
+    )
+        -> [LocalizableResource<RewardConfirmRow>] {
+        var viewModel: [LocalizableResource<RewardConfirmRow>] = []
 
         viewModel.append(createAccountRow(with: account))
         // TODO: Reward destination
+        viewModel.append(createRewardAmountRow(with: rewardAmount))
 
         return viewModel
     }

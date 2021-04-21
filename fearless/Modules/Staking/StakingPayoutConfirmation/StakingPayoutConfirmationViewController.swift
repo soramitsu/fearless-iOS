@@ -7,7 +7,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     let presenter: StakingPayoutConfirmationPresenterProtocol
 
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
-    private var viewModel: [RewardDetailsRow]?
+    private var viewModel: [LocalizableResource<RewardConfirmRow>] = []
 
     init(
         presenter: StakingPayoutConfirmationPresenterProtocol,
@@ -67,13 +67,11 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
-            StakingRewardDetailsLabelTableCell.self,
-            StakingRewardDetailsRewardTableCell.self,
-            AccountInfoTableViewCell.self
+            AccountInfoTableViewCell.self,
+            StakingPayoutConfirmRewardTableCell.self
         ])
-        rootView.tableView.delegate = self
-        rootView.tableView.dataSource = self
 
+        rootView.tableView.dataSource = self
         rootView.tableView.allowsSelection = false
     }
 }
@@ -117,67 +115,29 @@ extension StakingPayoutConfirmationViewController: Localizable {
     }
 }
 
-// MARK: - UITableViewDelegate
-
-extension StakingPayoutConfirmationViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        // TODO: FLW-677
-    }
-}
-
 // MARK: - UITableViewDataSource
 
 extension StakingPayoutConfirmationViewController: UITableViewDataSource {
-    // TODO: delete stub data
-    var stubCellData: [RewardDetailsRow] {
-        [
-            .validatorInfo(.init(
-                name: "Payout account",
-                address: "🐟 ANDREY",
-                icon: R.image.iconAccount()
-            )),
-            .validatorInfo(.init(
-                name: "Validator",
-                address: "✨👍✨ Day7 ✨👍✨",
-                icon: R.image.iconAccount()
-            )),
-            .destination(.init(
-                titleText: R.string.localizable.stakingRewardDestinationTitle(),
-                valueText: R.string.localizable.stakingRestakeTitle()
-            )),
-            .reward(.init(ksmAmountText: "0.00005 KSM", usdAmountText: "$0,01"))
-        ]
-    }
-
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        viewModel?.count ?? 0
+        viewModel.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        switch viewModel?[indexPath.row] {
-        case let .destination(viewModel):
+        switch viewModel[indexPath.row].value(for: locale) {
+        case let .rewardAmountViewModel(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
-            cell.bind(model: viewModel)
-            return cell
-
-        case let .reward(rewardViewModel):
-            let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsRewardTableCell.self)!
+                StakingPayoutConfirmRewardTableCell.self)!
             cell.bind(
-                title: R.string.localizable.stakingRewardDetailsReward(preferredLanguages: locale.rLanguages),
-                model: rewardViewModel
+                model: viewModel
             )
             return cell
 
-        case let .validatorInfo(model):
+        case let .accountInfo(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
-            cell.bind(model: model)
+            cell.bind(model: viewModel)
             return cell
 
         default:
@@ -195,7 +155,7 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
         setupTranformViewLocalization(locale)
     }
 
-    func didRecieve(viewModel: [RewardDetailsRow]) {
+    func didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>]) {
         self.viewModel = viewModel
     }
 }
