@@ -109,6 +109,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
             amount: feeString,
             shouldAllowAction: true
         )
+
         rootView.transferConfirmView.bind(viewModel: viewModel)
     }
 

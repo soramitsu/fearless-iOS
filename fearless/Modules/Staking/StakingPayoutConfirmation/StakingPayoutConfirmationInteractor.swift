@@ -126,6 +126,7 @@ final class StakingPayoutConfirmationInteractor {
 extension StakingPayoutConfirmationInteractor: StakingPayoutConfirmationInteractorInputProtocol {
     func setup() {
         subscribeToAccountChanges()
+        subscribeToPriceChanges()
         getRewardData()
     }
 
