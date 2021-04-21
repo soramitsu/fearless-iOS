@@ -19220,7 +19220,7 @@ import SoraFoundation
     
      func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])  {
         
-    return cuckoo_manager.call("didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>])",
+    return cuckoo_manager.call("didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
@@ -19327,7 +19327,7 @@ import SoraFoundation
 	    
 	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<([LocalizableResource<PayoutConfirmViewModel>])> where M1.MatchedType == [LocalizableResource<PayoutConfirmViewModel>] {
 	        let matchers: [Cuckoo.ParameterMatcher<([LocalizableResource<PayoutConfirmViewModel>])>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationViewProtocol.self, method: "didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>])", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationViewProtocol.self, method: "didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceive<M1: Cuckoo.OptionalMatchable>(feeViewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LocalizableResource<BalanceViewModelProtocol>?)> where M1.OptionalMatchedType == LocalizableResource<BalanceViewModelProtocol> {
@@ -19394,7 +19394,7 @@ import SoraFoundation
 	    @discardableResult
 	    func didRecieve<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<([LocalizableResource<PayoutConfirmViewModel>]), Void> where M1.MatchedType == [LocalizableResource<PayoutConfirmViewModel>] {
 	        let matchers: [Cuckoo.ParameterMatcher<([LocalizableResource<PayoutConfirmViewModel>])>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didRecieve(viewModel: [LocalizableResource<RewardConfirmRow>])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>])", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult

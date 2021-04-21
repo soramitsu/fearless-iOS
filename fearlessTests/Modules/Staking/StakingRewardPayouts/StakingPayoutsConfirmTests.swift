@@ -9,6 +9,9 @@ class StakingPayoutsConfirmTests: XCTestCase {
     func testSetupAndSendExtrinsic() throws {
         // given
 
+        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+        let accountId = try! SS58AddressFactory().accountId(from: address)
+
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
         let chain: Chain = .westend
@@ -60,7 +63,10 @@ class StakingPayoutsConfirmTests: XCTestCase {
                                                              balanceProvider: AnyDataProvider(balanceProvider),
                                                              priceProvider: AnySingleValueProvider(priceProvider),
                                                              settings: settings,
-                                                             payouts: []
+                                                             payouts: [PayoutInfo(era: 1000,
+                                                                                  validator: accountId,
+                                                                                  reward: 100.0,
+                                                                                  identity: nil)]
             )
         
         presenter.view = view
