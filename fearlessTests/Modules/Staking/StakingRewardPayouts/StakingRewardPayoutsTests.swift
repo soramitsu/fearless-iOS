@@ -1,30 +1,32 @@
 import XCTest
 import Cuckoo
+import RobinHood
 @testable import fearless
 
 class StakingRewardPayoutsTests: XCTestCase {
 
     func testViewStateIsLoadingThenError() {
-        let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
+        let payoutServiceThatReturnsError = PayoutRewardsServiceStub.error()
+        let interactor = StakingRewardPayoutsInteractor(
+            payoutService: payoutServiceThatReturnsError,
+            priceProvider: SingleValueProviderFactoryStub.westendNominatorStub().price,
+            operationManager: OperationManager()
+        )
         let view = MockStakingRewardPayoutsViewProtocol()
 
+        let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
         let presenter = StakingRewardPayoutsPresenter(
             chain: .westend,
-            viewModelFactory: MockStakingPayoutViewModelFactoryProtocol()
+            viewModelFactory: viewModelFactory
         )
         presenter.interactor = interactor
         presenter.view = view
+        interactor.presenter = presenter
 
         // given
         let viewStateIsLoadingOnPresenterSetup = XCTestExpectation()
         let viewStateIsNotLoadingWhenPresenterRecievedResult = XCTestExpectation()
         let viewStateIsErrorWhenPresenterRecievedError = XCTestExpectation()
-
-        stub(interactor) { stub in
-            when(stub).setup().then {
-                presenter.didReceive(result: .failure(.unknown))
-            }
-        }
 
         stub(view) { stub in
             when(stub).reload(with: any())
@@ -57,5 +59,6 @@ class StakingRewardPayoutsTests: XCTestCase {
             timeout: Constants.defaultExpectationDuration
         )
         verify(view, times(3)).reload(with: any())
+        XCTAssert(payoutServiceThatReturnsError.fetchPayoutsCounter == 1)
     }
 }
