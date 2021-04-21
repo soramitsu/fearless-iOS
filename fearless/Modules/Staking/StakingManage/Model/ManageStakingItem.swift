@@ -16,7 +16,7 @@ enum ManageStakingItem: CaseIterable {
     var icon: UIImage? {
         switch self {
         case .stakingBalance:
-            return R.image.iconLightning() // TODO:
+            return R.image.iconStakingBalance()
         case .rewardPayouts:
             return R.image.iconLightning()
         }
