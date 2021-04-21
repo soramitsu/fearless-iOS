@@ -393,7 +393,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
-        guard index > 0, index < manageStakingItems.count else { return }
+        guard index >= 0, index < manageStakingItems.count else { return }
         let selectedItem = manageStakingItems[index]
         switch selectedItem {
         case .rewardPayouts:

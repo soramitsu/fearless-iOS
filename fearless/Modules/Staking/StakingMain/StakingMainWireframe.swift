@@ -68,8 +68,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStakingBalance(from view: ControllerBackedProtocol?) {
-        // TODO FLW-768
+    func showStakingBalance(from _: ControllerBackedProtocol?) {
+        // TODO: FLW-768
     }
 
     func showAccountsSelection(from view: StakingMainViewProtocol?) {

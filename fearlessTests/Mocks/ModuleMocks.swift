@@ -18892,6 +18892,21 @@ import SoraFoundation
     
     
     
+     func showStakingBalance(from view: ControllerBackedProtocol?)  {
+        
+    return cuckoo_manager.call("showStakingBalance(from: ControllerBackedProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showStakingBalance(from: view))
+        
+    }
+    
+    
+    
      func showAccountsSelection(from view: StakingMainViewProtocol?)  {
         
     return cuckoo_manager.call("showAccountsSelection(from: StakingMainViewProtocol?)",
@@ -18974,6 +18989,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRewardPayoutsForValidator(from: ControllerBackedProtocol?, stashAddress: AccountAddress)", parameterMatchers: matchers))
 	    }
 	    
+	    func showStakingBalance<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStakingBalance(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
 	    func showAccountsSelection<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?)> where M1.OptionalMatchedType == StakingMainViewProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showAccountsSelection(from: StakingMainViewProtocol?)", parameterMatchers: matchers))
@@ -19042,6 +19062,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showStakingBalance<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showStakingBalance(from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func showAccountsSelection<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(StakingMainViewProtocol?), Void> where M1.OptionalMatchedType == StakingMainViewProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingMainViewProtocol?)>] = [wrap(matchable: view) { $0 }]
 	        return cuckoo_manager.verify("showAccountsSelection(from: StakingMainViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -19089,6 +19115,10 @@ import SoraFoundation
     }
     
      func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showStakingBalance(from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

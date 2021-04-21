@@ -135,4 +135,40 @@ class StakingMainTests: XCTestCase {
 
         wait(for: expectations, timeout: 5)
     }
+
+    func testManageStakingBalanceAction() {
+        let wireframe = MockStakingMainWireframeProtocol()
+        let interactor = StakingMainInteractorInputProtocolStub()
+
+        let settings = InMemorySettingsManager()
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
+        let stateViewModelFactory = StakingStateViewModelFactory(
+            primitiveFactory: primitiveFactory,
+            logger: nil
+        )
+        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+        let presenter = StakingMainPresenter(
+            stateViewModelFactory: stateViewModelFactory,
+            networkInfoViewModelFactory: networkViewModelFactory,
+            viewModelFacade: viewModelFacade,
+            logger: nil
+        )
+        presenter.wireframe = wireframe
+        presenter.interactor = interactor
+
+        // given
+        let showStakingBalanceExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).showStakingBalance(from: any()).then { _ in
+                showStakingBalanceExpectation.fulfill()
+            }
+        }
+
+        // when
+        presenter.modalPickerDidSelectModelAtIndex(0, context: nil)
+
+        // then
+        wait(for: [showStakingBalanceExpectation], timeout: Constants.defaultExpectationDuration)
+    }
 }
