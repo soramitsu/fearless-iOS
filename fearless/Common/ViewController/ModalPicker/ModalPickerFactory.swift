@@ -257,18 +257,19 @@ enum ModalPickerFactory {
             return nil
         }
 
-        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+        let viewController: ModalPickerViewController<StakingManageCell, IconWithTitleViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
             R.string.localizable.stakingManageTitle(preferredLanguages: locale.rLanguages)
         }
 
-        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.delegate = delegate
         viewController.modalPresentationStyle = .custom
         viewController.context = context
         viewController.selectedIndex = NSNotFound
+        viewController.separatorStyle = .singleLine
+        viewController.cellHeight = StakingManageCell.cellHeight
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in
@@ -282,8 +283,8 @@ enum ModalPickerFactory {
         let factory = ModalSheetPresentationFactory(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
-        let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
-            viewController.footerHeight
+        let height = viewController.headerHeight
+            + CGFloat(items.count) * viewController.cellHeight
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 
         viewController.localizationManager = LocalizationManager.shared

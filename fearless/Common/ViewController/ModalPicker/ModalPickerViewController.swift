@@ -42,6 +42,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
     var allowsSelection: Bool = true
 
     var viewModels: [LocalizableResource<T>] = []
+    var separatorStyle: UITableViewCell.SeparatorStyle = .none
 
     weak var delegate: ModalPickerViewControllerDelegate?
     weak var presenter: ModalPresenterProtocol?
@@ -63,6 +64,7 @@ class ModalPickerViewController<C: UITableViewCell & ModalPickerCellProtocol, T>
         }
 
         tableView.allowsSelection = allowsSelection
+        tableView.separatorStyle = separatorStyle
 
         headerHeightConstraint.constant = headerHeight
 

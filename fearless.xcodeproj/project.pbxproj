@@ -1008,6 +1008,7 @@
 		F477CD26262EAD30004DF739 /* StakingPayoutViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F477CD25262EAD30004DF739 /* StakingPayoutViewModelFactory.swift */; };
 		F477CD3A262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F477CD39262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift */; };
 		F477CD75262FFA4F004DF739 /* PayoutRewardsServiceStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = F477CD74262FFA4F004DF739 /* PayoutRewardsServiceStub.swift */; };
+		F477CD9026306DC6004DF739 /* StakingManageCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F477CD8F26306DC6004DF739 /* StakingManageCell.swift */; };
 		F47F5A7A2626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */; };
 		F47F5A822626FDB9009BCFF4 /* StakingPayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
@@ -2078,6 +2079,7 @@
 		F477CD25262EAD30004DF739 /* StakingPayoutViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutViewModelFactory.swift; sourceTree = "<group>"; };
 		F477CD39262EE0E7004DF739 /* StakingRewardDetailsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewModelFactory.swift; sourceTree = "<group>"; };
 		F477CD74262FFA4F004DF739 /* PayoutRewardsServiceStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutRewardsServiceStub.swift; sourceTree = "<group>"; };
+		F477CD8F26306DC6004DF739 /* StakingManageCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingManageCell.swift; sourceTree = "<group>"; };
 		F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryViewModel.swift; sourceTree = "<group>"; };
 		F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutViewModel.swift; sourceTree = "<group>"; };
 		F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageStakingItem.swift; sourceTree = "<group>"; };
@@ -5011,6 +5013,7 @@
 		F453C1B1260B50450095E23F /* StakingManage */ = {
 			isa = PBXGroup;
 			children = (
+				F477CD8E26306DAA004DF739 /* View */,
 				F4A12BF5260B61D900392C33 /* Model */,
 			);
 			path = StakingManage;
@@ -5033,6 +5036,14 @@
 				F4F22966260DBC7200ACFDB8 /* StakingRewardDetailsStatusTableCell.swift */,
 				F4F2296B260DBDCE00ACFDB8 /* StakingRewardDetailsLabelTableCell.swift */,
 				F4F22975260DBF3F00ACFDB8 /* StakingRewardDetailsRewardTableCell.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
+		F477CD8E26306DAA004DF739 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F477CD8F26306DC6004DF739 /* StakingManageCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5931,6 +5942,7 @@
 				849014C124AA87E4008F705E /* LocalAuthProtocol.swift in Sources */,
 				841E6B0A25EC1C140007DDFE /* ValidatorOperationFactory.swift in Sources */,
 				8490151B24ABC44E008F705E /* TransactionHistoryConfigurator.swift in Sources */,
+				F477CD9026306DC6004DF739 /* StakingManageCell.swift in Sources */,
 				AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */,
 				AE4A71D42607B1440017C663 /* NetworkStakingInfoViewModel.swift in Sources */,
 				84DB4E2325E945E000A6DF41 /* SlashingSpans.swift in Sources */,
