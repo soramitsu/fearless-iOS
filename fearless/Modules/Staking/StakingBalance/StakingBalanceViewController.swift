@@ -27,10 +27,19 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupTitle()
         presenter.setup()
+    }
+
+    private func setupTitle() {
+        title = "Staking balance" // TODO
     }
 }
 
 extension StakingBalanceViewController: StakingBalanceViewProtocol {
-    func applyLocalization() {}
+    func applyLocalization() {
+        if isViewLoaded {
+            setupTitle()
+        }
+    }
 }
