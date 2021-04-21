@@ -58,14 +58,14 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
             amount: "",
             shouldAllowAction: false
         )
-        rootView.transferConfirmView.bind(viewModel: viewModel)
+        rootView.payoutConfirmView.bind(viewModel: viewModel)
 
         if #available(iOS 14, *) {
-            rootView.transferConfirmView.actionButton.addAction(UIAction(title: "", handler: { [weak self] _ in
+            rootView.payoutConfirmView.actionButton.addAction(UIAction(title: "", handler: { [weak self] _ in
                 self?.confirmAction()
             }), for: .touchUpInside)
         } else {
-            rootView.transferConfirmView.actionButton
+            rootView.payoutConfirmView.actionButton
                 .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
         }
     }
@@ -110,7 +110,7 @@ extension StakingPayoutConfirmationViewController: Localizable {
             shouldAllowAction: true
         )
 
-        rootView.transferConfirmView.bind(viewModel: viewModel)
+        rootView.payoutConfirmView.bind(viewModel: viewModel)
     }
 
     func applyLocalization() {

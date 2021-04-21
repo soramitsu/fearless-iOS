@@ -2,6 +2,10 @@ import UIKit
 import SnapKit
 
 final class StakingPayoutConfirmationViewLayout: UIView {
+    private enum Constants {
+        static let bottomViewHeight: CGFloat = 164.0
+    }
+
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
@@ -10,7 +14,7 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         return tableView
     }()
 
-    let transferConfirmView: TransferConfirmAccessoryView! = {
+    let payoutConfirmView: TransferConfirmAccessoryView! = {
         UINib(resource: R.nib.transferConfirmAccessoryView)
             .instantiate(withOwner: nil, options: nil)[0] as? TransferConfirmAccessoryView
     }()
@@ -41,11 +45,11 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.leading.bottom.trailing.equalToSuperview()
         }
 
-        let transferHeight = 136 - safeAreaInsets.bottom
-        addSubview(transferConfirmView)
-        transferConfirmView.snp.makeConstraints { make in
+        let bottomViewHeight = Constants.bottomViewHeight - safeAreaInsets.bottom
+        addSubview(payoutConfirmView)
+        payoutConfirmView.snp.makeConstraints { make in
             make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(transferHeight)
+            make.height.equalTo(bottomViewHeight)
         }
     }
 }
