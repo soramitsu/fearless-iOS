@@ -81,6 +81,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+    func showStakingBalance(from view: ControllerBackedProtocol?)
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }
