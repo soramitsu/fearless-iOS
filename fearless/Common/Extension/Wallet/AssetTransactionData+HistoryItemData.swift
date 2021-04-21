@@ -155,8 +155,6 @@ extension AssetTransactionData {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let amount = AmountDecimal(string: item.amount) ?? AmountDecimal(value: 0)
-
         let peerAddress = item.sender == address ? item.receiver : item.sender
 
         let accountId = try? addressFactory.accountId(
@@ -165,7 +163,13 @@ extension AssetTransactionData {
         )
 
         let peerId = accountId?.toHex() ?? peerAddress
-        let feeDecimal = Decimal(string: item.fee) ?? .zero
+        let feeDecimal: Decimal = {
+            guard let feeValue = BigUInt(item.fee) else {
+                return .zero
+            }
+
+            return Decimal.fromSubstrateAmount(feeValue, precision: networkType.precision) ?? .zero
+        }()
 
         let fee = AssetTransactionFee(
             identifier: asset.identifier,
@@ -186,7 +190,7 @@ extension AssetTransactionData {
             peerLastName: nil,
             peerName: peerAddress,
             details: "",
-            amount: amount,
+            amount: <#T##AmountDecimal#>
             fees: [fee],
             timestamp: item.timestamp,
             type: type.rawValue,

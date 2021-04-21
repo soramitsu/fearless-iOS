@@ -1,6 +1,8 @@
 import Foundation
 import CommonWallet
 import IrohaCrypto
+import BigInt
+import FearlessUtils
 
 extension TransactionHistoryItem {
     static func createFromTransferInfo(
@@ -23,9 +25,23 @@ extension TransactionHistoryItem {
             type: networkType
         )
 
+        guard let amount = info.amount.decimalValue
+                .toSubstrateAmount(precision: networkType.precision) else {
+            throw AmountDecimalError.invalidStringValue
+        }
+
+        let call = TransferCall(dest: .accoundId(receiverAccountId), value: amount)
+        let callArgs = try JSONEncoder.scaleCompatible().encode(call)
+
         let totalFee = info.fees.reduce(Decimal(0)) { total, fee in total + fee.value.decimalValue }
 
+        guard let feeValue = totalFee.toSubstrateAmount(precision: networkType.precision) else {
+            throw AmountDecimalError.invalidStringValue
+        }
+
         let timestamp = Int64(Date().timeIntervalSince1970)
+
+        let callPath = CallCodingPath.transfer
 
         return TransactionHistoryItem(
             sender: sender,
@@ -33,10 +49,12 @@ extension TransactionHistoryItem {
             status: .pending,
             txHash: transactionHash.toHex(includePrefix: true),
             timestamp: timestamp,
-            amount: info.amount.stringValue,
-            fee: totalFee.stringWithPointSeparator,
+            fee: String(feeValue),
             blockNumber: nil,
-            txIndex: nil
+            txIndex: nil,
+            callName: callPath.callName,
+            moduleName: callPath.moduleName,
+            callArgs: callArgs
         )
     }
 }
