@@ -293,6 +293,7 @@ class JSONRPCTests: XCTestCase {
     func testMultipleChangesQuery() throws {
         try performTestMultipleChangesQuery(keysCount: 100)
         try performTestMultipleChangesQuery(keysCount: 1000)
+        try performTestMultipleChangesQuery(keysCount: 1999)
         try performTestMultipleChangesQuery(keysCount: 3000)
         try performTestMultipleChangesQuery(keysCount: 3001)
         try performTestMultipleChangesQuery(keysCount: 1001)
