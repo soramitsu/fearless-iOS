@@ -14,11 +14,7 @@ class StakingRewardDetailsTests: XCTestCase {
         let view = MockStakingRewardDetailsViewProtocol()
         let wireframe = MockStakingRewardDetailsWireframeProtocol()
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
-        let assetId = WalletAssetId(rawValue: asset.identifier)!
-        let providerFactory = SingleValueProviderFactory.shared
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+        let priceProvider = SingleValueProviderFactoryStub.westendNominatorStub().price
         let interactor = StakingRewardDetailsInteractor(priceProvider: priceProvider)
 
         let payoutInfo = PayoutInfo(
@@ -35,7 +31,7 @@ class StakingRewardDetailsTests: XCTestCase {
         )
 
         let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
+            walletPrimitiveFactory: WalletPrimitiveFactory(settings: settings),
             selectedAddressType: input.chain.addressType,
             limit: StakingConstants.maxAmount
         )
