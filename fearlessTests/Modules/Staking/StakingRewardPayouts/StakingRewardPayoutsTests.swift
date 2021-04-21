@@ -63,10 +63,11 @@ class StakingRewardPayoutsTests: XCTestCase {
         XCTAssert(payoutServiceThatReturnsError.fetchPayoutsCounter == 1)
     }
 
-    func testShowRewardDetailsWhenUserSelectTableRow() {
+    func testHandlePresenterActions() {
         // given
         let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
         let wireframe = MockStakingRewardPayoutsWireframeProtocol()
+        let view = MockStakingRewardPayoutsViewProtocol()
 
         let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
         let presenter = StakingRewardPayoutsPresenter(
@@ -75,9 +76,7 @@ class StakingRewardPayoutsTests: XCTestCase {
         )
         presenter.wireframe = wireframe
         presenter.interactor = interactor
-
-        let viewController = StakingRewardPayoutsViewController(presenter: presenter, localizationManager: nil)
-        presenter.view = viewController
+        presenter.view = view
 
         stub(interactor) { stub in
             when(stub).setup().then {
@@ -98,6 +97,15 @@ class StakingRewardPayoutsTests: XCTestCase {
             }
         }
 
+        let viewStateIsPayoutListExpectation = XCTestExpectation()
+        stub(view) { stub in
+            when(stub).reload(with: any()).then { viewState in
+                if case StakingRewardPayoutsViewState.payoutsList(_) = viewState {
+                    viewStateIsPayoutListExpectation.fulfill()
+                }
+            }
+        }
+
         let showRewardDetailsExpectation = XCTestExpectation()
         stub(wireframe) { stub in
             when(stub)
@@ -105,50 +113,6 @@ class StakingRewardPayoutsTests: XCTestCase {
                 .then { _ in
                     showRewardDetailsExpectation.fulfill()
                 }
-        }
-
-        // when
-        let tableView = viewController.rootView.tableView
-        viewController.loadView()
-        tableView.delegate?.tableView?(tableView, didSelectRowAt: IndexPath(row: 0, section: 0))
-
-        // then
-        wait(for: [showRewardDetailsExpectation], timeout: Constants.defaultExpectationDuration)
-    }
-
-    func testShowPayoutConfirmationWhenUserTapsPayoutButton() {
-        // given
-        let interactor = MockStakingRewardPayoutsInteractorInputProtocol()
-        let wireframe = MockStakingRewardPayoutsWireframeProtocol()
-
-        let viewModelFactory = MockStakingPayoutViewModelFactoryProtocol()
-        let presenter = StakingRewardPayoutsPresenter(
-            chain: .westend,
-            viewModelFactory: viewModelFactory
-        )
-        presenter.wireframe = wireframe
-        presenter.interactor = interactor
-
-        let viewController = StakingRewardPayoutsViewController(presenter: presenter, localizationManager: nil)
-        presenter.view = viewController
-
-        stub(interactor) { stub in
-            when(stub).setup().then {
-                if case let Result.success(payoutsInfo) = PayoutRewardsServiceStub.dummy().result {
-                    presenter.didReceive(result: .success(payoutsInfo))
-                }
-            }
-        }
-
-        stub(viewModelFactory) { stub in
-            when(stub).createPayoutsViewModel(payoutsInfo: any(), priceData: any()).then { _ in
-                LocalizableResource { _ in
-                    StakingPayoutViewModel(
-                        cellViewModels: [],
-                        bottomButtonTitle: "Payout all"
-                    )
-                }
-            }
         }
 
         let showPayoutConfirmationExpectation = XCTestExpectation()
@@ -161,10 +125,18 @@ class StakingRewardPayoutsTests: XCTestCase {
         }
 
         // when
-        let payoutButton = viewController.rootView.payoutButton
-        payoutButton.sendActions(for: .touchUpInside)
+        presenter.setup()
+        presenter.handleSelectedHistory(at: 0)
+        presenter.handlePayoutAction()
 
         // then
-        wait(for: [showPayoutConfirmationExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(
+            for: [
+                viewStateIsPayoutListExpectation,
+                showRewardDetailsExpectation,
+                showPayoutConfirmationExpectation
+            ],
+            timeout: Constants.defaultExpectationDuration
+        )
     }
 }
