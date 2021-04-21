@@ -3,6 +3,8 @@ import UIKit
 final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
     typealias Model = IconWithTitleViewModel
 
+    static let cellHeight: CGFloat = 48
+
     var checkmarked: Bool = false
 
     let iconImageView = UIImageView()
@@ -42,8 +44,8 @@ final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
 
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(15)
-            make.bottom.top.equalToSuperview().inset(15)
+            make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.horizontalInset)
+            make.centerY.equalToSuperview()
         }
 
         contentView.addSubview(disclosureIndicatorView)

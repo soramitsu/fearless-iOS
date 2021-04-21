@@ -269,6 +269,7 @@ enum ModalPickerFactory {
         viewController.context = context
         viewController.selectedIndex = NSNotFound
         viewController.separatorStyle = .singleLine
+        viewController.cellHeight = StakingManageCell.cellHeight
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in
