@@ -36,7 +36,7 @@ final class AccountInfoTableViewCell: UITableViewCell {
     private func setupLayout() {
         contentView.addSubview(detailsView)
         detailsView.snp.makeConstraints { make in
-            make.top.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview()
             make.height.equalTo(52)
         }

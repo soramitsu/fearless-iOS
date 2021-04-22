@@ -74,6 +74,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         ])
 
         rootView.tableView.dataSource = self
+        rootView.tableView.delegate = self
         rootView.tableView.allowsSelection = false
     }
 }
@@ -148,6 +149,18 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
             let cell = tableView.dequeueReusableCellWithType(StakingPayoutLabelTableCell.self)!
             cell.bind(model: viewModel)
             return cell
+        }
+    }
+}
+
+extension StakingPayoutConfirmationViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        switch viewModel[indexPath.row].value(for: locale) {
+        case .accountInfo:
+            return 66.0
+        default:
+            return 48.0
         }
     }
 }

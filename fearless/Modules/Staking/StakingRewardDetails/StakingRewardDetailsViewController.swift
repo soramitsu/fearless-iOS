@@ -142,4 +142,13 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
             return UITableViewCell()
         }
     }
+
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch rows[indexPath.row] {
+        case .validatorInfo:
+            return 66.0
+        default:
+            return 48.0
+        }
+    }
 }
