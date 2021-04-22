@@ -69,7 +69,7 @@ extension StakingBalanceWidgetView {
 
         separators.dropLast().forEach { separator in
             separator.snp.makeConstraints {
-                $0.height.equalTo(1)
+                $0.height.equalTo(0.75)
                 $0.width.equalToSuperview()
             }
         }

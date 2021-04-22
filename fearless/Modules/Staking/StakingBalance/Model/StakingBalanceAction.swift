@@ -23,11 +23,11 @@ extension StakingBalanceAction {
     var iconImage: UIImage? {
         switch self {
         case .bondMore:
-            return nil
+            return R.image.iconBondMore()
         case .unbond:
-            return nil
+            return R.image.iconUnbond()
         case .redeem:
-            return nil
+            return R.image.iconRedeem()
         }
     }
 }

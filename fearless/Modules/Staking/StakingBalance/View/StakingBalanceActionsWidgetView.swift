@@ -68,7 +68,7 @@ private final class StakingBalanceActionButton: UIButton {
         super.init(frame: .zero)
         setupLayout()
 
-        iconImageView.image = R.image.iconStakingBalance() // action.iconImage
+        iconImageView.image = action.iconImage
         iconImageView.isUserInteractionEnabled = false
 
         actionTitleLabel.text = action.title(for: .current)
