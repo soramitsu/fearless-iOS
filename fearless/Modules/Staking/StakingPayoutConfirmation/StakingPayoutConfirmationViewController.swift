@@ -138,10 +138,6 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         case let .accountInfo(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
-            cell.detailsView.fillColor = .clear
-            cell.detailsView.highlightedFillColor = R.color.colorHighlightedPink()!
-            cell.detailsView.strokeColor = R.color.colorStrokeGray()!
-            cell.detailsView.borderWidth = 1
             cell.bind(model: viewModel)
             cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
 

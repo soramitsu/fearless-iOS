@@ -6,6 +6,9 @@ final class AccountInfoTableViewCell: UITableViewCell {
         detailsView.titleLabel.lineBreakMode = .byTruncatingMiddle
         detailsView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
         detailsView.actionImage = R.image.iconMore()
+        detailsView.highlightedFillColor = R.color.colorHighlightedPink()!
+        detailsView.strokeColor = R.color.colorStrokeGray()!
+        detailsView.borderWidth = 1
         return detailsView
     }()
 
@@ -13,6 +16,8 @@ final class AccountInfoTableViewCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
         backgroundColor = .clear
+        selectionStyle = .none
+
         setupLayout()
     }
 
@@ -35,12 +40,6 @@ final class AccountInfoTableViewCell: UITableViewCell {
             make.bottom.equalToSuperview()
             make.height.equalTo(52)
         }
-    }
-
-    override func setHighlighted(_ highlighted: Bool, animated: Bool) {
-        super.setHighlighted(highlighted, animated: animated)
-
-        detailsView.set(highlighted: highlighted, animated: animated)
     }
 
     func bind(model: ValidatorInfoAccountViewModelProtocol) {
