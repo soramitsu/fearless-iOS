@@ -52,7 +52,6 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(networkStakingInfo: NetworkStakingInfo)
     func didReceive(networkStakingInfoError: Error)
     func didReceive(payee: RewardDestinationArg?)
-    #warning("didReceive(payeeError: Error) not used")
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 

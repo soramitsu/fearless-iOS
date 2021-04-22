@@ -79,7 +79,7 @@ final class StakingPayoutConfirmViewModelFactory {
             let title = R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
             let subtitle = R.string.localizable.stakingRestakeTitle(preferredLanguages: locale.rLanguages)
 
-            return .restakeDestination(.init(title: title, subtitle: subtitle))
+            return .restakeDestination(.init(titleText: title, valueText: subtitle))
         }
     }
 
@@ -96,7 +96,15 @@ final class StakingPayoutConfirmViewModelFactory {
 
             let priceData = self.balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
 
-            return .rewardAmountViewModel(.init(title: title, priceData: priceData.value(for: locale)))
+            let reward = priceData.value(for: locale)
+
+            return .rewardAmountViewModel(
+                .init(
+                    title: title,
+                    tokenAmountText: reward.amount,
+                    usdAmountText: reward.price
+                )
+            )
         }
     }
 

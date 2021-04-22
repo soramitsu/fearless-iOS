@@ -40,9 +40,9 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
-            StakingRewardDetailsStatusTableCell.self,
-            StakingRewardDetailsLabelTableCell.self,
-            StakingRewardDetailsRewardTableCell.self,
+            StakingPayoutStatusTableCell.self,
+            StakingPayoutLabelTableCell.self,
+            StakingPayoutRewardTableCell.self,
             AccountInfoTableViewCell.self
         ])
         rootView.tableView.delegate = self
@@ -114,22 +114,22 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
         switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsStatusTableCell.self)!
+                StakingPayoutStatusTableCell.self)!
             cell.bind(model: status)
             return cell
         case let .date(dateViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
+                StakingPayoutLabelTableCell.self)!
             cell.bind(model: dateViewModel)
             return cell
         case let .era(eraViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
+                StakingPayoutLabelTableCell.self)!
             cell.bind(model: eraViewModel)
             return cell
         case let .reward(rewardViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsRewardTableCell.self)!
+                StakingPayoutRewardTableCell.self)!
             cell.bind(model: rewardViewModel)
             return cell
         case let .validatorInfo(model):

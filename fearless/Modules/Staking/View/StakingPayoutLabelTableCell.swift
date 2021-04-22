@@ -1,6 +1,13 @@
 import UIKit
 
-final class StakingPayoutConfirmInfoViewCell: StakingPayoutConfirmBaseTableCell {
+/**
+ Used in Staking reward flow.
+ For example:
+     "Date"......."3 March 2020" or
+     "Era"......."#1,690" or
+     "Reward destination"......."Restake"
+  */
+final class StakingPayoutLabelTableCell: StakingPayoutBaseTableCell {
     let valueLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -19,8 +26,8 @@ final class StakingPayoutConfirmInfoViewCell: StakingPayoutConfirmBaseTableCell 
         }
     }
 
-    func bind(model: TitleWithSubtitleViewModel) {
-        titleLabel.text = model.title
-        valueLabel.text = model.subtitle
+    func bind(model: StakingRewardDetailsSimpleLabelViewModel) {
+        titleLabel.text = model.titleText
+        valueLabel.text = model.valueText
     }
 }

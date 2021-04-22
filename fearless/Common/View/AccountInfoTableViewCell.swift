@@ -42,15 +42,7 @@ final class AccountInfoTableViewCell: UITableViewCell {
         }
     }
 
-    func bind(model: ValidatorInfoAccountViewModelProtocol) {
-        detailsView.title = model.name
-        detailsView.subtitle = model.address
-        detailsView.iconImage = model.icon
-
-        setNeedsLayout()
-    }
-
-    func bind(model: PayoutAccountViewModel) {
+    func bind(model: AccountInfoViewModel) {
         detailsView.title = model.title
         detailsView.subtitle = model.name
         detailsView.iconImage = model.icon

@@ -69,8 +69,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
             AccountInfoTableViewCell.self,
-            StakingPayoutConfirmRewardTableCell.self,
-            StakingPayoutConfirmInfoViewCell.self
+            StakingPayoutRewardTableCell.self,
+            StakingPayoutLabelTableCell.self
         ])
 
         rootView.tableView.dataSource = self
@@ -130,7 +130,7 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         switch viewModel[indexPath.row].value(for: locale) {
         case let .rewardAmountViewModel(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingPayoutConfirmRewardTableCell.self)!
+                StakingPayoutRewardTableCell.self)!
             cell.bind(
                 model: viewModel
             )
@@ -145,7 +145,7 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
             return cell
 
         case let .restakeDestination(viewModel):
-            let cell = tableView.dequeueReusableCellWithType(StakingPayoutConfirmInfoViewCell.self)!
+            let cell = tableView.dequeueReusableCellWithType(StakingPayoutLabelTableCell.self)!
             cell.bind(model: viewModel)
             return cell
         }
