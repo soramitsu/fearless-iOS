@@ -5,6 +5,7 @@ final class StakingBalanceViewLayout: UIView {
 
     let balanceWidget = StakingBalanceWidgetView()
     let actionsWidget = StakingBalanceActionsWidgetView()
+    let unbondingWidget = StakingBalanceUnbondingWidgetView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -45,6 +46,13 @@ final class StakingBalanceViewLayout: UIView {
         actionsWidget.snp.makeConstraints { make in
             make.top.equalTo(balanceWidget.snp.bottom).offset(8)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        contentView.addSubview(unbondingWidget)
+        unbondingWidget.snp.makeConstraints { make in
+            make.top.equalTo(actionsWidget.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalToSuperview()
         }
     }
 }

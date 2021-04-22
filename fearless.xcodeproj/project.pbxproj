@@ -1021,6 +1021,7 @@
 		F47BBD8026317B970087DA11 /* StakingBalanceWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD7F26317B970087DA11 /* StakingBalanceWidgetViewModel.swift */; };
 		F47BBD852631888C0087DA11 /* StakingBalanceActionsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */; };
 		F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */; };
+		F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */; };
 		F47F5A7A2626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */; };
 		F47F5A822626FDB9009BCFF4 /* StakingPayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */; };
 		F48220F8DA16EB51313B5D56 /* ExportMnemonicConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 93B26AA9CB558F02F69FF59B /* ExportMnemonicConfirmWireframe.swift */; };
@@ -2104,6 +2105,7 @@
 		F47BBD7F26317B970087DA11 /* StakingBalanceWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceWidgetViewModel.swift; sourceTree = "<group>"; };
 		F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceActionsWidgetView.swift; sourceTree = "<group>"; };
 		F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceAction.swift; sourceTree = "<group>"; };
+		F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceUnbondingWidgetView.swift; sourceTree = "<group>"; };
 		F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryViewModel.swift; sourceTree = "<group>"; };
 		F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutViewModel.swift; sourceTree = "<group>"; };
 		F4A12BF6260B61E900392C33 /* ManageStakingItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManageStakingItem.swift; sourceTree = "<group>"; };
@@ -5096,6 +5098,7 @@
 				F47BBD602630BA800087DA11 /* StakingBalanceViewLayout.swift */,
 				F47BBD7926314A0C0087DA11 /* StakingBalanceWidgetView.swift */,
 				F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */,
+				F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5725,6 +5728,7 @@
 				8423B0E4251A774700B8687C /* SNAddressType+Chain.swift in Sources */,
 				84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */,
 				84D97ECF2521CA2F00F07405 /* WalletBaseTokenView.swift in Sources */,
+				F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */,
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
 				84BE207825E7D62100B4748C /* ActiveEraInfo.swift in Sources */,
 				8490150324AB6C01008F705E /* WalletNetworkOperationFactory.swift in Sources */,
