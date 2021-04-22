@@ -43,21 +43,21 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     }
 
     @objc
-    private func presentAccountOptionsAction() {
-        presenter.presentAccountOptions()
-    }
+    private func presentPayoutOptionsAction() {}
 
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = TransferConfirmAccessoryViewModel(
+        let viewModel = ExtrinisicConfirmViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            amount: "",
+            price: nil,
             icon: nil,
             action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
-            amount: "",
-            shouldAllowAction: false
+            shouldAllowAction: true
         )
+
         rootView.payoutConfirmView.bind(viewModel: viewModel)
 
         rootView.payoutConfirmView.actionButton
@@ -67,12 +67,24 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
             AccountInfoTableViewCell.self,
-            StakingPayoutConfirmRewardTableCell.self,
-            StakingPayoutConfirmInfoViewCell.self
+            StakingPayoutRewardTableCell.self,
+            StakingPayoutLabelTableCell.self
         ])
 
         rootView.tableView.dataSource = self
+        rootView.tableView.delegate = self
         rootView.tableView.allowsSelection = false
+    }
+
+    private func lastAccountInfoIndex() -> Int? {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        return viewModel.lastIndex { item in
+            if case .accountInfo = item.value(for: locale) {
+                return true
+            } else {
+                return false
+            }
+        }
     }
 }
 
@@ -93,14 +105,13 @@ extension StakingPayoutConfirmationViewController: Localizable {
     private func setupConfirmViewLocalization(_ locale: Locale) {
         guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
 
-        let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
-
-        let viewModel = TransferConfirmAccessoryViewModel(
+        let viewModel = ExtrinisicConfirmViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            amount: feeViewModel.amount,
+            price: feeViewModel.price,
             icon: nil,
             action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
-            amount: feeString,
             shouldAllowAction: true
         )
 
@@ -129,7 +140,7 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         switch viewModel[indexPath.row].value(for: locale) {
         case let .rewardAmountViewModel(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingPayoutConfirmRewardTableCell.self)!
+                StakingPayoutRewardTableCell.self)!
             cell.bind(
                 model: viewModel
             )
@@ -138,19 +149,26 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         case let .accountInfo(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
-            cell.detailsView.fillColor = .clear
-            cell.detailsView.highlightedFillColor = R.color.colorHighlightedPink()!
-            cell.detailsView.strokeColor = R.color.colorStrokeGray()!
-            cell.detailsView.borderWidth = 1
+            cell.delegate = self
             cell.bind(model: viewModel)
-            cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
-
             return cell
 
         case let .restakeDestination(viewModel):
-            let cell = tableView.dequeueReusableCellWithType(StakingPayoutConfirmInfoViewCell.self)!
+            let cell = tableView.dequeueReusableCellWithType(StakingPayoutLabelTableCell.self)!
             cell.bind(model: viewModel)
             return cell
+        }
+    }
+}
+
+extension StakingPayoutConfirmationViewController: UITableViewDelegate {
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        switch viewModel[indexPath.row].value(for: locale) {
+        case .accountInfo:
+            return lastAccountInfoIndex() == indexPath.row ? 82 : 66.0
+        default:
+            return 48.0
         }
     }
 }
@@ -167,5 +185,22 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
     func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>]) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+    }
+}
+
+extension StakingPayoutConfirmationViewController: AccountInfoTableViewCellDelegate {
+    func accountInfoCellDidReceiveAction(_ cell: AccountInfoTableViewCell) {
+        guard let indexPath = rootView.tableView.indexPath(for: cell) else {
+            return
+        }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        guard case let .accountInfo(viewModel) = viewModel[indexPath.row]
+            .value(for: locale) else {
+            return
+        }
+
+        presenter.presentAccountOptions(for: viewModel)
     }
 }
