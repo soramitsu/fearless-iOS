@@ -392,6 +392,16 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
-        wireframe.showRewardPayouts(from: view)
+        if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
+            let stashAddress = validatorState.stashItem.stash
+            wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashAddress)
+            return
+        }
+
+        if let stashState = stateMachine.viewState(using: { (state: BaseStashNextState) in state }) {
+            let stashAddress = stashState.stashItem.stash
+            wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
+            return
+        }
     }
 }

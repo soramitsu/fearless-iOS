@@ -10,6 +10,7 @@ protocol StakingErrorPresentable {
         address: AccountAddress,
         locale: Locale?
     )
+    func presentPayoutFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -57,5 +58,47 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentPayoutFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
+        let message = R.string.localizable
+            .stakingErrorInsufficientBalanceBody(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentRewardIsLessThanFee(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .stakingWarningTinyPayout(preferredLanguages: locale?.rLanguages)
+
+        let proceedTitle = R.string.localizable
+            .commonProceed(preferredLanguages: locale?.rLanguages)
+        let proceedAction = AlertPresentableAction(title: proceedTitle) {
+            action()
+        }
+
+        let closeTitle = R.string.localizable
+            .commonCancel(preferredLanguages: locale?.rLanguages)
+
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: message,
+            actions: [proceedAction],
+            closeAction: closeTitle
+        )
+
+        present(
+            viewModel: viewModel,
+            style: .alert,
+            from: view
+        )
     }
 }

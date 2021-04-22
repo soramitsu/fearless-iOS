@@ -52,10 +52,17 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(storiesView.controller, animated: true, completion: nil)
     }
 
-    func showRewardPayouts(from view: ControllerBackedProtocol?) {
-        view?.controller.dismiss(animated: false, completion: nil)
+    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
+            .createViewForNominator(stashAddress: stashAddress) else { return }
 
-        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory.createView() else { return }
+        let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
+        guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
+            .createViewForValidator(stashAddress: stashAddress) else { return }
 
         let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)

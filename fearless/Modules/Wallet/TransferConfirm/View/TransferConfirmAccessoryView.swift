@@ -32,5 +32,33 @@ extension TransferConfirmAccessoryView: CommonWallet.AccessoryViewProtocol {
         if let amountViewModel = viewModel as? TransferConfirmAccessoryViewModel {
             detailsLabel.text = amountViewModel.amount
         }
+
+        if let extrinsicViewModel = viewModel as? ExtrinisicConfirmViewModel {
+            let amountAttributes: [NSAttributedString.Key: Any] = [
+                .foregroundColor: R.color.colorWhite()!,
+                .font: UIFont.p1Paragraph
+            ]
+
+            let displayString = NSMutableAttributedString(
+                string: extrinsicViewModel.amount,
+                attributes: amountAttributes
+            )
+
+            if let price = extrinsicViewModel.price {
+                let priceAttributes: [NSAttributedString.Key: Any] = [
+                    .foregroundColor: R.color.colorGray()!,
+                    .font: UIFont.p1Paragraph
+                ]
+
+                let priceAttributedString = NSMutableAttributedString(
+                    string: "  \(price)",
+                    attributes: priceAttributes
+                )
+
+                displayString.append(priceAttributedString)
+            }
+
+            detailsLabel.attributedText = displayString
+        }
     }
 }

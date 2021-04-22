@@ -1,4 +1,3 @@
-source 'https://github.com/CocoaPods/Specs.git'
 platform :ios, '11.0'
 
 abstract_target 'fearlessAll' do
@@ -8,7 +7,7 @@ abstract_target 'fearlessAll' do
   pod 'SwiftLint'
   pod 'R.swift', :inhibit_warnings => true
   pod 'SoraKeystore'
-  pod 'SoraUI', '1.10.0'
+  pod 'SoraUI', '~> 1.10.1'
   pod 'RobinHood', '~> 2.6.0'
   pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '60f43fcc0b711ba3cc75d6472ac072aed265d2a1'
   pod 'SoraFoundation', '~> 0.9.0'

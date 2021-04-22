@@ -7,7 +7,7 @@ protocol SubscanOperationFactoryProtocol {
     func fetchRewardsAndSlashesOperation(_ url: URL, info: HistoryInfo) -> BaseOperation<SubscanRewardData>
     func fetchConcreteExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) ->
         BaseOperation<SubscanConcreteExtrinsicsData>
-    func fetchExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanExtrinsicsData>
+    func fetchRawExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanRawExtrinsicsData>
 }
 
 final class SubscanOperationFactory {
@@ -64,7 +64,7 @@ extension SubscanOperationFactory: SubscanOperationFactoryProtocol {
         fetchOperation(url, info: info)
     }
 
-    func fetchExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanExtrinsicsData> {
+    func fetchRawExtrinsicsOperation(_ url: URL, info: ExtrinsicsInfo) -> BaseOperation<SubscanRawExtrinsicsData> {
         fetchOperation(url, info: info)
     }
 }

@@ -261,7 +261,7 @@
 "fee.not.yet.loaded.title" = "Расчет комиссии в процессе";
 "fee.not.yet.loaded.message" = "Зинһар көтөгөҙ, транзакцияның хаҡы иҫәпләнә";
 "staking.setup.amount.too.low" = "Минимумдан кәмерәк ( %s )";
-"staking.confirm.title" = "Раҫлау";
+"common.confirm.title" = "Раҫлау";
 "staking.reward.destination.title" = "Награда";
 "staking.stash.title" = "Янсыҡ аккаунты";
 "staking.setup.sent.message" = "Стекинг транзакцияһы ебәрелде";
@@ -325,5 +325,14 @@
 "wallet.filters.extrinsics" = "";
 "wallet.filters.header" = "";
 "transfer.title" = "";
-"common.available.format" = "%@";
+"common.available.format" = "";
 "staking.rewards.learn.more" = "";
+"common.error.no.data.retrieved" = "";
+"staking.reward.payouts.empty.rewards" = "";
+"staking.reward.details.validator" = "";
+"staking.error.insufficient.balance.title" = "";
+"staking.error.insufficient.balance.body" = "";
+"common.confirmation.title" = "";
+"staking.warning.tiny.payout" = "";
+"staking.balance.title" = "";
+"staking.payout.sent" = "";

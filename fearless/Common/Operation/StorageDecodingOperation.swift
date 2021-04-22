@@ -7,7 +7,48 @@ enum StorageDecodingOperationError: Error {
     case invalidStoragePath
 }
 
-final class StorageDecodingOperation<T: Decodable>: BaseOperation<T> {
+protocol StorageDecodable {
+    func decode(data: Data, path: StorageCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON
+}
+
+extension StorageDecodable {
+    func decode(data: Data, path: StorageCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON {
+        guard let entry = codingFactory.metadata.getStorageMetadata(
+            in: path.moduleName,
+            storageName: path.itemName
+        ) else {
+            throw StorageDecodingOperationError.invalidStoragePath
+        }
+
+        let decoder = try codingFactory.createDecoder(from: data)
+        return try decoder.read(type: entry.type.typeName)
+    }
+}
+
+protocol StorageModifierHandling {
+    func handleModifier(at path: StorageCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON?
+}
+
+extension StorageModifierHandling {
+    func handleModifier(at path: StorageCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON? {
+        guard let entry = codingFactory.metadata.getStorageMetadata(
+            in: path.moduleName,
+            storageName: path.itemName
+        ) else {
+            throw StorageDecodingOperationError.invalidStoragePath
+        }
+
+        switch entry.modifier {
+        case .defaultModifier:
+            let decoder = try codingFactory.createDecoder(from: entry.defaultValue)
+            return try decoder.read(type: entry.type.typeName)
+        case .optional:
+            return nil
+        }
+    }
+}
+
+final class StorageDecodingOperation<T: Decodable>: BaseOperation<T>, StorageDecodable {
     var data: Data?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -36,15 +77,7 @@ final class StorageDecodingOperation<T: Decodable>: BaseOperation<T> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(
-                in: path.moduleName,
-                storageName: path.itemName
-            ) else {
-                throw StorageDecodingOperationError.invalidStoragePath
-            }
-
-            let decoder = try factory.createDecoder(from: data)
-            let item: T = try decoder.read(of: entry.type.typeName)
+            let item = try decode(data: data, path: path, codingFactory: factory).map(to: T.self)
             result = .success(item)
         } catch {
             result = .failure(error)
@@ -52,7 +85,8 @@ final class StorageDecodingOperation<T: Decodable>: BaseOperation<T> {
     }
 }
 
-final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?> {
+final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?>,
+    StorageDecodable, StorageModifierHandling {
     var data: Data?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -81,28 +115,12 @@ final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(
-                in: path.moduleName,
-                storageName: path.itemName
-            ) else {
-                throw StorageDecodingOperationError.invalidStoragePath
-            }
-
-            let decodingData: Data?
-
-            switch entry.modifier {
-            case .defaultModifier:
-                decodingData = data ?? entry.defaultValue
-            case .optional:
-                decodingData = data
-            }
-
-            if let data = decodingData {
-                let decoder = try factory.createDecoder(from: data)
-                let item: T = try decoder.read(of: entry.type.typeName)
+            if let data = data {
+                let item = try decode(data: data, path: path, codingFactory: factory).map(to: T.self)
                 result = .success(item)
             } else {
-                result = .success(nil)
+                let item = try handleModifier(at: path, codingFactory: factory)?.map(to: T.self)
+                result = .success(item)
             }
 
         } catch {
@@ -111,7 +129,7 @@ final class StorageFallbackDecodingOperation<T: Decodable>: BaseOperation<T?> {
     }
 }
 
-final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
+final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]>, StorageDecodable {
     var dataList: [Data]?
     var codingFactory: RuntimeCoderFactoryProtocol?
 
@@ -140,16 +158,8 @@ final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getStorageMetadata(
-                in: path.moduleName,
-                storageName: path.itemName
-            ) else {
-                throw StorageDecodingOperationError.invalidStoragePath
-            }
-
-            let items: [T] = try dataList.map { data in
-                let decoder = try factory.createDecoder(from: data)
-                return try decoder.read(of: entry.type.typeName)
+            let items: [T] = try dataList.map { try decode(data: $0, path: path, codingFactory: factory)
+                .map(to: T.self)
             }
 
             result = .success(items)
@@ -159,7 +169,68 @@ final class StorageDecodingListOperation<T: Decodable>: BaseOperation<[T]> {
     }
 }
 
-final class StorageConstantOperation<T: Decodable>: BaseOperation<T> {
+final class StorageFallbackDecodingListOperation<T: Decodable>: BaseOperation<[T?]>,
+    StorageDecodable, StorageModifierHandling {
+    var dataList: [Data?]?
+    var codingFactory: RuntimeCoderFactoryProtocol?
+
+    let path: StorageCodingPath
+
+    init(path: StorageCodingPath, dataList: [Data?]? = nil) {
+        self.path = path
+        self.dataList = dataList
+
+        super.init()
+    }
+
+    override func main() {
+        super.main()
+
+        if isCancelled {
+            return
+        }
+
+        if result != nil {
+            return
+        }
+
+        do {
+            guard let dataList = dataList, let factory = codingFactory else {
+                throw StorageDecodingOperationError.missingRequiredParams
+            }
+
+            let items: [T?] = try dataList.map { data in
+                if let data = data {
+                    return try decode(data: data, path: path, codingFactory: factory).map(to: T.self)
+                } else {
+                    return try handleModifier(at: path, codingFactory: factory)?.map(to: T.self)
+                }
+            }
+
+            result = .success(items)
+        } catch {
+            result = .failure(error)
+        }
+    }
+}
+
+protocol ConstantDecodable {
+    func decode(at path: ConstantCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON
+}
+
+extension ConstantDecodable {
+    func decode(at path: ConstantCodingPath, codingFactory: RuntimeCoderFactoryProtocol) throws -> JSON {
+        guard let entry = codingFactory.metadata
+            .getConstant(in: path.moduleName, constantName: path.constantName) else {
+            throw StorageDecodingOperationError.invalidStoragePath
+        }
+
+        let decoder = try codingFactory.createDecoder(from: entry.value)
+        return try decoder.read(type: entry.type)
+    }
+}
+
+final class StorageConstantOperation<T: Decodable>: BaseOperation<T>, ConstantDecodable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath
@@ -186,12 +257,7 @@ final class StorageConstantOperation<T: Decodable>: BaseOperation<T> {
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata.getConstant(in: path.moduleName, constantName: path.constantName) else {
-                throw StorageDecodingOperationError.invalidStoragePath
-            }
-
-            let decoder = try factory.createDecoder(from: entry.value)
-            let item: T = try decoder.read(of: entry.type)
+            let item: T = try decode(at: path, codingFactory: factory).map(to: T.self)
             result = .success(item)
         } catch {
             result = .failure(error)
@@ -199,7 +265,7 @@ final class StorageConstantOperation<T: Decodable>: BaseOperation<T> {
     }
 }
 
-final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>: BaseOperation<T> {
+final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>: BaseOperation<T>, ConstantDecodable {
     var codingFactory: RuntimeCoderFactoryProtocol?
 
     let path: ConstantCodingPath
@@ -226,14 +292,8 @@ final class PrimitiveConstantOperation<T: LosslessStringConvertible & Equatable>
                 throw StorageDecodingOperationError.missingRequiredParams
             }
 
-            guard let entry = factory.metadata
-                .getConstant(in: path.moduleName, constantName: path.constantName)
-            else {
-                throw StorageDecodingOperationError.invalidStoragePath
-            }
-
-            let decoder = try factory.createDecoder(from: entry.value)
-            let item: StringScaleMapper<T> = try decoder.read(of: entry.type)
+            let item: StringScaleMapper<T> = try decode(at: path, codingFactory: factory)
+                .map(to: StringScaleMapper<T>.self)
             result = .success(item.value)
         } catch {
             result = .failure(error)

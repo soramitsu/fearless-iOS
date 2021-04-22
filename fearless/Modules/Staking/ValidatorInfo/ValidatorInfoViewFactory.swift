@@ -7,10 +7,9 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
     static func createView(with validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewProtocol? {
         let localizationManager = LocalizationManager.shared
         let settings = SettingsManager.shared
-        let keystore = Keychain()
         let networkType = settings.selectedConnection.type
 
-        let primitiveFactory = WalletPrimitiveFactory(keystore: keystore, settings: settings)
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(

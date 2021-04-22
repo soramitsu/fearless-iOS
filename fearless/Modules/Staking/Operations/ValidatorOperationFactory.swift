@@ -12,6 +12,7 @@ final class ValidatorOperationFactory {
     let rewardService: RewardCalculatorServiceProtocol
     let storageRequestFactory: StorageRequestFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
+    let identityOperationFactory: IdentityOperationFactoryProtocol
     let engine: JSONRPCEngine
 
     init(
@@ -20,7 +21,8 @@ final class ValidatorOperationFactory {
         rewardService: RewardCalculatorServiceProtocol,
         storageRequestFactory: StorageRequestFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine
+        engine: JSONRPCEngine,
+        identityOperationFactory: IdentityOperationFactoryProtocol
     ) {
         self.chain = chain
         self.eraValidatorService = eraValidatorService
@@ -28,131 +30,7 @@ final class ValidatorOperationFactory {
         self.storageRequestFactory = storageRequestFactory
         self.runtimeService = runtimeService
         self.engine = engine
-    }
-
-    private func createSuperIdentityOperation(
-        dependingOn runtime: BaseOperation<RuntimeCoderFactoryProtocol>,
-        eraValidators: BaseOperation<EraStakersInfo>
-    ) -> SuperIdentityWrapper {
-        let path = StorageCodingPath.superIdentity
-
-        let keyParams: () throws -> [Data] = {
-            let info = try eraValidators.extractNoCancellableResultData()
-            return info.validators.map(\.accountId)
-        }
-
-        let factory: () throws -> RuntimeCoderFactoryProtocol = {
-            try runtime.extractNoCancellableResultData()
-        }
-
-        let superIdentityWrapper: SuperIdentityWrapper = storageRequestFactory.queryItems(
-            engine: engine,
-            keyParams: keyParams,
-            factory: factory,
-            storagePath: path
-        )
-
-        return superIdentityWrapper
-    }
-
-    private func createIdentityMapOperation(
-        dependingOn superOperation: SuperIdentityOperation,
-        identityOperation: IdentityOperation
-    ) -> BaseOperation<[String: AccountIdentity]> {
-        let addressType = chain.addressType
-
-        return ClosureOperation<[String: AccountIdentity]> {
-            let addressFactory = SS58AddressFactory()
-
-            let superIdentities = try superOperation.extractNoCancellableResultData()
-            let identities = try identityOperation.extractNoCancellableResultData()
-                .reduce(into: [String: Identity]()) { result, item in
-                    if let value = item.value {
-                        let address = try addressFactory
-                            .addressFromAccountId(
-                                data: item.key.getAccountIdFromKey(),
-                                type: addressType
-                            )
-                        result[address] = value
-                    }
-                }
-
-            return try superIdentities.reduce(into: [String: AccountIdentity]()) { result, item in
-                let address = try addressFactory
-                    .addressFromAccountId(
-                        data: item.key.getAccountIdFromKey(),
-                        type: addressType
-                    )
-
-                if let value = item.value {
-                    let parentAddress = try addressFactory
-                        .addressFromAccountId(
-                            data: value.parentAccountId,
-                            type: addressType
-                        )
-
-                    if let parentIdentity = identities[parentAddress] {
-                        result[address] = AccountIdentity(
-                            name: value.data.stringValue ?? "",
-                            parentAddress: parentAddress,
-                            parentName: parentIdentity.info.display.stringValue,
-                            identity: parentIdentity.info
-                        )
-                    } else {
-                        result[address] = AccountIdentity(name: value.data.stringValue ?? "")
-                    }
-
-                } else if let identity = identities[address] {
-                    result[address] = AccountIdentity(
-                        name: identity.info.display.stringValue ?? "",
-                        parentAddress: nil,
-                        parentName: nil,
-                        identity: identity.info
-                    )
-                }
-            }
-        }
-    }
-
-    private func createIdentityWrapper(
-        dependingOn superIdentity: SuperIdentityOperation,
-        runtime: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<[String: AccountIdentity]> {
-        let path = StorageCodingPath.identity
-
-        let keyParams: () throws -> [Data] = {
-            let responses = try superIdentity.extractNoCancellableResultData()
-            return responses.map { response in
-                if let value = response.value {
-                    return value.parentAccountId
-                } else {
-                    return response.key.getAccountIdFromKey()
-                }
-            }
-        }
-
-        let factory: () throws -> RuntimeCoderFactoryProtocol = {
-            try runtime.extractNoCancellableResultData()
-        }
-
-        let identityWrapper: IdentityWrapper = storageRequestFactory.queryItems(
-            engine: engine,
-            keyParams: keyParams,
-            factory: factory,
-            storagePath: path
-        )
-
-        let mapOperation = createIdentityMapOperation(
-            dependingOn: superIdentity,
-            identityOperation: identityWrapper.targetOperation
-        )
-
-        mapOperation.addDependency(identityWrapper.targetOperation)
-
-        return CompoundOperationWrapper(
-            targetOperation: mapOperation,
-            dependencies: identityWrapper.allOperations
-        )
+        self.identityOperationFactory = identityOperationFactory
     }
 
     private func createSlashesWrapper(
@@ -272,22 +150,18 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
 
-        let superIdentityWrapper = createSuperIdentityOperation(
-            dependingOn: runtimeOperation,
-            eraValidators: eraValidatorsOperation
-        )
-
-        superIdentityWrapper.allOperations.forEach {
-            $0.addDependency(eraValidatorsOperation)
-            $0.addDependency(runtimeOperation)
+        let accountIdsClosure: () throws -> [AccountId] = {
+            try eraValidatorsOperation.extractNoCancellableResultData().validators.map(\.accountId)
         }
 
-        let identityWrapper = createIdentityWrapper(
-            dependingOn: superIdentityWrapper.targetOperation,
-            runtime: runtimeOperation
+        let identityWrapper = identityOperationFactory.createIdentityWrapper(
+            for: accountIdsClosure,
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
         )
 
-        identityWrapper.allOperations.forEach { $0.addDependency(superIdentityWrapper.targetOperation) }
+        identityWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
 
         let slashingsWrapper = createSlashesWrapper(
             dependingOn: eraValidatorsOperation,
@@ -324,8 +198,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             rewardOperation
         ]
 
-        let dependencies = baseOperations + superIdentityWrapper.allOperations +
-            identityWrapper.allOperations + slashingsWrapper.allOperations
+        let dependencies = baseOperations + identityWrapper.allOperations + slashingsWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
