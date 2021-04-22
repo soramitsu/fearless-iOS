@@ -67,9 +67,9 @@ final class StakingPayoutViewModelFactory: StakingPayoutViewModelFactoryProtocol
         balanceViewModelFactory.amountFromValue(value).value(for: locale)
     }
 
-    private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String {
+    private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String? {
         guard let priceData = priceData else {
-            return "$0"
+            return nil
         }
 
         let price = balanceViewModelFactory
