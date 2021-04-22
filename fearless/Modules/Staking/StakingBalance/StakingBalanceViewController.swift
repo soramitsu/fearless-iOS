@@ -32,7 +32,7 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     }
 
     private func setupTitle() {
-        title = "Staking balance" // TODO
+        title = "Staking balance" // TODO:
     }
 }
 
