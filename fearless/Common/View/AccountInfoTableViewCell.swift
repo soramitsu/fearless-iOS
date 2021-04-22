@@ -1,5 +1,9 @@
 import UIKit
 
+protocol AccountInfoTableViewCellDelegate: AnyObject {
+    func accountInfoCellDidReceiveAction(_ cell: AccountInfoTableViewCell)
+}
+
 final class AccountInfoTableViewCell: UITableViewCell {
     let detailsView: DetailsTriangularedView = {
         let detailsView = UIFactory().createDetailsView(with: .smallIconTitleSubtitle, filled: false)
@@ -12,6 +16,8 @@ final class AccountInfoTableViewCell: UITableViewCell {
         return detailsView
     }()
 
+    weak var delegate: AccountInfoTableViewCellDelegate?
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -19,6 +25,8 @@ final class AccountInfoTableViewCell: UITableViewCell {
         selectionStyle = .none
 
         setupLayout()
+
+        detailsView.addTarget(self, action: #selector(actionDetails), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -36,10 +44,13 @@ final class AccountInfoTableViewCell: UITableViewCell {
     private func setupLayout() {
         contentView.addSubview(detailsView)
         detailsView.snp.makeConstraints { make in
-            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalToSuperview()
+            make.top.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(52)
         }
+    }
+
+    @objc func actionDetails() {
+        delegate?.accountInfoCellDidReceiveAction(self)
     }
 
     func bind(model: AccountInfoViewModel) {

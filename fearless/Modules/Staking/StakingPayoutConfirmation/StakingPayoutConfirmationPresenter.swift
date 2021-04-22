@@ -71,15 +71,14 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         interactor.submitPayout()
     }
 
-    func presentAccountOptions() {
+    func presentAccountOptions(for viewModel: AccountInfoViewModel) {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
         if let view = view,
-           let chain = WalletAssetId(rawValue: asset.identifier)?.chain,
-           let account = self.account {
+           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
             wireframe.presentAccountOptions(
                 from: view,
-                address: account.address,
+                address: viewModel.address,
                 chain: chain,
                 locale: locale
             )

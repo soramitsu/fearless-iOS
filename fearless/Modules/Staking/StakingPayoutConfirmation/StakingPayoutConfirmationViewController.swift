@@ -43,9 +43,7 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     }
 
     @objc
-    private func presentAccountOptionsAction() {
-        presenter.presentAccountOptions()
-    }
+    private func presentPayoutOptionsAction() {}
 
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
@@ -76,6 +74,17 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
         rootView.tableView.allowsSelection = false
+    }
+
+    private func lastAccountInfoIndex() -> Int? {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        return viewModel.lastIndex { item in
+            if case .accountInfo = item.value(for: locale) {
+                return true
+            } else {
+                return false
+            }
+        }
     }
 }
 
@@ -140,9 +149,8 @@ extension StakingPayoutConfirmationViewController: UITableViewDataSource {
         case let .accountInfo(viewModel):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
+            cell.delegate = self
             cell.bind(model: viewModel)
-            cell.detailsView.addTarget(self, action: #selector(presentAccountOptionsAction), for: .touchUpInside)
-
             return cell
 
         case let .restakeDestination(viewModel):
@@ -158,7 +166,7 @@ extension StakingPayoutConfirmationViewController: UITableViewDelegate {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         switch viewModel[indexPath.row].value(for: locale) {
         case .accountInfo:
-            return 66.0
+            return lastAccountInfoIndex() == indexPath.row ? 82 : 66.0
         default:
             return 48.0
         }
@@ -177,5 +185,22 @@ extension StakingPayoutConfirmationViewController: StakingPayoutConfirmationView
     func didRecieve(viewModel: [LocalizableResource<PayoutConfirmViewModel>]) {
         self.viewModel = viewModel
         rootView.tableView.reloadData()
+    }
+}
+
+extension StakingPayoutConfirmationViewController: AccountInfoTableViewCellDelegate {
+    func accountInfoCellDidReceiveAction(_ cell: AccountInfoTableViewCell) {
+        guard let indexPath = rootView.tableView.indexPath(for: cell) else {
+            return
+        }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+
+        guard case let .accountInfo(viewModel) = viewModel[indexPath.row]
+            .value(for: locale) else {
+            return
+        }
+
+        presenter.presentAccountOptions(for: viewModel)
     }
 }

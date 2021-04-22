@@ -61,11 +61,6 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     private func handlePayoutButtonAction() {
         presenter.handlePayoutAction()
     }
-
-    @objc
-    private func handleValidatorAction() {
-        presenter.handleValidatorAccountAction(locale: selectedLocale)
-    }
 }
 
 extension StakingRewardDetailsViewController: StakingRewardDetailsViewProtocol {
@@ -135,8 +130,8 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
         case let .validatorInfo(model):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
+            cell.delegate = self
             cell.bind(model: model)
-            cell.detailsView.addTarget(self, action: #selector(handleValidatorAction), for: .touchUpInside)
             return cell
         default:
             return UITableViewCell()
@@ -146,9 +141,15 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         switch rows[indexPath.row] {
         case .validatorInfo:
-            return 66.0
+            return 82.0
         default:
             return 48.0
         }
+    }
+}
+
+extension StakingRewardDetailsViewController: AccountInfoTableViewCellDelegate {
+    func accountInfoCellDidReceiveAction(_: AccountInfoTableViewCell) {
+        presenter.handleValidatorAccountAction(locale: selectedLocale)
     }
 }

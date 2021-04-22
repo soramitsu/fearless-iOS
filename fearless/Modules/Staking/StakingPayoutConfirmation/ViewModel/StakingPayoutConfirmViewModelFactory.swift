@@ -43,6 +43,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
             return .accountInfo(.init(
                 title: title,
+                address: account.address,
                 name: account.username,
                 icon: userIcon
             ))
@@ -68,6 +69,7 @@ final class StakingPayoutConfirmViewModelFactory {
 
             return .accountInfo(.init(
                 title: title,
+                address: displayAddress.address,
                 name: name,
                 icon: userIcon
             ))

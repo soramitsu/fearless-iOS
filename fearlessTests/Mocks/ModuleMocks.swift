@@ -19551,16 +19551,16 @@ import SoraFoundation
     
     
     
-     func presentAccountOptions()  {
+     func presentAccountOptions(for viewModel: AccountInfoViewModel)  {
         
-    return cuckoo_manager.call("presentAccountOptions()",
-            parameters: (),
-            escapingParameters: (),
+    return cuckoo_manager.call("presentAccountOptions(for: AccountInfoViewModel)",
+            parameters: (viewModel),
+            escapingParameters: (viewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentAccountOptions())
+            defaultCall: __defaultImplStub!.presentAccountOptions(for: viewModel))
         
     }
     
@@ -19583,9 +19583,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationPresenterProtocol.self, method: "proceed()", parameterMatchers: matchers))
 	    }
 	    
-	    func presentAccountOptions() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationPresenterProtocol.self, method: "presentAccountOptions()", parameterMatchers: matchers))
+	    func presentAccountOptions<M1: Cuckoo.Matchable>(for viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountInfoViewModel)> where M1.MatchedType == AccountInfoViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingPayoutConfirmationPresenterProtocol.self, method: "presentAccountOptions(for: AccountInfoViewModel)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -19617,9 +19617,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentAccountOptions() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("presentAccountOptions()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentAccountOptions<M1: Cuckoo.Matchable>(for viewModel: M1) -> Cuckoo.__DoNotUse<(AccountInfoViewModel), Void> where M1.MatchedType == AccountInfoViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountInfoViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("presentAccountOptions(for: AccountInfoViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -19639,7 +19639,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentAccountOptions()   {
+     func presentAccountOptions(for viewModel: AccountInfoViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

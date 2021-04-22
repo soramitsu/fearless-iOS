@@ -32,7 +32,14 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
             let rows: [RewardDetailsRow] = [
                 .validatorInfo(.init(
                     title: R.string.localizable.stakingRewardDetailsValidator(preferredLanguages: locale.rLanguages),
-                    name: self.addressTitle(payoutInfo: input.payoutInfo, chain: input.chain),
+                    address: self.validatorAddress(
+                        from: input.payoutInfo.validator,
+                        addressType: input.chain.addressType
+                    ) ?? "",
+                    name: self.displayName(
+                        payoutInfo: input.payoutInfo,
+                        chain: input.chain
+                    ),
                     icon: self.getValidatorIcon(validatorAccount: input.payoutInfo.validator, chain: input.chain)
                 )),
                 .date(.init(
@@ -63,7 +70,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
             .addressFromAccountId(data: data, type: addressType)
     }
 
-    private func addressTitle(payoutInfo: PayoutInfo, chain: Chain) -> String {
+    private func displayName(payoutInfo: PayoutInfo, chain: Chain) -> String {
         if let displayName = payoutInfo.identity?.displayName {
             return displayName
         }
