@@ -50,14 +50,16 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     private func setupInitialFeeView() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
 
-        let viewModel = TransferConfirmAccessoryViewModel(
+        let viewModel = ExtrinisicConfirmViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            amount: "",
+            price: nil,
             icon: nil,
             action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
-            amount: "",
-            shouldAllowAction: false
+            shouldAllowAction: true
         )
+
         rootView.payoutConfirmView.bind(viewModel: viewModel)
 
         rootView.payoutConfirmView.actionButton
@@ -93,14 +95,13 @@ extension StakingPayoutConfirmationViewController: Localizable {
     private func setupConfirmViewLocalization(_ locale: Locale) {
         guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
 
-        let feeString = feeViewModel.amount + "  " + (feeViewModel.price ?? "")
-
-        let viewModel = TransferConfirmAccessoryViewModel(
+        let viewModel = ExtrinisicConfirmViewModel(
             title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
+            amount: feeViewModel.amount,
+            price: feeViewModel.price,
             icon: nil,
             action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
             numberOfLines: 1,
-            amount: feeString,
             shouldAllowAction: true
         )
 
