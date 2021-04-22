@@ -11,8 +11,7 @@ struct TransactionHistoryItem: Codable {
         case fee
         case blockNumber
         case txIndex
-        case callName
-        case moduleName
+        case callPath
         case callArgs
     }
 
@@ -30,8 +29,7 @@ struct TransactionHistoryItem: Codable {
     let fee: String
     let blockNumber: UInt64?
     let txIndex: UInt16?
-    let callName: String
-    let moduleName: String
+    let callPath: CallCodingPath
     let callArgs: Data?
 }
 

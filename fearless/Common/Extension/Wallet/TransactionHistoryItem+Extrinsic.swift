@@ -31,7 +31,6 @@ extension TransactionHistoryItem {
             let timestamp = Int64(Date().timeIntervalSince1970)
 
             let callArgs = try JSONEncoder.scaleCompatible().encode(result.call)
-            let callPath = CallCodingPath.transfer
 
             return TransactionHistoryItem(
                 sender: sender,
@@ -42,8 +41,7 @@ extension TransactionHistoryItem {
                 fee: fee.stringWithPointSeparator,
                 blockNumber: result.blockNumber,
                 txIndex: result.txIndex,
-                callName: callPath.callName,
-                moduleName: callPath.moduleName,
+                callPath: CallCodingPath.transfer,
                 callArgs: callArgs
             )
 

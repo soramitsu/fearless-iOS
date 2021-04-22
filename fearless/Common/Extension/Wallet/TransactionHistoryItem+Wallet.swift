@@ -26,7 +26,7 @@ extension TransactionHistoryItem {
         )
 
         guard let amount = info.amount.decimalValue
-                .toSubstrateAmount(precision: networkType.precision) else {
+            .toSubstrateAmount(precision: networkType.precision) else {
             throw AmountDecimalError.invalidStringValue
         }
 
@@ -52,8 +52,7 @@ extension TransactionHistoryItem {
             fee: String(feeValue),
             blockNumber: nil,
             txIndex: nil,
-            callName: callPath.callName,
-            moduleName: callPath.moduleName,
+            callPath: callPath,
             callArgs: callArgs
         )
     }

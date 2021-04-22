@@ -233,6 +233,8 @@ extension TransferSubscription {
     ) -> CompoundOperationWrapper<[TransferSubscriptionResult]> {
         let coderOperation = runtimeService.fetchCoderFactoryOperation()
 
+        let accountId = try? addressFactory.accountId(from: address)
+
         let decodingOperation = ClosureOperation<[TransferSubscriptionResult]> {
             let block = try fetchOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
@@ -260,12 +262,10 @@ extension TransferSubscription {
                         callName: genericCall.callName
                     )
 
-                    let isValidTransfer = [
-                        CallCodingPath.transfer,
-                        CallCodingPath.transferKeepAlive
-                    ].contains(callPath)
+                    let sender = try extrinsic.signature?.address.map(to: MultiAddress.self).accountId
+                    let receiver = genericCall.args.dest.accountId
 
-                    guard isValidTransfer else {
+                    guard callPath.isTransfer, (sender == accountId || receiver == accountId) else {
                         return nil
                     }
 

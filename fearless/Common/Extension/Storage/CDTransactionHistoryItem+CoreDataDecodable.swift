@@ -12,8 +12,11 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         status = try container.decode(Int16.self, forKey: .status)
         timestamp = try container.decode(Int64.self, forKey: .timestamp)
         fee = try container.decode(String.self, forKey: .fee)
-        callName = try container.decode(String.self, forKey: .callName)
-        moduleName = try container.decode(String.self, forKey: .moduleName)
+
+        let callPath = try container.decode(CallCodingPath.self, forKey: .callPath)
+        callName = callPath.callName
+        moduleName = callPath.moduleName
+
         callArgs = try container.decodeIfPresent(Data.self, forKey: .callArgs)
 
         if let number = try container.decodeIfPresent(UInt64.self, forKey: .blockNumber) {
@@ -40,8 +43,12 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         try container.encodeIfPresent(fee, forKey: .fee)
         try container.encodeIfPresent(blockNumber?.uint64Value, forKey: .blockNumber)
         try container.encodeIfPresent(txIndex?.int16Value, forKey: .txIndex)
-        try container.encodeIfPresent(callName, forKey: .callName)
-        try container.encodeIfPresent(moduleName, forKey: .moduleName)
+
+        if let moduleName = moduleName, let callName = callName {
+            let callPath = CallCodingPath(moduleName: moduleName, callName: callName)
+            try container.encode(callPath, forKey: .callPath)
+        }
+
         try container.encodeIfPresent(callArgs, forKey: .callArgs)
     }
 }
