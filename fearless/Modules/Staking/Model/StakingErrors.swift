@@ -11,4 +11,5 @@ enum StakingPayoutConfirmError: Error {
     case notEnoughFunds
     case feeNotReceived
     case extrinsicFailed
+    case tinyPayout
 }

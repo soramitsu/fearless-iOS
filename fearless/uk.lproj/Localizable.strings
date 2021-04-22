@@ -264,7 +264,7 @@ Cід: %@";
 "fee.not.yet.loaded.title" = "Триває розрахунок комісії";
 "fee.not.yet.loaded.message" = "Будь ласка, зачекайте, поки плата не буде нарахована";
 "staking.setup.amount.too.low" = "Не можна робити ставку менше мінімального значення ( %s )";
-"staking.confirm.title" = "Підтвердження";
+"common.confirm.title" = "Підтвердження";
 "staking.reward.destination.title" = "Призначення винагороди";
 "staking.stash.title" = "Керуючий акаунт";
 "staking.setup.sent.message" = "Транзакція налаштування стекінгу надіслана";

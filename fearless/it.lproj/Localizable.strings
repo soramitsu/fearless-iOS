@@ -263,7 +263,7 @@ Derivation path: %@";
 "fee.not.yet.loaded.title" = "Il calcolo della fee è in corso";
 "fee.not.yet.loaded.message" = "Attendi fino al calcolo della fee";
 "staking.setup.amount.too.low" = "Impossibile mettere in staking meno del valore minimo ( %s )";
-"staking.confirm.title" = "Conferma";
+"common.confirm.title" = "Conferma";
 "staking.reward.destination.title" = "Destinazione reward";
 "staking.stash.title" = "Account Wallet";
 "staking.setup.sent.message" = "Transazione di setup per lo staking inviata";

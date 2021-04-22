@@ -263,7 +263,7 @@ Chemin de dérivation : %@";
 "fee.not.yet.loaded.title" = "Le calcul des frais est en cours";
 "fee.not.yet.loaded.message" = "Veuillez attendre que les frais soient calculés";
 "staking.setup.amount.too.low" = "Impossible de miser moins que la valeur minimale ( %s )";
-"staking.confirm.title" = "Confirmation";
+"common.confirm.title" = "Confirmation";
 "staking.reward.destination.title" = "Destination de récompense";
 "staking.stash.title" = "Compte portefeuille";
 "staking.setup.sent.message" = "Transaction de configuration de jalonnement envoyée";
