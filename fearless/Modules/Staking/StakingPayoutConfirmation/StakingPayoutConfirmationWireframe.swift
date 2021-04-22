@@ -4,7 +4,7 @@ final class StakingPayoutConfirmationWireframe: StakingPayoutConfirmationWirefra
     func complete(from view: StakingPayoutConfirmationViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingSetupSentMessage(preferredLanguages: languages)
+            .stakingPayoutSent(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 
