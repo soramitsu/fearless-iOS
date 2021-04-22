@@ -4,6 +4,7 @@ final class StakingBalanceViewLayout: UIView {
     let backgroundView: UIView = UIImageView(image: R.image.backgroundImage())
 
     let balanceWidget = StakingBalanceWidgetView()
+    let actionsWidget = StakingBalanceActionsWidgetView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -20,11 +21,30 @@ final class StakingBalanceViewLayout: UIView {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
-        addSubview(balanceWidget)
+        let scrollView = UIScrollView()
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.bottom.trailing.equalToSuperview()
+        }
+
+        let contentView = UIView()
+        scrollView.addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.edges.equalToSuperview()
+            make.width.equalTo(self)
+        }
+
+        contentView.addSubview(balanceWidget)
         balanceWidget.snp.makeConstraints { make in
-            make.top.equalTo(safeAreaLayoutGuide).inset(8)
+            make.top.equalToSuperview().inset(8)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(200)
+        }
+
+        contentView.addSubview(actionsWidget)
+        actionsWidget.snp.makeConstraints { make in
+            make.top.equalTo(balanceWidget.snp.bottom).offset(8)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
     }
 }
