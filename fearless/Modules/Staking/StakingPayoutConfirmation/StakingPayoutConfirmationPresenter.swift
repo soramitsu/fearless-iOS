@@ -7,20 +7,30 @@ final class StakingPayoutConfirmationPresenter {
     var wireframe: StakingPayoutConfirmationWireframeProtocol!
     var interactor: StakingPayoutConfirmationInteractorInputProtocol!
 
-    private var fee: Decimal?
-    private var priceData: PriceData?
     private var balance: Decimal?
+    private var fee: Decimal?
+    private var rewardAmount: Decimal = 0.0
+    private var priceData: PriceData?
+    private var account: AccountItem?
+    private var stashItem: StashItem?
+    private var rewardDestination: RewardDestination<DisplayAddress>?
 
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let logger: LoggerProtocol?
-    let asset: WalletAsset
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    private let payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol
+    private let chain: Chain
+    private let asset: WalletAsset
+    private let logger: LoggerProtocol?
 
     init(
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        payoutConfirmViewModelFactory: StakingPayoutConfirmViewModelFactoryProtocol,
+        chain: Chain,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.payoutConfirmViewModelFactory = payoutConfirmViewModelFactory
+        self.chain = chain
         self.asset = asset
         self.logger = logger
     }
@@ -53,7 +63,26 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
             return
         }
 
+        guard rewardAmount >= fee else {
+            didFailPayout(error: StakingPayoutConfirmError.tinyPayout)
+            return
+        }
+
         interactor.submitPayout()
+    }
+
+    func presentAccountOptions(for viewModel: AccountInfoViewModel) {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        if let view = view,
+           let chain = WalletAssetId(rawValue: asset.identifier)?.chain {
+            wireframe.presentAccountOptions(
+                from: view,
+                address: viewModel.address,
+                chain: chain,
+                locale: locale
+            )
+        }
     }
 
     // MARK: - Private functions
@@ -67,6 +96,19 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
         }
     }
 
+    private func provideViewModel() {
+        guard let account = self.account else { return }
+
+        let viewModel = payoutConfirmViewModelFactory.createPayoutConfirmViewModel(
+            with: account,
+            rewardAmount: rewardAmount,
+            rewardDestination: rewardDestination,
+            priceData: priceData
+        )
+
+        view?.didRecieve(viewModel: viewModel)
+    }
+
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
@@ -77,11 +119,17 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 
             switch confirmError {
             case .notEnoughFunds:
-                wireframe.presentAmountTooHigh(from: view, locale: locale)
+                wireframe.presentPayoutFeeTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
             case .extrinsicFailed:
                 wireframe.presentExtrinsicFailed(from: view, locale: locale)
+            case .tinyPayout:
+                wireframe.presentRewardIsLessThanFee(
+                    from: view,
+                    action: { self.interactor?.submitPayout() },
+                    locale: locale
+                )
             }
         } else {
             if !wireframe.present(error: error, from: view, locale: locale) {
@@ -91,7 +139,40 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
     }
 }
 
+// MARK: - StakingPayoutConfirmationInteractorOutputProtocol
+
 extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteractorOutputProtocol {
+    func didReceive(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            logger?.debug("Stash: \(stashItem.stash)")
+            logger?.debug("Controller: \(stashItem.controller)")
+        } else {
+            logger?.debug("No stash found")
+        }
+
+        self.stashItem = stashItem
+    }
+
+    func didReceive(stashItemError: Error) {
+        handle(error: stashItemError)
+    }
+
+    func didReceive(rewardDestination: RewardDestination<DisplayAddress>?) {
+        if let rewardDestination = rewardDestination {
+            logger?.debug("Payee: \(rewardDestination)")
+        } else {
+            logger?.debug("No payee received")
+        }
+
+        self.rewardDestination = rewardDestination
+
+        provideViewModel()
+    }
+
+    func didReceive(rewardDestinationError: Error) {
+        handle(error: rewardDestinationError)
+    }
+
     func didStartPayout() {
         view?.didStartLoading()
     }
@@ -143,9 +224,17 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
     func didReceive(price: PriceData?) {
         priceData = price
         provideFee()
+        provideViewModel()
     }
 
     func didReceive(priceError: Error) {
         handle(error: priceError)
+    }
+
+    func didRecieve(account: AccountItem, rewardAmount: Decimal) {
+        self.account = account
+        self.rewardAmount = rewardAmount
+
+        provideViewModel()
     }
 }

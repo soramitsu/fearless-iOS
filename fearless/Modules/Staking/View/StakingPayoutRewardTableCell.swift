@@ -1,6 +1,6 @@
 import UIKit
 
-final class StakingRewardDetailsRewardTableCell: StakingRewardDetailsBaseTableCell {
+final class StakingPayoutRewardTableCell: StakingPayoutBaseTableCell {
     let tokenAmountLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -33,8 +33,17 @@ final class StakingRewardDetailsRewardTableCell: StakingRewardDetailsBaseTableCe
     }
 
     func bind(model: StakingRewardTokenUsdViewModel) {
+        titleLabel.text = model.title
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
-        titleLabel.text = R.string.localizable.stakingRewardDetailsReward()
+
+        let isPriceEmpty = model.usdAmountText?.isEmpty ?? true
+
+        tokenAmountLabel.snp.updateConstraints { make in
+            let offset = !isPriceEmpty ? -8 : 0
+            make.trailing.equalTo(usdAmountLabel.snp.leading).offset(offset)
+        }
+
+        setNeedsLayout()
     }
 }

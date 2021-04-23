@@ -9,10 +9,17 @@ class StakingPayoutsConfirmTests: XCTestCase {
     func testSetupAndSendExtrinsic() throws {
         // given
 
+        let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
+        let accountId = try! SS58AddressFactory().accountId(from: address)
+
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
+        let chain: Chain = .westend
 
-        let addressType = SNAddressType.kusamaMain
+        let storageFacade = SubstrateStorageTestFacade()
+        let operationManager = OperationManager()
+
+        let addressType = chain.addressType
         try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
                                                             keychain: keychain,
                                                             settings: settings)
@@ -27,20 +34,44 @@ class StakingPayoutsConfirmTests: XCTestCase {
                                                               selectedAddressType: addressType,
                                                               limit: StakingConstants.maxAmount)
 
+        let viewModelFactory = StakingPayoutConfirmViewModelFactory(asset: asset,
+                                                                    balanceViewModelFactory: balanceViewModelFactory)
+
         let presenter = StakingPayoutConfirmationPresenter(balanceViewModelFactory: balanceViewModelFactory,
-                                                           asset: asset)
+                                                           payoutConfirmViewModelFactory: viewModelFactory,
+                                                           chain: chain,
+                                                           asset: asset,
+                                                           logger: nil)
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
         let signer = try DummySigner(cryptoType: .sr25519)
         let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let priceProvider = SingleValueProviderStub(item: WestendStub.price)
 
-        let interactor = StakingPayoutConfirmationInteractor(extrinsicService: extrinsicService,
-                                                             signer: signer,
-                                                             balanceProvider: AnyDataProvider(balanceProvider),
-                                                             priceProvider: AnySingleValueProvider(priceProvider),
-                                                             settings: settings,
-                                                             payouts: [])
+        let providerFactory = SingleValueProviderFactoryStub.westendNominatorStub()
+
+        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
+
+        let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
+                                                                    operationManager: operationManager)
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+
+        let interactor = StakingPayoutConfirmationInteractor(
+            providerFactory: providerFactory,
+            substrateProviderFactory: substrateProviderFactory,
+            extrinsicService: extrinsicService,
+            runtimeService: runtimeCodingService,
+            signer: signer,
+            balanceProvider: AnyDataProvider(balanceProvider),
+            priceProvider: AnySingleValueProvider(priceProvider),
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: OperationManager(),
+            settings: settings,
+            payouts: [PayoutInfo(era: 1000, validator: accountId, reward: 100.0, identity: nil)],
+            chain: chain
+        )
         
         presenter.view = view
         presenter.wireframe = wireframe
@@ -50,12 +81,17 @@ class StakingPayoutsConfirmTests: XCTestCase {
         // when
 
         let feeExpectation = XCTestExpectation()
+        let viewModelExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceive(feeViewModel: any()).then { viewModel in
                 if viewModel != nil {
                     feeExpectation.fulfill()
                 }
+            }
+
+            when(stub).didRecieve(viewModel: any()).then {_ in
+                viewModelExpectation.fulfill()
             }
 
             when(stub).didStartLoading().thenDoNothing()
@@ -76,7 +112,7 @@ class StakingPayoutsConfirmTests: XCTestCase {
 
         // then
 
-        wait(for: [feeExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [feeExpectation, viewModelExpectation], timeout: Constants.defaultExpectationDuration)
 
         // when
 
