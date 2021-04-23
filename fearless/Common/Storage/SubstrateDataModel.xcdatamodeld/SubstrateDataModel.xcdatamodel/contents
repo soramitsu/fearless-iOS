@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20C69" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="17709" systemVersion="20D91" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="CDChainStorageItem" representedClassName="CDChainStorageItem" syncable="YES" codeGenerationType="class">
         <attribute name="data" optional="YES" attributeType="Binary"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
@@ -31,10 +31,12 @@
         <attribute name="stash" optional="YES" attributeType="String"/>
     </entity>
     <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
-        <attribute name="amount" optional="YES" attributeType="String"/>
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
+        <attribute name="callArgs" optional="YES" attributeType="Binary"/>
+        <attribute name="callName" attributeType="String"/>
         <attribute name="fee" optional="YES" attributeType="String"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
+        <attribute name="moduleName" attributeType="String"/>
         <attribute name="receiver" optional="YES" attributeType="String"/>
         <attribute name="sender" optional="YES" attributeType="String"/>
         <attribute name="status" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -47,7 +49,7 @@
         <element name="CDPhishingItem" positionX="-36" positionY="90" width="128" height="74"/>
         <element name="CDRuntimeMetadataItem" positionX="-45" positionY="81" width="128" height="89"/>
         <element name="CDSingleValue" positionX="-45" positionY="81" width="128" height="59"/>
-        <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="178"/>
         <element name="CDStashItem" positionX="-45" positionY="81" width="128" height="59"/>
+        <element name="CDTransactionHistoryItem" positionX="-54" positionY="9" width="128" height="194"/>
     </elements>
 </model>
