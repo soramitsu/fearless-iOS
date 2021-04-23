@@ -32,4 +32,13 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 }
 
-extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {}
+extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
+    func didReceive(balanceResult: Result<StakingBalanceData, Error>) {
+        switch balanceResult {
+        case let .success(balance):
+            print(balance)
+        case let .failure(error):
+            print(error)
+        }
+    }
+}

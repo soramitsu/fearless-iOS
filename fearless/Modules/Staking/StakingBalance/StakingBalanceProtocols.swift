@@ -13,7 +13,9 @@ protocol StakingBalanceInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol StakingBalanceInteractorOutputProtocol: AnyObject {}
+protocol StakingBalanceInteractorOutputProtocol: AnyObject {
+    func didReceive(balanceResult: Result<StakingBalanceData, Error>)
+}
 
 protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showBondMore(from view: ControllerBackedProtocol?)
