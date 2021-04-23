@@ -16367,6 +16367,21 @@ import SoraFoundation
     
 
     
+    
+    
+     func didReceive(balanceResult: Result<StakingBalanceData, Error>)  {
+        
+    return cuckoo_manager.call("didReceive(balanceResult: Result<StakingBalanceData, Error>)",
+            parameters: (balanceResult),
+            escapingParameters: (balanceResult),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(balanceResult: balanceResult))
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingBalanceInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -16375,6 +16390,11 @@ import SoraFoundation
 	        self.cuckoo_manager = manager
 	    }
 	    
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(balanceResult: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<StakingBalanceData, Error>)> where M1.MatchedType == Result<StakingBalanceData, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<StakingBalanceData, Error>)>] = [wrap(matchable: balanceResult) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceInteractorOutputProtocol.self, method: "didReceive(balanceResult: Result<StakingBalanceData, Error>)", parameterMatchers: matchers))
+	    }
 	    
 	}
 
@@ -16392,6 +16412,12 @@ import SoraFoundation
 	    
 	
 	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(balanceResult: M1) -> Cuckoo.__DoNotUse<(Result<StakingBalanceData, Error>), Void> where M1.MatchedType == Result<StakingBalanceData, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<StakingBalanceData, Error>)>] = [wrap(matchable: balanceResult) { $0 }]
+	        return cuckoo_manager.verify("didReceive(balanceResult: Result<StakingBalanceData, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -16400,6 +16426,10 @@ import SoraFoundation
 
     
 
+    
+     func didReceive(balanceResult: Result<StakingBalanceData, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
     
 }
 
