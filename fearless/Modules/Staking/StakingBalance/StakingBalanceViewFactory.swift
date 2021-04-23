@@ -29,7 +29,8 @@ struct StakingBalanceViewFactory {
         }
 
         let networkType = settings.selectedConnection.type
-        guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: networkType.chain) else { return nil }
+        let chain = networkType.chain
+        guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain) else { return nil }
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: StorageKeyFactory(),
             localKeyFactory: localStorageIdFactory
@@ -48,11 +49,13 @@ struct StakingBalanceViewFactory {
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
         let interactor = StakingBalanceInteractor(
+            chain: chain,
             accountAddress: selectedAccount.address,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             chainStorage: AnyDataProviderRepository(chainStorage),
             localStorageRequestFactory: localStorageRequestFactory,
             priceProvider: priceProvider,
+            providerFactory: SingleValueProviderFactory.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
         return interactor

@@ -10,26 +10,33 @@ final class StakingBalanceInteractor {
     // stakingmainInteractor subscripions
     // substratePRoviderFactory создаею подписку на стэайтем
     ///
+    private let chain: Chain
     private let accountAddress: AccountAddress
     private let runtimeCodingService: RuntimeCodingServiceProtocol
     private let chainStorage: AnyDataProviderRepository<ChainStorageItem>
     private let localStorageRequestFactory: LocalStorageRequestFactoryProtocol
     private let operationManager: OperationManagerProtocol
     private let priceProvider: AnySingleValueProvider<PriceData>
+    private let providerFactory: SingleValueProviderFactoryProtocol
+    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
 
     init(
+        chain: Chain,
         accountAddress: AccountAddress,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
         priceProvider: AnySingleValueProvider<PriceData>,
+        providerFactory: SingleValueProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
+        self.chain = chain
         self.accountAddress = accountAddress
         self.runtimeCodingService = runtimeCodingService
         self.chainStorage = chainStorage
         self.localStorageRequestFactory = localStorageRequestFactory
         self.priceProvider = priceProvider
+        self.providerFactory = providerFactory
         self.operationManager = operationManager
     }
 
@@ -154,9 +161,7 @@ final class StakingBalanceInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            DispatchQueue.main.async {
-                self?.presenter.didReceive(priceResult: .failure(error))
-            }
+            self?.presenter.didReceive(priceResult: .failure(error))
             return
         }
 
@@ -172,11 +177,49 @@ final class StakingBalanceInteractor {
             options: options
         )
     }
+
+    func subscribeToElectionStatus() {
+        guard electionStatusProvider == nil else {
+            return
+        }
+
+        guard let electionStatusProvider = try? providerFactory
+            .getElectionStatusProvider(chain: chain, runtimeService: runtimeCodingService)
+        else {
+            return
+        }
+
+        self.electionStatusProvider = electionStatusProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
+            if let electionStatus = changes.reduceToLastChange() {
+                self?.presenter.didReceive(electionStatusResult: .success(electionStatus.item))
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(electionStatusResult: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        electionStatusProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
+        subscribeToElectionStatus()
         let balanceWrapper = fetchStakingBalance()
         balanceWrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async {

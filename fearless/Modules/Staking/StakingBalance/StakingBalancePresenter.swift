@@ -6,6 +6,7 @@ final class StakingBalancePresenter {
     weak var view: StakingBalanceViewProtocol?
 
     private var priceData: PriceData?
+    private var electionStatus: ElectionStatus?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
@@ -53,6 +54,17 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
             updateView()
         case .failure:
             priceData = nil
+            updateView()
+        }
+    }
+
+    func didReceive(electionStatusResult: Result<ElectionStatus?, Error>) {
+        switch electionStatusResult {
+        case let .success(electionStatus):
+            self.electionStatus = electionStatus
+            updateView()
+        case .failure:
+            electionStatus = nil
             updateView()
         }
     }

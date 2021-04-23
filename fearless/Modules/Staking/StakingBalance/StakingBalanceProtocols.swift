@@ -16,6 +16,7 @@ protocol StakingBalanceInteractorInputProtocol: AnyObject {
 protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(balanceResult: Result<StakingBalanceData, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
+    func didReceive(electionStatusResult: Result<ElectionStatus?, Error>)
     // func did ledger
     // active era
 }
