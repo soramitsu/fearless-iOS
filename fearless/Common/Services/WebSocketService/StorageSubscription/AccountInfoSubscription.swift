@@ -2,11 +2,11 @@ import Foundation
 import RobinHood
 
 final class AccountInfoSubscription: BaseStorageChildSubscription {
-    let transferSubscription: TransferSubscription
+    let transactionSubscription: TransactionSubscription
     let eventCenter: EventCenterProtocol
 
     init(
-        transferSubscription: TransferSubscription,
+        transactionSubscription: TransactionSubscription,
         remoteStorageKey: Data,
         localStorageKey: String,
         storage: AnyDataProviderRepository<ChainStorageItem>,
@@ -14,7 +14,7 @@ final class AccountInfoSubscription: BaseStorageChildSubscription {
         logger: LoggerProtocol,
         eventCenter: EventCenterProtocol
     ) {
-        self.transferSubscription = transferSubscription
+        self.transactionSubscription = transactionSubscription
         self.eventCenter = eventCenter
 
         super.init(
@@ -33,7 +33,7 @@ final class AccountInfoSubscription: BaseStorageChildSubscription {
             logger.debug("Did change account info")
 
             if let blockHash = blockHash {
-                transferSubscription.process(blockHash: blockHash)
+                transactionSubscription.process(blockHash: blockHash)
             }
 
             DispatchQueue.main.async {

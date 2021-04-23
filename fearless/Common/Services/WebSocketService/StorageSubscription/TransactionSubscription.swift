@@ -11,7 +11,7 @@ struct TransactionSubscriptionResult {
     let txIndex: UInt16
 }
 
-final class TransferSubscription {
+final class TransactionSubscription {
     let engine: JSONRPCEngine
     let address: String
     let chain: Chain
@@ -122,7 +122,7 @@ final class TransferSubscription {
     }
 }
 
-extension TransferSubscription {
+extension TransactionSubscription {
     private func createTxSaveOperation(
         for address: String,
         dependingOn processingOperaton: BaseOperation<[TransactionSubscriptionResult]>

@@ -41,7 +41,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             logger: logger
         )
 
-        let transferSubscription = createTransferSubscription(
+        let transactionSubscription = createTransactionSubscription(
             address: address,
             engine: engine,
             networkType: type
@@ -49,7 +49,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let accountSubscription =
             try createAccountInfoSubscription(
-                transferSubscription: transferSubscription,
+                transactionSubscription: transactionSubscription,
                 accountId: accountId,
                 localStorageIdFactory: localStorageIdFactory
             )
@@ -129,7 +129,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     }
 
     private func createAccountInfoSubscription(
-        transferSubscription: TransferSubscription,
+        transactionSubscription: TransactionSubscription,
         accountId: Data,
         localStorageIdFactory: ChainStorageIdFactoryProtocol
     )
@@ -142,7 +142,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             storageFacade.createRepository()
 
         return AccountInfoSubscription(
-            transferSubscription: transferSubscription,
+            transactionSubscription: transactionSubscription,
             remoteStorageKey: accountStorageKey,
             localStorageKey: localStorageKey,
             storage: AnyDataProviderRepository(storage),
@@ -197,11 +197,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         }
     }
 
-    private func createTransferSubscription(
+    private func createTransactionSubscription(
         address: String,
         engine: JSONRPCEngine,
         networkType: SNAddressType
-    ) -> TransferSubscription {
+    ) -> TransactionSubscription {
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             storageFacade.createRepository(filter: filter)
@@ -216,7 +216,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             operationManager: operationManager
         )
 
-        return TransferSubscription(
+        return TransactionSubscription(
             engine: engine,
             address: address,
             chain: networkType.chain,

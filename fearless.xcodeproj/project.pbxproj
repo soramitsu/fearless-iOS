@@ -859,7 +859,7 @@
 		84FD3DB12540C09800A234E3 /* TransactionHistoryMergeManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */; };
 		84FD3DB32540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB22540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift */; };
 		84FD3DB52540ED0900A234E3 /* Block.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB42540ED0900A234E3 /* Block.swift */; };
-		84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */; };
+		84FD3DB72540EF0700A234E3 /* TransactionSubscription.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB62540EF0700A234E3 /* TransactionSubscription.swift */; };
 		84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DB82540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift */; };
 		84FD3DBB254104B600A234E3 /* WalletNewTransactionInserted.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DBA254104B600A234E3 /* WalletNewTransactionInserted.swift */; };
 		84FD3DBE25419FD900A234E3 /* TransactionDetailsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FD3DBD25419FD900A234E3 /* TransactionDetailsConfigurator.swift */; };
@@ -1925,7 +1925,7 @@
 		84FD3DB02540C09800A234E3 /* TransactionHistoryMergeManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionHistoryMergeManager.swift; sourceTree = "<group>"; };
 		84FD3DB22540E7C500A234E3 /* WalletNetworkFacade+TxHistory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "WalletNetworkFacade+TxHistory.swift"; sourceTree = "<group>"; };
 		84FD3DB42540ED0900A234E3 /* Block.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Block.swift; sourceTree = "<group>"; };
-		84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferSubscription.swift; sourceTree = "<group>"; };
+		84FD3DB62540EF0700A234E3 /* TransactionSubscription.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionSubscription.swift; sourceTree = "<group>"; };
 		84FD3DB82540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransactionHistoryItem+Extrinsic.swift"; sourceTree = "<group>"; };
 		84FD3DBA254104B600A234E3 /* WalletNewTransactionInserted.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletNewTransactionInserted.swift; sourceTree = "<group>"; };
 		84FD3DBD25419FD900A234E3 /* TransactionDetailsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionDetailsConfigurator.swift; sourceTree = "<group>"; };
@@ -3326,7 +3326,7 @@
 				8470D6D1253E3382009E9A5D /* StorageSubscriptionContainer.swift */,
 				8470D6CF253E321C009E9A5D /* StorageSubscriptionProtocols.swift */,
 				8470D6D3253E35F0009E9A5D /* StorageUpdate.swift */,
-				84FD3DB62540EF0700A234E3 /* TransferSubscription.swift */,
+				84FD3DB62540EF0700A234E3 /* TransactionSubscription.swift */,
 				84786E0F25FA20D30089DFF7 /* StakingAccountResolver.swift */,
 				84786E2325FBA2A50089DFF7 /* StakingAccountSubscription.swift */,
 				84F30E9625FD3C5300039D09 /* EventEmittingStorageSubscription.swift */,
@@ -5889,7 +5889,7 @@
 				84452F6225D5D5AD00F47EC5 /* RuntimeFilesOperationFacade.swift in Sources */,
 				84786E1F25FA6C390089DFF7 /* CDStashItem+CoreDataCodable.swift in Sources */,
 				840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */,
-				84FD3DB72540EF0700A234E3 /* TransferSubscription.swift in Sources */,
+				84FD3DB72540EF0700A234E3 /* TransactionSubscription.swift in Sources */,
 				2AD0A16A25D3854700312428 /* TransferConfirmCommandProxy.swift in Sources */,
 				84C3F7832602086100D47501 /* StakingViewState.swift in Sources */,
 				849014DC24AA8F60008F705E /* MainTabBarPresenter.swift in Sources */,
