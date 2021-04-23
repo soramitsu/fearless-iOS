@@ -5,6 +5,8 @@ final class StakingBalancePresenter {
     let wireframe: StakingBalanceWireframeProtocol
     weak var view: StakingBalanceViewProtocol?
 
+    private var priceData: PriceData?
+
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol
@@ -12,6 +14,8 @@ final class StakingBalancePresenter {
         self.interactor = interactor
         self.wireframe = wireframe
     }
+
+    private func updateView() {}
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
@@ -39,6 +43,17 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
             print(balance)
         case let .failure(error):
             print(error)
+        }
+    }
+
+    func didReceive(priceResult: Result<PriceData?, Error>) {
+        switch priceResult {
+        case let .success(priceData):
+            self.priceData = priceData
+            updateView()
+        case .failure:
+            priceData = nil
+            updateView()
         }
     }
 }

@@ -23,11 +23,12 @@ struct StakingBalanceViewFactory {
     }
 
     private static func createInteractor() -> StakingBalanceInteractor? {
-        guard let selectedAccount = SettingsManager.shared.selectedAccount else {
+        let settings = SettingsManager.shared
+        guard let selectedAccount = settings.selectedAccount else {
             return nil
         }
 
-        let networkType = SettingsManager.shared.selectedConnection.type
+        let networkType = settings.selectedConnection.type
         guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: networkType.chain) else { return nil }
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: StorageKeyFactory(),
@@ -38,11 +39,20 @@ struct StakingBalanceViewFactory {
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             substrateStorageFacade.createRepository()
 
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+
         let interactor = StakingBalanceInteractor(
             accountAddress: selectedAccount.address,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             chainStorage: AnyDataProviderRepository(chainStorage),
             localStorageRequestFactory: localStorageRequestFactory,
+            priceProvider: priceProvider,
             operationManager: OperationManagerFacade.sharedManager
         )
         return interactor

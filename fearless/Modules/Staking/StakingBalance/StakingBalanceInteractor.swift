@@ -2,25 +2,34 @@ import RobinHood
 import IrohaCrypto
 
 final class StakingBalanceInteractor {
-    weak var presenter: StakingBalanceInteractorOutputProtocol?
+    weak var presenter: StakingBalanceInteractorOutputProtocol!
 
+    // Sungvalue provider factory с помо - для всех остальрых
+    // - staking ledger, епередаю айдрес конторлелра из стешайтема
+
+    // stakingmainInteractor subscripions
+    // substratePRoviderFactory создаею подписку на стэайтем
+    ///
     private let accountAddress: AccountAddress
     private let runtimeCodingService: RuntimeCodingServiceProtocol
     private let chainStorage: AnyDataProviderRepository<ChainStorageItem>
     private let localStorageRequestFactory: LocalStorageRequestFactoryProtocol
     private let operationManager: OperationManagerProtocol
+    private let priceProvider: AnySingleValueProvider<PriceData>
 
     init(
         accountAddress: AccountAddress,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
+        priceProvider: AnySingleValueProvider<PriceData>,
         operationManager: OperationManagerProtocol
     ) {
         self.accountAddress = accountAddress
         self.runtimeCodingService = runtimeCodingService
         self.chainStorage = chainStorage
         self.localStorageRequestFactory = localStorageRequestFactory
+        self.priceProvider = priceProvider
         self.operationManager = operationManager
     }
 
@@ -127,10 +136,47 @@ final class StakingBalanceInteractor {
             redeemable: stakingInfo.redeemable(inEra: activeEra)
         )
     }
+
+    private func subscribeToPriceChanges() {
+        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
+            if changes.isEmpty {
+                self?.presenter.didReceive(priceResult: .success(nil))
+            } else {
+                for change in changes {
+                    switch change {
+                    case let .insert(item), let .update(item):
+                        self?.presenter.didReceive(priceResult: .success(item))
+                    case .delete:
+                        self?.presenter.didReceive(priceResult: .success(nil))
+                    }
+                }
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            DispatchQueue.main.async {
+                self?.presenter.didReceive(priceResult: .failure(error))
+            }
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        priceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
     func setup() {
+        subscribeToPriceChanges()
         let balanceWrapper = fetchStakingBalance()
         balanceWrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async {
