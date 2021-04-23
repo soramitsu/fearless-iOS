@@ -30,8 +30,14 @@ extension TransactionHistoryItem {
             throw AmountDecimalError.invalidStringValue
         }
 
-        let call = TransferCall(dest: .accoundId(receiverAccountId), value: amount)
-        let callArgs = try JSONEncoder.scaleCompatible().encode(call)
+        let callPath = CallCodingPath.transfer
+        let callArgs = TransferCall(dest: .accoundId(receiverAccountId), value: amount)
+        let call = RuntimeCall<TransferCall>(
+            moduleName: callPath.moduleName,
+            callName: callPath.callName,
+            args: callArgs
+        )
+        let encodedCall = try JSONEncoder.scaleCompatible().encode(call)
 
         let totalFee = info.fees.reduce(Decimal(0)) { total, fee in total + fee.value.decimalValue }
 
@@ -40,8 +46,6 @@ extension TransactionHistoryItem {
         }
 
         let timestamp = Int64(Date().timeIntervalSince1970)
-
-        let callPath = CallCodingPath.transfer
 
         return TransactionHistoryItem(
             sender: sender,
@@ -53,7 +57,7 @@ extension TransactionHistoryItem {
             blockNumber: nil,
             txIndex: nil,
             callPath: callPath,
-            callArgs: callArgs
+            call: encodedCall
         )
     }
 }

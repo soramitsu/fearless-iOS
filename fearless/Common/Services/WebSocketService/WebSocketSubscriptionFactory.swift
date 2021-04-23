@@ -211,15 +211,20 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             targetAddress: address
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: storageKeyFactory,
+            operationManager: operationManager
+        )
+
         return TransferSubscription(
             engine: engine,
             address: address,
             chain: networkType.chain,
-            addressFactory: addressFactory,
             runtimeService: runtimeService,
             txStorage: AnyDataProviderRepository(txStorage),
             contactOperationFactory: contactOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager,
+            storageRequestFactory: storageRequestFactory,
+            operationManager: operationManager,
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )

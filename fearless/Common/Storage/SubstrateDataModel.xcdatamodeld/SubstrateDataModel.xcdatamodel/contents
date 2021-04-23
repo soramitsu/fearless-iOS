@@ -32,7 +32,7 @@
     </entity>
     <entity name="CDTransactionHistoryItem" representedClassName="CDTransactionHistoryItem" syncable="YES" codeGenerationType="class">
         <attribute name="blockNumber" optional="YES" attributeType="Integer 64" usesScalarValueType="NO"/>
-        <attribute name="callArgs" optional="YES" attributeType="Binary"/>
+        <attribute name="call" optional="YES" attributeType="Binary"/>
         <attribute name="callName" attributeType="String"/>
         <attribute name="fee" optional="YES" attributeType="String"/>
         <attribute name="identifier" optional="YES" attributeType="String"/>
