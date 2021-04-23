@@ -1,6 +1,6 @@
 import UIKit
 
-final class StakingRewardDetailsStatusTableCell: StakingRewardDetailsBaseTableCell {
+final class StakingPayoutStatusTableCell: StakingPayoutBaseTableCell {
     let statusLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

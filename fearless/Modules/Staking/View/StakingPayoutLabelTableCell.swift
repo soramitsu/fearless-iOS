@@ -7,7 +7,7 @@ import UIKit
      "Era"......."#1,690" or
      "Reward destination"......."Restake"
   */
-final class StakingRewardDetailsLabelTableCell: StakingRewardDetailsBaseTableCell {
+final class StakingPayoutLabelTableCell: StakingPayoutBaseTableCell {
     let valueLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph

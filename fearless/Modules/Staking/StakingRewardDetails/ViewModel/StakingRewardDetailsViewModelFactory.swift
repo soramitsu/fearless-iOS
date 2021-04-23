@@ -31,8 +31,15 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
         LocalizableResource { locale in
             let rows: [RewardDetailsRow] = [
                 .validatorInfo(.init(
-                    name: R.string.localizable.stakingRewardDetailsValidator(preferredLanguages: locale.rLanguages),
-                    address: self.addressTitle(payoutInfo: input.payoutInfo, chain: input.chain),
+                    title: R.string.localizable.stakingRewardDetailsValidator(preferredLanguages: locale.rLanguages),
+                    address: self.validatorAddress(
+                        from: input.payoutInfo.validator,
+                        addressType: input.chain.addressType
+                    ) ?? "",
+                    name: self.displayName(
+                        payoutInfo: input.payoutInfo,
+                        chain: input.chain
+                    ),
                     icon: self.getValidatorIcon(validatorAccount: input.payoutInfo.validator, chain: input.chain)
                 )),
                 .date(.init(
@@ -48,6 +55,8 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
                     valueText: "#\(input.payoutInfo.era.description)"
                 )),
                 .reward(.init(
+                    title: R.string.localizable
+                        .stakingRewardDetailsReward(preferredLanguages: locale.rLanguages),
                     tokenAmountText: self.tokenAmountText(payoutInfo: input.payoutInfo, locale: locale),
                     usdAmountText: self.priceText(payoutInfo: input.payoutInfo, priceData: priceData, locale: locale)
                 ))
@@ -61,7 +70,7 @@ final class StakingRewardDetailsViewModelFactory: StakingRewardDetailsViewModelF
             .addressFromAccountId(data: data, type: addressType)
     }
 
-    private func addressTitle(payoutInfo: PayoutInfo, chain: Chain) -> String {
+    private func displayName(payoutInfo: PayoutInfo, chain: Chain) -> String {
         if let displayName = payoutInfo.identity?.displayName {
             return displayName
         }

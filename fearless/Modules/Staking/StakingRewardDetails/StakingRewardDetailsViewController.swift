@@ -40,9 +40,9 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
-            StakingRewardDetailsStatusTableCell.self,
-            StakingRewardDetailsLabelTableCell.self,
-            StakingRewardDetailsRewardTableCell.self,
+            StakingPayoutStatusTableCell.self,
+            StakingPayoutLabelTableCell.self,
+            StakingPayoutRewardTableCell.self,
             AccountInfoTableViewCell.self
         ])
         rootView.tableView.delegate = self
@@ -60,11 +60,6 @@ final class StakingRewardDetailsViewController: UIViewController, ViewHolder {
     @objc
     private func handlePayoutButtonAction() {
         presenter.handlePayoutAction()
-    }
-
-    @objc
-    private func handleValidatorAction() {
-        presenter.handleValidatorAccountAction(locale: selectedLocale)
     }
 }
 
@@ -114,32 +109,47 @@ extension StakingRewardDetailsViewController: UITableViewDataSource {
         switch rows[indexPath.row] {
         case let .status(status):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsStatusTableCell.self)!
+                StakingPayoutStatusTableCell.self)!
             cell.bind(model: status)
             return cell
         case let .date(dateViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
+                StakingPayoutLabelTableCell.self)!
             cell.bind(model: dateViewModel)
             return cell
         case let .era(eraViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsLabelTableCell.self)!
+                StakingPayoutLabelTableCell.self)!
             cell.bind(model: eraViewModel)
             return cell
         case let .reward(rewardViewModel):
             let cell = tableView.dequeueReusableCellWithType(
-                StakingRewardDetailsRewardTableCell.self)!
+                StakingPayoutRewardTableCell.self)!
             cell.bind(model: rewardViewModel)
             return cell
         case let .validatorInfo(model):
             let cell = tableView.dequeueReusableCellWithType(
                 AccountInfoTableViewCell.self)!
+            cell.delegate = self
             cell.bind(model: model)
-            cell.detailsView.addTarget(self, action: #selector(handleValidatorAction), for: .touchUpInside)
             return cell
         default:
             return UITableViewCell()
         }
+    }
+
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch rows[indexPath.row] {
+        case .validatorInfo:
+            return 82.0
+        default:
+            return 48.0
+        }
+    }
+}
+
+extension StakingRewardDetailsViewController: AccountInfoTableViewCellDelegate {
+    func accountInfoCellDidReceiveAction(_: AccountInfoTableViewCell) {
+        presenter.handleValidatorAccountAction(locale: selectedLocale)
     }
 }

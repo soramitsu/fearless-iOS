@@ -1,6 +1,6 @@
 import UIKit
 
-class StakingRewardDetailsBaseTableCell: UITableViewCell {
+class StakingPayoutBaseTableCell: UITableViewCell {
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -19,6 +19,7 @@ class StakingRewardDetailsBaseTableCell: UITableViewCell {
             bottom: 0,
             right: UIConstants.horizontalInset
         )
+
         setupLayout()
     }
 
