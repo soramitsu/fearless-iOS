@@ -47,6 +47,34 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             viewModels.append(viewModel)
         }
 
+        if let unbondedDecimal = Decimal.fromSubstrateAmount(
+            balanceData.stakingLedger.unbounding(inEra: balanceData.activeEra),
+            precision: precision
+        ) {
+            let unbondedAmountTokenText = tokenAmountText(unbondedDecimal, locale: locale)
+            let unbondedUsdText = priceText(unbondedDecimal, priceData: balanceData.priceData, locale: locale)
+            let viewModel = StakingBalanceWidgetViewModel(
+                title: "Unbonded", // TODO:
+                tokenAmountText: unbondedAmountTokenText,
+                usdAmountText: unbondedUsdText
+            )
+            viewModels.append(viewModel)
+        }
+
+        if let redeemableDecimal = Decimal.fromSubstrateAmount(
+            balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
+            precision: precision
+        ) {
+            let redeemableAmountTokenText = tokenAmountText(redeemableDecimal, locale: locale)
+            let redeemableUsdText = priceText(redeemableDecimal, priceData: balanceData.priceData, locale: locale)
+            let viewModel = StakingBalanceWidgetViewModel(
+                title: "Redeemable", // TODO:
+                tokenAmountText: redeemableAmountTokenText,
+                usdAmountText: redeemableUsdText
+            )
+            viewModels.append(viewModel)
+        }
+
         return viewModels
     }
 
