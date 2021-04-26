@@ -5597,7 +5597,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nINPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Input Directory = $INPUT_DIR\"\n\nOUTPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Output Directory = $OUTPUT_DIR\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$INPUT_DIR\" --sources . --output \"$OUTPUT_DIR\" --args secretKey=$MOONPAY_PRODUCTION_SECRET,testSecretKey=$MOONPAY_TEST_SECRET\n";
+			shellScript = "INPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Input Directory = $INPUT_DIR\"\n\nOUTPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Output Directory = $OUTPUT_DIR\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$INPUT_DIR\" --sources . --output \"$OUTPUT_DIR\" --args secretKey=$MOONPAY_PRODUCTION_SECRET,testSecretKey=$MOONPAY_TEST_SECRET\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
