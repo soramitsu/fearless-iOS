@@ -11,12 +11,15 @@ struct StakingBalanceViewFactory {
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let accountAddress = settings.selectedAccount?.address
+        else {
             return nil
         }
 
         guard let interactor = createInteractor(
-            settings: settings,
+            accountAddress: accountAddress,
             assetId: assetId,
             chain: chain
         ) else { return nil }
@@ -34,7 +37,8 @@ struct StakingBalanceViewFactory {
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            viewModelFactory: viewModelFactory,
+            accountAddress: accountAddress
         )
         interactor.presenter = presenter
 
@@ -48,14 +52,11 @@ struct StakingBalanceViewFactory {
     }
 
     private static func createInteractor(
-        settings: SettingsManagerProtocol,
+        accountAddress: String,
         assetId: WalletAssetId,
         chain: Chain
     ) -> StakingBalanceInteractor? {
-        guard
-            let selectedAccount = settings.selectedAccount,
-            let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain)
-        else { return nil }
+        guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain) else { return nil }
 
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: StorageKeyFactory(),
@@ -68,15 +69,21 @@ struct StakingBalanceViewFactory {
 
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
+        let substrateProviderFactory =
+            SubstrateDataProviderFactory(
+                facade: SubstrateDataStorageFacade.shared,
+                operationManager: OperationManagerFacade.sharedManager
+            )
 
         let interactor = StakingBalanceInteractor(
             chain: chain,
-            accountAddress: selectedAccount.address,
+            accountAddress: accountAddress,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             chainStorage: AnyDataProviderRepository(chainStorage),
             localStorageRequestFactory: localStorageRequestFactory,
             priceProvider: priceProvider,
             providerFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
             operationManager: OperationManagerFacade.sharedManager
         )
         return interactor

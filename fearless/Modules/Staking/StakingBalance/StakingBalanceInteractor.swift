@@ -12,7 +12,9 @@ final class StakingBalanceInteractor {
     private let operationManager: OperationManagerProtocol
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let providerFactory: SingleValueProviderFactoryProtocol
+    private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
+    private var stashControllerProvider: StreamableProvider<StashItem>?
 
     init(
         chain: Chain,
@@ -22,6 +24,7 @@ final class StakingBalanceInteractor {
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
         priceProvider: AnySingleValueProvider<PriceData>,
         providerFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.chain = chain
@@ -31,6 +34,7 @@ final class StakingBalanceInteractor {
         self.localStorageRequestFactory = localStorageRequestFactory
         self.priceProvider = priceProvider
         self.providerFactory = providerFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
     }
 
@@ -123,7 +127,7 @@ final class StakingBalanceInteractor {
         )
     }
 
-    func subscribeToElectionStatus() {
+    private func subscribeToElectionStatus() {
         guard electionStatusProvider == nil else {
             return
         }
@@ -183,6 +187,34 @@ final class StakingBalanceInteractor {
 
         operationManager.enqueue(operations: activeEraWrapper.allOperations + [codingFactoryOperation], in: .transient)
     }
+
+    private func subscribeToStashControllerProvider() {
+        guard stashControllerProvider == nil else {
+            return
+        }
+
+        let provider = substrateProviderFactory.createStashItemProvider(for: accountAddress)
+
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
+            let stashItem = changes.reduceToLastChange()
+            self?.presenter?.didReceive(stashItemResult: .success(stashItem))
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceive(stashItemResult: .failure(error))
+            return
+        }
+
+        provider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
+
+        stashControllerProvider = provider
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
@@ -190,6 +222,7 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToElectionStatus()
         subsribeToActiveEra()
+        subscribeToStashControllerProvider()
         fetchStakingLedger()
     }
 }

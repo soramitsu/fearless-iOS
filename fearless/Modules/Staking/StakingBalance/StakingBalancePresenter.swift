@@ -5,7 +5,9 @@ final class StakingBalancePresenter {
     let wireframe: StakingBalanceWireframeProtocol
     let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
+    private let accountAddress: AccountAddress
 
+    private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var stakingLedger: DyStakingLedger?
     private var priceData: PriceData?
@@ -14,11 +16,13 @@ final class StakingBalancePresenter {
     init(
         interactor: StakingBalanceInteractorInputProtocol,
         wireframe: StakingBalanceWireframeProtocol,
-        viewModelFactory: StakingBalanceViewModelFactoryProtocol
+        viewModelFactory: StakingBalanceViewModelFactoryProtocol,
+        accountAddress: AccountAddress
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
+        self.accountAddress = accountAddress
     }
 
     private func updateView() {
@@ -41,6 +45,10 @@ final class StakingBalancePresenter {
             return false
         }
     }
+
+    var controllerAccountIsAvailable: Bool {
+        stashItem != nil
+    }
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
@@ -49,8 +57,20 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 
     func handleAction(_ action: StakingBalanceAction) {
+        guard let view = view else { return }
+        let selectedLocale = view.localizationManager?.selectedLocale
+
         guard electionPeriodIsClosed else {
-            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: view?.localizationManager?.selectedLocale)
+            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: selectedLocale)
+            return
+        }
+
+        guard controllerAccountIsAvailable else {
+            wireframe.presentMissingController(
+                from: view,
+                address: accountAddress,
+                locale: selectedLocale
+            )
             return
         }
 
@@ -105,6 +125,15 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
             self.electionStatus = electionStatus
         case .failure:
             electionStatus = nil
+        }
+    }
+
+    func didReceive(stashItemResult: Result<StashItem?, Error>) {
+        switch stashItemResult {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+        case let .failure(error):
+            stashItem = nil
         }
     }
 }
