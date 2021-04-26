@@ -4,12 +4,6 @@ import IrohaCrypto
 final class StakingBalanceInteractor {
     weak var presenter: StakingBalanceInteractorOutputProtocol!
 
-    // Sungvalue provider factory с помо - для всех остальрых
-    // - staking ledger, епередаю айдрес конторлелра из стешайтема
-
-    // stakingmainInteractor subscripions
-    // substratePRoviderFactory создаею подписку на стэайтем
-    ///
     private let chain: Chain
     private let accountAddress: AccountAddress
     private let runtimeCodingService: RuntimeCodingServiceProtocol

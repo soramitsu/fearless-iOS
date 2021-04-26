@@ -73,15 +73,6 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         }
     }
 
-    func didReceive(balanceResult: Result<StakingBalanceData, Error>) {
-        switch balanceResult {
-        case let .success(balance):
-            print(balance)
-        case let .failure(error):
-            print(error)
-        }
-    }
-
     func didReceive(priceResult: Result<PriceData?, Error>) {
         switch priceResult {
         case let .success(priceData):
@@ -97,10 +88,8 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         switch electionStatusResult {
         case let .success(electionStatus):
             self.electionStatus = electionStatus
-            updateView()
         case .failure:
             electionStatus = nil
-            updateView()
         }
     }
 }
