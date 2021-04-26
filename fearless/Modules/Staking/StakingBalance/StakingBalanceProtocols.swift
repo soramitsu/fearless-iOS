@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
-    func reload(with viewModel: StakingBalanceViewModel)
+    func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>)
 }
 
 protocol StakingBalancePresenterProtocol: AnyObject {

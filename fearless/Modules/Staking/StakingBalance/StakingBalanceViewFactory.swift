@@ -5,12 +5,36 @@ import FearlessUtils
 
 struct StakingBalanceViewFactory {
     static func createView() -> StakingBalanceViewProtocol? {
-        guard let interactor = createInteractor() else { return nil }
+        let settings = SettingsManager.shared
+        let networkType = settings.selectedConnection.type
+        let chain = networkType.chain
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+
+        guard let interactor = createInteractor(
+            settings: settings,
+            assetId: assetId,
+            chain: chain
+        ) else { return nil }
+
         let wireframe = StakingBalanceWireframe()
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount
+        )
+        let viewModelFactory = StakingBalanceViewModelFactory(
+            chain: chain,
+            balanceViewModelFactory: balanceViewModelFactory
+        )
         let presenter = StakingBalancePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: StakingBalanceViewModelFactory()
+            viewModelFactory: viewModelFactory
         )
         interactor.presenter = presenter
 
@@ -23,15 +47,16 @@ struct StakingBalanceViewFactory {
         return viewController
     }
 
-    private static func createInteractor() -> StakingBalanceInteractor? {
-        let settings = SettingsManager.shared
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
+    private static func createInteractor(
+        settings: SettingsManagerProtocol,
+        assetId: WalletAssetId,
+        chain: Chain
+    ) -> StakingBalanceInteractor? {
+        guard
+            let selectedAccount = settings.selectedAccount,
+            let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain)
+        else { return nil }
 
-        let networkType = settings.selectedConnection.type
-        let chain = networkType.chain
-        guard let localStorageIdFactory = try? ChainStorageIdFactory(chain: chain) else { return nil }
         let localStorageRequestFactory = LocalStorageRequestFactory(
             remoteKeyFactory: StorageKeyFactory(),
             localKeyFactory: localStorageIdFactory
@@ -41,11 +66,6 @@ struct StakingBalanceViewFactory {
         let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
             substrateStorageFacade.createRepository()
 
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
-            return nil
-        }
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 

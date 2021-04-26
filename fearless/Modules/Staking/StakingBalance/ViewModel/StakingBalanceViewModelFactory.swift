@@ -1,45 +1,56 @@
 import Foundation
+import SoraFoundation
 
 protocol StakingBalanceViewModelFactoryProtocol {
-    func createViewModel(from balanceDat: StakingBalanceData) -> StakingBalanceViewModel
+    func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>
 }
 
 struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
-    func createViewModel(from balanceData: StakingBalanceData) -> StakingBalanceViewModel {
-        StakingBalanceViewModel(
-            widgetViewModels: createWidgetViewModels(from: balanceData),
-            unbondings: createUnbondingsViewModels(from: balanceData)
-        )
+    private let chain: Chain
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+
+    init(
+        chain: Chain,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    ) {
+        self.chain = chain
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    func createWidgetViewModels(from balanceData: StakingBalanceData) -> [StakingBalanceWidgetViewModel] {
-        let precision: Int16 = 0
-        let bonded = Decimal
-            .fromSubstrateAmount(
-                balanceData.stakingLedger.active,
-                precision: precision
-            ) ?? .zero
-
-        let unbonding = Decimal
-            .fromSubstrateAmount(
-                balanceData.stakingLedger.unbounding(inEra: balanceData.activeEra),
-                precision: precision
-            ) ?? .zero
-
-        let redeemable = Decimal
-            .fromSubstrateAmount(
-                balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
-                precision: precision
-            ) ?? .zero
-
-        return [
-            .init(title: "Bonded", tokenAmountText: bonded.description, usdAmountText: "$1"),
-            .init(title: "Unbonding", tokenAmountText: unbonding.description, usdAmountText: "$1"),
-            .init(title: "Redeemable", tokenAmountText: redeemable.description, usdAmountText: "$1")
-        ]
+    func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
+        LocalizableResource { locale in
+            StakingBalanceViewModel(
+                widgetViewModels: createWidgetViewModels(from: balanceData, locale: locale),
+                unbondings: createUnbondingsViewModels(from: balanceData, locale: locale)
+            )
+        }
     }
 
-    func createUnbondingsViewModels(from balanceData: StakingBalanceData) -> [UnbondingItemViewModel] {
+    func createWidgetViewModels(
+        from balanceData: StakingBalanceData,
+        locale: Locale
+    ) -> [StakingBalanceWidgetViewModel] {
+        let precision = chain.addressType.precision
+        var viewModels = [StakingBalanceWidgetViewModel]()
+
+        if let bondedDecimal = Decimal.fromSubstrateAmount(
+            balanceData.stakingLedger.active,
+            precision: precision
+        ) {
+            let bondedAmountTokenText = tokenAmountText(bondedDecimal, locale: locale)
+            let bondedUsdText = priceText(bondedDecimal, priceData: balanceData.priceData, locale: locale)
+            let viewModel = StakingBalanceWidgetViewModel(
+                title: "Bonded", // TODO:
+                tokenAmountText: bondedAmountTokenText,
+                usdAmountText: bondedUsdText
+            )
+            viewModels.append(viewModel)
+        }
+
+        return viewModels
+    }
+
+    func createUnbondingsViewModels(from balanceData: StakingBalanceData, locale _: Locale) -> [UnbondingItemViewModel] {
         let precision: Int16 = 0
         return balanceData.stakingLedger.unlocking
             .map { unbondingItem -> UnbondingItemViewModel in
@@ -55,5 +66,37 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                     usdAmountText: "10"
                 )
             }
+    }
+
+    private func tokenAmountText(_ value: Decimal, locale: Locale) -> String {
+        balanceViewModelFactory.amountFromValue(value).value(for: locale)
+    }
+
+    private func priceText(_ amount: Decimal, priceData: PriceData?, locale: Locale) -> String? {
+        guard let priceData = priceData else {
+            return nil
+        }
+
+        let price = balanceViewModelFactory
+            .priceFromAmount(amount, priceData: priceData).value(for: locale)
+        return price
+    }
+
+    private func daysLeftAttributedString(
+        activeEra: EraIndex,
+        unbondingEra: EraIndex,
+        historyDepth: UInt32,
+        locale: Locale
+    ) -> NSAttributedString {
+        let eraDistance = historyDepth - (activeEra - unbondingEra)
+        let daysLeft = Int(eraDistance) / chain.erasPerDay
+        let daysLeftText = R.string.localizable
+            .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
+
+        let attrubutedString = NSAttributedString(
+            string: daysLeftText,
+            attributes: [.foregroundColor: R.color.colorLightGray()!]
+        )
+        return attrubutedString
     }
 }

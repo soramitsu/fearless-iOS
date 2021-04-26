@@ -6,6 +6,10 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
 
     let presenter: StakingBalancePresenterProtocol
 
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
+
     init(
         presenter: StakingBalancePresenterProtocol,
         localizationManager: LocalizationManagerProtocol?
@@ -45,7 +49,9 @@ extension StakingBalanceViewController: Localizable {
 }
 
 extension StakingBalanceViewController: StakingBalanceViewProtocol {
-    func reload(with viewModel: StakingBalanceViewModel) {
-        rootView.balanceWidget.bind(viewModels: viewModel.widgetViewModels)
+    func reload(with viewModel: LocalizableResource<StakingBalanceViewModel>) {
+        let localizedViewModel = viewModel.value(for: selectedLocale)
+
+        rootView.balanceWidget.bind(viewModels: localizedViewModel.widgetViewModels)
     }
 }
