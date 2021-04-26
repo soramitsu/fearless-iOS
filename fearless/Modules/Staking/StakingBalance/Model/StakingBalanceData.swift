@@ -1,7 +1,7 @@
 import BigInt
 
 struct StakingBalanceData {
-    let bonded: BigUInt
-    let unbonding: BigUInt
-    let redeemable: BigUInt
+    let stakingLedger: DyStakingLedger
+    let activeEra: EraIndex
+    let priceData: PriceData?
 }

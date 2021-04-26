@@ -9,7 +9,8 @@ struct StakingBalanceViewFactory {
         let wireframe = StakingBalanceWireframe()
         let presenter = StakingBalancePresenter(
             interactor: interactor,
-            wireframe: wireframe
+            wireframe: wireframe,
+            viewModelFactory: StakingBalanceViewModelFactory()
         )
         interactor.presenter = presenter
 

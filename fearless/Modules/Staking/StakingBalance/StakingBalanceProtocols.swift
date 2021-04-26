@@ -1,6 +1,8 @@
 import SoraFoundation
 
-protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {}
+protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
+    func reload(with viewModel: StakingBalanceViewModel)
+}
 
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
@@ -18,8 +20,6 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(activeEraResult: Result<EraIndex?, Error>)
     func didReceive(priceResult: Result<PriceData?, Error>)
     func didReceive(electionStatusResult: Result<ElectionStatus?, Error>)
-    // func did ledger
-    // active era
 }
 
 protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

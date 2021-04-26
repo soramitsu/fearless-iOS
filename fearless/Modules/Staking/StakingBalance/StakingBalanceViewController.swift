@@ -29,12 +29,6 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
 
         setupTitle()
         presenter.setup()
-
-        rootView.balanceWidget.bind(viewModels: [
-            .init(title: "Bonded", tokemAmountText: "10.00003 KSM", usdAmountText: "$4,524.1"),
-            .init(title: "Unbonding", tokemAmountText: "0.33911 KSM", usdAmountText: "$204"),
-            .init(title: "Redeemable", tokemAmountText: "5 KSM", usdAmountText: "$2,250")
-        ])
     }
 
     private func setupTitle() {
@@ -42,10 +36,16 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     }
 }
 
-extension StakingBalanceViewController: StakingBalanceViewProtocol {
+extension StakingBalanceViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupTitle()
         }
+    }
+}
+
+extension StakingBalanceViewController: StakingBalanceViewProtocol {
+    func reload(with viewModel: StakingBalanceViewModel) {
+        rootView.balanceWidget.bind(viewModels: viewModel.widgetViewModels)
     }
 }

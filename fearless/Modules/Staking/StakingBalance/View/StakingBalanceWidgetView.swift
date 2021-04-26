@@ -49,7 +49,7 @@ extension StakingBalanceWidgetView {
         let itemViews = viewModels.map { viewModel -> UIView in
             let itemView = StakingBalanceWidgetItemView()
             itemView.titleLabel.text = viewModel.title
-            itemView.tokenAmountLabel.text = viewModel.tokemAmountText
+            itemView.tokenAmountLabel.text = viewModel.tokenAmountText
             itemView.usdAmountLabel.text = viewModel.usdAmountText
             return itemView
         }

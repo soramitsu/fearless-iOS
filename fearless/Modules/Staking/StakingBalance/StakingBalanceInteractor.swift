@@ -40,40 +40,6 @@ final class StakingBalanceInteractor {
         self.operationManager = operationManager
     }
 
-    func createStakingBalance() -> CompoundOperationWrapper<StakingBalanceData?> {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-
-        let stakingLedgerWrapper = createStakingLedgerOperation(
-            for: accountAddress,
-            dependingOn: codingFactoryOperation
-        )
-
-        let activeEraWrapper: CompoundOperationWrapper<ActiveEraInfo?> =
-            localStorageRequestFactory.queryItems(
-                repository: chainStorage,
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                params: StorageRequestParams(path: .activeEra)
-            )
-
-        let mappingOperation = createBalanceMappingOperation(
-            stakingLedgerWrapper: stakingLedgerWrapper,
-            activeEraWrapper: activeEraWrapper
-        )
-
-        let storageOperations =
-            activeEraWrapper.allOperations + stakingLedgerWrapper.allOperations
-
-        storageOperations.forEach { storageOperation in
-            storageOperation.addDependency(codingFactoryOperation)
-            mappingOperation.addDependency(storageOperation)
-        }
-
-        return CompoundOperationWrapper(
-            targetOperation: mappingOperation,
-            dependencies: [codingFactoryOperation] + storageOperations
-        )
-    }
-
     private func createStakingLedgerOperation(
         for accountAddress: AccountAddress,
         dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
@@ -113,35 +79,20 @@ final class StakingBalanceInteractor {
         )
     }
 
-    private func createBalanceMappingOperation(
-        stakingLedgerWrapper: CompoundOperationWrapper<DyStakingLedger?>,
-        activeEraWrapper: CompoundOperationWrapper<ActiveEraInfo?>
-    ) -> BaseOperation<StakingBalanceData?> {
-        ClosureOperation<StakingBalanceData?> {
-            guard
-                let activeEra = try activeEraWrapper
-                .targetOperation.extractNoCancellableResultData()?.index,
-                let stakingLedger = try stakingLedgerWrapper
-                .targetOperation.extractNoCancellableResultData()
-            else { return nil }
-
-            let balanceData = self.createStakingBalance(
-                stakingLedger,
-                activeEra: activeEra
-            )
-            return balanceData
+    private func fetchStakingLedger() {
+        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        let ledgerOperation = createStakingLedgerOperation(for: accountAddress, dependingOn: codingFactoryOperation)
+        ledgerOperation.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let ledger = try ledgerOperation.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(ledgerResult: .success(ledger))
+                } catch {
+                    self?.presenter.didReceive(ledgerResult: .failure(error))
+                }
+            }
         }
-    }
-
-    func createStakingBalance(
-        _ stakingInfo: DyStakingLedger,
-        activeEra: UInt32
-    ) -> StakingBalanceData {
-        StakingBalanceData(
-            bonded: stakingInfo.active,
-            unbonding: stakingInfo.unbounding(inEra: activeEra),
-            redeemable: stakingInfo.redeemable(inEra: activeEra)
-        )
+        operationManager.enqueue(operations: ledgerOperation.allOperations + [codingFactoryOperation], in: .transient)
     }
 
     private func subscribeToPriceChanges() {
@@ -245,5 +196,6 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToElectionStatus()
         subsribeToActiveEra()
+        fetchStakingLedger()
     }
 }

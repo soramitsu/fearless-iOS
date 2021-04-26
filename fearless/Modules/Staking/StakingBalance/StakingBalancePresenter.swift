@@ -3,6 +3,7 @@ import SoraFoundation
 final class StakingBalancePresenter {
     let interactor: StakingBalanceInteractorInputProtocol
     let wireframe: StakingBalanceWireframeProtocol
+    let viewModelFactory: StakingBalanceViewModelFactoryProtocol
     weak var view: StakingBalanceViewProtocol?
 
     private var activeEra: EraIndex?
@@ -12,13 +13,23 @@ final class StakingBalancePresenter {
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
-        wireframe: StakingBalanceWireframeProtocol
+        wireframe: StakingBalanceWireframeProtocol,
+        viewModelFactory: StakingBalanceViewModelFactoryProtocol
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
+        self.viewModelFactory = viewModelFactory
     }
 
-    private func updateView() {}
+    private func updateView() {
+        guard
+            let stakingLedger = stakingLedger,
+            let activeEra = activeEra
+        else { return }
+        let balanceData = StakingBalanceData(stakingLedger: stakingLedger, activeEra: activeEra, priceData: priceData)
+        let viewModel = viewModelFactory.createViewModel(from: balanceData)
+        view?.reload(with: viewModel)
+    }
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
