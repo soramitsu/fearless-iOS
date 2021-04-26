@@ -382,7 +382,7 @@ extension StakingMainInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(validatorError: error)
+            self?.presenter.didReceive(payeeError: error)
             return
         }
 

@@ -10,6 +10,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "System", itemName: "Account")
     }
 
+    static var events: StorageCodingPath {
+        StorageCodingPath(moduleName: "System", itemName: "Events")
+    }
+
     static var activeEra: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ActiveEra")
     }
@@ -84,5 +88,9 @@ extension StorageCodingPath {
 
     static var validatorExposureClipped: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "ErasStakersClipped")
+    }
+
+    static var electionPhase: StorageCodingPath {
+        StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
     }
 }

@@ -41,16 +41,15 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             logger: logger
         )
 
-        let transferSubscription = createTransferSubscription(
+        let transactionSubscription = createTransactionSubscription(
             address: address,
             engine: engine,
-            networkType: type,
-            localStorageIdFactory: localStorageIdFactory
+            networkType: type
         )
 
         let accountSubscription =
             try createAccountInfoSubscription(
-                transferSubscription: transferSubscription,
+                transactionSubscription: transactionSubscription,
                 accountId: accountId,
                 localStorageIdFactory: localStorageIdFactory
             )
@@ -78,6 +77,11 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             networkType: type
         )
 
+        let electionStatusSubscription = try createElectionStatusSubscription(
+            childSubscriptionFactory,
+            engine: engine
+        )
+
         let stakingResolver = createStakingResolver(
             address: address,
             childSubscriptionFactory: childSubscriptionFactory,
@@ -96,6 +100,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return [globalSubscriptionContainer,
                 accountSubscriptionContainer,
                 runtimeSubscription,
+                electionStatusSubscription,
                 stakingResolver,
                 stakingSubscription]
     }
@@ -110,12 +115,9 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let totalIssuanceSubscription = try createTotalIssuanceSubscription(factory)
 
-        let electionStatusSubscription = try createElectionStatusSubscription(factory)
-
         let historyDepthSubscription = try createHistoryDepthSubscription(factory)
 
         let subscriptions: [StorageChildSubscribing] = [
-            electionStatusSubscription,
             upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
@@ -127,7 +129,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
     }
 
     private func createAccountInfoSubscription(
-        transferSubscription: TransferSubscription,
+        transactionSubscription: TransactionSubscription,
         accountId: Data,
         localStorageIdFactory: ChainStorageIdFactoryProtocol
     )
@@ -140,7 +142,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             storageFacade.createRepository()
 
         return AccountInfoSubscription(
-            transferSubscription: transferSubscription,
+            transactionSubscription: transactionSubscription,
             remoteStorageKey: accountStorageKey,
             localStorageKey: localStorageKey,
             storage: AnyDataProviderRepository(storage),
@@ -170,14 +172,20 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createElectionStatusSubscription(_ factory: ChildSubscriptionFactoryProtocol)
-        throws -> StorageChildSubscribing {
-        let path = StorageCodingPath.electionStatus
-        let remoteStorageKey = try storageKeyFactory.createStorageKey(
-            moduleName: path.moduleName,
-            storageName: path.itemName
+    private func createElectionStatusSubscription(
+        _ factory: ChildSubscriptionFactoryProtocol,
+        engine: JSONRPCEngine
+    )
+        throws -> WebSocketSubscribing {
+        let subscription = ElectionStatusSubscription(
+            engine: engine,
+            runtimeService: runtimeService,
+            childSubscriptionFactory: factory,
+            operationManager: operationManager,
+            logger: logger
         )
-        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
+
+        return subscription
     }
 
     private func createV28Subscription(_ factory: ChildSubscriptionFactoryProtocol)
@@ -189,34 +197,34 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         }
     }
 
-    private func createTransferSubscription(
+    private func createTransactionSubscription(
         address: String,
         engine: JSONRPCEngine,
-        networkType: SNAddressType,
-        localStorageIdFactory: ChainStorageIdFactoryProtocol
-    ) -> TransferSubscription {
+        networkType: SNAddressType
+    ) -> TransactionSubscription {
         let filter = NSPredicate.filterTransactionsBy(address: address)
         let txStorage: CoreDataRepository<TransactionHistoryItem, CDTransactionHistoryItem> =
             storageFacade.createRepository(filter: filter)
-
-        let chainStorage: CoreDataRepository<ChainStorageItem, CDChainStorageItem> =
-            storageFacade.createRepository()
 
         let contactOperationFactory = WalletContactOperationFactory(
             storageFacade: storageFacade,
             targetAddress: address
         )
 
-        return TransferSubscription(
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: storageKeyFactory,
+            operationManager: operationManager
+        )
+
+        return TransactionSubscription(
             engine: engine,
             address: address,
             chain: networkType.chain,
-            addressFactory: addressFactory,
+            runtimeService: runtimeService,
             txStorage: AnyDataProviderRepository(txStorage),
-            chainStorage: AnyDataProviderRepository(chainStorage),
-            localIdFactory: localStorageIdFactory,
             contactOperationFactory: contactOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager,
+            storageRequestFactory: storageRequestFactory,
+            operationManager: operationManager,
             eventCenter: EventCenter.shared,
             logger: Logger.shared
         )

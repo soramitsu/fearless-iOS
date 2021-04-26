@@ -16,6 +16,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performAccountAction()
     func performManageStakingAction()
     func performNominationStatusAction()
+    func performValidationStatusAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
@@ -78,7 +79,8 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         startingFrom index: Int
     )
 
-    func showRewardPayouts(from view: ControllerBackedProtocol?)
+    func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+    func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }

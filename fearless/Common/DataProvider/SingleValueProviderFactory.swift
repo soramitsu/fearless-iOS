@@ -64,6 +64,10 @@ final class SingleValueProviderFactory {
         assetId.rawValue + address + "Reward"
     }
 
+    private func electionStatusId(for chain: Chain) -> String {
+        chain.genesisHash + "ElectionStatus"
+    }
+
     private func clearIfNeeded() {
         providers = providers.filter { $0.value.target != nil }
     }
@@ -253,12 +257,39 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         runtimeService: RuntimeCodingServiceProtocol
     ) throws
         -> AnyDataProvider<DecodedElectionStatus> {
-        try getProviderForChain(
-            chain,
-            path: .electionStatus,
+        clearIfNeeded()
+
+        let localKey = electionStatusId(for: chain)
+
+        if let existingProvider = providers[localKey]?.target as? DataProvider<DecodedElectionStatus> {
+            return AnyDataProvider(existingProvider)
+        }
+
+        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
+
+        let repository = InMemoryDataProviderRepository<DecodedElectionStatus>()
+
+        let trigger = DataProviderProxyTrigger()
+
+        let source = ElectionStatusSource(
+            itemIdentifier: localKey,
+            localKeyFactory: storageIdFactory,
             runtimeService: runtimeService,
-            shouldUseFallback: true
+            providerFactory: stremableProviderFactory,
+            operationManager: operationManager,
+            trigger: trigger,
+            logger: logger
         )
+
+        let dataProvider = DataProvider(
+            source: AnyDataProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
+
+        providers[localKey] = WeakWrapper(target: dataProvider)
+
+        return AnyDataProvider(dataProvider)
     }
 
     func getNominationProvider(

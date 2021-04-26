@@ -1,6 +1,8 @@
 import Foundation
 import FearlessUtils
 
+typealias EraIndex = UInt32
+
 struct ActiveEraInfo: Codable, Equatable {
-    @StringCodable var index: UInt32
+    @StringCodable var index: EraIndex
 }

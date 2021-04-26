@@ -56,7 +56,10 @@ extension EraValidatorService {
             try identifiersClosure()
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
 
         return requestFactory.queryItems(
             engine: engine,
@@ -77,7 +80,10 @@ extension EraValidatorService {
             return CompoundOperationWrapper.createWithError(EraValidatorServiceError.missingEngine)
         }
 
-        let requestFactory = StorageRequestFactory(remoteFactory: StorageKeyFactory())
+        let requestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
 
         return requestFactory.queryItems(
             engine: engine,

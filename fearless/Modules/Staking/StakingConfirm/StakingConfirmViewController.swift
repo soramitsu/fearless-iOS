@@ -39,7 +39,7 @@ final class StakingConfirmViewController: UIViewController {
     private func setupLocalization() {
         let languages = localizationManager?.selectedLocale.rLanguages
 
-        title = R.string.localizable.stakingConfirmTitle(preferredLanguages: languages)
+        title = R.string.localizable.commonConfirmTitle(preferredLanguages: languages)
 
         accountView.title = R.string.localizable.stakingStashTitle(preferredLanguages: languages)
 
@@ -184,7 +184,7 @@ final class StakingConfirmViewController: UIViewController {
         }
 
         balanceView.balanceText = R.string.localizable
-            .commonBalanceFormat(
+            .commonAvailableFormat(
                 viewModel.balance ?? "",
                 preferredLanguages: locale.rLanguages
             )

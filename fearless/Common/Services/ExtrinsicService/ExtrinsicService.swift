@@ -7,6 +7,16 @@ typealias ExtrinsicBuilderClosure = (ExtrinsicBuilderProtocol) throws -> (Extrin
 typealias EstimateFeeClosure = (Result<RuntimeDispatchInfo, Error>) -> Void
 typealias ExtrinsicSubmitClosure = (Result<String, Error>) -> Void
 
+protocol ExtrinsicOperationFactoryProtocol {
+    func estimateFeeOperation(_ closure: @escaping ExtrinsicBuilderClosure)
+        -> CompoundOperationWrapper<RuntimeDispatchInfo>
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol
+    ) -> CompoundOperationWrapper<String>
+}
+
 protocol ExtrinsicServiceProtocol {
     func estimateFee(
         _ closure: @escaping ExtrinsicBuilderClosure,
@@ -22,25 +32,22 @@ protocol ExtrinsicServiceProtocol {
     )
 }
 
-final class ExtrinsicService {
+final class ExtrinsicOperationFactory {
     let address: String
     let cryptoType: CryptoType
     let runtimeRegistry: RuntimeCodingServiceProtocol
     let engine: JSONRPCEngine
-    let operationManager: OperationManagerProtocol
 
     init(
         address: String,
         cryptoType: CryptoType,
         runtimeRegistry: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
-        operationManager: OperationManagerProtocol
+        engine: JSONRPCEngine
     ) {
         self.address = address
         self.cryptoType = cryptoType
         self.runtimeRegistry = runtimeRegistry
         self.engine = engine
-        self.operationManager = operationManager
     }
 
     private func createNonceOperation() -> BaseOperation<UInt32> {
@@ -99,12 +106,9 @@ final class ExtrinsicService {
     }
 }
 
-extension ExtrinsicService: ExtrinsicServiceProtocol {
-    func estimateFee(
-        _ closure: @escaping ExtrinsicBuilderClosure,
-        runningIn queue: DispatchQueue,
-        completion completionClosure: @escaping EstimateFeeClosure
-    ) {
+extension ExtrinsicOperationFactory: ExtrinsicOperationFactoryProtocol {
+    func estimateFeeOperation(_ closure: @escaping ExtrinsicBuilderClosure)
+        -> CompoundOperationWrapper<RuntimeDispatchInfo> {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
@@ -128,6 +132,7 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
             engine: engine,
             method: RPCMethod.paymentInfo
         )
+
         infoOperation.configurationBlock = {
             do {
                 let extrinsic = try builderOperation.extractNoCancellableResultData().toHex(includePrefix: true)
@@ -139,26 +144,16 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         infoOperation.addDependency(builderOperation)
 
-        infoOperation.completionBlock = {
-            queue.async {
-                if let result = infoOperation.result {
-                    completionClosure(result)
-                } else {
-                    completionClosure(.failure(BaseOperationError.parentOperationCancelled))
-                }
-            }
-        }
-
-        let operations = [nonceOperation, codingFactoryOperation, builderOperation, infoOperation]
-        operationManager.enqueue(operations: operations, in: .transient)
+        return CompoundOperationWrapper(
+            targetOperation: infoOperation,
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation]
+        )
     }
 
     func submit(
         _ closure: @escaping ExtrinsicBuilderClosure,
-        signer: SigningWrapperProtocol,
-        runningIn queue: DispatchQueue,
-        completion completionClosure: @escaping ExtrinsicSubmitClosure
-    ) {
+        signer: SigningWrapperProtocol
+    ) -> CompoundOperationWrapper<String> {
         let nonceOperation = createNonceOperation()
         let codingFactoryOperation = runtimeRegistry.fetchCoderFactoryOperation()
 
@@ -194,9 +189,46 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
 
         submitOperation.addDependency(builderOperation)
 
-        submitOperation.completionBlock = {
+        return CompoundOperationWrapper(
+            targetOperation: submitOperation,
+            dependencies: [nonceOperation, codingFactoryOperation, builderOperation]
+        )
+    }
+}
+
+final class ExtrinsicService {
+    let operationFactory: ExtrinsicOperationFactoryProtocol
+    let operationManager: OperationManagerProtocol
+
+    init(
+        address: String,
+        cryptoType: CryptoType,
+        runtimeRegistry: RuntimeCodingServiceProtocol,
+        engine: JSONRPCEngine,
+        operationManager: OperationManagerProtocol
+    ) {
+        operationFactory = ExtrinsicOperationFactory(
+            address: address,
+            cryptoType: cryptoType,
+            runtimeRegistry: runtimeRegistry,
+            engine: engine
+        )
+
+        self.operationManager = operationManager
+    }
+}
+
+extension ExtrinsicService: ExtrinsicServiceProtocol {
+    func estimateFee(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping EstimateFeeClosure
+    ) {
+        let wrapper = operationFactory.estimateFeeOperation(closure)
+
+        wrapper.targetOperation.completionBlock = {
             queue.async {
-                if let result = submitOperation.result {
+                if let result = wrapper.targetOperation.result {
                     completionClosure(result)
                 } else {
                     completionClosure(.failure(BaseOperationError.parentOperationCancelled))
@@ -204,7 +236,27 @@ extension ExtrinsicService: ExtrinsicServiceProtocol {
             }
         }
 
-        let operations = [nonceOperation, codingFactoryOperation, builderOperation, submitOperation]
-        operationManager.enqueue(operations: operations, in: .transient)
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    func submit(
+        _ closure: @escaping ExtrinsicBuilderClosure,
+        signer: SigningWrapperProtocol,
+        runningIn queue: DispatchQueue,
+        completion completionClosure: @escaping ExtrinsicSubmitClosure
+    ) {
+        let wrapper = operationFactory.submit(closure, signer: signer)
+
+        wrapper.targetOperation.completionBlock = {
+            queue.async {
+                if let result = wrapper.targetOperation.result {
+                    completionClosure(result)
+                } else {
+                    completionClosure(.failure(BaseOperationError.parentOperationCancelled))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 }

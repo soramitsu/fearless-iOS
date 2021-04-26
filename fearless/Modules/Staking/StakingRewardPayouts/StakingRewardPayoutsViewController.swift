@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRewardPayoutsViewLayout
@@ -7,11 +8,21 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     // MARK: Properties -
 
     let presenter: StakingRewardPayoutsPresenterProtocol
+    private let localizationManager: LocalizationManagerProtocol?
+    private var viewState: StakingRewardPayoutsViewState?
+
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
 
     // MARK: Init -
 
-    init(presenter: StakingRewardPayoutsPresenterProtocol) {
+    init(
+        presenter: StakingRewardPayoutsPresenterProtocol,
+        localizationManager: LocalizationManagerProtocol?
+    ) {
         self.presenter = presenter
+        self.localizationManager = localizationManager
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -36,25 +47,26 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 
     private func setupTitleLocalization() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        title = R.string.localizable.stakingRewardPayoutsTitle(preferredLanguages: locale.rLanguages)
+        title = R.string.localizable
+            .stakingRewardPayoutsTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 
     private func setupButtonLocalization() {
-        // TODO:
-        let title = R.string.localizable.stakingRewardPayoutsPayoutAll("0.00345 KSM")
-        rootView.payoutButton.imageWithTitleView?.title = title
+        guard let state = viewState else { return }
+        if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
+            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            rootView.payoutButton.imageWithTitleView?.title = buttonTitle
+        }
     }
 
     private func setupTable() {
         rootView.tableView.registerClassForCell(StakingRewardHistoryTableCell.self)
-        rootView.tableView.registerHeaderFooterView(withClass: StakingRewardHistoryHeaderView.self)
         rootView.tableView.delegate = self
         rootView.tableView.dataSource = self
     }
 
     private func setupPayoutButtonAction() {
+        rootView.payoutButton.isHidden = true
         rootView.payoutButton.addTarget(
             self,
             action: #selector(handlePayoutButtonAction),
@@ -68,7 +80,25 @@ final class StakingRewardPayoutsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {}
+extension StakingRewardPayoutsViewController: StakingRewardPayoutsViewProtocol {
+    func reload(with state: StakingRewardPayoutsViewState) {
+        viewState = state
+
+        switch state {
+        case let .loading(isLoading):
+            isLoading ? didStartLoading() : didStopLoading()
+        case let .payoutsList(viewModel):
+            let buttonTitle = viewModel.value(for: selectedLocale).bottomButtonTitle
+            rootView.payoutButton.imageWithTitleView?.title = buttonTitle
+            rootView.payoutButton.isHidden = false
+            rootView.tableView.reloadData()
+        case .emptyList, .error:
+            rootView.payoutButton.isHidden = true
+            rootView.tableView.reloadData()
+        }
+        reloadEmptyState(animated: true)
+    }
+}
 
 extension StakingRewardPayoutsViewController: Localizable {
     private func setupLocalization() {
@@ -78,6 +108,7 @@ extension StakingRewardPayoutsViewController: Localizable {
 
     func applyLocalization() {
         if isViewLoaded {
+            reloadEmptyState(animated: false)
             setupLocalization()
             view.setNeedsLayout()
         }
@@ -85,69 +116,79 @@ extension StakingRewardPayoutsViewController: Localizable {
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView: StakingRewardHistoryHeaderView = tableView.dequeueReusableHeaderFooterView()
-        let model = stubCellData[section].0
-        headerView.bind(model: model)
-        return headerView
-    }
-
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        presenter.handleSelectedHistory(at: indexPath)
+        presenter.handleSelectedHistory(at: indexPath.row)
     }
 }
 
 extension StakingRewardPayoutsViewController: UITableViewDataSource {
-    // TODO: delete stub data
-    var stubCellData: [(String, [StakingRewardHistoryTableCell.ViewModel])] {
-        [
-            ("DEC 15, 2021 (era #1,615)".uppercased(), [
-                .init(
-                    addressOrName: "SORAMITSU",
-                    daysLeftText: "2 days left",
-                    ksmAmountText: "+0.012 KSM",
-                    usdAmountText: "$1.4"
-                )
-            ]),
-            ("Feb 1, 2021 (era #1,685)".uppercased(), [
-                .init(
-                    addressOrName: "SORAMITSU",
-                    daysLeftText: "16 days left",
-                    ksmAmountText: "+0.012 KSM",
-                    usdAmountText: "$1.4"
-                )
-            ]),
-            ("Feb 2, 2021 (era #1,688)".uppercased(), [
-                .init(
-                    addressOrName: "✨👍✨ Day7 ✨👍✨",
-                    daysLeftText: "17 days left",
-                    ksmAmountText: "+0.002 KSM",
-                    usdAmountText: "$0.3"
-                ),
-                .init(
-                    addressOrName: "✨👍✨ Day7 ✨👍✨ aaaa aaaa aaaa aaa",
-                    daysLeftText: "17 days left",
-                    ksmAmountText: "+0.002 KSM",
-                    usdAmountText: "$0.3"
-                )
-            ])
-        ]
-    }
-
-    func numberOfSections(in _: UITableView) -> Int {
-        stubCellData.count
-    }
-
-    func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        stubCellData[section].1.count
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        guard let state = viewState else { return 0 }
+        if case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state {
+            return viewModel.value(for: selectedLocale).cellViewModels.count
+        }
+        return 0
     }
 
     func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        guard
+            let state = viewState,
+            case let StakingRewardPayoutsViewState.payoutsList(viewModel) = state
+        else {
+            return UITableViewCell()
+        }
         let cell = rootView.tableView.dequeueReusableCellWithType(
             StakingRewardHistoryTableCell.self)!
-        let model = stubCellData[indexPath.section].1[indexPath.row]
+        let model = viewModel.value(for: selectedLocale).cellViewModels[indexPath.row]
         cell.bind(model: model)
         return cell
+    }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = viewState else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
+            errorView.delegate = self
+            return errorView
+        case .emptyList:
+            let emptyView = EmptyStateView()
+            emptyView.image = R.image.iconEmptyHistory()
+            emptyView.title = R.string.localizable
+                .stakingRewardPayoutsEmptyRewards(preferredLanguages: selectedLocale.rLanguages)
+            emptyView.titleColor = R.color.colorLightGray()!
+            emptyView.titleFont = .p2Paragraph
+            return emptyView
+        case .loading, .payoutsList:
+            return nil
+        }
+    }
+}
+
+extension StakingRewardPayoutsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = viewState else { return false }
+        switch state {
+        case .error, .emptyList:
+            return true
+        case .loading, .payoutsList:
+            return false
+        }
+    }
+}
+
+extension StakingRewardPayoutsViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.reload()
     }
 }

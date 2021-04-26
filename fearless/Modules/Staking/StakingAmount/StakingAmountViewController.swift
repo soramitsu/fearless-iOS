@@ -8,7 +8,6 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingAmountPresenterProtocol!
 
     @IBOutlet private var stackView: UIStackView!
-    @IBOutlet private var amountTitleLabel: UILabel!
     @IBOutlet private var amountInputView: AmountInputView!
     @IBOutlet private var feeTitleLabel: UILabel!
     @IBOutlet private var feeDetailsLabel: UILabel!
@@ -71,9 +70,9 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
         accountView.title = R.string.localizable
-            .stakingRewardPayoutAccount(preferredLanguages: languages)
+            .stakingRewardDestinationTitle(preferredLanguages: languages)
 
-        accountView.actionImage = R.image.iconSmallArrow()
+        accountView.actionImage = R.image.iconSmallArrowDown()
 
         accountView.addTarget(
             self,
@@ -156,28 +155,19 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     private func setupLocalization() {
         let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
 
-        title = R.string.localizable.stakingSetupTitle(preferredLanguages: languages)
-        amountTitleLabel.text = R.string.localizable.stakingAmountTitle(preferredLanguages: languages)
+        title = R.string.localizable.stakingStake(preferredLanguages: languages)
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
         feeTitleLabel.text = R.string.localizable
             .commonNetworkFee(preferredLanguages: languages)
         rewardDestinationTitleLabel.text = R.string.localizable
-            .stakingRewardDestinationChoose(preferredLanguages: languages)
+            .stakingRewardDestinationTitle(preferredLanguages: languages)
         restakeView.title = R.string.localizable.stakingRestakeTitle(preferredLanguages: languages)
-        restakeView.subtitle = R.string.localizable
-            .stakingRewardRestakeSubtitle(preferredLanguages: languages)
-        restakeView.earningsSubtitle = R.string.localizable
-            .stakingRewardDestinationDesc(preferredLanguages: languages)
         payoutView.title = R.string.localizable.stakingPayoutTitle(preferredLanguages: languages)
-        payoutView.subtitle = R.string.localizable
-            .stakingPayoutSubtitle(preferredLanguages: languages)
-        payoutView.earningsSubtitle = R.string.localizable
-            .stakingRewardDestinationDesc(preferredLanguages: languages)
         learnMoreView.title = R.string.localizable
-            .stakingPayoutsLearnMore(preferredLanguages: languages)
+            .stakingRewardsLearnMore(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonNext(preferredLanguages: languages)
+            .commonContinue(preferredLanguages: languages)
 
         applyAsset()
         applyFee()
@@ -200,7 +190,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let locale = localizationManager?.selectedLocale ?? Locale.current
         if let viewModel = assetViewModel?.value(for: locale) {
             amountInputView.balanceText = R.string.localizable
-                .commonBalanceFormat(
+                .commonAvailableFormat(
                     viewModel.balance ?? "",
                     preferredLanguages: locale.rLanguages
                 )
@@ -257,46 +247,13 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
         if let reward = viewModel.rewardViewModel {
-            let restakeAmount = NSMutableAttributedString(
-                string: reward.restakeAmount + "  ",
-                attributes: [
-                    .foregroundColor: restakeColor,
-                    .font: UIFont.h6Title
-                ]
-            )
-
-            let restakePercentage = NSAttributedString(
-                string: reward.restakePercentage,
-                attributes: [
-                    .foregroundColor: R.color.colorGreen()!,
-                    .font: UIFont.h6Title
-                ]
-            )
-
-            restakeAmount.append(restakePercentage)
-
-            let payoutAmount = NSMutableAttributedString(
-                string: reward.payoutAmount + "  ",
-                attributes: [
-                    .foregroundColor: payoutColor,
-                    .font: UIFont.h6Title
-                ]
-            )
-
-            let payoutPercentage = NSAttributedString(
-                string: reward.payoutPercentage,
-                attributes: [
-                    .foregroundColor: R.color.colorGreen()!,
-                    .font: UIFont.h6Title
-                ]
-            )
-            payoutAmount.append(payoutPercentage)
-
-            restakeView.earningsTitleLabel.attributedText = restakeAmount
-            payoutView.earningsTitleLabel.attributedText = payoutAmount
+            restakeView.earningTitle = reward.restakeAmount
+            restakeView.earningsSubtitle = reward.restakePercentage
+            payoutView.earningTitle = reward.payoutAmount
+            payoutView.earningsSubtitle = reward.payoutPercentage
         } else {
-            restakeView.earningsTitleLabel.attributedText = NSAttributedString()
-            payoutView.earningsTitleLabel.attributedText = NSAttributedString()
+            restakeView.earningTitle = "0"
+            payoutView.earningTitle = "0"
         }
 
         restakeView.titleLabel.textColor = restakeColor

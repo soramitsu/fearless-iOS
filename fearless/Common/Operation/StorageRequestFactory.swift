@@ -13,7 +13,8 @@ protocol StorageRequestFactoryProtocol {
         engine: JSONRPCEngine,
         keyParams: @escaping () throws -> [K],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
     )
         -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable
 
@@ -22,7 +23,8 @@ protocol StorageRequestFactoryProtocol {
         keyParams1: @escaping () throws -> [K1],
         keyParams2: @escaping () throws -> [K2],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
     )
         -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable
 
@@ -30,56 +32,28 @@ protocol StorageRequestFactoryProtocol {
         engine: JSONRPCEngine,
         keys: @escaping () throws -> [Data],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
     )
         -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable
 }
 
 final class StorageRequestFactory: StorageRequestFactoryProtocol {
     let remoteFactory: StorageKeyFactoryProtocol
+    let operationManager: OperationManagerProtocol
 
-    init(remoteFactory: StorageKeyFactoryProtocol) {
+    init(remoteFactory: StorageKeyFactoryProtocol, operationManager: OperationManagerProtocol) {
         self.remoteFactory = remoteFactory
+        self.operationManager = operationManager
     }
 
-    func queryItems<T>(
-        engine: JSONRPCEngine,
-        keys: @escaping () throws -> [Data],
-        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
-    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
-        let queryOperation = JSONRPCQueryOperation(
-            engine: engine,
-            method: RPCMethod.queryStorageAt
-        )
-        queryOperation.configurationBlock = {
-            do {
-                let keys = try keys().map { $0.toHex(includePrefix: true) }
-                queryOperation.parameters = [keys]
-            } catch {
-                queryOperation.result = .failure(error)
-            }
-        }
-
-        let decodingOperation = StorageDecodingListOperation<T>(path: storagePath)
-        decodingOperation.configurationBlock = {
-            do {
-                let result = try queryOperation.extractNoCancellableResultData()
-
-                decodingOperation.codingFactory = try factory()
-
-                decodingOperation.dataList = result
-                    .flatMap { StorageUpdateData(update: $0).changes }
-                    .compactMap(\.value)
-            } catch {
-                decodingOperation.result = .failure(error)
-            }
-        }
-
-        decodingOperation.addDependency(queryOperation)
-
-        let mapOperation = ClosureOperation<[StorageResponse<T>]> {
-            let result = try queryOperation.extractNoCancellableResultData()
+    private func createMergeOperation<T>(
+        dependingOn queryOperation: BaseOperation<[[StorageUpdate]]>,
+        decodingOperation: BaseOperation<[T?]>,
+        keys: @escaping () throws -> [Data]
+    ) -> ClosureOperation<[StorageResponse<T>]> {
+        ClosureOperation<[StorageResponse<T>]> {
+            let result = try queryOperation.extractNoCancellableResultData().flatMap { $0 }
 
             let resultChangesData = result.flatMap { StorageUpdateData(update: $0).changes }
 
@@ -91,25 +65,110 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
 
             let allKeys = resultChangesData.map(\.key)
 
-            let allNonzeroKeys = resultChangesData.compactMap { $0.value != nil ? $0.key : nil }
-
             let items = try decodingOperation.extractNoCancellableResultData()
 
-            let keyedItems = zip(allNonzeroKeys, items).reduce(into: [Data: T]()) { result, item in
+            let keyedItems = zip(allKeys, items).reduce(into: [Data: T]()) { result, item in
                 result[item.0] = item.1
+            }
+
+            let originalIndexedKeys = try keys().enumerated().reduce(into: [Data: Int]()) { result, item in
+                result[item.element] = item.offset
             }
 
             return allKeys.map { key in
                 StorageResponse(key: key, data: keyedEncodedItems[key], value: keyedItems[key])
+            }.sorted { response1, response2 in
+                guard
+                    let index1 = originalIndexedKeys[response1.key],
+                    let index2 = originalIndexedKeys[response2.key] else {
+                    return false
+                }
+
+                return index1 < index2
+            }
+        }
+    }
+
+    private func createQueryOperation(
+        for keys: @escaping () throws -> [Data],
+        at blockHash: Data?,
+        engine: JSONRPCEngine
+    ) -> BaseOperation<[[StorageUpdate]]> {
+        OperationCombiningService<[StorageUpdate]>(
+            operationManager: operationManager) {
+            let keys = try keys()
+
+            let itemsPerPage = 1000
+            let pageCount = (keys.count % itemsPerPage == 0) ?
+                keys.count / itemsPerPage : (keys.count / itemsPerPage + 1)
+
+            let wrappers: [CompoundOperationWrapper<[StorageUpdate]>] = (0 ..< pageCount).map { pageIndex in
+                let pageStart = pageIndex * itemsPerPage
+                let pageEnd = pageStart + itemsPerPage
+                let subkeys = (pageEnd < keys.count) ?
+                    Array(keys[pageStart ..< pageEnd]) :
+                    Array(keys.suffix(from: pageStart))
+
+                let params = StorageQuery(keys: subkeys, blockHash: blockHash)
+
+                let queryOperation = JSONRPCQueryOperation(
+                    engine: engine,
+                    method: RPCMethod.queryStorageAt,
+                    parameters: params
+                )
+
+                return CompoundOperationWrapper(targetOperation: queryOperation)
+            }
+
+            if !wrappers.isEmpty {
+                for index in 1 ..< wrappers.count {
+                    wrappers[index].allOperations
+                        .forEach { $0.addDependency(wrappers[0].targetOperation) }
+                }
+            }
+
+            return wrappers
+        }.longrunOperation()
+    }
+
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keys: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
+        let queryOperation = createQueryOperation(for: keys, at: blockHash, engine: engine)
+
+        let decodingOperation = StorageFallbackDecodingListOperation<T>(path: storagePath)
+        decodingOperation.configurationBlock = {
+            do {
+                let result = try queryOperation.extractNoCancellableResultData().flatMap { $0 }
+
+                decodingOperation.codingFactory = try factory()
+
+                decodingOperation.dataList = result
+                    .flatMap { StorageUpdateData(update: $0).changes }
+                    .map(\.value)
+            } catch {
+                decodingOperation.result = .failure(error)
             }
         }
 
-        mapOperation.addDependency(decodingOperation)
+        decodingOperation.addDependency(queryOperation)
+
+        let mergeOperation = createMergeOperation(
+            dependingOn: queryOperation,
+            decodingOperation: decodingOperation,
+            keys: keys
+        )
+
+        mergeOperation.addDependency(decodingOperation)
 
         let dependencies = [queryOperation, decodingOperation]
 
         return CompoundOperationWrapper(
-            targetOperation: mapOperation,
+            targetOperation: mergeOperation,
             dependencies: dependencies
         )
     }
@@ -118,7 +177,8 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         engine: JSONRPCEngine,
         keyParams: @escaping () throws -> [K],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable {
         let keysOperation = MapKeyEncodingOperation<K>(
             path: storagePath,
@@ -139,7 +199,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         }
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
-            queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath)
+            queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath, at: blockHash)
 
         queryWrapper.allOperations.forEach { $0.addDependency(keysOperation) }
 
@@ -156,14 +216,10 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         keyParams1: @escaping () throws -> [K1],
         keyParams2: @escaping () throws -> [K2],
         factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
-        storagePath: StorageCodingPath
+        storagePath: StorageCodingPath,
+        at blockHash: Data?
     ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable {
-        let currentRemoteFactory = remoteFactory
-
-        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(
-            path: storagePath,
-            storageKeyFactory: currentRemoteFactory
-        )
+        let keysOperation = DoubleMapKeyEncodingOperation<K1, K2>(path: storagePath, storageKeyFactory: remoteFactory)
 
         keysOperation.configurationBlock = {
             do {
@@ -180,7 +236,7 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         }
 
         let queryWrapper: CompoundOperationWrapper<[StorageResponse<T>]> =
-            queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath)
+            queryItems(engine: engine, keys: keys, factory: factory, storagePath: storagePath, at: blockHash)
 
         queryWrapper.allOperations.forEach { $0.addDependency(keysOperation) }
 
@@ -189,6 +245,55 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
         return CompoundOperationWrapper(
             targetOperation: queryWrapper.targetOperation,
             dependencies: dependencies
+        )
+    }
+}
+
+extension StorageRequestFactoryProtocol {
+    func queryItems<K, T>(
+        engine: JSONRPCEngine,
+        keyParams: @escaping () throws -> [K],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K: Encodable, T: Decodable {
+        queryItems(
+            engine: engine,
+            keyParams: keyParams,
+            factory: factory,
+            storagePath: storagePath,
+            at: nil
+        )
+    }
+
+    func queryItems<K1, K2, T>(
+        engine: JSONRPCEngine,
+        keyParams1: @escaping () throws -> [K1],
+        keyParams2: @escaping () throws -> [K2],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where K1: Encodable, K2: Encodable, T: Decodable {
+        queryItems(
+            engine: engine,
+            keyParams1: keyParams1,
+            keyParams2: keyParams2,
+            factory: factory,
+            storagePath: storagePath,
+            at: nil
+        )
+    }
+
+    func queryItems<T>(
+        engine: JSONRPCEngine,
+        keys: @escaping () throws -> [Data],
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        storagePath: StorageCodingPath
+    ) -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable {
+        queryItems(
+            engine: engine,
+            keys: keys,
+            factory: factory,
+            storagePath: storagePath,
+            at: nil
         )
     }
 }
