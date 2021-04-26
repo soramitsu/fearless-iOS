@@ -8,15 +8,14 @@ enum StakingBalanceAction {
 }
 
 extension StakingBalanceAction {
-    // TODO:
-    func title(for _: Locale) -> String {
+    func title(for locale: Locale) -> String {
         switch self {
         case .bondMore:
-            return "Bond more"
+            return R.string.localizable.stakingBondMore(preferredLanguages: locale.rLanguages)
         case .unbond:
-            return "Unbond"
+            return R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages)
         case .redeem:
-            return "Redeem"
+            return R.string.localizable.stakingRedeem(preferredLanguages: locale.rLanguages)
         }
     }
 
