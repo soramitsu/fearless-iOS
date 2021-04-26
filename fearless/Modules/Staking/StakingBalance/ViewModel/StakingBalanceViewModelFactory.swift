@@ -1,10 +1,6 @@
 import Foundation
 import SoraFoundation
 
-protocol StakingBalanceViewModelFactoryProtocol {
-    func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>
-}
-
 struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol

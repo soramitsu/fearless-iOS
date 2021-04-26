@@ -16102,6 +16102,97 @@ import SoraFoundation
 
 
 
+ class MockStakingBalanceViewModelFactoryProtocol: StakingBalanceViewModelFactoryProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = StakingBalanceViewModelFactoryProtocol
+    
+     typealias Stubbing = __StubbingProxy_StakingBalanceViewModelFactoryProtocol
+     typealias Verification = __VerificationProxy_StakingBalanceViewModelFactoryProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: StakingBalanceViewModelFactoryProtocol?
+
+     func enableDefaultImplementation(_ stub: StakingBalanceViewModelFactoryProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
+        
+    return cuckoo_manager.call("createViewModel(from: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>",
+            parameters: (balanceData),
+            escapingParameters: (balanceData),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createViewModel(from: balanceData))
+        
+    }
+    
+
+	 struct __StubbingProxy_StakingBalanceViewModelFactoryProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func createViewModel<M1: Cuckoo.Matchable>(from balanceData: M1) -> Cuckoo.ProtocolStubFunction<(StakingBalanceData), LocalizableResource<StakingBalanceViewModel>> where M1.MatchedType == StakingBalanceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingBalanceData)>] = [wrap(matchable: balanceData) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceViewModelFactoryProtocol.self, method: "createViewModel(from: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_StakingBalanceViewModelFactoryProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func createViewModel<M1: Cuckoo.Matchable>(from balanceData: M1) -> Cuckoo.__DoNotUse<(StakingBalanceData), LocalizableResource<StakingBalanceViewModel>> where M1.MatchedType == StakingBalanceData {
+	        let matchers: [Cuckoo.ParameterMatcher<(StakingBalanceData)>] = [wrap(matchable: balanceData) { $0 }]
+	        return cuckoo_manager.verify("createViewModel(from: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class StakingBalanceViewModelFactoryProtocolStub: StakingBalanceViewModelFactoryProtocol {
+    
+
+    
+
+    
+     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel>  {
+        return DefaultValueRegistry.defaultValue(for: (LocalizableResource<StakingBalanceViewModel>).self)
+    }
+    
+}
+
+
+
  class MockStakingBalancePresenterProtocol: StakingBalancePresenterProtocol, Cuckoo.ProtocolMock {
     
      typealias MocksType = StakingBalancePresenterProtocol

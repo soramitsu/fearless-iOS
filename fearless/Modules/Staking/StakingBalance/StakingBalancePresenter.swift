@@ -7,13 +7,13 @@ final class StakingBalancePresenter {
     weak var view: StakingBalanceViewProtocol?
     private let accountAddress: AccountAddress
 
-    private var controller: AccountItem?
+    var controller: AccountItem?
     private var controllerAddress: AccountAddress?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var stakingLedger: DyStakingLedger?
     private var priceData: PriceData?
-    private var electionStatus: ElectionStatus?
+    var electionStatus: ElectionStatus?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
@@ -67,17 +67,17 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         guard let view = view else { return }
         let selectedLocale = view.localizationManager?.selectedLocale
 
-        guard electionPeriodIsClosed else {
-            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: selectedLocale)
-            return
-        }
-
         guard controllerAccountIsAvailable else {
             wireframe.presentMissingController(
                 from: view,
                 address: controllerAddress ?? "",
                 locale: selectedLocale
             )
+            return
+        }
+
+        guard electionPeriodIsClosed else {
+            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: selectedLocale)
             return
         }
 
