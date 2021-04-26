@@ -13,7 +13,7 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showManageStaking(
         from view: StakingMainViewProtocol?,
-        items: [ManageStakingItem],
+        items: [StakingManageOption],
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     ) {
@@ -76,6 +76,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller
             .navigationController?
             .pushViewController(controller, animated: true)
+    }
+
+    func showNominatorValidators(from _: ControllerBackedProtocol?, stashAddress _: AccountAddress) {
+        // TODO: FLW-690
     }
 
     func showAccountsSelection(from view: StakingMainViewProtocol?) {
