@@ -30,6 +30,17 @@ final class StakingBalancePresenter {
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
         view?.reload(with: viewModel)
     }
+
+    var electionPeriodIsClosed: Bool {
+        switch electionStatus {
+        case .close:
+            return true
+        case .open:
+            return false
+        case .none:
+            return false
+        }
+    }
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
@@ -38,7 +49,11 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
     }
 
     func handleAction(_ action: StakingBalanceAction) {
-        // TODO: Validations
+        guard electionPeriodIsClosed else {
+            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: view?.localizationManager?.selectedLocale)
+            return
+        }
+
         switch action {
         case .bondMore:
             wireframe.showBondMore(from: view)
