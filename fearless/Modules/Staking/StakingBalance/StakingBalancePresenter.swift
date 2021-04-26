@@ -150,7 +150,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
 
     func didReceive(fetchControllerResult: Result<(AccountItem?, AccountAddress?), Error>) {
         switch fetchControllerResult {
-        case let .success(controller, address):
+        case let .success((controller, address)):
             self.controller = controller
             controllerAddress = address
         case .failure:
