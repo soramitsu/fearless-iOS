@@ -7,7 +7,6 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         let label = UILabel()
         label.font = .h5Title
         label.textColor = R.color.colorWhite()
-        label.text = "Unbonding" // TODO:
         return label
     }()
 

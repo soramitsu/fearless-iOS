@@ -36,7 +36,7 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     }
 
     private func setupTitle() {
-        title = "Staking balance" // TODO:
+        title = R.string.localizable.stakingBalanceTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 }
 
@@ -44,6 +44,8 @@ extension StakingBalanceViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupTitle()
+            rootView.unbondingWidget.titleLabel.text = R.string.localizable
+                .walletBalanceUnbonding(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }

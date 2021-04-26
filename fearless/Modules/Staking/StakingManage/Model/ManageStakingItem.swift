@@ -7,7 +7,7 @@ enum ManageStakingItem: CaseIterable {
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
         case .stakingBalance:
-            return "Staking balance" // TODO:
+            return R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages)
         case .rewardPayouts:
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
         }

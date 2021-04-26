@@ -40,7 +40,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             let bondedAmountTokenText = tokenAmountText(bondedDecimal, locale: locale)
             let bondedUsdText = priceText(bondedDecimal, priceData: balanceData.priceData, locale: locale)
             let viewModel = StakingBalanceWidgetViewModel(
-                title: "Bonded", // TODO:
+                title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
                 tokenAmountText: bondedAmountTokenText,
                 usdAmountText: bondedUsdText
             )
@@ -54,7 +54,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             let unbondedAmountTokenText = tokenAmountText(unbondedDecimal, locale: locale)
             let unbondedUsdText = priceText(unbondedDecimal, priceData: balanceData.priceData, locale: locale)
             let viewModel = StakingBalanceWidgetViewModel(
-                title: "Unbonded", // TODO:
+                title: R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
                 tokenAmountText: unbondedAmountTokenText,
                 usdAmountText: unbondedUsdText
             )
@@ -68,7 +68,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             let redeemableAmountTokenText = tokenAmountText(redeemableDecimal, locale: locale)
             let redeemableUsdText = priceText(redeemableDecimal, priceData: balanceData.priceData, locale: locale)
             let viewModel = StakingBalanceWidgetViewModel(
-                title: "Redeemable", // TODO:
+                title: R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages),
                 tokenAmountText: redeemableAmountTokenText,
                 usdAmountText: redeemableUsdText
             )
@@ -78,7 +78,10 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return viewModels
     }
 
-    func createUnbondingsViewModels(from balanceData: StakingBalanceData, locale _: Locale) -> [UnbondingItemViewModel] {
+    func createUnbondingsViewModels(
+        from balanceData: StakingBalanceData,
+        locale _: Locale
+    ) -> [UnbondingItemViewModel] {
         let precision: Int16 = 0
         return balanceData.stakingLedger.unlocking
             .map { unbondingItem -> UnbondingItemViewModel in
