@@ -31,19 +31,17 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupTitle()
+        applyLocalization()
+        rootView.actionsWidget.delegate = self
         presenter.setup()
-    }
-
-    private func setupTitle() {
-        title = R.string.localizable.stakingBalanceTitle(preferredLanguages: selectedLocale.rLanguages)
     }
 }
 
 extension StakingBalanceViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            setupTitle()
+            title = R.string.localizable.stakingBalanceTitle(preferredLanguages: selectedLocale.rLanguages)
+
             rootView.unbondingWidget.titleLabel.text = R.string.localizable
                 .walletBalanceUnbonding(preferredLanguages: selectedLocale.rLanguages)
         }
@@ -55,5 +53,18 @@ extension StakingBalanceViewController: StakingBalanceViewProtocol {
         let localizedViewModel = viewModel.value(for: selectedLocale)
 
         rootView.balanceWidget.bind(viewModels: localizedViewModel.widgetViewModels)
+    }
+}
+
+extension StakingBalanceViewController: StakingBalanceActionsWidgetViewDelegate {
+    func didSelect(action: StakingBalanceAction) {
+        switch action {
+        case .bondMore:
+            presenter.handleBondMoreAction()
+        case .unbond:
+            presenter.handleUnbondAction()
+        case .redeem:
+            presenter.handleRedeemAction()
+        }
     }
 }
