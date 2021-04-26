@@ -37,16 +37,16 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         interactor.setup()
     }
 
-    func handleBondMoreAction() {
-        wireframe.showBondMore(from: view)
-    }
-
-    func handleUnbondAction() {
-        wireframe.showUnbond(from: view)
-    }
-
-    func handleRedeemAction() {
-        wireframe.showRedeem(from: view)
+    func handleAction(_ action: StakingBalanceAction) {
+        // TODO: Validations
+        switch action {
+        case .bondMore:
+            wireframe.showBondMore(from: view)
+        case .unbond:
+            wireframe.showUnbond(from: view)
+        case .redeem:
+            wireframe.showRedeem(from: view)
+        }
     }
 }
 

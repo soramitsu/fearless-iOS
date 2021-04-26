@@ -63,13 +63,6 @@ extension StakingBalanceViewController: StakingBalanceViewProtocol {
 
 extension StakingBalanceViewController: StakingBalanceActionsWidgetViewDelegate {
     func didSelect(action: StakingBalanceAction) {
-        switch action {
-        case .bondMore:
-            presenter.handleBondMoreAction()
-        case .unbond:
-            presenter.handleUnbondAction()
-        case .redeem:
-            presenter.handleRedeemAction()
-        }
+        presenter.handleAction(action)
     }
 }

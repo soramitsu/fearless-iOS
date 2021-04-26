@@ -6,9 +6,7 @@ protocol StakingBalanceViewProtocol: ControllerBackedProtocol, Localizable, Load
 
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
-    func handleBondMoreAction()
-    func handleUnbondAction()
-    func handleRedeemAction()
+    func handleAction(_ action: StakingBalanceAction)
 }
 
 protocol StakingBalanceInteractorInputProtocol: AnyObject {
