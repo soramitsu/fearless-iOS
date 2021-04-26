@@ -13,7 +13,7 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showManageStaking(
         from view: StakingMainViewProtocol?,
-        items: [ManageStakingItem],
+        items: [StakingManageOption],
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     ) {
@@ -66,6 +66,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
         let navigationController = FearlessNavigationController(rootViewController: rewardPayoutsView.controller)
         view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    func showStakingBalance(from _: ControllerBackedProtocol?) {
+        // TODO: FLW-768
+    }
+
+    func showNominatorValidators(from _: ControllerBackedProtocol?, stashAddress _: AccountAddress) {
+        // TODO: FLW-690
     }
 
     func showAccountsSelection(from view: StakingMainViewProtocol?) {

@@ -146,11 +146,26 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
+        let managedItems: [StakingManageOption] = {
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                return [
+                    .stakingBalance,
+                    .rewardPayouts,
+                    .validators(count: nominatorState.nomination.targets.count)
+                ]
+            } else {
+                return [
+                    .stakingBalance,
+                    .rewardPayouts
+                ]
+            }
+        }()
+
         wireframe.showManageStaking(
             from: view,
-            items: [.rewardPayouts],
+            items: managedItems,
             delegate: self,
-            context: nil
+            context: managedItems as NSArray
         )
     }
 
@@ -391,17 +406,35 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 }
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_: Int, context _: AnyObject?) {
-        if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
-            let stashAddress = validatorState.stashItem.stash
-            wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashAddress)
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let manageStakingItems = context as? [StakingManageOption],
+            index >= 0, index < manageStakingItems.count else {
             return
         }
 
-        if let stashState = stateMachine.viewState(using: { (state: BaseStashNextState) in state }) {
-            let stashAddress = stashState.stashItem.stash
-            wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
-            return
+        let selectedItem = manageStakingItems[index]
+
+        switch selectedItem {
+        case .rewardPayouts:
+            if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
+                let stashAddress = validatorState.stashItem.stash
+                wireframe.showRewardPayoutsForValidator(from: view, stashAddress: stashAddress)
+                return
+            }
+
+            if let stashState = stateMachine.viewState(using: { (state: BaseStashNextState) in state }) {
+                let stashAddress = stashState.stashItem.stash
+                wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
+                return
+            }
+        case .stakingBalance:
+            wireframe.showStakingBalance(from: view)
+        case .validators:
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                let stashAddress = nominatorState.stashItem.stash
+                wireframe.showNominatorValidators(from: view, stashAddress: stashAddress)
+            }
         }
     }
 }

@@ -135,4 +135,90 @@ class StakingMainTests: XCTestCase {
 
         wait(for: expectations, timeout: 5)
     }
+
+    func testManageStakingBalanceAction() {
+        // given
+
+        let options: [StakingManageOption] = [
+            .stakingBalance,
+            .rewardPayouts,
+            .validators(count: 16)
+        ]
+
+        let wireframe = MockStakingMainWireframeProtocol()
+
+        let showStakingBalanceExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).showStakingBalance(from: any()).then { _ in
+                showStakingBalanceExpectation.fulfill()
+            }
+        }
+
+        // when
+
+        let presenter = performStakingManageTestSetup(for: wireframe)
+
+        presenter.modalPickerDidSelectModelAtIndex(0, context: options as NSArray)
+
+        // then
+        wait(for: [showStakingBalanceExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testManageStakingValidatorsAction() {
+        // given
+
+        let options: [StakingManageOption] = [
+            .stakingBalance,
+            .rewardPayouts,
+            .validators(count: 16)
+        ]
+
+        let wireframe = MockStakingMainWireframeProtocol()
+
+        let showValidatorsExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).showNominatorValidators(from: any(), stashAddress: any()).then { _ in
+                showValidatorsExpectation.fulfill()
+            }
+        }
+
+        // when
+
+        let presenter = performStakingManageTestSetup(for: wireframe)
+
+        presenter.modalPickerDidSelectModelAtIndex(2, context: options as NSArray)
+
+        // then
+        wait(for: [showValidatorsExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    private func performStakingManageTestSetup(
+        for wireframe: StakingMainWireframeProtocol
+    ) -> StakingMainPresenter {
+        let interactor = StakingMainInteractorInputProtocolStub()
+
+        let settings = InMemorySettingsManager()
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
+        let stateViewModelFactory = StakingStateViewModelFactory(
+            primitiveFactory: primitiveFactory,
+            logger: nil
+        )
+        let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+        let presenter = StakingMainPresenter(
+            stateViewModelFactory: stateViewModelFactory,
+            networkInfoViewModelFactory: networkViewModelFactory,
+            viewModelFacade: viewModelFacade,
+            logger: nil
+        )
+        presenter.wireframe = wireframe
+        presenter.interactor = interactor
+
+        presenter.didReceive(newChain: .westend)
+        presenter.didReceive(stashItem: StashItem(stash: WestendStub.address, controller: WestendStub.address))
+        presenter.didReceive(ledgerInfo: WestendStub.ledgerInfo.item)
+        presenter.didReceive(nomination: WestendStub.nomination.item)
+
+        return presenter
+    }
 }
