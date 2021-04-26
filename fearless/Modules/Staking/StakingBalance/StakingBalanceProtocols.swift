@@ -19,6 +19,7 @@ protocol StakingBalanceInteractorOutputProtocol: AnyObject {
     func didReceive(priceResult: Result<PriceData?, Error>)
     func didReceive(electionStatusResult: Result<ElectionStatus?, Error>)
     func didReceive(stashItemResult: Result<StashItem?, Error>)
+    func didReceive(fetchControllerResult: Result<(AccountItem?, AccountAddress?), Error>)
 }
 
 protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

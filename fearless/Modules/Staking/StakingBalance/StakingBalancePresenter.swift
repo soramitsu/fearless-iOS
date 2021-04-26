@@ -7,6 +7,8 @@ final class StakingBalancePresenter {
     weak var view: StakingBalanceViewProtocol?
     private let accountAddress: AccountAddress
 
+    private var controller: AccountItem?
+    private var controllerAddress: AccountAddress?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
     private var stakingLedger: DyStakingLedger?
@@ -47,7 +49,7 @@ final class StakingBalancePresenter {
     }
 
     var controllerAccountIsAvailable: Bool {
-        stashItem != nil
+        controller != nil
     }
 
     var unbondingRequestsLimitExceeded: Bool {
@@ -73,7 +75,7 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         guard controllerAccountIsAvailable else {
             wireframe.presentMissingController(
                 from: view,
-                address: accountAddress,
+                address: controllerAddress ?? "",
                 locale: selectedLocale
             )
             return
@@ -100,7 +102,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         case let .success(ledger):
             stakingLedger = ledger
             updateView()
-        case let .failure(error):
+        case .failure:
             stakingLedger = nil
             updateView()
         }
@@ -111,7 +113,7 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         case let .success(activeEra):
             self.activeEra = activeEra
             updateView()
-        case let .failure(error):
+        case .failure:
             activeEra = nil
             updateView()
         }
@@ -141,8 +143,19 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         switch stashItemResult {
         case let .success(stashItem):
             self.stashItem = stashItem
-        case let .failure(error):
+        case .failure:
             stashItem = nil
+        }
+    }
+
+    func didReceive(fetchControllerResult: Result<(AccountItem?, AccountAddress?), Error>) {
+        switch fetchControllerResult {
+        case let .success(controller, address):
+            self.controller = controller
+            controllerAddress = address
+        case .failure:
+            controller = nil
+            controllerAddress = nil
         }
     }
 }

@@ -6,6 +6,7 @@ final class StakingBalanceInteractor {
 
     private let chain: Chain
     private let accountAddress: AccountAddress
+    private let accountRepository: AnyDataProviderRepository<AccountItem>
     private let runtimeCodingService: RuntimeCodingServiceProtocol
     private let chainStorage: AnyDataProviderRepository<ChainStorageItem>
     private let localStorageRequestFactory: LocalStorageRequestFactoryProtocol
@@ -13,12 +14,15 @@ final class StakingBalanceInteractor {
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let providerFactory: SingleValueProviderFactoryProtocol
     private let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var stashControllerProvider: StreamableProvider<StashItem>?
+    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
 
     init(
         chain: Chain,
         accountAddress: AccountAddress,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
         runtimeCodingService: RuntimeCodingServiceProtocol,
         chainStorage: AnyDataProviderRepository<ChainStorageItem>,
         localStorageRequestFactory: LocalStorageRequestFactoryProtocol,
@@ -29,6 +33,7 @@ final class StakingBalanceInteractor {
     ) {
         self.chain = chain
         self.accountAddress = accountAddress
+        self.accountRepository = accountRepository
         self.runtimeCodingService = runtimeCodingService
         self.chainStorage = chainStorage
         self.localStorageRequestFactory = localStorageRequestFactory
@@ -36,61 +41,6 @@ final class StakingBalanceInteractor {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.operationManager = operationManager
-    }
-
-    private func createStakingLedgerOperation(
-        for accountAddress: AccountAddress,
-        dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<DyStakingLedger?> {
-        let controllerWrapper: CompoundOperationWrapper<Data?> =
-            localStorageRequestFactory
-                .queryItems(
-                    repository: chainStorage,
-                    keyParam: { try SS58AddressFactory().accountId(from: accountAddress) },
-                    factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                    params: StorageRequestParams(path: .controller)
-                )
-
-        let controllerKey: () throws -> Data = {
-            if let controllerAccountId = try controllerWrapper.targetOperation.extractNoCancellableResultData() {
-                return controllerAccountId
-            } else {
-                throw BaseOperationError.unexpectedDependentResult
-            }
-        }
-
-        let controllerLedgerWrapper: CompoundOperationWrapper<DyStakingLedger?> =
-            localStorageRequestFactory.queryItems(
-                repository: chainStorage,
-                keyParam: controllerKey,
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                params: StorageRequestParams(path: .stakingLedger)
-            )
-
-        controllerLedgerWrapper.allOperations.forEach { $0.addDependency(controllerWrapper.targetOperation) }
-
-        let dependencies = controllerWrapper.allOperations + controllerLedgerWrapper.dependencies
-
-        return CompoundOperationWrapper(
-            targetOperation: controllerLedgerWrapper.targetOperation,
-            dependencies: dependencies
-        )
-    }
-
-    private func fetchStakingLedger() {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
-        let ledgerOperation = createStakingLedgerOperation(for: accountAddress, dependingOn: codingFactoryOperation)
-        ledgerOperation.targetOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let ledger = try ledgerOperation.targetOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(ledgerResult: .success(ledger))
-                } catch {
-                    self?.presenter.didReceive(ledgerResult: .failure(error))
-                }
-            }
-        }
-        operationManager.enqueue(operations: ledgerOperation.allOperations + [codingFactoryOperation], in: .transient)
     }
 
     private func subscribeToPriceChanges() {
@@ -197,7 +147,7 @@ final class StakingBalanceInteractor {
 
         let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
             let stashItem = changes.reduceToLastChange()
-            self?.presenter?.didReceive(stashItemResult: .success(stashItem))
+            self?.handle(stashItem: stashItem)
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
@@ -215,6 +165,69 @@ final class StakingBalanceInteractor {
 
         stashControllerProvider = provider
     }
+
+    private func handle(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            subscribeToLedger(address: stashItem.controller)
+            fetchController(for: stashItem.controller)
+        }
+
+        presenter?.didReceive(stashItemResult: .success(stashItem))
+    }
+
+    private func subscribeToLedger(address: String) {
+        guard ledgerProvider == nil else {
+            return
+        }
+
+        guard let ledgerProvider = try? providerFactory
+            .getLedgerInfoProvider(for: address, runtimeService: runtimeCodingService)
+        else {
+            return
+        }
+
+        self.ledgerProvider = ledgerProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedLedgerInfo>]) in
+            if let ledgerInfo = changes.reduceToLastChange() {
+                self?.presenter.didReceive(ledgerResult: .success(ledgerInfo.item))
+            }
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(ledgerResult: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        ledgerProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func fetchController(for address: AccountAddress) {
+        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let accountItem = try operation.extractNoCancellableResultData()
+                    self.presenter.didReceive(fetchControllerResult: .success((accountItem, address)))
+                } catch {
+                    self.presenter.didReceive(fetchControllerResult: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
@@ -223,6 +236,5 @@ extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
         subscribeToElectionStatus()
         subsribeToActiveEra()
         subscribeToStashControllerProvider()
-        fetchStakingLedger()
     }
 }
