@@ -12,7 +12,7 @@ struct TransactionHistoryItem: Codable {
         case blockNumber
         case txIndex
         case callPath
-        case callArgs
+        case call
     }
 
     enum Status: Int16, Codable {
@@ -22,7 +22,7 @@ struct TransactionHistoryItem: Codable {
     }
 
     let sender: String
-    let receiver: String
+    let receiver: String?
     let status: Status
     let txHash: String
     let timestamp: Int64
@@ -30,7 +30,7 @@ struct TransactionHistoryItem: Codable {
     let blockNumber: UInt64?
     let txIndex: UInt16?
     let callPath: CallCodingPath
-    let callArgs: Data?
+    let call: Data?
 }
 
 extension TransactionHistoryItem: Identifiable {

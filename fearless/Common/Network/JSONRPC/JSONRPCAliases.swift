@@ -3,7 +3,7 @@ import RobinHood
 
 typealias RuntimeVersionUpdate = JSONRPCSubscriptionUpdate<RuntimeVersion>
 typealias StorageSubscriptionUpdate = JSONRPCSubscriptionUpdate<StorageUpdate>
-typealias JSONRPCQueryOperation = JSONRPCOperation<[[String]], [StorageUpdate]>
+typealias JSONRPCQueryOperation = JSONRPCOperation<StorageQuery, [StorageUpdate]>
 typealias SuperIdentityOperation = BaseOperation<[StorageResponse<SuperIdentity>]>
 typealias SuperIdentityWrapper = CompoundOperationWrapper<[StorageResponse<SuperIdentity>]>
 typealias IdentityOperation = BaseOperation<[StorageResponse<Identity>]>

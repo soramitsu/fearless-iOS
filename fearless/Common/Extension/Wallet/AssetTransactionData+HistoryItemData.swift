@@ -2,6 +2,7 @@ import Foundation
 import CommonWallet
 import BigInt
 import IrohaCrypto
+import FearlessUtils
 
 extension AssetTransactionData {
     static func createTransaction(
@@ -181,7 +182,7 @@ extension AssetTransactionData {
         asset: WalletAsset,
         addressFactory: SS58AddressFactoryProtocol
     ) -> AssetTransactionData {
-        let peerAddress = item.sender == address ? item.receiver : item.sender
+        let peerAddress = (item.sender == address ? item.receiver : item.sender) ?? item.sender
 
         let accountId = try? addressFactory.accountId(
             fromAddress: peerAddress,
@@ -205,10 +206,10 @@ extension AssetTransactionData {
         )
 
         let amount: Decimal = {
-            if let args = item.callArgs,
+            if let encodedCall = item.call,
                let call = try? JSONDecoder.scaleCompatible()
-               .decode(TransferCall.self, from: args) {
-                return Decimal.fromSubstrateAmount(call.value, precision: networkType.precision) ?? .zero
+               .decode(RuntimeCall<TransferCall>.self, from: encodedCall) {
+                return Decimal.fromSubstrateAmount(call.args.value, precision: networkType.precision) ?? .zero
             } else {
                 return .zero
             }

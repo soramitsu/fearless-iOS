@@ -17,7 +17,7 @@ extension CDTransactionHistoryItem: CoreDataCodable {
         callName = callPath.callName
         moduleName = callPath.moduleName
 
-        callArgs = try container.decodeIfPresent(Data.self, forKey: .callArgs)
+        call = try container.decodeIfPresent(Data.self, forKey: .call)
 
         if let number = try container.decodeIfPresent(UInt64.self, forKey: .blockNumber) {
             blockNumber = NSNumber(value: number)
@@ -49,6 +49,6 @@ extension CDTransactionHistoryItem: CoreDataCodable {
             try container.encode(callPath, forKey: .callPath)
         }
 
-        try container.encodeIfPresent(callArgs, forKey: .callArgs)
+        try container.encodeIfPresent(call, forKey: .call)
     }
 }
