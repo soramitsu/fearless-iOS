@@ -64,7 +64,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
 
     func showManageStaking(
         from view: StakingMainViewProtocol?,
-        items: [ManageStakingItem],
+        items: [StakingManageOption],
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
@@ -82,7 +82,7 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showStakingBalance(from view: ControllerBackedProtocol?)
-    func showValidators(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
+    func showNominatorValidators(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }

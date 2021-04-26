@@ -1,6 +1,6 @@
 import UIKit.UIImage
 
-enum ManageStakingItem {
+enum StakingManageOption {
     case stakingBalance
     case rewardPayouts
     case validators(count: Int?)
@@ -8,11 +8,25 @@ enum ManageStakingItem {
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
         case .stakingBalance:
-            return "Staking balance" // TODO:
+            return R.string.localizable.stakingTitle(preferredLanguages: locale.rLanguages)
         case .rewardPayouts:
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
         case .validators:
-            return "Your validators"
+            return R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    func detailsForLocale(_ locale: Locale) -> String? {
+        switch self {
+        case let .validators(count):
+            guard let count = count else {
+                return nil
+            }
+
+            let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
+            return formatter.string(from: NSNumber(value: count))
+        default:
+            return nil
         }
     }
 

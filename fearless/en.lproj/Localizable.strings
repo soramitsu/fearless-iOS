@@ -339,3 +339,4 @@ Derivation path: %@";
 "staking.warning.tiny.payout" = "The reward is less than the network fee.";
 "staking.balance.title" = "Staking balance";
 "staking.payout.sent" = "Payout transaction sent";
+"staking.your.validators.title" = "Your validators";

@@ -1,7 +1,7 @@
 import UIKit
 
 final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
-    typealias Model = IconWithTitleViewModel
+    typealias Model = StakingManageViewModel
 
     static let cellHeight: CGFloat = 48
 
@@ -10,6 +10,13 @@ final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
     let iconImageView = UIImageView()
 
     let titleLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
+    let detailsLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
@@ -54,10 +61,18 @@ final class StakingManageCell: UITableViewCell, ModalPickerCellProtocol {
             make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing)
         }
+
+        contentView.addSubview(detailsLabel)
+        detailsLabel.snp.makeConstraints { make in
+            make.trailing.equalTo(disclosureIndicatorView.snp.leading).offset(0)
+            make.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
+        }
     }
 
     func bind(model: Model) {
         titleLabel.text = model.title
         iconImageView.image = model.icon
+        detailsLabel.text = model.details
     }
 }

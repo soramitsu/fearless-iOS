@@ -146,7 +146,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
-        let managedItems: [ManageStakingItem] = {
+        let managedItems: [StakingManageOption] = {
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 return [
                     .stakingBalance,
@@ -408,7 +408,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
         guard
-            let manageStakingItems = context as? [ManageStakingItem],
+            let manageStakingItems = context as? [StakingManageOption],
             index >= 0, index < manageStakingItems.count else {
             return
         }
@@ -433,7 +433,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .validators:
             if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
                 let stashAddress = nominatorState.stashItem.stash
-                wireframe.showValidators(from: view, stashAddress: stashAddress)
+                wireframe.showNominatorValidators(from: view, stashAddress: stashAddress)
             }
         }
     }

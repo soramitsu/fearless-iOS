@@ -249,7 +249,7 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForList(
-        _ items: [ManageStakingItem],
+        _ items: [StakingManageOption],
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     ) -> UIViewController? {
@@ -257,7 +257,7 @@ enum ModalPickerFactory {
             return nil
         }
 
-        let viewController: ModalPickerViewController<StakingManageCell, IconWithTitleViewModel>
+        let viewController: ModalPickerViewController<StakingManageCell, StakingManageViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
@@ -273,9 +273,10 @@ enum ModalPickerFactory {
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in
-                IconWithTitleViewModel(
+                StakingManageViewModel(
                     icon: type.icon,
-                    title: type.titleForLocale(locale)
+                    title: type.titleForLocale(locale),
+                    details: type.detailsForLocale(locale)
                 )
             }
         }
