@@ -33,7 +33,12 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
 
         applyLocalization()
         rootView.actionsWidget.delegate = self
+        setupNavigationBarStyle()
         presenter.setup()
+    }
+
+    private func setupNavigationBarStyle() {
+        // TODO:
     }
 }
 
