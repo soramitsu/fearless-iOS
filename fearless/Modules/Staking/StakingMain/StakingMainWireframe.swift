@@ -72,6 +72,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         // TODO: FLW-768
     }
 
+    func showValidators(from _: ControllerBackedProtocol?, stashAddress _: AccountAddress) {
+        // TODO: FLW-690
+    }
+
     func showAccountsSelection(from view: StakingMainViewProtocol?) {
         guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
             return

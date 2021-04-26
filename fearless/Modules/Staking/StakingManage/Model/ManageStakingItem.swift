@@ -1,8 +1,9 @@
 import UIKit.UIImage
 
-enum ManageStakingItem: CaseIterable {
+enum ManageStakingItem {
     case stakingBalance
     case rewardPayouts
+    case validators(count: Int?)
 
     func titleForLocale(_ locale: Locale) -> String {
         switch self {
@@ -10,6 +11,8 @@ enum ManageStakingItem: CaseIterable {
             return "Staking balance" // TODO:
         case .rewardPayouts:
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
+        case .validators:
+            return "Your validators"
         }
     }
 
@@ -19,6 +22,8 @@ enum ManageStakingItem: CaseIterable {
             return R.image.iconStakingBalance()
         case .rewardPayouts:
             return R.image.iconLightning()
+        case .validators:
+            return R.image.iconValidators()
         }
     }
 }

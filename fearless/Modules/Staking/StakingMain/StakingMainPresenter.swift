@@ -33,7 +33,6 @@ final class StakingMainPresenter {
 
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
-    private let manageStakingItems = ManageStakingItem.allCases
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -147,11 +146,26 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performManageStakingAction() {
+        let managedItems: [ManageStakingItem] = {
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                return [
+                    .stakingBalance,
+                    .rewardPayouts,
+                    .validators(count: nominatorState.nomination.targets.count)
+                ]
+            } else {
+                return [
+                    .stakingBalance,
+                    .rewardPayouts
+                ]
+            }
+        }()
+
         wireframe.showManageStaking(
             from: view,
-            items: manageStakingItems,
+            items: managedItems,
             delegate: self,
-            context: nil
+            context: managedItems as NSArray
         )
     }
 
@@ -392,9 +406,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 }
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
-        guard index >= 0, index < manageStakingItems.count else { return }
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let manageStakingItems = context as? [ManageStakingItem],
+            index >= 0, index < manageStakingItems.count else {
+            return
+        }
+
         let selectedItem = manageStakingItems[index]
+
         switch selectedItem {
         case .rewardPayouts:
             if let validatorState = stateMachine.viewState(using: { (state: ValidatorState) in state }) {
@@ -410,6 +430,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             }
         case .stakingBalance:
             wireframe.showStakingBalance(from: view)
+        case .validators:
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                let stashAddress = nominatorState.stashItem.stash
+                wireframe.showValidators(from: view, stashAddress: stashAddress)
+            }
         }
     }
 }
