@@ -940,11 +940,11 @@
 		AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */; };
 		AEB9979026119E4D005C60A5 /* StoriesViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
-		AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */; };
 		AEBE16E6262EA7C100DF257C /* StakingErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE16E5262EA7C100DF257C /* StakingErrors.swift */; };
 		AEBE16F1262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE16F0262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift */; };
 		AEBE173B262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE173A262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift */; };
 		AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */; };
+		AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
@@ -1416,7 +1416,6 @@
 		845BB8D525E461FC00E5FCDC /* RewardDestination.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardDestination.swift; sourceTree = "<group>"; };
 		845BB8DA25E462B100E5FCDC /* SubstrateConstansts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateConstansts.swift; sourceTree = "<group>"; };
 		845BB8DF25E463D500E5FCDC /* RuntimeCall+Known.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RuntimeCall+Known.swift"; sourceTree = "<group>"; };
-		845CB6E826272A4C005F798B /* PayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutInfo.swift; sourceTree = "<group>"; };
 		845CB6EE26276104005F798B /* SubscanQueryService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanQueryService.swift; sourceTree = "<group>"; };
 		845CB6F926276326005F798B /* LongrunOperation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LongrunOperation.swift; sourceTree = "<group>"; };
 		8460516C25536C4800A1F0B4 /* ExportOption+ViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ExportOption+ViewModel.swift"; sourceTree = "<group>"; };
@@ -1980,7 +1979,6 @@
 		AE2C850A25F0D84E00986716 /* ValidatorInfoViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoViewController.xib; sourceTree = "<group>"; };
 		AE4A71D32607B1440017C663 /* NetworkStakingInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfoViewModel.swift; sourceTree = "<group>"; };
 		AE6DE7312627EA930018D5B5 /* PayoutCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutCall.swift; sourceTree = "<group>"; };
-		AE6DE736262828D80018D5B5 /* PayoutInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutInfo.swift; sourceTree = "<group>"; };
 		AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakersInfoChanged.swift; sourceTree = "<group>"; };
 		AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfoOperationFactory.swift; sourceTree = "<group>"; };
 		AE7129C02608CAE7000AA3F5 /* NetworkStakingInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfo.swift; sourceTree = "<group>"; };
@@ -2020,11 +2018,11 @@
 		AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressAnimator.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
-		AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.swift; sourceTree = "<group>"; };
 		AEBE16E5262EA7C100DF257C /* StakingErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingErrors.swift; sourceTree = "<group>"; };
 		AEBE16F0262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutsConfirmTests.swift; sourceTree = "<group>"; };
 		AEBE173A262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutConfirmViewModel.swift; sourceTree = "<group>"; };
+		AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
@@ -3500,7 +3498,6 @@
 				849013A924A80984008F705E /* Products */,
 				2698CD398B0412EB85D620AB /* Pods */,
 				BFB3965A583F11EF3045E064 /* Frameworks */,
-				AEBE16582628479600DF257C /* Recovered References */,
 			);
 			sourceTree = "<group>";
 		};
@@ -4848,23 +4845,6 @@
 			path = View;
 			sourceTree = "<group>";
 		};
-		AEF5072826236F6A0098574D /* PurchaseProviders */ = {
-			isa = PBXGroup;
-			children = (
-				AEF5072926236F9E0098574D /* WalletPurchaseProvidersTests.swift */,
-			);
-			path = PurchaseProviders;
-            sourceTree = "<group>";
-        };
-		AEBE16582628479600DF257C /* Recovered References */ = {
-			isa = PBXGroup;
-			children = (
-				845CB6E826272A4C005F798B /* PayoutInfo.swift */,
-				AE6DE736262828D80018D5B5 /* PayoutInfo.swift */,
-			);
-			name = "Recovered References";
-			sourceTree = "<group>";
-		};
 		AEBE1739262F3E4E00DF257C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -4872,6 +4852,14 @@
 				AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		AEF5072826236F6A0098574D /* PurchaseProviders */ = {
+			isa = PBXGroup;
+			children = (
+				AEF5072926236F9E0098574D /* WalletPurchaseProvidersTests.swift */,
+			);
+			path = PurchaseProviders;
 			sourceTree = "<group>";
 		};
 		AEF7404C25E6DC6600407D41 /* RewardCalculatorService */ = {
