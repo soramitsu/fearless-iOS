@@ -897,6 +897,9 @@
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
+		AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */; };
+		AE2060DB2637694A00357578 /* MoonPayCIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2060DA2637694A00357578 /* MoonPayCIKeys.generated.swift */; };
+		AE2060E526376C1000357578 /* env-vars.sh in Resources */ = {isa = PBXBuildFile; fileRef = AE2060BD26370BF800357578 /* env-vars.sh */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
 		AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C846425EE884900986716 /* RewardViewModelFactory.swift */; };
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
@@ -944,7 +947,6 @@
 		AEBE16F1262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE16F0262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift */; };
 		AEBE173B262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE173A262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift */; };
 		AEBE174C262FF4DB00DF257C /* PayoutConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */; };
-		AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
@@ -1968,6 +1970,9 @@
 		AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordProtocols.swift; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
+		AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = MoonPayCIKeys.stencil; sourceTree = "<group>"; };
+		AE2060BD26370BF800357578 /* env-vars.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "env-vars.sh"; sourceTree = "<group>"; };
+		AE2060DA2637694A00357578 /* MoonPayCIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.generated.swift; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
 		AE2C846425EE884900986716 /* RewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModelFactory.swift; sourceTree = "<group>"; };
 		AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoProtocols.swift; sourceTree = "<group>"; };
@@ -2022,7 +2027,6 @@
 		AEBE16F0262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutsConfirmTests.swift; sourceTree = "<group>"; };
 		AEBE173A262F3E6600DF257C /* StakingPayoutConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		AEBE174B262FF4DB00DF257C /* PayoutConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutConfirmViewModel.swift; sourceTree = "<group>"; };
-		AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
@@ -2901,8 +2905,8 @@
 				AEF50555261A04AD0098574D /* MoonpayProvider.swift */,
 				AEF5071D262369C00098574D /* PurchaseProviderProtocol.swift */,
 				AEF507B9262486F80098574D /* MoonpayProviderFactory.swift */,
-				AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */,
 				AE20602B2636EA5800357578 /* MoonPayKeys.swift */,
+				AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */,
 			);
 			path = PurchaseProvider;
 			sourceTree = "<group>";
@@ -3519,11 +3523,13 @@
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
+				AE2060BD26370BF800357578 /* env-vars.sh */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
 				849013B424A80986008F705E /* Assets.xcassets */,
 				849013B624A80986008F705E /* LaunchScreen.storyboard */,
+				AE2060DA2637694A00357578 /* MoonPayCIKeys.generated.swift */,
 				849013B924A80986008F705E /* Info.plist */,
 				84C07EDA24AF1924008FC35B /* InfoPlist.strings */,
 				8490146024A94373008F705E /* Localizable.strings */,
@@ -5224,7 +5230,6 @@
 				37CB4B90B98CFA452A29AA46 /* [CP] Check Pods Manifest.lock */,
 				842D1E8824D207C700C30A7A /* Modules Mock */,
 				842D1E8924D207D900C30A7A /* Common Mock */,
-				AE2060272636E31200357578 /* Inject Keys */,
 				849013BA24A80986008F705E /* Sources */,
 				849013BB24A80986008F705E /* Frameworks */,
 				849013BC24A80986008F705E /* Resources */,
@@ -5356,6 +5361,7 @@
 				8428769424AE046300D91AD8 /* AboutViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 				84452F7725D5E2B300F47EC5 /* runtime-kusama.json in Resources */,
+				AE2060E526376C1000357578 /* env-vars.sh in Resources */,
 				842876A924AE049B00D91AD8 /* SelectionSubtitleTableViewCell.xib in Resources */,
 				1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */,
 				C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */,
@@ -5370,6 +5376,7 @@
 				4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */,
 				8460E12725422A6D00826F55 /* WalletCompoundDetailsView.xib in Resources */,
 				AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */,
+				AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */,
 				E3761D989C37ED1AAC9BEDA3 /* NetworkManagementViewController.xib in Resources */,
 				9D5F6A48E7A9166B9341F417 /* NetworkInfoViewController.xib in Resources */,
 				84FFE50D261290BC0054EA63 /* NetworkInfoView.xib in Resources */,
@@ -5590,25 +5597,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "# Installing\nCURRENT_DIR=\"$PWD\"\ncd /tmp\ncurl -OL https://github.com/LucianoPAlmeida/variable-injector/releases/download/0.2.1/x86_64-apple-macosx.zip\nunzip x86_64-apple-macosx.zip\ncp -f ./x86_64-apple-macosx/release/variable-injector /usr/local/bin/variable-injector\nrm ./x86_64-apple-macosx.zip\nrm -rf ./x86_64-apple-macosx\nrm -rf ./__MACOSX/\ncd \"$CURRENT_DIR\"\n#Running\nvariable-injector --file ${SRCROOT}/fearless/Common/PurchaseProvider/CI.swift --verbose\n";
-		};
-		AE2060272636E31200357578 /* Inject Keys */ = {
-			isa = PBXShellScriptBuildPhase;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Inject Keys";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "# Installing \nCURRENT_DIR=\"$PWD\"\ncd /tmp\ncurl -OL https://github.com/LucianoPAlmeida/variable-injector/releases/download/0.2.1/x86_64-apple-macosx.zip\nunzip x86_64-apple-macosx.zip\ncp -f ./x86_64-apple-macosx/release/variable-injector /usr/local/bin/variable-injector\nrm ./x86_64-apple-macosx.zip\nrm -rf ./x86_64-apple-macosx\nrm -rf ./__MACOSX/\ncd \"$CURRENT_DIR\"\n#Running \nvariable-injector --file ${SRCROOT}/fearless/Common/PurchaseProvider/CI.swift --verbose\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f ${PROJECT_NAME}/env-vars.sh ]\nthen\nsource ${PROJECT_NAME}/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nINPUT_DIR=\"${PROJECT_NAME}/Common/PurchaseProvider\"\necho \"Sourcery Input Directory = $INPUT_DIR\"\n\nOUTPUT_DIR=\"${PROJECT_NAME}\"\necho \"Sourcery Output Directory = $OUTPUT_DIR\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$INPUT_DIR\" --sources . --output \"$OUTPUT_DIR\" --args secretKey=$MOONPAY_PRODUCTION_SECRET,testSecretKey=$MOONPAY_TEST_SECRET\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5687,6 +5676,7 @@
 				8494D857252465AC00614D8F /* WalletDisplayTokenView.swift in Sources */,
 				8428769024AE046300D91AD8 /* AboutTitleCell.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
+				AE2060DB2637694A00357578 /* MoonPayCIKeys.generated.swift in Sources */,
 				84FD3DC02541B10B00A234E3 /* TransactionDetailsViewModelFactory.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
@@ -6204,7 +6194,6 @@
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
-				AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */,
 				AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
 				AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */,

@@ -50,6 +50,7 @@ fastlane/
 iOSInjectionProject/
 #
 # Custom scripts
+fearless/env-vars.sh
 *.generated.swift
 Tests/Mocks/CommonMocks.swift
 Tests/Mocks/ModuleMocks.swift
