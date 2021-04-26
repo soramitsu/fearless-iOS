@@ -1,15 +1,19 @@
 import Foundation
 
 protocol MoonpayProviderFactoryProtocol {
-    func createProvider() -> PurchaseProviderProtocol
+    func createProvider(
+        with secretKeyData: Data,
+        apiKey: String
+    ) -> PurchaseProviderProtocol
 }
 
 final class MoonpayProviderFactory: MoonpayProviderFactoryProtocol {
-    func createProvider() -> PurchaseProviderProtocol {
-        let provider = MoonpayProvider()
+    func createProvider(
+        with secretKeyData: Data,
+        apiKey: String
+    ) -> PurchaseProviderProtocol {
+        let provider = MoonpayProvider(apiKey: apiKey)
 
-        // TODO: FLW-644 Replace with production value
-        let secretKeyData = Data("sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY".utf8)
         let signer = HmacSigner(hashFunction: .SHA256, secretKeyData: secretKeyData)
         provider.hmacSigner = signer
 

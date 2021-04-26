@@ -3,11 +3,16 @@ import FearlessUtils
 import IrohaCrypto
 
 final class MoonpayProvider: PurchaseProviderProtocol {
-    static let pubToken = "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
     static let baseUrlString = "https://buy.moonpay.com/"
 
     private var colorCode: String?
     private var callbackUrl: URL?
+
+    let apiKey: String
+
+    init(apiKey: String) {
+        self.apiKey = apiKey
+    }
 
     var hmacSigner: HmacSignerProtocol?
 
@@ -62,7 +67,7 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         guard var components = URLComponents(string: Self.baseUrlString) else { return nil }
 
         var percentEncodedQueryItems = [
-            URLQueryItem(name: "apiKey", value: Self.pubToken),
+            URLQueryItem(name: "apiKey", value: apiKey),
             URLQueryItem(name: "currencyCode", value: token),
             URLQueryItem(name: "walletAddress", value: address),
             URLQueryItem(name: "showWalletAddressForm", value: "true")

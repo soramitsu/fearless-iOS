@@ -871,6 +871,7 @@
 		AB5E2A2B4CC823E6F6515ADD /* StakingRewardPayoutsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECD8589BD30A8BE9492AD87 /* StakingRewardPayoutsPresenter.swift */; };
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
+		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
 		AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C846425EE884900986716 /* RewardViewModelFactory.swift */; };
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
@@ -913,6 +914,7 @@
 		AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */; };
 		AEB9979026119E4D005C60A5 /* StoriesViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
+		AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */; };
 		AEE4E34825E90C6000D6DF31 /* RewardCalculatorService.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */; };
 		AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */; };
 		AEE4E35225E945AA00D6DF31 /* RewardCalculatorFacade.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEE4E35125E945AA00D6DF31 /* RewardCalculatorFacade.swift */; };
@@ -1905,6 +1907,7 @@
 		ABFC2AD62212BE16C7B7C429 /* SelectedValidatorsTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorsTests.swift; sourceTree = "<group>"; };
 		AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordProtocols.swift; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
+		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
 		AE2C846425EE884900986716 /* RewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModelFactory.swift; sourceTree = "<group>"; };
 		AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoProtocols.swift; sourceTree = "<group>"; };
@@ -1954,6 +1957,7 @@
 		AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressAnimator.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
+		AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.swift; sourceTree = "<group>"; };
 		AECD11DE4ACD0D66C323B0BD /* AccountInfoTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountInfoTests.swift; sourceTree = "<group>"; };
 		AEE4E34725E90C6000D6DF31 /* RewardCalculatorService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorService.swift; sourceTree = "<group>"; };
 		AEE4E34C25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardCalculatorServiceProtocol.swift; sourceTree = "<group>"; };
@@ -2830,6 +2834,8 @@
 				AEF50555261A04AD0098574D /* MoonpayProvider.swift */,
 				AEF5071D262369C00098574D /* PurchaseProviderProtocol.swift */,
 				AEF507B9262486F80098574D /* MoonpayProviderFactory.swift */,
+				AEBE17EF2636A8FF00DF257C /* MoonPayCIKeys.swift */,
+				AE20602B2636EA5800357578 /* MoonPayKeys.swift */,
 			);
 			path = PurchaseProvider;
 			sourceTree = "<group>";
@@ -3907,27 +3913,27 @@
 		849014FD24AB698B008F705E /* Wallet */ = {
 			isa = PBXGroup;
 			children = (
-				8460E1142541E01B00826F55 /* Style */,
-				849E2330254AEF9F00B1F6D4 /* InvoiceScan */,
-				84FAB07F2543A7D700319F74 /* Receive */,
-				84FD3DBC25419FC200A234E3 /* TransactionDetails */,
 				84364D53252FAD5C00281F9A /* AccountDetails */,
+				8490150924AB8A3A008F705E /* AccountList */,
 				8494D8612524752500614D8F /* Commands */,
-				84D97ECD2521CA2100F07405 /* View */,
-				84D97EC22520783F00F07405 /* TransferConfirm */,
-				84D97EB3251FC4A900F07405 /* Transfer */,
 				84585A32251CE1BF00390F7A /* Contacts */,
 				8490151924ABC343008F705E /* History */,
 				35542AFCBEC3F0BD298F5030 /* HistoryFilter */,
-				8490150924AB8A3A008F705E /* AccountList */,
+				849E2330254AEF9F00B1F6D4 /* InvoiceScan */,
+				84FAB07F2543A7D700319F74 /* Receive */,
+				8460E1142541E01B00826F55 /* Style */,
+				84FD3DBC25419FC200A234E3 /* TransactionDetails */,
+				84D97EB3251FC4A900F07405 /* Transfer */,
+				84D97EC22520783F00F07405 /* TransferConfirm */,
+				84D97ECD2521CA2100F07405 /* View */,
+				8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */,
+				8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */,
+				849014FE24AB69A4008F705E /* WalletContextFactory.swift */,
 				8490150E24AB8A3A008F705E /* WalletEmptyStateDataSource.swift */,
 				8490150824AB8A3A008F705E /* WalletEmptyStateDataSource+Module.swift */,
-				849014FE24AB69A4008F705E /* WalletContextFactory.swift */,
-				8490152A24ABD0A2008F705E /* WalletCommonConfigurator.swift */,
-				8490152024ABC721008F705E /* WalletStaticImageViewModel.swift */,
-				8490152824ABCFDA008F705E /* WalletCommandDecorator.swift */,
-				84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */,
 				8419378025442FEE00CFA50C /* WalletQRCoderFactory.swift */,
+				84FB1F642526879200E0242B /* WalletSingleProviderIdFactory.swift */,
+				8490152024ABC721008F705E /* WalletStaticImageViewModel.swift */,
 			);
 			path = Wallet;
 			sourceTree = "<group>";
@@ -5040,6 +5046,7 @@
 				F472A8D6261758DE003C58BC /* SwiftFormat */,
 				849013CD24A92260008F705E /* Swiftlint */,
 				849013CE24A92280008F705E /* R.swift */,
+				AE2060202636DA5900357578 /* Inject keys */,
 				849013A424A80984008F705E /* Sources */,
 				849013A524A80984008F705E /* Frameworks */,
 				849013A624A80984008F705E /* Resources */,
@@ -5061,6 +5068,7 @@
 				37CB4B90B98CFA452A29AA46 /* [CP] Check Pods Manifest.lock */,
 				842D1E8824D207C700C30A7A /* Modules Mock */,
 				842D1E8924D207D900C30A7A /* Common Mock */,
+				AE2060272636E31200357578 /* Inject Keys */,
 				849013BA24A80986008F705E /* Sources */,
 				849013BB24A80986008F705E /* Frameworks */,
 				849013BC24A80986008F705E /* Resources */,
@@ -5408,6 +5416,42 @@
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"$PODS_ROOT/R.swift/rswift\" generate \"$PROJECT_DIR/R.generated.swift\"\n";
+		};
+		AE2060202636DA5900357578 /* Inject keys */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject keys";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Installing\nCURRENT_DIR=\"$PWD\"\ncd /tmp\ncurl -OL https://github.com/LucianoPAlmeida/variable-injector/releases/download/0.2.1/x86_64-apple-macosx.zip\nunzip x86_64-apple-macosx.zip\ncp -f ./x86_64-apple-macosx/release/variable-injector /usr/local/bin/variable-injector\nrm ./x86_64-apple-macosx.zip\nrm -rf ./x86_64-apple-macosx\nrm -rf ./__MACOSX/\ncd \"$CURRENT_DIR\"\n#Running\nvariable-injector --file ${SRCROOT}/fearless/Common/PurchaseProvider/CI.swift --verbose\n";
+		};
+		AE2060272636E31200357578 /* Inject Keys */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Inject Keys";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Installing \nCURRENT_DIR=\"$PWD\"\ncd /tmp\ncurl -OL https://github.com/LucianoPAlmeida/variable-injector/releases/download/0.2.1/x86_64-apple-macosx.zip\nunzip x86_64-apple-macosx.zip\ncp -f ./x86_64-apple-macosx/release/variable-injector /usr/local/bin/variable-injector\nrm ./x86_64-apple-macosx.zip\nrm -rf ./x86_64-apple-macosx\nrm -rf ./__MACOSX/\ncd \"$CURRENT_DIR\"\n#Running \nvariable-injector --file ${SRCROOT}/fearless/Common/PurchaseProvider/CI.swift --verbose\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -5984,8 +6028,10 @@
 				84452F5325D5BD2A00F47EC5 /* RuntimeRegistryService.swift in Sources */,
 				8428769524AE046300D91AD8 /* AboutViewController.swift in Sources */,
 				84364D6625325A8B00281F9A /* StakingLedger.swift in Sources */,
+				AEBE17F02636A8FF00DF257C /* MoonPayCIKeys.swift in Sources */,
 				AEE4E34D25E915ED00D6DF31 /* RewardCalculatorServiceProtocol.swift in Sources */,
 				849013DD24A927E2008F705E /* KeystoreExtensions.swift in Sources */,
+				AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */,
 				8490152B24ABD0A2008F705E /* WalletCommonConfigurator.swift in Sources */,
 				AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */,
 				8428765F24ADE0BB00D91AD8 /* UserSettings.swift in Sources */,
