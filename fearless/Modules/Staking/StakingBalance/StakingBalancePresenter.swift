@@ -49,6 +49,11 @@ final class StakingBalancePresenter {
     var controllerAccountIsAvailable: Bool {
         stashItem != nil
     }
+
+    var unbondingRequestsLimitExceeded: Bool {
+        guard let stakingLedger = stakingLedger else { return false }
+        return stakingLedger.unlocking.count >= SubstrateConstants.maxUnbondingRequests
+    }
 }
 
 extension StakingBalancePresenter: StakingBalancePresenterProtocol {
@@ -78,6 +83,10 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         case .bondMore:
             wireframe.showBondMore(from: view)
         case .unbond:
+            guard !unbondingRequestsLimitExceeded else {
+                wireframe.presentUnbondingLimitReached(from: view, locale: selectedLocale)
+                return
+            }
             wireframe.showUnbond(from: view)
         case .redeem:
             wireframe.showRedeem(from: view)
