@@ -40,7 +40,7 @@ final class StakingBalanceInteractor {
         self.operationManager = operationManager
     }
 
-    func fetchStakingBalance() -> CompoundOperationWrapper<StakingBalanceData?> {
+    func createStakingBalance() -> CompoundOperationWrapper<StakingBalanceData?> {
         let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
         let stakingLedgerWrapper = createStakingLedgerOperation(
@@ -214,24 +214,36 @@ final class StakingBalanceInteractor {
             options: options
         )
     }
+
+    private func subsribeToActiveEra() {
+        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+
+        let activeEraWrapper: CompoundOperationWrapper<ActiveEraInfo?> =
+            localStorageRequestFactory.queryItems(
+                repository: chainStorage,
+                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
+                params: StorageRequestParams(path: .activeEra)
+            )
+        activeEraWrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let activeEra = try activeEraWrapper
+                        .targetOperation.extractNoCancellableResultData()?.index
+                    self.presenter.didReceive(activeEraResult: .success(activeEra))
+                } catch {
+                    self.presenter.didReceive(activeEraResult: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: activeEraWrapper.allOperations + [codingFactoryOperation], in: .transient)
+    }
 }
 
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
         subscribeToElectionStatus()
-        let balanceWrapper = fetchStakingBalance()
-        balanceWrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let balanceData = try balanceWrapper.targetOperation
-                        .extractNoCancellableResultData()!
-                    self.presenter?.didReceive(balanceResult: .success(balanceData))
-                } catch {
-                    self.presenter?.didReceive(balanceResult: .failure(error))
-                }
-            }
-        }
-        operationManager.enqueue(operations: balanceWrapper.allOperations, in: .transient)
+        subsribeToActiveEra()
     }
 }

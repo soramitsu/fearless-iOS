@@ -5,6 +5,8 @@ final class StakingBalancePresenter {
     let wireframe: StakingBalanceWireframeProtocol
     weak var view: StakingBalanceViewProtocol?
 
+    private var activeEra: EraIndex?
+    private var stakingLedger: DyStakingLedger?
     private var priceData: PriceData?
     private var electionStatus: ElectionStatus?
 
@@ -38,6 +40,28 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
 }
 
 extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
+    func didReceive(ledgerResult: Result<DyStakingLedger?, Error>) {
+        switch ledgerResult {
+        case let .success(ledger):
+            stakingLedger = ledger
+            updateView()
+        case let .failure(error):
+            stakingLedger = nil
+            updateView()
+        }
+    }
+
+    func didReceive(activeEraResult: Result<EraIndex?, Error>) {
+        switch activeEraResult {
+        case let .success(activeEra):
+            self.activeEra = activeEra
+            updateView()
+        case let .failure(error):
+            activeEra = nil
+            updateView()
+        }
+    }
+
     func didReceive(balanceResult: Result<StakingBalanceData, Error>) {
         switch balanceResult {
         case let .success(balance):
