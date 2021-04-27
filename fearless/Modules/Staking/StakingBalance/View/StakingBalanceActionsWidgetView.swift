@@ -76,7 +76,9 @@ private final class StakingBalanceActionButton: RoundedButton {
         roundedBackgroundView?.backgroundColor = .clear
         roundedBackgroundView?.strokeColor = .clear
         roundedBackgroundView?.fillColor = .clear
+        roundedBackgroundView?.highlightedFillColor = .clear
         roundedBackgroundView?.shadowColor = .clear
+        changesContentOpacityWhenHighlighted = true
 
         imageWithTitleView?.layoutType = .verticalImageFirst
         imageWithTitleView?.iconImage = action.iconImage
