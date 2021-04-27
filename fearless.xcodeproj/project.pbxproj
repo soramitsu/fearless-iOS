@@ -899,7 +899,6 @@
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
 		AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */; };
 		AE2060DB2637694A00357578 /* MoonPayCIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2060DA2637694A00357578 /* MoonPayCIKeys.generated.swift */; };
-		AE2060E526376C1000357578 /* env-vars.sh in Resources */ = {isa = PBXBuildFile; fileRef = AE2060BD26370BF800357578 /* env-vars.sh */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
 		AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C846425EE884900986716 /* RewardViewModelFactory.swift */; };
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
@@ -1971,7 +1970,6 @@
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
 		AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = MoonPayCIKeys.stencil; sourceTree = "<group>"; };
-		AE2060BD26370BF800357578 /* env-vars.sh */ = {isa = PBXFileReference; lastKnownFileType = text.script.sh; path = "env-vars.sh"; sourceTree = "<group>"; };
 		AE2060DA2637694A00357578 /* MoonPayCIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.generated.swift; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
 		AE2C846425EE884900986716 /* RewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModelFactory.swift; sourceTree = "<group>"; };
@@ -3522,7 +3520,6 @@
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
-				AE2060BD26370BF800357578 /* env-vars.sh */,
 				AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
@@ -5361,7 +5358,6 @@
 				8428769424AE046300D91AD8 /* AboutViewController.xib in Resources */,
 				849013FB24A92A05008F705E /* fearless.dev.xcconfig in Resources */,
 				84452F7725D5E2B300F47EC5 /* runtime-kusama.json in Resources */,
-				AE2060E526376C1000357578 /* env-vars.sh in Resources */,
 				842876A924AE049B00D91AD8 /* SelectionSubtitleTableViewCell.xib in Resources */,
 				1D04A0D7AF8D65AC0BDDEFA3 /* UsernameSetupViewController.xib in Resources */,
 				C90FC89D4CCDF3232AC2F2F0 /* AccountCreateViewController.xib in Resources */,
@@ -5597,7 +5593,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "INPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Input Directory = $INPUT_DIR\"\n\nOUTPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Output Directory = $OUTPUT_DIR\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$INPUT_DIR\" --sources . --output \"$OUTPUT_DIR\" --args secretKey=$MOONPAY_PRODUCTION_SECRET,testSecretKey=$MOONPAY_TEST_SECRET\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nINPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Input Directory = $INPUT_DIR\"\n\nOUTPUT_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Output Directory = $OUTPUT_DIR\"\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
