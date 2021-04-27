@@ -16246,6 +16246,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func handleUnbondingMoreAction()  {
+        
+    return cuckoo_manager.call("handleUnbondingMoreAction()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handleUnbondingMoreAction())
+        
+    }
+    
 
 	 struct __StubbingProxy_StakingBalancePresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -16263,6 +16278,11 @@ import SoraFoundation
 	    func handleAction<M1: Cuckoo.Matchable>(_ action: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingBalanceAction)> where M1.MatchedType == StakingBalanceAction {
 	        let matchers: [Cuckoo.ParameterMatcher<(StakingBalanceAction)>] = [wrap(matchable: action) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalancePresenterProtocol.self, method: "handleAction(_: StakingBalanceAction)", parameterMatchers: matchers))
+	    }
+	    
+	    func handleUnbondingMoreAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalancePresenterProtocol.self, method: "handleUnbondingMoreAction()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -16293,6 +16313,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("handleAction(_: StakingBalanceAction)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func handleUnbondingMoreAction() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("handleUnbondingMoreAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -16307,6 +16333,10 @@ import SoraFoundation
     }
     
      func handleAction(_ action: StakingBalanceAction)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func handleUnbondingMoreAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -16716,6 +16746,21 @@ import SoraFoundation
     
     
     
+     func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption)  {
+        
+    return cuckoo_manager.call("showRebond(from: ControllerBackedProtocol?, option: StakingRebondOption)",
+            parameters: (view, option),
+            escapingParameters: (view, option),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showRebond(from: view, option: option))
+        
+    }
+    
+    
+    
      func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
@@ -16768,6 +16813,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method: "showRedeem(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
+	    func showRebond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, option: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, StakingRebondOption)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingRebondOption {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingRebondOption)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: option) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method: "showRebond(from: ControllerBackedProtocol?, option: StakingRebondOption)", parameterMatchers: matchers))
+	    }
+	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingBalanceWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
@@ -16813,6 +16863,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showRebond<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, option: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, StakingRebondOption), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == StakingRebondOption {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, StakingRebondOption)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: option) { $0.1 }]
+	        return cuckoo_manager.verify("showRebond(from: ControllerBackedProtocol?, option: StakingRebondOption)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -16842,6 +16898,10 @@ import SoraFoundation
     }
     
      func showRedeem(from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
