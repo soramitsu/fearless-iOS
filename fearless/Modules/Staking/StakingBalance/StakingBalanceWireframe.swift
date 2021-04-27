@@ -10,4 +10,8 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showRedeem(from _: ControllerBackedProtocol?) {
         // TODO:
     }
+
+    func showRebond(from _: ControllerBackedProtocol?, option _: StakingRebondOption) {
+        // TODO:
+    }
 }

@@ -100,7 +100,7 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
             let title = option.titleForLocale(locale)
             let action = AlertPresentableAction(title: title) { [weak self] in
-                print(option)
+                self?.wireframe.showRebond(from: self?.view, option: option)
             }
             return action
         }
