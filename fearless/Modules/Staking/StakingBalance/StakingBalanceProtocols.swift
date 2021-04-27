@@ -11,6 +11,7 @@ protocol StakingBalanceViewModelFactoryProtocol {
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
     func handleAction(_ action: StakingBalanceAction)
+    func handleUnbondingMoreAction()
 }
 
 protocol StakingBalanceInteractorInputProtocol: AnyObject {
