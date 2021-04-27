@@ -94,6 +94,28 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
             wireframe.showRedeem(from: view)
         }
     }
+
+    func handleUnbondingMoreAction() {
+        let locale = view?.localizationManager?.selectedLocale
+        let actions = StakingRebondOption.allCases.map { option -> AlertPresentableAction in
+            let title = option.titleForLocale(locale)
+            let action = AlertPresentableAction(title: title) { [weak self] in
+                self?.wireframe.showRebond(from: self?.view, option: option)
+            }
+            return action
+        }
+
+        let title = R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale?.rLanguages)
+        let closeTitle = R.string.localizable.commonCancel(preferredLanguages: locale?.rLanguages)
+        let viewModel = AlertPresentableViewModel(
+            title: title,
+            message: nil,
+            actions: actions,
+            closeAction: closeTitle
+        )
+
+        wireframe.present(viewModel: viewModel, style: .actionSheet, from: view)
+    }
 }
 
 extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {

@@ -32,7 +32,14 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
+
         rootView.actionsWidget.delegate = self
+        rootView.unbondingWidget.moreButton.addTarget(
+            self,
+            action: #selector(handleUnbondingMoreButton),
+            for: .touchUpInside
+        )
+
         setupNavigationBarStyle()
         presenter.setup()
     }
@@ -44,6 +51,11 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
         let navBarHeight = navigationBar.bounds.height
         let blurHeight = statusBarHeight + navBarHeight
         rootView.navBarBlurViewHeightConstraint.update(offset: blurHeight)
+    }
+
+    @objc
+    private func handleUnbondingMoreButton() {
+        presenter.handleUnbondingMoreAction()
     }
 }
 

@@ -346,3 +346,7 @@ Derivation path: %@";
 "staking.payout.sent" = "Payout transaction sent";
 "staking.your.validators.title" = "Your validators";
 "wallet.balance.unbonding" = "Unbonding";
+"staking.rebond.all" = "Rebond all";
+"staking.rebond.last" = "Rebond last";
+"staking.rebond.custom.amount" = "Rebond custom amount";
+"staking.unbonding.empty.list" = "Your unbondings will appear here.";

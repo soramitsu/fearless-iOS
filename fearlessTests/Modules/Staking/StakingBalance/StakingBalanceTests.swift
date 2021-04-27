@@ -89,6 +89,20 @@ class StakingBalanceTests: XCTestCase {
 
         // then
         wait(for: [showRedeemExpectation], timeout: Constants.defaultExpectationDuration)
+
+
+        // given
+        let showRebondActionSheetExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).present(viewModel: any(), style: any(), from: any()).then { _ in
+                showRebondActionSheetExpectation.fulfill()
+            }
+        }
+        // when
+        presenter.handleUnbondingMoreAction()
+
+        // then
+        wait(for: [showRebondActionSheetExpectation], timeout: Constants.defaultExpectationDuration)
     }
 
     func testCancelStakingBalanceModuleWhenStashItemIsNil() {

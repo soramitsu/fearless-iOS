@@ -23,6 +23,12 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         return button
     }()
 
+    private let unbondingsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        return stackView
+    }()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -62,11 +68,36 @@ final class StakingBalanceUnbondingWidgetView: UIView {
             make.top.equalTo(separatorView.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
+
+        addSubview(unbondingsStackView)
+        unbondingsStackView.snp.makeConstraints { make in
+            make.top.equalTo(separatorView.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalToSuperview().inset(8)
+        }
     }
 
     func bind(viewModel: StakingBalanceUnbondingWidgetViewModel) {
         titleLabel.text = viewModel.title
-        emptyListLabel.text = viewModel.emptyListDescription
-        // TODO: show list
+
+        if viewModel.unbondings.isEmpty {
+            emptyListLabel.text = viewModel.emptyListDescription
+            emptyListLabel.isHidden = false
+            unbondingsStackView.isHidden = true
+            moreButton.isEnabled = false
+        } else {
+            emptyListLabel.isHidden = true
+            unbondingsStackView.isHidden = false
+            moreButton.isEnabled = true
+
+            let itemViews = viewModel.unbondings.map { viewModel -> UIView in
+                let itemView = StakingBalanceUnbondingItemView()
+                itemView.bind(model: viewModel)
+                return itemView
+            }
+
+            unbondingsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
+            itemViews.forEach { unbondingsStackView.addArrangedSubview($0) }
+        }
     }
 }

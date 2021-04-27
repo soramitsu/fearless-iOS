@@ -11,6 +11,7 @@ protocol StakingBalanceViewModelFactoryProtocol {
 protocol StakingBalancePresenterProtocol: AnyObject {
     func setup()
     func handleAction(_ action: StakingBalanceAction)
+    func handleUnbondingMoreAction()
 }
 
 protocol StakingBalanceInteractorInputProtocol: AnyObject {
@@ -30,5 +31,6 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
     func showBondMore(from view: ControllerBackedProtocol?)
     func showUnbond(from view: ControllerBackedProtocol?)
     func showRedeem(from view: ControllerBackedProtocol?)
+    func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption)
     func cancel(from view: ControllerBackedProtocol?)
 }

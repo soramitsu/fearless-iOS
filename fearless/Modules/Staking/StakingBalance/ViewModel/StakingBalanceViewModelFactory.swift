@@ -28,10 +28,16 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
                 locale: locale
             )
 
+            let unbondingViewModel = createUnbondingViewModel(
+                balanceData: balanceData,
+                precision: precision,
+                locale: locale
+            )
+
             return StakingBalanceViewModel(
                 widgetViewModel: widgetViewModel,
                 actionsViewModel: createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
-                unbondingViewModel: createUnbondingViewModel(from: balanceData, precision: precision, locale: locale)
+                unbondingViewModel: unbondingViewModel
             )
         }
     }
@@ -103,35 +109,53 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     }
 
     func createUnbondingViewModel(
-        from balanceData: StakingBalanceData,
+        balanceData: StakingBalanceData,
         precision: Int16,
         locale: Locale
     ) -> StakingBalanceUnbondingWidgetViewModel {
-        StakingBalanceUnbondingWidgetViewModel(
+        let viewModels = createUnbondingsViewModels(
+            from: balanceData,
+            priceData: balanceData.priceData,
+            precision: precision,
+            locale: locale
+        )
+        return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
                 .walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
-            emptyListDescription: "Your unbondings will appear here.", // TODO:
-            unbondings: createUnbondingsViewModels(from: balanceData, precision: precision, locale: locale)
+            emptyListDescription: R.string.localizable
+                .stakingUnbondingEmptyList(preferredLanguages: locale.rLanguages),
+            unbondings: viewModels
         )
     }
 
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
+        priceData: PriceData?,
         precision: Int16,
-        locale _: Locale
+        locale: Locale
     ) -> [UnbondingItemViewModel] {
-        balanceData.stakingLedger.unlocking
+        balanceData.stakingLedger
+            .unboundings(inEra: balanceData.activeEra)
+            .sorted(by: { $0.era > $1.era })
             .map { unbondingItem -> UnbondingItemViewModel in
-                let tokenAmount = Decimal
+                let unbondingAmountDecimal = Decimal
                     .fromSubstrateAmount(
                         unbondingItem.value,
                         precision: precision
                     ) ?? .zero
+                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+                let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
+                let daysLeft = daysLeftAttributedString(
+                    activeEra: balanceData.activeEra,
+                    unbondingEra: unbondingItem.era,
+                    locale: locale
+                )
+
                 return UnbondingItemViewModel(
-                    addressOrName: "Unbond",
-                    daysLeftText: .init(string: "days left"),
-                    tokenAmountText: tokenAmount.description,
-                    usdAmountText: "10"
+                    addressOrName: R.string.localizable.stakingUnbond(preferredLanguages: locale.rLanguages),
+                    daysLeftText: daysLeft,
+                    tokenAmountText: tokenAmount,
+                    usdAmountText: usdAmount
                 )
             }
     }
@@ -153,10 +177,9 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     private func daysLeftAttributedString(
         activeEra: EraIndex,
         unbondingEra: EraIndex,
-        historyDepth: UInt32,
         locale: Locale
     ) -> NSAttributedString {
-        let eraDistance = historyDepth - (activeEra - unbondingEra)
+        let eraDistance = unbondingEra - activeEra
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let daysLeftText = R.string.localizable
             .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)

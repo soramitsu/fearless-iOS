@@ -11,6 +11,10 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         // TODO:
     }
 
+    func showRebond(from _: ControllerBackedProtocol?, option _: StakingRebondOption) {
+        // TODO:
+    }
+
     func cancel(from view: ControllerBackedProtocol?) {
         view?.controller.navigationController?.popViewController(animated: true)
     }
