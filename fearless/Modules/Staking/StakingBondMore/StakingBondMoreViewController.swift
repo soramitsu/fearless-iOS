@@ -25,7 +25,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = StakingBalanceViewLayout()
+        view = StakingBondMoreViewLayout()
     }
 
     override func viewDidLoad() {
@@ -45,7 +45,7 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            // TODO:
+            title = R.string.localizable.stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }
