@@ -81,6 +81,7 @@ private final class StakingBalanceActionButton: RoundedButton {
         imageWithTitleView?.layoutType = .verticalImageFirst
         imageWithTitleView?.iconImage = action.iconImage
         imageWithTitleView?.titleFont = .p2Paragraph
+        imageWithTitleView?.titleColor = R.color.colorWhite()
         imageWithTitleView?.title = action.title(for: .autoupdatingCurrent)
     }
 
