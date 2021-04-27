@@ -38,7 +38,12 @@ final class StakingBalanceViewController: UIViewController, ViewHolder {
     }
 
     private func setupNavigationBarStyle() {
-        // TODO:
+        guard let navigationBar = navigationController?.navigationBar else { return }
+
+        let statusBarHeight = UIApplication.shared.statusBarFrame.size.height
+        let navBarHeight = navigationBar.bounds.height
+        let blurHeight = statusBarHeight + navBarHeight
+        rootView.navBarBlurViewHeightConstraint.update(offset: blurHeight)
     }
 }
 

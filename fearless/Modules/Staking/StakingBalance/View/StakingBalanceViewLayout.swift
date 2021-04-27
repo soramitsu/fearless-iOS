@@ -1,8 +1,16 @@
 import UIKit
+import SnapKit
 
 final class StakingBalanceViewLayout: UIView {
     let backgroundView: UIView = UIImageView(image: R.image.backgroundImage())
 
+    let navBarBlurView: UIView = {
+        let blurView = TriangularedBlurView()
+        blurView.cornerCut = .none
+        return blurView
+    }()
+
+    var navBarBlurViewHeightConstraint: Constraint!
     let balanceWidget = StakingBalanceWidgetView()
     let actionsWidget = StakingBalanceActionsWidgetView()
     let unbondingWidget = StakingBalanceUnbondingWidgetView()
@@ -21,6 +29,13 @@ final class StakingBalanceViewLayout: UIView {
     private func setupLayout() {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+        addSubview(navBarBlurView)
+        navBarBlurView.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview()
+            self.navBarBlurViewHeightConstraint = make.height.equalTo(0).constraint
+            self.navBarBlurViewHeightConstraint.activate()
+        }
 
         let scrollView = UIScrollView()
         addSubview(scrollView)
