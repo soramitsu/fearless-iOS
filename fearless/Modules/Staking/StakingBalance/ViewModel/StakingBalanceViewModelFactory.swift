@@ -136,13 +136,13 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> [UnbondingItemViewModel] {
         balanceData.stakingLedger.unlocking
             .map { unbondingItem -> UnbondingItemViewModel in
-                let unondingAmountDecimal = Decimal
+                let unbondingAmountDecimal = Decimal
                     .fromSubstrateAmount(
                         unbondingItem.value,
                         precision: precision
                     ) ?? .zero
-                let tokenAmount = tokenAmountText(unondingAmountDecimal, locale: locale)
-                let usdAmount = priceText(unondingAmountDecimal, priceData: priceData, locale: locale)
+                let tokenAmount = tokenAmountText(unbondingAmountDecimal, locale: locale)
+                let usdAmount = priceText(unbondingAmountDecimal, priceData: priceData, locale: locale)
                 let daysLeft = daysLeftAttributedString(
                     activeEra: balanceData.activeEra,
                     unbondingEra: unbondingItem.era,
