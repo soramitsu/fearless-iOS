@@ -31,7 +31,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             return StakingBalanceViewModel(
                 widgetViewModel: widgetViewModel,
                 actionsViewModel: createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
-                unbondings: createUnbondingsViewModels(from: balanceData, precision: precision, locale: locale)
+                unbondingViewModel: createUnbondingViewModel(from: balanceData, precision: precision, locale: locale)
             )
         }
     }
@@ -99,6 +99,19 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             unbondTitle: StakingBalanceAction.unbond.title(for: locale),
             redeemTitle: StakingBalanceAction.redeem.title(for: locale),
             redeemActionIsAvailable: redeemableDecimal > 0
+        )
+    }
+
+    func createUnbondingViewModel(
+        from balanceData: StakingBalanceData,
+        precision: Int16,
+        locale: Locale
+    ) -> StakingBalanceUnbondingWidgetViewModel {
+        StakingBalanceUnbondingWidgetViewModel(
+            title: R.string.localizable
+                .walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+            emptyListDescription: "Your unbondings will appear here.", // TODO:
+            unbondings: createUnbondingsViewModels(from: balanceData, precision: precision, locale: locale)
         )
     }
 

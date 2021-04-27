@@ -14,7 +14,6 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()?.withAlphaComponent(0.64)
-        label.text = "Your unbondings will appear here." // TODO:
         return label
     }()
 
@@ -68,5 +67,11 @@ final class StakingBalanceUnbondingWidgetView: UIView {
             make.top.equalTo(separatorView.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
+    }
+
+    func bind(viewModel: StakingBalanceUnbondingWidgetViewModel) {
+        titleLabel.text = viewModel.title
+        emptyListLabel.text = viewModel.emptyListDescription
+        // TODO: show list
     }
 }

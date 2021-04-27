@@ -51,9 +51,6 @@ extension StakingBalanceViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             title = R.string.localizable.stakingBalanceTitle(preferredLanguages: selectedLocale.rLanguages)
-
-            rootView.unbondingWidget.titleLabel.text = R.string.localizable
-                .walletBalanceUnbonding(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }
@@ -64,6 +61,7 @@ extension StakingBalanceViewController: StakingBalanceViewProtocol {
 
         rootView.balanceWidget.bind(viewModel: localizedViewModel.widgetViewModel)
         rootView.actionsWidget.bind(viewModel: localizedViewModel.actionsViewModel)
+        rootView.unbondingWidget.bind(viewModel: localizedViewModel.unbondingViewModel)
     }
 }
 
