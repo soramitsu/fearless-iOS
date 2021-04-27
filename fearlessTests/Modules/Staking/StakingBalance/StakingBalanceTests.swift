@@ -104,4 +104,30 @@ class StakingBalanceTests: XCTestCase {
         // then
         wait(for: [showRebondActionSheetExpectation], timeout: Constants.defaultExpectationDuration)
     }
+
+    func testCancelStakingBalanceModuleWhenStashItemIsNil() {
+        let interactor = MockStakingBalanceInteractorInputProtocol()
+        let wireframe = MockStakingBalanceWireframeProtocol()
+        let presenter = StakingBalancePresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
+            accountAddress: ""
+        )
+        let view = MockStakingBalanceViewProtocol()
+        presenter.view = view
+
+        // given
+        let cancelExpectation = XCTestExpectation()
+        stub(wireframe) { stub in
+            when(stub).cancel(from: any()).then { _ in
+                cancelExpectation.fulfill()
+            }
+        }
+        // when
+        presenter.didReceive(stashItemResult: .success(nil))
+
+        // then
+        wait(for: [cancelExpectation], timeout: Constants.defaultExpectationDuration)
+    }
 }

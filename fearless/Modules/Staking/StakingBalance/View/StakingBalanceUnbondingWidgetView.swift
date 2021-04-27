@@ -1,7 +1,11 @@
 import UIKit
 
 final class StakingBalanceUnbondingWidgetView: UIView {
-    private let backgroundView: UIView = TriangularedBlurView()
+    private let backgroundView: UIView = {
+        let blurView = TriangularedBlurView()
+        blurView.blurStyle = .dark
+        return blurView
+    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -21,12 +25,6 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         let button = UIButton()
         button.setImage(R.image.iconHorMore(), for: .normal)
         return button
-    }()
-
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorWhite()?.withAlphaComponent(0.24)
-        return view
     }()
 
     private let unbondingsStackView: UIStackView = {
@@ -61,6 +59,7 @@ final class StakingBalanceUnbondingWidgetView: UIView {
             make.centerY.equalTo(titleLabel.snp.centerY)
         }
 
+        let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
         addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(15)

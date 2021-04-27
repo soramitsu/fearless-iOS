@@ -165,6 +165,9 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         switch stashItemResult {
         case let .success(stashItem):
             self.stashItem = stashItem
+            if stashItem == nil {
+                wireframe.cancel(from: view)
+            }
         case .failure:
             stashItem = nil
         }
