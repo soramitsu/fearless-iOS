@@ -35,7 +35,14 @@ final class StakingBalanceActionsWidgetView: UIView {
             make.edges.equalToSuperview()
         }
 
-        let stackView = UIStackView(arrangedSubviews: [bondMoreButton, unbondButton, redeemButton])
+        let firstSeparator = UIView.createSeparator(color: R.color.colorLightGray()?.withAlphaComponent(0.24))
+        let secondSeparator = UIView.createSeparator(color: R.color.colorLightGray()?.withAlphaComponent(0.24))
+        let stackView = UIStackView(
+            arrangedSubviews: [bondMoreButton, firstSeparator, unbondButton, secondSeparator, redeemButton]
+        )
+        [firstSeparator, secondSeparator].forEach { separator in
+            separator.snp.makeConstraints { $0.width.equalTo(1) }
+        }
         stackView.distribution = .equalSpacing
 
         backgroundView.addSubview(stackView)
