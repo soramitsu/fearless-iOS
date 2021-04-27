@@ -15,18 +15,33 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
 
     func createViewModel(from balanceData: StakingBalanceData) -> LocalizableResource<StakingBalanceViewModel> {
         LocalizableResource { locale in
-            StakingBalanceViewModel(
-                widgetViewModels: createWidgetViewModels(from: balanceData, locale: locale),
-                unbondings: createUnbondingsViewModels(from: balanceData, locale: locale)
+            let precision = chain.addressType.precision
+            let redeemableDecimal = Decimal.fromSubstrateAmount(
+                balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
+                precision: precision
+            )
+
+            let widgetViewModels = createWidgetViewModels(
+                from: balanceData,
+                precision: precision,
+                redeemableDecimal: redeemableDecimal,
+                locale: locale
+            )
+
+            return StakingBalanceViewModel(
+                widgetViewModels: widgetViewModels,
+                actionsViewModel: createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
+                unbondings: createUnbondingsViewModels(from: balanceData, precision: precision, locale: locale)
             )
         }
     }
 
     func createWidgetViewModels(
         from balanceData: StakingBalanceData,
+        precision: Int16,
+        redeemableDecimal: Decimal?,
         locale: Locale
     ) -> [StakingBalanceWidgetViewModel] {
-        let precision = chain.addressType.precision
         var viewModels = [StakingBalanceWidgetViewModel]()
 
         if let bondedDecimal = Decimal.fromSubstrateAmount(
@@ -57,10 +72,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             viewModels.append(viewModel)
         }
 
-        if let redeemableDecimal = Decimal.fromSubstrateAmount(
-            balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
-            precision: precision
-        ) {
+        if let redeemableDecimal = redeemableDecimal {
             let redeemableAmountTokenText = tokenAmountText(redeemableDecimal, locale: locale)
             let redeemableUsdText = priceText(redeemableDecimal, priceData: balanceData.priceData, locale: locale)
             let viewModel = StakingBalanceWidgetViewModel(
@@ -74,12 +86,24 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return viewModels
     }
 
+    func createActionsViewModel(
+        redeemableDecimal: Decimal?,
+        locale: Locale
+    ) -> StakingBalanceActionsWidgetViewModel {
+        StakingBalanceActionsWidgetViewModel(
+            bondTitle: StakingBalanceAction.bondMore.title(for: locale),
+            unbondTitle: StakingBalanceAction.unbond.title(for: locale),
+            redeemTitle: StakingBalanceAction.redeem.title(for: locale),
+            redeemActionIsAvailable: (redeemableDecimal ?? 0) > 0
+        )
+    }
+
     func createUnbondingsViewModels(
         from balanceData: StakingBalanceData,
+        precision: Int16,
         locale _: Locale
     ) -> [UnbondingItemViewModel] {
-        let precision: Int16 = 0
-        return balanceData.stakingLedger.unlocking
+        balanceData.stakingLedger.unlocking
             .map { unbondingItem -> UnbondingItemViewModel in
                 let tokenAmount = Decimal
                     .fromSubstrateAmount(

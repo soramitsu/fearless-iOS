@@ -8,5 +8,6 @@ struct StakingBalanceWidgetViewModel {
 
 struct StakingBalanceViewModel {
     let widgetViewModels: [StakingBalanceWidgetViewModel]
+    let actionsViewModel: StakingBalanceActionsWidgetViewModel
     let unbondings: [UnbondingItemViewModel]
 }

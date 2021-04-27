@@ -57,6 +57,13 @@ final class StakingBalanceActionsWidgetView: UIView {
         guard let actionButton = sender as? StakingBalanceActionButton else { return }
         delegate?.didSelect(action: actionButton.action)
     }
+
+    func bind(viewModel: StakingBalanceActionsWidgetViewModel) {
+        bondMoreButton.imageWithTitleView?.title = viewModel.bondTitle
+        unbondButton.imageWithTitleView?.title = viewModel.unbondTitle
+        redeemButton.imageWithTitleView?.title = viewModel.redeemTitle
+        redeemButton.isEnabled = viewModel.redeemActionIsAvailable
+    }
 }
 
 private final class StakingBalanceActionButton: RoundedButton {
