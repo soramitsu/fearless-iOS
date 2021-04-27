@@ -134,7 +134,8 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         precision: Int16,
         locale: Locale
     ) -> [UnbondingItemViewModel] {
-        balanceData.stakingLedger.unlocking
+        balanceData.stakingLedger
+            .unboundings(inEra: balanceData.activeEra)
             .sorted(by: { $0.era > $1.era })
             .map { unbondingItem -> UnbondingItemViewModel in
                 let unbondingAmountDecimal = Decimal
@@ -178,7 +179,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         unbondingEra: EraIndex,
         locale: Locale
     ) -> NSAttributedString {
-        let eraDistance = activeEra - unbondingEra
+        let eraDistance = unbondingEra - activeEra
         let daysLeft = Int(eraDistance) / chain.erasPerDay
         let daysLeftText = R.string.localizable
             .stakingPayoutsDaysLeft(format: daysLeft, preferredLanguages: locale.rLanguages)
