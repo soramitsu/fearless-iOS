@@ -68,8 +68,14 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showStakingBalance(from _: ControllerBackedProtocol?) {
-        // TODO: FLW-768
+    func showStakingBalance(from view: ControllerBackedProtocol?) {
+        guard let stakingBalance = StakingBalanceViewFactory.createView() else { return }
+        let controller = stakingBalance.controller
+        controller.hidesBottomBarWhenPushed = true
+
+        view?.controller
+            .navigationController?
+            .pushViewController(controller, animated: true)
     }
 
     func showNominatorValidators(from view: ControllerBackedProtocol?) {

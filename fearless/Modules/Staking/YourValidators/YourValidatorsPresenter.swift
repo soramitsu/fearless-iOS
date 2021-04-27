@@ -16,7 +16,7 @@ extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
 }
 
 extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
-    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {}
+    func didReceiveValidators(result _: Result<YourValidatorsModel?, Error>) {}
 
-    func didReceiveElectionStatus(result: Result<ElectionStatus, Error>) {}
+    func didReceiveElectionStatus(result _: Result<ElectionStatus, Error>) {}
 }

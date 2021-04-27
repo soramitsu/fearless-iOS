@@ -88,7 +88,7 @@ extension YourValidatorsInteractor {
         }
     }
 
-    private func handle(nomination: Nomination?, stashAddress: AccountAddress) {
+    private func handle(nomination: Nomination?, stashAddress _: AccountAddress) {
         guard let nomination = nomination else {
             presenter.didReceiveValidators(result: .success(nil))
             return

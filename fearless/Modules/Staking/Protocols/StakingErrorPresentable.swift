@@ -11,6 +11,8 @@ protocol StakingErrorPresentable {
         locale: Locale?
     )
     func presentPayoutFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
+    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -100,5 +102,21 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             style: .alert,
             from: view
         )
+    }
+
+    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable.stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable.stakingUnbondingLimitReachedTitle(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }
