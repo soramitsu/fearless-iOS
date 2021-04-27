@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 protocol StakingBalanceActionsWidgetViewDelegate: AnyObject {
     func didSelect(action: StakingBalanceAction)
@@ -45,52 +46,32 @@ final class StakingBalanceActionsWidgetView: UIView {
     }
 
     @objc
-    func handleActionButton(sender: UIButton) {
+    func handleActionButton(sender: UIControl) {
         guard let actionButton = sender as? StakingBalanceActionButton else { return }
         delegate?.didSelect(action: actionButton.action)
     }
 }
 
-private final class StakingBalanceActionButton: UIButton {
+private final class StakingBalanceActionButton: RoundedButton {
     let action: StakingBalanceAction
-
-    let iconImageView = UIImageView()
-
-    let actionTitleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p2Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
 
     init(action: StakingBalanceAction) {
         self.action = action
         super.init(frame: .zero)
-        setupLayout()
 
-        iconImageView.image = action.iconImage
-        iconImageView.isUserInteractionEnabled = false
+        roundedBackgroundView?.backgroundColor = .clear
+        roundedBackgroundView?.strokeColor = .clear
+        roundedBackgroundView?.fillColor = .clear
+        roundedBackgroundView?.shadowColor = .clear
 
-        actionTitleLabel.text = action.title(for: .current)
-        actionTitleLabel.isUserInteractionEnabled = false
+        imageWithTitleView?.layoutType = .verticalImageFirst
+        imageWithTitleView?.iconImage = action.iconImage
+        imageWithTitleView?.titleFont = .p2Paragraph
+        imageWithTitleView?.title = action.title(for: .autoupdatingCurrent)
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func setupLayout() {
-        addSubview(iconImageView)
-        iconImageView.snp.makeConstraints { make in
-            make.top.centerX.equalToSuperview()
-            make.size.equalTo(24)
-        }
-
-        addSubview(actionTitleLabel)
-        actionTitleLabel.snp.makeConstraints { make in
-            make.top.equalTo(iconImageView.snp.bottom).offset(8)
-            make.bottom.leading.trailing.equalToSuperview()
-        }
     }
 }
