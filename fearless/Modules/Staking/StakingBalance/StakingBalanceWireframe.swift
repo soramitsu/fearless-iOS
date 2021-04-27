@@ -10,4 +10,8 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     func showRedeem(from _: ControllerBackedProtocol?) {
         // TODO:
     }
+
+    func cancel(from view: ControllerBackedProtocol?) {
+        view?.controller.navigationController?.popViewController(animated: true)
+    }
 }
