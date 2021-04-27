@@ -15,6 +15,7 @@ final class StakingBalanceInteractor {
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
+    var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?

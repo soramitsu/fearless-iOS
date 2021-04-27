@@ -74,27 +74,38 @@ extension StakingBalanceInteractor {
     }
 
     func subsribeToActiveEra() {
-        let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
+        guard activeEraProvider == nil else { return }
 
-        let activeEraWrapper: CompoundOperationWrapper<ActiveEraInfo?> =
-            localStorageRequestFactory.queryItems(
-                repository: chainStorage,
-                factory: { try codingFactoryOperation.extractNoCancellableResultData() },
-                params: StorageRequestParams(path: .activeEra)
-            )
-        activeEraWrapper.targetOperation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let activeEra = try activeEraWrapper
-                        .targetOperation.extractNoCancellableResultData()?.index
-                    self.presenter.didReceive(activeEraResult: .success(activeEra))
-                } catch {
-                    self.presenter.didReceive(activeEraResult: .failure(error))
-                }
+        guard let activeEraProvider = try? providerFactory
+            .getActiveEra(for: chain, runtimeService: runtimeCodingService)
+        else {
+            return
+        }
+
+        self.activeEraProvider = activeEraProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedActiveEra>]) in
+            if let activeEra = changes.reduceToLastChange() {
+                self?.presenter.didReceive(activeEraResult: .success(activeEra.item?.index))
             }
         }
 
-        operationManager.enqueue(operations: activeEraWrapper.allOperations + [codingFactoryOperation], in: .transient)
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(electionStatusResult: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        activeEraProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
     }
 
     func subscribeToStashControllerProvider() {
