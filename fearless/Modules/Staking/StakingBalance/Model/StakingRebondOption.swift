@@ -7,14 +7,14 @@ enum StakingRebondOption: CaseIterable {
 }
 
 extension StakingRebondOption {
-    func titleForLocale(_: Locale?) -> String {
+    func titleForLocale(_ locale: Locale?) -> String {
         switch self {
         case .all:
-            return "Rebond all"
+            return R.string.localizable.stakingRebondAll(preferredLanguages: locale?.rLanguages)
         case .last:
-            return "Rebond last"
+            return R.string.localizable.stakingRebondLast(preferredLanguages: locale?.rLanguages)
         case .customAmount:
-            return "Rebond custom amount"
+            return R.string.localizable.stakingRebondCustomAmount(preferredLanguages: locale?.rLanguages)
         }
     }
 }
