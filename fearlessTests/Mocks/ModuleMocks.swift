@@ -14406,6 +14406,51 @@ import RobinHood
         
     }
     
+    
+    
+     func allSelectedOperation(by nomination: Nomination, nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        
+    return cuckoo_manager.call("allSelectedOperation(by: Nomination, nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>",
+            parameters: (nomination, nominatorAddress),
+            escapingParameters: (nomination, nominatorAddress),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.allSelectedOperation(by: nomination, nominatorAddress: nominatorAddress))
+        
+    }
+    
+    
+    
+     func activeValidatorsOperation(for nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        
+    return cuckoo_manager.call("activeValidatorsOperation(for: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>",
+            parameters: (nominatorAddress),
+            escapingParameters: (nominatorAddress),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.activeValidatorsOperation(for: nominatorAddress))
+        
+    }
+    
+    
+    
+     func pendingValidatorsOperation(for accountIds: [AccountId]) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        
+    return cuckoo_manager.call("pendingValidatorsOperation(for: [AccountId]) -> CompoundOperationWrapper<[SelectedValidatorInfo]>",
+            parameters: (accountIds),
+            escapingParameters: (accountIds),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.pendingValidatorsOperation(for: accountIds))
+        
+    }
+    
 
 	 struct __StubbingProxy_ValidatorOperationFactoryProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -14418,6 +14463,21 @@ import RobinHood
 	    func allElectedOperation() -> Cuckoo.ProtocolStubFunction<(), CompoundOperationWrapper<[ElectedValidatorInfo]>> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactoryProtocol.self, method: "allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>", parameterMatchers: matchers))
+	    }
+	    
+	    func allSelectedOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(by nomination: M1, nominatorAddress: M2) -> Cuckoo.ProtocolStubFunction<(Nomination, AccountAddress), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == Nomination, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(Nomination, AccountAddress)>] = [wrap(matchable: nomination) { $0.0 }, wrap(matchable: nominatorAddress) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactoryProtocol.self, method: "allSelectedOperation(by: Nomination, nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", parameterMatchers: matchers))
+	    }
+	    
+	    func activeValidatorsOperation<M1: Cuckoo.Matchable>(for nominatorAddress: M1) -> Cuckoo.ProtocolStubFunction<(AccountAddress), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: nominatorAddress) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactoryProtocol.self, method: "activeValidatorsOperation(for: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", parameterMatchers: matchers))
+	    }
+	    
+	    func pendingValidatorsOperation<M1: Cuckoo.Matchable>(for accountIds: M1) -> Cuckoo.ProtocolStubFunction<([AccountId]), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == [AccountId] {
+	        let matchers: [Cuckoo.ParameterMatcher<([AccountId])>] = [wrap(matchable: accountIds) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorOperationFactoryProtocol.self, method: "pendingValidatorsOperation(for: [AccountId]) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -14442,6 +14502,24 @@ import RobinHood
 	        return cuckoo_manager.verify("allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func allSelectedOperation<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(by nomination: M1, nominatorAddress: M2) -> Cuckoo.__DoNotUse<(Nomination, AccountAddress), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == Nomination, M2.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(Nomination, AccountAddress)>] = [wrap(matchable: nomination) { $0.0 }, wrap(matchable: nominatorAddress) { $0.1 }]
+	        return cuckoo_manager.verify("allSelectedOperation(by: Nomination, nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func activeValidatorsOperation<M1: Cuckoo.Matchable>(for nominatorAddress: M1) -> Cuckoo.__DoNotUse<(AccountAddress), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: nominatorAddress) { $0 }]
+	        return cuckoo_manager.verify("activeValidatorsOperation(for: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func pendingValidatorsOperation<M1: Cuckoo.Matchable>(for accountIds: M1) -> Cuckoo.__DoNotUse<([AccountId]), CompoundOperationWrapper<[SelectedValidatorInfo]>> where M1.MatchedType == [AccountId] {
+	        let matchers: [Cuckoo.ParameterMatcher<([AccountId])>] = [wrap(matchable: accountIds) { $0 }]
+	        return cuckoo_manager.verify("pendingValidatorsOperation(for: [AccountId]) -> CompoundOperationWrapper<[SelectedValidatorInfo]>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -14453,6 +14531,18 @@ import RobinHood
     
      func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>  {
         return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<[ElectedValidatorInfo]>).self)
+    }
+    
+     func allSelectedOperation(by nomination: Nomination, nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<[SelectedValidatorInfo]>).self)
+    }
+    
+     func activeValidatorsOperation(for nominatorAddress: AccountAddress) -> CompoundOperationWrapper<[SelectedValidatorInfo]>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<[SelectedValidatorInfo]>).self)
+    }
+    
+     func pendingValidatorsOperation(for accountIds: [AccountId]) -> CompoundOperationWrapper<[SelectedValidatorInfo]>  {
+        return DefaultValueRegistry.defaultValue(for: (CompoundOperationWrapper<[SelectedValidatorInfo]>).self)
     }
     
 }
@@ -20110,16 +20200,16 @@ import SoraFoundation
     
     
     
-     func showNominatorValidators(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)  {
+     func showNominatorValidators(from view: ControllerBackedProtocol?)  {
         
-    return cuckoo_manager.call("showNominatorValidators(from: ControllerBackedProtocol?, stashAddress: AccountAddress)",
-            parameters: (view, stashAddress),
-            escapingParameters: (view, stashAddress),
+    return cuckoo_manager.call("showNominatorValidators(from: ControllerBackedProtocol?)",
+            parameters: (view),
+            escapingParameters: (view),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showNominatorValidators(from: view, stashAddress: stashAddress))
+            defaultCall: __defaultImplStub!.showNominatorValidators(from: view))
         
     }
     
@@ -20212,9 +20302,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStakingBalance(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
-	    func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, stashAddress: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showNominatorValidators(from: ControllerBackedProtocol?, stashAddress: AccountAddress)", parameterMatchers: matchers))
+	    func showNominatorValidators<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showNominatorValidators(from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func showAccountsSelection<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(StakingMainViewProtocol?)> where M1.OptionalMatchedType == StakingMainViewProtocol {
@@ -20291,9 +20381,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func showNominatorValidators<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, stashAddress: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }]
-	        return cuckoo_manager.verify("showNominatorValidators(from: ControllerBackedProtocol?, stashAddress: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showNominatorValidators<M1: Cuckoo.OptionalMatchable>(from view: M1) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == ControllerBackedProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("showNominatorValidators(from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -20351,7 +20441,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func showNominatorValidators(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)   {
+     func showNominatorValidators(from view: ControllerBackedProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -37,7 +37,7 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
 }
 
 enum ValidatorMyNominationStatus {
-    case active(amount: BigUInt)
+    case active(amount: Decimal)
     case inactive
     case waiting
     case slashed

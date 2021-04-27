@@ -12,11 +12,17 @@ final class YourValidatorsPresenter {
 }
 
 extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
-    func setup() {}
+    func setup() {
+        interactor.setup()
+    }
 }
 
 extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
-    func didReceiveValidators(result _: Result<YourValidatorsModel?, Error>) {}
+    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
+        Logger.shared.info("Validators: \(result)")
+    }
+
+    func didReceiveController(result _: Result<AccountItem?, Error>) {}
 
     func didReceiveElectionStatus(result _: Result<ElectionStatus, Error>) {}
 }

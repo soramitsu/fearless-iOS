@@ -10,10 +10,12 @@ protocol YourValidatorsPresenterProtocol: AnyObject {
 
 protocol YourValidatorsInteractorInputProtocol: AnyObject {
     func setup()
+    func refresh()
 }
 
 protocol YourValidatorsInteractorOutputProtocol: AnyObject {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
+    func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveElectionStatus(result: Result<ElectionStatus, Error>)
 }
 
