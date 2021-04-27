@@ -32,7 +32,7 @@ open class TriangularedBlurView: UIView {
         }
     }
 
-    var blurStyle: UIBlurEffect.Style = .regular {
+    var blurStyle: UIBlurEffect.Style = .dark {
         didSet {
             removeBlurView()
             addBlurView()
