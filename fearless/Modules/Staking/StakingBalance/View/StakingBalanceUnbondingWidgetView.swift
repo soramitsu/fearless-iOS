@@ -1,7 +1,11 @@
 import UIKit
 
 final class StakingBalanceUnbondingWidgetView: UIView {
-    private let backgroundView: UIView = TriangularedBlurView()
+    private let backgroundView: UIView = {
+        let blurView = TriangularedBlurView()
+        blurView.blurStyle = .dark
+        return blurView
+    }()
 
     let titleLabel: UILabel = {
         let label = UILabel()
