@@ -27,12 +27,6 @@ final class StakingBalanceUnbondingWidgetView: UIView {
         return button
     }()
 
-    private let separatorView: UIView = {
-        let view = UIView()
-        view.backgroundColor = R.color.colorWhite()?.withAlphaComponent(0.24)
-        return view
-    }()
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -59,6 +53,7 @@ final class StakingBalanceUnbondingWidgetView: UIView {
             make.centerY.equalTo(titleLabel.snp.centerY)
         }
 
+        let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
         addSubview(separatorView)
         separatorView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(15)
