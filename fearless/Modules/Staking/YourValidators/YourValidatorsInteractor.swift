@@ -14,6 +14,11 @@ final class YourValidatorsInteractor {
     let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
 
+    var stashControllerProvider: StreamableProvider<StashItem>?
+    var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
+    var nominatorProvider: AnyDataProvider<DecodedNomination>?
+    var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+
     init(
         providerFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,

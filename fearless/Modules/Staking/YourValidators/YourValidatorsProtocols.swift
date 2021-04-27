@@ -13,7 +13,7 @@ protocol YourValidatorsInteractorInputProtocol: AnyObject {
 }
 
 protocol YourValidatorsInteractorOutputProtocol: AnyObject {
-    func didReceiveValidators(result: Result<YourValidatorsModel, Error>)
+    func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
     func didReceiveElectionStatus(result: Result<ElectionStatus, Error>)
 }
 
