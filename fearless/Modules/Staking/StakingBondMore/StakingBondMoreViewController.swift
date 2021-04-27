@@ -45,7 +45,10 @@ extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
 extension StakingBondMoreViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
-            title = R.string.localizable.stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
+            title = R.string.localizable
+                .stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
+            rootView.continueButton.imageWithTitleView?.title = R.string.localizable
+                .commonContinue(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }
