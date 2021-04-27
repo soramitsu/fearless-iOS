@@ -10,7 +10,7 @@ final class StakingBalanceUnbondingItemView: UIView {
         UIImageView(image: R.image.iconStakingTransactionType())
     }()
 
-    private let addressLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.lineBreakMode = .byTruncatingMiddle
@@ -56,8 +56,8 @@ final class StakingBalanceUnbondingItemView: UIView {
             make.width.equalTo(Constants.iconSize)
         }
 
-        addSubview(addressLabel)
-        addressLabel.snp.makeConstraints { make in
+        addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2)
             make.top.equalToSuperview().inset(Constants.verticalInset)
         }
@@ -65,7 +65,7 @@ final class StakingBalanceUnbondingItemView: UIView {
         addSubview(daysLeftLabel)
         daysLeftLabel.snp.makeConstraints { make in
             make.leading.equalTo(transactionTypeView.snp.trailing).offset(UIConstants.horizontalInset / 2)
-            make.top.equalTo(addressLabel.snp.bottom)
+            make.top.equalTo(titleLabel.snp.bottom)
             make.bottom.equalToSuperview().inset(Constants.verticalInset)
         }
 
@@ -73,7 +73,7 @@ final class StakingBalanceUnbondingItemView: UIView {
         tokenAmountLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalToSuperview().inset(Constants.verticalInset)
-            make.leading.greaterThanOrEqualTo(addressLabel.snp.trailing).offset(UIConstants.horizontalInset / 2)
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset / 2)
         }
 
         addSubview(usdAmountLabel)
@@ -86,8 +86,8 @@ final class StakingBalanceUnbondingItemView: UIView {
 }
 
 extension StakingBalanceUnbondingItemView {
-    func bind(model: StakingRewardHistoryCellViewModel) {
-        addressLabel.text = model.addressOrName
+    func bind(model: UnbondingItemViewModel) {
+        titleLabel.text = model.addressOrName
         daysLeftLabel.attributedText = model.daysLeftText
         tokenAmountLabel.text = model.tokenAmountText
         usdAmountLabel.text = model.usdAmountText
