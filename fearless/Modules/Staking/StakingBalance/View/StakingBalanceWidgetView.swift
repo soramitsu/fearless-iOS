@@ -56,7 +56,7 @@ extension StakingBalanceWidgetView {
 
         let separators = (0 ..< itemViews.count).map { _ -> UIView in
             let separatorView = UIView()
-            separatorView.backgroundColor = R.color.colorWhite()?.withAlphaComponent(0.4)
+            separatorView.backgroundColor = R.color.colorWhite()?.withAlphaComponent(0.24)
             return separatorView
         }
 
@@ -69,7 +69,7 @@ extension StakingBalanceWidgetView {
 
         separators.dropLast().forEach { separator in
             separator.snp.makeConstraints {
-                $0.height.equalTo(0.75)
+                $0.height.equalTo(0.75 / UIScreen.main.scale)
                 $0.width.equalToSuperview()
             }
         }
