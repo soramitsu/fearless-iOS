@@ -5,7 +5,6 @@ final class StakingBalanceWidgetView: UIView {
 
     let balanceTitleLabel: UILabel = {
         let label = UILabel()
-        label.text = "Balance" // TODO:
         label.font = .h5Title
         label.textColor = R.color.colorWhite()
         return label
@@ -45,8 +44,10 @@ final class StakingBalanceWidgetView: UIView {
 }
 
 extension StakingBalanceWidgetView {
-    func bind(viewModels: [StakingBalanceWidgetViewModel]) {
-        let itemViews = viewModels.map { viewModel -> UIView in
+    func bind(viewModel: StakingBalanceWidgetViewModel) {
+        balanceTitleLabel.text = viewModel.title
+
+        let itemViews = viewModel.itemViewModels.map { viewModel -> UIView in
             let itemView = StakingBalanceWidgetItemView()
             itemView.titleLabel.text = viewModel.title
             itemView.tokenAmountLabel.text = viewModel.tokenAmountText

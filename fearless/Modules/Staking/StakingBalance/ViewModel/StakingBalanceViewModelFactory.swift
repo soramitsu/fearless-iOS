@@ -19,9 +19,9 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             let redeemableDecimal = Decimal.fromSubstrateAmount(
                 balanceData.stakingLedger.redeemable(inEra: balanceData.activeEra),
                 precision: precision
-            )
+            ) ?? 0.0
 
-            let widgetViewModels = createWidgetViewModels(
+            let widgetViewModel = createWidgetViewModel(
                 from: balanceData,
                 precision: precision,
                 redeemableDecimal: redeemableDecimal,
@@ -29,72 +29,76 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
             )
 
             return StakingBalanceViewModel(
-                widgetViewModels: widgetViewModels,
+                widgetViewModel: widgetViewModel,
                 actionsViewModel: createActionsViewModel(redeemableDecimal: redeemableDecimal, locale: locale),
                 unbondings: createUnbondingsViewModels(from: balanceData, precision: precision, locale: locale)
             )
         }
     }
 
-    func createWidgetViewModels(
+    func createWidgetViewModel(
         from balanceData: StakingBalanceData,
         precision: Int16,
-        redeemableDecimal: Decimal?,
+        redeemableDecimal: Decimal,
         locale: Locale
-    ) -> [StakingBalanceWidgetViewModel] {
-        var viewModels = [StakingBalanceWidgetViewModel]()
-
-        if let bondedDecimal = Decimal.fromSubstrateAmount(
+    ) -> StakingBalanceWidgetViewModel {
+        let bondedDecimal = Decimal.fromSubstrateAmount(
             balanceData.stakingLedger.active,
             precision: precision
-        ) {
-            let bondedAmountTokenText = tokenAmountText(bondedDecimal, locale: locale)
-            let bondedUsdText = priceText(bondedDecimal, priceData: balanceData.priceData, locale: locale)
-            let viewModel = StakingBalanceWidgetViewModel(
-                title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
-                tokenAmountText: bondedAmountTokenText,
-                usdAmountText: bondedUsdText
-            )
-            viewModels.append(viewModel)
-        }
+        ) ?? 0.0
+        let bondedViewModel = createWidgetItemViewModel(
+            amount: bondedDecimal,
+            title: R.string.localizable.walletBalanceBonded(preferredLanguages: locale.rLanguages),
+            priceData: balanceData.priceData,
+            locale: locale
+        )
 
-        if let unbondedDecimal = Decimal.fromSubstrateAmount(
+        let unbondedDecimal = Decimal.fromSubstrateAmount(
             balanceData.stakingLedger.unbounding(inEra: balanceData.activeEra),
             precision: precision
-        ) {
-            let unbondedAmountTokenText = tokenAmountText(unbondedDecimal, locale: locale)
-            let unbondedUsdText = priceText(unbondedDecimal, priceData: balanceData.priceData, locale: locale)
-            let viewModel = StakingBalanceWidgetViewModel(
-                title: R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
-                tokenAmountText: unbondedAmountTokenText,
-                usdAmountText: unbondedUsdText
-            )
-            viewModels.append(viewModel)
-        }
+        ) ?? 0.0
+        let unbondedViewModel = createWidgetItemViewModel(
+            amount: unbondedDecimal,
+            title: R.string.localizable.walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
+            priceData: balanceData.priceData,
+            locale: locale
+        )
 
-        if let redeemableDecimal = redeemableDecimal {
-            let redeemableAmountTokenText = tokenAmountText(redeemableDecimal, locale: locale)
-            let redeemableUsdText = priceText(redeemableDecimal, priceData: balanceData.priceData, locale: locale)
-            let viewModel = StakingBalanceWidgetViewModel(
-                title: R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages),
-                tokenAmountText: redeemableAmountTokenText,
-                usdAmountText: redeemableUsdText
-            )
-            viewModels.append(viewModel)
-        }
+        let redeemableViewModel = createWidgetItemViewModel(
+            amount: redeemableDecimal,
+            title: R.string.localizable.walletBalanceRedeemable(preferredLanguages: locale.rLanguages),
+            priceData: balanceData.priceData,
+            locale: locale
+        )
 
-        return viewModels
+        return StakingBalanceWidgetViewModel(
+            title: R.string.localizable.commonBalance(preferredLanguages: locale.rLanguages),
+            itemViewModels: [bondedViewModel, unbondedViewModel, redeemableViewModel]
+        )
+    }
+
+    func createWidgetItemViewModel(
+        amount: Decimal,
+        title: String,
+        priceData: PriceData?,
+        locale: Locale
+    ) -> StakingBalanceWidgetItemViewModel {
+        StakingBalanceWidgetItemViewModel(
+            title: title,
+            tokenAmountText: tokenAmountText(amount, locale: locale),
+            usdAmountText: priceText(amount, priceData: priceData, locale: locale)
+        )
     }
 
     func createActionsViewModel(
-        redeemableDecimal: Decimal?,
+        redeemableDecimal: Decimal,
         locale: Locale
     ) -> StakingBalanceActionsWidgetViewModel {
         StakingBalanceActionsWidgetViewModel(
             bondTitle: StakingBalanceAction.bondMore.title(for: locale),
             unbondTitle: StakingBalanceAction.unbond.title(for: locale),
             redeemTitle: StakingBalanceAction.redeem.title(for: locale),
-            redeemActionIsAvailable: (redeemableDecimal ?? 0) > 0
+            redeemActionIsAvailable: redeemableDecimal > 0
         )
     }
 

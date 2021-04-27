@@ -341,6 +341,7 @@ Derivation path: %@";
 "staking.bond.more" = "Bond more";
 "staking.unbond" = "Unbond";
 "staking.redeem" = "Redeem";
+"common.balance" = "Balance";
 "staking.balance.title" = "Staking balance";
 "staking.payout.sent" = "Payout transaction sent";
 "staking.your.validators.title" = "Your validators";

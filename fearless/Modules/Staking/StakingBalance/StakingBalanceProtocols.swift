@@ -30,5 +30,5 @@ protocol StakingBalanceWireframeProtocol: AlertPresentable, ErrorPresentable, St
     func showBondMore(from view: ControllerBackedProtocol?)
     func showUnbond(from view: ControllerBackedProtocol?)
     func showRedeem(from view: ControllerBackedProtocol?)
-    // func cancel() когда stashItem == nil
+    // TODO: add func cancel() when stashItem == nil
 }
