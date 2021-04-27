@@ -122,7 +122,8 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         return StakingBalanceUnbondingWidgetViewModel(
             title: R.string.localizable
                 .walletBalanceUnbonding(preferredLanguages: locale.rLanguages),
-            emptyListDescription: "Your unbondings will appear here.", // TODO:
+            emptyListDescription: R.string.localizable
+                .stakingUnbondingEmptyList(preferredLanguages: locale.rLanguages),
             unbondings: viewModels
         )
     }

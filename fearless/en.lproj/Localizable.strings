@@ -349,3 +349,4 @@ Derivation path: %@";
 "staking.rebond.all" = "Rebond all";
 "staking.rebond.last" = "Rebond last";
 "staking.rebond.custom.amount" = "Rebond custom amount";
+"staking.unbonding.empty.list" = "Your unbondings will appear here.";
