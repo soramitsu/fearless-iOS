@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 final class YourValidatorsPresenter {
     weak var view: YourValidatorsViewProtocol?
@@ -15,6 +16,7 @@ final class YourValidatorsPresenter {
     private var electionStatus: ElectionStatus?
     private var ledger: DyStakingLedger?
     private var rewardDestinationArg: RewardDestinationArg?
+    private var lastError: Error?
 
     init(
         interactor: YourValidatorsInteractorInputProtocol,
@@ -31,7 +33,17 @@ final class YourValidatorsPresenter {
     }
 
     private func updateView() {
+        guard lastError == nil else {
+            let errorDescription = LocalizableResource { locale in
+                R.string.localizable
+                    .commonErrorNoDataRetrieved(preferredLanguages: locale.rLanguages)
+            }
+            view?.reload(state: .error(errorDescription))
+            return
+        }
+
         guard let model = validatorsModel else {
+            view?.reload(state: .loading)
             return
         }
 
@@ -43,8 +55,18 @@ final class YourValidatorsPresenter {
         }
     }
 
-    private func handle(error _: Error) {
-        // TODO:
+    private func handle(error: Error) {
+        lastError = error
+        validatorsModel = nil
+
+        updateView()
+    }
+
+    private func handle(validatorsModel: YourValidatorsModel?) {
+        self.validatorsModel = validatorsModel
+        lastError = nil
+
+        updateView()
     }
 }
 
@@ -53,7 +75,10 @@ extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
         interactor.setup()
     }
 
-    func refresh() {
+    func retry() {
+        validatorsModel = nil
+        lastError = nil
+
         interactor.refresh()
     }
 
@@ -118,12 +143,10 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
         switch result {
         case let .success(item):
-            validatorsModel = item
+            handle(validatorsModel: item)
         case let .failure(error):
             handle(error: error)
         }
-
-        updateView()
     }
 
     func didReceiveController(result: Result<AccountItem?, Error>) {

@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class YourValidatorsViewController: UIViewController, ViewHolder {
     typealias RootViewType = YourValidatorsViewLayout
@@ -155,10 +156,51 @@ extension YourValidatorsViewController: UITableViewDelegate {
     }
 }
 
+extension YourValidatorsViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.retry()
+    }
+}
+
+extension YourValidatorsViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension YourValidatorsViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        guard let state = viewState else { return nil }
+
+        switch state {
+        case let .error(error):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = error.value(for: selectedLocale)
+            errorView.delegate = self
+            return errorView
+        case .loading, .validatorList:
+            return nil
+        }
+    }
+}
+
+extension YourValidatorsViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        guard let state = viewState else { return false }
+        switch state {
+        case .error:
+            return true
+        case .loading, .validatorList:
+            return false
+        }
+    }
+}
+
 extension YourValidatorsViewController: YourValidatorsViewProtocol {
     func reload(state: YourValidatorsViewState) {
         viewState = state
+
         rootView.tableView.reloadData()
+        reloadEmptyState(animated: true)
     }
 }
 

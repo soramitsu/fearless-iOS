@@ -3,9 +3,8 @@ import SoraFoundation
 import FearlessUtils
 
 enum YourValidatorsViewState {
-    case loading(Bool)
+    case loading
     case validatorList([YourValidatorsSection])
-    case emptyList
     case error(LocalizableResource<String>)
 
     var validatorSections: [YourValidatorsSection]? {
