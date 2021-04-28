@@ -139,14 +139,29 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
             payoutOperation.addDependency(erasRewardDistributionWrapper.targetOperation)
             payoutOperation.addDependency(historyRangeWrapper.targetOperation)
 
-            let overviewOperations = [codingFactoryOperation] + historyRangeWrapper.allOperations
-                + erasRewardDistributionWrapper.allOperations
-            let validatorsResolutionOperations = validatorsWrapper.allOperations
-                + controllersWrapper.allOperations + ledgerInfos.allOperations
-                + [unclaimedErasByStashOperation]
-            let validatorsAndEraInfoOperations = exposuresByEraWrapper.allOperations
-                + prefsByEraWrapper.allOperations + identityWrapper.allOperations
-                + [eraInfoOperation]
+            let overviewOperations: [Operation] = {
+                var array = [Operation]()
+                array.append(contentsOf: historyRangeWrapper.allOperations)
+                array.append(contentsOf: erasRewardDistributionWrapper.allOperations)
+                array.append(codingFactoryOperation)
+                return array
+            }()
+            let validatorsResolutionOperations: [Operation] = {
+                var array = [Operation]()
+                array.append(contentsOf: validatorsWrapper.allOperations)
+                array.append(contentsOf: controllersWrapper.allOperations)
+                array.append(contentsOf: ledgerInfos.allOperations)
+                array.append(unclaimedErasByStashOperation)
+                return array
+            }()
+            let validatorsAndEraInfoOperations: [Operation] = {
+                var array = [Operation]()
+                array.append(contentsOf: exposuresByEraWrapper.allOperations)
+                array.append(contentsOf: prefsByEraWrapper.allOperations)
+                array.append(contentsOf: identityWrapper.allOperations)
+                array.append(eraInfoOperation)
+                return array
+            }()
 
             let dependencies = overviewOperations + validatorsResolutionOperations
                 + validatorsAndEraInfoOperations
