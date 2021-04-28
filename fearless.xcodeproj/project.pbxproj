@@ -939,6 +939,7 @@
 		AE89727B25F21F26008EC414 /* ValidatorInfoNestingCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89727A25F21F26008EC414 /* ValidatorInfoNestingCell.xib */; };
 		AE8972A325F2232C008EC414 /* ValidatorInfoInformationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE8972A225F2232C008EC414 /* ValidatorInfoInformationCell.xib */; };
 		AE8972AB25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE8972AA25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib */; };
+		AE8E67CD263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
 		AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF259260A82970026910A /* StoriesInteractor.swift */; };
 		AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF25E260A82A50026910A /* StoriesPresenter.swift */; };
@@ -2055,6 +2056,7 @@
 		AE89727A25F21F26008EC414 /* ValidatorInfoNestingCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoNestingCell.xib; sourceTree = "<group>"; };
 		AE8972A225F2232C008EC414 /* ValidatorInfoInformationCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoInformationCell.xib; sourceTree = "<group>"; };
 		AE8972AA25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoTitleSubtitleCell.xib; sourceTree = "<group>"; };
+		AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoEmptyStakeCell.swift; sourceTree = "<group>"; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		AE9EF259260A82970026910A /* StoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesInteractor.swift; sourceTree = "<group>"; };
 		AE9EF25E260A82A50026910A /* StoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesPresenter.swift; sourceTree = "<group>"; };
@@ -4879,13 +4881,13 @@
 				AE2C850A25F0D84E00986716 /* ValidatorInfoViewController.xib */,
 				AE2C84E825EF98D500986716 /* ValidatorInfoViewFactory.swift */,
 				AE2C84D425EF989A00986716 /* ValidatorInfoWireframe.swift */,
-				AE2C850825F0D7A500986716 /* ValidatorInfoView */,
-				AE2C850925F0D7AE00986716 /* ValidatorInfoViewModel */,
+				AE2C850825F0D7A500986716 /* View */,
+				AE2C850925F0D7AE00986716 /* ViewModel */,
 			);
 			path = ValidatorInfo;
 			sourceTree = "<group>";
 		};
-		AE2C850825F0D7A500986716 /* ValidatorInfoView */ = {
+		AE2C850825F0D7A500986716 /* View */ = {
 			isa = PBXGroup;
 			children = (
 				AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */,
@@ -4897,17 +4899,18 @@
 				AE8972AA25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib */,
 				AE74EB4225F7A1CC00C494E7 /* ValidatorInfoWebCell.xib */,
 				AE74EB5625F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift */,
+				AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */,
 			);
-			path = ValidatorInfoView;
+			path = View;
 			sourceTree = "<group>";
 		};
-		AE2C850925F0D7AE00986716 /* ValidatorInfoViewModel */ = {
+		AE2C850925F0D7AE00986716 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
 				AE89720725F12143008EC414 /* ValidatorInfoViewModel.swift */,
 				AE89720C25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift */,
 			);
-			path = ValidatorInfoViewModel;
+			path = ViewModel;
 			sourceTree = "<group>";
 		};
 		AE74EBCE25F90F2B00C494E7 /* ValidatorInfo */ = {
@@ -6318,6 +6321,7 @@
 				846AF8402525B94D00868F37 /* WalletNetworkFacade+Protocol.swift in Sources */,
 				8468B86C24F63CEF00B76BC6 /* AddAccount+AccountConfirmInteractor.swift in Sources */,
 				84754C8E2511539E00854599 /* ManagedConnectionViewModel.swift in Sources */,
+				AE8E67CD263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift in Sources */,
 				84D8F16324D8194100AF43E9 /* TitleWithSubtitleTableViewCell.swift in Sources */,
 				F462B35C260C86880005AB01 /* ViewHolder.swift in Sources */,
 				849014DE24AA8F60008F705E /* MainTabBarInteractor.swift in Sources */,

@@ -23,10 +23,7 @@ protocol ValidatorInfoViewFactoryProtocol: AnyObject {
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(
-        accountViewModel: ValidatorInfoAccountViewModelProtocol,
-        extrasViewModel: [ValidatorInfoViewController.Section]
-    )
+    func didRecieve(_ viewModel: [ValidatorInfoViewModel])
 }
 
 // MARK: - Interactor
@@ -38,7 +35,7 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 // MARK: - Presenter
 
 protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
-    func didReceive(validatorInfo: ValidatorInfoProtocol)
+    func didReceive(_ validatorInfo: ValidatorInfoProtocol)
 }
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {

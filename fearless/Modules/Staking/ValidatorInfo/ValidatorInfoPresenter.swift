@@ -48,7 +48,7 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentTotalStake() {
-        // TODO: FLW-652
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-655 Implement presentation
         #warning("Not implemented")
     }
 
@@ -100,15 +100,11 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
 }
 
 extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
-    func didReceive(validatorInfo: ValidatorInfoProtocol) {
+    func didReceive(_ validatorInfo: ValidatorInfoProtocol) {
         self.validatorInfo = validatorInfo
 
-        let accountViewModel = viewModelFactory.createAccountViewModel(from: validatorInfo)
-        let extrasViewModel = viewModelFactory.createExtrasViewModel(from: validatorInfo)
+        let viewModel = viewModelFactory.createViewModel(from: validatorInfo)
 
-        view?.didReceive(
-            accountViewModel: accountViewModel,
-            extrasViewModel: extrasViewModel
-        )
+        view?.didRecieve(viewModel)
     }
 }

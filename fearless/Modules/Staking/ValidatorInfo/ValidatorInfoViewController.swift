@@ -2,32 +2,7 @@ import UIKit
 import SoraFoundation
 
 final class ValidatorInfoViewController: UIViewController {
-    typealias Row = (rowType: RowType, content: LocalizableResource<TitleWithSubtitleViewModel>)
-    typealias Section = (sectionType: SectionType, rows: [Row])
-
-    enum RowType: Int {
-        static let accountRowHeight: CGFloat = 56.0
-        static let rowHeight: CGFloat = 48.0
-
-        case totalStake
-        case nominators
-        case estimatedReward
-        case legalName
-        case email
-        case web
-        case twitter
-        case riot
-    }
-
-    enum SectionType: Int, CaseIterable {
-        static let rowHeight: CGFloat = 52.0
-
-        case staking
-        case identity
-    }
-
-    var accountViewModel: ValidatorInfoAccountViewModelProtocol?
-    var extrasViewModel: [Section] = []
+    var viewModel: [ValidatorInfoViewModel] = []
 
     @IBOutlet var tableView: UITableView!
 
@@ -43,7 +18,6 @@ final class ValidatorInfoViewController: UIViewController {
     }
 
     private func configureTableView() {
-        // Cell for validator account display
         tableView.register(
             UINib(resource: R.nib.validatorInfoAccountCell),
             forCellReuseIdentifier: R.reuseIdentifier.validatorAccountCellId.identifier
@@ -64,37 +38,54 @@ final class ValidatorInfoViewController: UIViewController {
             forCellReuseIdentifier: R.reuseIdentifier.validatorInfoWebCellId.identifier
         )
 
+        tableView.registerClassForCell(ValidatorInfoEmptyStakeCell.self)
+
         tableView.alwaysBounceVertical = false
     }
 }
 
 extension ValidatorInfoViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        guard indexPath.section > 0 else { return RowType.accountRowHeight }
-
-        return RowType.rowHeight
+        switch viewModel[indexPath.section] {
+        case .account:
+            return ValidatorInfoViewModel.accountRowHeight
+        case .emptyStake:
+            return ValidatorInfoViewModel.emptyStakeRowHeight
+        default:
+            return ValidatorInfoViewModel.rowHeight
+        }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        guard indexPath.section > 0 else {
+        switch viewModel[indexPath.section] {
+        case .account:
             presenter.presentAccountOptions()
-            return
-        }
 
-        switch extrasViewModel[indexPath.section - 1].rows[indexPath.row].rowType {
-        case .totalStake:
-            presenter.presentTotalStake()
-        case .email:
-            presenter.activateEmail()
-        case .web:
-            presenter.activateWeb()
-        case .twitter:
-            presenter.activateTwitter()
-        case .riot:
-            presenter.activateRiotName()
-        case .estimatedReward, .legalName, .nominators:
+        case let .staking(rows):
+            switch rows[indexPath.row] {
+            case .totalStake:
+                presenter.presentTotalStake()
+            default:
+                break
+            }
+
+        case let .identity(rows):
+            switch rows[indexPath.row] {
+            case .email:
+                presenter.activateEmail()
+            case .web:
+                presenter.activateWeb()
+            case .twitter:
+                presenter.activateTwitter()
+            case .riot:
+                presenter.activateRiotName()
+            default:
+                break
+            }
+
+        default:
             break
         }
     }
@@ -102,15 +93,17 @@ extension ValidatorInfoViewController: UITableViewDelegate {
 
 extension ValidatorInfoViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        1 + extrasViewModel.count
+        viewModel.count
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch section {
-        case 0:
+        switch viewModel[section] {
+        case .account, .emptyStake:
             return 1
-        default:
-            return extrasViewModel[section - 1].rows.count
+        case let .staking(rows):
+            return rows.count
+        case let .identity(rows):
+            return rows.count
         }
     }
 
@@ -121,70 +114,97 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             return nil
         }
 
-        switch extrasViewModel[section - 1].sectionType {
-        case .staking:
+        switch viewModel[section] {
+        case .staking, .emptyStake:
             view.bind(title: R.string.localizable.stakingTitle(preferredLanguages: locale?.rLanguages))
         case .identity:
             view.bind(title: R.string.localizable.identityTitle(preferredLanguages: locale?.rLanguages))
+        default:
+            return nil
         }
 
         return view
     }
 
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        guard section > 0 else { return 0.0 }
-        return SectionType.rowHeight
+        switch viewModel[section] {
+        case .account:
+            return 0
+        default:
+            return ValidatorInfoViewModel.headerHeight
+        }
     }
 
+    // swiftlint:disable:next cyclomatic_complexity
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard indexPath.section > 0 else {
+        func informationCell(
+            with model: LocalizableResource<TitleWithSubtitleViewModel>,
+            selectionStyle: UITableViewCell.SelectionStyle = .default
+        )
+            -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorAccountCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoInformationCellId,
                 for: indexPath
             )!
+            cell.bind(model: model.value(for: locale))
+            cell.selectionStyle = selectionStyle
+            return cell
+        }
 
-            if let accountViewModel = accountViewModel {
-                cell.bind(model: accountViewModel)
-            }
+        func titleSubtitleCell(
+            with model: LocalizableResource<TitleWithSubtitleViewModel>,
+            selectionStyle: UITableViewCell.SelectionStyle = .default
+        )
+            -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId,
+                for: indexPath
+            )!
+            cell.bind(model: model.value(for: locale))
+            cell.selectionStyle = selectionStyle
+            return cell
+        }
 
+        func webCell(with model: LocalizableResource<TitleWithSubtitleViewModel>) -> UITableViewCell {
+            let cell = tableView.dequeueReusableCell(
+                withIdentifier: R.reuseIdentifier.validatorInfoWebCellId,
+                for: indexPath
+            )!
+            cell.bind(model: model.value(for: locale))
             return cell
         }
 
         let locale = self.locale ?? Locale.current
 
-        let row = extrasViewModel[indexPath.section - 1].rows[indexPath.row]
-        let rowType = row.rowType
-
-        switch rowType {
-        case .totalStake:
+        switch viewModel[indexPath.section] {
+        case let .account(model):
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoInformationCellId,
+                withIdentifier: R.reuseIdentifier.validatorAccountCellId,
                 for: indexPath
             )!
-
-            cell.bind(model: row.content.value(for: locale))
-
+            cell.bind(model: model)
             return cell
 
-        case .nominators, .estimatedReward, .legalName:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoTitleSubtitleCellId,
-                for: indexPath
-            )!
-
-            cell.selectionStyle = .none
-
-            cell.bind(model: row.content.value(for: locale))
-
+        case let .emptyStake(model):
+            let cell = tableView.dequeueReusableCellWithType(ValidatorInfoEmptyStakeCell.self)!
+            cell.bind(model: model.value(for: locale))
             return cell
 
-        case .email, .web, .twitter, .riot:
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoWebCellId,
-                for: indexPath
-            )!
-            cell.bind(model: row.content.value(for: locale))
-            return cell
+        case let .staking(rows):
+            switch rows[indexPath.row] {
+            case let .totalStake(model): return informationCell(with: model)
+            case let .nominators(model): return titleSubtitleCell(with: model, selectionStyle: .none)
+            case let .estimatedReward(model): return titleSubtitleCell(with: model, selectionStyle: .none)
+            }
+
+        case let .identity(rows):
+            switch rows[indexPath.row] {
+            case let .legalName(model): return titleSubtitleCell(with: model, selectionStyle: .none)
+            case let .email(model): return webCell(with: model)
+            case let .riot(model): return webCell(with: model)
+            case let .twitter(model): return webCell(with: model)
+            case let .web(model): return webCell(with: model)
+            }
         }
     }
 }
@@ -192,12 +212,8 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 // MARK: - ValidatorInfoViewProtocol
 
 extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
-    func didReceive(
-        accountViewModel: ValidatorInfoAccountViewModelProtocol,
-        extrasViewModel: [Section]
-    ) {
-        self.accountViewModel = accountViewModel
-        self.extrasViewModel = extrasViewModel
+    func didRecieve(_ viewModel: [ValidatorInfoViewModel]) {
+        self.viewModel = viewModel
         tableView.reloadData()
     }
 }

@@ -11,7 +11,7 @@ final class ValidatorInfoInteractor {
 
 extension ValidatorInfoInteractor: ValidatorInfoInteractorInputProtocol {
     func setup() {
-        guard let validator = validatorInfo else { return }
-        presenter?.didReceive(validatorInfo: validator)
+        guard let validatorInfo = validatorInfo else { return }
+        presenter?.didReceive(validatorInfo)
     }
 }

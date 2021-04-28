@@ -4,13 +4,10 @@ import SoraFoundation
 import CommonWallet
 
 protocol ValidatorInfoViewModelFactoryProtocol {
-    func createExtrasViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Section]
-    func createAccountViewModel(
-        from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol
+    func createViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewModel]
 }
 
-final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
+final class ValidatorInfoViewModelFactory {
     private let iconGenerator: IconGenerating
     private let asset: WalletAsset
     private let amountFormatterFactory: NumberFormatterFactoryProtocol
@@ -25,39 +22,9 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
         self.amountFormatterFactory = amountFormatterFactory
     }
 
-    func createExtrasViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewController.Section] {
-        var sections: [ValidatorInfoViewController.Section] = []
-
-        if let stakingViewModel = createStakingViewModel(from: validatorInfo) {
-            sections.append((.staking, stakingViewModel))
-        }
-
-        if let identityViewModel = createIdentityViewModel(from: validatorInfo) {
-            sections.append((.identity, identityViewModel))
-        }
-
-        return sections
-    }
-
-    func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoAccountViewModelProtocol {
-        let userIcon = try? iconGenerator.generateFromAddress(validatorInfo.address)
-            .imageWithFillColor(
-                .white,
-                size: UIConstants.normalAddressIconSize,
-                contentScale: UIScreen.main.scale
-            )
-
-        let viewModel: ValidatorInfoAccountViewModelProtocol =
-            ValidatorInfoAccountViewModel(
-                name: validatorInfo.identity?.displayName,
-                address: validatorInfo.address,
-                icon: userIcon
-            )
-
-        return viewModel
-    }
-
     // MARK: - Private functions
+
+    // MARK: Rows
 
     private func createLegalRow(with legal: String) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
@@ -111,6 +78,7 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
         }
     }
 
+    // TODO: https://soramitsu.atlassian.net/browse/FLW-655 Add max nominators and color for oversubscribed state
     private func createNominatorsRow(with nominators: [Any]) -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
             let title = R.string.localizable
@@ -138,78 +106,102 @@ final class ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol
         }
     }
 
-    private func createIdentityViewModel(
-        from validatorInfo: ValidatorInfoProtocol
-    ) -> [ValidatorInfoViewController.Row]? {
-        guard let identity = validatorInfo.identity else { return nil }
+    private func createEmptyStakeRow() -> ValidatorInfoViewModel {
+        .emptyStake(LocalizableResource { locale in
+            EmptyStakeViewModel(
+                image: R.image.iconEmptyStake()!,
+                title: R.string.localizable.validatorNotElectedDescription(preferredLanguages: locale.rLanguages)
+            )
+        })
+    }
 
-        var identityViewModel: [ValidatorInfoViewController.Row] = []
+    // MARK: - View models
 
-        if let legal = identity.legal {
-            identityViewModel.append((
-                rowType: .legalName,
-                content: createLegalRow(with: legal)
-            ))
-        }
+    private func createAccountViewModel(from validatorInfo: ValidatorInfoProtocol) -> ValidatorInfoViewModel {
+        let userIcon = try? iconGenerator.generateFromAddress(validatorInfo.address)
+            .imageWithFillColor(
+                .white,
+                size: UIConstants.normalAddressIconSize,
+                contentScale: UIScreen.main.scale
+            )
 
-        if let email = identity.email {
-            identityViewModel.append((
-                rowType: .email,
-                content: createEmailRow(with: email)
-            ))
-        }
+        let viewModel: ValidatorInfoAccountViewModelProtocol =
+            ValidatorInfoAccountViewModel(
+                name: validatorInfo.identity?.displayName,
+                address: validatorInfo.address,
+                icon: userIcon
+            )
 
-        if let web = identity.web {
-            identityViewModel.append((
-                rowType: .web,
-                content: createWebRow(with: web)
-            ))
-        }
-
-        if let twitter = identity.twitter {
-            identityViewModel.append((
-                rowType: .twitter,
-                content: createTwitterRow(with: twitter)
-            ))
-        }
-
-        if let riot = identity.riot {
-            identityViewModel.append((
-                rowType: .riot,
-                content: createRiotRow(with: riot)
-            ))
-        }
-
-        guard !identityViewModel.isEmpty else { return nil }
-
-        return identityViewModel
+        return .account(viewModel)
     }
 
     private func createStakingViewModel(
         from validatorInfo: ValidatorInfoProtocol
-    ) -> [ValidatorInfoViewController.Row]? {
-        guard let stakeInfo = validatorInfo.stakeInfo else { return nil }
+    ) -> ValidatorInfoViewModel {
+        guard let stakeInfo = validatorInfo.stakeInfo else { return createEmptyStakeRow() }
 
-        var stakingViewModel: [ValidatorInfoViewController.Row] = []
+        var stakingRows: [ValidatorInfoViewModel.StakingRow] = []
 
-        stakingViewModel.append((
-            rowType: .totalStake,
-            content: createTotalStakeRow(with: stakeInfo.totalStake)
-        ))
+        stakingRows.append(
+            .nominators(createNominatorsRow(with: stakeInfo.nominators))
+        )
 
-        stakingViewModel.append((
-            rowType: .nominators,
-            content:
-            createNominatorsRow(with: stakeInfo.nominators)
-        ))
+        stakingRows.append(
+            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake))
+        )
 
-        stakingViewModel.append((
-            rowType: .estimatedReward,
-            createEstimatedRewardRow(with: stakeInfo.stakeReturn)
-        ))
+        stakingRows.append(
+            .estimatedReward(createEstimatedRewardRow(with: stakeInfo.stakeReturn))
+        )
 
-        guard !stakingViewModel.isEmpty else { return nil }
+        return .staking(stakingRows)
+    }
 
-        return stakingViewModel
+//    case identity([IdentityRow])
+    private func createIdentityViewModel(
+        from validatorInfo: ValidatorInfoProtocol
+    ) -> ValidatorInfoViewModel? {
+        guard let identity = validatorInfo.identity else { return nil }
+
+        var identityRows: [ValidatorInfoViewModel.IdentityRow] = []
+
+        if let legal = identity.legal {
+            identityRows.append(.legalName(createLegalRow(with: legal)))
+        }
+
+        if let email = identity.email {
+            identityRows.append(.email(createEmailRow(with: email)))
+        }
+
+        if let web = identity.web {
+            identityRows.append(.web(createWebRow(with: web)))
+        }
+
+        if let twitter = identity.twitter {
+            identityRows.append(.twitter(createTwitterRow(with: twitter)))
+        }
+
+        if let riot = identity.riot {
+            identityRows.append(.riot(createRiotRow(with: riot)))
+        }
+
+        guard !identityRows.isEmpty else { return nil }
+
+        return .identity(identityRows)
+    }
+}
+
+// MARK: - ValidatorInfoViewModelFactoryProtocol
+
+extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
+    func createViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewModel] {
+        var model = [createAccountViewModel(from: validatorInfo),
+                     createStakingViewModel(from: validatorInfo)]
+
+        if let identityModel = createIdentityViewModel(from: validatorInfo) {
+            model.append(identityModel)
+        }
+
+        return model
     }
 }
