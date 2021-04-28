@@ -30,7 +30,8 @@ final class YourValidatorsViewFactory: YourValidatorsViewFactoryProtocol {
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
-            chain: chain
+            chain: chain,
+            logger: Logger.shared
         )
 
         let view = YourValidatorsViewController(

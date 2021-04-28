@@ -359,3 +359,4 @@ Derivation path: %@";
 "staking.your.waiting.format" = "Waiting (%@)";
 "staking.your.pending.format" = "Selected: %@ (max %@)";
 "staking.your.validators.changing.title" = "Your validators will change in the next era";
+"staking.validators.change.message" = "Validators change has been submitted";

@@ -25733,16 +25733,16 @@ import SoraFoundation
     
     
     
-     func refresh()  {
+     func retry()  {
         
-    return cuckoo_manager.call("refresh()",
+    return cuckoo_manager.call("retry()",
             parameters: (),
             escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.refresh())
+            defaultCall: __defaultImplStub!.retry())
         
     }
     
@@ -25790,9 +25790,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorsPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	    func retry() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorsPresenterProtocol.self, method: "refresh()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockYourValidatorsPresenterProtocol.self, method: "retry()", parameterMatchers: matchers))
 	    }
 	    
 	    func didSelectValidator<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(YourValidatorViewModel)> where M1.MatchedType == YourValidatorViewModel {
@@ -25828,9 +25828,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func refresh() -> Cuckoo.__DoNotUse<(), Void> {
+	    func retry() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("refresh()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("retry()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -25858,7 +25858,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func refresh()   {
+     func retry()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
