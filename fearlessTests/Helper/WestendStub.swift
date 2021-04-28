@@ -85,7 +85,7 @@ struct WestendStub {
                                              identity: AccountIdentity(name: "Test"),
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
-                                             oversubscribed: false,
+                                             maxNominatorsRewarded: 128,
                                              blocked: false)
         return [validator]
     }()
@@ -99,8 +99,8 @@ struct WestendStub {
                                              comission: 0.1,
                                              identity: nil,
                                              stakeReturn: 0.1,
-                                             hasSlashes: false,
-                                             oversubscribed: true,
+                                             hasSlashes: true,
+                                             maxNominatorsRewarded: 1000,
                                              blocked: false)
         return [validator]
     }()

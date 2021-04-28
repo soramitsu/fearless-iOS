@@ -22,7 +22,7 @@ final class YourValidatorsWireframe: YourValidatorsWireframeProtocol {
         existingBonding: ExistingBonding
     ) {
         guard let recommendedValidatorsView = RecommendedValidatorsViewFactory
-            .createChangeTargetsView(with: existingBonding) else {
+            .createChangeYourValidatorsView(with: existingBonding) else {
             return
         }
 
