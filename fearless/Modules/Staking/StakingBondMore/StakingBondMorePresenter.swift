@@ -23,7 +23,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     }
 
     func handleContinueAction() {
-        // TODO:
+        wireframe.showConfirmation(from: view)
     }
 }
 
