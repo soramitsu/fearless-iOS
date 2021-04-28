@@ -22,6 +22,7 @@ final class YourValidatorsInteractor {
     var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    var rewardDestinationProvider: AnyDataProvider<DecodedPayee>?
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
     init(
@@ -70,6 +71,8 @@ final class YourValidatorsInteractor {
     func handle(activeEra: EraIndex?) {
         clearStashControllerProvider()
         clearNominatorProvider()
+        clearLedgerProvider()
+        clearRewardDestinationProvider()
 
         if let activeEra = activeEra {
             subscribeToStashControllerProvider(at: activeEra)
@@ -81,10 +84,14 @@ final class YourValidatorsInteractor {
 
     func handle(stashItem: StashItem?, at activeEra: EraIndex) {
         clearNominatorProvider()
+        clearLedgerProvider()
+        clearRewardDestinationProvider()
 
         if let stashItem = stashItem {
             fetchController(for: stashItem.controller)
             subscribeToNominator(address: stashItem.stash, at: activeEra)
+            subscribeToLedger(for: stashItem.controller)
+            subscribeToRewardDestination(for: stashItem.stash)
         } else {
             presenter.didReceiveController(result: .success(nil))
             presenter.didReceiveValidators(result: .success(nil))
@@ -179,10 +186,12 @@ final class YourValidatorsInteractor {
 extension YourValidatorsInteractor: YourValidatorsInteractorInputProtocol {
     func setup() {
         subscribeToActiveEraProvider()
+        subscribeToElectionStatusProvider()
     }
 
     func refresh() {
         clearAllSubscriptions()
         subscribeToActiveEraProvider()
+        subscribeToElectionStatusProvider()
     }
 }

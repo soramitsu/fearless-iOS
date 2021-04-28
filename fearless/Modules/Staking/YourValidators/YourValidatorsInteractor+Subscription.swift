@@ -4,8 +4,11 @@ import RobinHood
 extension YourValidatorsInteractor {
     func clearAllSubscriptions() {
         clearActiveEraSubscription()
+        clearElectionStatusProvider()
         clearStashControllerProvider()
         clearNominatorProvider()
+        clearLedgerProvider()
+        clearRewardDestinationProvider()
     }
 
     func clearActiveEraSubscription() {
@@ -51,6 +54,50 @@ extension YourValidatorsInteractor {
         }
     }
 
+    func clearElectionStatusProvider() {
+        electionStatusProvider?.removeObserver(self)
+        electionStatusProvider = nil
+    }
+
+    func subscribeToElectionStatusProvider() {
+        guard electionStatusProvider == nil else {
+            return
+        }
+
+        guard let electionStatusProvider = try? providerFactory
+            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
+        else {
+            return
+        }
+
+        self.electionStatusProvider = electionStatusProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
+
+            let electionStatus = changes.reduceToLastChange()
+
+            self?.presenter.didReceiveElectionStatus(result: .success(electionStatus?.item))
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceiveElectionStatus(result: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        electionStatusProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
     func clearStashControllerProvider() {
         stashControllerProvider?.removeObserver(self)
         stashControllerProvider = nil
@@ -65,10 +112,12 @@ extension YourValidatorsInteractor {
 
         let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
             let stashItem = changes.reduceToLastChange()
+            self?.presenter.didReceiveStashItem(result: .success(stashItem))
             self?.handle(stashItem: stashItem, at: activeEra)
         }
 
         let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceiveStashItem(result: .failure(error))
             self?.presenter.didReceiveValidators(result: .failure(error))
             return
         }
@@ -89,7 +138,7 @@ extension YourValidatorsInteractor {
         nominatorProvider = nil
     }
 
-    func subscribeToNominator(address: String, at activeEra: EraIndex) {
+    func subscribeToNominator(address: AccountAddress, at activeEra: EraIndex) {
         guard nominatorProvider == nil else {
             return
         }
@@ -119,6 +168,90 @@ extension YourValidatorsInteractor {
         )
 
         nominatorProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func clearLedgerProvider() {
+        ledgerProvider?.removeObserver(self)
+        ledgerProvider = nil
+    }
+
+    func subscribeToLedger(for address: AccountAddress) {
+        guard ledgerProvider == nil else {
+            return
+        }
+
+        guard let ledgerProvider = try? providerFactory
+            .getLedgerInfoProvider(for: address, runtimeService: runtimeService)
+        else {
+            return
+        }
+
+        self.ledgerProvider = ledgerProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedLedgerInfo>]) in
+            let ledger = changes.reduceToLastChange()
+            self?.presenter.didReceiveLedger(result: .success(ledger?.item))
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceiveLedger(result: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        ledgerProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func clearRewardDestinationProvider() {
+        rewardDestinationProvider?.removeObserver(self)
+        rewardDestinationProvider = nil
+    }
+
+    func subscribeToRewardDestination(for address: AccountAddress) {
+        guard rewardDestinationProvider == nil else {
+            return
+        }
+
+        guard let rewardDestinationProvider = try? providerFactory
+            .getPayee(for: address, runtimeService: runtimeService)
+        else {
+            return
+        }
+
+        self.rewardDestinationProvider = rewardDestinationProvider
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedPayee>]) in
+            let payee = changes.reduceToLastChange()
+            self?.presenter.didReceiveRewardDestination(result: .success(payee?.item))
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceiveRewardDestination(result: .failure(error))
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        rewardDestinationProvider.addObserver(
             self,
             deliverOn: .main,
             executing: updateClosure,

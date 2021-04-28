@@ -128,6 +128,12 @@ extension YourValidatorsViewController: UITableViewDataSource {
 extension YourValidatorsViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        guard let section = viewState?.validatorSections?[indexPath.section] else {
+            return
+        }
+
+        presenter.didSelectValidator(viewModel: section.validators[indexPath.row])
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
@@ -156,7 +162,7 @@ extension YourValidatorsViewController: YourValidatorsViewProtocol {
     }
 }
 
-extension YourValidatorsViewController: Localizable {
+extension YourValidatorsViewController {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
