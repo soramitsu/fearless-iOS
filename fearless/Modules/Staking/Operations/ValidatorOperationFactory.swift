@@ -159,11 +159,21 @@ final class ValidatorOperationFactory {
     ) -> CompoundOperationWrapper<[ValidatorStakeInfo?]> {
         let addressType = chain.addressType
 
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
         let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
+
+        let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
+            dependingOn: runtimeOperation,
+            path: .maxNominatorRewardedPerValidator
+        )
+
+        maxNominatorsOperation.addDependency(runtimeOperation)
 
         let validatorsStakeInfoOperation = ClosureOperation<[ValidatorStakeInfo?]> {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
+            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
             let addressFactory = SS58AddressFactory()
 
             return try validatorIds.map { validatorId in
@@ -197,7 +207,8 @@ final class ValidatorOperationFactory {
                     return ValidatorStakeInfo(
                         nominators: nominators,
                         totalStake: totalStake,
-                        stakeReturn: stakeReturn
+                        stakeReturn: stakeReturn,
+                        oversubscribed: electedValidator.exposure.others.count > maxNominators
                     )
                 } else {
                     return nil
@@ -206,10 +217,11 @@ final class ValidatorOperationFactory {
         }
 
         validatorsStakeInfoOperation.addDependency(rewardCalculatorOperation)
+        validatorsStakeInfoOperation.addDependency(maxNominatorsOperation)
 
         return CompoundOperationWrapper(
             targetOperation: validatorsStakeInfoOperation,
-            dependencies: [rewardCalculatorOperation]
+            dependencies: [runtimeOperation, rewardCalculatorOperation, maxNominatorsOperation]
         )
     }
 
@@ -275,7 +287,8 @@ final class ValidatorOperationFactory {
                     let info = ValidatorStakeInfo(
                         nominators: nominators,
                         totalStake: totalStake,
-                        stakeReturn: stakeReturn
+                        stakeReturn: stakeReturn,
+                        oversubscribed: validator.exposure.others.count > maxNominators
                     )
 
                     result[validator.accountId] = info

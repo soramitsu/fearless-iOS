@@ -6,6 +6,8 @@ protocol YourValidatorsViewProtocol: ControllerBackedProtocol {
 
 protocol YourValidatorsPresenterProtocol: AnyObject {
     func setup()
+    func didSelectValidator(viewModel: YourValidatorsModel)
+    func changeValidators()
 }
 
 protocol YourValidatorsInteractorInputProtocol: AnyObject {

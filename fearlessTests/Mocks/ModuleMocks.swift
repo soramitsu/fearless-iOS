@@ -24341,6 +24341,20 @@ import SoraFoundation
         
     }
     
+    
+    
+     var oversubscribed: Bool {
+        get {
+            return cuckoo_manager.getter("oversubscribed",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.oversubscribed)
+        }
+        
+    }
+    
 
     
 
@@ -24366,6 +24380,11 @@ import SoraFoundation
 	    
 	    var stakeReturn: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorStakeInfoProtocol, Decimal> {
 	        return .init(manager: cuckoo_manager, name: "stakeReturn")
+	    }
+	    
+	    
+	    var oversubscribed: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorStakeInfoProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "oversubscribed")
 	    }
 	    
 	    
@@ -24398,6 +24417,11 @@ import SoraFoundation
 	        return .init(manager: cuckoo_manager, name: "stakeReturn", callMatcher: callMatcher, sourceLocation: sourceLocation)
 	    }
 	    
+	    
+	    var oversubscribed: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "oversubscribed", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
 	
 	    
 	}
@@ -24425,6 +24449,14 @@ import SoraFoundation
      var stakeReturn: Decimal {
         get {
             return DefaultValueRegistry.defaultValue(for: (Decimal).self)
+        }
+        
+    }
+    
+    
+     var oversubscribed: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
         }
         
     }

@@ -11,7 +11,26 @@ final class YourValidatorsViewFactory: YourValidatorsViewFactoryProtocol {
         }
 
         let wireframe = YourValidatorsWireframe()
-        let presenter = YourValidatorsPresenter(interactor: interactor, wireframe: wireframe)
+
+        let settings = SettingsManager.shared
+        let chain = settings.selectedConnection.type.chain
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let viewModelFactory = YourValidatorsViewModelFactory(
+            balanceViewModeFactory: balanceViewModelFactory
+        )
+
+        let presenter = YourValidatorsPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory
+        )
 
         let view = YourValidatorsViewController(
             presenter: presenter,
