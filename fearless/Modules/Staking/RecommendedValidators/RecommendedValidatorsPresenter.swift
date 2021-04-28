@@ -50,7 +50,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
                     nominators: $0.nominators,
                     totalStake: $0.totalStake,
                     stakeReturn: $0.stakeReturn,
-                    oversubscribed: $0.oversubscribed
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
                 )
             )
         }

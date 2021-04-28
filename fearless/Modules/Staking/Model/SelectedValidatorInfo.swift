@@ -24,18 +24,22 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
     let nominators: [NominatorInfo]
     let totalStake: Decimal
     let stakeReturn: Decimal
-    let oversubscribed: Bool
+    let maxNominatorsRewarded: UInt32
+
+    var oversubscribed: Bool {
+        nominators.count > maxNominatorsRewarded
+    }
 
     init(
         nominators: [NominatorInfo] = [],
         totalStake: Decimal = 0.0,
         stakeReturn: Decimal = 0.0,
-        oversubscribed: Bool = false
+        maxNominatorsRewarded: UInt32 = 0
     ) {
         self.nominators = nominators
         self.totalStake = totalStake
         self.stakeReturn = stakeReturn
-        self.oversubscribed = oversubscribed
+        self.maxNominatorsRewarded = maxNominatorsRewarded
     }
 }
 

@@ -173,7 +173,8 @@ final class ValidatorOperationFactory {
         let validatorsStakeInfoOperation = ClosureOperation<[ValidatorStakeInfo?]> {
             let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominatorsRewarded =
+                try maxNominatorsOperation.extractNoCancellableResultData()
             let addressFactory = SS58AddressFactory()
 
             return try validatorIds.map { validatorId in
@@ -208,7 +209,7 @@ final class ValidatorOperationFactory {
                         nominators: nominators,
                         totalStake: totalStake,
                         stakeReturn: stakeReturn,
-                        oversubscribed: electedValidator.exposure.others.count > maxNominators
+                        maxNominatorsRewarded: maxNominatorsRewarded
                     )
                 } else {
                     return nil
@@ -247,13 +248,14 @@ final class ValidatorOperationFactory {
             let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
             let addressFactory = SS58AddressFactory()
             let nominatorAccountId = try addressFactory.accountId(fromAddress: nominatorAddress, type: addressType)
-            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+            let maxNominatorsRewarded = try maxNominatorsOperation
+                .extractNoCancellableResultData()
 
             return try electedStakers.validators
                 .reduce(into: [AccountId: ValidatorStakeInfo]()) { result, validator in
                     let exposures = validator.exposure.others
                         .sorted { $0.value > $1.value }
-                        .prefix(Int(maxNominators))
+                        .prefix(Int(maxNominatorsRewarded))
 
                     guard exposures.contains(where: { $0.who == nominatorAccountId }) else {
                         return
@@ -288,7 +290,7 @@ final class ValidatorOperationFactory {
                         nominators: nominators,
                         totalStake: totalStake,
                         stakeReturn: stakeReturn,
-                        oversubscribed: validator.exposure.others.count > maxNominators
+                        maxNominatorsRewarded: maxNominatorsRewarded
                     )
 
                     result[validator.accountId] = info
@@ -348,7 +350,7 @@ final class ValidatorOperationFactory {
                     identity: identities[address],
                     stakeReturn: validatorReturn,
                     hasSlashes: hasSlashes,
-                    maxNominatorsAllowed: maxNominators,
+                    maxNominatorsRewarded: maxNominators,
                     addressType: addressType,
                     blocked: validator.prefs.blocked
                 )
