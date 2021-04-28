@@ -6986,7 +6986,7 @@
 					"$(CONFIGURATION_BUILD_DIR)",
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
-				OTHER_SWIFT_FLAGS = "$(inherited) \"-DENABLE_UITUNNEL\" \"-DF_DEV\" -Xfrontend -debug-time-function-bodies -Xfrontend -warn-long-expression-type-checking=100 -Xfrontend -warn-long-function-bodies=100";
+				OTHER_SWIFT_FLAGS = "$(inherited) \"-DENABLE_UITUNNEL\" \"-DF_DEV\" -Xfrontend -debug-time-function-bodies -Xfrontend -warn-long-expression-type-checking=100 -Xfrontend -warn-long-function-bodies=100 -Xfrontend -debug-time-compilation -Xfrontend -debug-time-expression-type-checking";
 				PRODUCT_BUNDLE_IDENTIFIER = jp.co.soramitsu.fearless;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 5.0;
