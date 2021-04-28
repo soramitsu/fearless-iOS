@@ -47,7 +47,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
     func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall> {
         let call = BondExtraCall(amount: amount)
-        return RuntimeCall<BondCall>.bondExtra(call)
+        return RuntimeCall<BondExtraCall>.bondExtra(call)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {

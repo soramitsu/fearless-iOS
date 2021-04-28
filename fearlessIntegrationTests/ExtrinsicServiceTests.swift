@@ -17,7 +17,7 @@ class ExtrinsicServiceTests: XCTestCase {
         return closure
     }
 
-    func testBondExtraCall() {
+    func testEstimateFeeForBondExtraCall() {
         let cryptoType = CryptoType.sr25519
         let selectedAccount = "FiLhWLARS32oxm4s64gmEMSppAdugsvaAx1pCjweTLGn5Rf"
         let chain = Chain.westend
