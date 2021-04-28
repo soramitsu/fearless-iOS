@@ -107,6 +107,24 @@ struct WestendStub {
 
     static var allValidators: [ElectedValidatorInfo] { otherValidators + recommendedValidators }
 
+    static func activeValidators(
+        for nominatorAddress: AccountAddress
+    ) -> [SelectedValidatorInfo] {
+        allValidators.map { electedValidator in
+            let nominator = NominatorInfo(address: nominatorAddress, stake: 10.0)
+            let validatorStakeInfo = ValidatorStakeInfo(nominators: [nominator],
+                                                        totalStake: 20.0,
+                                                        stakeReturn: 0.1,
+                                                        maxNominatorsRewarded: 128)
+            return SelectedValidatorInfo(
+                address: electedValidator.address,
+                identity: electedValidator.identity,
+                stakeInfo: validatorStakeInfo,
+                myNomination: .active(amount: 10.0)
+            )
+        }
+    }
+
     static let eraValidators: [EraValidatorInfo] = {
         let validator = EraValidatorInfo(accountId: Data(repeating: 0, count: 32),
                                          exposure: ValidatorExposure(total: BigUInt(1e+13),

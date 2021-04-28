@@ -7,6 +7,7 @@ final class YourValidatorsPresenter {
 
     let viewModelFactory: YourValidatorsViewModelFactoryProtocol
     let chain: Chain
+    let logger: LoggerProtocol?
 
     private var validatorsModel: YourValidatorsModel?
     private var controllerAccount: AccountItem?
@@ -19,12 +20,14 @@ final class YourValidatorsPresenter {
         interactor: YourValidatorsInteractorInputProtocol,
         wireframe: YourValidatorsWireframeProtocol,
         viewModelFactory: YourValidatorsViewModelFactoryProtocol,
-        chain: Chain
+        chain: Chain,
+        logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.chain = chain
+        self.logger = logger
     }
 
     private func updateView() {
@@ -36,7 +39,7 @@ final class YourValidatorsPresenter {
             let sections = try viewModelFactory.createViewModel(for: model)
             view?.reload(state: .validatorList(sections))
         } catch {
-            Logger.shared.error("Did receive error: \(error)")
+            logger?.error("Did receive error: \(error)")
         }
     }
 

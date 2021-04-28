@@ -9,9 +9,7 @@ final class YourValidatorsInteractor {
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let settings: SettingsManagerProtocol
-    let eventCenter: EventCenterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
-    let calculatorService: RewardCalculatorServiceProtocol
     let eraValidatorService: EraValidatorServiceProtocol
     let validatorOperationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
@@ -30,10 +28,8 @@ final class YourValidatorsInteractor {
         providerFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         settings: SettingsManagerProtocol,
-        eventCenter: EventCenterProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         runtimeService: RuntimeCodingServiceProtocol,
-        calculatorService: RewardCalculatorServiceProtocol,
         eraValidatorService: EraValidatorServiceProtocol,
         validatorOperationFactory: ValidatorOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
@@ -42,10 +38,8 @@ final class YourValidatorsInteractor {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.settings = settings
-        self.eventCenter = eventCenter
         self.accountRepository = accountRepository
         self.runtimeService = runtimeService
-        self.calculatorService = calculatorService
         self.eraValidatorService = eraValidatorService
         self.validatorOperationFactory = validatorOperationFactory
         self.operationManager = operationManager
@@ -54,13 +48,13 @@ final class YourValidatorsInteractor {
     func fetchController(for address: AccountAddress) {
         let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
 
-        operation.completionBlock = {
+        operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
                     let accountItem = try operation.extractNoCancellableResultData()
-                    self.presenter.didReceiveController(result: .success(accountItem))
+                    self?.presenter.didReceiveController(result: .success(accountItem))
                 } catch {
-                    self.presenter.didReceiveController(result: .failure(error))
+                    self?.presenter.didReceiveController(result: .failure(error))
                 }
             }
         }

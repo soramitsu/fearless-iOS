@@ -81,10 +81,8 @@ final class YourValidatorsViewFactory: YourValidatorsViewFactoryProtocol {
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
             settings: settings,
-            eventCenter: EventCenter.shared,
             accountRepository: AnyDataProviderRepository(repository),
             runtimeService: RuntimeRegistryFacade.sharedService,
-            calculatorService: RewardCalculatorFacade.sharedService,
             eraValidatorService: EraValidatorFacade.sharedService,
             validatorOperationFactory: validatorOperationFactory,
             operationManager: OperationManagerFacade.sharedManager
