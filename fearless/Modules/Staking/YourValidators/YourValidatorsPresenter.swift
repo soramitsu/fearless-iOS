@@ -39,11 +39,19 @@ final class YourValidatorsPresenter {
             Logger.shared.error("Did receive error: \(error)")
         }
     }
+
+    private func handle(error _: Error) {
+        // TODO:
+    }
 }
 
 extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
     func setup() {
         interactor.setup()
+    }
+
+    func refresh() {
+        interactor.refresh()
     }
 
     func didSelectValidator(viewModel: YourValidatorViewModel) {
@@ -108,8 +116,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             validatorsModel = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
 
         updateView()
@@ -119,8 +127,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             controllerAccount = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
     }
 
@@ -128,8 +136,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             electionStatus = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
     }
 
@@ -137,8 +145,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             stashItem = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
     }
 
@@ -146,8 +154,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             ledger = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
     }
 
@@ -155,8 +163,8 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             rewardDestinationArg = item
-        case .failure:
-            return
+        case let .failure(error):
+            handle(error: error)
         }
     }
 }

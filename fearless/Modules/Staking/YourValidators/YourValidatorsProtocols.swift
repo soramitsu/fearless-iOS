@@ -6,6 +6,7 @@ protocol YourValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol YourValidatorsPresenterProtocol: AnyObject {
     func setup()
+    func refresh()
     func didSelectValidator(viewModel: YourValidatorViewModel)
     func changeValidators()
 }
