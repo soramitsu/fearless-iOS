@@ -1,10 +1,14 @@
 import UIKit
 import SoraFoundation
+import CommonWallet
 
 final class StakingBondMoreViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingBondMoreViewLayout
 
     let presenter: StakingBondMorePresenterProtocol
+
+    private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -31,14 +35,65 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupInitBalanceView()
         applyLocalization()
         presenter.setup()
+    }
+
+    private func setupInitBalanceView() {
+        rootView.amountInputView.priceText = ""
+        rootView.amountInputView.balanceText = ""
+
+        let textColor = R.color.colorWhite()!
+        let placeholder = NSAttributedString(
+            string: "0",
+            attributes: [
+                .foregroundColor: textColor.withAlphaComponent(0.5),
+                .font: UIFont.h4Title
+            ]
+        )
+
+        rootView.amountInputView.textField.attributedPlaceholder = placeholder
+        rootView.amountInputView.textField.keyboardType = .decimalPad
+        rootView.amountInputView.textField.delegate = self
+    }
+
+    private func updateActionButton() {
+        let isEnabled = (amountInputViewModel?.isValid == true)
+        rootView.continueButton.isEnabled = isEnabled
+    }
+
+    private func applyAsset() {
+        if let viewModel = assetViewModel?.value(for: selectedLocale) {
+            rootView.amountInputView.balanceText = R.string.localizable
+                .commonAvailableFormat(
+                    viewModel.balance ?? "",
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+            rootView.amountInputView.priceText = viewModel.price
+            rootView.amountInputView.assetIcon = viewModel.icon
+            rootView.amountInputView.symbol = viewModel.symbol
+        }
     }
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
-    func reload(with _: LocalizableResource<String>) {
-        // TODO:
+    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
+        assetViewModel = viewModel
+        applyAsset()
+    }
+
+    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+        let concreteViewModel = viewModel.value(for: selectedLocale)
+
+        amountInputViewModel?.observable.remove(observer: self)
+
+        amountInputViewModel = concreteViewModel
+
+        rootView.amountInputView.fieldText = concreteViewModel.displayAmount
+        concreteViewModel.observable.add(observer: self)
+
+        updateActionButton()
     }
 }
 
@@ -50,5 +105,26 @@ extension StakingBondMoreViewController: Localizable {
             rootView.continueButton.imageWithTitleView?.title = R.string.localizable
                 .commonContinue(preferredLanguages: selectedLocale.rLanguages)
         }
+    }
+}
+
+extension StakingBondMoreViewController: AmountInputViewModelObserver {
+    func amountInputDidChange() {
+        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+
+        updateActionButton()
+
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+        presenter.updateAmount(amount)
+    }
+}
+
+extension StakingBondMoreViewController: UITextFieldDelegate {
+    func textField(
+        _: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
     }
 }

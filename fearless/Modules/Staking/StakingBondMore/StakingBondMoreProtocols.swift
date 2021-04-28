@@ -1,16 +1,15 @@
 import SoraFoundation
+import CommonWallet
 
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(with viewModel: LocalizableResource<String>)
-}
-
-protocol StakingBondMoreViewModelFactoryProtocol {
-    func createViewModel(from data: String) -> LocalizableResource<String>
+    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
+    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
 }
 
 protocol StakingBondMorePresenterProtocol: AnyObject {
     func setup()
     func handleContinueAction()
+    func updateAmount(_ newValue: Decimal)
 }
 
 protocol StakingBondMoreInteractorInputProtocol: AnyObject {

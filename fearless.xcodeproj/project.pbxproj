@@ -1010,7 +1010,6 @@
 		F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */; };
 		F4488CF226143E0000AEE6DB /* EraRewardPoints.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */; };
 		F44CD8F426242825005DDF23 /* PayoutRewardsService+Fetch.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */; };
-		F456375E263856C200D7341E /* StakingBondMoreViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F456375D263856C200D7341E /* StakingBondMoreViewModelFactory.swift */; };
 		F461740A260DFD3600E8FA3D /* StakingPayoutConfirmationViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4617409260DFD3600E8FA3D /* StakingPayoutConfirmationViewLayout.swift */; };
 		F4617415260E23E900E8FA3D /* StakingRewardStatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4617414260E23E900E8FA3D /* StakingRewardStatusViewModel.swift */; };
 		F462B351260C7DBE0005AB01 /* StakingRewardHistoryTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F462B350260C7DBE0005AB01 /* StakingRewardHistoryTableCell.swift */; };
@@ -2123,7 +2122,6 @@
 		F4488CF126143E0000AEE6DB /* EraRewardPoints.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraRewardPoints.swift; sourceTree = "<group>"; };
 		F44CD8F326242825005DDF23 /* PayoutRewardsService+Fetch.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PayoutRewardsService+Fetch.swift"; sourceTree = "<group>"; };
 		F44CD8F826244EC3005DDF23 /* PayoutRewardsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayoutRewardsServiceTests.swift; sourceTree = "<group>"; };
-		F456375D263856C200D7341E /* StakingBondMoreViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreViewModelFactory.swift; sourceTree = "<group>"; };
 		F4617409260DFD3600E8FA3D /* StakingPayoutConfirmationViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutConfirmationViewLayout.swift; sourceTree = "<group>"; };
 		F4617414260E23E900E8FA3D /* StakingRewardStatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardStatusViewModel.swift; sourceTree = "<group>"; };
 		F462B350260C7DBE0005AB01 /* StakingRewardHistoryTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryTableCell.swift; sourceTree = "<group>"; };
@@ -5155,6 +5153,14 @@
 			path = StakingBondMore;
 			sourceTree = "<group>";
 		};
+		F4691155263937DB00E04D4D /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F4D96BC6263854CE00B23D3D /* StakingBondMoreViewLayout.swift */,
+			);
+			path = View;
+			sourceTree = "<group>";
+		};
 		F474D386260CBED500013699 /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -5252,13 +5258,12 @@
 		F4D96BA92638528100B23D3D /* StakingBondMore */ = {
 			isa = PBXGroup;
 			children = (
+				F4691155263937DB00E04D4D /* View */,
 				F4D96BAA263852B700B23D3D /* StakingBondMoreProtocols.swift */,
 				F4D96BB22638536400B23D3D /* StakingBondMoreWireframe.swift */,
-				F456375D263856C200D7341E /* StakingBondMoreViewModelFactory.swift */,
 				F4D96BB72638539F00B23D3D /* StakingBondMorePresenter.swift */,
 				F4D96BBC2638541E00B23D3D /* StakingBondMoreInteractor.swift */,
 				F4D96BC12638547100B23D3D /* StakingBondMoreViewController.swift */,
-				F4D96BC6263854CE00B23D3D /* StakingBondMoreViewLayout.swift */,
 				F4D96BCB263855CA00B23D3D /* StakingBondMoreViewFactory.swift */,
 			);
 			path = StakingBondMore;
@@ -6077,7 +6082,6 @@
 				84BEE0F02562897100D05EB3 /* AccountImportJsonFactory.swift in Sources */,
 				849014DF24AA8F60008F705E /* MainTabBarViewController.swift in Sources */,
 				8490152124ABC721008F705E /* WalletStaticImageViewModel.swift in Sources */,
-				F456375E263856C200D7341E /* StakingBondMoreViewModelFactory.swift in Sources */,
 				84C6801824D7053B00006BF5 /* BorderedSubtitleActionView.swift in Sources */,
 				84A2C90C24E192F50020D3B7 /* ShakeAnimator.swift in Sources */,
 				84452F2B25D5B84200F47EC5 /* RuntimeRegistryServiceProtocol.swift in Sources */,
