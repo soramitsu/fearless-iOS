@@ -431,9 +431,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
         case .stakingBalance:
             wireframe.showStakingBalance(from: view)
         case .validators:
-            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
-                let stashAddress = nominatorState.stashItem.stash
-                wireframe.showNominatorValidators(from: view, stashAddress: stashAddress)
+            if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
+                wireframe.showNominatorValidators(from: view)
             }
         }
     }

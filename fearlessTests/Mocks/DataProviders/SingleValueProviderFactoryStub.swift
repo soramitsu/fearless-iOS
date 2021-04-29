@@ -102,4 +102,24 @@ extension SingleValueProviderFactoryStub {
                                               activeEra: AnyDataProvider(activeEra),
                                               payee: AnyDataProvider(payee))
     }
+
+    func with(
+        nomination: Nomination,
+        for address: AccountAddress
+    ) -> SingleValueProviderFactoryStub {
+        let decodedNomination = DecodedNomination(
+            identifier: address,
+            item: nomination
+        )
+        let nominationProvider = DataProviderStub(models: [decodedNomination])
+        return SingleValueProviderFactoryStub(price: price,
+                                              totalReward: totalReward,
+                                              balance: balance,
+                                              electionStatus: electionStatus,
+                                              nomination: AnyDataProvider(nominationProvider),
+                                              validatorPrefs: validatorPrefs,
+                                              ledgerInfo: ledgerInfo,
+                                              activeEra: activeEra,
+                                              payee: payee)
+    }
 }

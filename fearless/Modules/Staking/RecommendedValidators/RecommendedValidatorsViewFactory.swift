@@ -18,6 +18,13 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
         return createView(with: wireframe)
     }
 
+    static func createChangeYourValidatorsView(
+        with state: ExistingBonding
+    ) -> RecommendedValidatorsViewProtocol? {
+        let wireframe = YourValidators.RecommendationsWireframe(state: state)
+        return createView(with: wireframe)
+    }
+
     private static func createView(
         with wireframe: RecommendedValidatorsWireframeProtocol
     ) -> RecommendedValidatorsViewProtocol? {

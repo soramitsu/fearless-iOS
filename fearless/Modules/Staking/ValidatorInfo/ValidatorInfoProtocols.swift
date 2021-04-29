@@ -7,6 +7,7 @@ protocol ValidatorStakeInfoProtocol {
     var nominators: [NominatorInfo] { get }
     var totalStake: Decimal { get }
     var stakeReturn: Decimal { get }
+    var oversubscribed: Bool { get }
 }
 
 protocol ValidatorInfoProtocol {

@@ -44,4 +44,7 @@ protocol RecommendedValidatorsViewFactoryProtocol: AnyObject {
 
     static func createChangeTargetsView(with state: ExistingBonding)
         -> RecommendedValidatorsViewProtocol?
+
+    static func createChangeYourValidatorsView(with state: ExistingBonding)
+        -> RecommendedValidatorsViewProtocol?
 }
