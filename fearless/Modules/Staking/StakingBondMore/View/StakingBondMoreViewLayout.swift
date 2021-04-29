@@ -2,12 +2,8 @@ import UIKit
 
 final class StakingBondMoreViewLayout: UIView {
     let amountInputView: AmountInputView = {
-        let amountInputView = AmountInputView()
-        amountInputView.fillColor = R.color.colorBlack()!
-        amountInputView.strokeColor = R.color.colorGray()!
-        amountInputView.titleColor = R.color.colorLightGray()!
-        amountInputView.borderWidth = 1
-        return amountInputView
+        let view = UIFactory().createAmountInputView(filled: false)
+        return view
     }()
 
     let continueButton: TriangularedButton = {

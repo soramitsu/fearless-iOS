@@ -42,8 +42,12 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func setupInitBalanceView() {
-        rootView.amountInputView.priceText = ""
-        rootView.amountInputView.balanceText = ""
+        rootView.amountInputView.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
+        rootView.amountInputView.priceText = "$2,524.1"
+        rootView.amountInputView.symbol = "KSM"
+        rootView.amountInputView.assetIcon = R.image.iconKsmSmallBg()
+        rootView.amountInputView.balanceText = "Bonded: 10.00003"
 
         let textColor = R.color.colorWhite()!
         let placeholder = NSAttributedString(
