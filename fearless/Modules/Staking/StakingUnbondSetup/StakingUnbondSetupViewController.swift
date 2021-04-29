@@ -25,6 +25,9 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     var uiFactory: UIFactoryProtocol = UIFactory()
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
+    private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+    private var bondingDurationViewModel: LocalizableResource<String>?
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
@@ -53,6 +56,10 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         rootView.networkFeeView.bind(tokenAmount: "0.001 KSM", fiatAmount: "$0.2")
 
         setupBalanceAccessoryView()
+
+        applyAssetViewModel()
+        applyFeeViewModel()
+        applyBondingDuration()
     }
 
     private func setupAmountInputView() {
@@ -76,6 +83,41 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         navigationItem.leftBarButtonItem = closeBarItem
     }
 
+    private func applyAssetViewModel() {
+        guard let viewModel = assetViewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        let amountView = rootView.amountInputView
+        amountView.priceText = viewModel.price
+
+        if let balance = viewModel.balance {
+            // TODO: Fix local
+            amountView.balanceText = "Bonded: \(balance)"
+        } else {
+            amountView.balanceText = nil
+        }
+
+        amountView.assetIcon = viewModel.icon
+        amountView.symbol = viewModel.symbol.uppercased()
+    }
+
+    private func applyFeeViewModel() {
+        guard let viewModel = feeViewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        rootView.networkFeeView.bind(tokenAmount: viewModel.amount, fiatAmount: viewModel.price)
+    }
+
+    private func applyBondingDuration() {
+        guard let details = bondingDurationViewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        rootView.durationView.valueLabel.text = details
+    }
+
     @objc private func actionClose() {
         presenter.close()
     }
@@ -86,7 +128,31 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     }
 }
 
-extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {}
+extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
+    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
+        assetViewModel = viewModel
+        applyAssetViewModel()
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        feeViewModel = viewModel
+        applyFeeViewModel()
+    }
+
+    func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>) {
+        amountInputViewModel?.observable.remove(observer: self)
+
+        amountInputViewModel = viewModel.value(for: selectedLocale)
+        amountInputViewModel?.observable.add(observer: self)
+
+        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+    }
+
+    func didReceiveBonding(duration: LocalizableResource<String>) {
+        bondingDurationViewModel = duration
+        applyBondingDuration()
+    }
+}
 
 extension StakingUnbondSetupViewController: Localizable {
     func applyLocalization() {
