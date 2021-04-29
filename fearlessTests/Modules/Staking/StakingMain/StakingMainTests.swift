@@ -177,7 +177,7 @@ class StakingMainTests: XCTestCase {
 
         let showValidatorsExpectation = XCTestExpectation()
         stub(wireframe) { stub in
-            when(stub).showNominatorValidators(from: any(), stashAddress: any()).then { _ in
+            when(stub).showNominatorValidators(from: any()).then { _ in
                 showValidatorsExpectation.fulfill()
             }
         }

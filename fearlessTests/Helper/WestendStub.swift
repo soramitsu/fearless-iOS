@@ -85,7 +85,7 @@ struct WestendStub {
                                              identity: AccountIdentity(name: "Test"),
                                              stakeReturn: 0.1,
                                              hasSlashes: false,
-                                             oversubscribed: false,
+                                             maxNominatorsRewarded: 128,
                                              blocked: false)
         return [validator]
     }()
@@ -99,13 +99,31 @@ struct WestendStub {
                                              comission: 0.1,
                                              identity: nil,
                                              stakeReturn: 0.1,
-                                             hasSlashes: false,
-                                             oversubscribed: true,
+                                             hasSlashes: true,
+                                             maxNominatorsRewarded: 1000,
                                              blocked: false)
         return [validator]
     }()
 
     static var allValidators: [ElectedValidatorInfo] { otherValidators + recommendedValidators }
+
+    static func activeValidators(
+        for nominatorAddress: AccountAddress
+    ) -> [SelectedValidatorInfo] {
+        allValidators.map { electedValidator in
+            let nominator = NominatorInfo(address: nominatorAddress, stake: 10.0)
+            let validatorStakeInfo = ValidatorStakeInfo(nominators: [nominator],
+                                                        totalStake: 20.0,
+                                                        stakeReturn: 0.1,
+                                                        maxNominatorsRewarded: 128)
+            return SelectedValidatorInfo(
+                address: electedValidator.address,
+                identity: electedValidator.identity,
+                stakeInfo: validatorStakeInfo,
+                myNomination: .active(amount: 10.0)
+            )
+        }
+    }
 
     static let eraValidators: [EraValidatorInfo] = {
         let validator = EraValidatorInfo(accountId: Data(repeating: 0, count: 32),

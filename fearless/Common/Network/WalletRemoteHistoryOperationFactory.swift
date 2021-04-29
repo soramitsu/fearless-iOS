@@ -88,7 +88,7 @@ final class WalletRemoteHistoryFactory {
         extrinsicsOperation: BaseOperation<SubscanConcreteExtrinsicsData>?,
         context: TransactionHistoryContext
     ) -> BaseOperation<MergeResult> {
-        ClosureOperation {
+        ClosureOperation<MergeResult> {
             let transferPageData = try transfersOperation?
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             let rewardPageData = try rewardsOperation?
@@ -129,12 +129,21 @@ final class WalletRemoteHistoryFactory {
             let rewardsIndex = resultItems.lastIndex { $0.label == .rewards }
             let extrinsicsIndex = resultItems.lastIndex { $0.label == .extrinsics }
 
-            let truncationLength =
-                (
-                    (transfersIndex.map { [(WalletRemoteHistorySourceLabel.transfers, $0)] } ?? []) +
-                        (rewardsIndex.map { [(WalletRemoteHistorySourceLabel.rewards, $0)] } ?? []) +
-                        (extrinsicsIndex.map { [(WalletRemoteHistorySourceLabel.extrinsics, $0)] } ?? [])
-                )
+            let arrayOfIndexes: [(WalletRemoteHistorySourceLabel, Int)] = {
+                var array = [(WalletRemoteHistorySourceLabel, Int)]()
+                if let transfersIndex = transfersIndex {
+                    array.append((.transfers, transfersIndex))
+                }
+                if let rewardsIndex = rewardsIndex {
+                    array.append((.rewards, rewardsIndex))
+                }
+                if let extrinsicsIndex = extrinsicsIndex {
+                    array.append((.extrinsics, extrinsicsIndex))
+                }
+                return array
+            }()
+
+            let truncationLength: Int? = arrayOfIndexes
                 .sorted { $0.1 < $1.1 }
                 .first { !(completionMapping[$0.0] ?? false) }
                 .map { $0.1 + 1 }
@@ -156,7 +165,7 @@ final class WalletRemoteHistoryFactory {
         context: TransactionHistoryContext,
         filter: WalletRemoteHistoryFiltering?
     ) -> BaseOperation<WalletRemoteHistoryData> {
-        ClosureOperation {
+        ClosureOperation<WalletRemoteHistoryData> {
             let mergeResult = try mergeOperation.extractNoCancellableResultData()
             let counters = mergeResult.items
                 .reduce(into: [WalletRemoteHistorySourceLabel: Int]()) { result, item in
@@ -214,9 +223,8 @@ extension WalletRemoteHistoryFactory: WalletRemoteHistoryFactoryProtocol {
         let rewardsOperation = createRewardsOperationIfNeeded(for: context, address: address)
         let extrinsicsOperation = createExtrinsicsOperationIfNeeded(for: context, address: address)
 
-        let sourceOperations = (transfersOperation.map { [$0] } ?? []) +
-            (rewardsOperation.map { [$0] } ?? []) +
-            (extrinsicsOperation.map { [$0] } ?? [])
+        let sourceOperations: [Operation] = [transfersOperation, rewardsOperation, extrinsicsOperation]
+            .compactMap { $0 }
 
         let mergeOperation = createMergeOperation(
             dependingOn: transfersOperation,

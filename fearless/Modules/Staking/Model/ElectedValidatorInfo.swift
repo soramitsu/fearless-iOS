@@ -10,8 +10,12 @@ struct ElectedValidatorInfo: Equatable {
     let identity: AccountIdentity?
     let stakeReturn: Decimal
     let hasSlashes: Bool
-    let oversubscribed: Bool
+    let maxNominatorsRewarded: UInt32
     let blocked: Bool
+
+    var oversubscribed: Bool {
+        nominators.count > maxNominatorsRewarded
+    }
 
     var hasIdentity: Bool {
         identity != nil
@@ -29,7 +33,7 @@ extension ElectedValidatorInfo {
         identity: AccountIdentity?,
         stakeReturn: Decimal,
         hasSlashes: Bool,
-        maxNominatorsAllowed: UInt32,
+        maxNominatorsRewarded: UInt32,
         addressType: SNAddressType,
         blocked: Bool
     ) throws {
@@ -49,7 +53,7 @@ extension ElectedValidatorInfo {
             return NominatorInfo(address: nominatorAddress, stake: stake)
         }
 
-        oversubscribed = nominators.count >= maxNominatorsAllowed
+        self.maxNominatorsRewarded = maxNominatorsRewarded
 
         totalStake = Decimal.fromSubstrateAmount(validator.exposure.total, precision: addressType.precision) ?? 0.0
         ownStake = Decimal.fromSubstrateAmount(validator.exposure.own, precision: addressType.precision) ?? 0.0

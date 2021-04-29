@@ -105,8 +105,10 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
     }
 
     func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = R.string.localizable.stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable
+            .stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)

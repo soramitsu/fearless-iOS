@@ -6,6 +6,10 @@ extension RuntimeCall {
         RuntimeCall<BondCall>(moduleName: "Staking", callName: "bond", args: args)
     }
 
+    static func bondExtra(_ args: BondExtraCall) -> RuntimeCall<BondExtraCall> {
+        RuntimeCall<BondExtraCall>(moduleName: "Staking", callName: "bond_extra", args: args)
+    }
+
     static func nominate(_ args: NominateCall) -> RuntimeCall<NominateCall> {
         RuntimeCall<NominateCall>(moduleName: "Staking", callName: "nominate", args: args)
     }
