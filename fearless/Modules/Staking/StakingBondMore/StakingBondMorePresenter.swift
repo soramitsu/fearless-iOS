@@ -55,5 +55,9 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    // TODO:
+    func didReceive(error _: Error) {}
+
+    func didReceive(price _: PriceData?) {}
+
+    func didReceive(balance _: DyAccountData?) {}
 }

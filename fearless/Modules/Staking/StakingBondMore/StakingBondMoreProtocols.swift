@@ -4,6 +4,7 @@ import CommonWallet
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
 protocol StakingBondMorePresenterProtocol: AnyObject {
@@ -16,7 +17,11 @@ protocol StakingBondMoreInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol StakingBondMoreInteractorOutputProtocol: AnyObject {}
+protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
+    func didReceive(price: PriceData?)
+    func didReceive(balance: DyAccountData?)
+    func didReceive(error: Error)
+}
 
 protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)

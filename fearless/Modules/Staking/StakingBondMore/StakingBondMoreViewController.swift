@@ -78,6 +78,8 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
+    func didReceiveFee(viewModel _: LocalizableResource<BalanceViewModelProtocol>?) {}
+
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel
         applyAsset()
