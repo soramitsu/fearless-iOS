@@ -9,6 +9,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -75,10 +76,48 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
             rootView.amountInputView.symbol = viewModel.symbol
         }
     }
+
+    private func applyFee() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        if let fee = feeViewModel?.value(for: locale) {
+            // feeActivityIndicator.stopAnimating()
+
+            let amountAttributedString = NSMutableAttributedString(
+                string: fee.amount + "  ",
+                attributes: [
+                    .foregroundColor: R.color.colorWhite()!,
+                    .font: UIFont.p1Paragraph
+                ]
+            )
+
+            if let price = fee.price {
+                let priceAttributedString = NSAttributedString(
+                    string: price,
+                    attributes: [
+                        .foregroundColor: R.color.colorGray()!,
+                        .font: UIFont.p1Paragraph
+                    ]
+                )
+                amountAttributedString.append(priceAttributedString)
+            }
+
+            // feeDetailsLabel.attributedText = amountAttributedString
+            print(amountAttributedString)
+        } else {
+            print("empty")
+//            feeDetailsLabel.text = ""
+//            feeActivityIndicator.startAnimating()
+        }
+    }
 }
 
 extension StakingBondMoreViewController: StakingBondMoreViewProtocol {
-    func didReceiveFee(viewModel _: LocalizableResource<BalanceViewModelProtocol>?) {}
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        feeViewModel = viewModel
+        applyFee()
+
+        updateActionButton()
+    }
 
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
         assetViewModel = viewModel

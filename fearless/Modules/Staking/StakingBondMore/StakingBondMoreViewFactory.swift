@@ -57,7 +57,8 @@ struct StakingBondMoreViewFactory {
         let presenter = StakingBondMorePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            asset: asset
         )
         let viewController = StakingBondMoreViewController(
             presenter: presenter,

@@ -1,5 +1,6 @@
 import SoraFoundation
 import CommonWallet
+import BigInt
 
 protocol StakingBondMoreViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
@@ -15,12 +16,14 @@ protocol StakingBondMorePresenterProtocol: AnyObject {
 
 protocol StakingBondMoreInteractorInputProtocol: AnyObject {
     func setup()
+    func estimateFee(amount: BigUInt)
 }
 
 protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
     func didReceive(price: PriceData?)
     func didReceive(balance: DyAccountData?)
     func didReceive(error: Error)
+    func didReceive(paymentInfo: RuntimeDispatchInfo, for amount: BigUInt)
 }
 
 protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

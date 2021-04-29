@@ -1,5 +1,6 @@
 import RobinHood
 import IrohaCrypto
+import BigInt
 
 final class StakingBondMoreInteractor {
     weak var presenter: StakingBondMoreInteractorOutputProtocol!
@@ -67,6 +68,35 @@ final class StakingBondMoreInteractor {
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
-        // TODO:
+        subscribeToPriceChanges()
+    }
+
+    private func createExtrinsicBuilderClosure(amount: BigUInt) -> ExtrinsicBuilderClosure {
+        let callFactory = SubstrateCallFactory()
+
+        let closure: ExtrinsicBuilderClosure = { builder in
+            let call = try callFactory.bondExtra(amount: amount)
+            _ = try builder.adding(call: call)
+            return builder
+        }
+
+        return closure
+    }
+
+    func estimateFee(amount: BigUInt) {
+        let closure = createExtrinsicBuilderClosure(amount: amount)
+        extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
+            DispatchQueue.main.async {
+                switch result {
+                case let .success(info):
+                    self?.presenter.didReceive(
+                        paymentInfo: info,
+                        for: amount
+                    )
+                case let .failure(error):
+                    self?.presenter.didReceive(error: error)
+                }
+            }
+        }
     }
 }

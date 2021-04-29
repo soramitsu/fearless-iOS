@@ -1,4 +1,6 @@
 import SoraFoundation
+import CommonWallet
+import BigInt
 
 final class StakingBondMorePresenter {
     let interactor: StakingBondMoreInteractorInputProtocol
@@ -7,22 +9,41 @@ final class StakingBondMorePresenter {
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     var amount: Decimal = 0
+    private let asset: WalletAsset
     private var priceData: PriceData?
     private var balance: Decimal?
+    private var fee: Decimal?
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
         wireframe: StakingBondMoreWireframeProtocol,
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        asset: WalletAsset
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.asset = asset
+    }
+
+    private func estimateFee() {
+        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
+            interactor.estimateFee(amount: amount)
+        }
     }
 
     private func provideAmountInputViewModel() {
         let viewModel = balanceViewModelFactory.createBalanceInputViewModel(amount)
         view?.didReceiveInput(viewModel: viewModel)
+    }
+
+    private func provideFee() {
+        if let fee = fee {
+            let viewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: viewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
     }
 
     private func provideAsset() {
@@ -55,9 +76,44 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    func didReceive(error _: Error) {}
+    func didReceive(paymentInfo: RuntimeDispatchInfo, for _: BigUInt) {
+        // loadingFee = false
 
-    func didReceive(price _: PriceData?) {}
+        if let feeValue = BigUInt(paymentInfo.fee),
+           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
+            self.fee = fee
+        } else {
+            fee = nil
+        }
 
-    func didReceive(balance _: DyAccountData?) {}
+        provideFee()
+    }
+
+    func didReceive(error: Error) {
+//        loadingPayouts = false
+//        loadingFee = false
+
+        let locale = view?.localizationManager?.selectedLocale
+
+        _ = wireframe.present(error: error, from: view, locale: locale)
+    }
+
+    func didReceive(price: PriceData?) {
+        priceData = price
+        provideAsset()
+        provideFee()
+    }
+
+    func didReceive(balance: DyAccountData?) {
+        if let availableValue = balance?.available {
+            self.balance = Decimal.fromSubstrateAmount(
+                availableValue,
+                precision: asset.precision
+            )
+        } else {
+            self.balance = 0.0
+        }
+
+        provideAsset()
+    }
 }
