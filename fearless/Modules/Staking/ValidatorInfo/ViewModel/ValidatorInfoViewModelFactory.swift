@@ -122,11 +122,16 @@ final class ValidatorInfoViewModelFactory {
     }
 
     // TODO: https://soramitsu.atlassian.net/browse/FLW-655 Add max nominators and color for oversubscribed state
-    private func createNominatorsRow(with nominators: [Any]) -> LocalizableResource<TitleWithSubtitleViewModel> {
+    private func createNominatorsRow(with stakeInfo: ValidatorStakeInfoProtocol)
+        -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
             let title = R.string.localizable
                 .stakingValidatorNominators(preferredLanguages: locale.rLanguages)
-            return TitleWithSubtitleViewModel(title: title, subtitle: String(nominators.count))
+            let subtitle = R.string.localizable.stakingValidatorInfoNominators(
+                String(stakeInfo.nominators.count),
+                String(stakeInfo.maxNominatorsRewarded)
+            )
+            return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
         }
     }
 
@@ -186,7 +191,7 @@ final class ValidatorInfoViewModelFactory {
         var stakingRows: [ValidatorInfoViewModel.StakingRow] = []
 
         stakingRows.append(
-            .nominators(createNominatorsRow(with: stakeInfo.nominators))
+            .nominators(createNominatorsRow(with: stakeInfo))
         )
 
         stakingRows.append(

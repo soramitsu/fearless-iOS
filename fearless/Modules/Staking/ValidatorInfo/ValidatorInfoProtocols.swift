@@ -7,6 +7,7 @@ protocol ValidatorStakeInfoProtocol {
     var nominators: [NominatorInfo] { get }
     var totalStake: Decimal { get }
     var stakeReturn: Decimal { get }
+    var maxNominatorsRewarded: UInt32 { get }
     var oversubscribed: Bool { get }
 }
 
@@ -14,6 +15,7 @@ protocol ValidatorInfoProtocol {
     var address: String { get }
     var identity: AccountIdentity? { get }
     var stakeInfo: ValidatorStakeInfoProtocol? { get }
+    var myNomination: ValidatorMyNominationStatus? { get }
 }
 
 // MARK: - View
