@@ -12,10 +12,17 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: settings.selectedConnection.type,
+            limit: StakingConstants.maxAmount
+        )
+
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
             asset: asset,
-            amountFormatterFactory: AmountFormatterFactory()
+            amountFormatterFactory: AmountFormatterFactory(),
+            balanceViewModelFactory: balanceViewModelFactory
         )
 
         let view = ValidatorInfoViewController(nib: R.nib.validatorInfoViewController)

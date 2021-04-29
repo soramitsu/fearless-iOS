@@ -20,8 +20,13 @@ struct ValidatorInfoAccountViewModel: ValidatorInfoAccountViewModelProtocol {
 }
 
 struct EmptyStakeViewModel: ImageWithTitleViewModelProtocol {
-    var image: UIImage
-    var title: String
+    let image: UIImage
+    let title: String
+}
+
+struct StakingAmountViewModel {
+    let title: String
+    let balance: BalanceViewModelProtocol
 }
 
 enum ValidatorInfoViewModel {

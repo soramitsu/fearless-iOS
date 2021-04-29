@@ -940,6 +940,8 @@
 		AE8972A325F2232C008EC414 /* ValidatorInfoInformationCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE8972A225F2232C008EC414 /* ValidatorInfoInformationCell.xib */; };
 		AE8972AB25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE8972AA25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib */; };
 		AE8E67CD263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */; };
+		AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */; };
+		AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */; };
 		AE9EF255260A82830026910A /* StoriesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF254260A82830026910A /* StoriesViewController.swift */; };
 		AE9EF25A260A82970026910A /* StoriesInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF259260A82970026910A /* StoriesInteractor.swift */; };
 		AE9EF25F260A82A50026910A /* StoriesPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF25E260A82A50026910A /* StoriesPresenter.swift */; };
@@ -2057,6 +2059,8 @@
 		AE8972A225F2232C008EC414 /* ValidatorInfoInformationCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoInformationCell.xib; sourceTree = "<group>"; };
 		AE8972AA25F2234F008EC414 /* ValidatorInfoTitleSubtitleCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoTitleSubtitleCell.xib; sourceTree = "<group>"; };
 		AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoEmptyStakeCell.swift; sourceTree = "<group>"; };
+		AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStakingAmountCell.swift; sourceTree = "<group>"; };
+		AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoBaseTableCell.swift; sourceTree = "<group>"; };
 		AE9EF254260A82830026910A /* StoriesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewController.swift; sourceTree = "<group>"; };
 		AE9EF259260A82970026910A /* StoriesInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesInteractor.swift; sourceTree = "<group>"; };
 		AE9EF25E260A82A50026910A /* StoriesPresenter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesPresenter.swift; sourceTree = "<group>"; };
@@ -4900,6 +4904,8 @@
 				AE74EB4225F7A1CC00C494E7 /* ValidatorInfoWebCell.xib */,
 				AE74EB5625F7A31A00C494E7 /* ValidatorInfoTitleSubtitleCell.swift */,
 				AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */,
+				AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */,
+				AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -6342,6 +6348,7 @@
 				844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */,
 				8490142C24A935FE008F705E /* ErrorPresentable.swift in Sources */,
 				84DF21A5253473B0005454AE /* ModalInfoFactory.swift in Sources */,
+				AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */,
 				847C9620255340F2002D288F /* ExportGenericViewController.swift in Sources */,
 				AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */,
 				8468B86E24F63D1400B76BC6 /* AddAccount+OnboardingMainWireframe.swift in Sources */,
@@ -6424,6 +6431,7 @@
 				AE7129BC2608C069000AA3F5 /* NetworkStakingInfoOperationFactory.swift in Sources */,
 				84754CA02513D83E00854599 /* AccountPickerViewModel.swift in Sources */,
 				AE2C84E425EF98C700986716 /* ValidatorInfoViewController.swift in Sources */,
+				AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */,
 				84D8F16D24D82C7E00AF43E9 /* ModalPickerConfiguration.swift in Sources */,
 				01C91580211D58645169C91B /* UsernameSetupViewController.swift in Sources */,
 				84BEE22325646AC000D05EB3 /* SelectedUsernameChanged.swift in Sources */,

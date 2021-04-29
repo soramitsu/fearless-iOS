@@ -5,21 +5,28 @@ import CommonWallet
 
 protocol ValidatorInfoViewModelFactoryProtocol {
     func createViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewModel]
+    func createStakingAmountsViewModel(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
+    ) -> [LocalizableResource<StakingAmountViewModel>]
 }
 
 final class ValidatorInfoViewModelFactory {
     private let iconGenerator: IconGenerating
     private let asset: WalletAsset
     private let amountFormatterFactory: NumberFormatterFactoryProtocol
+    private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
     init(
         iconGenerator: IconGenerating,
         asset: WalletAsset,
-        amountFormatterFactory: NumberFormatterFactoryProtocol
+        amountFormatterFactory: NumberFormatterFactoryProtocol,
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
     ) {
         self.iconGenerator = iconGenerator
         self.asset = asset
         self.amountFormatterFactory = amountFormatterFactory
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     // MARK: - Private functions
@@ -74,6 +81,42 @@ final class ValidatorInfoViewModelFactory {
             return TitleWithSubtitleViewModel(
                 title: title,
                 subtitle: subtitle
+            )
+        }
+    }
+
+    private func createOwnStakeTitle() -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.stakingValidatorOwnStake(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    private func createNominatorsStakeTitle() -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.stakingValidatorNominators(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    private func createTotalTitle() -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
+        }
+    }
+
+    private func createStakeingAmountRow(
+        title: LocalizableResource<String>,
+        amount: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingAmountViewModel> {
+        let balance = balanceViewModelFactory.balanceFromPrice(amount, priceData: priceData)
+
+        return LocalizableResource { locale in
+
+            let title = title.value(for: locale)
+
+            return StakingAmountViewModel(
+                title: title,
+                balance: balance.value(for: locale)
             )
         }
     }
@@ -203,5 +246,26 @@ extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
         }
 
         return model
+    }
+
+    func createStakingAmountsViewModel(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
+    ) -> [LocalizableResource<StakingAmountViewModel>] {
+        [createStakeingAmountRow(
+            title: createOwnStakeTitle(),
+            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+            priceData: priceData
+        ),
+        createStakeingAmountRow(
+            title: createNominatorsStakeTitle(),
+            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+            priceData: priceData
+        ),
+        createStakeingAmountRow(
+            title: createTotalTitle(),
+            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+            priceData: priceData
+        )]
     }
 }

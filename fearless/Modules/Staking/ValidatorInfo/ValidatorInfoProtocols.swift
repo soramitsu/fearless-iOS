@@ -55,4 +55,9 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
     EmailPresentable,
     AlertPresentable,
-    AddressOptionsPresentable {}
+    AddressOptionsPresentable {
+    func showStakingAmounts(
+        from view: ValidatorInfoViewProtocol?,
+        items: [LocalizableResource<StakingAmountViewModel>]
+    )
+}

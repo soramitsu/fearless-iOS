@@ -49,7 +49,15 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
 
     func presentTotalStake() {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-655 Implement presentation
-        #warning("Not implemented")
+        guard let validatorInfo = validatorInfo else { return }
+
+        wireframe.showStakingAmounts(
+            from: view,
+            items: viewModelFactory.createStakingAmountsViewModel(
+                from: validatorInfo,
+                priceData: nil
+            )
+        )
     }
 
     func activateEmail() {

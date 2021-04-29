@@ -292,4 +292,49 @@ enum ModalPickerFactory {
 
         return viewController
     }
+
+    static func createPickerForList(
+        _ items: [LocalizableResource<StakingAmountViewModel>],
+        delegate: ModalPickerViewControllerDelegate?,
+        context: AnyObject?
+    ) -> UIViewController? {
+        guard !items.isEmpty else {
+            return nil
+        }
+
+        let viewController: ModalPickerViewController<ValidatorInfoStakingAmountCell, StakingAmountViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.delegate = delegate
+        viewController.modalPresentationStyle = .custom
+        viewController.context = context
+        viewController.selectedIndex = NSNotFound
+
+        viewController.viewModels = items
+
+        // TODO: remove
+//        viewController.viewModels = items.map { type in
+//            LocalizableResource { _ in
+//                IconWithTitleViewModel(
+//                    icon: type.icon,
+//                    title: type.title
+//                )
+//            }
+//        }
+
+        let factory = ModalSheetPresentationFactory(configuration: .fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
 }
