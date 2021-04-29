@@ -19,7 +19,8 @@ class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtocol {
                 stakeInfo: ValidatorStakeInfo(
                     nominators: $0.nominators,
                     totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn
+                    stakeReturn: $0.stakeReturn,
+                    maxNominatorsRewarded: $0.maxNominatorsRewarded
                 )
             )
         }

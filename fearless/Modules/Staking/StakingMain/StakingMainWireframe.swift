@@ -78,8 +78,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
             .pushViewController(controller, animated: true)
     }
 
-    func showNominatorValidators(from _: ControllerBackedProtocol?, stashAddress _: AccountAddress) {
-        // TODO: FLW-690
+    func showNominatorValidators(from view: ControllerBackedProtocol?) {
+        guard let validatorsView = YourValidatorsViewFactory.createView() else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: validatorsView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showAccountsSelection(from view: StakingMainViewProtocol?) {
