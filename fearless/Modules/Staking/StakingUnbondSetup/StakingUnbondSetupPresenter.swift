@@ -16,6 +16,13 @@ final class StakingUnbondSetupPresenter {
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
     func setup() {}
+
+    func selectAmountPercentage(_: Float) {}
+    func updateAmount(_: Decimal) {}
+    func proceed() {}
+    func close() {
+        wireframe.close(view: view)
+    }
 }
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {}
