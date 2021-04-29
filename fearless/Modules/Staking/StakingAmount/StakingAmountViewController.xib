@@ -172,19 +172,19 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="Network fee" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Kwy-2o-Tae">
-                                            <rect key="frame" x="16" y="28.5" width="219" height="16.5"/>
+                                            <rect key="frame" x="16" y="27" width="205" height="18"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0.001 KSM ($0.22)" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="C2j-yY-DX2">
-                                            <rect key="frame" x="243" y="28.5" width="116" height="16.5"/>
+                                            <rect key="frame" x="229" y="27" width="130" height="18"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
                                         <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="3l9-P0-1ed">
-                                            <rect key="frame" x="339" y="27" width="20" height="20"/>
+                                            <rect key="frame" x="339" y="26" width="20" height="20"/>
                                             <color key="color" name="colorWhite"/>
                                         </activityIndicatorView>
                                     </subviews>
@@ -240,14 +240,6 @@
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="earningTitleColor">
                                                     <color key="value" name="colorWhite"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="Earn more reward"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
-                                                    <real key="value" value="12"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
-                                                    <color key="value" name="colorGray"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value=" +35.51% APY"/>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Bold"/>
@@ -308,14 +300,6 @@
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="earningTitleColor">
                                                     <color key="value" name="colorWhite"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="subtitle" value="Transfer rewards"/>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
-                                                    <real key="value" value="12"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="subtitleColor">
-                                                    <color key="value" name="colorGray"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="earningsSubtitle" value="+21.3% APY"/>
                                                 <userDefinedRuntimeAttribute type="string" keyPath="_earningsSubtitleFontName" value="sora-rc004-0417-Bold"/>
@@ -515,9 +499,6 @@
         <designable name="RZZ-DP-rf9">
             <size key="intrinsicContentSize" width="-1" height="77"/>
         </designable>
-        <designable name="XDe-01-mfG">
-            <size key="intrinsicContentSize" width="55" height="15"/>
-        </designable>
         <designable name="aky-7w-5YB">
             <size key="intrinsicContentSize" width="-1" height="61"/>
         </designable>
@@ -537,10 +518,10 @@
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorDarkGray">
-            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.26666666666666666" green="0.26666666666666666" blue="0.26666666666666666" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorGray">
-            <color red="0.53299999237060547" green="0.53299999237060547" blue="0.53299999237060547" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.52941176470588236" green="0.52941176470588236" blue="0.52941176470588236" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorGreen">
             <color red="0.054901960784313725" green="0.82745098039215681" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
@@ -549,7 +530,7 @@
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorLightGray">
-            <color red="0.80000001192092896" green="0.80000001192092896" blue="0.80000001192092896" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorPink">
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
