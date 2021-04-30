@@ -5,7 +5,7 @@ final class ValidatorInfoInteractor {
     weak var presenter: ValidatorInfoInteractorOutputProtocol!
     private let priceProvider: AnySingleValueProvider<PriceData>
 
-    private var validatorInfo: ValidatorInfoProtocol?
+    private let validatorInfo: ValidatorInfoProtocol?
 
     init(
         validatorInfo: ValidatorInfoProtocol,
@@ -17,18 +17,13 @@ final class ValidatorInfoInteractor {
 
     private func subscribeToPriceChanges() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
+            guard !changes.isEmpty else {
                 self?.presenter.didRecieve(priceData: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didRecieve(priceData: item)
-                    case .delete:
-                        self?.presenter.didRecieve(priceData: nil)
-                    }
-                }
+                return
             }
+
+            let priceData = changes.reduceToLastChange()
+            self?.presenter.didRecieve(priceData: priceData)
         }
 
         let failureClosure = { [weak self] (error: Error) in

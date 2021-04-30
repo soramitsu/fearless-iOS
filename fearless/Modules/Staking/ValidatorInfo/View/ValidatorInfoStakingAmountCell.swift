@@ -38,6 +38,7 @@ final class ValidatorInfoStakingAmountCell: ValidatorInfoBaseTableCell, ModalPic
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.top.equalToSuperview().inset(Constants.verticalInset)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
+            make.bottom.equalTo(priceLabel.snp.top)
         }
     }
 

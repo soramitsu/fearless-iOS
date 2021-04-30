@@ -2,7 +2,14 @@ import UIKit
 import SoraFoundation
 
 final class ValidatorInfoViewController: UIViewController {
-    var viewModel: [ValidatorInfoViewModel] = []
+    enum Constants {
+        static let headerHeight: CGFloat = 52.0
+        static let rowHeight: CGFloat = 48.0
+        static let accountRowHeight: CGFloat = 56.0
+        static let emptyStakeRowHeight: CGFloat = 140.0
+    }
+
+    var viewModels: [ValidatorInfoViewModel] = []
 
     @IBOutlet var tableView: UITableView!
 
@@ -36,11 +43,11 @@ final class ValidatorInfoViewController: UIViewController {
 
 extension ValidatorInfoViewController: UITableViewDelegate {
     func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        switch viewModel[section] {
+        switch viewModels[section] {
         case .account:
             return CGFloat.leastNormalMagnitude
         default:
-            return ValidatorInfoViewModel.headerHeight
+            return Constants.headerHeight
         }
     }
 
@@ -49,20 +56,20 @@ extension ValidatorInfoViewController: UITableViewDelegate {
     }
 
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch viewModel[indexPath.section] {
+        switch viewModels[indexPath.section] {
         case .account:
-            return ValidatorInfoViewModel.accountRowHeight
+            return Constants.accountRowHeight
         case .emptyStake:
-            return ValidatorInfoViewModel.emptyStakeRowHeight
+            return Constants.emptyStakeRowHeight
         default:
-            return ValidatorInfoViewModel.rowHeight
+            return Constants.rowHeight
         }
     }
 
     // swiftlint:disable:next cyclomatic_complexity
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-        switch viewModel[indexPath.section] {
+        switch viewModels[indexPath.section] {
         case .account: presenter.presentAccountOptions()
 
         case let .myNomination(rows):
@@ -93,11 +100,11 @@ extension ValidatorInfoViewController: UITableViewDelegate {
 
 extension ValidatorInfoViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
-        viewModel.count
+        viewModels.count
     }
 
     func tableView(_: UITableView, numberOfRowsInSection section: Int) -> Int {
-        switch viewModel[section] {
+        switch viewModels[section] {
         case .account, .emptyStake: return 1
         case let .myNomination(rows): return rows.count
         case let .staking(rows): return rows.count
@@ -112,7 +119,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             return nil
         }
 
-        switch viewModel[section] {
+        switch viewModels[section] {
         case .myNomination:
             view.bind(title: R.string.localizable.stakingYourNominationTitle(preferredLanguages: locale?.rLanguages))
         case .staking, .emptyStake:
@@ -221,7 +228,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         let locale = self.locale ?? Locale.current
 
-        switch viewModel[indexPath.section] {
+        switch viewModels[indexPath.section] {
         case let .account(model):
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: R.reuseIdentifier.validatorAccountCellId,
@@ -268,7 +275,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
 extension ValidatorInfoViewController: ValidatorInfoViewProtocol {
     func didRecieve(_ viewModel: [ValidatorInfoViewModel]) {
-        self.viewModel = viewModel
+        viewModels = viewModel
         tableView.reloadData()
     }
 }

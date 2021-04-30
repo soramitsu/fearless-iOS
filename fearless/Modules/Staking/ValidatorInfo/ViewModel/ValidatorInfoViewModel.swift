@@ -30,11 +30,6 @@ struct StakingAmountViewModel {
 }
 
 enum ValidatorInfoViewModel {
-    static let headerHeight: CGFloat = 52.0
-    static let rowHeight: CGFloat = 48.0
-    static let accountRowHeight: CGFloat = 56.0
-    static let emptyStakeRowHeight: CGFloat = 140.0
-
     enum StakingRow {
         case totalStake(LocalizableResource<StakingAmountViewModel>)
         case nominators(LocalizableResource<TitleWithSubtitleViewModel>, Bool)

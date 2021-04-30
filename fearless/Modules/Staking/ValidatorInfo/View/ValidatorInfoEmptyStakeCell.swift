@@ -3,7 +3,6 @@ import SoraUI
 
 final class ValidatorInfoEmptyStakeCell: UITableViewCell {
     private enum Constants {
-        static let verticalInset: CGFloat = 0
         static let horizontalInset: CGFloat = 95
     }
 
@@ -38,7 +37,7 @@ final class ValidatorInfoEmptyStakeCell: UITableViewCell {
     func setupLayout() {
         contentView.addSubview(emptyStateView)
         emptyStateView.snp.makeConstraints { make in
-            make.bottom.top.equalToSuperview().inset(Constants.verticalInset)
+            make.bottom.top.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(Constants.horizontalInset)
         }
     }

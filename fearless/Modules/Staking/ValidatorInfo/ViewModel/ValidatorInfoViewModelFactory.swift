@@ -219,19 +219,11 @@ final class ValidatorInfoViewModelFactory {
     ) -> ValidatorInfoViewModel {
         guard let stakeInfo = validatorInfo.stakeInfo else { return createEmptyStakeRow() }
 
-        var stakingRows: [ValidatorInfoViewModel.StakingRow] = []
-
-        stakingRows.append(
-            .nominators(createNominatorsRow(with: stakeInfo), stakeInfo.oversubscribed)
-        )
-
-        stakingRows.append(
-            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake, priceData: priceData))
-        )
-
-        stakingRows.append(
+        let stakingRows: [ValidatorInfoViewModel.StakingRow] = [
+            .nominators(createNominatorsRow(with: stakeInfo), stakeInfo.oversubscribed),
+            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake, priceData: priceData)),
             .estimatedReward(createEstimatedRewardRow(with: stakeInfo.stakeReturn))
-        )
+        ]
 
         return .staking(stakingRows)
     }
