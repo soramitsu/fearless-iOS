@@ -36,36 +36,16 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupInitBalanceView()
-        setupBalanceAccessoryView()
+        setupAmountInputView()
         setupActionButton()
         applyLocalization()
         presenter.setup()
     }
 
-    private func setupInitBalanceView() {
-        rootView.amountInputView.title = R.string.localizable
-            .walletSendAmountTitle(preferredLanguages: selectedLocale.rLanguages)
-        rootView.amountInputView.priceText = "$2,524.1"
-        rootView.amountInputView.symbol = "KSM"
-        rootView.amountInputView.assetIcon = R.image.iconKsmSmallBg()
-        rootView.amountInputView.balanceText = "Bonded: 10.00003"
-
-        let textColor = R.color.colorWhite()!
-        let placeholder = NSAttributedString(
-            string: "0",
-            attributes: [
-                .foregroundColor: textColor.withAlphaComponent(0.5),
-                .font: UIFont.h4Title
-            ]
-        )
-
-        rootView.amountInputView.textField.attributedPlaceholder = placeholder
+    private func setupAmountInputView() {
         rootView.amountInputView.textField.keyboardType = .decimalPad
         rootView.amountInputView.textField.delegate = self
-    }
 
-    private func setupBalanceAccessoryView() {
         let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }

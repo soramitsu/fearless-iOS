@@ -37,6 +37,8 @@ final class StakingBondMoreViewLayout: UIView {
 
     private func applyLocalization() {
         networkFeeView.locale = locale
+        amountInputView.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
         continueButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
     }
@@ -54,6 +56,7 @@ final class StakingBondMoreViewLayout: UIView {
         amountInputView.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(72)
         }
 
         addSubview(networkFeeView)

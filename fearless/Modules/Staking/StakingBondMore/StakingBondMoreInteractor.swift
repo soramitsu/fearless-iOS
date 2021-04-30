@@ -5,28 +5,22 @@ import BigInt
 final class StakingBondMoreInteractor {
     weak var presenter: StakingBondMoreInteractorOutputProtocol!
 
-    // private let repository: AnyDataProviderRepository<AccountItem>
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
-    // private let rewardService: RewardCalculatorServiceProtocol
     private let operationManager: OperationManagerProtocol
 
     init(
-        // repository: AnyDataProviderRepository<AccountItem>,
         priceProvider: AnySingleValueProvider<PriceData>,
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
         extrinsicService: ExtrinsicServiceProtocol,
-        // rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol
     ) {
-        // self.repository = repository
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
-        // self.rewardService = rewardService
         self.runtimeService = runtimeService
         self.operationManager = operationManager
     }
@@ -101,16 +95,11 @@ extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func estimateFee(amount: BigUInt) {
         let closure = createExtrinsicBuilderClosure(amount: amount)
         extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
-            DispatchQueue.main.async {
-                switch result {
-                case let .success(info):
-                    self?.presenter.didReceive(
-                        paymentInfo: info,
-                        for: amount
-                    )
-                case let .failure(error):
-                    self?.presenter.didReceive(error: error)
-                }
+            switch result {
+            case let .success(info):
+                self?.presenter.didReceive(paymentInfo: info, for: amount)
+            case let .failure(error):
+                self?.presenter.didReceive(error: error)
             }
         }
     }
