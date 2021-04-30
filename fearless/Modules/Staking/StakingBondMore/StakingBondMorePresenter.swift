@@ -85,7 +85,6 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
                 )
             }
 
-            estimateFee()
             return
         }
         wireframe.showConfirmation(from: view)
