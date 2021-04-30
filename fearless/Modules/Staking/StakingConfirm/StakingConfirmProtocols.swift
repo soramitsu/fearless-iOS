@@ -59,4 +59,7 @@ protocol StakingConfirmViewFactoryProtocol: AnyObject {
 
     static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
         -> StakingConfirmViewProtocol?
+
+    static func createChangeYourValidatorsView(for state: PreparedNomination<ExistingBonding>)
+        -> StakingConfirmViewProtocol?
 }

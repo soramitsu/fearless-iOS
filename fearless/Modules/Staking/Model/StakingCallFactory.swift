@@ -9,6 +9,7 @@ protocol SubstrateCallFactoryProtocol {
         controller: String,
         rewardDestination: RewardDestination<AccountAddress>
     ) throws -> RuntimeCall<BondCall>
+    func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall>
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 
@@ -42,6 +43,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         )
 
         return RuntimeCall<BondCall>.bond(call)
+    }
+
+    func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall> {
+        let call = BondExtraCall(amount: amount)
+        return RuntimeCall<BondExtraCall>.bondExtra(call)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {

@@ -23,11 +23,33 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        return createView(for: interactor, settings: settings, keystore: keystore)
+        let wireframe = StakingConfirmWireframe()
+
+        return createView(
+            for: interactor,
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore
+        )
     }
 
     static func createChangeTargetsView(
         for state: PreparedNomination<ExistingBonding>
+    ) -> StakingConfirmViewProtocol? {
+        let wireframe = StakingConfirmWireframe()
+        return createExistingBondingView(for: state, wireframe: wireframe)
+    }
+
+    static func createChangeYourValidatorsView(
+        for state: PreparedNomination<ExistingBonding>
+    ) -> StakingConfirmViewProtocol? {
+        let wireframe = YourValidators.StakingConfirmWireframe()
+        return createExistingBondingView(for: state, wireframe: wireframe)
+    }
+
+    private static func createExistingBondingView(
+        for state: PreparedNomination<ExistingBonding>,
+        wireframe: StakingConfirmWireframeProtocol
     ) -> StakingConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
@@ -55,11 +77,17 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        return createView(for: interactor, settings: settings, keystore: keystore)
+        return createView(
+            for: interactor,
+            wireframe: wireframe,
+            settings: settings,
+            keystore: keystore
+        )
     }
 
     private static func createView(
         for interactor: StakingBaseConfirmInteractor,
+        wireframe: StakingConfirmWireframeProtocol,
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol
     ) -> StakingConfirmViewProtocol? {
@@ -72,8 +100,6 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
         let view = StakingConfirmViewController(nib: R.nib.stakingConfirmViewController)
         view.uiFactory = UIFactory()
-
-        let wireframe = StakingConfirmWireframe()
 
         view.presenter = presenter
         presenter.view = view

@@ -112,8 +112,16 @@ final class TransactionSubscription {
                 }
             }
 
-            let operations = [fetchBlockOperation, coderFactoryOperation] + eventsWrapper.allOperations +
-                [parseOperation, txSaveOperation] + contactSaveWrapper.allOperations
+            let operations: [Operation] = {
+                var array = [Operation]()
+                array.append(contentsOf: eventsWrapper.allOperations)
+                array.append(contentsOf: contactSaveWrapper.allOperations)
+                array.append(fetchBlockOperation)
+                array.append(coderFactoryOperation)
+                array.append(parseOperation)
+                array.append(txSaveOperation)
+                return array
+            }()
 
             operationManager.enqueue(operations: operations, in: .transient)
         } catch {
@@ -200,8 +208,6 @@ extension TransactionSubscription {
                 throw BaseOperationError.unexpectedDependentResult
             }
 
-            let blockNumber = UInt32(blockNumberData)
-
             let coderFactory = try coderOperation.extractNoCancellableResultData()
 
             let accountId = try SS58AddressFactory().accountId(from: address)
@@ -224,7 +230,7 @@ extension TransactionSubscription {
                     return TransactionSubscriptionResult(
                         processingResult: processingResult,
                         extrinsicHash: extrinsicHash,
-                        blockNumber: UInt64(blockNumber),
+                        blockNumber: UInt64(blockNumberData),
                         txIndex: UInt16(index)
                     )
                 } catch {

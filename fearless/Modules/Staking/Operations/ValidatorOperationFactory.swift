@@ -4,6 +4,18 @@ import IrohaCrypto
 
 protocol ValidatorOperationFactoryProtocol {
     func allElectedOperation() -> CompoundOperationWrapper<[ElectedValidatorInfo]>
+    func allSelectedOperation(
+        by nomination: Nomination,
+        nominatorAddress: AccountAddress
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
+
+    func activeValidatorsOperation(
+        for nominatorAddress: AccountAddress
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
+
+    func pendingValidatorsOperation(
+        for accountIds: [AccountId]
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]>
 }
 
 final class ValidatorOperationFactory {
@@ -76,7 +88,225 @@ final class ValidatorOperationFactory {
         return operation
     }
 
-    private func createMapOperation(
+    private func createStatusesOperation(
+        for validatorIds: [AccountId],
+        electedValidatorsOperation: BaseOperation<EraStakersInfo>,
+        nominatorAddress: AccountAddress,
+        nomination: Nomination
+    ) -> CompoundOperationWrapper<[ValidatorMyNominationStatus]> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: { validatorIds },
+                factory: { try runtimeOperation.extractNoCancellableResultData() },
+                storagePath: .slashingSpans
+            )
+
+        let maxNominatorsOperation: BaseOperation<UInt32> =
+            createConstOperation(
+                dependingOn: runtimeOperation,
+                path: .maxNominatorRewardedPerValidator
+            )
+
+        maxNominatorsOperation.addDependency(runtimeOperation)
+        slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        let addressType = chain.addressType
+
+        let statusesOperation = ClosureOperation<[ValidatorMyNominationStatus]> {
+            let slashingSpans = try slashingSpansWrapper.targetOperation.extractNoCancellableResultData()
+            let allElectedValidators = try electedValidatorsOperation.extractNoCancellableResultData()
+            let nominatorId = try SS58AddressFactory().accountId(from: nominatorAddress)
+            let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
+
+            return validatorIds.enumerated().map { index, accountId in
+                let slashingSpan = slashingSpans[index]
+
+                if let lastSlashEra = slashingSpan.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
+                    return .slashed
+                }
+
+                if let electedValidator = allElectedValidators.validators
+                    .first(where: { $0.accountId == accountId }) {
+                    let exposuresClipped = electedValidator.exposure.others.sorted(by: { $0.value > $1.value })
+                        .prefix(Int(maxNominators))
+                    if let amount = exposuresClipped.first(where: { $0.who == nominatorId })?.value,
+                       let amountDecimal = Decimal.fromSubstrateAmount(amount, precision: addressType.precision) {
+                        return .active(amount: amountDecimal)
+                    } else {
+                        return .inactive
+                    }
+                } else {
+                    return .waiting
+                }
+            }
+        }
+
+        statusesOperation.addDependency(slashingSpansWrapper.targetOperation)
+        statusesOperation.addDependency(maxNominatorsOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: statusesOperation,
+            dependencies: [runtimeOperation, maxNominatorsOperation] + slashingSpansWrapper.allOperations
+        )
+    }
+
+    private func createValidatorsStakeInfoWrapper(
+        for validatorIds: [AccountId],
+        electedValidatorsOperation: BaseOperation<EraStakersInfo>
+    ) -> CompoundOperationWrapper<[ValidatorStakeInfo?]> {
+        let addressType = chain.addressType
+
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
+
+        let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
+            dependingOn: runtimeOperation,
+            path: .maxNominatorRewardedPerValidator
+        )
+
+        maxNominatorsOperation.addDependency(runtimeOperation)
+
+        let validatorsStakeInfoOperation = ClosureOperation<[ValidatorStakeInfo?]> {
+            let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
+            let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
+            let maxNominatorsRewarded =
+                try maxNominatorsOperation.extractNoCancellableResultData()
+            let addressFactory = SS58AddressFactory()
+
+            return try validatorIds.map { validatorId in
+                if let electedValidator = electedStakers.validators
+                    .first(where: { $0.accountId == validatorId }) {
+                    let nominators: [NominatorInfo] = try electedValidator.exposure.others.map { individual in
+                        let nominatorAddress = try addressFactory.addressFromAccountId(
+                            data: individual.who,
+                            type: addressType
+                        )
+
+                        let stake = Decimal.fromSubstrateAmount(
+                            individual.value,
+                            precision: addressType.precision
+                        ) ?? 0.0
+
+                        return NominatorInfo(address: nominatorAddress, stake: stake)
+                    }
+
+                    let totalStake = Decimal.fromSubstrateAmount(
+                        electedValidator.exposure.total,
+                        precision: addressType.precision
+                    ) ?? 0.0
+
+                    let stakeReturn = try returnCalculator.calculateValidatorReturn(
+                        validatorAccountId: validatorId,
+                        isCompound: false,
+                        period: .year
+                    )
+
+                    return ValidatorStakeInfo(
+                        nominators: nominators,
+                        totalStake: totalStake,
+                        stakeReturn: stakeReturn,
+                        maxNominatorsRewarded: maxNominatorsRewarded
+                    )
+                } else {
+                    return nil
+                }
+            }
+        }
+
+        validatorsStakeInfoOperation.addDependency(rewardCalculatorOperation)
+        validatorsStakeInfoOperation.addDependency(maxNominatorsOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: validatorsStakeInfoOperation,
+            dependencies: [runtimeOperation, rewardCalculatorOperation, maxNominatorsOperation]
+        )
+    }
+
+    private func createActiveValidatorsStakeInfo(
+        for nominatorAddress: AccountAddress,
+        electedValidatorsOperation: BaseOperation<EraStakersInfo>
+    ) -> CompoundOperationWrapper<[AccountId: ValidatorStakeInfo]> {
+        let addressType = chain.addressType
+
+        let rewardCalculatorOperation = rewardService.fetchCalculatorOperation()
+
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let maxNominatorsOperation: BaseOperation<UInt32> = createConstOperation(
+            dependingOn: runtimeOperation,
+            path: .maxNominatorRewardedPerValidator
+        )
+
+        maxNominatorsOperation.addDependency(runtimeOperation)
+
+        let validatorsStakeInfoOperation = ClosureOperation<[AccountId: ValidatorStakeInfo]> {
+            let electedStakers = try electedValidatorsOperation.extractNoCancellableResultData()
+            let returnCalculator = try rewardCalculatorOperation.extractNoCancellableResultData()
+            let addressFactory = SS58AddressFactory()
+            let nominatorAccountId = try addressFactory.accountId(fromAddress: nominatorAddress, type: addressType)
+            let maxNominatorsRewarded = try maxNominatorsOperation
+                .extractNoCancellableResultData()
+
+            return try electedStakers.validators
+                .reduce(into: [AccountId: ValidatorStakeInfo]()) { result, validator in
+                    let exposures = validator.exposure.others
+                        .sorted { $0.value > $1.value }
+                        .prefix(Int(maxNominatorsRewarded))
+
+                    guard exposures.contains(where: { $0.who == nominatorAccountId }) else {
+                        return
+                    }
+
+                    let nominators: [NominatorInfo] = try validator.exposure.others.map { individual in
+                        let nominatorAddress = try addressFactory.addressFromAccountId(
+                            data: individual.who,
+                            type: addressType
+                        )
+
+                        let stake = Decimal.fromSubstrateAmount(
+                            individual.value,
+                            precision: addressType.precision
+                        ) ?? 0.0
+
+                        return NominatorInfo(address: nominatorAddress, stake: stake)
+                    }
+
+                    let totalStake = Decimal.fromSubstrateAmount(
+                        validator.exposure.total,
+                        precision: addressType.precision
+                    ) ?? 0.0
+
+                    let stakeReturn = try returnCalculator.calculateValidatorReturn(
+                        validatorAccountId: validator.accountId,
+                        isCompound: false,
+                        period: .year
+                    )
+
+                    let info = ValidatorStakeInfo(
+                        nominators: nominators,
+                        totalStake: totalStake,
+                        stakeReturn: stakeReturn,
+                        maxNominatorsRewarded: maxNominatorsRewarded
+                    )
+
+                    result[validator.accountId] = info
+                }
+        }
+
+        validatorsStakeInfoOperation.addDependency(rewardCalculatorOperation)
+        validatorsStakeInfoOperation.addDependency(maxNominatorsOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: validatorsStakeInfoOperation,
+            dependencies: [rewardCalculatorOperation, runtimeOperation, maxNominatorsOperation]
+        )
+    }
+
+    private func createElectedValidatorsMergeOperation(
         dependingOn eraValidatorsOperation: BaseOperation<EraStakersInfo>,
         rewardOperation: BaseOperation<RewardCalculatorEngineProtocol>,
         maxNominatorsOperation: BaseOperation<UInt32>,
@@ -120,7 +350,7 @@ final class ValidatorOperationFactory {
                     identity: identities[address],
                     stakeReturn: validatorReturn,
                     hasSlashes: hasSlashes,
-                    maxNominatorsAllowed: maxNominators,
+                    maxNominatorsRewarded: maxNominators,
                     addressType: addressType,
                     blocked: validator.prefs.blocked
                 )
@@ -177,7 +407,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         let rewardOperation = rewardService.fetchCalculatorOperation()
 
-        let mapOperation = createMapOperation(
+        let mergeOperation = createElectedValidatorsMergeOperation(
             dependingOn: eraValidatorsOperation,
             rewardOperation: rewardOperation,
             maxNominatorsOperation: maxNominatorsOperation,
@@ -185,10 +415,10 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
             identitiesOperation: identityWrapper.targetOperation
         )
 
-        mapOperation.addDependency(slashingsWrapper.targetOperation)
-        mapOperation.addDependency(identityWrapper.targetOperation)
-        mapOperation.addDependency(maxNominatorsOperation)
-        mapOperation.addDependency(rewardOperation)
+        mergeOperation.addDependency(slashingsWrapper.targetOperation)
+        mergeOperation.addDependency(identityWrapper.targetOperation)
+        mergeOperation.addDependency(maxNominatorsOperation)
+        mergeOperation.addDependency(rewardOperation)
 
         let baseOperations = [
             runtimeOperation,
@@ -200,6 +430,178 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         let dependencies = baseOperations + identityWrapper.allOperations + slashingsWrapper.allOperations
 
-        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    func allSelectedOperation(
+        by nomination: Nomination,
+        nominatorAddress: AccountAddress
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        let identityWrapper = identityOperationFactory.createIdentityWrapper(
+            for: { nomination.targets },
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        let electedValidatorsOperation = eraValidatorService.fetchInfoOperation()
+
+        let statusesWrapper = createStatusesOperation(
+            for: nomination.targets,
+            electedValidatorsOperation: electedValidatorsOperation,
+            nominatorAddress: nominatorAddress,
+            nomination: nomination
+        )
+
+        statusesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
+
+        let validatorsStakingInfoWrapper = createValidatorsStakeInfoWrapper(
+            for: nomination.targets,
+            electedValidatorsOperation: electedValidatorsOperation
+        )
+
+        validatorsStakingInfoWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
+
+        let addressType = chain.addressType
+
+        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
+            let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
+            let validatorsStakingInfo = try validatorsStakingInfoWrapper.targetOperation
+                .extractNoCancellableResultData()
+
+            let addressFactory = SS58AddressFactory()
+
+            return try nomination.targets.enumerated().map { index, accountId in
+                let address = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
+
+                return SelectedValidatorInfo(
+                    address: address,
+                    identity: identities[address],
+                    stakeInfo: validatorsStakingInfo[index],
+                    myNomination: statuses[index]
+                )
+            }
+        }
+
+        mergeOperation.addDependency(identityWrapper.targetOperation)
+        mergeOperation.addDependency(statusesWrapper.targetOperation)
+        mergeOperation.addDependency(validatorsStakingInfoWrapper.targetOperation)
+
+        let dependecies = [electedValidatorsOperation] + identityWrapper.allOperations +
+            statusesWrapper.allOperations + validatorsStakingInfoWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies)
+    }
+
+    func activeValidatorsOperation(
+        for nominatorAddress: AccountAddress
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
+        let activeValidatorsStakeInfoWrapper = createActiveValidatorsStakeInfo(
+            for: nominatorAddress,
+            electedValidatorsOperation: eraValidatorsOperation
+        )
+
+        activeValidatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
+
+        let validatorIds: () throws -> [AccountId] = {
+            try activeValidatorsStakeInfoWrapper.targetOperation.extractNoCancellableResultData().map(\.key)
+        }
+
+        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
+            for: validatorIds,
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        identitiesWrapper.allOperations.forEach {
+            $0.addDependency(activeValidatorsStakeInfoWrapper.targetOperation)
+        }
+
+        let addressType = chain.addressType
+
+        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let validatorStakeInfo = try activeValidatorsStakeInfoWrapper.targetOperation
+                .extractNoCancellableResultData()
+            let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
+            let addressFactory = SS58AddressFactory()
+
+            return try validatorStakeInfo.compactMap { validatorAccountId, validatorStakeInfo in
+                guard let nominatorInfo = validatorStakeInfo.nominators
+                    .first(where: { $0.address == nominatorAddress }) else {
+                    return nil
+                }
+
+                let validatorAddress = try addressFactory.addressFromAccountId(
+                    data: validatorAccountId,
+                    type: addressType
+                )
+
+                return SelectedValidatorInfo(
+                    address: validatorAddress,
+                    identity: identities[validatorAddress],
+                    stakeInfo: validatorStakeInfo,
+                    myNomination: .active(amount: nominatorInfo.stake)
+                )
+            }
+        }
+
+        mergeOperation.addDependency(identitiesWrapper.targetOperation)
+        let dependencies = [eraValidatorsOperation] + activeValidatorsStakeInfoWrapper.allOperations +
+            identitiesWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
+    }
+
+    func pendingValidatorsOperation(
+        for accountIds: [AccountId]
+    ) -> CompoundOperationWrapper<[SelectedValidatorInfo]> {
+        let eraValidatorsOperation = eraValidatorService.fetchInfoOperation()
+        let validatorsStakeInfoWrapper = createValidatorsStakeInfoWrapper(
+            for: accountIds,
+            electedValidatorsOperation: eraValidatorsOperation
+        )
+
+        validatorsStakeInfoWrapper.allOperations.forEach { $0.addDependency(eraValidatorsOperation) }
+
+        let identitiesWrapper = identityOperationFactory.createIdentityWrapper(
+            for: { accountIds },
+            engine: engine,
+            runtimeService: runtimeService,
+            chain: chain
+        )
+
+        let addressType = chain.addressType
+
+        let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
+            let validatorsStakeInfo = try validatorsStakeInfoWrapper.targetOperation
+                .extractNoCancellableResultData()
+            let identities = try identitiesWrapper.targetOperation.extractNoCancellableResultData()
+            let addressFactory = SS58AddressFactory()
+
+            return try validatorsStakeInfo.enumerated().map { index, validatorStakeInfo in
+                let validatorAddress = try addressFactory.addressFromAccountId(
+                    data: accountIds[index],
+                    type: addressType
+                )
+
+                return SelectedValidatorInfo(
+                    address: validatorAddress,
+                    identity: identities[validatorAddress],
+                    stakeInfo: validatorStakeInfo,
+                    myNomination: nil
+                )
+            }
+        }
+
+        mergeOperation.addDependency(identitiesWrapper.targetOperation)
+        mergeOperation.addDependency(validatorsStakeInfoWrapper.targetOperation)
+
+        let dependencies = [eraValidatorsOperation] + validatorsStakeInfoWrapper.allOperations +
+            identitiesWrapper.allOperations
+
+        return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependencies)
     }
 }

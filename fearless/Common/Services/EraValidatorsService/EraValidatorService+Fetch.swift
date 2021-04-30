@@ -213,8 +213,14 @@ extension EraValidatorService {
         saveOperation.addDependency(exposureWrapper.targetOperation)
         saveOperation.addDependency(prefsWrapper.targetOperation)
 
-        let operations = [remoteValidatorIdsOperation] + exposureWrapper.allOperations +
-            prefsWrapper.allOperations + [saveOperation]
+        let operations: [Operation] = {
+            var array = [Operation]()
+            array.append(contentsOf: exposureWrapper.allOperations)
+            array.append(contentsOf: prefsWrapper.allOperations)
+            array.append(remoteValidatorIdsOperation)
+            array.append(saveOperation)
+            return array
+        }()
 
         saveOperation.completionBlock = { [weak self] in
             self?.syncQueue.async {

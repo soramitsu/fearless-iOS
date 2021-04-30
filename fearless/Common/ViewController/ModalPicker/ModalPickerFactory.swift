@@ -249,7 +249,7 @@ enum ModalPickerFactory {
     }
 
     static func createPickerForList(
-        _ items: [ManageStakingItem],
+        _ items: [StakingManageOption],
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     ) -> UIViewController? {
@@ -257,24 +257,26 @@ enum ModalPickerFactory {
             return nil
         }
 
-        let viewController: ModalPickerViewController<IconWithTitleTableViewCell, IconWithTitleViewModel>
+        let viewController: ModalPickerViewController<StakingManageCell, StakingManageViewModel>
             = ModalPickerViewController(nib: R.nib.modalPickerViewController)
 
         viewController.localizedTitle = LocalizableResource { locale in
             R.string.localizable.stakingManageTitle(preferredLanguages: locale.rLanguages)
         }
 
-        viewController.cellNib = UINib(resource: R.nib.iconWithTitleTableViewCell)
         viewController.delegate = delegate
         viewController.modalPresentationStyle = .custom
         viewController.context = context
         viewController.selectedIndex = NSNotFound
+        viewController.separatorStyle = .singleLine
+        viewController.cellHeight = StakingManageCell.cellHeight
 
         viewController.viewModels = items.map { type in
             LocalizableResource { locale in
-                IconWithTitleViewModel(
+                StakingManageViewModel(
                     icon: type.icon,
-                    title: type.titleForLocale(locale)
+                    title: type.titleForLocale(locale),
+                    details: type.detailsForLocale(locale)
                 )
             }
         }
@@ -282,8 +284,8 @@ enum ModalPickerFactory {
         let factory = ModalSheetPresentationFactory(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 
-        let height = viewController.headerHeight + CGFloat(items.count) * viewController.cellHeight +
-            viewController.footerHeight
+        let height = viewController.headerHeight
+            + CGFloat(items.count) * viewController.cellHeight
         viewController.preferredContentSize = CGSize(width: 0.0, height: height)
 
         viewController.localizationManager = LocalizationManager.shared
