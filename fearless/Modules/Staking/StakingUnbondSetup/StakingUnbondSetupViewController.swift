@@ -42,6 +42,7 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupNavigationItem()
+        setupAmountInputView()
         setupLocalization()
         updateActionButton()
 

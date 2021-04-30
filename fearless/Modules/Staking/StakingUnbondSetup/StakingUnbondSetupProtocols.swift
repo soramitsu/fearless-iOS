@@ -17,9 +17,15 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
     func close()
 }
 
-protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {}
+protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {}
+protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
+    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
+}
 
 protocol StakingUnbondSetupWireframeProtocol: AnyObject {
     func close(view: StakingUnbondSetupViewProtocol?)
