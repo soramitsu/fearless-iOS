@@ -12,7 +12,7 @@ protocol PurchaseProviderProtocol {
     func with(logoUrl: URL) -> Self
     func with(colorCode: String) -> Self
     func with(callbackUrl: URL) -> Self
-    func buildPurchaseAction(
+    func buildPurchaseActions(
         for chain: Chain,
         assetId: WalletAssetId?,
         address: String

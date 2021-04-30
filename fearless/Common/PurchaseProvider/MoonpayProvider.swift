@@ -26,7 +26,7 @@ final class MoonpayProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseAction(
+    func buildPurchaseActions(
         for chain: Chain,
         assetId _: WalletAssetId?,
         address: String

@@ -28,7 +28,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
         // when
         let expectation = XCTestExpectation()
 
-        let actions = provider.buildPurchaseAction(for: chain,
+        let actions = provider.buildPurchaseActions(for: chain,
                                                assetId: assetId,
                                                address: address)
         XCTAssertEqual(actions[0].url.absoluteString, expectedUrl)
@@ -61,7 +61,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
         // when
         let expectation = XCTestExpectation()
 
-        let actions = provider.buildPurchaseAction(for: chain,
+        let actions = provider.buildPurchaseActions(for: chain,
                                                assetId: assetId,
                                                address: address)
         XCTAssertEqual(actions[0].url.absoluteString, expectedUrl)

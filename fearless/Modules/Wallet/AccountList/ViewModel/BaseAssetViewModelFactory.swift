@@ -51,7 +51,7 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
             walletAssetId = nil
         }
 
-        let actions = purchaseProvider.buildPurchaseAction(
+        let actions = purchaseProvider.buildPurchaseActions(
             for: chain,
             assetId: walletAssetId,
             address: address
