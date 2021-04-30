@@ -13,7 +13,7 @@ struct ValidatorInfoCellStyle: OptionSet {
     static let oversubscribed: ValidatorInfoCellStyle = [.info, .warning]
 }
 
-final class ValidatorInfoGenericCell: UITableViewCell {
+final class ValidatorInfoCell: UITableViewCell {
     @IBOutlet var titleLabel: UILabel!
     @IBOutlet var subtitleLabel: UILabel!
     @IBOutlet private var auxSubtitleLabel: UILabel!

@@ -923,7 +923,7 @@
 		AE7129B4260872ED000AA3F5 /* EraStakersInfoChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */; };
 		AE7129BC2608C069000AA3F5 /* NetworkStakingInfoOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */; };
 		AE7129C12608CAE7000AA3F5 /* NetworkStakingInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE7129C02608CAE7000AA3F5 /* NetworkStakingInfo.swift */; };
-		AE74EB5725F7A31A00C494E7 /* ValidatorInfoGenericCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EB5625F7A31A00C494E7 /* ValidatorInfoGenericCell.swift */; };
+		AE74EB5725F7A31A00C494E7 /* ValidatorInfoCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EB5625F7A31A00C494E7 /* ValidatorInfoCell.swift */; };
 		AE74EBCA25F90CA500C494E7 /* URL+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */; };
 		AE74EBD025F911E700C494E7 /* ValidatorInfoTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */; };
 		AE74EC1525FCF09000C494E7 /* Localizable.stringsdict in Resources */ = {isa = PBXBuildFile; fileRef = AE74EC1725FCF09000C494E7 /* Localizable.stringsdict */; };
@@ -935,7 +935,7 @@
 		AE89724425F16BDF008EC414 /* ValidatorInfoAccountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89724325F16BDF008EC414 /* ValidatorInfoAccountCell.swift */; };
 		AE89725625F20774008EC414 /* ValidatorInfoHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89725525F20774008EC414 /* ValidatorInfoHeaderView.xib */; };
 		AE89725B25F20794008EC414 /* ValidatorInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89725A25F20794008EC414 /* ValidatorInfoHeaderView.swift */; };
-		AE89727B25F21F26008EC414 /* ValidatorInfoGenericCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89727A25F21F26008EC414 /* ValidatorInfoGenericCell.xib */; };
+		AE89727B25F21F26008EC414 /* ValidatorInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89727A25F21F26008EC414 /* ValidatorInfoCell.xib */; };
 		AE8E67CD263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */; };
 		AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */; };
 		AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */; };
@@ -2032,7 +2032,7 @@
 		AE7129B3260872ED000AA3F5 /* EraStakersInfoChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EraStakersInfoChanged.swift; sourceTree = "<group>"; };
 		AE7129BB2608C068000AA3F5 /* NetworkStakingInfoOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfoOperationFactory.swift; sourceTree = "<group>"; };
 		AE7129C02608CAE7000AA3F5 /* NetworkStakingInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkStakingInfo.swift; sourceTree = "<group>"; };
-		AE74EB5625F7A31A00C494E7 /* ValidatorInfoGenericCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoGenericCell.swift; sourceTree = "<group>"; };
+		AE74EB5625F7A31A00C494E7 /* ValidatorInfoCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoCell.swift; sourceTree = "<group>"; };
 		AE74EBC925F90CA500C494E7 /* URL+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URL+Helpers.swift"; sourceTree = "<group>"; };
 		AE74EBCF25F911E700C494E7 /* ValidatorInfoTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoTests.swift; sourceTree = "<group>"; };
 		AE74EC1625FCF09000C494E7 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.stringsdict; name = en; path = en.lproj/Localizable.stringsdict; sourceTree = "<group>"; };
@@ -2051,7 +2051,7 @@
 		AE89724325F16BDF008EC414 /* ValidatorInfoAccountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoAccountCell.swift; sourceTree = "<group>"; };
 		AE89725525F20774008EC414 /* ValidatorInfoHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoHeaderView.xib; sourceTree = "<group>"; };
 		AE89725A25F20794008EC414 /* ValidatorInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoHeaderView.swift; sourceTree = "<group>"; };
-		AE89727A25F21F26008EC414 /* ValidatorInfoGenericCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoGenericCell.xib; sourceTree = "<group>"; };
+		AE89727A25F21F26008EC414 /* ValidatorInfoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoCell.xib; sourceTree = "<group>"; };
 		AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoEmptyStakeCell.swift; sourceTree = "<group>"; };
 		AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStakingAmountCell.swift; sourceTree = "<group>"; };
 		AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoBaseTableCell.swift; sourceTree = "<group>"; };
@@ -4893,10 +4893,10 @@
 				AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */,
 				AE89725A25F20794008EC414 /* ValidatorInfoHeaderView.swift */,
 				AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */,
-				AE74EB5625F7A31A00C494E7 /* ValidatorInfoGenericCell.swift */,
+				AE74EB5625F7A31A00C494E7 /* ValidatorInfoCell.swift */,
 				AE89723E25F16B93008EC414 /* ValidatorInfoAccountCell.xib */,
 				AE89725525F20774008EC414 /* ValidatorInfoHeaderView.xib */,
-				AE89727A25F21F26008EC414 /* ValidatorInfoGenericCell.xib */,
+				AE89727A25F21F26008EC414 /* ValidatorInfoCell.xib */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -5556,7 +5556,7 @@
 				84D2F46425EF6A5A008B914D /* SelectedValidatorsHeaderView.xib in Resources */,
 				DAD0C626F7AA97E4974486AD /* AccountConfirmViewController.xib in Resources */,
 				8460E11B2541FD4800826F55 /* TransactionDetailsAccessoryView.xib in Resources */,
-				AE89727B25F21F26008EC414 /* ValidatorInfoGenericCell.xib in Resources */,
+				AE89727B25F21F26008EC414 /* ValidatorInfoCell.xib in Resources */,
 				4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */,
 				8460E12725422A6D00826F55 /* WalletCompoundDetailsView.xib in Resources */,
 				AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */,
@@ -6350,7 +6350,7 @@
 				84E1CD02260DCC62001E81B5 /* SwitchAccount+OnboardingMainWireframe.swift in Sources */,
 				84C6801224D6F44400006BF5 /* ExpandableActionControl+Inspectable.swift in Sources */,
 				847119CD262EF61F00716580 /* PayoutValidatorForValidatorFactory.swift in Sources */,
-				AE74EB5725F7A31A00C494E7 /* ValidatorInfoGenericCell.swift in Sources */,
+				AE74EB5725F7A31A00C494E7 /* ValidatorInfoCell.swift in Sources */,
 				8494D860252470F400614D8F /* WalletFearlessFormDefining.swift in Sources */,
 				84D8F15524D80CA100AF43E9 /* ModalPickerViewController.swift in Sources */,
 				84F43BAA25DEB75000AEDA56 /* StakingMainViewModel.swift in Sources */,
