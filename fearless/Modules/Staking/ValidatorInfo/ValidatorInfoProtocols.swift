@@ -44,6 +44,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
 
     func presentAccountOptions()
+    func presentStateDescription(for state: ValidatorMyNominationStatus)
 
     func presentTotalStake()
     func activateEmail()

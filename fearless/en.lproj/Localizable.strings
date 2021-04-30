@@ -360,3 +360,7 @@ Derivation path: %@";
 "staking.your.validators.changing.title" = "Your validators will change in the next era";
 "staking.validators.change.message" = "Validators change has been submitted";
 "staking.validator.info.nominators" = "%@ (max %@)";
+"staking.validator.status.slashed" = "Slashed";
+"staking.your.nominated.title" = "Nominated";
+"staking.your.nomination.title" = "Your nomination";
+"staking.validator.status.waiting" = "Waiting";

@@ -37,7 +37,7 @@ enum ValidatorInfoViewModel {
 
     enum StakingRow {
         case totalStake(LocalizableResource<TitleWithSubtitleViewModel>)
-        case nominators(LocalizableResource<TitleWithSubtitleViewModel>)
+        case nominators(LocalizableResource<TitleWithSubtitleViewModel>, Bool)
         case estimatedReward(LocalizableResource<TitleWithSubtitleViewModel>)
     }
 
@@ -49,7 +49,13 @@ enum ValidatorInfoViewModel {
         case riot(LocalizableResource<TitleWithSubtitleViewModel>)
     }
 
+    enum NominationRow {
+        case status(LocalizableResource<TitleWithSubtitleViewModel>, ValidatorMyNominationStatus)
+        case nominatedAmount(LocalizableResource<StakingAmountViewModel>)
+    }
+
     case account(ValidatorInfoAccountViewModelProtocol)
+    case myNomination([NominationRow])
     case emptyStake(LocalizableResource<ImageWithTitleViewModelProtocol>)
     case staking([StakingRow])
     case identity([IdentityRow])

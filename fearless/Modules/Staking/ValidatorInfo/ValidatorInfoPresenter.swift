@@ -60,6 +60,10 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         )
     }
 
+    func presentStateDescription(for _: ValidatorMyNominationStatus) {
+        #warning("Not implemented")
+    }
+
     func activateEmail() {
         guard let email = validatorInfo?.identity?.email else { return }
         guard let view = view else { return }
