@@ -126,7 +126,8 @@ extension ValidatorInfoViewController: UITableViewDataSource {
         return view
     }
 
-    // swiftlint:disable:next cyclomatic_complexity
+    // swiftlint:disable function_body_length
+    // swiftlint:disable cyclomatic_complexity
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         func informationCell(
             with model: LocalizableResource<TitleWithSubtitleViewModel>,
@@ -155,7 +156,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             return cell
         }
 
-        func amountCell(
+        func totalStakeCell(
             with model: LocalizableResource<StakingAmountViewModel>
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
@@ -196,8 +197,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         func nominatorsCell(
             with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            oversubscribed: Bool,
-            selectionStyle _: UITableViewCell.SelectionStyle = .default
+            oversubscribed: Bool
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
@@ -243,8 +243,9 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         case let .staking(rows):
             switch rows[indexPath.row] {
-            case let .totalStake(model): return informationCell(with: model)
-            case let .nominators(model, oversubscribed): return nominatorsCell(with: model, oversubscribed: oversubscribed)
+            case let .totalStake(model): return totalStakeCell(with: model)
+            case let .nominators(model, oversubscribed):
+                return nominatorsCell(with: model, oversubscribed: oversubscribed)
             case let .estimatedReward(model): return titleSubtitleCell(with: model, selectionStyle: .none)
             }
 
@@ -259,6 +260,9 @@ extension ValidatorInfoViewController: UITableViewDataSource {
         }
     }
 }
+
+// swiftlint:enable function_body_length
+// swiftlint:enable cyclomatic_complexity
 
 // MARK: - ValidatorInfoViewProtocol
 

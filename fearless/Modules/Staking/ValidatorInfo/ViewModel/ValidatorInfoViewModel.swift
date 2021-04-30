@@ -36,7 +36,7 @@ enum ValidatorInfoViewModel {
     static let emptyStakeRowHeight: CGFloat = 140.0
 
     enum StakingRow {
-        case totalStake(LocalizableResource<TitleWithSubtitleViewModel>)
+        case totalStake(LocalizableResource<StakingAmountViewModel>)
         case nominators(LocalizableResource<TitleWithSubtitleViewModel>, Bool)
         case estimatedReward(LocalizableResource<TitleWithSubtitleViewModel>)
     }

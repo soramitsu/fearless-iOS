@@ -1,6 +1,10 @@
 import UIKit
 
 final class ValidatorInfoStakingAmountCell: ValidatorInfoBaseTableCell, ModalPickerCellProtocol {
+    enum Constants {
+        static let verticalInset: CGFloat = 10.0
+    }
+
     typealias Model = StakingAmountViewModel
 
     var checkmarked: Bool = false
@@ -14,25 +18,25 @@ final class ValidatorInfoStakingAmountCell: ValidatorInfoBaseTableCell, ModalPic
 
     let priceLabel: UILabel = {
         let label = UILabel()
-        label.font = .p1Paragraph
+        label.font = .p2Paragraph
         label.textColor = R.color.colorGray()
         return label
     }()
 
-    // TODO: change layout
     override func setupLayout() {
         super.setupLayout()
 
         contentView.addSubview(priceLabel)
         priceLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
+            make.bottom.equalToSuperview().inset(Constants.verticalInset)
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
         }
 
         contentView.addSubview(amountLabel)
         amountLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(priceLabel.snp.leading).offset(-8)
-            make.centerY.equalToSuperview()
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(Constants.verticalInset)
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
         }
     }
@@ -41,14 +45,6 @@ final class ValidatorInfoStakingAmountCell: ValidatorInfoBaseTableCell, ModalPic
         titleLabel.text = model.title
         amountLabel.text = model.balance.amount
         priceLabel.text = model.balance.price ?? ""
-
-        // TODO: Remove
-        let isPriceEmpty = model.balance.price?.isEmpty ?? true
-
-        amountLabel.snp.updateConstraints { make in
-            let offset = !isPriceEmpty ? -8 : 0
-            make.trailing.equalTo(priceLabel.snp.leading).offset(offset)
-        }
 
         setNeedsLayout()
     }

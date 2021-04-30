@@ -41,24 +41,24 @@
                         </userDefinedRuntimeAttributes>
                     </view>
                     <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="adp-ym-PdF">
-                        <rect key="frame" x="239" y="0.0" width="120" height="59"/>
+                        <rect key="frame" x="245" y="8" width="114" height="43"/>
                         <subviews>
                             <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconWarning" translatesAutoresizingMaskIntoConstraints="NO" id="SGh-UH-f7l">
-                                <rect key="frame" x="0.0" y="0.0" width="16" height="59"/>
+                                <rect key="frame" x="0.0" y="0.0" width="16" height="43"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
-                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="3vx-v7-zzg">
-                                <rect key="frame" x="22" y="0.0" width="76" height="59"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="3vx-v7-zzg">
+                                <rect key="frame" x="22" y="0.0" width="70" height="43"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0,265 KSM" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edb-2U-aVR">
-                                        <rect key="frame" x="0.0" y="0.0" width="76" height="43.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="70" height="23.5"/>
                                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                         <color key="textColor" name="colorWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="252" text="$500,45" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hSf-Hs-KfO">
-                                        <rect key="frame" x="0.0" y="43.5" width="76" height="15.5"/>
+                                        <rect key="frame" x="26.5" y="23.5" width="43.5" height="19.5"/>
                                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                                         <color key="textColor" name="colorGray"/>
                                         <nil key="highlightedColor"/>
@@ -67,20 +67,20 @@
                                 <viewLayoutGuide key="safeArea" id="QZX-Fd-eEK"/>
                             </stackView>
                             <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAboutArrow" translatesAutoresizingMaskIntoConstraints="NO" id="klr-CY-tYa">
-                                <rect key="frame" x="104" y="0.0" width="16" height="59"/>
+                                <rect key="frame" x="98" y="0.0" width="16" height="43"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </imageView>
                         </subviews>
                     </stackView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Total Stake" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000001192092896" translatesAutoresizingMaskIntoConstraints="NO" id="SnR-p7-Q7z">
-                        <rect key="frame" x="16" y="20.5" width="78.5" height="18"/>
+                        <rect key="frame" x="16" y="21.5" width="69.5" height="16.5"/>
                         <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                         <color key="textColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconInfoFilled" translatesAutoresizingMaskIntoConstraints="NO" id="rbo-ux-ktc">
-                        <rect key="frame" x="100.5" y="21.5" width="16" height="16"/>
+                        <rect key="frame" x="91.5" y="21.5" width="16" height="16"/>
                         <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     </imageView>
@@ -94,8 +94,8 @@
                     <constraint firstAttribute="bottom" secondItem="E6w-rP-rSh" secondAttribute="bottom" id="HvV-Kv-WJb"/>
                     <constraint firstItem="SnR-p7-Q7z" firstAttribute="leading" secondItem="olH-HQ-OaP" secondAttribute="leading" constant="16" id="aJz-6e-ybM"/>
                     <constraint firstAttribute="trailing" secondItem="adp-ym-PdF" secondAttribute="trailing" constant="16" id="aZ9-hU-5Yq"/>
-                    <constraint firstAttribute="bottom" secondItem="adp-ym-PdF" secondAttribute="bottom" id="cPG-mm-Cg5"/>
-                    <constraint firstItem="adp-ym-PdF" firstAttribute="top" secondItem="olH-HQ-OaP" secondAttribute="top" id="irz-qg-sBC"/>
+                    <constraint firstAttribute="bottom" secondItem="adp-ym-PdF" secondAttribute="bottom" constant="8" id="cPG-mm-Cg5"/>
+                    <constraint firstItem="adp-ym-PdF" firstAttribute="top" secondItem="olH-HQ-OaP" secondAttribute="top" constant="8" id="irz-qg-sBC"/>
                     <constraint firstItem="rbo-ux-ktc" firstAttribute="leading" secondItem="SnR-p7-Q7z" secondAttribute="trailing" constant="6" id="kr1-Wh-okD"/>
                     <constraint firstItem="rbo-ux-ktc" firstAttribute="centerY" secondItem="olH-HQ-OaP" secondAttribute="centerY" id="tmm-mx-pe3"/>
                 </constraints>

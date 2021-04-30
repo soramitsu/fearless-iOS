@@ -4,7 +4,11 @@ import SoraFoundation
 import CommonWallet
 
 protocol ValidatorInfoViewModelFactoryProtocol {
-    func createViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewModel]
+    func createViewModel(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
+    )
+        -> [ValidatorInfoViewModel]
     func createStakingAmountsViewModel(
         from validatorInfo: ValidatorInfoProtocol,
         priceData: PriceData?
@@ -69,22 +73,17 @@ final class ValidatorInfoViewModelFactory {
 
     // MARK: Stake Rows
 
-    private func createTotalStakeRow(with totalStake: Decimal) -> LocalizableResource<TitleWithSubtitleViewModel> {
-        let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
-
-        return LocalizableResource { locale in
-
-            let title = R.string.localizable
+    private func createTotalStakeRow(with totalStake: Decimal, priceData: PriceData?) -> LocalizableResource<StakingAmountViewModel> {
+        let title = LocalizableResource { locale in
+            R.string.localizable
                 .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
-
-            let subtitle = tokenFormatter.value(for: locale)
-                .string(from: totalStake) ?? ""
-
-            return TitleWithSubtitleViewModel(
-                title: title,
-                subtitle: subtitle
-            )
         }
+
+        return createStakingAmountRow(
+            title: title,
+            amount: totalStake,
+            priceData: priceData
+        )
     }
 
     private func createOwnStakeTitle() -> LocalizableResource<String> {
@@ -129,7 +128,6 @@ final class ValidatorInfoViewModelFactory {
         }
     }
 
-    // TODO: https://soramitsu.atlassian.net/browse/FLW-655 Add max nominators and warning for oversubscribed state
     private func createNominatorsRow(with stakeInfo: ValidatorStakeInfoProtocol)
         -> LocalizableResource<TitleWithSubtitleViewModel> {
         LocalizableResource { locale in
@@ -216,7 +214,8 @@ final class ValidatorInfoViewModelFactory {
     }
 
     private func createStakingViewModel(
-        from validatorInfo: ValidatorInfoProtocol
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
     ) -> ValidatorInfoViewModel {
         guard let stakeInfo = validatorInfo.stakeInfo else { return createEmptyStakeRow() }
 
@@ -227,7 +226,7 @@ final class ValidatorInfoViewModelFactory {
         )
 
         stakingRows.append(
-            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake))
+            .totalStake(createTotalStakeRow(with: stakeInfo.totalStake, priceData: priceData))
         )
 
         stakingRows.append(
@@ -237,7 +236,7 @@ final class ValidatorInfoViewModelFactory {
         return .staking(stakingRows)
     }
 
-//    case identity([IdentityRow])
+    //    case identity([IdentityRow])
     private func createIdentityViewModel(
         from validatorInfo: ValidatorInfoProtocol
     ) -> ValidatorInfoViewModel? {
@@ -271,7 +270,8 @@ final class ValidatorInfoViewModelFactory {
     }
 
     private func createMyNominationViewModel(
-        from validatorInfo: ValidatorInfoProtocol
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
     ) -> ValidatorInfoViewModel? {
         guard let nomination = validatorInfo.myNomination else { return nil }
 
@@ -283,7 +283,7 @@ final class ValidatorInfoViewModelFactory {
             let row = createStakingAmountRow(
                 title: createYourNominatedTitle(),
                 amount: amount,
-                priceData: nil
+                priceData: priceData
             )
 
             nominationRows.append(.nominatedAmount(row))
@@ -296,14 +296,20 @@ final class ValidatorInfoViewModelFactory {
 // MARK: - ValidatorInfoViewModelFactoryProtocol
 
 extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
-    func createViewModel(from validatorInfo: ValidatorInfoProtocol) -> [ValidatorInfoViewModel] {
+    func createViewModel(
+        from validatorInfo: ValidatorInfoProtocol,
+        priceData: PriceData?
+    ) -> [ValidatorInfoViewModel] {
         var model = [createAccountViewModel(from: validatorInfo)]
 
-        if let nominationModel = createMyNominationViewModel(from: validatorInfo) {
+        if let nominationModel = createMyNominationViewModel(
+            from: validatorInfo,
+            priceData: priceData
+        ) {
             model.append(nominationModel)
         }
 
-        model.append(createStakingViewModel(from: validatorInfo))
+        model.append(createStakingViewModel(from: validatorInfo, priceData: priceData))
 
         if let identityModel = createIdentityViewModel(from: validatorInfo) {
             model.append(identityModel)
@@ -316,14 +322,18 @@ extension ValidatorInfoViewModelFactory: ValidatorInfoViewModelFactoryProtocol {
         from validatorInfo: ValidatorInfoProtocol,
         priceData: PriceData?
     ) -> [LocalizableResource<StakingAmountViewModel>] {
-        [createStakingAmountRow(
+        let nominatorsStake = validatorInfo.stakeInfo?.nominators
+            .map(\.stake)
+            .reduce(0, +) ?? 0.0
+
+        return [createStakingAmountRow(
             title: createOwnStakeTitle(),
-            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+            amount: (validatorInfo.stakeInfo?.totalStake ?? 0.0) - nominatorsStake,
             priceData: priceData
         ),
         createStakingAmountRow(
             title: createNominatorsStakeTitle(),
-            amount: validatorInfo.stakeInfo?.totalStake ?? 0.0,
+            amount: nominatorsStake,
             priceData: priceData
         ),
         createStakingAmountRow(

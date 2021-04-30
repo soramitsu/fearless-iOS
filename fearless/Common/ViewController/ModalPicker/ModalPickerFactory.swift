@@ -316,16 +316,6 @@ enum ModalPickerFactory {
 
         viewController.viewModels = items
 
-        // TODO: remove
-//        viewController.viewModels = items.map { type in
-//            LocalizableResource { _ in
-//                IconWithTitleViewModel(
-//                    icon: type.icon,
-//                    title: type.title
-//                )
-//            }
-//        }
-
         let factory = ModalSheetPresentationFactory(configuration: .fearless)
         viewController.modalTransitioningFactory = factory
 

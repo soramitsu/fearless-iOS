@@ -25,6 +25,11 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             balanceViewModelFactory: balanceViewModelFactory
         )
 
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
+
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
+
         let view = ValidatorInfoViewController(nib: R.nib.validatorInfoViewController)
         view.locale = localizationManager.selectedLocale
 
@@ -34,7 +39,10 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             locale: localizationManager.selectedLocale
         )
 
-        let interactor = ValidatorInfoInteractor(validatorInfo: validatorInfo)
+        let interactor = ValidatorInfoInteractor(
+            validatorInfo: validatorInfo,
+            priceProvider: priceProvider
+        )
         let wireframe = ValidatorInfoWireframe()
 
         view.presenter = presenter

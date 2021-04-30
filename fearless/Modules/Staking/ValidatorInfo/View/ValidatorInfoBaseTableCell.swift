@@ -31,7 +31,7 @@ class ValidatorInfoBaseTableCell: UITableViewCell {
     func setupLayout() {
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.top.bottom.equalToSuperview().inset(16)
+            make.leading.top.bottom.equalToSuperview().inset(UIConstants.horizontalInset)
         }
     }
 }
