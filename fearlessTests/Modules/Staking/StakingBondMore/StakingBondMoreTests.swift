@@ -2,6 +2,7 @@ import XCTest
 import Cuckoo
 import RobinHood
 import SoraFoundation
+import CommonWallet
 @testable import fearless
 
 class StakingBondMoreTests: XCTestCase {
@@ -9,12 +10,25 @@ class StakingBondMoreTests: XCTestCase {
     func testContinueAction() {
         let wireframe = MockStakingBondMoreWireframeProtocol()
         let interactor = MockStakingBondMoreInteractorInputProtocol()
-        let viewModelFactory = MockStakingBondMoreViewModelFactoryProtocol()
+        let balanceViewModelFactory = StubBalanceViewModelFactory()
+        let stubAsset = WalletAsset(
+            identifier: "",
+            name: .init(closure: { _ in "" }),
+            symbol: "",
+            precision: 0
+        )
         let presenter = StakingBondMorePresenter(
             interactor: interactor,
             wireframe: wireframe,
-            viewModelFactory: viewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            asset: stubAsset
         )
+        let view = MockStakingBondMoreViewProtocol()
+        presenter.view = view
+
+        stub(view) { stub in
+            when(stub).localizationManager.get.then { _ in nil }
+        }
 
         // given
         let continueExpectation = XCTestExpectation()
