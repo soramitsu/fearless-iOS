@@ -38,6 +38,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
         setupInitBalanceView()
         setupBalanceAccessoryView()
+        setupActionButton()
         applyLocalization()
         presenter.setup()
     }
@@ -67,6 +68,15 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     private func setupBalanceAccessoryView() {
         let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
+    }
+
+    private func setupActionButton() {
+        rootView.continueButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleActionButton() {
+        presenter.handleContinueAction()
     }
 
     private func updateActionButton() {

@@ -64,6 +64,30 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     }
 
     func handleContinueAction() {
+        guard let fee = fee else {
+            if let view = view {
+                wireframe.presentFeeNotReceived(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
+            }
+
+            return
+        }
+
+        guard
+            let balance = balance,
+            amount + fee <= balance else {
+            if let view = view {
+                wireframe.presentAmountTooHigh(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
+            }
+
+            estimateFee()
+            return
+        }
         wireframe.showConfirmation(from: view)
     }
 
