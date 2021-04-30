@@ -81,18 +81,6 @@
             ReferencedContainer = "container:fearless.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
-      <EnvironmentVariables>
-         <EnvironmentVariable
-            key = "MOONPAY_TEST_SECRET"
-            value = "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-         <EnvironmentVariable
-            key = "MOONPAY_PRODUCTION_SECRET"
-            value = "sk_test_gv8uZyjSE2ifxhJyEFCGYwNaMntfsdKY"
-            isEnabled = "YES">
-         </EnvironmentVariable>
-      </EnvironmentVariables>
    </LaunchAction>
    <ProfileAction
       buildConfiguration = "Release"
