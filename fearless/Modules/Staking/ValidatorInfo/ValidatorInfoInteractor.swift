@@ -33,6 +33,7 @@ final class ValidatorInfoInteractor {
 
         let failureClosure = { [weak self] (error: Error) in
             self?.presenter?.didReceive(priceError: error)
+            return
         }
 
         let options = DataProviderObserverOptions(
