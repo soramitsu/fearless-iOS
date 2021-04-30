@@ -82,35 +82,8 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func applyFee() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let fee = feeViewModel?.value(for: locale) {
-            // feeActivityIndicator.stopAnimating()
-
-            let amountAttributedString = NSMutableAttributedString(
-                string: fee.amount + "  ",
-                attributes: [
-                    .foregroundColor: R.color.colorWhite()!,
-                    .font: UIFont.p1Paragraph
-                ]
-            )
-
-            if let price = fee.price {
-                let priceAttributedString = NSAttributedString(
-                    string: price,
-                    attributes: [
-                        .foregroundColor: R.color.colorGray()!,
-                        .font: UIFont.p1Paragraph
-                    ]
-                )
-                amountAttributedString.append(priceAttributedString)
-            }
-
-            // feeDetailsLabel.attributedText = amountAttributedString
-            print(amountAttributedString)
-        } else {
-            print("empty")
-//            feeDetailsLabel.text = ""
-//            feeActivityIndicator.startAnimating()
+        if let fee = feeViewModel?.value(for: selectedLocale) {
+            rootView.networkFeeView.bind(tokenAmount: fee.amount, fiatAmount: fee.price)
         }
     }
 }
@@ -147,8 +120,7 @@ extension StakingBondMoreViewController: Localizable {
         if isViewLoaded {
             title = R.string.localizable
                 .stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
-            rootView.continueButton.imageWithTitleView?.title = R.string.localizable
-                .commonContinue(preferredLanguages: selectedLocale.rLanguages)
+            rootView.locale = selectedLocale
         }
     }
 }

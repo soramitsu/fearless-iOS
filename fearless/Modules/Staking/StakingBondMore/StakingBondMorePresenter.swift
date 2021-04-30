@@ -70,15 +70,12 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
         amount = newValue
 
         provideAsset()
-//        provideRewardDestination()
-//        scheduleFeeEstimation()
+        estimateFee()
     }
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
     func didReceive(paymentInfo: RuntimeDispatchInfo, for _: BigUInt) {
-        // loadingFee = false
-
         if let feeValue = BigUInt(paymentInfo.fee),
            let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
             self.fee = fee
@@ -90,9 +87,6 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
     }
 
     func didReceive(error: Error) {
-//        loadingPayouts = false
-//        loadingFee = false
-
         let locale = view?.localizationManager?.selectedLocale
 
         _ = wireframe.present(error: error, from: view, locale: locale)

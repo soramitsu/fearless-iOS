@@ -37,6 +37,8 @@ final class StakingBondMoreViewLayout: UIView {
 
     private func applyLocalization() {
         networkFeeView.locale = locale
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
