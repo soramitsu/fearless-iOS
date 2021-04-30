@@ -12,6 +12,7 @@ protocol StakingBondMorePresenterProtocol: AnyObject {
     func setup()
     func handleContinueAction()
     func updateAmount(_ newValue: Decimal)
+    func selectAmountPercentage(_ percentage: Float)
 }
 
 protocol StakingBondMoreInteractorInputProtocol: AnyObject {

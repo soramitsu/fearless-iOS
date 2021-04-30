@@ -73,6 +73,24 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
         provideAsset()
         estimateFee()
     }
+
+    func selectAmountPercentage(_ percentage: Float) {
+        if let balance = balance, let fee = fee {
+            let newAmount = max(balance - fee, 0.0) * Decimal(Double(percentage))
+
+            if newAmount > 0 {
+                amount = newAmount
+
+                provideAmountInputViewModel()
+                provideAsset()
+            } else if let view = view {
+                wireframe.presentAmountTooHigh(
+                    from: view,
+                    locale: view.localizationManager?.selectedLocale
+                )
+            }
+        }
+    }
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {

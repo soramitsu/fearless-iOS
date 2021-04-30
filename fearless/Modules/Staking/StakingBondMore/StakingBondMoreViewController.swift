@@ -37,6 +37,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupInitBalanceView()
+        setupBalanceAccessoryView()
         applyLocalization()
         presenter.setup()
     }
@@ -61,6 +62,11 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
         rootView.amountInputView.textField.attributedPlaceholder = placeholder
         rootView.amountInputView.textField.keyboardType = .decimalPad
         rootView.amountInputView.textField.delegate = self
+    }
+
+    private func setupBalanceAccessoryView() {
+        let accessoryView = UIFactory().createAmountAccessoryView(for: self, locale: selectedLocale)
+        rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 
     private func updateActionButton() {
@@ -122,6 +128,18 @@ extension StakingBondMoreViewController: Localizable {
                 .stakingBondMore(preferredLanguages: selectedLocale.rLanguages)
             rootView.locale = selectedLocale
         }
+    }
+}
+
+extension StakingBondMoreViewController: AmountInputAccessoryViewDelegate {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
+        rootView.amountInputView.textField.resignFirstResponder()
+
+        presenter.selectAmountPercentage(percentage)
+    }
+
+    func didSelectDone(on _: AmountInputAccessoryView) {
+        rootView.amountInputView.textField.resignFirstResponder()
     }
 }
 
