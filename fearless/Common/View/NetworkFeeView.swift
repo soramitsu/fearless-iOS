@@ -59,7 +59,8 @@ final class NetworkFeeView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(15)
         }
 
         addSubview(tokenLabel)

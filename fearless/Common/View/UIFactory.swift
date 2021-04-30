@@ -44,6 +44,8 @@ protocol UIFactoryProtocol {
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -329,5 +331,9 @@ final class UIFactory: UIFactoryProtocol {
         toolBar.setItems(barItems + [flexibleSpacing, doneItem], animated: true)
 
         return toolBar
+    }
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
+        NetworkFeeConfirmView()
     }
 }

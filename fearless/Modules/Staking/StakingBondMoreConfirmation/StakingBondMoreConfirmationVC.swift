@@ -34,6 +34,9 @@ final class StakingBMConfirmationVC: UIViewController, ViewHolder {
 
         applyLocalization()
         presenter.setup()
+
+        // TODO: delete
+        rootView.networkFeeConfirmView.networkFeeView.bind(tokenAmount: "0.001 KSM", fiatAmount: "$1")
     }
 }
 

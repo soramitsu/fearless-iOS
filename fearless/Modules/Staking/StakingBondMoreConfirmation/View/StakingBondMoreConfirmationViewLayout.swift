@@ -6,6 +6,8 @@ final class StakingBMConfirmationViewLayout: UIView {
         return view
     }()
 
+    let networkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -46,6 +48,11 @@ final class StakingBMConfirmationViewLayout: UIView {
             make.top.equalTo(separator.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(72)
+        }
+
+        addSubview(networkFeeConfirmView)
+        networkFeeConfirmView.snp.makeConstraints { make in
+            make.leading.bottom.trailing.equalToSuperview()
         }
     }
 }
