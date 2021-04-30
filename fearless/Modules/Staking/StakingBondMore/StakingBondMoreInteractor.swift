@@ -7,20 +7,27 @@ final class StakingBondMoreInteractor {
 
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
-    private let extrinsicService: ExtrinsicServiceProtocol
+    private let stashItemProvider: StreamableProvider<StashItem>
+    private let accountRepository: AnyDataProviderRepository<AccountItem>
+    private let extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol
+    private var extrinsicService: ExtrinsicServiceProtocol?
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
 
     init(
         priceProvider: AnySingleValueProvider<PriceData>,
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-        extrinsicService: ExtrinsicServiceProtocol,
+        stashItemProvider: StreamableProvider<StashItem>,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.priceProvider = priceProvider
         self.balanceProvider = balanceProvider
-        self.extrinsicService = extrinsicService
+        self.stashItemProvider = stashItemProvider
+        self.accountRepository = accountRepository
+        self.extrinsicServiceFactoryProtocol = extrinsicServiceFactoryProtocol
         self.runtimeService = runtimeService
         self.operationManager = operationManager
     }
@@ -72,10 +79,62 @@ final class StakingBondMoreInteractor {
             options: options
         )
     }
+
+    func subscribeToStashItemProvider() {
+        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
+            let stashItem = changes.reduceToLastChange()
+            self?.handle(stashItem: stashItem)
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceive(stashItemResult: .failure(error))
+            return
+        }
+
+        stashItemProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: changesClosure,
+            failing: failureClosure,
+            options: StreamableProviderObserverOptions.substrateSource()
+        )
+    }
+
+    func handle(stashItem: StashItem?) {
+        if let stashItem = stashItem {
+            fetchStash(for: stashItem.stash)
+        }
+
+        presenter?.didReceive(stashItemResult: .success(stashItem))
+    }
+
+    func fetchStash(for address: AccountAddress) {
+        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
+
+        operation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let accountItem = try operation.extractNoCancellableResultData()
+                    self.handleStashAccountItem(accountItem)
+                } catch {
+                    self.presenter.didReceive(error: error)
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
+
+    func handleStashAccountItem(_ accountItem: AccountItem?) {
+        guard let accountItem = accountItem else { return }
+        extrinsicService = extrinsicServiceFactoryProtocol.createService(accountItem: accountItem)
+        estimateFee(amount: 0)
+    }
 }
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
+        subscribeToStashItemProvider()
         subscribeToPriceChanges()
         subscribeToAccountChanges()
     }
@@ -94,7 +153,7 @@ extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
 
     func estimateFee(amount: BigUInt) {
         let closure = createExtrinsicBuilderClosure(amount: amount)
-        extrinsicService.estimateFee(closure, runningIn: .main) { [weak self] result in
+        extrinsicService?.estimateFee(closure, runningIn: .main) { [weak self] result in
             switch result {
             case let .success(info):
                 self?.presenter.didReceive(paymentInfo: info, for: amount)

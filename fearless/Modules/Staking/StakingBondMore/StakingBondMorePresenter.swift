@@ -152,4 +152,15 @@ extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
 
         provideAsset()
     }
+
+    func didReceive(stashItemResult: Result<StashItem?, Error>) {
+        switch stashItemResult {
+        case let .success(stashItem):
+            if stashItem == nil {
+                wireframe.close(view: view)
+            }
+        case let .failure(error):
+            didReceive(error: error)
+        }
+    }
 }

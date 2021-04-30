@@ -25,8 +25,10 @@ protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
     func didReceive(balance: DyAccountData?)
     func didReceive(error: Error)
     func didReceive(paymentInfo: RuntimeDispatchInfo, for amount: BigUInt)
+    func didReceive(stashItemResult: Result<StashItem?, Error>)
 }
 
 protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
+    func close(view: ControllerBackedProtocol?)
 }

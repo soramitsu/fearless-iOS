@@ -49,14 +49,6 @@ struct StakingBondMoreViewFactory {
             return nil
         }
 
-        let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
         let providerFactory = SingleValueProviderFactory.shared
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
         guard let balanceProvider = try? providerFactory
@@ -68,10 +60,26 @@ struct StakingBondMoreViewFactory {
             return nil
         }
 
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
+        let stashItemProvider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
+        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+        let repository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
         let interactor = StakingBondMoreInteractor(
             priceProvider: priceProvider,
             balanceProvider: AnyDataProvider(balanceProvider),
-            extrinsicService: extrinsicService,
+            stashItemProvider: stashItemProvider,
+            accountRepository: AnyDataProviderRepository(repository),
+            extrinsicServiceFactoryProtocol: extrinsicServiceFactory,
             runtimeService: runtimeService,
             operationManager: operationManager
         )
