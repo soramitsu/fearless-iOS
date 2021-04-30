@@ -2,6 +2,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 import FearlessUtils
+import CommonWallet
 
 struct StakingBondMoreViewFactory {
     static func createView() -> StakingBondMoreViewProtocol? {
@@ -9,6 +10,35 @@ struct StakingBondMoreViewFactory {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
+
+        let wireframe = StakingBondMoreWireframe()
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount
+        )
+
+        guard let interactor = createInteractor(asset: asset) else { return nil }
+        let presenter = StakingBondMorePresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            balanceViewModelFactory: balanceViewModelFactory,
+            asset: asset
+        )
+        let viewController = StakingBondMoreViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+        presenter.view = viewController
+        interactor.presenter = presenter
+
+        return viewController
+    }
+
+    private static func createInteractor(asset: WalletAsset) -> StakingBondMoreInteractor? {
+        let settings = SettingsManager.shared
+
         let operationManager = OperationManagerFacade.sharedManager
         let runtimeService = RuntimeRegistryFacade.sharedService
 
@@ -45,28 +75,6 @@ struct StakingBondMoreViewFactory {
             runtimeService: runtimeService,
             operationManager: operationManager
         )
-        let wireframe = StakingBondMoreWireframe()
-        // let viewModelFactory = StakingBondMoreViewModelFactory()
-
-        let balanceViewModelFactory = BalanceViewModelFactory(
-            walletPrimitiveFactory: primitiveFactory,
-            selectedAddressType: networkType,
-            limit: StakingConstants.maxAmount
-        )
-
-        let presenter = StakingBondMorePresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            balanceViewModelFactory: balanceViewModelFactory,
-            asset: asset
-        )
-        let viewController = StakingBondMoreViewController(
-            presenter: presenter,
-            localizationManager: LocalizationManager.shared
-        )
-        presenter.view = viewController
-        interactor.presenter = presenter
-
-        return viewController
+        return interactor
     }
 }
