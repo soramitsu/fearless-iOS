@@ -6,22 +6,37 @@ final class StakingBondMoreViewLayout: UIView {
         return view
     }()
 
+    let networkFeeView = NetworkFeeView()
+
     let continueButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
         return button
     }()
 
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         backgroundColor = R.color.colorBlack()
+        applyLocalization()
         setupLayout()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+
+    private func applyLocalization() {
+        networkFeeView.locale = locale
     }
 
     private func setupLayout() {
@@ -37,6 +52,13 @@ final class StakingBondMoreViewLayout: UIView {
         amountInputView.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        addSubview(networkFeeView)
+        networkFeeView.snp.makeConstraints { make in
+            make.top.equalTo(amountInputView.snp.bottom).offset(UIConstants.horizontalInset)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
         }
 
         addSubview(continueButton)
