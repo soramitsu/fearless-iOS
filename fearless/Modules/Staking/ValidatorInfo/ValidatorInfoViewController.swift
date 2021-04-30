@@ -24,8 +24,8 @@ final class ValidatorInfoViewController: UIViewController {
         )
 
         tableView.register(
-            UINib(resource: R.nib.validatorInfoGenericCell),
-            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoGenericCellId.identifier
+            UINib(resource: R.nib.validatorInfoCell),
+            forCellReuseIdentifier: R.reuseIdentifier.validatorInfoCellId.identifier
         )
 
         tableView.registerClassForCell(ValidatorInfoEmptyStakeCell.self)
@@ -134,7 +134,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             selectionStyle: UITableViewCell.SelectionStyle = .default
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.info)
@@ -148,7 +148,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             state: ValidatorMyNominationStatus
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.info)
@@ -160,7 +160,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             with model: LocalizableResource<StakingAmountViewModel>
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.totalStake)
@@ -172,7 +172,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             with model: LocalizableResource<StakingAmountViewModel>
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.balance)
@@ -187,7 +187,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
         )
             -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.bind(model: model.value(for: locale))
@@ -200,7 +200,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
             oversubscribed: Bool
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.bind(model: model.value(for: locale))
@@ -211,7 +211,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         func webCell(with model: LocalizableResource<TitleWithSubtitleViewModel>) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
-                withIdentifier: R.reuseIdentifier.validatorInfoGenericCellId,
+                withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.web)
