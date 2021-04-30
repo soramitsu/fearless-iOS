@@ -51,7 +51,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
     }
 
     private func setupActionButton() {
-        rootView.continueButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+        rootView.actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
     }
 
     @objc
@@ -61,7 +61,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
-        rootView.continueButton.isEnabled = isEnabled
+        rootView.actionButton.isEnabled = isEnabled
     }
 
     private func applyAsset() {

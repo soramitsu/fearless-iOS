@@ -8,7 +8,7 @@ final class StakingBondMoreViewLayout: UIView {
 
     let networkFeeView = NetworkFeeView()
 
-    let continueButton: TriangularedButton = {
+    let actionButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
         return button
@@ -39,7 +39,7 @@ final class StakingBondMoreViewLayout: UIView {
         networkFeeView.locale = locale
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        continueButton.imageWithTitleView?.title = R.string.localizable
+        actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
     }
 
@@ -66,8 +66,8 @@ final class StakingBondMoreViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        addSubview(continueButton)
-        continueButton.snp.makeConstraints { make in
+        addSubview(actionButton)
+        actionButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
