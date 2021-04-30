@@ -62,7 +62,6 @@ final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol
             substrateProviderFactory: substrateProviderFactory,
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            eraValidatorService: EraValidatorFacade.sharedService,
             operationManager: OperationManagerFacade.sharedManager
         )
     }

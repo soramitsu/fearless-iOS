@@ -1,6 +1,7 @@
 import UIKit
 import SoraKeystore
 import RobinHood
+import BigInt
 
 final class StakingUnbondSetupInteractor {
     weak var presenter: StakingUnbondSetupInteractorOutputProtocol!
@@ -9,7 +10,6 @@ final class StakingUnbondSetupInteractor {
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let settings: SettingsManagerProtocol
     let runtimeService: RuntimeCodingServiceProtocol
-    let eraValidatorService: EraValidatorServiceProtocol
     let operationManager: OperationManagerProtocol
     let assetId: WalletAssetId
 
@@ -25,16 +25,43 @@ final class StakingUnbondSetupInteractor {
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        eraValidatorService: EraValidatorServiceProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.settings = settings
         self.runtimeService = runtimeService
-        self.eraValidatorService = eraValidatorService
         self.operationManager = operationManager
         self.assetId = assetId
+    }
+
+    private func fetchConstant<T: LosslessStringConvertible & Equatable>(
+        for path: ConstantCodingPath,
+        closure: @escaping (Result<T, Error>) -> Void
+    ) {
+        let codingFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let constOperation = PrimitiveConstantOperation<T>(path: path)
+        constOperation.configurationBlock = {
+            do {
+                constOperation.codingFactory = try codingFactoryOperation.extractNoCancellableResultData()
+            } catch {
+                constOperation.result = .failure(error)
+            }
+        }
+
+        constOperation.addDependency(codingFactoryOperation)
+
+        constOperation.completionBlock = {
+            DispatchQueue.main.async {
+                if let result = constOperation.result {
+                    closure(result)
+                } else {
+                    closure(.failure(BaseOperationError.parentOperationCancelled))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [constOperation, codingFactoryOperation], in: .transient)
     }
 }
 
@@ -45,6 +72,14 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
+
+        fetchConstant(for: .lockUpPeriod) { [weak self] (result: Result<UInt32, Error>) in
+            self?.presenter.didReceiveBondingDuration(result: result)
+        }
+
+        fetchConstant(for: .existentialDeposit) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter.didReceiveExistentialDeposit(result: result)
+        }
     }
 }
 

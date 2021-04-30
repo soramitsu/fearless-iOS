@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import BigInt
 
 protocol StakingUnbondSetupViewProtocol: ControllerBackedProtocol {
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
@@ -25,6 +26,8 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
     func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
     func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveBondingDuration(result: Result<UInt32, Error>)
+    func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
 }
 
 protocol StakingUnbondSetupWireframeProtocol: AnyObject {
