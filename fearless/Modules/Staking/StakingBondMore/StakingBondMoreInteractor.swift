@@ -33,18 +33,8 @@ final class StakingBondMoreInteractor {
 
     private func subscribeToPriceChanges() {
         let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(price: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(price: item)
-                    case .delete:
-                        self?.presenter.didReceive(price: nil)
-                    }
-                }
-            }
+            let priceData = changes.reduceToLastChange()
+            self?.presenter.didReceive(price: priceData)
         }
 
         let failureClosure = { [weak self] (error: Error) in
@@ -64,11 +54,36 @@ final class StakingBondMoreInteractor {
             options: options
         )
     }
+
+    private func subscribeToAccountChanges() {
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
+            let balanceItem = changes.reduceToLastChange()?.item?.data
+            self?.presenter.didReceive(balance: balanceItem)
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.presenter.didReceive(error: error)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+        balanceProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
+        subscribeToAccountChanges()
     }
 
     private func createExtrinsicBuilderClosure(amount: BigUInt) -> ExtrinsicBuilderClosure {

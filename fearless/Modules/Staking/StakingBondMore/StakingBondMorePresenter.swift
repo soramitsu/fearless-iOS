@@ -60,6 +60,7 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     func setup() {
         provideAmountInputViewModel()
         interactor.setup()
+        estimateFee()
     }
 
     func handleContinueAction() {
