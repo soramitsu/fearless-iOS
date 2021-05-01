@@ -18,6 +18,9 @@ final class StakingUnbondSetupPresenter {
     private var bondingDuration: UInt32?
     private var minimalBalance: Decimal?
     private var priceData: PriceData?
+    private var fee: Decimal?
+    private var electionStatus: ElectionStatus?
+    private var controller: AccountItem?
 
     init(
         interactor: StakingUnbondSetupInteractorInputProtocol,
@@ -39,7 +42,12 @@ final class StakingUnbondSetupPresenter {
     }
 
     private func provideFeeViewModel() {
-        view?.didReceiveFee(viewModel: nil)
+        if let fee = fee {
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
     }
 
     private func provideAssetViewModel() {
@@ -92,6 +100,15 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 }
 
 extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
+        switch result {
+        case .success(let electionStatus):
+            self.electionStatus = electionStatus
+        case .failure(let error):
+            logger?.error("Election status error: \(error)")
+        }
+    }
+
     func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
@@ -137,6 +154,19 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         }
     }
 
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
+        switch result {
+        case let .success(dispatchInfo):
+            if let fee = BigUInt(dispatchInfo.fee) {
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+            }
+
+            provideFeeViewModel()
+        case let .failure(error):
+            logger?.error("Did receive fee error: \(error)")
+        }
+    }
+
     func didReceiveBondingDuration(result: Result<UInt32, Error>) {
         switch result {
         case let .success(bondingDuration):
@@ -156,6 +186,19 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             )
         case let .failure(error):
             logger?.error("Minimal balance fetching error: \(error)")
+        }
+    }
+
+    func didReceiveController(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            if let accountItem = accountItem {
+                controller = accountItem
+            } else {
+                // TODO: Close here
+            }
+        case let .failure(error):
+            logger?.error("Did receive controller account error: \(error)")
         }
     }
 }

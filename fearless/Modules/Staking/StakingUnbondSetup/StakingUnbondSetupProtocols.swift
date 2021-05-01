@@ -20,14 +20,18 @@ protocol StakingUnbondSetupPresenterProtocol: AnyObject {
 
 protocol StakingUnbondSetupInteractorInputProtocol: AnyObject {
     func setup()
+    func estimateFee()
 }
 
 protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
     func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveBondingDuration(result: Result<UInt32, Error>)
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>)
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveController(result: Result<AccountItem?, Error>)
 }
 
 protocol StakingUnbondSetupWireframeProtocol: AnyObject {

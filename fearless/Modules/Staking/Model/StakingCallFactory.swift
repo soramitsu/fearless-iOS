@@ -4,12 +4,17 @@ import IrohaCrypto
 import BigInt
 
 protocol SubstrateCallFactoryProtocol {
+    func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall>
+
     func bond(
         amount: BigUInt,
         controller: String,
         rewardDestination: RewardDestination<AccountAddress>
     ) throws -> RuntimeCall<BondCall>
+
     func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall>
+
+    func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall>
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 
@@ -36,18 +41,23 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             destArg = .account(accountId)
         }
 
-        let call = BondCall(
+        let args = BondCall(
             controller: .accoundId(controllerId),
             value: amount,
             payee: destArg
         )
 
-        return RuntimeCall<BondCall>.bond(call)
+        return RuntimeCall<BondCall>(moduleName: "Staking", callName: "bond", args: args)
     }
 
     func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall> {
-        let call = BondExtraCall(amount: amount)
-        return RuntimeCall<BondExtraCall>.bondExtra(call)
+        let args = BondExtraCall(amount: amount)
+        return RuntimeCall<BondExtraCall>(moduleName: "Staking", callName: "bond_extra", args: args)
+    }
+
+    func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall> {
+        let args = UnbondCall(amount: amount)
+        return RuntimeCall<UnbondCall>(moduleName: "Staking", callName: "unbond", args: args)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {
@@ -56,17 +66,22 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             return MultiAddress.accoundId(accountId)
         }
 
-        let call = NominateCall(targets: addresses)
+        let args = NominateCall(targets: addresses)
 
-        return RuntimeCall<NominateCall>.nominate(call)
+        return RuntimeCall<NominateCall>(moduleName: "Staking", callName: "nominate", args: args)
     }
 
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall> {
-        let call = PayoutCall(
+        let args = PayoutCall(
             validatorStash: validatorId,
             era: era
         )
 
-        return RuntimeCall<PayoutCall>.payout(call)
+        return RuntimeCall<PayoutCall>(moduleName: "Staking", callName: "payout_stakers", args: args)
+    }
+
+    func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
+        let args = TransferCall(dest: .accoundId(receiver), value: amount)
+        return RuntimeCall<TransferCall>(moduleName: "Balances", callName: "transfer", args: args)
     }
 }

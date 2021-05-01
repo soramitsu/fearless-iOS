@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import SoraKeystore
+import RobinHood
 
 final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView() -> StakingUnbondSetupViewProtocol? {
@@ -42,12 +43,17 @@ final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol
     private static func createInteractor(
         settings: SettingsManagerProtocol
     ) -> StakingUnbondSetupInteractor? {
+        guard let engine = WebSocketService.shared.connection else {
+            return nil
+        }
+
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
 
-        let networkType = settings.selectedConnection.type
+        let chain = settings.selectedConnection.type.chain
+        let networkType = chain.addressType
 
         let asset = WalletPrimitiveFactory(settings: settings)
             .createAssetForAddressType(networkType)
@@ -56,10 +62,23 @@ final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol
             return nil
         }
 
+        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            engine: engine,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageFacade.shared.createRepository()
+
         return StakingUnbondSetupInteractor(
             assetId: assetId,
+            chain: chain,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
+            extrinsicServiceFactory: extrinsicServiceFactory,
+            feeProxy: ExtrinsicFeeProxy(),
+            accountRepository: AnyDataProviderRepository(accountRepository),
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
             operationManager: OperationManagerFacade.sharedManager
