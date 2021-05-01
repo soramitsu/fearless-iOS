@@ -8,6 +8,7 @@ final class StakingUnbondSetupPresenter {
     let interactor: StakingUnbondSetupInteractorInputProtocol
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     let logger: LoggerProtocol?
     let chain: Chain
@@ -26,12 +27,14 @@ final class StakingUnbondSetupPresenter {
         interactor: StakingUnbondSetupInteractorInputProtocol,
         wireframe: StakingUnbondSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: Chain,
         logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.logger = logger
     }
@@ -63,14 +66,14 @@ final class StakingUnbondSetupPresenter {
     private func provideBondingDuration() {
         let daysCount = bondingDuration.map { Int($0) / chain.erasPerDay }
         let bondingDuration: LocalizableResource<String> = LocalizableResource { locale in
-            if let daysCount = daysCount {
-                return R.string.localizable.stakingMainLockupPeriodValue(
-                    format: daysCount,
-                    preferredLanguages: locale.rLanguages
-                )
-            } else {
+            guard let daysCount = daysCount else {
                 return ""
             }
+
+            return R.string.localizable.stakingMainLockupPeriodValue(
+                format: daysCount,
+                preferredLanguages: locale.rLanguages
+            )
         }
 
         view?.didReceiveBonding(duration: bondingDuration)
@@ -93,7 +96,32 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
         provideAssetViewModel()
     }
 
-    func proceed() {}
+    func proceed() {
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
+
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.interactor.estimateFee()
+            }),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
+
+            dataValidatingFactory.has(controller: controller, for: "", locale: locale),
+
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale),
+
+            dataValidatingFactory.stashIsNotKilledAfterUnbonding(
+                amount: inputAmount,
+                bonded: bonded,
+                minimumAmount: minimalBalance,
+                locale: locale
+            )
+        ]).runValidation { [weak self] in
+            self?.logger?.debug("Did complete validation")
+        }
+    }
+
     func close() {
         wireframe.close(view: view)
     }
@@ -102,9 +130,9 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtocol {
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
         switch result {
-        case .success(let electionStatus):
+        case let .success(electionStatus):
             self.electionStatus = electionStatus
-        case .failure(let error):
+        case let .failure(error):
             logger?.error("Election status error: \(error)")
         }
     }
@@ -194,8 +222,6 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         case let .success(accountItem):
             if let accountItem = accountItem {
                 controller = accountItem
-            } else {
-                // TODO: Close here
             }
         case let .failure(error):
             logger?.error("Did receive controller account error: \(error)")

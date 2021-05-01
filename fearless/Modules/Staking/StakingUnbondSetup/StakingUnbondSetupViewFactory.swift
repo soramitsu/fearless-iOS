@@ -21,10 +21,13 @@ final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol
             limit: StakingConstants.maxAmount
         )
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingUnbondSetupPresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             chain: chain,
             logger: Logger.shared
         )
@@ -35,6 +38,7 @@ final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol
         )
 
         presenter.view = view
+        dataValidatingFactory.view = view
         interactor.presenter = presenter
 
         return view

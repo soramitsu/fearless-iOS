@@ -28,8 +28,6 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
     private lazy var callFactory = SubstrateCallFactory()
 
-    deinit {}
-
     init(
         assetId: WalletAssetId,
         chain: Chain,
@@ -161,7 +159,7 @@ extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleVal
         presenter.didReceivePriceData(result: result)
     }
 
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain: Chain) {
+    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
         presenter.didReceiveElectionStatus(result: result)
     }
 }

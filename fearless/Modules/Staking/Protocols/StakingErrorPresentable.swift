@@ -10,7 +10,23 @@ protocol StakingErrorPresentable {
         address: AccountAddress,
         locale: Locale?
     )
-    func presentPayoutFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
+
+    func presentUnbondingTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
+
+    func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
+
+    func presentRewardIsLessThanFee(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    )
+
+    func presentStashKilledAfterUnbond(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    )
+
     func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
@@ -62,7 +78,15 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
-    func presentPayoutFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
+    func presentUnbondingTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
+        let message = "You don't have enough tokens to unbond"
+        let title = R.string.localizable.stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
             .stakingErrorInsufficientBalanceBody(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
@@ -81,6 +105,53 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         let message = R.string.localizable
             .stakingWarningTinyPayout(preferredLanguages: locale?.rLanguages)
 
+        presentWarning(
+            for: title,
+            message: message,
+            action: action,
+            view: view,
+            locale: locale
+        )
+    }
+
+    func presentStashKilledAfterUnbond(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        // TODO: Fix localization
+        let title = R.string.localizable
+            .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
+        let message = "Final bonded value less than minimum value and will be also unbonded. Do you want to continue?"
+
+        presentWarning(for: title, message: message, action: action, view: view, locale: locale)
+    }
+
+    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable
+            .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable
+            .stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable.stakingUnbondingLimitReachedTitle(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
+    private func presentWarning(
+        for title: String,
+        message: String,
+        action: @escaping () -> Void,
+        view: ControllerBackedProtocol,
+        locale: Locale?
+    ) {
         let proceedTitle = R.string.localizable
             .commonProceed(preferredLanguages: locale?.rLanguages)
         let proceedAction = AlertPresentableAction(title: proceedTitle) {
@@ -102,23 +173,5 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             style: .alert,
             from: view
         )
-    }
-
-    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = R.string.localizable
-            .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable
-            .stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
-    }
-
-    func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = R.string.localizable.stakingUnbondingLimitReachedTitle(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }

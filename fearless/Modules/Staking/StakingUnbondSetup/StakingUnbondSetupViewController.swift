@@ -65,6 +65,8 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
 
     private func setupAmountInputView() {
         rootView.amountInputView.textField.delegate = self
+
+        rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
     }
 
     private func setupBalanceAccessoryView() {
@@ -121,6 +123,10 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
 
     @objc private func actionClose() {
         presenter.close()
+    }
+
+    @objc private func actionProceed() {
+        presenter.proceed()
     }
 
     private func updateActionButton() {
