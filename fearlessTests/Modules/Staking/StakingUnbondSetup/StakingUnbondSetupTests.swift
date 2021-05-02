@@ -8,15 +8,11 @@ import SoraFoundation
 
 class StakingUnbondSetupTests: XCTestCase {
 
-    func testUnbondingSetupSuccess() throws {
+    func testUnbondingSetupAndAmountProvidingSuccess() throws {
         // given
 
         let view = MockStakingUnbondSetupViewProtocol()
         let wireframe = MockStakingUnbondSetupWireframeProtocol()
-
-        let inputAmount: Decimal = 1
-        let percentage: Decimal = 0.75
-        let expectedAmount: Decimal = inputAmount * percentage
 
         // when
 
@@ -40,13 +36,11 @@ class StakingUnbondSetupTests: XCTestCase {
 
         stub(wireframe) { stub in
             when(stub).proceed(view: any(), amount: any()).then { (view, amount) in
-                XCTAssertTrue(abs(amount - expectedAmount) < 1e+6)
-
                 completionExpectation.fulfill()
             }
         }
 
-        presenter.selectAmountPercentage((percentage as NSNumber).floatValue)
+        presenter.selectAmountPercentage(0.75)
         presenter.proceed()
 
         // then
