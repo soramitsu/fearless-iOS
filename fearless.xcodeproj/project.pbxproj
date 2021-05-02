@@ -120,6 +120,7 @@
 		8401620625E130D60087A5F3 /* ViewAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401620525E130D60087A5F3 /* ViewAction.swift */; };
 		8401620B25E144D50087A5F3 /* AmountInputAccessoryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401620A25E144D50087A5F3 /* AmountInputAccessoryView.swift */; };
 		8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401F24E24E524900081D8F8 /* String+Helpers.swift */; };
+		84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */; };
 		840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840689FB26321F2700A017B1 /* StorageQuery.swift */; };
 		840882B02514024800177E20 /* SelectedConnectionChanged.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882AF2514024800177E20 /* SelectedConnectionChanged.swift */; };
 		840882B4251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840882B3251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift */; };
@@ -657,7 +658,7 @@
 		849ABE8A262833C000011A2A /* PayoutRewardsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F44CD8F826244EC3005DDF23 /* PayoutRewardsServiceTests.swift */; };
 		849DEBD425ED015C00C64C19 /* StakingConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */; };
 		849DEBDC25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */; };
-		849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */; };
+		849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */; };
 		849DEC6125EE13CE00C64C19 /* AddressOptionsPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */; };
 		849E0CD025CFDDB700B33506 /* StorageUpdateData+Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */; };
 		849E2332254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */; };
@@ -1238,6 +1239,7 @@
 		8401620525E130D60087A5F3 /* ViewAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewAction.swift; sourceTree = "<group>"; };
 		8401620A25E144D50087A5F3 /* AmountInputAccessoryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AmountInputAccessoryView.swift; sourceTree = "<group>"; };
 		8401F24E24E524900081D8F8 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
+		84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetPayeeCall.swift; sourceTree = "<group>"; };
 		840689FB26321F2700A017B1 /* StorageQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageQuery.swift; sourceTree = "<group>"; };
 		840882AF2514024800177E20 /* SelectedConnectionChanged.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectedConnectionChanged.swift; sourceTree = "<group>"; };
 		840882B3251413D000177E20 /* SelectConnection+OnboardingMainWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SelectConnection+OnboardingMainWireframe.swift"; sourceTree = "<group>"; };
@@ -1788,7 +1790,7 @@
 		849ABE852628154900011A2A /* SubscanRawExtrinsicData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscanRawExtrinsicData.swift; sourceTree = "<group>"; };
 		849DEBD325ED015C00C64C19 /* StakingConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModel.swift; sourceTree = "<group>"; };
 		849DEBDB25ED134A00C64C19 /* StakingConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingConfirmViewModelFactory.swift; sourceTree = "<group>"; };
-		849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingCallFactory.swift; sourceTree = "<group>"; };
+		849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateCallFactory.swift; sourceTree = "<group>"; };
 		849DEC6025EE13CE00C64C19 /* AddressOptionsPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddressOptionsPresentable.swift; sourceTree = "<group>"; };
 		849E0CCF25CFDDB700B33506 /* StorageUpdateData+Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageUpdateData+Decoding.swift"; sourceTree = "<group>"; };
 		849E2331254AEFB400B1F6D4 /* InvoiceScanConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvoiceScanConfigurator.swift; sourceTree = "<group>"; };
@@ -3185,7 +3187,6 @@
 				841E6AF525EC12100007DDFE /* PreparedNomination.swift */,
 				845BB8D525E461FC00E5FCDC /* RewardDestination.swift */,
 				841E6AFD25EC12DE0007DDFE /* SelectedValidatorInfo.swift */,
-				849DEC5825ED756F00C64C19 /* StakingCallFactory.swift */,
 				8425EB1A25EADD8600C307C9 /* StakingConstants.swift */,
 				AEBE16E5262EA7C100DF257C /* StakingErrors.swift */,
 			);
@@ -3301,6 +3302,8 @@
 				AE6DE7312627EA930018D5B5 /* PayoutCall.swift */,
 				F441BE0D263984DD0096B67B /* BondExtraCall.swift */,
 				84DD5F20263CB6BE00425ACF /* UnbondCall.swift */,
+				84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */,
+				849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */,
 			);
 			path = Calls;
 			sourceTree = "<group>";
@@ -6309,6 +6312,7 @@
 				8428768724AE046300D91AD8 /* LanguageSelectionViewFactory.swift in Sources */,
 				84FAB0672542D06B00319F74 /* WalletContactOperationFactory.swift in Sources */,
 				8423B0DE251A438F00B8687C /* AddConnectionError.swift in Sources */,
+				84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */,
 				84F30EEC25FFF40C00039D09 /* Nomination.swift in Sources */,
 				AE89720D25F12AF8008EC414 /* ValidatorInfoViewModelFactory.swift in Sources */,
 				8494D8632524753400614D8F /* WalletCopyCommand.swift in Sources */,
@@ -6583,7 +6587,7 @@
 				84C3F76D260164CE00D47501 /* NominationView.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,
-				849DEC5925ED756F00C64C19 /* StakingCallFactory.swift in Sources */,
+				849DEC5925ED756F00C64C19 /* SubstrateCallFactory.swift in Sources */,
 				849E2351254AF44200B1F6D4 /* InvoiceScanLocalSearchEngine.swift in Sources */,
 				84DD5F21263CB6BE00425ACF /* UnbondCall.swift in Sources */,
 				84155DEF2539832C00A27058 /* WebSocketEngineFactory.swift in Sources */,

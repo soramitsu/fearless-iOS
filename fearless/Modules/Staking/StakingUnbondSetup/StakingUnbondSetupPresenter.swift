@@ -22,6 +22,7 @@ final class StakingUnbondSetupPresenter {
     private var fee: Decimal?
     private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
+    private var stashItem: StashItem?
 
     init(
         interactor: StakingUnbondSetupInteractorInputProtocol,
@@ -107,7 +108,11 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
 
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
 
-            dataValidatingFactory.has(controller: controller, for: "", locale: locale),
+            dataValidatingFactory.has(
+                controller: controller,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
 
             dataValidatingFactory.electionClosed(electionStatus, locale: locale),
 
@@ -225,6 +230,15 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
             }
         case let .failure(error):
             logger?.error("Did receive controller account error: \(error)")
+        }
+    }
+
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+        case let .failure(error):
+            logger?.error("Did receive stash item error: \(error)")
         }
     }
 }

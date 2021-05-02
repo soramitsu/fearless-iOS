@@ -95,10 +95,11 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
             return
         }
 
-        let call = callFactory.unbond(amount: amount)
+        let unbondCall = callFactory.unbond(amount: amount)
+        let setPayeeCall = callFactory.setPayee(for: .stash)
 
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: call.callName) { builder in
-            try builder.adding(call: call)
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
+            try builder.adding(call: unbondCall).adding(call: setPayeeCall)
         }
     }
 }
@@ -112,6 +113,8 @@ extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleVal
 
             clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &ledgerProvider)
+
+            presenter.didReceiveStashItem(result: result)
 
             if let stashItem = maybeStashItem {
                 ledgerProvider = subscribeToLedgerInfoProvider(
@@ -142,6 +145,7 @@ extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleVal
             }
 
         } catch {
+            presenter.didReceiveStashItem(result: .failure(error))
             presenter.didReceiveAccountInfo(result: .failure(error))
             presenter.didReceiveStakingLedger(result: .failure(error))
         }

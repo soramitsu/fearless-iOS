@@ -19,6 +19,8 @@ protocol SubstrateCallFactoryProtocol {
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
+
+    func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -47,17 +49,17 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             payee: destArg
         )
 
-        return RuntimeCall<BondCall>(moduleName: "Staking", callName: "bond", args: args)
+        return RuntimeCall(moduleName: "Staking", callName: "bond", args: args)
     }
 
     func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall> {
         let args = BondExtraCall(amount: amount)
-        return RuntimeCall<BondExtraCall>(moduleName: "Staking", callName: "bond_extra", args: args)
+        return RuntimeCall(moduleName: "Staking", callName: "bond_extra", args: args)
     }
 
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall> {
         let args = UnbondCall(amount: amount)
-        return RuntimeCall<UnbondCall>(moduleName: "Staking", callName: "unbond", args: args)
+        return RuntimeCall(moduleName: "Staking", callName: "unbond", args: args)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {
@@ -68,7 +70,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
 
         let args = NominateCall(targets: addresses)
 
-        return RuntimeCall<NominateCall>(moduleName: "Staking", callName: "nominate", args: args)
+        return RuntimeCall(moduleName: "Staking", callName: "nominate", args: args)
     }
 
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall> {
@@ -77,11 +79,16 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
             era: era
         )
 
-        return RuntimeCall<PayoutCall>(moduleName: "Staking", callName: "payout_stakers", args: args)
+        return RuntimeCall(moduleName: "Staking", callName: "payout_stakers", args: args)
     }
 
     func transfer(to receiver: AccountId, amount: BigUInt) -> RuntimeCall<TransferCall> {
         let args = TransferCall(dest: .accoundId(receiver), value: amount)
-        return RuntimeCall<TransferCall>(moduleName: "Balances", callName: "transfer", args: args)
+        return RuntimeCall(moduleName: "Balances", callName: "transfer", args: args)
+    }
+
+    func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall> {
+        let args = SetPayeeCall(payee: destination)
+        return RuntimeCall(moduleName: "Staking", callName: "set_payee", args: args)
     }
 }
