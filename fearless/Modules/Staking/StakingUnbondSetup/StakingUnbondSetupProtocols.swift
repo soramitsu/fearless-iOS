@@ -38,6 +38,7 @@ protocol StakingUnbondSetupInteractorOutputProtocol: AnyObject {
 protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
     func close(view: StakingUnbondSetupViewProtocol?)
+    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal)
 }
 
 protocol StakingUnbondSetupViewFactoryProtocol: AnyObject {

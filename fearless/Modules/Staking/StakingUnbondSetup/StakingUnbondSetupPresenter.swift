@@ -130,7 +130,11 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.logger?.debug("Did complete validation")
+            if let amount = self?.inputAmount {
+                self?.wireframe.proceed(view: self?.view, amount: amount)
+            } else {
+                self?.logger?.warning("Missing amount after validation")
+            }
         }
     }
 
