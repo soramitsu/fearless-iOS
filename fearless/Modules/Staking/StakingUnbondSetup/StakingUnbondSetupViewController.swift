@@ -126,6 +126,8 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     }
 
     @objc private func actionProceed() {
+        rootView.amountInputView.textField.resignFirstResponder()
+
         presenter.proceed()
     }
 
@@ -153,6 +155,8 @@ extension StakingUnbondSetupViewController: StakingUnbondSetupViewProtocol {
         amountInputViewModel?.observable.add(observer: self)
 
         rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+
+        updateActionButton()
     }
 
     func didReceiveBonding(duration: LocalizableResource<String>) {

@@ -41,7 +41,7 @@ final class StakingUnbondSetupPresenter {
     }
 
     private func provideInputViewModel() {
-        let inputView = balanceViewModelFactory.createBalanceInputViewModel(nil)
+        let inputView = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
         view?.didReceiveInput(viewModel: inputView)
     }
 
@@ -91,7 +91,14 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
         interactor.setup()
     }
 
-    func selectAmountPercentage(_: Float) {}
+    func selectAmountPercentage(_ percentage: Float) {
+        if let bonded = bonded {
+            inputAmount = bonded * Decimal(Double(percentage))
+            provideInputViewModel()
+            provideAssetViewModel()
+        }
+    }
+
     func updateAmount(_ amount: Decimal) {
         inputAmount = amount
         provideAssetViewModel()
