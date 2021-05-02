@@ -102,6 +102,10 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupPresenterProtocol {
     func updateAmount(_ amount: Decimal) {
         inputAmount = amount
         provideAssetViewModel()
+
+        if fee == nil {
+            interactor.estimateFee()
+        }
     }
 
     func proceed() {

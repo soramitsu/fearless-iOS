@@ -3,7 +3,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 
-final class StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
+struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
     static func createView() -> StakingUnbondSetupViewProtocol? {
         guard let interactor = createInteractor(settings: SettingsManager.shared) else {
             return nil

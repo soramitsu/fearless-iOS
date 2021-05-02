@@ -41,6 +41,6 @@ protocol StakingUnbondSetupWireframeProtocol: AlertPresentable, ErrorPresentable
     func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal)
 }
 
-protocol StakingUnbondSetupViewFactoryProtocol: AnyObject {
+protocol StakingUnbondSetupViewFactoryProtocol {
     static func createView() -> StakingUnbondSetupViewProtocol?
 }
