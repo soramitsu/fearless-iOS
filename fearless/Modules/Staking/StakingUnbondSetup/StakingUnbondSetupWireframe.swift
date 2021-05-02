@@ -5,7 +5,7 @@ final class StakingUnbondSetupWireframe: StakingUnbondSetupWireframeProtocol {
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
-    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal) {
+    func proceed(view _: StakingUnbondSetupViewProtocol?, amount _: Decimal) {
         // TODO: FLW-786
     }
 }
