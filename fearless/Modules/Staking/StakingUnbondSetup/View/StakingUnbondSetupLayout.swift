@@ -53,20 +53,14 @@ final class StakingUnbondSetupLayout: UIView {
     }
 
     private func applyLocalization() {
-        // TODO: Fix localization
-
         networkFeeView.locale = locale
 
-        footerLabel.text = "Your tokens will be available to redeem after the unbonding period."
-        durationView.titleLabel.text = "Unbonding period"
-        durationView.valueLabel.text = "7 days"
+        footerLabel.text = R.string.localizable.stakingUnbondingHint(preferredLanguages: locale.rLanguages)
+        durationView.titleLabel.text = R.string.localizable
+            .stakingUnbondingPeriod(preferredLanguages: locale.rLanguages)
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        amountInputView.priceText = "$2,524.1"
-        amountInputView.symbol = "KSM"
-        amountInputView.assetIcon = R.image.iconKsmSmallBg()
-        amountInputView.balanceText = "Bonded: 10.00003"
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)

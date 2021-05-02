@@ -113,7 +113,8 @@ extension PayoutRewardsService {
             )
         }
 
-        let mergeOperationDependencies = [erasOperation] + totalRewardOperation.allOperations + validatorRewardPoints.allOperations
+        let mergeOperationDependencies = [erasOperation] + totalRewardOperation.allOperations +
+            validatorRewardPoints.allOperations
         mergeOperationDependencies.forEach { mergeOperation.addDependency($0) }
 
         return CompoundOperationWrapper(

@@ -50,11 +50,9 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
     }
 
     private func setupLocalization() {
-        // TODO: Fix localization
-        title = "Unbond"
+        title = R.string.localizable.stakingUnbond(preferredLanguages: selectedLocale.rLanguages)
 
         rootView.locale = selectedLocale
-        rootView.networkFeeView.bind(tokenAmount: "0.001 KSM", fiatAmount: "$0.2")
 
         setupBalanceAccessoryView()
 
@@ -95,8 +93,10 @@ final class StakingUnbondSetupViewController: UIViewController, ViewHolder {
         amountView.priceText = viewModel.price
 
         if let balance = viewModel.balance {
-            // TODO: Fix local
-            amountView.balanceText = "Bonded: \(balance)"
+            amountView.balanceText = R.string.localizable.stakingBondedFormat(
+                balance,
+                preferredLanguages: selectedLocale.rLanguages
+            )
         } else {
             amountView.balanceText = nil
         }

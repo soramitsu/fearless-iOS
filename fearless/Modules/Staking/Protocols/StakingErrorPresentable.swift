@@ -119,10 +119,10 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         action: @escaping () -> Void,
         locale: Locale?
     ) {
-        // TODO: Fix localization
         let title = R.string.localizable
-            .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
-        let message = "Final bonded value less than minimum value and will be also unbonded. Do you want to continue?"
+            .stakingUnbondingAllTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .stakingUnbondingAllMessage(preferredLanguages: locale?.rLanguages)
 
         presentWarning(for: title, message: message, action: action, view: view, locale: locale)
     }
