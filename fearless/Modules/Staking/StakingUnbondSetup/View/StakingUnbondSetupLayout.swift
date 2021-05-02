@@ -86,7 +86,6 @@ final class StakingUnbondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
         }
 
         contentView.stackView.addArrangedSubview(durationView)

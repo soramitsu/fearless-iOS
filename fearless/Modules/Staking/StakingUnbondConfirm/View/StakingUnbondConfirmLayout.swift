@@ -1,12 +1,52 @@
 import UIKit
 
 final class StakingUnbondConfirmLayout: UIView {
+    let stackView: UIStackView = {
+        let view = UIStackView()
+        view.isLayoutMarginsRelativeArrangement = true
+        view.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.axis = .vertical
+        view.alignment = .center
+        view.distribution = .fill
+        return view
+    }()
+
+    let accountView: DetailsTriangularedView = {
+        let view = UIFactory().createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+        view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        view.actionImage = R.image.iconMore()
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1
+        return view
+    }()
+
+    let amountView: AmountInputView = {
+        let view = UIFactory().createAmountInputView(filled: false)
+        view.isUserInteractionEnabled = false
+        return view
+    }()
+
+    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
+
+    private(set) var hintView: HintView?
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
         backgroundColor = R.color.colorBlack()!
 
         setupLayout()
+
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -14,5 +54,75 @@ final class StakingUnbondConfirmLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
-    private func setupLayout() {}
+    private func applyLocalization() {
+        // TODO: fix localization
+        accountView.title = "Account"
+
+        amountView.title = R.string.localizable
+            .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+
+        applyHintText()
+
+        networkFeeConfirmView.locale = locale
+
+        setNeedsLayout()
+    }
+
+    private func setupLayout() {
+        addSubview(stackView)
+        stackView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+
+        stackView.addArrangedSubview(accountView)
+        accountView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(52)
+        }
+
+        stackView.setCustomSpacing(16.0, after: accountView)
+
+        stackView.addArrangedSubview(amountView)
+        amountView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+            make.height.equalTo(72.0)
+        }
+
+        addSubview(networkFeeConfirmView)
+        networkFeeConfirmView.snp.makeConstraints { make in
+            make.leading.bottom.trailing.equalToSuperview()
+        }
+    }
+
+    private func setupHintViewIfNeeded() {
+        guard hintView == nil else {
+            return
+        }
+
+        let hintView = HintView()
+
+        stackView.addArrangedSubview(hintView)
+        hintView.snp.makeConstraints { make in
+            make.width.equalTo(stackView)
+        }
+
+        self.hintView = hintView
+
+        applyHintText()
+    }
+
+    private func clearHintView() {
+        if let hintView = hintView {
+            self.hintView = nil
+
+            stackView.removeArrangedSubview(hintView)
+            hintView.removeFromSuperview()
+        }
+    }
+
+    private func applyHintText() {
+        // TODO: Fix localization
+        hintView?.titleLabel.text = "Fearless wallet will change reward destination to your account to avoid a bonded remnant."
+    }
 }

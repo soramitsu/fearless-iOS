@@ -43,6 +43,8 @@ protocol UIFactoryProtocol {
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -236,6 +238,7 @@ final class UIFactory: UIFactoryProtocol {
         amountInputView.balanceLabel.textColor = R.color.colorLightGray()
         amountInputView.balanceLabel.font = .p2Paragraph
         amountInputView.textField.font = .h4Title
+        amountInputView.textField.textColor = R.color.colorWhite()
         amountInputView.textField.tintColor = R.color.colorWhite()
         amountInputView.verticalSpacing = 2.0
         amountInputView.iconRadius = 12.0
@@ -328,5 +331,9 @@ final class UIFactory: UIFactoryProtocol {
         toolBar.setItems(barItems + [flexibleSpacing, doneItem], animated: true)
 
         return toolBar
+    }
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
+        NetworkFeeConfirmView()
     }
 }
