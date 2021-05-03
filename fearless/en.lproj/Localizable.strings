@@ -372,4 +372,5 @@ Derivation path: %@";
 "staking.unbonding.hint" = "Your tokens will be available to redeem after the unbonding period.";
 "staking.unbonding.period" = "Unbonding period";
 "common.account" = "Account";
-"staking.unbond.payee.reset.message" = "Fearless wallet will change reward destination to your account to avoid a bonded remnant.";
+"staking.unbond.payee.reset.message" = "The reward destination will be changed to your account to avoid a bonded remnant since staking will be stopped";
+"staking.unbond.completion.message" = "Unbonding request has been submitted";

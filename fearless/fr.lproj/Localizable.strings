@@ -372,3 +372,4 @@ Chemin de dérivation : %@";
 "staking.unbonding.period" = "";
 "common.account" = "";
 "staking.unbond.payee.reset.message" = "";
+"staking.unbond.completion.message" = "";
