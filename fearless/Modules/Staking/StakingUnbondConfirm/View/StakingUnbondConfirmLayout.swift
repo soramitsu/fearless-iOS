@@ -124,7 +124,6 @@ final class StakingUnbondConfirmLayout: UIView {
         }
 
         stackView.setCustomSpacing(16.0, after: accountView)
-
         stackView.addArrangedSubview(amountView)
         amountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
@@ -132,6 +131,7 @@ final class StakingUnbondConfirmLayout: UIView {
         }
 
         addSubview(networkFeeConfirmView)
+
         networkFeeConfirmView.snp.makeConstraints { make in
             make.leading.bottom.trailing.equalToSuperview()
         }
