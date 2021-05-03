@@ -25,7 +25,7 @@ class StakingUnbondSetupTests: XCTestCase {
                 inputViewModelReloaded.fulfill()
             }
 
-            when(stub).localizationManager.get.then { LocalizationManager.shared }
+            when(stub).localizationManager.get.then { nil }
 
             when(stub).didReceiveAsset(viewModel: any()).thenDoNothing()
             when(stub).didReceiveFee(viewModel: any()).thenDoNothing()
