@@ -370,3 +370,5 @@ Derivation path: %@";
 "staking.unbonding.all.message" = "";
 "staking.unbonding.hint" = "";
 "staking.unbonding.period" = "";
+"common.account" = "";
+"staking.unbond.payee.reset.message" = "";

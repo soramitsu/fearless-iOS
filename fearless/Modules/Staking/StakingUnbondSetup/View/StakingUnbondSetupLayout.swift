@@ -9,14 +9,11 @@ final class StakingUnbondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
 
-    let networkFeeView = NetworkFeeView()
+    let networkFeeView = UIFactory.default.createNetworkFeeView()
 
-    let durationView = TitleValueView()
+    let durationView = UIFactory.default.createTitleValueView()
 
     let footerLabel: UILabel = {
         let label = UILabel()
@@ -26,11 +23,7 @@ final class StakingUnbondSetupLayout: UIView {
         return label
     }()
 
-    let actionButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyDefaultStyle()
-        return button
-    }()
+    let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     var locale = Locale.current {
         didSet {

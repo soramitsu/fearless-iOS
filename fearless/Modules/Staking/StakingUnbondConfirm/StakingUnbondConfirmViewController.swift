@@ -10,6 +10,10 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder {
         localizationManager?.selectedLocale ?? Locale.current
     }
 
+    private var confirmationViewModel: StakingUnbondConfirmViewModel?
+    private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
+
     init(
         presenter: StakingUnbondConfirmPresenterProtocol,
         localizationManager: LocalizationManagerProtocol
@@ -34,16 +38,81 @@ final class StakingUnbondConfirmViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupLocalization()
+        configureActions()
 
         presenter.setup()
     }
 
     private func setupLocalization() {
         title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.locale = selectedLocale
+
+        applyAssetViewModel()
+        applyFeeViewModel()
+        applyConfirmationViewModel()
+    }
+
+    private func configureActions() {
+        rootView.networkFeeConfirmView.actionButton.addTarget(
+            self,
+            action: #selector(actionConfirm),
+            for: .touchUpInside
+        )
+
+        rootView.accountView.addTarget(
+            self,
+            action: #selector(actionSelectAccount),
+            for: .touchUpInside
+        )
+    }
+
+    private func applyAssetViewModel() {
+        guard let viewModel = assetViewModel?.value(for: selectedLocale) else {
+            return
+        }
+
+        rootView.bind(assetViewModel: viewModel)
+    }
+
+    private func applyFeeViewModel() {
+        let viewModel = feeViewModel?.value(for: selectedLocale)
+        rootView.bind(feeViewModel: viewModel)
+    }
+
+    private func applyConfirmationViewModel() {
+        guard let confirmViewModel = confirmationViewModel else {
+            return
+        }
+
+        rootView.bind(confirmationViewModel: confirmViewModel)
+    }
+
+    @objc private func actionConfirm() {
+        presenter.confirm()
+    }
+
+    @objc private func actionSelectAccount() {
+        presenter.selectAccount()
     }
 }
 
-extension StakingUnbondConfirmViewController: StakingUnbondConfirmViewProtocol {}
+extension StakingUnbondConfirmViewController: StakingUnbondConfirmViewProtocol {
+    func didReceiveConfirmation(viewModel: StakingUnbondConfirmViewModel) {
+        confirmationViewModel = viewModel
+        applyConfirmationViewModel()
+    }
+
+    func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>) {
+        assetViewModel = viewModel
+        applyAssetViewModel()
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        feeViewModel = viewModel
+        applyFeeViewModel()
+    }
+}
 
 extension StakingUnbondConfirmViewController: Localizable {
     func applyLocalization() {

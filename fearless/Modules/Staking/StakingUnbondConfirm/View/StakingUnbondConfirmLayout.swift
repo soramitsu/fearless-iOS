@@ -11,18 +11,10 @@ final class StakingUnbondConfirmLayout: UIView {
         return view
     }()
 
-    let accountView: DetailsTriangularedView = {
-        let view = UIFactory().createDetailsView(with: .smallIconTitleSubtitle, filled: false)
-        view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
-        view.actionImage = R.image.iconMore()
-        view.highlightedFillColor = R.color.colorHighlightedPink()!
-        view.strokeColor = R.color.colorStrokeGray()!
-        view.borderWidth = 1
-        return view
-    }()
+    let accountView: DetailsTriangularedView = UIFactory.default.createAccountView()
 
     let amountView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
+        let view = UIFactory().createAmountInputView(filled: true)
         view.isUserInteractionEnabled = false
         return view
     }()
@@ -54,9 +46,59 @@ final class StakingUnbondConfirmLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(confirmationViewModel: StakingUnbondConfirmViewModel) {
+        if let senderName = confirmationViewModel.senderName {
+            accountView.subtitleLabel?.lineBreakMode = .byTruncatingTail
+            accountView.subtitle = senderName
+        } else {
+            accountView.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+            accountView.subtitle = confirmationViewModel.senderAddress
+        }
+
+        let iconSize = 2.0 * accountView.iconRadius
+        accountView.iconImage = confirmationViewModel.senderIcon.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: CGSize(width: iconSize, height: iconSize),
+            contentScale: UIScreen.main.scale
+        )
+
+        amountView.fieldText = confirmationViewModel.amount.value(for: locale)
+
+        if confirmationViewModel.shouldResetRewardDestination {
+            setupHintViewIfNeeded()
+        } else {
+            clearHintView()
+        }
+
+        setNeedsLayout()
+    }
+
+    func bind(feeViewModel: BalanceViewModelProtocol?) {
+        networkFeeConfirmView.networkFeeView.bind(viewModel: feeViewModel)
+        setNeedsLayout()
+    }
+
+    func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        amountView.priceText = assetViewModel.price
+
+        if let balance = assetViewModel.balance {
+            amountView.balanceText = R.string.localizable.stakingBondedFormat(
+                balance,
+                preferredLanguages: locale.rLanguages
+            )
+        } else {
+            amountView.balanceText = nil
+        }
+
+        amountView.assetIcon = assetViewModel.icon
+
+        amountView.symbol = assetViewModel.symbol.uppercased()
+
+        setNeedsLayout()
+    }
+
     private func applyLocalization() {
-        // TODO: fix localization
-        accountView.title = "Account"
+        accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
 
         amountView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
@@ -122,7 +164,7 @@ final class StakingUnbondConfirmLayout: UIView {
     }
 
     private func applyHintText() {
-        // TODO: Fix localization
-        hintView?.titleLabel.text = "Fearless wallet will change reward destination to your account to avoid a bonded remnant."
+        hintView?.titleLabel.text = R.string.localizable
+            .stakingUnbondPayeeResetMessage(preferredLanguages: locale.rLanguages)
     }
 }

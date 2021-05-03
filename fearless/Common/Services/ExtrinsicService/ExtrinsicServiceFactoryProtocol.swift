@@ -1,7 +1,12 @@
 import RobinHood
+import SoraKeystore
 
 protocol ExtrinsicServiceFactoryProtocol {
     func createService(accountItem: AccountItem) -> ExtrinsicServiceProtocol
+    func createSigningWrapper(
+        accountItem: AccountItem,
+        connectionItem: ConnectionItem
+    ) -> SigningWrapperProtocol
 }
 
 final class ExtrinsicServiceFactory {
@@ -29,5 +34,16 @@ extension ExtrinsicServiceFactory: ExtrinsicServiceFactoryProtocol {
             engine: engine,
             operationManager: operationManager
         )
+    }
+
+    func createSigningWrapper(
+        accountItem: AccountItem,
+        connectionItem: ConnectionItem
+    ) -> SigningWrapperProtocol {
+        var settings = InMemorySettingsManager()
+        settings.selectedAccount = accountItem
+        settings.selectedConnection = connectionItem
+
+        return SigningWrapper(keystore: Keychain(), settings: settings)
     }
 }
