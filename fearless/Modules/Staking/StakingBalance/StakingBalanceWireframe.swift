@@ -3,8 +3,14 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         // TODO:
     }
 
-    func showUnbond(from _: ControllerBackedProtocol?) {
-        // TODO:
+    func showUnbond(from view: ControllerBackedProtocol?) {
+        guard let unbondView = StakingUnbondSetupViewFactory.createView() else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: unbondView.controller)
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
     func showRedeem(from _: ControllerBackedProtocol?) {
