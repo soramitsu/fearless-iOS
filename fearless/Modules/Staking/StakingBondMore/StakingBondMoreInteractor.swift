@@ -97,7 +97,7 @@ extension StakingBondMoreInteractor: SingleValueProviderSubscriber, SingleValueS
 
             if let stashItem = maybeStashItem {
                 balanceProvider = subscribeToAccountInfoProvider(
-                    for: stashItem.controller,
+                    for: stashItem.stash,
                     runtimeService: runtimeService
                 )
 
