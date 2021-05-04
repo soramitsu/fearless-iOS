@@ -235,6 +235,8 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                 )
             }
 
+            scheduleFeeEstimation()
+
             return
         }
 
@@ -245,8 +247,6 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
                     locale: view.localizationManager?.selectedLocale
                 )
             }
-
-            scheduleFeeEstimation()
 
             return
         }
