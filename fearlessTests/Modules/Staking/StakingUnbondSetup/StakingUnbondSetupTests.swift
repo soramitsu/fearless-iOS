@@ -25,7 +25,7 @@ class StakingUnbondSetupTests: XCTestCase {
                 inputViewModelReloaded.fulfill()
             }
 
-            when(stub).localizationManager.get.then { LocalizationManager.shared }
+            when(stub).localizationManager.get.then { nil }
 
             when(stub).didReceiveAsset(viewModel: any()).thenDoNothing()
             when(stub).didReceiveFee(viewModel: any()).thenDoNothing()
@@ -72,6 +72,7 @@ class StakingUnbondSetupTests: XCTestCase {
         let operationManager = OperationManager()
 
         let nominatorAddress = settings.selectedAccount!.address
+        let cryptoType = settings.selectedAccount!.cryptoType
 
         let singleValueProviderFactory = SingleValueProviderFactoryStub.westendNominatorStub()
 
@@ -101,7 +102,10 @@ class StakingUnbondSetupTests: XCTestCase {
         let saveControllerOperation = anyAccountRepository.saveOperation({ [controllerItem] }, { [] })
         operationQueue.addOperations([saveControllerOperation], waitUntilFinished: true)
 
-        let extrinsicServiceFactory = ExtrinsicServiceFactoryStub(extrinsicService: ExtrinsicServiceStub.dummy())
+        let extrinsicServiceFactory = ExtrinsicServiceFactoryStub(
+            extrinsicService: ExtrinsicServiceStub.dummy(),
+            signingWraper: try DummySigner(cryptoType: cryptoType)
+        )
 
         let interactor = StakingUnbondSetupInteractor(
             assetId: assetId,

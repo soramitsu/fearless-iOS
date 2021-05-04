@@ -25,6 +25,13 @@ final class NetworkFeeView: UIView {
         return view
     }()
 
+    let activityIndicator: UIActivityIndicatorView = {
+        let view = UIActivityIndicatorView()
+        view.hidesWhenStopped = true
+        view.style = .white
+        return view
+    }()
+
     private(set) var fiatLabel: UILabel?
 
     var locale = Locale.current {
@@ -59,13 +66,19 @@ final class NetworkFeeView: UIView {
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(15)
         }
 
         addSubview(tokenLabel)
         tokenLabel.snp.makeConstraints { make in
             make.trailing.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
+        }
+
+        addSubview(activityIndicator)
+        activityIndicator.snp.makeConstraints { make in
+            make.trailing.centerY.equalToSuperview()
         }
     }
 
@@ -108,10 +121,16 @@ final class NetworkFeeView: UIView {
         }
     }
 
-    func bind(tokenAmount: String, fiatAmount: String?) {
-        tokenLabel.text = tokenAmount
+    func bind(viewModel: BalanceViewModelProtocol?) {
+        if viewModel != nil {
+            activityIndicator.stopAnimating()
+        } else {
+            activityIndicator.startAnimating()
+        }
 
-        if let fiatAmount = fiatAmount {
+        tokenLabel.text = viewModel?.amount
+
+        if let fiatAmount = viewModel?.price {
             addFiatLabelIfNeeded()
             fiatLabel?.text = fiatAmount
         } else {

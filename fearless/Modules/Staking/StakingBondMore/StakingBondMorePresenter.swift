@@ -88,9 +88,8 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
                 locale: locale
             ),
 
-            // TODO: fix to stash validation
             dataValidatingFactory.has(
-                controller: stashAccount,
+                stash: stashAccount,
                 for: stashItem?.controller ?? "",
                 locale: locale
             ),

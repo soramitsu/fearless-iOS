@@ -1,19 +1,19 @@
 import Foundation
 
 final class WarningConditionViolation: DataValidating {
-    let checkCondition: () -> Bool
+    let preservesCondition: () -> Bool
     let onWarning: (DataValidatingDelegate) -> Void
 
     init(
         onWarning: @escaping (DataValidatingDelegate) -> Void,
-        checkCondition: @escaping () -> Bool
+        preservesCondition: @escaping () -> Bool
     ) {
-        self.checkCondition = checkCondition
+        self.preservesCondition = preservesCondition
         self.onWarning = onWarning
     }
 
     func validate(notifying delegate: DataValidatingDelegate) -> DataValidationProblem? {
-        if checkCondition() {
+        if preservesCondition() {
             return nil
         }
 

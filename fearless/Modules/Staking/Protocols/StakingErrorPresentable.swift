@@ -5,7 +5,14 @@ protocol StakingErrorPresentable {
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
+
     func presentMissingController(
+        from view: ControllerBackedProtocol,
+        address: AccountAddress,
+        locale: Locale?
+    )
+
+    func presentMissingStash(
         from view: ControllerBackedProtocol,
         address: AccountAddress,
         locale: Locale?
@@ -29,6 +36,7 @@ protocol StakingErrorPresentable {
 
     func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?)
+    func presentNoRedeemables(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -78,9 +86,24 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
+    func presentMissingStash(
+        from view: ControllerBackedProtocol,
+        address: AccountAddress,
+        locale: Locale?
+    ) {
+        let message = R.string.localizable
+            .stakingStashMissingMessage(address, preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
+    }
+
     func presentUnbondingTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
-        let message = "You don't have enough tokens to unbond"
-        let title = R.string.localizable.stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable
+            .stakingRedeemNoTokensMessage(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable
+            .stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
         present(message: message, title: title, closeAction: closeAction, from: view)
@@ -173,5 +196,14 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             style: .alert,
             from: view
         )
+    }
+
+    func presentNoRedeemables(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable
+            .stakingRedeemNoTokensMessage(preferredLanguages: locale?.rLanguages)
+        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }

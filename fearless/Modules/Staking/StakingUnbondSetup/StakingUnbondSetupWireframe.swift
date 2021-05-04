@@ -5,7 +5,14 @@ final class StakingUnbondSetupWireframe: StakingUnbondSetupWireframeProtocol {
         view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 
-    func proceed(view _: StakingUnbondSetupViewProtocol?, amount _: Decimal) {
-        // TODO: FLW-786
+    func proceed(view: StakingUnbondSetupViewProtocol?, amount: Decimal) {
+        guard let confirmationView = StakingUnbondConfirmViewFactory.createView(from: amount) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            confirmationView.controller,
+            animated: true
+        )
     }
 }

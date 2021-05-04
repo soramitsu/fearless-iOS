@@ -9,14 +9,11 @@ final class StakingUnbondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
 
-    let networkFeeView = NetworkFeeView()
+    let networkFeeView = UIFactory.default.createNetworkFeeView()
 
-    let durationView = TitleValueView()
+    let durationView = UIFactory.default.createTitleValueView()
 
     let footerLabel: UILabel = {
         let label = UILabel()
@@ -26,11 +23,7 @@ final class StakingUnbondSetupLayout: UIView {
         return label
     }()
 
-    let actionButton: TriangularedButton = {
-        let button = TriangularedButton()
-        button.applyDefaultStyle()
-        return button
-    }()
+    let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     var locale = Locale.current {
         didSet {
@@ -42,6 +35,8 @@ final class StakingUnbondSetupLayout: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        backgroundColor = R.color.colorBlack()!
 
         setupLayout()
         applyLocalization()
@@ -84,7 +79,6 @@ final class StakingUnbondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
         }
 
         contentView.stackView.addArrangedSubview(durationView)
@@ -104,7 +98,7 @@ final class StakingUnbondSetupLayout: UIView {
         addSubview(actionButton)
         actionButton.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
     }

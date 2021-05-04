@@ -21,6 +21,8 @@ protocol SubstrateCallFactoryProtocol {
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
 
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall>
+
+    func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -90,5 +92,10 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func setPayee(for destination: RewardDestinationArg) -> RuntimeCall<SetPayeeCall> {
         let args = SetPayeeCall(payee: destination)
         return RuntimeCall(moduleName: "Staking", callName: "set_payee", args: args)
+    }
+
+    func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall> {
+        let args = WithdrawUnbondedCall(numberOfSlashingSpans: numberOfSlashingSpans)
+        return RuntimeCall(moduleName: "Staking", callName: "withdraw_unbonded", args: args)
     }
 }
