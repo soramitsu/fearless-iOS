@@ -99,7 +99,6 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 
         ]).runValidation { [weak self] in
             guard let strongSelf = self else { return }
-
             strongSelf.wireframe.showConfirmation(from: strongSelf.view, amount: strongSelf.amount)
         }
     }

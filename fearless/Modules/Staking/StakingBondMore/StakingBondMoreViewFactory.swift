@@ -33,8 +33,10 @@ struct StakingBondMoreViewFactory {
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
+
         presenter.view = viewController
         interactor.presenter = presenter
+        dataValidatingFactory.view = viewController
 
         return viewController
     }
