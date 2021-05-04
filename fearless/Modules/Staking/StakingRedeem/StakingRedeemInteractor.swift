@@ -193,7 +193,7 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
         fetchSlashingSpansForStash(stashAddress) { [weak self] result in
             switch result {
             case let .success(slashingSpans):
-                let numberOfSlashes = slashingSpans.map({ $0.prior.count + 1 }) ?? 0
+                let numberOfSlashes = slashingSpans.map { $0.prior.count + 1 } ?? 0
                 self?.estimateFee(
                     with: UInt32(numberOfSlashes),
                     resettingRewardDestination: resettingRewardDestination
@@ -208,7 +208,7 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
         fetchSlashingSpansForStash(stashAddress) { [weak self] result in
             switch result {
             case let .success(slashingSpans):
-                let numberOfSlashes = slashingSpans.map({ $0.prior.count + 1 }) ?? 0
+                let numberOfSlashes = slashingSpans.map { $0.prior.count + 1 } ?? 0
                 self?.submit(
                     with: UInt32(numberOfSlashes),
                     resettingRewardDestination: resettingRewardDestination
