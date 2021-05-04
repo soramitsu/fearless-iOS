@@ -374,3 +374,6 @@ Derivation path: %@";
 "common.account" = "Account";
 "staking.unbond.payee.reset.message" = "The reward destination will be changed to your account to avoid a bonded remnant since staking will be stopped";
 "staking.unbond.completion.message" = "Unbonding request has been submitted";
+"staking.redeemable.format" = "Redeemable: %@";
+"staking.redeem.completion.message" = "Redeeming request has been submitted";
+"staking.redeem.no.tokens.message" = "No redeemable tokens found";

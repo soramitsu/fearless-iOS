@@ -82,7 +82,7 @@ final class StakingRedeemLayout: UIView {
         amountView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
+            amountView.balanceText = R.string.localizable.stakingRedeemableFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )

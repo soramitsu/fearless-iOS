@@ -445,6 +445,7 @@
 		8468B87224F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B87124F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift */; };
 		8468B87424F63D4B00B76BC6 /* AddAccount+AccountConfirmWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B87324F63D4B00B76BC6 /* AddAccount+AccountConfirmWireframe.swift */; };
 		8468B87624F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8468B87524F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift */; };
+		84690783264132AB0030E693 /* WithdrawUnbondedCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84690782264132AB0030E693 /* WithdrawUnbondedCall.swift */; };
 		846A2C4325271CDE00731018 /* TransactionType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C4225271CDE00731018 /* TransactionType.swift */; };
 		846A2C4525271F0100731018 /* DateFormatter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C4425271F0100731018 /* DateFormatter.swift */; };
 		846A2C492527490700731018 /* WalletSelectAccountCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 846A2C482527490700731018 /* WalletSelectAccountCommand.swift */; };
@@ -1594,6 +1595,7 @@
 		8468B87124F63D3A00B76BC6 /* AddAccount+AccountCreateWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddAccount+AccountCreateWireframe.swift"; sourceTree = "<group>"; };
 		8468B87324F63D4B00B76BC6 /* AddAccount+AccountConfirmWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddAccount+AccountConfirmWireframe.swift"; sourceTree = "<group>"; };
 		8468B87524F63D5900B76BC6 /* AddAccount+AccountImportWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AddAccount+AccountImportWireframe.swift"; sourceTree = "<group>"; };
+		84690782264132AB0030E693 /* WithdrawUnbondedCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WithdrawUnbondedCall.swift; sourceTree = "<group>"; };
 		846A2C4225271CDE00731018 /* TransactionType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransactionType.swift; sourceTree = "<group>"; };
 		846A2C4425271F0100731018 /* DateFormatter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DateFormatter.swift; sourceTree = "<group>"; };
 		846A2C482527490700731018 /* WalletSelectAccountCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletSelectAccountCommand.swift; sourceTree = "<group>"; };
@@ -3366,6 +3368,7 @@
 				84DD5F20263CB6BE00425ACF /* UnbondCall.swift */,
 				84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */,
 				849DEC5825ED756F00C64C19 /* SubstrateCallFactory.swift */,
+				84690782264132AB0030E693 /* WithdrawUnbondedCall.swift */,
 			);
 			path = Calls;
 			sourceTree = "<group>";
@@ -6207,6 +6210,7 @@
 				84C7DA5425EE2DF000F8C318 /* StakingErrorPresentable.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8425EB1B25EADD8600C307C9 /* StakingConstants.swift in Sources */,
+				84690783264132AB0030E693 /* WithdrawUnbondedCall.swift in Sources */,
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
 				8472979A260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift in Sources */,
 				841E6AF625EC12100007DDFE /* PreparedNomination.swift in Sources */,

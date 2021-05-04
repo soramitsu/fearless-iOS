@@ -13,7 +13,7 @@ final class StakingRedeemPresenter {
     let logger: LoggerProtocol?
 
     private var stakingLedger: DyStakingLedger?
-    private var redeemable: Decimal?
+    private var activeEra: UInt32?
     private var balance: Decimal?
     private var minimalBalance: BigUInt?
     private var priceData: PriceData?
@@ -46,13 +46,19 @@ final class StakingRedeemPresenter {
     }
 
     private func provideAssetViewModel() {
-        guard let redeemable = redeemable else {
+        guard
+            let era = activeEra,
+            let redeemable = stakingLedger?.redeemable(inEra: era),
+            let redeemableDecimal = Decimal.fromSubstrateAmount(
+                redeemable,
+                precision: chain.addressType.precision
+            ) else {
             return
         }
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            redeemable,
-            balance: redeemable,
+            redeemableDecimal,
+            balance: redeemableDecimal,
             priceData: priceData
         )
 
@@ -60,14 +66,20 @@ final class StakingRedeemPresenter {
     }
 
     private func provideConfirmationViewModel() {
-        guard let controller = controller, let redeemable = redeemable else {
+        guard let controller = controller,
+              let era = activeEra,
+              let redeemable = stakingLedger?.redeemable(inEra: era),
+              let redeemableDecimal = Decimal.fromSubstrateAmount(
+                  redeemable,
+                  precision: chain.addressType.precision
+              ) else {
             return
         }
 
         do {
             let viewModel = try confirmViewModelFactory.createRedeemViewModel(
                 controllerItem: controller,
-                amount: redeemable,
+                amount: redeemableDecimal,
                 shouldResetRewardDestination: shouldResetRewardDestination
             )
 
@@ -125,7 +137,11 @@ extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            // TODO: Add redeem validation
+            dataValidatingFactory.hasRedeemable(
+                stakingLedger: stakingLedger,
+                in: activeEra,
+                locale: locale
+            ),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
@@ -272,6 +288,18 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive payee item error: \(error)")
+        }
+    }
+
+    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>) {
+        switch result {
+        case let .success(eraInfo):
+            self.activeEra = eraInfo?.index
+
+            provideAssetViewModel()
+            provideConfirmationViewModel()
+        case let .failure(error):
+            logger?.error("Did receive active era error: \(error)")
         }
     }
 

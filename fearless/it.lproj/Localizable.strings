@@ -373,3 +373,6 @@ Derivation path: %@";
 "common.account" = "";
 "staking.unbond.payee.reset.message" = "";
 "staking.unbond.completion.message" = "";
+"staking.redeemable.format" = "";
+"staking.redeem.completion.message" = "";
+"staking.redeem.no.tokens.message" = "";

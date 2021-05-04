@@ -30,6 +30,7 @@ protocol StakingRedeemInteractorOutputProtocol: AnyObject {
     func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
 
     func didSubmitRedeeming(result: Result<String, Error>)
 }

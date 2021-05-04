@@ -23,6 +23,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
@@ -71,13 +72,16 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
     private func setupExtrinsicBuiler(
         _ builder: ExtrinsicBuilderProtocol,
+        numberOfSlashingSpans: UInt32,
         resettingRewardDestination: Bool
     ) throws -> ExtrinsicBuilderProtocol {
         if resettingRewardDestination {
             return try builder
+                .adding(call: callFactory.withdrawUnbonded(for: numberOfSlashingSpans))
                 .adding(call: callFactory.setPayee(for: .stash))
         } else {
-            return builder
+            return try builder
+                .adding(call: callFactory.withdrawUnbonded(for: numberOfSlashingSpans))
         }
     }
 
@@ -122,7 +126,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         )
     }
 
-    private func estimateFee(with _: UInt32, resettingRewardDestination: Bool) {
+    private func estimateFee(with numberOfSlasingSpans: UInt32, resettingRewardDestination: Bool) {
         guard let extrinsicService = extrinsicService else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
@@ -140,12 +144,13 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
             return try strongSelf.setupExtrinsicBuiler(
                 builder,
+                numberOfSlashingSpans: numberOfSlasingSpans,
                 resettingRewardDestination: resettingRewardDestination
             )
         }
     }
 
-    private func submit(with _: UInt32, resettingRewardDestination: Bool) {
+    private func submit(with numberOfSlasingSpans: UInt32, resettingRewardDestination: Bool) {
         guard
             let extrinsicService = extrinsicService,
             let signingWrapper = signingWrapper else {
@@ -161,6 +166,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
 
                 return try strongSelf.setupExtrinsicBuiler(
                     builder,
+                    numberOfSlashingSpans: numberOfSlasingSpans,
                     resettingRewardDestination: resettingRewardDestination
                 )
             },
@@ -184,6 +190,8 @@ extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
             chain: chain,
             runtimeService: runtimeService
         )
+
+        activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
 
         fetchConstant(
             for: .existentialDeposit,
@@ -300,6 +308,10 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
 
     func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
         presenter.didReceiveElectionStatus(result: result)
+    }
+
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain: Chain) {
+        presenter.didReceiveActiveEra(result: result)
     }
 }
 

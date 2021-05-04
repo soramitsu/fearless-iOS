@@ -4,7 +4,7 @@ final class StakingRedeemWireframe: StakingRedeemWireframeProtocol, ModalAlertPr
     func complete(from view: StakingRedeemViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingUnbondCompletionMessage(preferredLanguages: languages)
+            .stakingRedeemCompletionMessage(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 
