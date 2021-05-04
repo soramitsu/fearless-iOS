@@ -16,7 +16,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
     let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
-    let storageRequestFactory: StorageRequestFactoryProtocol
+    let slashesOperationFactory: SlashesOperationFactoryProtocol
     let engine: JSONRPCEngine
     let chain: Chain
     let assetId: WalletAssetId
@@ -41,7 +41,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        storageRequestFactory: StorageRequestFactoryProtocol,
+        slashesOperationFactory: SlashesOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
@@ -52,7 +52,7 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicServiceFactory = extrinsicServiceFactory
         self.feeProxy = feeProxy
-        self.storageRequestFactory = storageRequestFactory
+        self.slashesOperationFactory = slashesOperationFactory
         self.accountRepository = accountRepository
         self.settings = settings
         self.runtimeService = runtimeService
@@ -89,39 +89,24 @@ final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
         _ stash: AccountAddress,
         completionClosure: @escaping (Result<SlashingSpans?, Error>) -> Void
     ) {
-        let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
+        let wrapper = slashesOperationFactory.createSlashingSpansOperationForStash(
+            stash,
+            engine: engine,
+            runtimeService: runtimeService
+        )
 
-        let keyParams: () throws -> [AccountId] = {
-            let accountId: AccountId = try SS58AddressFactory().accountId(from: stash)
-            return [accountId]
-        }
-
-        let fetchOperation: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
-            storageRequestFactory.queryItems(
-                engine: engine,
-                keyParams: keyParams,
-                factory: {
-                    try runtimeFetchOperation.extractNoCancellableResultData()
-                }, storagePath: .slashingSpans
-            )
-
-        fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
-
-        fetchOperation.targetOperation.completionBlock = {
+        wrapper.targetOperation.completionBlock = {
             DispatchQueue.main.async {
-                do {
-                    let slashingSpans = try fetchOperation.targetOperation
-                        .extractNoCancellableResultData().first?.value
-
-                    completionClosure(.success(slashingSpans))
-                } catch {
-                    completionClosure(.failure(error))
+                if let result = wrapper.targetOperation.result {
+                    completionClosure(result)
+                } else {
+                    completionClosure(.failure(BaseOperationError.unexpectedDependentResult))
                 }
             }
         }
 
         operationManager.enqueue(
-            operations: [runtimeFetchOperation] + fetchOperation.allOperations,
+            operations: wrapper.allOperations,
             in: .transient
         )
     }

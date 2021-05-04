@@ -87,9 +87,13 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let storageRequestFactory = StorageRequestFactory(
+        let storageOperationFactory = StorageRequestFactory(
             remoteFactory: StorageKeyFactory(),
             operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let slashesOperationFactory = SlashesOperationFactory(
+            storageRequestFactory: storageOperationFactory
         )
 
         return StakingRedeemInteractor(
@@ -99,7 +103,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             substrateProviderFactory: substrateProviderFactory,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
-            storageRequestFactory: storageRequestFactory,
+            slashesOperationFactory: slashesOperationFactory,
             accountRepository: AnyDataProviderRepository(accountRepository),
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
