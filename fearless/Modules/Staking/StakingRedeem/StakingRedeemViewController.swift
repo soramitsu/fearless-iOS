@@ -31,7 +31,7 @@ final class StakingRedeemViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = StakingUnbondConfirmLayout()
+        view = StakingRedeemLayout()
     }
 
     override func viewDidLoad() {
