@@ -6,52 +6,52 @@ import FearlessUtils
 import SoraKeystore
 import SoraFoundation
 
-class StakingUnbondSetupTests: XCTestCase {
+class StakingUnbondConfirmTests: XCTestCase {
 
-    func testUnbondingSetupAndAmountProvidingSuccess() throws {
+    func testUnbondingConfirmationSuccess() throws {
         // given
 
-        let view = MockStakingUnbondSetupViewProtocol()
-        let wireframe = MockStakingUnbondSetupWireframeProtocol()
+        let view = MockStakingUnbondConfirmViewProtocol()
+        let wireframe = MockStakingUnbondConfirmWireframeProtocol()
 
         // when
 
-        let presenter = try setupPresenter(for: view, wireframe: wireframe)
-
-        let inputViewModelReloaded = XCTestExpectation()
-
-        stub(view) { stub in
-            when(stub).didReceiveInput(viewModel: any()).then { viewModel in
-                inputViewModelReloaded.fulfill()
-            }
-
-            when(stub).localizationManager.get.then { nil }
-
-            when(stub).didReceiveAsset(viewModel: any()).thenDoNothing()
-            when(stub).didReceiveFee(viewModel: any()).thenDoNothing()
-            when(stub).didReceiveBonding(duration: any()).thenDoNothing()
-        }
+        let presenter = try setupPresenter(for: 1.0, view: view, wireframe: wireframe)
 
         let completionExpectation = XCTestExpectation()
 
+        stub(view) { stub in
+            when(stub).didReceiveAsset(viewModel: any()).thenDoNothing()
+
+            when(stub).didReceiveFee(viewModel: any()).thenDoNothing()
+
+            when(stub).didReceiveConfirmation(viewModel: any()).thenDoNothing()
+
+            when(stub).localizationManager.get.then { nil }
+
+            when(stub).didStartLoading().thenDoNothing()
+
+            when(stub).didStopLoading().thenDoNothing()
+        }
+
         stub(wireframe) { stub in
-            when(stub).proceed(view: any(), amount: any()).then { (view, amount) in
+            when(stub).complete(from: any()).then { _ in
                 completionExpectation.fulfill()
             }
         }
 
-        presenter.selectAmountPercentage(0.75)
-        presenter.proceed()
+        presenter.confirm()
 
         // then
 
-        wait(for: [inputViewModelReloaded, completionExpectation], timeout: 10.0)
+        wait(for: [completionExpectation], timeout: 10.0)
     }
 
     private func setupPresenter(
-        for view: MockStakingUnbondSetupViewProtocol,
-        wireframe: MockStakingUnbondSetupWireframeProtocol
-    ) throws -> StakingUnbondSetupPresenterProtocol {
+        for inputAmount: Decimal,
+        view: MockStakingUnbondConfirmViewProtocol,
+        wireframe: MockStakingUnbondConfirmWireframeProtocol
+    ) throws -> StakingUnbondConfirmPresenterProtocol {
         // given
 
         let settings = InMemorySettingsManager()
@@ -64,8 +64,9 @@ class StakingUnbondSetupTests: XCTestCase {
                                                             settings: settings)
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
         let assetId = WalletAssetId(
-            rawValue: primitiveFactory.createAssetForAddressType(chain.addressType).identifier
+            rawValue: asset.identifier
         )!
 
         let storageFacade = SubstrateStorageTestFacade()
@@ -107,7 +108,7 @@ class StakingUnbondSetupTests: XCTestCase {
             signingWraper: try DummySigner(cryptoType: cryptoType)
         )
 
-        let interactor = StakingUnbondSetupInteractor(
+        let interactor = StakingUnbondConfirmInteractor(
             assetId: assetId,
             chain: chain,
             singleValueProviderFactory: singleValueProviderFactory,
@@ -126,9 +127,13 @@ class StakingUnbondSetupTests: XCTestCase {
             limit: StakingConstants.maxAmount
         )
 
-        let presenter = StakingUnbondSetupPresenter(
+        let confirmViewModelFactory = StakingUnbondConfirmViewModelFactory(asset: asset)
+
+        let presenter = StakingUnbondConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
+            inputAmount: inputAmount,
+            confirmViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: StakingDataValidatingFactory(presentable: wireframe),
             chain: chain
@@ -140,9 +145,8 @@ class StakingUnbondSetupTests: XCTestCase {
         // when
 
         let feeExpectation = XCTestExpectation()
-        let inputExpectation = XCTestExpectation()
         let assetExpectation = XCTestExpectation()
-        let bondingDurationExpectation = XCTestExpectation()
+        let confirmViewModelExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceiveAsset(viewModel: any()).then { viewModel in
@@ -157,14 +161,8 @@ class StakingUnbondSetupTests: XCTestCase {
                 }
             }
 
-            when(stub).didReceiveBonding(duration: any()).then { viewModel in
-                if !viewModel.value(for: Locale.current).isEmpty {
-                    bondingDurationExpectation.fulfill()
-                }
-            }
-
-            when(stub).didReceiveInput(viewModel: any()).then { _ in
-                inputExpectation.fulfill()
+            when(stub).didReceiveConfirmation(viewModel: any()).then { viewModel in
+                confirmViewModelExpectation.fulfill()
             }
         }
 
@@ -172,7 +170,7 @@ class StakingUnbondSetupTests: XCTestCase {
 
         // then
 
-        wait(for: [inputExpectation, assetExpectation, feeExpectation, bondingDurationExpectation], timeout: 10)
+        wait(for: [assetExpectation, feeExpectation, confirmViewModelExpectation], timeout: 10)
 
         return presenter
     }

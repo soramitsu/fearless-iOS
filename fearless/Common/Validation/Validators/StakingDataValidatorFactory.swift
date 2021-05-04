@@ -57,7 +57,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentAmountTooHigh(from: view, locale: locale)
 
-        }, checkCondition: {
+        }, preservesCondition: {
             if let balance = balance,
                let fee = fee,
                let amount = spendingAmount {
@@ -80,7 +80,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentFeeTooHigh(from: view, locale: locale)
 
-        }, checkCondition: {
+        }, preservesCondition: {
             if let balance = balance,
                let fee = fee {
                 return fee <= balance
@@ -98,7 +98,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentUnbondingTooHigh(from: view, locale: locale)
 
-        }, checkCondition: {
+        }, preservesCondition: {
             if let amount = amount,
                let bonded = bonded {
                 return amount <= bonded
@@ -115,7 +115,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             self?.presentable.presentMissingController(from: view, address: address, locale: locale)
-        }, checkCondition: { controller != nil })
+        }, preservesCondition: { controller != nil })
     }
 
     func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating {
@@ -129,7 +129,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             self?.presentable.presentFeeNotReceived(from: view, locale: locale)
-        }, checkCondition: { fee != nil })
+        }, preservesCondition: { fee != nil })
     }
 
     func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating {
@@ -139,7 +139,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             self?.presentable.presentElectionPeriodIsNotClosed(from: view, locale: locale)
-        }, checkCondition: { electionStatus == .some(.close) })
+        }, preservesCondition: { electionStatus == .some(.close) })
     }
 
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating {
@@ -149,7 +149,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             self?.presentable.presentUnbondingLimitReached(from: view, locale: locale)
-        }, checkCondition: {
+        }, preservesCondition: {
             if let count = count, count < SubstrateConstants.maxUnbondingRequests {
                 return true
             } else {
@@ -171,7 +171,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentRewardIsLessThanFee(from: view, action: {
                 delegate.didCompleteWarningHandling()
             }, locale: locale)
-        }, checkCondition: {
+        }, preservesCondition: {
             if let reward = reward, let fee = fee {
                 return reward > fee
             } else {
@@ -194,7 +194,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentStashKilledAfterUnbond(from: view, action: {
                 delegate.didCompleteWarningHandling()
             }, locale: locale)
-        }, checkCondition: {
+        }, preservesCondition: {
             if let amount = amount, let bonded = bonded, let minimumAmount = minimumAmount {
                 return bonded - amount >= minimumAmount
             } else {

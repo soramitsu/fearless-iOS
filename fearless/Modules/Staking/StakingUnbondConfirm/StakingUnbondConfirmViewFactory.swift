@@ -3,17 +3,37 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 
-struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
-    static func createView() -> StakingUnbondSetupViewProtocol? {
-        guard let interactor = createInteractor(settings: SettingsManager.shared) else {
+struct StakingUnbondConfirmViewFactory: StakingUnbondConfirmViewFactoryProtocol {
+    static func createView(from amount: Decimal) -> StakingUnbondConfirmViewProtocol? {
+        guard let interactor = createInteractor() else {
             return nil
         }
 
-        let wireframe = StakingUnbondSetupWireframe()
+        let wireframe = StakingUnbondConfirmWireframe()
 
+        let presenter = createPresenter(from: interactor, wireframe: wireframe, amount: amount)
+
+        let view = StakingUnbondConfirmViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
+        presenter.view = view
+        interactor.presenter = presenter
+
+        return view
+    }
+
+    private static func createPresenter(
+        from interactor: StakingUnbondConfirmInteractorInputProtocol,
+        wireframe: StakingUnbondConfirmWireframeProtocol,
+        amount: Decimal
+    ) -> StakingUnbondConfirmPresenter {
         let settings = SettingsManager.shared
-        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
         let chain = settings.selectedConnection.type.chain
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -21,32 +41,25 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
+        let confirmationViewModelFactory = StakingUnbondConfirmViewModelFactory(asset: asset)
+
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
-        let presenter = StakingUnbondSetupPresenter(
+        return StakingUnbondConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
+            inputAmount: amount,
+            confirmViewModelFactory: confirmationViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             chain: chain,
             logger: Logger.shared
         )
-
-        let view = StakingUnbondSetupViewController(
-            presenter: presenter,
-            localizationManager: LocalizationManager.shared
-        )
-
-        presenter.view = view
-        dataValidatingFactory.view = view
-        interactor.presenter = presenter
-
-        return view
     }
 
-    private static func createInteractor(
-        settings: SettingsManagerProtocol
-    ) -> StakingUnbondSetupInteractor? {
+    private static func createInteractor() -> StakingUnbondConfirmInteractor? {
+        let settings = SettingsManager.shared
+
         guard let engine = WebSocketService.shared.connection else {
             return nil
         }
@@ -75,7 +88,7 @@ struct StakingUnbondSetupViewFactory: StakingUnbondSetupViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        return StakingUnbondSetupInteractor(
+        return StakingUnbondConfirmInteractor(
             assetId: assetId,
             chain: chain,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
