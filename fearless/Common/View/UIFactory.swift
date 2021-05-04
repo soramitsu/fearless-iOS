@@ -45,10 +45,20 @@ protocol UIFactoryProtocol {
         locale: Locale
     ) -> UIToolbar
 
+    func createAccountView() -> DetailsTriangularedView
+
+    func createNetworkFeeView() -> NetworkFeeView
+
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
+
+    func createTitleValueView() -> TitleValueView
+
+    func createHintView() -> HintView
 }
 
 final class UIFactory: UIFactoryProtocol {
+    static let `default` = UIFactory()
+
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyDefaultStyle()
@@ -239,6 +249,7 @@ final class UIFactory: UIFactoryProtocol {
         amountInputView.balanceLabel.textColor = R.color.colorLightGray()
         amountInputView.balanceLabel.font = .p2Paragraph
         amountInputView.textField.font = .h4Title
+        amountInputView.textField.textColor = R.color.colorWhite()
         amountInputView.textField.tintColor = R.color.colorWhite()
         amountInputView.verticalSpacing = 2.0
         amountInputView.iconRadius = 12.0
@@ -333,7 +344,29 @@ final class UIFactory: UIFactoryProtocol {
         return toolBar
     }
 
+    func createAccountView() -> DetailsTriangularedView {
+        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+        view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        view.actionImage = R.image.iconMore()
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1
+        return view
+    }
+
+    func createNetworkFeeView() -> NetworkFeeView {
+        NetworkFeeView()
+    }
+
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
         NetworkFeeConfirmView()
+    }
+
+    func createTitleValueView() -> TitleValueView {
+        TitleValueView()
+    }
+
+    func createHintView() -> HintView {
+        HintView()
     }
 }

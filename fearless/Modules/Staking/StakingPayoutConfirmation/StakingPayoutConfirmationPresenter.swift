@@ -119,7 +119,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationPresenter
 
             switch confirmError {
             case .notEnoughFunds:
-                wireframe.presentPayoutFeeTooHigh(from: view, locale: locale)
+                wireframe.presentFeeTooHigh(from: view, locale: locale)
             case .feeNotReceived:
                 wireframe.presentFeeNotReceived(from: view, locale: locale)
             case .extrinsicFailed:

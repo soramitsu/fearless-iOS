@@ -11,6 +11,8 @@ struct StakingBondMoreViewFactory {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
+        guard let interactor = createInteractor(asset: asset) else { return nil }
+
         let wireframe = StakingBondMoreWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
@@ -19,19 +21,22 @@ struct StakingBondMoreViewFactory {
             limit: StakingConstants.maxAmount
         )
 
-        guard let interactor = createInteractor(asset: asset) else { return nil }
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingBondMorePresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             asset: asset
         )
         let viewController = StakingBondMoreViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
+
         presenter.view = viewController
         interactor.presenter = presenter
+        dataValidatingFactory.view = viewController
 
         return viewController
     }
@@ -42,47 +47,43 @@ struct StakingBondMoreViewFactory {
         let operationManager = OperationManagerFacade.sharedManager
         let runtimeService = RuntimeRegistryFacade.sharedService
 
-        guard let selectedAccount = settings.selectedAccount,
-              let assetId = WalletAssetId(rawValue: asset.identifier),
-              let connection = WebSocketService.shared.connection
-        else {
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let connection = WebSocketService.shared.connection else {
             return nil
         }
 
         let providerFactory = SingleValueProviderFactory.shared
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: runtimeService
-            )
-        else {
-            return nil
-        }
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: operationManager
         )
 
-        let stashItemProvider = substrateProviderFactory.createStashItemProvider(for: selectedAccount.address)
         let extrinsicServiceFactory = ExtrinsicServiceFactory(
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
+
+        let feeProxy = ExtrinsicFeeProxy()
+
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
         let interactor = StakingBondMoreInteractor(
-            priceProvider: priceProvider,
-            balanceProvider: AnyDataProvider(balanceProvider),
-            stashItemProvider: stashItemProvider,
+            settings: settings,
+            singleValueProviderFactory: providerFactory,
+            substrateProviderFactory: substrateProviderFactory,
             accountRepository: AnyDataProviderRepository(repository),
             extrinsicServiceFactoryProtocol: extrinsicServiceFactory,
+            feeProxy: feeProxy,
             runtimeService: runtimeService,
-            operationManager: operationManager
+            operationManager: operationManager,
+            chain: settings.selectedConnection.type.chain,
+            assetId: assetId
         )
+
         return interactor
     }
 }

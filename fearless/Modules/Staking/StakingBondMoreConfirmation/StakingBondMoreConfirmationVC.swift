@@ -36,7 +36,8 @@ final class StakingBMConfirmationVC: UIViewController, ViewHolder {
         presenter.setup()
 
         // TODO: delete
-        rootView.networkFeeConfirmView.networkFeeView.bind(tokenAmount: "0.001 KSM", fiatAmount: "$1")
+        let viewModel = BalanceViewModel(amount: "0.001 KSM", price: "$1")
+        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
     }
 }
 

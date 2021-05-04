@@ -9,14 +9,11 @@ final class StakingUnbondSetupLayout: UIView {
         return view
     }()
 
-    let amountInputView: AmountInputView = {
-        let view = UIFactory().createAmountInputView(filled: false)
-        return view
-    }()
+    let amountInputView: AmountInputView = UIFactory.default.createAmountInputView(filled: false)
 
-    let networkFeeView = NetworkFeeView()
+    let networkFeeView = UIFactory.default.createNetworkFeeView()
 
-    let durationView = TitleValueView()
+    let durationView = UIFactory.default.createTitleValueView()
 
     let footerLabel: UILabel = {
         let label = UILabel()
@@ -25,6 +22,8 @@ final class StakingUnbondSetupLayout: UIView {
         label.numberOfLines = 0
         return label
     }()
+
+    let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
     var locale = Locale.current {
         didSet {
@@ -37,6 +36,8 @@ final class StakingUnbondSetupLayout: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
 
+        backgroundColor = R.color.colorBlack()!
+
         setupLayout()
         applyLocalization()
     }
@@ -47,17 +48,17 @@ final class StakingUnbondSetupLayout: UIView {
     }
 
     private func applyLocalization() {
-        // TODO: Fix localization
-        footerLabel.text = "Your tokens will be available to redeem after the unbonding period."
-        durationView.titleLabel.text = "Unbonding period"
-        durationView.valueLabel.text = "7 days"
+        networkFeeView.locale = locale
+
+        footerLabel.text = R.string.localizable.stakingUnbondingHint(preferredLanguages: locale.rLanguages)
+        durationView.titleLabel.text = R.string.localizable
+            .stakingUnbondingPeriod(preferredLanguages: locale.rLanguages)
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
-        amountInputView.priceText = "$2,524.1"
-        amountInputView.symbol = "KSM"
-        amountInputView.assetIcon = R.image.iconKsmSmallBg()
-        amountInputView.balanceText = "Bonded: 10.00003"
+
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -78,7 +79,6 @@ final class StakingUnbondSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
         }
 
         contentView.stackView.addArrangedSubview(durationView)
@@ -93,6 +93,13 @@ final class StakingUnbondSetupLayout: UIView {
         footerView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.bottom.equalTo(footerLabel).offset(16.0)
+        }
+
+        addSubview(actionButton)
+        actionButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            make.height.equalTo(UIConstants.actionHeight)
         }
     }
 

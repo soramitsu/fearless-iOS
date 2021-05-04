@@ -79,7 +79,7 @@ final class StakingBondMoreViewController: UIViewController, ViewHolder {
 
     private func applyFee() {
         if let fee = feeViewModel?.value(for: selectedLocale) {
-            rootView.networkFeeView.bind(tokenAmount: fee.amount, fiatAmount: fee.price)
+            rootView.networkFeeView.bind(viewModel: fee)
         }
     }
 }
