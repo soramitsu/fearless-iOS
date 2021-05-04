@@ -1,5 +1,7 @@
+import Foundation
+
 final class StakingBondMoreWireframe: StakingBondMoreWireframeProtocol {
-    func showConfirmation(from _: ControllerBackedProtocol?) {
+    func showConfirmation(from _: ControllerBackedProtocol?, amount _: Decimal) {
         // TODO: FLW-772
     }
 

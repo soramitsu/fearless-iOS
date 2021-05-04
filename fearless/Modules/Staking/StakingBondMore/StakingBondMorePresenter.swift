@@ -7,29 +7,40 @@ final class StakingBondMorePresenter {
     let wireframe: StakingBondMoreWireframeProtocol
     weak var view: StakingBondMoreViewProtocol?
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+    let logger: LoggerProtocol?
 
     var amount: Decimal = 0
     private let asset: WalletAsset
     private var priceData: PriceData?
     private var balance: Decimal?
     private var fee: Decimal?
+    private var electionStatus: ElectionStatus?
+    private var stashItem: StashItem?
+    private var stashAccount: AccountItem?
 
     init(
         interactor: StakingBondMoreInteractorInputProtocol,
         wireframe: StakingBondMoreWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        asset: WalletAsset
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        asset: WalletAsset,
+        logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.asset = asset
+        self.logger = logger
     }
 
     private func estimateFee() {
-        if let amount = StakingConstants.maxAmount.toSubstrateAmount(precision: asset.precision) {
-            interactor.estimateFee(amount: amount)
+        guard fee == nil else {
+            return
         }
+
+        interactor.estimateFee()
     }
 
     private func provideAmountInputViewModel() {
@@ -59,35 +70,38 @@ final class StakingBondMorePresenter {
 extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
     func setup() {
         provideAmountInputViewModel()
+
         interactor.setup()
-        estimateFee()
     }
 
     func handleContinueAction() {
-        guard let fee = fee else {
-            if let view = view {
-                wireframe.presentFeeNotReceived(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
-            }
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.interactor.estimateFee()
+            }),
 
-            return
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            ),
+
+            // TODO: fix to stash validation
+            dataValidatingFactory.has(
+                controller: stashAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
+
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self else { return }
+
+            strongSelf.wireframe.showConfirmation(from: strongSelf.view, amount: strongSelf.amount)
         }
-
-        guard
-            let balance = balance,
-            amount + fee <= balance else {
-            if let view = view {
-                wireframe.presentAmountTooHigh(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
-            }
-
-            return
-        }
-        wireframe.showConfirmation(from: view)
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -117,50 +131,75 @@ extension StakingBondMorePresenter: StakingBondMorePresenterProtocol {
 }
 
 extension StakingBondMorePresenter: StakingBondMoreInteractorOutputProtocol {
-    func didReceive(paymentInfo: RuntimeDispatchInfo, for _: BigUInt) {
-        if let feeValue = BigUInt(paymentInfo.fee),
-           let fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision) {
-            self.fee = fee
-        } else {
-            fee = nil
-        }
-
-        provideFee()
-    }
-
-    func didReceive(error: Error) {
-        let locale = view?.localizationManager?.selectedLocale
-
-        _ = wireframe.present(error: error, from: view, locale: locale)
-    }
-
-    func didReceive(price: PriceData?) {
-        priceData = price
-        provideAsset()
-        provideFee()
-    }
-
-    func didReceive(balance: DyAccountData?) {
-        if let availableValue = balance?.available {
-            self.balance = Decimal.fromSubstrateAmount(
-                availableValue,
-                precision: asset.precision
-            )
-        } else {
-            self.balance = 0.0
-        }
-
-        provideAsset()
-    }
-
-    func didReceive(stashItemResult: Result<StashItem?, Error>) {
-        switch stashItemResult {
-        case let .success(stashItem):
-            if stashItem == nil {
-                wireframe.close(view: view)
-            }
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
+        switch result {
+        case let .success(electionStatus):
+            self.electionStatus = electionStatus
         case let .failure(error):
-            didReceive(error: error)
+            logger?.error("Did receive election status error: \(error)")
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let accountInfo = accountInfo {
+                balance = Decimal.fromSubstrateAmount(
+                    accountInfo.data.available,
+                    precision: asset.precision
+                )
+            } else {
+                balance = nil
+            }
+
+            provideAsset()
+        case let .failure(error):
+            logger?.error("Did receive account info error: \(error)")
+        }
+    }
+
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+
+            provideAsset()
+            provideFee()
+        case let .failure(error):
+            logger?.error("Did receive price data error: \(error)")
+        }
+    }
+
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
+        switch result {
+        case let .success(dispatchInfo):
+            if let feeValue = BigUInt(dispatchInfo.fee) {
+                fee = Decimal.fromSubstrateAmount(feeValue, precision: asset.precision)
+            } else {
+                fee = nil
+            }
+
+            provideFee()
+        case let .failure(error):
+            logger?.error("Did receive fee error: \(error)")
+        }
+    }
+
+    func didReceiveStash(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(stashAccount):
+            self.stashAccount = stashAccount
+        case let .failure(error):
+            logger?.error("Did receive stash account error: \(error)")
+        }
+    }
+
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+        case let .failure(error):
+            logger?.error("Did receive stash item error: \(error)")
         }
     }
 }

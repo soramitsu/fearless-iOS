@@ -17,18 +17,19 @@ protocol StakingBondMorePresenterProtocol: AnyObject {
 
 protocol StakingBondMoreInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(amount: BigUInt)
+    func estimateFee()
 }
 
 protocol StakingBondMoreInteractorOutputProtocol: AnyObject {
-    func didReceive(price: PriceData?)
-    func didReceive(balance: DyAccountData?)
-    func didReceive(error: Error)
-    func didReceive(paymentInfo: RuntimeDispatchInfo, for amount: BigUInt)
-    func didReceive(stashItemResult: Result<StashItem?, Error>)
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
+    func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
+    func didReceiveStash(result: Result<AccountItem?, Error>)
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
 protocol StakingBondMoreWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
-    func showConfirmation(from view: ControllerBackedProtocol?)
+    func showConfirmation(from view: ControllerBackedProtocol?, amount: Decimal)
     func close(view: ControllerBackedProtocol?)
 }

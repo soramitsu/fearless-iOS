@@ -1,165 +1,143 @@
 import RobinHood
 import IrohaCrypto
 import BigInt
+import SoraKeystore
 
-final class StakingBondMoreInteractor {
+final class StakingBondMoreInteractor: AccountFetching {
     weak var presenter: StakingBondMoreInteractorOutputProtocol!
 
-    private let priceProvider: AnySingleValueProvider<PriceData>
-    private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
-    private let stashItemProvider: StreamableProvider<StashItem>
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+
+    private let settings: SettingsManagerProtocol
     private let accountRepository: AnyDataProviderRepository<AccountItem>
     private let extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol
-    private var extrinsicService: ExtrinsicServiceProtocol?
+    private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
+    private let chain: Chain
+    private let assetId: WalletAssetId
+
+    private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var stashItemProvider: StreamableProvider<StashItem>?
+    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
+    private var extrinsicService: ExtrinsicServiceProtocol?
+
+    private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        priceProvider: AnySingleValueProvider<PriceData>,
-        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
-        stashItemProvider: StreamableProvider<StashItem>,
+        settings: SettingsManagerProtocol,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol,
+        feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        chain: Chain,
+        assetId: WalletAssetId
     ) {
-        self.priceProvider = priceProvider
-        self.balanceProvider = balanceProvider
-        self.stashItemProvider = stashItemProvider
+        self.settings = settings
+        self.singleValueProviderFactory = singleValueProviderFactory
+        self.substrateProviderFactory = substrateProviderFactory
         self.accountRepository = accountRepository
         self.extrinsicServiceFactoryProtocol = extrinsicServiceFactoryProtocol
+        self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.chain = chain
+        self.assetId = assetId
     }
 
-    private func subscribeToPriceChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            let priceData = changes.reduceToLastChange()
-            self?.presenter.didReceive(price: priceData)
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    private func subscribeToAccountChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            let balanceItem = changes.reduceToLastChange()?.item?.data
-            self?.presenter.didReceive(balance: balanceItem)
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(error: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        balanceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    func subscribeToStashItemProvider() {
-        let changesClosure: ([DataProviderChange<StashItem>]) -> Void = { [weak self] changes in
-            let stashItem = changes.reduceToLastChange()
-            self?.handle(stashItem: stashItem)
-        }
-
-        let failureClosure: (Error) -> Void = { [weak self] error in
-            self?.presenter.didReceive(stashItemResult: .failure(error))
-            return
-        }
-
-        stashItemProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: changesClosure,
-            failing: failureClosure,
-            options: StreamableProviderObserverOptions.substrateSource()
-        )
-    }
-
-    func handle(stashItem: StashItem?) {
-        if let stashItem = stashItem {
-            fetchStash(for: stashItem.stash)
-        }
-
-        presenter?.didReceive(stashItemResult: .success(stashItem))
-    }
-
-    func fetchStash(for address: AccountAddress) {
-        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let accountItem = try operation.extractNoCancellableResultData()
-                    self.handleStashAccountItem(accountItem)
-                } catch {
-                    self.presenter.didReceive(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-    }
-
-    func handleStashAccountItem(_ accountItem: AccountItem?) {
-        guard let accountItem = accountItem else { return }
+    func handleStashAccountItem(_ accountItem: AccountItem) {
         extrinsicService = extrinsicServiceFactoryProtocol.createService(accountItem: accountItem)
-        estimateFee(amount: 0)
+        estimateFee()
     }
 }
 
 extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
     func setup() {
-        subscribeToStashItemProvider()
-        subscribeToPriceChanges()
-        subscribeToAccountChanges()
-    }
-
-    private func createExtrinsicBuilderClosure(amount: BigUInt) -> ExtrinsicBuilderClosure {
-        let callFactory = SubstrateCallFactory()
-
-        let closure: ExtrinsicBuilderClosure = { builder in
-            let call = try callFactory.bondExtra(amount: amount)
-            _ = try builder.adding(call: call)
-            return builder
+        if let address = settings.selectedAccount?.address {
+            stashItemProvider = subscribeToStashItemProvider(for: address)
         }
 
-        return closure
+        priceProvider = subscribeToPriceProvider(for: assetId)
+        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
+
+        feeProxy.delegate = self
     }
 
-    func estimateFee(amount: BigUInt) {
-        let closure = createExtrinsicBuilderClosure(amount: amount)
-        extrinsicService?.estimateFee(closure, runningIn: .main) { [weak self] result in
-            switch result {
-            case let .success(info):
-                self?.presenter.didReceive(paymentInfo: info, for: amount)
-            case let .failure(error):
-                self?.presenter.didReceive(error: error)
+    func estimateFee() {
+        guard let extrinsicService = extrinsicService,
+              let amount = StakingConstants.maxAmount.toSubstrateAmount(
+                  precision: chain.addressType.precision
+              ) else {
+            return
+        }
+
+        let bondExtra = callFactory.bondExtra(amount: amount)
+
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: bondExtra.callName) { builder in
+            try builder.adding(call: bondExtra)
+        }
+    }
+}
+
+extension StakingBondMoreInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
+    AnyProviderAutoCleaning {
+    func handleStashItem(result: Result<StashItem?, Error>) {
+        do {
+            let maybeStashItem = try result.get()
+
+            clear(dataProvider: &balanceProvider)
+
+            presenter.didReceiveStashItem(result: result)
+
+            if let stashItem = maybeStashItem {
+                balanceProvider = subscribeToAccountInfoProvider(
+                    for: stashItem.controller,
+                    runtimeService: runtimeService
+                )
+
+                fetchAccount(
+                    for: stashItem.stash,
+                    from: accountRepository,
+                    operationManager: operationManager
+                ) { [weak self] result in
+                    if case let .success(maybeStash) = result, let stash = maybeStash {
+                        self?.handleStashAccountItem(stash)
+                    }
+
+                    self?.presenter.didReceiveStash(result: result)
+                }
+
+            } else {
+                presenter.didReceiveAccountInfo(result: .success(nil))
             }
+
+        } catch {
+            presenter.didReceiveStashItem(result: .failure(error))
+            presenter.didReceiveAccountInfo(result: .failure(error))
         }
+    }
+
+    func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePriceData(result: result)
+    }
+
+    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
+        presenter.didReceiveElectionStatus(result: result)
+    }
+}
+
+extension StakingBondMoreInteractor: ExtrinsicFeeProxyDelegate {
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
+        presenter.didReceiveFee(result: result)
     }
 }
