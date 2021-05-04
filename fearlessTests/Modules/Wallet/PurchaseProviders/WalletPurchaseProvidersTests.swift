@@ -7,7 +7,17 @@ class WalletPurchaseProvidersTests: XCTestCase {
     let assetId: WalletAssetId = .dot
     let chain = Chain.polkadot
 
-    func testRamp() throws {
+
+    func testPurchaseProviders() throws {
+        do {
+            try performRampTest()
+        }
+        catch {
+            XCTFail("Unexpected error: \(error)")
+        }
+    }
+
+    func performRampTest() throws {
         // given
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
 
@@ -38,7 +48,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
         wait(for: [expectation], timeout: Constants.defaultExpectationDuration)
     }
 
-    func testMoonPay() throws {
+    func performMoonPayTest() throws {
         // given
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
 
