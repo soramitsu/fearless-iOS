@@ -1,21 +1,21 @@
 import Foundation
 import BigInt
 
-final class StakingUnbondConfirmPresenter {
-    weak var view: StakingUnbondConfirmViewProtocol?
-    let wireframe: StakingUnbondConfirmWireframeProtocol
-    let interactor: StakingUnbondConfirmInteractorInputProtocol
+final class StakingRedeemPresenter {
+    weak var view: StakingRedeemViewProtocol?
+    let wireframe: StakingRedeemWireframeProtocol
+    let interactor: StakingRedeemInteractorInputProtocol
 
-    let inputAmount: Decimal
-    let confirmViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol
+    let confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
 
-    private var bonded: Decimal?
+    private var stakingLedger: DyStakingLedger?
+    private var activeEra: UInt32?
     private var balance: Decimal?
-    private var minimalBalance: Decimal?
+    private var minimalBalance: BigUInt?
     private var priceData: PriceData?
     private var fee: Decimal?
     private var electionStatus: ElectionStatus?
@@ -26,8 +26,8 @@ final class StakingUnbondConfirmPresenter {
     private var shouldResetRewardDestination: Bool {
         switch payee {
         case .staked:
-            if let bonded = bonded, let minimalBalance = minimalBalance {
-                return bonded - inputAmount < minimalBalance
+            if let stakingLedger = stakingLedger, let minimalBalance = minimalBalance {
+                return stakingLedger.active < minimalBalance
             } else {
                 return false
             }
@@ -46,9 +46,19 @@ final class StakingUnbondConfirmPresenter {
     }
 
     private func provideAssetViewModel() {
+        guard
+            let era = activeEra,
+            let redeemable = stakingLedger?.redeemable(inEra: era),
+            let redeemableDecimal = Decimal.fromSubstrateAmount(
+                redeemable,
+                precision: chain.addressType.precision
+            ) else {
+            return
+        }
+
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            inputAmount,
-            balance: bonded,
+            redeemableDecimal,
+            balance: redeemableDecimal,
             priceData: priceData
         )
 
@@ -56,14 +66,20 @@ final class StakingUnbondConfirmPresenter {
     }
 
     private func provideConfirmationViewModel() {
-        guard let controller = controller else {
+        guard let controller = controller,
+              let era = activeEra,
+              let redeemable = stakingLedger?.redeemable(inEra: era),
+              let redeemableDecimal = Decimal.fromSubstrateAmount(
+                  redeemable,
+                  precision: chain.addressType.precision
+              ) else {
             return
         }
 
         do {
-            let viewModel = try confirmViewModelFactory.createUnbondConfirmViewModel(
+            let viewModel = try confirmViewModelFactory.createRedeemViewModel(
                 controllerItem: controller,
-                amount: inputAmount,
+                amount: redeemableDecimal,
                 shouldResetRewardDestination: shouldResetRewardDestination
             )
 
@@ -74,18 +90,26 @@ final class StakingUnbondConfirmPresenter {
     }
 
     func refreshFeeIfNeeded() {
-        guard fee == nil, controller != nil, payee != nil, bonded != nil, minimalBalance != nil else {
+        guard
+            fee == nil,
+            controller != nil,
+            payee != nil,
+            stakingLedger != nil,
+            minimalBalance != nil,
+            let stashItem = stashItem else {
             return
         }
 
-        interactor.estimateFee(for: inputAmount, resettingRewardDestination: shouldResetRewardDestination)
+        interactor.estimateFeeForStash(
+            stashItem.stash,
+            resettingRewardDestination: shouldResetRewardDestination
+        )
     }
 
     init(
-        interactor: StakingUnbondConfirmInteractorInputProtocol,
-        wireframe: StakingUnbondConfirmWireframeProtocol,
-        inputAmount: Decimal,
-        confirmViewModelFactory: StakingUnbondConfirmViewModelFactoryProtocol,
+        interactor: StakingRedeemInteractorInputProtocol,
+        wireframe: StakingRedeemWireframeProtocol,
+        confirmViewModelFactory: StakingRedeemViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         chain: Chain,
@@ -93,7 +117,6 @@ final class StakingUnbondConfirmPresenter {
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
-        self.inputAmount = inputAmount
         self.confirmViewModelFactory = confirmViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
@@ -102,7 +125,7 @@ final class StakingUnbondConfirmPresenter {
     }
 }
 
-extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
+extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
     func setup() {
         provideConfirmationViewModel()
         provideAssetViewModel()
@@ -114,7 +137,11 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
+            dataValidatingFactory.hasRedeemable(
+                stakingLedger: stakingLedger,
+                in: activeEra,
+                locale: locale
+            ),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
@@ -130,14 +157,14 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
 
             dataValidatingFactory.electionClosed(electionStatus, locale: locale)
         ]).runValidation { [weak self] in
-            guard let strongSelf = self else {
+            guard let strongSelf = self, let stashItem = self?.stashItem else {
                 return
             }
 
             strongSelf.view?.didStartLoading()
 
-            strongSelf.interactor.submit(
-                for: strongSelf.inputAmount,
+            strongSelf.interactor.submitForStash(
+                stashItem.stash,
                 resettingRewardDestination: strongSelf.shouldResetRewardDestination
             )
         }
@@ -151,7 +178,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
     }
 }
 
-extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputProtocol {
+extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
         switch result {
         case let .success(electionStatus):
@@ -180,15 +207,9 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
     func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
-            if let stakingLedger = stakingLedger {
-                bonded = Decimal.fromSubstrateAmount(
-                    stakingLedger.active,
-                    precision: chain.addressType.precision
-                )
-            } else {
-                bonded = nil
-            }
+            self.stakingLedger = stakingLedger
 
+            provideConfirmationViewModel()
             provideAssetViewModel()
             refreshFeeIfNeeded()
         case let .failure(error):
@@ -225,10 +246,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
     func didReceiveExistentialDeposit(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimalBalance):
-            self.minimalBalance = Decimal.fromSubstrateAmount(
-                minimalBalance,
-                precision: chain.addressType.precision
-            )
+            self.minimalBalance = minimalBalance
 
             provideAssetViewModel()
             refreshFeeIfNeeded()
@@ -273,7 +291,19 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
         }
     }
 
-    func didSubmitUnbonding(result: Result<String, Error>) {
+    func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>) {
+        switch result {
+        case let .success(eraInfo):
+            activeEra = eraInfo?.index
+
+            provideAssetViewModel()
+            provideConfirmationViewModel()
+        case let .failure(error):
+            logger?.error("Did receive active era error: \(error)")
+        }
+    }
+
+    func didSubmitRedeeming(result: Result<String, Error>) {
         view?.didStopLoading()
 
         guard let view = view else {

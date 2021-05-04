@@ -34,6 +34,8 @@ protocol StakingDataValidatingFactoryProtocol {
         minimumAmount: Decimal?,
         locale: Locale
     ) -> DataValidating
+
+    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -197,6 +199,22 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         }, preservesCondition: {
             if let amount = amount, let bonded = bonded, let minimumAmount = minimumAmount {
                 return bonded - amount >= minimumAmount
+            } else {
+                return false
+            }
+        })
+    }
+
+    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentNoRedeemables(from: view, locale: locale)
+        }, preservesCondition: {
+            if let era = era, let redeemable = stakingLedger?.redeemable(inEra: era), redeemable > 0 {
+                return true
             } else {
                 return false
             }

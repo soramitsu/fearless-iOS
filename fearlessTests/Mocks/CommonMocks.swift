@@ -1372,6 +1372,545 @@ import Cuckoo
 @testable import SoraKeystore
 
 import Foundation
+
+
+ class MockJSONRPCResponseHandling: JSONRPCResponseHandling, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = JSONRPCResponseHandling
+    
+     typealias Stubbing = __StubbingProxy_JSONRPCResponseHandling
+     typealias Verification = __VerificationProxy_JSONRPCResponseHandling
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: JSONRPCResponseHandling?
+
+     func enableDefaultImplementation(_ stub: JSONRPCResponseHandling) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func handle(data: Data)  {
+        
+    return cuckoo_manager.call("handle(data: Data)",
+            parameters: (data),
+            escapingParameters: (data),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handle(data: data))
+        
+    }
+    
+    
+    
+     func handle(error: Error)  {
+        
+    return cuckoo_manager.call("handle(error: Error)",
+            parameters: (error),
+            escapingParameters: (error),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handle(error: error))
+        
+    }
+    
+
+	 struct __StubbingProxy_JSONRPCResponseHandling: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Data)> where M1.MatchedType == Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCResponseHandling.self, method: "handle(data: Data)", parameterMatchers: matchers))
+	    }
+	    
+	    func handle<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCResponseHandling.self, method: "handle(error: Error)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_JSONRPCResponseHandling: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.__DoNotUse<(Data), Void> where M1.MatchedType == Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
+	        return cuckoo_manager.verify("handle(data: Data)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func handle<M1: Cuckoo.Matchable>(error: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: error) { $0 }]
+	        return cuckoo_manager.verify("handle(error: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class JSONRPCResponseHandlingStub: JSONRPCResponseHandling {
+    
+
+    
+
+    
+     func handle(data: Data)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func handle(error: Error)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockJSONRPCSubscribing: JSONRPCSubscribing, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = JSONRPCSubscribing
+    
+     typealias Stubbing = __StubbingProxy_JSONRPCSubscribing
+     typealias Verification = __VerificationProxy_JSONRPCSubscribing
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: JSONRPCSubscribing?
+
+     func enableDefaultImplementation(_ stub: JSONRPCSubscribing) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+    
+    
+     var requestId: UInt16 {
+        get {
+            return cuckoo_manager.getter("requestId",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.requestId)
+        }
+        
+    }
+    
+    
+    
+     var requestData: Data {
+        get {
+            return cuckoo_manager.getter("requestData",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.requestData)
+        }
+        
+    }
+    
+    
+    
+     var requestOptions: JSONRPCOptions {
+        get {
+            return cuckoo_manager.getter("requestOptions",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.requestOptions)
+        }
+        
+    }
+    
+    
+    
+     var remoteId: String? {
+        get {
+            return cuckoo_manager.getter("remoteId",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.remoteId)
+        }
+        
+        set {
+            cuckoo_manager.setter("remoteId",
+                value: newValue,
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.remoteId = newValue)
+        }
+        
+    }
+    
+
+    
+
+    
+    
+    
+     func handle(data: Data) throws {
+        
+    return try cuckoo_manager.callThrows("handle(data: Data) throws",
+            parameters: (data),
+            escapingParameters: (data),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handle(data: data))
+        
+    }
+    
+    
+    
+     func handle(error: Error, unsubscribed: Bool)  {
+        
+    return cuckoo_manager.call("handle(error: Error, unsubscribed: Bool)",
+            parameters: (error, unsubscribed),
+            escapingParameters: (error, unsubscribed),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.handle(error: error, unsubscribed: unsubscribed))
+        
+    }
+    
+
+	 struct __StubbingProxy_JSONRPCSubscribing: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    var requestId: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, UInt16> {
+	        return .init(manager: cuckoo_manager, name: "requestId")
+	    }
+	    
+	    
+	    var requestData: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, Data> {
+	        return .init(manager: cuckoo_manager, name: "requestData")
+	    }
+	    
+	    
+	    var requestOptions: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockJSONRPCSubscribing, JSONRPCOptions> {
+	        return .init(manager: cuckoo_manager, name: "requestOptions")
+	    }
+	    
+	    
+	    var remoteId: Cuckoo.ProtocolToBeStubbedOptionalProperty<MockJSONRPCSubscribing, String> {
+	        return .init(manager: cuckoo_manager, name: "remoteId")
+	    }
+	    
+	    
+	    func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.ProtocolStubNoReturnThrowingFunction<(Data)> where M1.MatchedType == Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCSubscribing.self, method: "handle(data: Data) throws", parameterMatchers: matchers))
+	    }
+	    
+	    func handle<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(error: M1, unsubscribed: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Error, Bool)> where M1.MatchedType == Error, M2.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error, Bool)>] = [wrap(matchable: error) { $0.0 }, wrap(matchable: unsubscribed) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCSubscribing.self, method: "handle(error: Error, unsubscribed: Bool)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_JSONRPCSubscribing: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	    
+	    var requestId: Cuckoo.VerifyReadOnlyProperty<UInt16> {
+	        return .init(manager: cuckoo_manager, name: "requestId", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var requestData: Cuckoo.VerifyReadOnlyProperty<Data> {
+	        return .init(manager: cuckoo_manager, name: "requestData", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var requestOptions: Cuckoo.VerifyReadOnlyProperty<JSONRPCOptions> {
+	        return .init(manager: cuckoo_manager, name: "requestOptions", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	    
+	    var remoteId: Cuckoo.VerifyOptionalProperty<String> {
+	        return .init(manager: cuckoo_manager, name: "remoteId", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
+	
+	    
+	    @discardableResult
+	    func handle<M1: Cuckoo.Matchable>(data: M1) -> Cuckoo.__DoNotUse<(Data), Void> where M1.MatchedType == Data {
+	        let matchers: [Cuckoo.ParameterMatcher<(Data)>] = [wrap(matchable: data) { $0 }]
+	        return cuckoo_manager.verify("handle(data: Data) throws", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func handle<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(error: M1, unsubscribed: M2) -> Cuckoo.__DoNotUse<(Error, Bool), Void> where M1.MatchedType == Error, M2.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Error, Bool)>] = [wrap(matchable: error) { $0.0 }, wrap(matchable: unsubscribed) { $0.1 }]
+	        return cuckoo_manager.verify("handle(error: Error, unsubscribed: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class JSONRPCSubscribingStub: JSONRPCSubscribing {
+    
+    
+     var requestId: UInt16 {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (UInt16).self)
+        }
+        
+    }
+    
+    
+     var requestData: Data {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Data).self)
+        }
+        
+    }
+    
+    
+     var requestOptions: JSONRPCOptions {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (JSONRPCOptions).self)
+        }
+        
+    }
+    
+    
+     var remoteId: String? {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (String?).self)
+        }
+        
+        set { }
+        
+    }
+    
+
+    
+
+    
+     func handle(data: Data) throws  {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func handle(error: Error, unsubscribed: Bool)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockJSONRPCEngine: JSONRPCEngine, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = JSONRPCEngine
+    
+     typealias Stubbing = __StubbingProxy_JSONRPCEngine
+     typealias Verification = __VerificationProxy_JSONRPCEngine
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: JSONRPCEngine?
+
+     func enableDefaultImplementation(_ stub: JSONRPCEngine) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func callMethod<P: Encodable, T: Decodable>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16 {
+        
+    return try cuckoo_manager.callThrows("callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16",
+            parameters: (method, params, options, closure),
+            escapingParameters: (method, params, options, closure),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.callMethod(method, params: params, options: options, completion: closure))
+        
+    }
+    
+    
+    
+     func subscribe<P: Encodable, T: Decodable>(_ method: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16 {
+        
+    return try cuckoo_manager.callThrows("subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16",
+            parameters: (method, params, updateClosure, failureClosure),
+            escapingParameters: (method, params, updateClosure, failureClosure),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.subscribe(method, params: params, updateClosure: updateClosure, failureClosure: failureClosure))
+        
+    }
+    
+    
+    
+     func cancelForIdentifier(_ identifier: UInt16)  {
+        
+    return cuckoo_manager.call("cancelForIdentifier(_: UInt16)",
+            parameters: (identifier),
+            escapingParameters: (identifier),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.cancelForIdentifier(identifier))
+        
+    }
+    
+
+	 struct __StubbingProxy_JSONRPCEngine: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func callMethod<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, options: M3, completion closure: M4) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == JSONRPCOptions, M4.OptionalMatchedType == ((Result<T, Error>) -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: options) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16", parameterMatchers: matchers))
+	    }
+	    
+	    func subscribe<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, updateClosure: M3, failureClosure: M4) -> Cuckoo.ProtocolStubThrowingFunction<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == (T) -> Void, M4.MatchedType == (Error, Bool) -> Void {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, P?, (T) -> Void, (Error, Bool) -> Void)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }, wrap(matchable: failureClosure) { $0.3 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16", parameterMatchers: matchers))
+	    }
+	    
+	    func cancelForIdentifier<M1: Cuckoo.Matchable>(_ identifier: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UInt16)> where M1.MatchedType == UInt16 {
+	        let matchers: [Cuckoo.ParameterMatcher<(UInt16)>] = [wrap(matchable: identifier) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockJSONRPCEngine.self, method: "cancelForIdentifier(_: UInt16)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_JSONRPCEngine: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func callMethod<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, options: M3, completion closure: M4) -> Cuckoo.__DoNotUse<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == JSONRPCOptions, M4.OptionalMatchedType == ((Result<T, Error>) -> Void) {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, P?, JSONRPCOptions, ((Result<T, Error>) -> Void)?)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: options) { $0.2 }, wrap(matchable: closure) { $0.3 }]
+	        return cuckoo_manager.verify("callMethod(_: String, params: P?, options: JSONRPCOptions, completion: ((Result<T, Error>) -> Void)?) throws -> UInt16", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func subscribe<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.Matchable, M4: Cuckoo.Matchable, P: Encodable, T: Decodable>(_ method: M1, params: M2, updateClosure: M3, failureClosure: M4) -> Cuckoo.__DoNotUse<(String, P?, (T) -> Void, (Error, Bool) -> Void), UInt16> where M1.MatchedType == String, M2.OptionalMatchedType == P, M3.MatchedType == (T) -> Void, M4.MatchedType == (Error, Bool) -> Void {
+	        let matchers: [Cuckoo.ParameterMatcher<(String, P?, (T) -> Void, (Error, Bool) -> Void)>] = [wrap(matchable: method) { $0.0 }, wrap(matchable: params) { $0.1 }, wrap(matchable: updateClosure) { $0.2 }, wrap(matchable: failureClosure) { $0.3 }]
+	        return cuckoo_manager.verify("subscribe(_: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func cancelForIdentifier<M1: Cuckoo.Matchable>(_ identifier: M1) -> Cuckoo.__DoNotUse<(UInt16), Void> where M1.MatchedType == UInt16 {
+	        let matchers: [Cuckoo.ParameterMatcher<(UInt16)>] = [wrap(matchable: identifier) { $0 }]
+	        return cuckoo_manager.verify("cancelForIdentifier(_: UInt16)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class JSONRPCEngineStub: JSONRPCEngine {
+    
+
+    
+
+    
+     func callMethod<P: Encodable, T: Decodable>(_ method: String, params: P?, options: JSONRPCOptions, completion closure: ((Result<T, Error>) -> Void)?) throws -> UInt16  {
+        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
+    }
+    
+     func subscribe<P: Encodable, T: Decodable>(_ method: String, params: P?, updateClosure: @escaping (T) -> Void, failureClosure: @escaping (Error, Bool) -> Void) throws -> UInt16  {
+        return DefaultValueRegistry.defaultValue(for: (UInt16).self)
+    }
+    
+     func cancelForIdentifier(_ identifier: UInt16)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+import Cuckoo
+@testable import fearless
+@testable import SoraKeystore
+
+import Foundation
 import RobinHood
 
 
