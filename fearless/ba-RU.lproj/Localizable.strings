@@ -344,7 +344,6 @@
 "staking.balance.title" = "";
 "staking.payout.sent" = "";
 "staking.your.validators.title" = "";
-"wallet.balance.unbonding" = "";
 "staking.rebond.all" = "";
 "staking.rebond.last" = "";
 "staking.rebond.custom.amount" = "";
@@ -374,3 +373,6 @@
 "staking.redeemable.format" = "";
 "staking.redeem.completion.message" = "";
 "staking.redeem.no.tokens.message" = "";
+"staking.rebond" = "";
+"staking.unbonding.format" = "";
+"staking.unbond.unsufficient.message" = "";

@@ -212,7 +212,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             }
 
             self?.presentable.presentNoRedeemables(from: view, locale: locale)
-        }, checkCondition: {
+        }, preservesCondition: {
             if let era = era, let redeemable = stakingLedger?.redeemable(inEra: era), redeemable > 0 {
                 return true
             } else {
