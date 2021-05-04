@@ -1,11 +1,12 @@
-import Foundation
+import UIKit
 import SoraKeystore
 import RobinHood
 import BigInt
 import FearlessUtils
+import IrohaCrypto
 
-final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetching {
-    weak var presenter: StakingUnbondConfirmInteractorOutputProtocol!
+final class StakingRedeemInteractor: RuntimeConstantFetching, AccountFetching {
+    weak var presenter: StakingRedeemInteractorOutputProtocol!
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
@@ -15,6 +16,8 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
+    let storageRequestFactory: StorageRequestFactoryProtocol
+    let engine: JSONRPCEngine
     let chain: Chain
     let assetId: WalletAssetId
 
@@ -37,19 +40,23 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
+        storageRequestFactory: StorageRequestFactoryProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
+        engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicServiceFactory = extrinsicServiceFactory
         self.feeProxy = feeProxy
+        self.storageRequestFactory = storageRequestFactory
         self.accountRepository = accountRepository
         self.settings = settings
         self.runtimeService = runtimeService
         self.operationManager = operationManager
+        self.engine = engine
         self.assetId = assetId
         self.chain = chain
     }
@@ -64,25 +71,109 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
 
     private func setupExtrinsicBuiler(
         _ builder: ExtrinsicBuilderProtocol,
-        amount: Decimal,
         resettingRewardDestination: Bool
     ) throws -> ExtrinsicBuilderProtocol {
-        guard let amountValue = amount.toSubstrateAmount(precision: chain.addressType.precision) else {
-            throw CommonError.undefined
-        }
-
         if resettingRewardDestination {
             return try builder
-                .adding(call: callFactory.unbond(amount: amountValue))
                 .adding(call: callFactory.setPayee(for: .stash))
         } else {
-            return try builder
-                .adding(call: callFactory.unbond(amount: amountValue))
+            return builder
         }
+    }
+
+    private func fetchSlashingSpansForStash(
+        _ stash: AccountAddress,
+        completionClosure: @escaping (Result<SlashingSpans?, Error>) -> Void
+    ) {
+        let runtimeFetchOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let keyParams: () throws -> [AccountId] = {
+            let accountId: AccountId = try SS58AddressFactory().accountId(from: stash)
+            return [accountId]
+        }
+
+        let fetchOperation: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
+            storageRequestFactory.queryItems(
+                engine: engine,
+                keyParams: keyParams,
+                factory: {
+                    try runtimeFetchOperation.extractNoCancellableResultData()
+                }, storagePath: .slashingSpans
+            )
+
+        fetchOperation.allOperations.forEach { $0.addDependency(runtimeFetchOperation) }
+
+        fetchOperation.targetOperation.completionBlock = {
+            DispatchQueue.main.async {
+                do {
+                    let slashingSpans = try fetchOperation.targetOperation
+                        .extractNoCancellableResultData().first?.value
+
+                    completionClosure(.success(slashingSpans))
+                } catch {
+                    completionClosure(.failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(
+            operations: [runtimeFetchOperation] + fetchOperation.allOperations,
+            in: .transient
+        )
+    }
+
+    private func estimateFee(with _: UInt32, resettingRewardDestination: Bool) {
+        guard let extrinsicService = extrinsicService else {
+            presenter.didReceiveFee(result: .failure(CommonError.undefined))
+            return
+        }
+
+        let reuseIdetifier = resettingRewardDestination.description
+
+        feeProxy.estimateFee(
+            using: extrinsicService,
+            reuseIdentifier: reuseIdetifier
+        ) { [weak self] builder in
+            guard let strongSelf = self else {
+                throw CommonError.undefined
+            }
+
+            return try strongSelf.setupExtrinsicBuiler(
+                builder,
+                resettingRewardDestination: resettingRewardDestination
+            )
+        }
+    }
+
+    private func submit(with _: UInt32, resettingRewardDestination: Bool) {
+        guard
+            let extrinsicService = extrinsicService,
+            let signingWrapper = signingWrapper else {
+            presenter.didSubmitRedeeming(result: .failure(CommonError.undefined))
+            return
+        }
+
+        extrinsicService.submit(
+            { [weak self] builder in
+                guard let strongSelf = self else {
+                    throw CommonError.undefined
+                }
+
+                return try strongSelf.setupExtrinsicBuiler(
+                    builder,
+                    resettingRewardDestination: resettingRewardDestination
+                )
+            },
+            signer: signingWrapper,
+            runningIn: .main,
+            completion: { [weak self] result in
+                self?.presenter.didSubmitRedeeming(result: result)
+            }
+        )
     }
 }
 
-extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputProtocol {
+extension StakingRedeemInteractor: StakingRedeemInteractorInputProtocol {
     func setup() {
         if let address = settings.selectedAccount?.address {
             stashItemProvider = subscribeToStashItemProvider(for: address)
@@ -105,60 +196,38 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
         feeProxy.delegate = self
     }
 
-    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool) {
-        guard let extrinsicService = extrinsicService else {
-            presenter.didReceiveFee(result: .failure(CommonError.undefined))
-            return
-        }
-
-        let reuseIdetifier = amount.description + resettingRewardDestination.description
-
-        feeProxy.estimateFee(
-            using: extrinsicService,
-            reuseIdentifier: reuseIdetifier
-        ) { [weak self] builder in
-            guard let strongSelf = self else {
-                throw CommonError.undefined
+    func estimateFeeForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool) {
+        fetchSlashingSpansForStash(stashAddress) { [weak self] result in
+            switch result {
+            case let .success(slashingSpans):
+                let numberOfSlashes = (slashingSpans?.prior.count ?? -1) + 1
+                self?.estimateFee(
+                    with: UInt32(numberOfSlashes),
+                    resettingRewardDestination: resettingRewardDestination
+                )
+            case let .failure(error):
+                self?.presenter.didSubmitRedeeming(result: .failure(error))
             }
-
-            return try strongSelf.setupExtrinsicBuiler(
-                builder,
-                amount: amount,
-                resettingRewardDestination: resettingRewardDestination
-            )
         }
     }
 
-    func submit(for amount: Decimal, resettingRewardDestination: Bool) {
-        guard
-            let extrinsicService = extrinsicService,
-            let signingWrapper = signingWrapper else {
-            presenter.didSubmitUnbonding(result: .failure(CommonError.undefined))
-            return
-        }
-
-        extrinsicService.submit(
-            { [weak self] builder in
-                guard let strongSelf = self else {
-                    throw CommonError.undefined
-                }
-
-                return try strongSelf.setupExtrinsicBuiler(
-                    builder,
-                    amount: amount,
+    func submitForStash(_ stashAddress: AccountAddress, resettingRewardDestination: Bool) {
+        fetchSlashingSpansForStash(stashAddress) { [weak self] result in
+            switch result {
+            case let .success(slashingSpans):
+                let numberOfSlashes = (slashingSpans?.prior.count ?? -1) + 1
+                self?.submit(
+                    with: UInt32(numberOfSlashes),
                     resettingRewardDestination: resettingRewardDestination
                 )
-            },
-            signer: signingWrapper,
-            runningIn: .main,
-            completion: { [weak self] result in
-                self?.presenter.didSubmitUnbonding(result: result)
+            case let .failure(error):
+                self?.presenter.didSubmitRedeeming(result: .failure(error))
             }
-        )
+        }
     }
 }
 
-extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
     SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
     AnyProviderAutoCleaning {
     func handleStashItem(result: Result<StashItem?, Error>) {
@@ -234,7 +303,7 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
     }
 }
 
-extension StakingUnbondConfirmInteractor: ExtrinsicFeeProxyDelegate {
+extension StakingRedeemInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         presenter.didReceiveFee(result: result)
     }
