@@ -294,7 +294,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
     func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>) {
         switch result {
         case let .success(eraInfo):
-            self.activeEra = eraInfo?.index
+            activeEra = eraInfo?.index
 
             provideAssetViewModel()
             provideConfirmationViewModel()

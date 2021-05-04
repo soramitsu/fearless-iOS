@@ -310,7 +310,7 @@ extension StakingRedeemInteractor: SingleValueProviderSubscriber, SingleValueSub
         presenter.didReceiveElectionStatus(result: result)
     }
 
-    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain: Chain) {
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
         presenter.didReceiveActiveEra(result: result)
     }
 }
