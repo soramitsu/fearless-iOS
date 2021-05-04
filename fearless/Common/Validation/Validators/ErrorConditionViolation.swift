@@ -1,19 +1,19 @@
 import Foundation
 
 final class ErrorConditionViolation: DataValidating {
-    let checkCondition: () -> Bool
+    let preservesCondition: () -> Bool
     let onError: () -> Void
 
     init(
         onError: @escaping () -> Void,
-        checkCondition: @escaping () -> Bool
+        preservesCondition: @escaping () -> Bool
     ) {
-        self.checkCondition = checkCondition
+        self.preservesCondition = preservesCondition
         self.onError = onError
     }
 
     func validate(notifying _: DataValidatingDelegate) -> DataValidationProblem? {
-        if checkCondition() {
+        if preservesCondition() {
             return nil
         }
 
