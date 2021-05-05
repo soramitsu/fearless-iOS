@@ -15,7 +15,7 @@ enum StakingManageOption {
         case .validators:
             return R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: locale.rLanguages)
         case .controllerAccount:
-            return "Controller account"
+            return R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
         }
     }
 
