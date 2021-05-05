@@ -376,3 +376,4 @@ a type of password.";
 "staking.rebond" = "";
 "staking.unbonding.format" = "";
 "staking.unbond.unsufficient.message" = "";
+"staking.stash.missing.message" = "";

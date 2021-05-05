@@ -4,7 +4,7 @@ import RobinHood
 import SoraKeystore
 import FearlessUtils
 
-final class YourValidatorsViewFactory: YourValidatorsViewFactoryProtocol {
+struct YourValidatorsViewFactory {
     static func createView() -> YourValidatorsViewProtocol? {
         guard let interactor = createInteractor(settings: SettingsManager.shared) else {
             return nil

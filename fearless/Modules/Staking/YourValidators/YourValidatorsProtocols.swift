@@ -37,7 +37,3 @@ protocol YourValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable,
         existingBonding: ExistingBonding
     )
 }
-
-protocol YourValidatorsViewFactoryProtocol: AnyObject {
-    static func createView() -> YourValidatorsViewProtocol?
-}

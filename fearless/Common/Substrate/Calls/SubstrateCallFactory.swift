@@ -12,7 +12,7 @@ protocol SubstrateCallFactoryProtocol {
         rewardDestination: RewardDestination<AccountAddress>
     ) throws -> RuntimeCall<BondCall>
 
-    func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall>
+    func bondExtra(amount: BigUInt) -> RuntimeCall<BondExtraCall>
 
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall>
 
@@ -56,7 +56,7 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "bond", args: args)
     }
 
-    func bondExtra(amount: BigUInt) throws -> RuntimeCall<BondExtraCall> {
+    func bondExtra(amount: BigUInt) -> RuntimeCall<BondExtraCall> {
         let args = BondExtraCall(amount: amount)
         return RuntimeCall(moduleName: "Staking", callName: "bond_extra", args: args)
     }
