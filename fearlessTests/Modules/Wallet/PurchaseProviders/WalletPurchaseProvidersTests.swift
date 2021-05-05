@@ -11,6 +11,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
     func testPurchaseProviders() throws {
         do {
             try performRampTest()
+            try performMoonPayTest()
         }
         catch {
             XCTFail("Unexpected error: \(error)")
@@ -53,6 +54,7 @@ class WalletPurchaseProvidersTests: XCTestCase {
         let config: ApplicationConfigProtocol = ApplicationConfig.shared
 
         let apiKey = "pk_test_DMRuyL6Nf1qc9OzjPBmCFBeCGkFwiZs0"
+        let secretKey = "1"
         let redirectUrl = config.purchaseRedirect
         let colorCode = R.color.colorAccent()!.hexRGB
 
@@ -60,9 +62,9 @@ class WalletPurchaseProvidersTests: XCTestCase {
         let query = "apiKey=\(apiKey)&currencyCode=DOT&walletAddress=\(address)&showWalletAddressForm=true&colorCode=\(colorCode)&redirectURL=\(redirectUrl)"
             .addingPercentEncoding(withAllowedCharacters: .urlHostAllowed) ?? ""
 
-        let expectedUrl = "https://buy.moonpay.com/?\(query)&signature=LRdpyxOJQXNnN%2BNAwXizf4Ptud5AJzo5CL2gLVHzonU%3D"
+        let expectedUrl = "https://buy.moonpay.com/?\(query)&signature=WLIKNxVBMrM0bE5ZExPLlYan%2BkI86iQqdlaQZm55qYs%3D"
 
-        let secretKeyData = Data(MoonPayKeys.testSecretKey.utf8)
+        let secretKeyData = Data(secretKey.utf8)
 
         let provider = MoonpayProviderFactory().createProvider(with: secretKeyData, apiKey: apiKey)
             .with(colorCode: R.color.colorAccent()!.hexRGB)
