@@ -63,6 +63,8 @@ extension ControllerAccountViewController: Localizable {
                 .commonContinue(preferredLanguages: selectedLocale.rLanguages)
             rootView.learnMoreView.titleLabel.text = R.string.localizable
                 .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
+            rootView.hintView.titleLabel.text = R.string.localizable
+                .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }
@@ -87,8 +89,10 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
         case let .enabled(isEnabled):
             rootView.actionButton.isEnabled = isEnabled
             rootView.actionButton.isHidden = false
+            rootView.hintView.isHidden = true
         case .hidden:
             rootView.actionButton.isHidden = true
+            rootView.hintView.isHidden = false
         }
     }
 }

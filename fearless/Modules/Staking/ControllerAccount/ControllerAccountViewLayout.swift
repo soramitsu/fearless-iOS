@@ -12,6 +12,8 @@ final class ControllerAccountViewLayout: UIView {
 
     let controllerAccountView = UIFactory.default.createAccountView()
 
+    let hintView = UIFactory.default.createHintView()
+
     let learnMoreView = LearnMoreView()
 
     let actionButton: TriangularedButton = {
@@ -57,6 +59,11 @@ final class ControllerAccountViewLayout: UIView {
         controllerAccountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
+        }
+
+        containerView.stackView.addArrangedSubview(hintView)
+        hintView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         containerView.stackView.addArrangedSubview(learnMoreView)
