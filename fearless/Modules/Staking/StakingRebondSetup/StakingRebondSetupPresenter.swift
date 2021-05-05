@@ -11,11 +11,14 @@ final class StakingRebondSetupPresenter {
     let chain: Chain
     let logger: LoggerProtocol?
 
-    private var stakingLedger: DyStakingLedger?
-    private var priceData: PriceData?
-    private var unbonding: Decimal?
     private var inputAmount: Decimal?
+    private var unbonding: Decimal?
+    private var balance: Decimal?
     private var fee: Decimal?
+    private var priceData: PriceData?
+    private var stashItem: StashItem?
+    private var controller: AccountItem?
+    private var stakingLedger: DyStakingLedger?
     private var electionStatus: ElectionStatus?
     private var activeEraInfo: ActiveEraInfo?
 
@@ -33,19 +36,6 @@ final class StakingRebondSetupPresenter {
         self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.logger = logger
-    }
-
-    private func updateView() {
-//        guard
-//            let stakingLedger = stakingLedger,
-//            let activeEra = activeEra
-//        else { return }
-//
-//        let balanceData = StakingBalanceData(stakingLedger: stakingLedger, activeEra: activeEra, priceData: priceData)
-//
-//        // TODO: Create view model
-//        let viewModel = viewModelFactory.createViewModel(from: balanceData)
-//        view?.reload(with: viewModel)
     }
 
     private func provideInputViewModel() {
@@ -163,6 +153,42 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
             provideAssetViewModel()
         case let .failure(error):
             logger?.error("Active era subscription error: \(error)")
+        }
+    }
+
+    func didReceiveController(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            if let accountItem = accountItem {
+                controller = accountItem
+            }
+        case let .failure(error):
+            logger?.error("Received controller account error: \(error)")
+        }
+    }
+
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+        case let .failure(error):
+            logger?.error("Received stash item error: \(error)")
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let accountInfo = accountInfo {
+                balance = Decimal.fromSubstrateAmount(
+                    accountInfo.data.available,
+                    precision: chain.addressType.precision
+                )
+            } else {
+                balance = nil
+            }
+        case let .failure(error):
+            logger?.error("Account Info subscription error: \(error)")
         }
     }
 }

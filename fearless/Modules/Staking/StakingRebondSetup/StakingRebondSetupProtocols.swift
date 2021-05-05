@@ -20,6 +20,7 @@ protocol StakingRebondSetupPresenterProtocol: AnyObject {
 
 protocol StakingRebondSetupInteractorInputProtocol: AnyObject {
     func setup()
+    func estimateFee()
 }
 
 protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
@@ -28,6 +29,9 @@ protocol StakingRebondSetupInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveActiveEra(result: Result<ActiveEraInfo?, Error>)
+    func didReceiveController(result: Result<AccountItem?, Error>)
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
 }
 
 protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable,

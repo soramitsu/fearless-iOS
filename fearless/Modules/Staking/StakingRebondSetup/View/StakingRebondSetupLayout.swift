@@ -16,8 +16,6 @@ final class StakingRebondSetupLayout: UIView {
 
     let networkFeeView = NetworkFeeView()
 
-    let durationView = TitleValueView()
-
     let footerLabel: UILabel = {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
@@ -79,12 +77,6 @@ final class StakingRebondSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(networkFeeView)
         networkFeeView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(48.0)
-        }
-
-        contentView.stackView.addArrangedSubview(durationView)
-        durationView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }

@@ -55,9 +55,9 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
     private static func createInteractor(
         settings: SettingsManagerProtocol
     ) -> StakingRebondSetupInteractor? {
-//        guard let engine = WebSocketService.shared.connection else {
-//            return nil
-//        }
+        guard let engine = WebSocketService.shared.connection else {
+            return nil
+        }
 
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
@@ -73,12 +73,12 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
         guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
             return nil
         }
-//
-//        let extrinsicServiceFactory = ExtrinsicServiceFactory(
-//            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-//            engine: engine,
-//            operationManager: OperationManagerFacade.sharedManager
-//        )
+
+        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            engine: engine,
+            operationManager: OperationManagerFacade.sharedManager
+        )
 
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
@@ -87,6 +87,7 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
             settings: settings,
             substrateProviderFactory: substrateProviderFactory,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
+            extrinsicServiceFactory: extrinsicServiceFactory,
             runtimeCodingService: RuntimeRegistryFacade.sharedService,
             operationManager: OperationManagerFacade.sharedManager,
             accountRepository: AnyDataProviderRepository(accountRepository),
