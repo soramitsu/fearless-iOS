@@ -17,6 +17,7 @@ struct UIConstants {
     static let accessoryItemsSpacing: CGFloat = 12.0
     static let cellHeight: CGFloat = 48
     static let tableHeaderHeight: CGFloat = 40.0
+    static let separatorHeight: CGFloat = 0.75
 }
 
 protocol UIFactoryProtocol {
@@ -37,13 +38,27 @@ protocol UIFactoryProtocol {
         spacing: CGFloat
     ) -> UIToolbar
 
+    func createAmountInputView(filled: Bool) -> AmountInputView
+
     func createAmountAccessoryView(
         for delegate: AmountInputAccessoryViewDelegate?,
         locale: Locale
     ) -> UIToolbar
+
+    func createAccountView() -> DetailsTriangularedView
+
+    func createNetworkFeeView() -> NetworkFeeView
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
+
+    func createTitleValueView() -> TitleValueView
+
+    func createHintView() -> HintView
 }
 
 final class UIFactory: UIFactoryProtocol {
+    static let `default` = UIFactory()
+
     func createMainActionButton() -> TriangularedButton {
         let button = TriangularedButton()
         button.applyDefaultStyle()
@@ -210,6 +225,54 @@ final class UIFactory: UIFactoryProtocol {
         )
     }
 
+    func createAmountInputView(filled: Bool) -> AmountInputView {
+        let amountInputView = AmountInputView()
+
+        if !filled {
+            amountInputView.triangularedBackgroundView?.strokeColor = R.color.colorWhite()!
+            amountInputView.triangularedBackgroundView?.highlightedStrokeColor = R.color.colorWhite()!
+            amountInputView.triangularedBackgroundView?.strokeWidth = 1.0
+            amountInputView.triangularedBackgroundView?.fillColor = .clear
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = .clear
+        } else {
+            amountInputView.triangularedBackgroundView?.strokeWidth = 0.0
+            amountInputView.triangularedBackgroundView?.fillColor = R.color.colorDarkGray()!
+            amountInputView.triangularedBackgroundView?.highlightedFillColor = R.color.colorDarkGray()!
+        }
+
+        amountInputView.titleLabel.textColor = R.color.colorLightGray()
+        amountInputView.titleLabel.font = .p2Paragraph
+        amountInputView.priceLabel.textColor = R.color.colorLightGray()
+        amountInputView.priceLabel.font = .p2Paragraph
+        amountInputView.symbolLabel.textColor = R.color.colorWhite()
+        amountInputView.symbolLabel.font = .h4Title
+        amountInputView.balanceLabel.textColor = R.color.colorLightGray()
+        amountInputView.balanceLabel.font = .p2Paragraph
+        amountInputView.textField.font = .h4Title
+        amountInputView.textField.textColor = R.color.colorWhite()
+        amountInputView.textField.tintColor = R.color.colorWhite()
+        amountInputView.verticalSpacing = 2.0
+        amountInputView.iconRadius = 12.0
+        amountInputView.contentInsets = UIEdgeInsets(
+            top: 8.0,
+            left: UIConstants.horizontalInset,
+            bottom: 8.0,
+            right: UIConstants.horizontalInset
+        )
+
+        amountInputView.textField.attributedPlaceholder = NSAttributedString(
+            string: "0",
+            attributes: [
+                .foregroundColor: R.color.colorWhite()!.withAlphaComponent(0.5),
+                .font: UIFont.h4Title
+            ]
+        )
+
+        amountInputView.textField.keyboardType = .decimalPad
+
+        return amountInputView
+    }
+
     private func createActionsAccessoryView(
         for toolBar: UIToolbar,
         actions: [ViewSelectorAction],
@@ -279,5 +342,31 @@ final class UIFactory: UIFactoryProtocol {
         toolBar.setItems(barItems + [flexibleSpacing, doneItem], animated: true)
 
         return toolBar
+    }
+
+    func createAccountView() -> DetailsTriangularedView {
+        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+        view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
+        view.actionImage = R.image.iconMore()
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
+        view.strokeColor = R.color.colorStrokeGray()!
+        view.borderWidth = 1
+        return view
+    }
+
+    func createNetworkFeeView() -> NetworkFeeView {
+        NetworkFeeView()
+    }
+
+    func createNetworkFeeConfirmView() -> NetworkFeeConfirmView {
+        NetworkFeeConfirmView()
+    }
+
+    func createTitleValueView() -> TitleValueView {
+        TitleValueView()
+    }
+
+    func createHintView() -> HintView {
+        HintView()
     }
 }

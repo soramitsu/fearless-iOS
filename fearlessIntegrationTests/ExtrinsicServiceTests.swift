@@ -9,7 +9,7 @@ class ExtrinsicServiceTests: XCTestCase {
         let callFactory = SubstrateCallFactory()
 
         let closure: ExtrinsicBuilderClosure = { builder in
-            let call = try callFactory.bondExtra(amount: amount)
+            let call = callFactory.bondExtra(amount: amount)
             _ = try builder.adding(call: call)
             return builder
         }
