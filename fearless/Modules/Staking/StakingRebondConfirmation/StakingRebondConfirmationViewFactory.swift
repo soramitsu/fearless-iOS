@@ -90,15 +90,6 @@ struct StakingRebondConfirmationViewFactory {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let slashesOperationFactory = SlashesOperationFactory(
-            storageRequestFactory: storageOperationFactory
-        )
-
         return StakingRebondConfirmationInteractor(
             assetId: assetId,
             chain: chain,
@@ -106,11 +97,9 @@ struct StakingRebondConfirmationViewFactory {
             substrateProviderFactory: substrateProviderFactory,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
-            slashesOperationFactory: slashesOperationFactory,
             accountRepository: AnyDataProviderRepository(accountRepository),
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
             operationManager: OperationManagerFacade.sharedManager
         )
     }

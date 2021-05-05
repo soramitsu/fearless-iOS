@@ -16,8 +16,6 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
     let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
-    let slashesOperationFactory: SlashesOperationFactoryProtocol
-    let engine: JSONRPCEngine
     let chain: Chain
     let assetId: WalletAssetId
 
@@ -41,23 +39,19 @@ final class StakingRebondConfirmationInteractor: RuntimeConstantFetching, Accoun
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        slashesOperationFactory: SlashesOperationFactoryProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        engine: JSONRPCEngine,
         operationManager: OperationManagerProtocol
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.extrinsicServiceFactory = extrinsicServiceFactory
         self.feeProxy = feeProxy
-        self.slashesOperationFactory = slashesOperationFactory
         self.accountRepository = accountRepository
         self.settings = settings
         self.runtimeService = runtimeService
         self.operationManager = operationManager
-        self.engine = engine
         self.assetId = assetId
         self.chain = chain
     }
