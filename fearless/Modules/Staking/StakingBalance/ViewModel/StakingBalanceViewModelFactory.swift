@@ -60,7 +60,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         )
 
         let unbondedDecimal = Decimal.fromSubstrateAmount(
-            balanceData.stakingLedger.unbounding(inEra: balanceData.activeEra),
+            balanceData.stakingLedger.unbonding(inEra: balanceData.activeEra),
             precision: precision
         ) ?? 0.0
         let unbondedViewModel = createWidgetItemViewModel(
@@ -135,7 +135,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
         locale: Locale
     ) -> [UnbondingItemViewModel] {
         balanceData.stakingLedger
-            .unboundings(inEra: balanceData.activeEra)
+            .unbondings(inEra: balanceData.activeEra)
             .sorted(by: { $0.era > $1.era })
             .map { unbondingItem -> UnbondingItemViewModel in
                 let unbondingAmountDecimal = Decimal

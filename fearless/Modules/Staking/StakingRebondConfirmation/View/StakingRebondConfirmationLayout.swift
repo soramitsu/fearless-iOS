@@ -110,7 +110,7 @@ final class StakingRebondConfirmationLayout: UIView {
         stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
             make.width.equalTo(stackView)
-            make.height.equalTo(52)
+            make.height.equalTo(52.0)
         }
 
         stackView.setCustomSpacing(16.0, after: accountView)

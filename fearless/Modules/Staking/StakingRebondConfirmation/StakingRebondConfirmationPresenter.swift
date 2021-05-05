@@ -19,7 +19,7 @@ final class StakingRebondConfirmationPresenter {
             if
                 let ledger = stakingLedger,
                 let era = activeEra {
-                let value = ledger.unbounding(inEra: era)
+                let value = ledger.unbonding(inEra: era)
                 return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
             } else {
                 return nil
@@ -28,7 +28,7 @@ final class StakingRebondConfirmationPresenter {
             if
                 let ledger = stakingLedger,
                 let era = activeEra,
-                let chunk = ledger.unboundings(inEra: era).last {
+                let chunk = ledger.unbondings(inEra: era).last {
                 return Decimal.fromSubstrateAmount(chunk.value, precision: chain.addressType.precision)
             } else {
                 return nil
@@ -39,7 +39,7 @@ final class StakingRebondConfirmationPresenter {
     }
 
     var unbonding: Decimal? {
-        if let activeEra = activeEra, let value = stakingLedger?.unbounding(inEra: activeEra) {
+        if let activeEra = activeEra, let value = stakingLedger?.unbonding(inEra: activeEra) {
             return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
         } else {
             return nil
@@ -230,6 +230,8 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteracto
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
                 self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+            } else {
+                fee = nil
             }
 
             provideFeeViewModel()
@@ -241,9 +243,7 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteracto
     func didReceiveController(result: Result<AccountItem?, Error>) {
         switch result {
         case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
+            controller = accountItem
 
             provideConfirmationViewModel()
             refreshFeeIfNeeded()

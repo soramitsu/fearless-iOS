@@ -114,7 +114,7 @@ extension BalanceContext {
 
         let unbonding = Decimal
             .fromSubstrateAmount(
-                stakingInfo.unbounding(inEra: activeEra),
+                stakingInfo.unbonding(inEra: activeEra),
                 precision: precision
             ) ?? .zero
 
