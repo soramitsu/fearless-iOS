@@ -41,6 +41,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             .init(rows: rows)
         }
         view?.reload(with: viewModel)
+        view?.enableActionButton(false)
     }
 
     func handleControllerAction() {}
@@ -54,6 +55,10 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             from: view,
             style: .automatic
         )
+    }
+
+    func proceed() {
+        wireframe.showConfirmation(from: view)
     }
 }
 

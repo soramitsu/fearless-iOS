@@ -34,16 +34,26 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
 
         applyLocalization()
         setupTable()
+        setupActionButton()
         presenter.setup()
     }
 
-    func setupTable() {
+    private func setupTable() {
         rootView.tableView.registerClassesForCell([
             AccountInfoTableViewCell.self,
             LearnMoreTableCell.self
         ])
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+    }
+
+    private func setupActionButton() {
+        rootView.actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleActionButton() {
+        presenter.proceed()
     }
 }
 
@@ -64,6 +74,10 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
 
         rows = localizedViewModel.rows
         rootView.tableView.reloadData()
+    }
+
+    func enableActionButton(_ enable: Bool) {
+        rootView.actionButton.isEnabled = enable
     }
 }
 
