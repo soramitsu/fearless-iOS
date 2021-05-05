@@ -30,22 +30,9 @@ final class LearnMoreView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(fearlessIconView)
-        fearlessIconView.snp.makeConstraints { make in
-            make.leading.centerY.equalToSuperview()
-        }
-
-        addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(fearlessIconView.snp.trailing).offset(12)
-            make.centerY.equalToSuperview()
-        }
-
-        addSubview(arrowIconView)
-        arrowIconView.snp.makeConstraints { make in
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
-            make.trailing.centerY.equalToSuperview()
-            make.size.equalTo(16)
-        }
+        let stackView = UIStackView(arrangedSubviews: [fearlessIconView, titleLabel, UIView(), arrowIconView])
+        stackView.spacing = 12
+        addSubview(stackView)
+        stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
     }
 }

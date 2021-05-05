@@ -62,7 +62,6 @@ final class ControllerAccountViewLayout: UIView {
         containerView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            // make.height.equalTo(52.0)
         }
 
         addSubview(actionButton)
