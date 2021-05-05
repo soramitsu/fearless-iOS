@@ -7,7 +7,9 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
     static func createView() -> StakingRebondSetupViewProtocol? {
         // MARK: - Interactor
 
-        guard let interactor = createInteractor(settings: SettingsManager.shared) else {
+        let settings = SettingsManager.shared
+
+        guard let interactor = createInteractor(settings: settings) else {
             return nil
         }
 
@@ -17,7 +19,6 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         // MARK: - Presenter
 
-        let settings = SettingsManager.shared
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let chain = settings.selectedConnection.type.chain
 
@@ -39,11 +40,13 @@ final class StakingRebondSetupViewFactory: StakingRebondSetupViewFactoryProtocol
 
         // MARK: - View
 
+        let localizationManager = LocalizationManager.shared
+
         let view = StakingRebondSetupViewController(
             presenter: presenter,
-            localizationManager: LocalizationManager.shared
+            localizationManager: localizationManager
         )
-        view.localizationManager = LocalizationManager.shared
+        view.localizationManager = localizationManager
 
         presenter.view = view
         dataValidatingFactory.view = view

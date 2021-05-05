@@ -5,7 +5,7 @@ import CommonWallet
 final class StakingRebondSetupViewController: UIViewController, ViewHolder {
     typealias RootViewType = StakingRebondSetupLayout
 
-    let presenter: StakingRebondSetupPresenterProtocol!
+    let presenter: StakingRebondSetupPresenterProtocol
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
@@ -60,8 +60,11 @@ final class StakingRebondSetupViewController: UIViewController, ViewHolder {
     }
 
     private func setupBalanceAccessoryView() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-        let accessoryView = uiFactory.createAmountAccessoryView(for: self, locale: locale)
+        let accessoryView = uiFactory.createAmountAccessoryView(
+            for: self,
+            locale: selectedLocale
+        )
+
         rootView.amountInputView.textField.inputAccessoryView = accessoryView
     }
 

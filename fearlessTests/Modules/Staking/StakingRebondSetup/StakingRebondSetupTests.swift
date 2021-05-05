@@ -18,13 +18,7 @@ class StakingRebondSetupTests: XCTestCase {
 
         let presenter = try setupPresenter(for: view, wireframe: wireframe)
 
-        let inputViewModelReloaded = XCTestExpectation()
-
         stub(view) { stub in
-            when(stub).didReceiveInput(viewModel: any()).then { viewModel in
-                inputViewModelReloaded.fulfill()
-            }
-
             when(stub).localizationManager.get.then { nil }
 
             when(stub).didReceiveAsset(viewModel: any()).thenDoNothing()
@@ -39,12 +33,12 @@ class StakingRebondSetupTests: XCTestCase {
             }
         }
 
-        presenter.selectAmountPercentage(0.75)
+        presenter.updateAmount(0.01)
         presenter.proceed()
 
         // then
 
-        wait(for: [inputViewModelReloaded, completionExpectation], timeout: 10.0)
+        wait(for: [completionExpectation], timeout: 10.0)
     }
 
     private func setupPresenter(
@@ -73,7 +67,8 @@ class StakingRebondSetupTests: XCTestCase {
         let nominatorAddress = settings.selectedAccount!.address
         let cryptoType = settings.selectedAccount!.cryptoType
 
-        let singleValueProviderFactory = SingleValueProviderFactoryStub.westendNominatorStub()
+        let singleValueProviderFactory = SingleValueProviderFactoryStub
+            .nonEmptyUnbondingStub(for: nominatorAddress)
 
         // save stash item
 
@@ -125,16 +120,19 @@ class StakingRebondSetupTests: XCTestCase {
             limit: StakingConstants.maxAmount
         )
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingRebondSetupPresenter(
             wireframe: wireframe,
             interactor: interactor,
             balanceViewModelFactory: balanceViewModelFactory,
-            dataValidatingFactory: StakingDataValidatingFactory(presentable: wireframe),
+            dataValidatingFactory: dataValidatingFactory,
             chain: chain
         )
 
         presenter.view = view
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         // when
 
