@@ -379,3 +379,5 @@ Derivation path: %@";
 "staking.rebond" = "Rebond";
 "staking.unbonding.format" = "Unbonding: %@";
 "staking.unbond.unsufficient.message" = "You don't have enough tokens to unbond";
+"staking.rebond" = "Rebond";
+"staking.unbonding.format" = "Unbonding: %@";
