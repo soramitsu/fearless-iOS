@@ -38,7 +38,10 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
     }
 
     func setupTable() {
-        rootView.tableView.registerClassForCell(AccountInfoTableViewCell.self)
+        rootView.tableView.registerClassesForCell([
+            AccountInfoTableViewCell.self,
+            LearnMoreTableCell.self
+        ])
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
     }
@@ -69,21 +72,30 @@ extension ControllerAccountViewController: UITableViewDataSource {
         rows.count
     }
 
-    func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         switch rows[indexPath.row] {
         case let .controller(viewModel):
-            let cell = rootView.tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
+            let cell = tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
             cell.bind(model: viewModel)
             cell.delegate = self
             return cell
         case let .stash(viewModel):
-            let cell = rootView.tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
+            let cell = tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
             cell.bind(model: viewModel)
             cell.delegate = self
             return cell
-        default:
-            return UITableViewCell()
+        case .learnMore:
+            let cell = tableView.dequeueReusableCellWithType(LearnMoreTableCell.self)!
+            cell.learnMoreView.titleLabel.text = R.string.localizable
+                .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
+            return cell
         }
+    }
+}
+
+extension ControllerAccountViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
     }
 
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -93,12 +105,6 @@ extension ControllerAccountViewController: UITableViewDataSource {
         default:
             return 48.0
         }
-    }
-}
-
-extension ControllerAccountViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
     }
 }
 
