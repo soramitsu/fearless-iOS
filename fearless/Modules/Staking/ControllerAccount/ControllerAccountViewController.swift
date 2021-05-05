@@ -5,6 +5,7 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
     typealias RootViewType = ControllerAccountViewLayout
 
     let presenter: ControllerAccountPresenterProtocol
+    private var rows: [ControllerAccountRow] = []
 
     init(
         presenter: ControllerAccountPresenterProtocol,
@@ -32,7 +33,14 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
+        setupTable()
         presenter.setup()
+    }
+
+    func setupTable() {
+        rootView.tableView.registerClassForCell(AccountInfoTableViewCell.self)
+        rootView.tableView.dataSource = self
+        rootView.tableView.delegate = self
     }
 }
 
@@ -47,4 +55,55 @@ extension ControllerAccountViewController: Localizable {
     }
 }
 
-extension ControllerAccountViewController: ControllerAccountViewProtocol {}
+extension ControllerAccountViewController: ControllerAccountViewProtocol {
+    func reload(with viewModel: LocalizableResource<ControllerAccountViewModel>) {
+        let localizedViewModel = viewModel.value(for: selectedLocale)
+
+        rows = localizedViewModel.rows
+        rootView.tableView.reloadData()
+    }
+}
+
+extension ControllerAccountViewController: UITableViewDataSource {
+    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
+        rows.count
+    }
+
+    func tableView(_: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        switch rows[indexPath.row] {
+        case let .controller(viewModel):
+            let cell = rootView.tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
+            cell.bind(model: viewModel)
+            cell.delegate = self
+            return cell
+        case let .stash(viewModel):
+            let cell = rootView.tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
+            cell.bind(model: viewModel)
+            cell.delegate = self
+            return cell
+        default:
+            return UITableViewCell()
+        }
+    }
+
+    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        switch rows[indexPath.row] {
+        case .stash, .controller:
+            return 68.0
+        default:
+            return 48.0
+        }
+    }
+}
+
+extension ControllerAccountViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+    }
+}
+
+extension ControllerAccountViewController: AccountInfoTableViewCellDelegate {
+    func accountInfoCellDidReceiveAction(_: AccountInfoTableViewCell) {
+        presenter.handleControllerAction()
+    }
+}
