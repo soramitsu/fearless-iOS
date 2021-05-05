@@ -1,4 +1,9 @@
+enum ControllerAccountActionButtonState {
+    case hidden
+    case enabled(Bool)
+}
+
 struct ControllerAccountViewModel {
     let rows: [ControllerAccountRow]
-    let actionButtonIsEnabled: Bool
+    let actionButtonState: ControllerAccountActionButtonState
 }

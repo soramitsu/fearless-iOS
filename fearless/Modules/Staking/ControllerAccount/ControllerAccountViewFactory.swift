@@ -9,14 +9,20 @@ struct ControllerAccountViewFactory {
             facade: SubstrateDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager
         )
-
+        let settings = SettingsManager.shared
         let interactor = ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            settings: SettingsManager.shared
+            settings: settings
         )
         let wireframe = ControllerAccountWireframe()
-        let viewModelFactory = ControllerAccountViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        guard let selectedAccountAddress = settings.selectedAccount?.address else {
+            return nil
+        }
+        let viewModelFactory = ControllerAccountViewModelFactory(
+            selectedAccountAddress: selectedAccountAddress,
+            iconGenerator: PolkadotIconGenerator()
+        )
 
         let presenter = ControllerAccountPresenter(
             wireframe: wireframe,

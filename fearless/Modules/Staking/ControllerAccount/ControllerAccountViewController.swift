@@ -75,7 +75,13 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
         rows = localizedViewModel.rows
         rootView.tableView.reloadData()
 
-        rootView.actionButton.isEnabled = localizedViewModel.actionButtonIsEnabled
+        switch localizedViewModel.actionButtonState {
+        case let .enabled(isEnabled):
+            rootView.actionButton.isEnabled = isEnabled
+            rootView.actionButton.isHidden = false
+        case .hidden:
+            rootView.actionButton.isHidden = true
+        }
     }
 }
 
