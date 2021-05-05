@@ -379,3 +379,4 @@ Cід: %@";
 "staking.rebond" = "";
 "staking.unbonding.format" = "";
 "staking.unbond.unsufficient.message" = "";
+"staking.stash.missing.message" = "";
