@@ -64,7 +64,7 @@ extension ControllerAccountViewController: Localizable {
             rootView.learnMoreView.titleLabel.text = R.string.localizable
                 .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
             rootView.hintView.titleLabel.text = R.string.localizable
-                .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
+                .stakingCurrentAccountIsController(preferredLanguages: selectedLocale.rLanguages)
         }
     }
 }
