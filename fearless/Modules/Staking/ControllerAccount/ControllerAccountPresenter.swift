@@ -4,44 +4,33 @@ import SoraFoundation
 final class ControllerAccountPresenter {
     let wireframe: ControllerAccountWireframeProtocol
     let interactor: ControllerAccountInteractorInputProtocol
+    let viewModelFactory: ControllerAccountViewModelFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
     weak var view: ControllerAccountViewProtocol?
+
+    private var stashItem: StashItem?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
         interactor: ControllerAccountInteractorInputProtocol,
+        viewModelFactory: ControllerAccountViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
+        self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
+    }
+
+    private func updateView() {
+        let viewModel = viewModelFactory.createViewModel(stashItem: stashItem)
+        view?.reload(with: viewModel)
     }
 }
 
 extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     func setup() {
-        let stash = AccountInfoViewModel(
-            title: "Stash account",
-            address: "🐟 ANDREY",
-            name: "name",
-            icon: nil
-        )
-        let controller = AccountInfoViewModel(
-            title: "Controller account",
-            address: "🐟 ANDREY",
-            name: "name",
-            icon: nil
-        )
-        let rows: [ControllerAccountRow] = [
-            .stash(stash),
-            .controller(controller),
-            .learnMore
-        ]
-        let viewModel = LocalizableResource<ControllerAccountViewModel> { _ in
-            .init(rows: rows)
-        }
-        view?.reload(with: viewModel)
-        view?.enableActionButton(false)
+        interactor.setup()
     }
 
     func handleControllerAction() {}
@@ -62,4 +51,14 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 }
 
-extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol {}
+extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol {
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            self.stashItem = stashItem
+            updateView()
+        case let .failure(error):
+            print(error)
+        }
+    }
+}

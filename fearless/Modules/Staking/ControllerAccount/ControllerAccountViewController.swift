@@ -74,10 +74,8 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
 
         rows = localizedViewModel.rows
         rootView.tableView.reloadData()
-    }
 
-    func enableActionButton(_ enable: Bool) {
-        rootView.actionButton.isEnabled = enable
+        rootView.actionButton.isEnabled = localizedViewModel.actionButtonIsEnabled
     }
 }
 

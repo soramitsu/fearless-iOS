@@ -2,7 +2,10 @@ import SoraFoundation
 
 protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: LocalizableResource<ControllerAccountViewModel>)
-    func enableActionButton(_ enable: Bool)
+}
+
+protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
+    func createViewModel(stashItem: StashItem?) -> LocalizableResource<ControllerAccountViewModel>
 }
 
 protocol ControllerAccountPresenterProtocol: AnyObject {
@@ -13,9 +16,13 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
     func proceed()
 }
 
-protocol ControllerAccountInteractorInputProtocol: AnyObject {}
+protocol ControllerAccountInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol ControllerAccountInteractorOutputProtocol: AnyObject {}
+protocol ControllerAccountInteractorOutputProtocol: AnyObject {
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
+}
 
 protocol ControllerAccountWireframeProtocol: WebPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
