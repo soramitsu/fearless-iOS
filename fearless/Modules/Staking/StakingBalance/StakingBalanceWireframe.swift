@@ -26,13 +26,24 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
     }
 
     func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption) {
-        guard option == .customAmount else { return }
+        let rebondView: ControllerBackedProtocol? = {
+            switch option {
+            case .all:
+                return StakingRebondConfirmationViewFactory.createView(for: .all)
+            case .last:
+                return StakingRebondConfirmationViewFactory.createView(for: .last)
+            case .customAmount:
+                return StakingRebondSetupViewFactory.createView()
+            }
+        }()
 
-        guard let rebondView = StakingRebondSetupViewFactory.createView() else {
+        guard let controller = rebondView?.controller else {
             return
         }
 
-        let navigationController = FearlessNavigationController(rootViewController: rebondView.controller)
+        let navigationController = FearlessNavigationController(
+            rootViewController: controller
+        )
 
         view?.controller.present(navigationController, animated: true, completion: nil)
     }

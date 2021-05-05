@@ -88,9 +88,45 @@ extension StakingRebondConfirmationInteractor: StakingRebondConfirmationInteract
         feeProxy.delegate = self
     }
 
-    func submit(for _: Decimal) {}
+    func submit(for amount: Decimal) {
+        guard let extrinsicService = extrinsicService,
+              let signingWrapper = signingWrapper,
+              let amountValue = amount.toSubstrateAmount(
+                  precision: chain.addressType.precision
+              ) else {
+            presenter.didSubmitRebonding(result: .failure(CommonError.undefined))
+            return
+        }
 
-    func estimateFee(for _: Decimal) {}
+        let rebondCall = callFactory.rebond(amount: amountValue)
+
+        extrinsicService.submit(
+            { builder in
+                try builder.adding(call: rebondCall)
+            },
+            signer: signingWrapper,
+            runningIn: .main,
+            completion: { [weak self] result in
+                self?.presenter.didSubmitRebonding(result: result)
+            }
+        )
+    }
+
+    func estimateFee(for amount: Decimal) {
+        guard let extrinsicService = extrinsicService,
+              let amountValue = amount.toSubstrateAmount(
+                  precision: chain.addressType.precision
+              ) else {
+            presenter.didReceiveFee(result: .failure(CommonError.undefined))
+            return
+        }
+
+        let rebondCall = callFactory.rebond(amount: amountValue)
+
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: rebondCall.callName) { builder in
+            try builder.adding(call: rebondCall)
+        }
+    }
 }
 
 extension StakingRebondConfirmationInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,

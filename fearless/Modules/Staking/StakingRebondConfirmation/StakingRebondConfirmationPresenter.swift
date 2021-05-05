@@ -6,12 +6,45 @@ final class StakingRebondConfirmationPresenter {
     let wireframe: StakingRebondConfirmationWireframeProtocol
     let interactor: StakingRebondConfirmationInteractorInputProtocol
 
+    let variant: SelectedRebondVariant
     let confirmViewModelFactory: StakingRebondConfirmationViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
-    let inputAmount: Decimal
+
+    var inputAmount: Decimal? {
+        switch variant {
+        case .all:
+            if
+                let ledger = stakingLedger,
+                let era = activeEra {
+                let value = ledger.unbounding(inEra: era)
+                return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
+            } else {
+                return nil
+            }
+        case .last:
+            if
+                let ledger = stakingLedger,
+                let era = activeEra,
+                let chunk = ledger.unboundings(inEra: era).sorted(by: { $0.era > $1.era }).first {
+                return Decimal.fromSubstrateAmount(chunk.value, precision: chain.addressType.precision)
+            } else {
+                return nil
+            }
+        case let .custom(amount):
+            return amount
+        }
+    }
+
+    var unbonding: Decimal? {
+        if let activeEra = activeEra, let value = stakingLedger?.unbounding(inEra: activeEra) {
+            return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
+        } else {
+            return nil
+        }
+    }
 
     private var stakingLedger: DyStakingLedger?
     private var activeEra: UInt32?
@@ -23,7 +56,7 @@ final class StakingRebondConfirmationPresenter {
     private var stashItem: StashItem?
 
     init(
-        inputAmount: Decimal,
+        variant: SelectedRebondVariant,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol,
         confirmViewModelFactory: StakingRebondConfirmationViewModelFactoryProtocol,
@@ -32,7 +65,7 @@ final class StakingRebondConfirmationPresenter {
         chain: Chain,
         logger: LoggerProtocol? = nil
     ) {
-        self.inputAmount = inputAmount
+        self.variant = variant
         self.interactor = interactor
         self.wireframe = wireframe
         self.confirmViewModelFactory = confirmViewModelFactory
@@ -53,18 +86,14 @@ final class StakingRebondConfirmationPresenter {
 
     private func provideAssetViewModel() {
         guard
-            let era = activeEra,
-            let redeemable = stakingLedger?.redeemable(inEra: era),
-            let redeemableDecimal = Decimal.fromSubstrateAmount(
-                redeemable,
-                precision: chain.addressType.precision
-            ) else {
+            let inputAmount = inputAmount,
+            let unbonding = unbonding else {
             return
         }
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            redeemableDecimal,
-            balance: redeemableDecimal,
+            inputAmount,
+            balance: unbonding,
             priceData: priceData
         )
 
@@ -73,19 +102,14 @@ final class StakingRebondConfirmationPresenter {
 
     private func provideConfirmationViewModel() {
         guard let controller = controller,
-              let era = activeEra,
-              let redeemable = stakingLedger?.redeemable(inEra: era),
-              let redeemableDecimal = Decimal.fromSubstrateAmount(
-                  redeemable,
-                  precision: chain.addressType.precision
-              ) else {
+              let inputAmount = inputAmount else {
             return
         }
 
         do {
             let viewModel = try confirmViewModelFactory.createViewModel(
                 controllerItem: controller,
-                amount: redeemableDecimal
+                amount: inputAmount
             )
 
             view?.didReceiveConfirmation(viewModel: viewModel)
@@ -95,11 +119,11 @@ final class StakingRebondConfirmationPresenter {
     }
 
     func refreshFeeIfNeeded() {
-        guard fee == nil else {
+        guard fee == nil, let amount = inputAmount else {
             return
         }
 
-        interactor.estimateFee(for: inputAmount)
+        interactor.estimateFee(for: amount)
     }
 }
 
@@ -115,11 +139,7 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
     func confirm() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            dataValidatingFactory.hasRedeemable(
-                stakingLedger: stakingLedger,
-                in: activeEra,
-                locale: locale
-            ),
+            dataValidatingFactory.canRebond(amount: inputAmount, unbonding: unbonding, locale: locale),
 
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()

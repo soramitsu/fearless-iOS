@@ -5,14 +5,15 @@ import RobinHood
 import FearlessUtils
 
 struct StakingRebondConfirmationViewFactory {
-    static func createView(for amount: Decimal) -> StakingRebondConfirmationViewProtocol? {
+    static func createView(for variant: SelectedRebondVariant)
+        -> StakingRebondConfirmationViewProtocol? {
         guard let interactor = createInteractor() else {
             return nil
         }
 
         let wireframe = StakingRebondConfirmationWireframe()
 
-        let presenter = createPresenter(for: amount, interactor: interactor, wireframe: wireframe)
+        let presenter = createPresenter(for: variant, interactor: interactor, wireframe: wireframe)
 
         let view = StakingRebondConfirmationViewController(
             presenter: presenter,
@@ -26,7 +27,7 @@ struct StakingRebondConfirmationViewFactory {
     }
 
     private static func createPresenter(
-        for amount: Decimal,
+        for variant: SelectedRebondVariant,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
         wireframe: StakingRebondConfirmationWireframeProtocol
     ) -> StakingRebondConfirmationPresenter {
@@ -47,7 +48,7 @@ struct StakingRebondConfirmationViewFactory {
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         return StakingRebondConfirmationPresenter(
-            inputAmount: amount,
+            variant: variant,
             interactor: interactor,
             wireframe: wireframe,
             confirmViewModelFactory: confirmationViewModelFactory,

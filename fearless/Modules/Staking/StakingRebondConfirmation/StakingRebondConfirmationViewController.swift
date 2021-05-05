@@ -31,7 +31,7 @@ final class StakingRebondConfirmationViewController: UIViewController, ViewHolde
     }
 
     override func loadView() {
-        view = StakingRedeemLayout()
+        view = StakingRebondConfirmationLayout()
     }
 
     override func viewDidLoad() {
