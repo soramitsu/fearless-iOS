@@ -25,8 +25,9 @@ final class StakingBalanceWireframe: StakingBalanceWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
-    func showRebond(from view: ControllerBackedProtocol?, option _: StakingRebondOption) {
-        // TODO: Process options
+    func showRebond(from view: ControllerBackedProtocol?, option: StakingRebondOption) {
+        guard option == .customAmount else { return }
+
         guard let rebondView = StakingRebondSetupViewFactory.createView() else {
             return
         }

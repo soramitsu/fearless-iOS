@@ -84,8 +84,7 @@ final class StakingBalanceUnbondingWidgetView: UIView {
             emptyListLabel.text = viewModel.emptyListDescription
             emptyListLabel.isHidden = false
             unbondingsStackView.isHidden = true
-            // TODO: moreButton.isEnabled = false (Testing purposes)
-            moreButton.isEnabled = true
+            moreButton.isEnabled = false
         } else {
             emptyListLabel.isHidden = true
             unbondingsStackView.isHidden = false
