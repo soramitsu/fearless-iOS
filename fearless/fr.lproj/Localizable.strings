@@ -379,5 +379,7 @@ Chemin de dérivation : %@";
 "staking.unbond.unsufficient.message" = "";
 "staking.rebond.insufficient.bondings" = "";
 "staking.stash.missing.message" = "";
+"staking.controller.account.title" = "";
 "staking.bond.more.completion" = "";
 "staking.rebond.completion" = "";
+"staking.current.account.is.controller" = "";
