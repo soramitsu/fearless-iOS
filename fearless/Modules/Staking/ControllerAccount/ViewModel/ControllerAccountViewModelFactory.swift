@@ -10,7 +10,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     }
 
     func createViewModel(stashItem: StashItem?) -> LocalizableResource<ControllerAccountViewModel> {
-        LocalizableResource { _ in
+        LocalizableResource { locale in
             guard let stashItem = stashItem else {
                 return ControllerAccountViewModel(rows: [], actionButtonIsEnabled: false)
             }
@@ -30,9 +30,25 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                 icon: stashIcon
             )
 
+            let contollerAddress = stashItem.controller
+            let controllerIcon = try? self.iconGenerator
+                .generateFromAddress(contollerAddress)
+                .imageWithFillColor(
+                    R.color.colorWhite()!,
+                    size: UIConstants.smallAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
+            let controllerViewModel = AccountInfoViewModel(
+                title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
+                address: contollerAddress,
+                name: contollerAddress,
+                icon: controllerIcon
+            )
+
             return ControllerAccountViewModel(
                 rows: [
                     .stash(stashViewModel),
+                    .controller(controllerViewModel),
                     .learnMore
                 ],
                 actionButtonIsEnabled: true
