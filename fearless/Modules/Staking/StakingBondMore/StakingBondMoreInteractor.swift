@@ -11,7 +11,7 @@ final class StakingBondMoreInteractor: AccountFetching {
 
     private let settings: SettingsManagerProtocol
     private let accountRepository: AnyDataProviderRepository<AccountItem>
-    private let extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol
+    private let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let operationManager: OperationManagerProtocol
@@ -31,7 +31,7 @@ final class StakingBondMoreInteractor: AccountFetching {
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         accountRepository: AnyDataProviderRepository<AccountItem>,
-        extrinsicServiceFactoryProtocol: ExtrinsicServiceFactoryProtocol,
+        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
@@ -42,7 +42,7 @@ final class StakingBondMoreInteractor: AccountFetching {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.accountRepository = accountRepository
-        self.extrinsicServiceFactoryProtocol = extrinsicServiceFactoryProtocol
+        self.extrinsicServiceFactory = extrinsicServiceFactory
         self.feeProxy = feeProxy
         self.runtimeService = runtimeService
         self.operationManager = operationManager
@@ -51,7 +51,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     }
 
     func handleStashAccountItem(_ accountItem: AccountItem) {
-        extrinsicService = extrinsicServiceFactoryProtocol.createService(accountItem: accountItem)
+        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
         estimateFee()
     }
 }

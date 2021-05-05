@@ -1,10 +1,11 @@
 import Foundation
 
 final class StakingBondMoreWireframe: StakingBondMoreWireframeProtocol {
-    func showConfirmation(from view: ControllerBackedProtocol?, amount _: Decimal) {
-        guard let confirmation = StakingBMConfirmationViewFactory.createView() else {
+    func showConfirmation(from view: ControllerBackedProtocol?, amount: Decimal) {
+        guard let confirmation = StakingBondMoreConfirmViewFactory.createView(from: amount) else {
             return
         }
+
         view?.controller
             .navigationController?
             .pushViewController(confirmation.controller, animated: true)
