@@ -382,3 +382,4 @@ Chemin de dérivation : %@";
 "staking.stash.missing.message" = "";
 "staking.controller.account.title" = "";
 "staking.bond.more.completion" = "";
+"staking.rebond.completion" = "";

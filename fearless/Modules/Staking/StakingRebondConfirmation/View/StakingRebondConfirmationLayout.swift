@@ -74,7 +74,7 @@ final class StakingRebondConfirmationLayout: UIView {
         amountView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingRedeemableFormat(
+            amountView.balanceText = R.string.localizable.stakingUnbondingFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )

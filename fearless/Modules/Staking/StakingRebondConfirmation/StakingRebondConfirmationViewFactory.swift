@@ -13,7 +13,14 @@ struct StakingRebondConfirmationViewFactory {
 
         let wireframe = StakingRebondConfirmationWireframe()
 
-        let presenter = createPresenter(for: variant, interactor: interactor, wireframe: wireframe)
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        let presenter = createPresenter(
+            for: variant,
+            interactor: interactor,
+            wireframe: wireframe,
+            dataValidatingFactory: dataValidatingFactory
+        )
 
         let view = StakingRebondConfirmationViewController(
             presenter: presenter,
@@ -22,6 +29,7 @@ struct StakingRebondConfirmationViewFactory {
 
         presenter.view = view
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         return view
     }
@@ -29,7 +37,8 @@ struct StakingRebondConfirmationViewFactory {
     private static func createPresenter(
         for variant: SelectedRebondVariant,
         interactor: StakingRebondConfirmationInteractorInputProtocol,
-        wireframe: StakingRebondConfirmationWireframeProtocol
+        wireframe: StakingRebondConfirmationWireframeProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) -> StakingRebondConfirmationPresenter {
         let settings = SettingsManager.shared
 
@@ -44,8 +53,6 @@ struct StakingRebondConfirmationViewFactory {
         )
 
         let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)
-
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         return StakingRebondConfirmationPresenter(
             variant: variant,

@@ -4,7 +4,7 @@ final class StakingRebondConfirmationWireframe: StakingRebondConfirmationWirefra
     func complete(from view: StakingRebondConfirmationViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingRedeemCompletionMessage(preferredLanguages: languages)
+            .stakingRebondCompletion(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 

@@ -28,7 +28,7 @@ final class StakingRebondConfirmationPresenter {
             if
                 let ledger = stakingLedger,
                 let era = activeEra,
-                let chunk = ledger.unboundings(inEra: era).sorted(by: { $0.era > $1.era }).first {
+                let chunk = ledger.unboundings(inEra: era).last {
                 return Decimal.fromSubstrateAmount(chunk.value, precision: chain.addressType.precision)
             } else {
                 return nil

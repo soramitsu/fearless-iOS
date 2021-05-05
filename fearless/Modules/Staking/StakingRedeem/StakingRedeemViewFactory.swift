@@ -12,7 +12,13 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         let wireframe = StakingRedeemWireframe()
 
-        let presenter = createPresenter(from: interactor, wireframe: wireframe)
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
+        let presenter = createPresenter(
+            from: interactor,
+            wireframe: wireframe,
+            dataValidatingFactory: dataValidatingFactory
+        )
 
         let view = StakingRedeemViewController(
             presenter: presenter,
@@ -21,13 +27,15 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
 
         presenter.view = view
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         return view
     }
 
     private static func createPresenter(
         from interactor: StakingRedeemInteractorInputProtocol,
-        wireframe: StakingRedeemWireframeProtocol
+        wireframe: StakingRedeemWireframeProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) -> StakingRedeemPresenter {
         let settings = SettingsManager.shared
 
@@ -42,8 +50,6 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
 
         let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)
-
-        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         return StakingRedeemPresenter(
             interactor: interactor,
