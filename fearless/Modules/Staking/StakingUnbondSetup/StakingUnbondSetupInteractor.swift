@@ -1,4 +1,3 @@
-import UIKit
 import SoraKeystore
 import RobinHood
 import BigInt
