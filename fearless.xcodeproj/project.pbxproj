@@ -128,6 +128,15 @@
 		8401AE9626427D17000B03E3 /* StakingBondMoreConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AE9526427D17000B03E3 /* StakingBondMoreConfirmViewModel.swift */; };
 		8401AE9E26427D57000B03E3 /* StakingBondMoreConfirmViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AE9D26427D57000B03E3 /* StakingBondMoreConfirmViewModelFactory.swift */; };
 		8401AEA726429E31000B03E3 /* BondMoreConfirmTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEA626429E31000B03E3 /* BondMoreConfirmTests.swift */; };
+		8401AEC02642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEB62642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift */; };
+		8401AEC12642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEB72642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift */; };
+		8401AEC22642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEB82642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift */; };
+		8401AEC32642A71D000B03E3 /* StakingRebondConfirmationViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEB92642A71D000B03E3 /* StakingRebondConfirmationViewController.swift */; };
+		8401AEC42642A71D000B03E3 /* StakingRebondConfirmationWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBA2642A71D000B03E3 /* StakingRebondConfirmationWireframe.swift */; };
+		8401AEC52642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBB2642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift */; };
+		8401AEC62642A71D000B03E3 /* StakingRebondConfirmationLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBD2642A71D000B03E3 /* StakingRebondConfirmationLayout.swift */; };
+		8401AEC72642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBE2642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift */; };
+		8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401AEBF2642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift */; };
 		8401F24F24E524900081D8F8 /* String+Helpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8401F24E24E524900081D8F8 /* String+Helpers.swift */; };
 		84031C17263EC95C008FD9D4 /* SetPayeeCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */; };
 		840689FC26321F2700A017B1 /* StorageQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 840689FB26321F2700A017B1 /* StorageQuery.swift */; };
@@ -1295,6 +1304,15 @@
 		8401AE9526427D17000B03E3 /* StakingBondMoreConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreConfirmViewModel.swift; sourceTree = "<group>"; };
 		8401AE9D26427D57000B03E3 /* StakingBondMoreConfirmViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBondMoreConfirmViewModelFactory.swift; sourceTree = "<group>"; };
 		8401AEA626429E31000B03E3 /* BondMoreConfirmTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondMoreConfirmTests.swift; sourceTree = "<group>"; };
+		8401AEB62642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationViewModelFactory.swift; sourceTree = "<group>"; };
+		8401AEB72642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationViewModel.swift; sourceTree = "<group>"; };
+		8401AEB82642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationInteractor.swift; sourceTree = "<group>"; };
+		8401AEB92642A71D000B03E3 /* StakingRebondConfirmationViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationViewController.swift; sourceTree = "<group>"; };
+		8401AEBA2642A71D000B03E3 /* StakingRebondConfirmationWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationWireframe.swift; sourceTree = "<group>"; };
+		8401AEBB2642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationViewFactory.swift; sourceTree = "<group>"; };
+		8401AEBD2642A71D000B03E3 /* StakingRebondConfirmationLayout.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationLayout.swift; sourceTree = "<group>"; };
+		8401AEBE2642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationPresenter.swift; sourceTree = "<group>"; };
+		8401AEBF2642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StakingRebondConfirmationProtocols.swift; sourceTree = "<group>"; };
 		8401F24E24E524900081D8F8 /* String+Helpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+Helpers.swift"; sourceTree = "<group>"; };
 		84031C16263EC95C008FD9D4 /* SetPayeeCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetPayeeCall.swift; sourceTree = "<group>"; };
 		840689FB26321F2700A017B1 /* StorageQuery.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageQuery.swift; sourceTree = "<group>"; };
@@ -2809,6 +2827,38 @@
 				8401AEA626429E31000B03E3 /* BondMoreConfirmTests.swift */,
 			);
 			path = BondMoreConfirm;
+			sourceTree = "<group>";
+		};
+		8401AEB42642A71D000B03E3 /* StakingRebondConfirmation */ = {
+			isa = PBXGroup;
+			children = (
+				8401AEBC2642A71D000B03E3 /* View */,
+				8401AEB52642A71D000B03E3 /* ViewModel */,
+				8401AEB82642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift */,
+				8401AEB92642A71D000B03E3 /* StakingRebondConfirmationViewController.swift */,
+				8401AEBA2642A71D000B03E3 /* StakingRebondConfirmationWireframe.swift */,
+				8401AEBB2642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift */,
+				8401AEBE2642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift */,
+				8401AEBF2642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift */,
+			);
+			path = StakingRebondConfirmation;
+			sourceTree = "<group>";
+		};
+		8401AEB52642A71D000B03E3 /* ViewModel */ = {
+			isa = PBXGroup;
+			children = (
+				8401AEB62642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift */,
+				8401AEB72642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift */,
+			);
+			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		8401AEBC2642A71D000B03E3 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				8401AEBD2642A71D000B03E3 /* StakingRebondConfirmationLayout.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		840882B12514133500177E20 /* SelectConnection */ = {
@@ -4973,6 +5023,7 @@
 				F47BBD452630B6770087DA11 /* StakingBalance */,
 				F4D96BA92638528100B23D3D /* StakingBondMore */,
 				F47F6417263C0DC300FF67E9 /* StakingBondMoreConfirmation */,
+				8401AEB42642A71D000B03E3 /* StakingRebondConfirmation */,
 			);
 			path = Staking;
 			sourceTree = "<group>";
@@ -6353,6 +6404,7 @@
 				848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */,
 				84754C962511EF0D00854599 /* ManagedConnectionItemMapper.swift in Sources */,
 				84155DFC253D949300A27058 /* WebSocketEngine+Delegate.swift in Sources */,
+				8401AEC42642A71D000B03E3 /* StakingRebondConfirmationWireframe.swift in Sources */,
 				F4A198FB2632A1C000CD6E61 /* StakingBalanceViewModelFactory.swift in Sources */,
 				84563CFF24EFE07E0055591D /* Storage+Identifiable.swift in Sources */,
 				843C49E124DFFC9500B71DDA /* AccountImportSource+ViewModel.swift in Sources */,
@@ -6427,6 +6479,7 @@
 				849013DC24A927E2008F705E /* ApplicationConfigs.swift in Sources */,
 				84ACEBFA261E684A00AAE665 /* WalletHistoryFilter.swift in Sources */,
 				84E7D67C26376A0A0037EB23 /* YourValidatorsInteractor+Subscription.swift in Sources */,
+				8401AEC32642A71D000B03E3 /* StakingRebondConfirmationViewController.swift in Sources */,
 				841494452604E7D8000D8D1A /* SubscanRewardSource.swift in Sources */,
 				849014BE24AA87E4008F705E /* PinSetupPresenter.swift in Sources */,
 				84C07EEC24AF30F2008FC35B /* WalletActionsCell.swift in Sources */,
@@ -6682,6 +6735,7 @@
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84E1CD11260DCD44001E81B5 /* SwitchAccount+AccountImportWireframe.swift in Sources */,
+				8401AEC72642A71D000B03E3 /* StakingRebondConfirmationPresenter.swift in Sources */,
 				84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */,
 				8490386B262E22DC0016D541 /* NominatorPayoutInfoFactory.swift in Sources */,
 				8430AB1726023D2D005B1066 /* BaseStashNextState.swift in Sources */,
@@ -6805,6 +6859,7 @@
 				849013D024A9267F008F705E /* R.generated.swift in Sources */,
 				84F4387025D9BC3900AEDA56 /* EmptyStreamableSource.swift in Sources */,
 				840D891D26242AE500AB231B /* StorageRequest.swift in Sources */,
+				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
 				84DD5F7C263DFEC600425ACF /* StakingDataValidatorFactory.swift in Sources */,
 				84E1CCF5260DCB91001E81B5 /* SwitchAccount+AccountManagementWireframe.swift in Sources */,
@@ -7021,6 +7076,7 @@
 				8476C9E025EF94F2003EEAE1 /* StakingViewModelFacade.swift in Sources */,
 				84BEF601258938C1002A22E2 /* WalletActionsViewModel.swift in Sources */,
 				84F30EA125FD3EE700039D09 /* ChildSubscriptionFactory.swift in Sources */,
+				8401AEC12642A71D000B03E3 /* StakingRebondConfirmationViewModel.swift in Sources */,
 				FF2BFCFD981582584A9DA42D /* NetworkInfoWireframe.swift in Sources */,
 				84E1CD0C260DCD23001E81B5 /* SwitchAccount+AccountConfirmWireframe.swift in Sources */,
 				8430AAF626023087005B1066 /* NominatorState.swift in Sources */,
@@ -7029,6 +7085,7 @@
 				AE7E5BFE2615D23A006D5637 /* ProgressView + Manage.swift in Sources */,
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
 				607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */,
+				8401AEC62642A71D000B03E3 /* StakingRebondConfirmationLayout.swift in Sources */,
 				845CB6FA26276326005F798B /* LongrunOperation.swift in Sources */,
 				84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */,
 				68FC03E9D94736F7B87EA008 /* AddConnectionProtocols.swift in Sources */,
@@ -7106,6 +7163,7 @@
 				2CF2F93AF862CF54FC46B560 /* PurchaseInteractor.swift in Sources */,
 				90EFE3768F1375470FDBE6F6 /* PurchaseViewFactory.swift in Sources */,
 				F4A198EE2631AA2000CD6E61 /* StakingBalanceUnbondingItemView.swift in Sources */,
+				8401AEC02642A71D000B03E3 /* StakingRebondConfirmationViewModelFactory.swift in Sources */,
 				AF8193D9F818638254854232 /* StakingMainProtocols.swift in Sources */,
 				C46EEF6A9A9A601694E72DB1 /* StakingMainWireframe.swift in Sources */,
 				C01C5F1C8CB67B0D5CBE9FB1 /* StakingMainPresenter.swift in Sources */,
@@ -7175,12 +7233,14 @@
 				A32E1373E3671D518FFC3BC2 /* YourValidatorsViewController.swift in Sources */,
 				37E1E9782B9752BC50AF2476 /* YourValidatorsViewFactory.swift in Sources */,
 				6D5851FB5F830D55EFDB8B7D /* StakingUnbondSetupProtocols.swift in Sources */,
+				8401AEC22642A71D000B03E3 /* StakingRebondConfirmationInteractor.swift in Sources */,
 				1550A6E8789263C0D734091A /* StakingUnbondSetupWireframe.swift in Sources */,
 				4FBD73DD27CAA339727616B5 /* StakingUnbondSetupPresenter.swift in Sources */,
 				F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */,
 				CCF5A7CED175D5E43B2C9971 /* StakingUnbondSetupViewController.swift in Sources */,
 				57E20F0723C4748D576C4882 /* StakingUnbondSetupViewFactory.swift in Sources */,
 				0FB6781AB0186A1ED474CAD6 /* StakingUnbondConfirmProtocols.swift in Sources */,
+				8401AEC52642A71D000B03E3 /* StakingRebondConfirmationViewFactory.swift in Sources */,
 				27FA1D57A06AA3A030D226B6 /* StakingUnbondConfirmWireframe.swift in Sources */,
 				3FF8EE1158A273D0D50BC7A6 /* StakingUnbondConfirmPresenter.swift in Sources */,
 				F0C3DB0CEE1975626B0014A8 /* StakingUnbondConfirmInteractor.swift in Sources */,
