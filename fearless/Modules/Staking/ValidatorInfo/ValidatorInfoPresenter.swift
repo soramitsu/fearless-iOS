@@ -9,17 +9,21 @@ final class ValidatorInfoPresenter {
     private let locale: Locale
     private let viewModelFactory: ValidatorInfoViewModelFactoryProtocol
     private let asset: WalletAsset
+    private let logger: LoggerProtocol?
 
     private(set) var validatorInfo: ValidatorInfoProtocol?
+    private(set) var priceData: PriceData?
 
     init(
         viewModelFactory: ValidatorInfoViewModelFactoryProtocol,
         asset: WalletAsset,
-        locale: Locale
+        locale: Locale,
+        logger: LoggerProtocol? = nil
     ) {
         self.viewModelFactory = viewModelFactory
         self.asset = asset
         self.locale = locale
+        self.logger = logger
     }
 
     private func show(_ url: URL) {
@@ -48,7 +52,18 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
     }
 
     func presentTotalStake() {
-        // TODO: FLW-652
+        guard let validatorInfo = validatorInfo else { return }
+
+        wireframe.showStakingAmounts(
+            from: view,
+            items: viewModelFactory.createStakingAmountsViewModel(
+                from: validatorInfo,
+                priceData: priceData
+            )
+        )
+    }
+
+    func presentStateDescription(for _: ValidatorMyNominationStatus) {
         #warning("Not implemented")
     }
 
@@ -97,18 +112,30 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
             show(url)
         }
     }
+
+    private func updateView() {
+        guard let validatorInfo = self.validatorInfo else { return }
+
+        let viewModel = viewModelFactory.createViewModel(
+            from: validatorInfo,
+            priceData: priceData
+        )
+        view?.didRecieve(viewModel)
+    }
 }
 
 extension ValidatorInfoPresenter: ValidatorInfoInteractorOutputProtocol {
     func didReceive(validatorInfo: ValidatorInfoProtocol) {
         self.validatorInfo = validatorInfo
+        updateView()
+    }
 
-        let accountViewModel = viewModelFactory.createAccountViewModel(from: validatorInfo)
-        let extrasViewModel = viewModelFactory.createExtrasViewModel(from: validatorInfo)
+    func didRecieve(priceData: PriceData?) {
+        self.priceData = priceData
+        updateView()
+    }
 
-        view?.didReceive(
-            accountViewModel: accountViewModel,
-            extrasViewModel: extrasViewModel
-        )
+    func didReceive(priceError: Error) {
+        logger?.error("Did receive error: \(priceError)")
     }
 }
