@@ -1,54 +1,52 @@
-import SoraKeystore
 import RobinHood
-import BigInt
-import FearlessUtils
+import SoraKeystore
 
-final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetching {
-    weak var presenter: StakingUnbondSetupInteractorOutputProtocol!
+final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetching {
+    weak var presenter: StakingRebondSetupInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let settings: SettingsManagerProtocol
+    let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
-    let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
-    let feeProxy: ExtrinsicFeeProxyProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
+    let feeProxy: ExtrinsicFeeProxyProtocol
     let chain: Chain
     let assetId: WalletAssetId
 
+    private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
-    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var priceProvider: AnySingleValueProvider<PriceData>?
-
+    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinisicService: ExtrinsicServiceProtocol?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
     private lazy var callFactory = SubstrateCallFactory()
 
     init(
-        assetId: WalletAssetId,
-        chain: Chain,
-        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
-        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
-        feeProxy: ExtrinsicFeeProxyProtocol,
-        accountRepository: AnyDataProviderRepository<AccountItem>,
         settings: SettingsManagerProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
-        operationManager: OperationManagerProtocol
+        substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
+        runtimeCodingService: RuntimeCodingServiceProtocol,
+        operationManager: OperationManagerProtocol,
+        accountRepository: AnyDataProviderRepository<AccountItem>,
+        feeProxy: ExtrinsicFeeProxyProtocol,
+        chain: Chain,
+        assetId: WalletAssetId
     ) {
-        self.singleValueProviderFactory = singleValueProviderFactory
-        self.substrateProviderFactory = substrateProviderFactory
-        self.extrinsicServiceFactory = extrinsicServiceFactory
-        self.feeProxy = feeProxy
-        self.accountRepository = accountRepository
         self.settings = settings
-        self.runtimeService = runtimeService
+        self.substrateProviderFactory = substrateProviderFactory
+        self.singleValueProviderFactory = singleValueProviderFactory
+        self.extrinsicServiceFactory = extrinsicServiceFactory
+        runtimeService = runtimeCodingService
         self.operationManager = operationManager
-        self.assetId = assetId
+        self.accountRepository = accountRepository
+        self.feeProxy = feeProxy
         self.chain = chain
+        self.assetId = assetId
     }
 
     private func handleController(accountItem: AccountItem) {
@@ -58,30 +56,20 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     }
 }
 
-extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtocol {
+extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtocol {
     func setup() {
         if let address = settings.selectedAccount?.address {
             stashItemProvider = subscribeToStashItemProvider(for: address)
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
-        fetchConstant(
-            for: .lockUpPeriod,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<UInt32, Error>) in
-            self?.presenter.didReceiveBondingDuration(result: result)
-        }
+        electionStatusProvider = subscribeToElectionStatusProvider(
+            chain: chain,
+            runtimeService: runtimeService
+        )
 
-        fetchConstant(
-            for: .existentialDeposit,
-            runtimeCodingService: runtimeService,
-            operationManager: operationManager
-        ) { [weak self] (result: Result<BigUInt, Error>) in
-            self?.presenter.didReceiveExistentialDeposit(result: result)
-        }
+        activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
 
         feeProxy.delegate = self
     }
@@ -94,18 +82,22 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
             return
         }
 
-        let unbondCall = callFactory.unbond(amount: amount)
-        let setPayeeCall = callFactory.setPayee(for: .stash)
+        let rebondCall = callFactory.rebond(amount: amount)
 
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
-            try builder.adding(call: unbondCall).adding(call: setPayeeCall)
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: rebondCall.callName) { builder in
+            try builder.adding(call: rebondCall)
         }
     }
 }
 
-extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
-    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
-    AnyProviderAutoCleaning {
+extension StakingRebondSetupInteractor: SubstrateProviderSubscriber,
+    SubstrateProviderSubscriptionHandler,
+    SingleValueProviderSubscriber,
+    SingleValueSubscriptionHandler,
+    AnyProviderAutoCleaning,
+    ExtrinsicFeeProxyDelegate {
+    // MARK: - SubstrateProviderSubscriptionHandler
+
     func handleStashItem(result: Result<StashItem?, Error>) {
         do {
             let maybeStashItem = try result.get()
@@ -150,24 +142,30 @@ extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleVal
         }
     }
 
+    // MARK: - SingleValueSubscriptionHandler
+
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePriceData(result: result)
+    }
+
     func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
+        presenter.didReceiveElectionStatus(result: result)
     }
 
     func handleLedgerInfo(result: Result<DyStakingLedger?, Error>, address _: AccountAddress) {
         presenter.didReceiveStakingLedger(result: result)
     }
 
-    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
-        presenter.didReceivePriceData(result: result)
+    func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain _: Chain) {
+        presenter.didReceiveActiveEra(result: result)
     }
 
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
-    }
-}
+    // MARK: - ExtrinsicFeeProxyDelegate
 
-extension StakingUnbondSetupInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         presenter.didReceiveFee(result: result)
     }
