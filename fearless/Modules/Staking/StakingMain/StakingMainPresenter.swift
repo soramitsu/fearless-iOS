@@ -437,7 +437,7 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showNominatorValidators(from: view)
             }
         case .controllerAccount:
-            print("")
+            wireframe.showControllerAccount(from: view)
         }
     }
 }

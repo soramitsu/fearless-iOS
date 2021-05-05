@@ -87,6 +87,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(navigationController, animated: true, completion: nil)
     }
 
+    func showControllerAccount(from _: ControllerBackedProtocol?) {}
+
     func showAccountsSelection(from view: StakingMainViewProtocol?) {
         guard let accountsView = AccountManagementViewFactory.createViewForSwitch() else {
             return
