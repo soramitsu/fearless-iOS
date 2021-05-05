@@ -3,8 +3,6 @@ import SoraFoundation
 import CommonWallet
 
 protocol StakingRebondSetupViewProtocol: ControllerBackedProtocol, Localizable {
-    // From Interactor through Presenter to View actions
-    // func didReceive(value: Type)
     func didReceiveAsset(viewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceiveInput(viewModel: LocalizableResource<AmountInputViewModelProtocol>)
@@ -41,6 +39,5 @@ protocol StakingRebondSetupWireframeProtocol: AlertPresentable, ErrorPresentable
 }
 
 protocol StakingRebondSetupViewFactoryProtocol: AnyObject {
-    // Setup view
     static func createView() -> StakingRebondSetupViewProtocol?
 }

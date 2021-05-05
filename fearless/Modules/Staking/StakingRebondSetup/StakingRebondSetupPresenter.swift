@@ -53,6 +53,13 @@ final class StakingRebondSetupPresenter {
     }
 
     private func provideAssetViewModel() {
+        if let stakingLedger = stakingLedger,
+           let activeEraInfo = activeEraInfo {
+            unbonding = Decimal.fromSubstrateAmount(
+                stakingLedger.unbounding(inEra: activeEraInfo.index),
+                precision: chain.addressType.precision)
+        }
+
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount ?? 0.0,
             balance: unbonding,
@@ -134,15 +141,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
     func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
-            if let stakingLedger = stakingLedger {
-                unbonding = Decimal.fromSubstrateAmount(
-                    stakingLedger.unbounding(inEra: activeEraInfo?.index ?? 0),
-                    precision: chain.addressType.precision
-                )
-            } else {
-                unbonding = nil
-            }
-
+            self.stakingLedger = stakingLedger
             provideAssetViewModel()
         case let .failure(error):
             logger?.error("Staking ledger subscription error: \(error)")
