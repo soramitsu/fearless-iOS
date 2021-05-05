@@ -96,6 +96,13 @@ extension ControllerAccountViewController: UITableViewDataSource {
 extension ControllerAccountViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        switch rows[indexPath.row] {
+        case .learnMore:
+            presenter.selectLearnMore()
+        default:
+            break
+        }
     }
 
     func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

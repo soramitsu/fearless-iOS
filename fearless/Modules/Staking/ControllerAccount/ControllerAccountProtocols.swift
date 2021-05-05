@@ -8,10 +8,11 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
     func setup()
     func handleStashAction()
     func handleControllerAction()
+    func selectLearnMore()
 }
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {}
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {}
 
-protocol ControllerAccountWireframeProtocol: AnyObject {}
+protocol ControllerAccountWireframeProtocol: WebPresentable {}

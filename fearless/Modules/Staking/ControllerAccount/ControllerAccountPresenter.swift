@@ -2,9 +2,20 @@ import Foundation
 import SoraFoundation
 
 final class ControllerAccountPresenter {
+    let wireframe: ControllerAccountWireframeProtocol
+    let interactor: ControllerAccountInteractorInputProtocol
+    let applicationConfig: ApplicationConfigProtocol
     weak var view: ControllerAccountViewProtocol?
-    var wireframe: ControllerAccountWireframeProtocol!
-    var interactor: ControllerAccountInteractorInputProtocol!
+
+    init(
+        wireframe: ControllerAccountWireframeProtocol,
+        interactor: ControllerAccountInteractorInputProtocol,
+        applicationConfig: ApplicationConfigProtocol
+    ) {
+        self.wireframe = wireframe
+        self.interactor = interactor
+        self.applicationConfig = applicationConfig
+    }
 }
 
 extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
@@ -35,6 +46,15 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     func handleControllerAction() {}
 
     func handleStashAction() {}
+
+    func selectLearnMore() {
+        guard let view = view else { return }
+        wireframe.showWeb(
+            url: applicationConfig.learnControllerAccountURL,
+            from: view,
+            style: .automatic
+        )
+    }
 }
 
 extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol {}
