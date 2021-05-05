@@ -87,7 +87,7 @@ final class StakingRebondSetupViewController: UIViewController, ViewHolder {
         amountView.priceText = viewModel.price
 
         if let balance = viewModel.balance {
-            amountView.balanceText = R.string.localizable.stakingBondedFormat(
+            amountView.balanceText = R.string.localizable.stakingUnbondingFormat(
                 balance,
                 preferredLanguages: selectedLocale.rLanguages
             )

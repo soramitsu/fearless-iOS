@@ -16,6 +16,7 @@ protocol StakingDataValidatingFactoryProtocol {
     ) -> DataValidating
 
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating
+    func canRebond(amount: Decimal?, unbonding: Decimal?, locale: Locale) -> DataValidating
 
     func has(controller: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
     func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating
@@ -104,6 +105,24 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             if let amount = amount,
                let bonded = bonded {
                 return amount <= bonded
+            } else {
+                return false
+            }
+        })
+    }
+
+    func canRebond(amount: Decimal?, unbonding: Decimal?, locale: Locale) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentRebondingTooHigh(from: view, locale: locale)
+
+        }, preservesCondition: {
+            if let amount = amount,
+               let unbonding = unbonding {
+                return amount <= unbonding
             } else {
                 return false
             }

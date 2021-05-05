@@ -78,7 +78,30 @@ extension StakingRebondSetupPresenter: StakingRebondSetupPresenterProtocol {
     }
 
     func proceed() {
-        #warning("Not implemented")
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.canRebond(amount: inputAmount, unbonding: unbonding, locale: locale),
+
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.interactor.estimateFee()
+            }),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
+
+            dataValidatingFactory.has(
+                controller: controller,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
+
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+        ]).runValidation { [weak self] in
+            if let amount = self?.inputAmount {
+                self?.wireframe.proceed(view: self?.view, amount: amount)
+            } else {
+                self?.logger?.warning("Missing amount after validation")
+            }
+        }
     }
 
     func close() {
