@@ -10,21 +10,31 @@ class ValidatorInfoTests: XCTestCase {
 
     func testSetup() {
         // given
+        let chain = Chain.westend
 
         let settings = InMemorySettingsManager()
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
         let view = MockValidatorInfoViewProtocol()
         let wireframe = MockValidatorInfoWireframeProtocol()
-        let interactor = ValidatorInfoInteractor(validatorInfo: validator)
+
+        let priceProvider = SingleValueProviderFactoryStub.westendNominatorStub().price
+        let interactor = ValidatorInfoInteractor(validatorInfo: validator, priceProvider: priceProvider)
 
         let addressType = SNAddressType.kusamaMain
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
             asset: asset,
-            amountFormatterFactory: AmountFormatterFactory())
+            amountFormatterFactory: AmountFormatterFactory(),
+            balanceViewModelFactory: balanceViewModelFactory)
 
         let presenter = ValidatorInfoPresenter(viewModelFactory: validatorInfoViewModelFactory,
                                                asset: asset,
@@ -40,8 +50,7 @@ class ValidatorInfoTests: XCTestCase {
         let expectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceive(accountViewModel: any(), extrasViewModel: any()).then { viewModels in
-                XCTAssertEqual(self.validator.address, viewModels.0.address)
+            when(stub).didRecieve(any()).then { _ in
                 expectation.fulfill()
             }
         }

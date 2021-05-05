@@ -7,6 +7,7 @@ protocol ValidatorStakeInfoProtocol {
     var nominators: [NominatorInfo] { get }
     var totalStake: Decimal { get }
     var stakeReturn: Decimal { get }
+    var maxNominatorsRewarded: UInt32 { get }
     var oversubscribed: Bool { get }
 }
 
@@ -14,6 +15,7 @@ protocol ValidatorInfoProtocol {
     var address: String { get }
     var identity: AccountIdentity? { get }
     var stakeInfo: ValidatorStakeInfoProtocol? { get }
+    var myNomination: ValidatorMyNominationStatus? { get }
 }
 
 // MARK: - View
@@ -23,10 +25,7 @@ protocol ValidatorInfoViewFactoryProtocol: AnyObject {
 }
 
 protocol ValidatorInfoViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(
-        accountViewModel: ValidatorInfoAccountViewModelProtocol,
-        extrasViewModel: [ValidatorInfoViewController.Section]
-    )
+    func didRecieve(_ viewModel: [ValidatorInfoViewModel])
 }
 
 // MARK: - Interactor
@@ -39,12 +38,15 @@ protocol ValidatorInfoInteractorInputProtocol: AnyObject {
 
 protocol ValidatorInfoInteractorOutputProtocol: AnyObject {
     func didReceive(validatorInfo: ValidatorInfoProtocol)
+    func didRecieve(priceData: PriceData?)
+    func didReceive(priceError: Error)
 }
 
 protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
 
     func presentAccountOptions()
+    func presentStateDescription(for state: ValidatorMyNominationStatus)
 
     func presentTotalStake()
     func activateEmail()
@@ -58,4 +60,9 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
 protocol ValidatorInfoWireframeProtocol: WebPresentable,
     EmailPresentable,
     AlertPresentable,
-    AddressOptionsPresentable {}
+    AddressOptionsPresentable {
+    func showStakingAmounts(
+        from view: ValidatorInfoViewProtocol?,
+        items: [LocalizableResource<StakingAmountViewModel>]
+    )
+}
