@@ -3,8 +3,8 @@ import IrohaCrypto
 import BigInt
 import SoraKeystore
 
-final class StakingBondMoreInteractor: AccountFetching {
-    weak var presenter: StakingBondMoreInteractorOutputProtocol!
+final class StakingBondMoreConfirmationInteractor: AccountFetching {
+    weak var presenter: StakingBondMoreConfirmationOutputProtocol!
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
@@ -23,6 +23,7 @@ final class StakingBondMoreInteractor: AccountFetching {
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var extrinsicService: ExtrinsicServiceProtocol?
+    private var signingWrapper: SigningWrapperProtocol?
 
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -52,11 +53,14 @@ final class StakingBondMoreInteractor: AccountFetching {
 
     func handleStashAccountItem(_ accountItem: AccountItem) {
         extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
-        estimateFee()
+        signingWrapper = extrinsicServiceFactory.createSigningWrapper(
+            accountItem: accountItem,
+            connectionItem: settings.selectedConnection
+        )
     }
 }
 
-extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
+extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInteractorInputProtocol {
     func setup() {
         if let address = settings.selectedAccount?.address {
             stashItemProvider = subscribeToStashItemProvider(for: address)
@@ -68,23 +72,49 @@ extension StakingBondMoreInteractor: StakingBondMoreInteractorInputProtocol {
         feeProxy.delegate = self
     }
 
-    func estimateFee() {
+    func estimateFee(for amount: Decimal) {
         guard let extrinsicService = extrinsicService,
-              let amount = StakingConstants.maxAmount.toSubstrateAmount(
+              let amountValue = amount.toSubstrateAmount(
                   precision: chain.addressType.precision
               ) else {
+            presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
         }
 
-        let bondExtra = callFactory.bondExtra(amount: amount)
+        let bondExtra = callFactory.bondExtra(amount: amountValue)
 
-        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: bondExtra.callName) { builder in
+        let idetifier = bondExtra.callName + amountValue.description
+
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: idetifier) { builder in
             try builder.adding(call: bondExtra)
         }
     }
+
+    func submit(for amount: Decimal) {
+        guard
+            let extrinsicService = extrinsicService,
+            let signingWrapper = signingWrapper,
+            let amountValue = amount.toSubstrateAmount(precision: chain.addressType.precision) else {
+            presenter.didSubmitBonding(result: .failure(CommonError.undefined))
+            return
+        }
+
+        let bondExtra = callFactory.bondExtra(amount: amountValue)
+
+        extrinsicService.submit(
+            { builder in
+                try builder.adding(call: bondExtra)
+            },
+            signer: signingWrapper,
+            runningIn: .main,
+            completion: { [weak self] result in
+                self?.presenter.didSubmitBonding(result: result)
+            }
+        )
+    }
 }
 
-extension StakingBondMoreInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+extension StakingBondMoreConfirmationInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
     SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
     AnyProviderAutoCleaning {
     func handleStashItem(result: Result<StashItem?, Error>) {
@@ -136,7 +166,7 @@ extension StakingBondMoreInteractor: SingleValueProviderSubscriber, SingleValueS
     }
 }
 
-extension StakingBondMoreInteractor: ExtrinsicFeeProxyDelegate {
+extension StakingBondMoreConfirmationInteractor: ExtrinsicFeeProxyDelegate {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
         presenter.didReceiveFee(result: result)
     }
