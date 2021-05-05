@@ -6,9 +6,9 @@ PODS:
     - SoraFoundation/Localization (~> 0.9.0)
     - SoraFoundation/NotificationHandlers (~> 0.9.0)
     - SoraUI (~> 1.10.0)
-  - Cuckoo (1.4.0):
-    - Cuckoo/Swift (= 1.4.0)
-  - Cuckoo/Swift (1.4.0)
+  - Cuckoo (1.5.0):
+    - Cuckoo/Swift (= 1.5.0)
+  - Cuckoo/Swift (1.5.0)
   - FearlessUtils (0.9.0):
     - BigInt (~> 5.0)
     - IrohaCrypto/ed25519 (~> 0.7.0)
@@ -167,7 +167,7 @@ CHECKOUT OPTIONS:
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
   CommonWallet: a829172b9eee3c65a7e534d739c152b264fa6e47
-  Cuckoo: da26594ea25d227d788cd2f25466442a4348c486
+  Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 8c05cb6cf737943f343e6a1fb4be2ac6fafebb9d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 753b4f9c2af9ddb97538e6b919d087f87112e708

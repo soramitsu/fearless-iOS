@@ -16,6 +16,8 @@ protocol SubstrateCallFactoryProtocol {
 
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall>
 
+    func rebond(amount: BigUInt) -> RuntimeCall<RebondCall>
+
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall>
 
     func payout(validatorId: Data, era: EraIndex) throws -> RuntimeCall<PayoutCall>
@@ -62,6 +64,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
     func unbond(amount: BigUInt) -> RuntimeCall<UnbondCall> {
         let args = UnbondCall(amount: amount)
         return RuntimeCall(moduleName: "Staking", callName: "unbond", args: args)
+    }
+
+    func rebond(amount: BigUInt) -> RuntimeCall<RebondCall> {
+        let args = RebondCall(amount: amount)
+        return RuntimeCall(moduleName: "Staking", callName: "rebond", args: args)
     }
 
     func nominate(targets: [SelectedValidatorInfo]) throws -> RuntimeCall<NominateCall> {

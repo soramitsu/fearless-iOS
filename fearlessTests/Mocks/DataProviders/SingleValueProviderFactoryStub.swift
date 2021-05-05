@@ -142,6 +142,43 @@ extension SingleValueProviderFactoryStub {
                                               payee: AnyDataProvider(payee))
     }
 
+    static func nonEmptyUnbondingStub(for address: AccountAddress) -> SingleValueProviderFactoryStub {
+        let priceProvider = SingleValueProviderStub(item: WestendStub.price)
+        let totalRewardProvider = SingleValueProviderStub(item: WestendStub.totalReward)
+        let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
+        let electionStatusProvider = DataProviderStub(models: [WestendStub.electionStatus])
+        let nominationProvider = DataProviderStub(models: [WestendStub.nomination])
+        let validatorProvider = DataProviderStub<DecodedValidator>(models: [])
+
+        let accountId = try! SS58AddressFactory().accountId(from: address)
+
+        let unlockEra = WestendStub.activeEra.item.map({ $0.index + 1}) ?? 0
+        let unlockChunk = DyUnlockChunk(value: BigUInt(1e+12), era: unlockEra)
+        let ledgerInfo = DyStakingLedger(stash: accountId,
+                                   total: BigUInt(2e+12),
+                                   active: BigUInt(1e+12),
+                                   unlocking: [unlockChunk],
+                                   claimedRewards: [])
+
+        let decodedStakingLedger = DecodedLedgerInfo(identifier: address, item: ledgerInfo)
+        let ledgerProvider = DataProviderStub(models: [decodedStakingLedger])
+        let activeEra = DataProviderStub(models: [WestendStub.activeEra])
+
+        let payeeId = (WestendStub.ledgerInfo.item?.stash.toHex() ?? "") + "_payee"
+        let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
+        let payee = DataProviderStub(models: [decodedPayee])
+
+        return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
+                                              totalReward: AnySingleValueProvider(totalRewardProvider),
+                                              balance: AnyDataProvider(balanceProvider),
+                                              electionStatus: AnyDataProvider(electionStatusProvider),
+                                              nomination: AnyDataProvider(nominationProvider),
+                                              validatorPrefs: AnyDataProvider(validatorProvider),
+                                              ledgerInfo: AnyDataProvider(ledgerProvider),
+                                              activeEra: AnyDataProvider(activeEra),
+                                              payee: AnyDataProvider(payee))
+    }
+
     func with(
         nomination: Nomination,
         for address: AccountAddress
