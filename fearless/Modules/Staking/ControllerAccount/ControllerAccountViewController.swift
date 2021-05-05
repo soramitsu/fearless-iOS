@@ -32,17 +32,25 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
-        setupActionButton()
+        setupActions()
         presenter.setup()
     }
 
-    private func setupActionButton() {
+    private func setupActions() {
         rootView.actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+
+        let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleLearnMoreAction))
+        rootView.learnMoreView.addGestureRecognizer(tapRecognizer)
     }
 
     @objc
     private func handleActionButton() {
         presenter.proceed()
+    }
+
+    @objc
+    private func handleLearnMoreAction() {
+        presenter.selectLearnMore()
     }
 }
 
