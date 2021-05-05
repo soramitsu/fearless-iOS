@@ -8,7 +8,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
-    let runtimeCodingService: RuntimeCodingServiceProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
     let operationManager: OperationManagerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let feeProxy: ExtrinsicFeeProxyProtocol
@@ -21,6 +21,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinisicService: ExtrinsicServiceProtocol?
+    private var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
 
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -40,7 +41,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.substrateProviderFactory = substrateProviderFactory
         self.singleValueProviderFactory = singleValueProviderFactory
         self.extrinsicServiceFactory = extrinsicServiceFactory
-        self.runtimeCodingService = runtimeCodingService
+        self.runtimeService = runtimeCodingService
         self.operationManager = operationManager
         self.accountRepository = accountRepository
         self.feeProxy = feeProxy
@@ -65,8 +66,10 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
 
         electionStatusProvider = subscribeToElectionStatusProvider(
             chain: chain,
-            runtimeService: runtimeCodingService
+            runtimeService: runtimeService
         )
+
+        activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
 
         feeProxy.delegate = self
     }
@@ -107,12 +110,12 @@ extension StakingRebondSetupInteractor: SubstrateProviderSubscriber,
             if let stashItem = maybeStashItem {
                 ledgerProvider = subscribeToLedgerInfoProvider(
                     for: stashItem.controller,
-                    runtimeService: runtimeCodingService
+                    runtimeService: runtimeService
                 )
 
                 accountInfoProvider = subscribeToAccountInfoProvider(
                     for: stashItem.controller,
-                    runtimeService: runtimeCodingService
+                    runtimeService: runtimeService
                 )
 
                 fetchAccount(
