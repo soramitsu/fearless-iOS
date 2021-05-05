@@ -3,7 +3,7 @@ final class StakingBondMoreConfirmationWireframe: StakingBondMoreConfirmationWir
     func complete(from view: StakingBondMoreConfirmationViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingUnbondCompletionMessage(preferredLanguages: languages)
+            .stakingBondMoreCompletion(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 
