@@ -16,7 +16,7 @@ abstract_target 'fearlessAll' do
   pod 'ReachabilitySwift'
   pod 'SwiftGifOrigin', '~> 1.7.0'
   pod 'SnapKit', '~> 5.0.0'
-  pod 'SwiftFormat/CLI'
+  pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
 
   target 'fearlessTests' do
