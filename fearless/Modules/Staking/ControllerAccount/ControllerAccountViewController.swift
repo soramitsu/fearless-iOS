@@ -5,7 +5,6 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
     typealias RootViewType = ControllerAccountViewLayout
 
     let presenter: ControllerAccountPresenterProtocol
-    private var rows: [ControllerAccountRow] = []
 
     init(
         presenter: ControllerAccountPresenterProtocol,
@@ -33,18 +32,8 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         applyLocalization()
-        setupTable()
         setupActionButton()
         presenter.setup()
-    }
-
-    private func setupTable() {
-        rootView.tableView.registerClassesForCell([
-            AccountInfoTableViewCell.self,
-            LearnMoreTableCell.self
-        ])
-        rootView.tableView.dataSource = self
-        rootView.tableView.delegate = self
     }
 
     private func setupActionButton() {
@@ -72,8 +61,17 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
     func reload(with viewModel: LocalizableResource<ControllerAccountViewModel>) {
         let localizedViewModel = viewModel.value(for: selectedLocale)
 
-        rows = localizedViewModel.rows
-        rootView.tableView.reloadData()
+        if let stashViewModel = localizedViewModel.stashViewModel {
+            rootView.stashAccountView.title = stashViewModel.title
+            rootView.stashAccountView.subtitle = stashViewModel.name
+            rootView.stashAccountView.iconImage = stashViewModel.icon
+        }
+
+        if let controllerModel = localizedViewModel.controllerViewModel {
+            rootView.controllerAccountView.title = controllerModel.title
+            rootView.controllerAccountView.subtitle = controllerModel.name
+            rootView.controllerAccountView.iconImage = controllerModel.icon
+        }
 
         switch localizedViewModel.actionButtonState {
         case let .enabled(isEnabled):
@@ -82,59 +80,5 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
         case .hidden:
             rootView.actionButton.isHidden = true
         }
-    }
-}
-
-extension ControllerAccountViewController: UITableViewDataSource {
-    func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        rows.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        switch rows[indexPath.row] {
-        case let .controller(viewModel):
-            let cell = tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
-            cell.bind(model: viewModel)
-            cell.delegate = self
-            return cell
-        case let .stash(viewModel):
-            let cell = tableView.dequeueReusableCellWithType(AccountInfoTableViewCell.self)!
-            cell.bind(model: viewModel)
-            cell.delegate = self
-            return cell
-        case .learnMore:
-            let cell = tableView.dequeueReusableCellWithType(LearnMoreTableCell.self)!
-            cell.learnMoreView.titleLabel.text = R.string.localizable
-                .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
-            return cell
-        }
-    }
-}
-
-extension ControllerAccountViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-
-        switch rows[indexPath.row] {
-        case .learnMore:
-            presenter.selectLearnMore()
-        default:
-            break
-        }
-    }
-
-    func tableView(_: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        switch rows[indexPath.row] {
-        case .stash, .controller:
-            return 68.0
-        default:
-            return 48.0
-        }
-    }
-}
-
-extension ControllerAccountViewController: AccountInfoTableViewCellDelegate {
-    func accountInfoCellDidReceiveAction(_: AccountInfoTableViewCell) {
-        presenter.handleControllerAction()
     }
 }

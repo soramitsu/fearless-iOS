@@ -1,13 +1,18 @@
 import UIKit
 
 final class ControllerAccountViewLayout: UIView {
-    let tableView: UITableView = {
-        let tableView = UITableView()
-        tableView.tableFooterView = UIView()
-        tableView.backgroundColor = R.color.colorBlack()
-        tableView.separatorColor = R.color.colorDarkGray()
-        return tableView
+    let containerView: ScrollableContainerView = {
+        let view = ScrollableContainerView()
+        view.stackView.isLayoutMarginsRelativeArrangement = true
+        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        return view
     }()
+
+    let stashAccountView = UIFactory.default.createAccountView()
+
+    let controllerAccountView = UIFactory.default.createAccountView()
+
+    let learnMoreView = LearnMoreView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -35,10 +40,29 @@ final class ControllerAccountViewLayout: UIView {
             make.height.equalTo(1 / UIScreen.main.scale)
         }
 
-        addSubview(tableView)
-        tableView.snp.makeConstraints { make in
+        addSubview(containerView)
+        containerView.snp.makeConstraints { make in
             make.top.equalTo(separator.snp.bottom)
             make.leading.bottom.trailing.equalToSuperview()
+        }
+
+        containerView.stackView.spacing = 16
+        containerView.stackView.addArrangedSubview(stashAccountView)
+        stashAccountView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(52.0)
+        }
+
+        containerView.stackView.addArrangedSubview(controllerAccountView)
+        controllerAccountView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(52.0)
+        }
+
+        containerView.stackView.addArrangedSubview(learnMoreView)
+        learnMoreView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            // make.height.equalTo(52.0)
         }
 
         addSubview(actionButton)

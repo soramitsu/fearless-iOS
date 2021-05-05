@@ -14,7 +14,11 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     func createViewModel(stashItem: StashItem?) -> LocalizableResource<ControllerAccountViewModel> {
         LocalizableResource { locale in
             guard let stashItem = stashItem else {
-                return ControllerAccountViewModel(rows: [], actionButtonState: .hidden)
+                return ControllerAccountViewModel(
+                    stashViewModel: nil,
+                    controllerViewModel: nil,
+                    actionButtonState: .hidden
+                )
             }
 
             let stashAddress = stashItem.stash
@@ -55,11 +59,8 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             }()
 
             return ControllerAccountViewModel(
-                rows: [
-                    .stash(stashViewModel),
-                    .controller(controllerViewModel),
-                    .learnMore
-                ],
+                stashViewModel: stashViewModel,
+                controllerViewModel: controllerViewModel,
                 actionButtonState: buttonState
             )
         }

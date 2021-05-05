@@ -4,6 +4,7 @@ enum ControllerAccountActionButtonState {
 }
 
 struct ControllerAccountViewModel {
-    let rows: [ControllerAccountRow]
+    let stashViewModel: AccountInfoViewModel?
+    let controllerViewModel: AccountInfoViewModel?
     let actionButtonState: ControllerAccountActionButtonState
 }
