@@ -41,7 +41,7 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
         self.substrateProviderFactory = substrateProviderFactory
         self.singleValueProviderFactory = singleValueProviderFactory
         self.extrinsicServiceFactory = extrinsicServiceFactory
-        self.runtimeService = runtimeCodingService
+        runtimeService = runtimeCodingService
         self.operationManager = operationManager
         self.accountRepository = accountRepository
         self.feeProxy = feeProxy

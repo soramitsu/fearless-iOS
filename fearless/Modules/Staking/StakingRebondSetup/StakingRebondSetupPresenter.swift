@@ -12,7 +12,6 @@ final class StakingRebondSetupPresenter {
     let logger: LoggerProtocol?
 
     private var inputAmount: Decimal?
-    private var unbonding: Decimal?
     private var balance: Decimal?
     private var fee: Decimal?
     private var priceData: PriceData?
@@ -21,6 +20,16 @@ final class StakingRebondSetupPresenter {
     private var stakingLedger: DyStakingLedger?
     private var electionStatus: ElectionStatus?
     private var activeEraInfo: ActiveEraInfo?
+
+    var unbonding: Decimal? {
+        if
+            let activeEra = activeEraInfo?.index,
+            let value = stakingLedger?.unbounding(inEra: activeEra) {
+            return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
+        } else {
+            return nil
+        }
+    }
 
     init(
         wireframe: StakingRebondSetupWireframeProtocol,
@@ -53,11 +62,8 @@ final class StakingRebondSetupPresenter {
     }
 
     private func provideAssetViewModel() {
-        if let stakingLedger = stakingLedger,
-           let activeEraInfo = activeEraInfo {
-            unbonding = Decimal.fromSubstrateAmount(
-                stakingLedger.unbounding(inEra: activeEraInfo.index),
-                precision: chain.addressType.precision)
+        guard let unbonding = unbonding else {
+            return
         }
 
         let viewModel = balanceViewModelFactory.createAssetBalanceViewModel(
@@ -130,6 +136,8 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
         case let .success(dispatchInfo):
             if let fee = BigUInt(dispatchInfo.fee) {
                 self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+            } else {
+                fee = nil
             }
 
             provideFeeViewModel()
@@ -181,9 +189,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
     func didReceiveController(result: Result<AccountItem?, Error>) {
         switch result {
         case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
+            controller = accountItem
         case let .failure(error):
             logger?.error("Received controller account error: \(error)")
         }
