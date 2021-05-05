@@ -42,7 +42,7 @@ enum StakingManageOption {
         case .validators:
             return R.image.iconValidators()
         case .controllerAccount:
-            return nil
+            return R.image.iconAccount()
         }
     }
 }
