@@ -1,6 +1,6 @@
 import SoraFoundation
 
-protocol ControllerAccountViewProtocol: ControllerBackedProtocol {}
+protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {}
 
 protocol ControllerAccountPresenterProtocol: AnyObject {
     func setup()

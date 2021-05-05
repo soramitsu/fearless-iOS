@@ -1,13 +1,16 @@
 import Foundation
+import SoraFoundation
 
 struct ControllerAccountViewFactory {
     static func createView() -> ControllerAccountViewProtocol? {
-        let view = ControllerAccountViewController()
         let presenter = ControllerAccountPresenter()
         let interactor = ControllerAccountInteractor()
         let wireframe = ControllerAccountWireframe()
 
-        view.presenter = presenter
+        let view = ControllerAccountViewController(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
