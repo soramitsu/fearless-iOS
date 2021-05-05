@@ -379,4 +379,7 @@ Derivation path: %@";
 "staking.rebond" = "Rebond";
 "staking.unbonding.format" = "Unbonding: %@";
 "staking.unbond.unsufficient.message" = "You don't have enough tokens to unbond";
+"staking.rebond.insufficient.bondings" = "Amount you want to rebond is greater than your unbonding balance";
 "staking.stash.missing.message" = "Controller account %@ is unavailable to update staking setup.";
+"staking.controller.account.title" = "Controller account";
+"staking.bond.more.completion" = "Bonding extra request has been submitted";

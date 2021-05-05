@@ -76,7 +76,7 @@ struct StakingBondMoreViewFactory {
             singleValueProviderFactory: providerFactory,
             substrateProviderFactory: substrateProviderFactory,
             accountRepository: AnyDataProviderRepository(repository),
-            extrinsicServiceFactoryProtocol: extrinsicServiceFactory,
+            extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: feeProxy,
             runtimeService: runtimeService,
             operationManager: operationManager,

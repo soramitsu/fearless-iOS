@@ -379,4 +379,7 @@ a type of password.";
 "staking.rebond" = "";
 "staking.unbonding.format" = "";
 "staking.unbond.unsufficient.message" = "";
+"staking.rebond.insufficient.bondings" = "";
 "staking.stash.missing.message" = "";
+"staking.controller.account.title" = "";
+"staking.bond.more.completion" = "";
