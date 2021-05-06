@@ -17,14 +17,9 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         selectedAccountItem: AccountItem,
         accounts: [AccountItem]
     ) -> ControllerAccountViewModel {
-        let stashViewModel = LocalizableResource<AccountInfoViewModel> { _ in
+        let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
             let stashAddress = stashItem.stash
-            let stashName: String = {
-                if let username = accounts.first(where: { $0.address == stashAddress })?.username {
-                    return username
-                }
-                return stashAddress
-            }()
+            let stashName = accounts.first(where: { $0.address == stashAddress })?.username ?? stashAddress
             let stashIcon = try? self.iconGenerator
                 .generateFromAddress(stashAddress)
                 .imageWithFillColor(
@@ -33,7 +28,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                     contentScale: UIScreen.main.scale
                 )
             return AccountInfoViewModel(
-                title: "Stash account",
+                title: R.string.localizable.stackingStashAccount(preferredLanguages: locale.rLanguages),
                 address: stashAddress,
                 name: stashName,
                 icon: stashIcon
