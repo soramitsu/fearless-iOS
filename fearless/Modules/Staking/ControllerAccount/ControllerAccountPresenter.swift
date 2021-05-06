@@ -33,7 +33,10 @@ final class ControllerAccountPresenter {
     }
 
     private func updateView() {
-        guard let stashItem = stashItem else { return }
+        guard
+            let stashItem = stashItem,
+            let accounts = accounts
+        else { return }
         let viewModel = viewModelFactory.createViewModel(
             stashItem: stashItem,
             selectedAccountItem: selectedAccount,
@@ -49,13 +52,20 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleControllerAction() {
-        guard !loadingAccounts else {
-            return
+        guard let accounts = accounts else { return }
+        let context = PrimitiveContextWrapper(value: accounts)
+        let title = LocalizableResource<String> { locale in
+            R.string.localizable
+                .stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
         }
-
-        loadingAccounts = true
-
-        interactor.fetchAccounts()
+        wireframe.presentAccountSelection(
+            accounts,
+            selectedAccountItem: selectedAccount,
+            title: title,
+            delegate: self,
+            from: view,
+            context: context
+        )
     }
 
     func handleStashAction() {
@@ -103,19 +113,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         case let .success(accounts):
             self.accounts = accounts
 
-            let context = PrimitiveContextWrapper(value: accounts)
-            let title = LocalizableResource<String> { locale in
-                R.string.localizable
-                    .stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
-            }
-            wireframe.presentAccountSelection(
-                accounts,
-                selectedAccountItem: selectedAccount,
-                title: title,
-                delegate: self,
-                from: view,
-                context: context
-            )
+            updateView()
         case let .failure(error):
             print(error)
         }

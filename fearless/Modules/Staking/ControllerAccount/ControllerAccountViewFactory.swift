@@ -21,18 +21,19 @@ struct ControllerAccountViewFactory {
                 filter: filter,
                 sortDescriptors: [.accountsByOrder]
             )
+        guard let selectedAccount = settings.selectedAccount else {
+            return nil
+        }
+
         let interactor = ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            settings: settings,
+            selectedAccountAddress: selectedAccount.address,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: OperationManagerFacade.sharedManager
         )
         let wireframe = ControllerAccountWireframe()
 
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
         let viewModelFactory = ControllerAccountViewModelFactory(
             selectedAccount: selectedAccount,
             iconGenerator: PolkadotIconGenerator()

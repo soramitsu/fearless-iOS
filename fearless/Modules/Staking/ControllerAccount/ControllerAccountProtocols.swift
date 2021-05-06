@@ -8,7 +8,7 @@ protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         stashItem: StashItem,
         selectedAccountItem: AccountItem,
-        accounts: [AccountItem]?
+        accounts: [AccountItem]
     ) -> LocalizableResource<ControllerAccountViewModel>
 }
 
@@ -22,7 +22,6 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
-    func fetchAccounts()
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {

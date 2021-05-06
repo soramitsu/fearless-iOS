@@ -7,7 +7,7 @@ final class ControllerAccountInteractor {
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let settings: SettingsManagerProtocol
+    let selectedAccountAddress: AccountAddress
     let accountRepository: AnyDataProviderRepository<AccountItem>
     let operationManager: OperationManagerProtocol
 
@@ -16,26 +16,18 @@ final class ControllerAccountInteractor {
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
-        settings: SettingsManagerProtocol,
+        selectedAccountAddress: AccountAddress,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
-        self.settings = settings
+        self.selectedAccountAddress = selectedAccountAddress
         self.accountRepository = accountRepository
         self.operationManager = operationManager
     }
-}
 
-extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
-    func setup() {
-        if let address = settings.selectedAccount?.address {
-            stashItemProvider = subscribeToStashItemProvider(for: address)
-        }
-    }
-
-    func fetchAccounts() {
+    private func fetchAccounts() {
         let operation = accountRepository.fetchAllOperation(with: RepositoryFetchOptions())
         operation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
@@ -49,6 +41,13 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         }
 
         operationManager.enqueue(operations: [operation], in: .transient)
+    }
+}
+
+extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
+    func setup() {
+        stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
+        fetchAccounts()
     }
 }
 

@@ -15,12 +15,12 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     func createViewModel(
         stashItem: StashItem,
         selectedAccountItem: AccountItem,
-        accounts: [AccountItem]?
+        accounts: [AccountItem]
     ) -> LocalizableResource<ControllerAccountViewModel> {
         LocalizableResource { locale in
             let stashAddress = stashItem.stash
             let stashName: String = {
-                if let username = accounts?.first(where: { $0.address == stashAddress })?.username {
+                if let username = accounts.first(where: { $0.address == stashAddress })?.username {
                     return username
                 }
                 return stashAddress
@@ -55,8 +55,11 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             )
 
             let buttonState: ControllerAccountActionButtonState = {
-                if selectedAccountItem.address == self.selectedAccount.address {
+                if stashItem.controller == self.selectedAccount.address {
                     return .hidden
+                }
+                if selectedControllerAddress == self.selectedAccount.address {
+                    return .enabled(false)
                 }
                 return .enabled(true)
             }()
