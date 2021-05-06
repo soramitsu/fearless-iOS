@@ -26,13 +26,8 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
 }
 
-protocol ControllerAccountWireframeProtocol: WebPresentable, AddressOptionsPresentable {
+protocol ControllerAccountWireframeProtocol: WebPresentable,
+    AddressOptionsPresentable,
+    AccountSelectionPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
-    func presentAccountSelection(
-        _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
-        delegate: ModalPickerViewControllerDelegate,
-        from view: ControllerBackedProtocol?,
-        context: AnyObject?
-    )
 }

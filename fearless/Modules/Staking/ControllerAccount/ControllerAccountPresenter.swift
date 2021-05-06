@@ -101,6 +101,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
             wireframe.presentAccountSelection(
                 accounts,
                 selectedAccountItem: selectedAccount,
+                title: title,
                 delegate: self,
                 from: view,
                 context: context
