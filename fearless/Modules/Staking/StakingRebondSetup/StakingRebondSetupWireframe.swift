@@ -1,8 +1,16 @@
 import Foundation
 
 final class StakingRebondSetupWireframe: StakingRebondSetupWireframeProtocol {
-    func proceed(view _: StakingRebondSetupViewProtocol?, amount _: Decimal) {
-        // TODO: FLW-795 https://soramitsu.atlassian.net/browse/FLW-795
+    func proceed(view: StakingRebondSetupViewProtocol?, amount: Decimal) {
+        guard let rebondView = StakingRebondConfirmationViewFactory
+            .createView(for: .custom(amount: amount)) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            rebondView.controller,
+            animated: true
+        )
     }
 
     func close(view: StakingRebondSetupViewProtocol?) {

@@ -17,6 +17,7 @@ abstract_target 'fearlessAll' do
   pod 'SwiftGifOrigin', '~> 1.7.0'
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
+  pod 'Sourcery', '~> 1.4'
 
   target 'fearlessTests' do
     inherit! :search_paths
@@ -29,6 +30,7 @@ abstract_target 'fearlessAll' do
     pod 'SoraKeystore'
     pod 'RobinHood', '~> 2.6.0'
     pod 'CommonWallet/Core', :git => 'https://github.com/soramitsu/Capital-iOS.git', :commit => '60f43fcc0b711ba3cc75d6472ac072aed265d2a1'
+    pod 'Sourcery', '~> 1.4'
 
   end
 

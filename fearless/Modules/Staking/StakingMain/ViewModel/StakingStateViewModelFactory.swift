@@ -100,8 +100,7 @@ final class StakingStateViewModelFactory {
             let accountId = try addressFactory.accountId(from: stashItem.stash)
 
             if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil
-            {
+                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
                 return .active(era: eraStakers.era)
             }
 

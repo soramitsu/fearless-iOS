@@ -24,7 +24,7 @@ final class StakingRebondSetupPresenter {
     var unbonding: Decimal? {
         if
             let activeEra = activeEraInfo?.index,
-            let value = stakingLedger?.unbounding(inEra: activeEra) {
+            let value = stakingLedger?.unbonding(inEra: activeEra) {
             return Decimal.fromSubstrateAmount(value, precision: chain.addressType.precision)
         } else {
             return nil

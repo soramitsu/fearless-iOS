@@ -4,23 +4,25 @@ import SoraKeystore
 import RobinHood
 import FearlessUtils
 
-final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
-    static func createView() -> StakingRedeemViewProtocol? {
+struct StakingRebondConfirmationViewFactory {
+    static func createView(for variant: SelectedRebondVariant)
+        -> StakingRebondConfirmationViewProtocol? {
         guard let interactor = createInteractor() else {
             return nil
         }
 
-        let wireframe = StakingRedeemWireframe()
+        let wireframe = StakingRebondConfirmationWireframe()
 
         let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
 
         let presenter = createPresenter(
-            from: interactor,
+            for: variant,
+            interactor: interactor,
             wireframe: wireframe,
             dataValidatingFactory: dataValidatingFactory
         )
 
-        let view = StakingRedeemViewController(
+        let view = StakingRebondConfirmationViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
@@ -33,10 +35,11 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
     }
 
     private static func createPresenter(
-        from interactor: StakingRedeemInteractorInputProtocol,
-        wireframe: StakingRedeemWireframeProtocol,
+        for variant: SelectedRebondVariant,
+        interactor: StakingRebondConfirmationInteractorInputProtocol,
+        wireframe: StakingRebondConfirmationWireframeProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol
-    ) -> StakingRedeemPresenter {
+    ) -> StakingRebondConfirmationPresenter {
         let settings = SettingsManager.shared
 
         let chain = settings.selectedConnection.type.chain
@@ -49,9 +52,10 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
-        let confirmationViewModelFactory = StakingRedeemViewModelFactory(asset: asset)
+        let confirmationViewModelFactory = StakingRebondConfirmationViewModelFactory(asset: asset)
 
-        return StakingRedeemPresenter(
+        return StakingRebondConfirmationPresenter(
+            variant: variant,
             interactor: interactor,
             wireframe: wireframe,
             confirmViewModelFactory: confirmationViewModelFactory,
@@ -62,7 +66,7 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         )
     }
 
-    private static func createInteractor() -> StakingRedeemInteractor? {
+    private static func createInteractor() -> StakingRebondConfirmationInteractor? {
         let settings = SettingsManager.shared
 
         guard let engine = WebSocketService.shared.connection else {
@@ -93,27 +97,16 @@ final class StakingRedeemViewFactory: StakingRedeemViewFactoryProtocol {
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let storageOperationFactory = StorageRequestFactory(
-            remoteFactory: StorageKeyFactory(),
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let slashesOperationFactory = SlashesOperationFactory(
-            storageRequestFactory: storageOperationFactory
-        )
-
-        return StakingRedeemInteractor(
+        return StakingRebondConfirmationInteractor(
             assetId: assetId,
             chain: chain,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
             extrinsicServiceFactory: extrinsicServiceFactory,
             feeProxy: ExtrinsicFeeProxy(),
-            slashesOperationFactory: slashesOperationFactory,
             accountRepository: AnyDataProviderRepository(accountRepository),
             settings: settings,
             runtimeService: RuntimeRegistryFacade.sharedService,
-            engine: engine,
             operationManager: OperationManagerFacade.sharedManager
         )
     }

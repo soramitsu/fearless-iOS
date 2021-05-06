@@ -14,6 +14,7 @@ protocol ApplicationConfigProtocol {
     var appName: String { get }
     var logoURL: URL { get }
     var purchaseAppName: String { get }
+    var moonPayApiKey: String { get }
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
     var learnPayoutURL: URL { get }
@@ -85,6 +86,10 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var purchaseAppName: String {
         "Fearless Wallet"
+    }
+
+    var moonPayApiKey: String {
+        "pk_live_Boi6Rl107p7XuJWBL8GJRzGWlmUSoxbz"
     }
 
     var purchaseRedirect: URL {
