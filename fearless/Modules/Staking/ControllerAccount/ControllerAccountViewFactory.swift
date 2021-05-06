@@ -10,6 +10,7 @@ struct ControllerAccountViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
         let settings = SettingsManager.shared
+        let chain = settings.selectedConnection.type.chain
         let interactor = ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
@@ -28,7 +29,8 @@ struct ControllerAccountViewFactory {
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
-            applicationConfig: ApplicationConfig.shared
+            applicationConfig: ApplicationConfig.shared,
+            chain: chain
         )
 
         let view = ControllerAccountViewController(

@@ -24,6 +24,6 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashItem(result: Result<StashItem?, Error>)
 }
 
-protocol ControllerAccountWireframeProtocol: WebPresentable {
+protocol ControllerAccountWireframeProtocol: WebPresentable, AddressOptionsPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
 }

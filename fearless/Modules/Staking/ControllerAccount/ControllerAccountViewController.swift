@@ -41,6 +41,9 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
 
         let tapRecognizer = UITapGestureRecognizer(target: self, action: #selector(handleLearnMoreAction))
         rootView.learnMoreView.addGestureRecognizer(tapRecognizer)
+
+        rootView.stashAccountView.addTarget(self, action: #selector(handleStashAction), for: .touchUpInside)
+        rootView.controllerAccountView.addTarget(self, action: #selector(handleControllerAction), for: .touchUpInside)
     }
 
     @objc
@@ -51,6 +54,16 @@ final class ControllerAccountViewController: UIViewController, ViewHolder {
     @objc
     private func handleLearnMoreAction() {
         presenter.selectLearnMore()
+    }
+
+    @objc
+    private func handleStashAction() {
+        presenter.handleStashAction()
+    }
+
+    @objc
+    private func handleControllerAction() {
+        presenter.handleControllerAction()
     }
 }
 

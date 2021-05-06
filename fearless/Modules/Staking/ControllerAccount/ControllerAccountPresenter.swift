@@ -6,6 +6,7 @@ final class ControllerAccountPresenter {
     let interactor: ControllerAccountInteractorInputProtocol
     let viewModelFactory: ControllerAccountViewModelFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
+    let chain: Chain
     weak var view: ControllerAccountViewProtocol?
 
     private var stashItem: StashItem?
@@ -14,12 +15,14 @@ final class ControllerAccountPresenter {
         wireframe: ControllerAccountWireframeProtocol,
         interactor: ControllerAccountInteractorInputProtocol,
         viewModelFactory: ControllerAccountViewModelFactoryProtocol,
-        applicationConfig: ApplicationConfigProtocol
+        applicationConfig: ApplicationConfigProtocol,
+        chain: Chain
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
+        self.chain = chain
     }
 
     private func updateView() {
@@ -35,7 +38,18 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
 
     func handleControllerAction() {}
 
-    func handleStashAction() {}
+    func handleStashAction() {
+        guard
+            let view = view,
+            let address = stashItem?.stash
+        else { return }
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: view.localizationManager?.selectedLocale ?? .current
+        )
+    }
 
     func selectLearnMore() {
         guard let view = view else { return }
