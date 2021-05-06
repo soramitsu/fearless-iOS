@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="gray" indentationWidth="10" id="OsQ-s7-BDA" customClass="PurchaseProviderPickerTableViewCell" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="414" height="55"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="OsQ-s7-BDA" id="Go9-PB-RLj">
+                <rect key="frame" x="0.0" y="0.0" width="414" height="55"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" image="iconMoonPay" translatesAutoresizingMaskIntoConstraints="NO" id="Zw9-9v-Qx5">
+                        <rect key="frame" x="20" y="15.5" width="24" height="24"/>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="MoonPay" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jz3-fo-pxe">
+                        <rect key="frame" x="59" y="18" width="319" height="19"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
+                        <color key="textColor" name="colorWhite"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" image="iconAboutArrow" translatesAutoresizingMaskIntoConstraints="NO" id="IgJ-1g-YS8">
+                        <rect key="frame" x="383" y="19.5" width="16" height="16"/>
+                        <color key="tintColor" name="colorWhite"/>
+                    </imageView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="IgJ-1g-YS8" firstAttribute="centerY" secondItem="Go9-PB-RLj" secondAttribute="centerY" id="XUX-0F-GDC"/>
+                    <constraint firstItem="Zw9-9v-Qx5" firstAttribute="centerY" secondItem="Go9-PB-RLj" secondAttribute="centerY" id="YSv-Gr-ojl"/>
+                    <constraint firstItem="IgJ-1g-YS8" firstAttribute="leading" secondItem="jz3-fo-pxe" secondAttribute="trailing" constant="5" id="aZo-YW-YrX"/>
+                    <constraint firstAttribute="trailing" secondItem="IgJ-1g-YS8" secondAttribute="trailing" constant="15" id="b0W-HC-FdW"/>
+                    <constraint firstItem="Zw9-9v-Qx5" firstAttribute="leading" secondItem="Go9-PB-RLj" secondAttribute="leading" constant="20" id="jhp-vU-vB3"/>
+                    <constraint firstItem="jz3-fo-pxe" firstAttribute="centerY" secondItem="Go9-PB-RLj" secondAttribute="centerY" id="ly0-bF-pYH"/>
+                    <constraint firstItem="jz3-fo-pxe" firstAttribute="leading" secondItem="Zw9-9v-Qx5" secondAttribute="trailing" constant="15" id="sKQ-z8-dLv"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" name="colorAlmostBlack"/>
+            <connections>
+                <outlet property="iconImageView" destination="Zw9-9v-Qx5" id="ZXF-rW-j0D"/>
+                <outlet property="titleLabel" destination="jz3-fo-pxe" id="F6y-JD-gi8"/>
+            </connections>
+            <point key="canvasLocation" x="139" y="153"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="iconAboutArrow" width="16" height="16"/>
+        <image name="iconMoonPay" width="24" height="24"/>
+        <namedColor name="colorAlmostBlack">
+            <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+    </resources>
+</document>

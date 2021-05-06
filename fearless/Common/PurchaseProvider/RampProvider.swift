@@ -23,7 +23,7 @@ final class RampProvider: PurchaseProviderProtocol {
         return self
     }
 
-    func buildPurchaseAction(
+    func buildPurchaseActions(
         for chain: Chain,
         assetId _: WalletAssetId?,
         address: String
@@ -40,7 +40,7 @@ final class RampProvider: PurchaseProviderProtocol {
         }
 
         if let url = optionUrl {
-            let action = PurchaseAction(title: "Ramp", url: url)
+            let action = PurchaseAction(title: "Ramp", url: url, icon: R.image.iconRamp()!)
             return [action]
         } else {
             return []
