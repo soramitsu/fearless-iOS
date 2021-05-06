@@ -17,7 +17,7 @@ struct UIConstants {
     static let accessoryItemsSpacing: CGFloat = 12.0
     static let cellHeight: CGFloat = 48
     static let tableHeaderHeight: CGFloat = 40.0
-    static let separatorHeight: CGFloat = 0.75
+    static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
 }
 
 protocol UIFactoryProtocol {

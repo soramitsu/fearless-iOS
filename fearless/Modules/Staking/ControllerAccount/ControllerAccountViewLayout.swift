@@ -33,13 +33,12 @@ final class ControllerAccountViewLayout: UIView {
     }
 
     private func setupLayout() {
-        let separator = UIView()
-        separator.backgroundColor = R.color.colorDarkGray()
+        let separator = UIView.createSeparator(color: R.color.colorDarkGray())
         addSubview(separator)
         separator.snp.makeConstraints { make in
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview()
-            make.height.equalTo(1 / UIScreen.main.scale)
+            make.height.equalTo(UIConstants.separatorHeight)
         }
 
         addSubview(containerView)
@@ -68,6 +67,13 @@ final class ControllerAccountViewLayout: UIView {
 
         containerView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
+        let bottomSeparator = UIView.createSeparator(color: R.color.colorDarkGray())
+        containerView.stackView.addArrangedSubview(bottomSeparator)
+        bottomSeparator.snp.makeConstraints { make in
+            make.height.equalTo(UIConstants.separatorHeight)
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
