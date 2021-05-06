@@ -30,4 +30,8 @@ final class ControllerAccountWireframe: ControllerAccountWireframeProtocol {
 
         view?.controller.present(picker, animated: true, completion: nil)
     }
+
+    func close(view: ControllerBackedProtocol?) {
+        view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
 }

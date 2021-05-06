@@ -33,4 +33,5 @@ protocol ControllerAccountWireframeProtocol: WebPresentable,
     AddressOptionsPresentable,
     AccountSelectionPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
+    func close(view: ControllerBackedProtocol?)
 }

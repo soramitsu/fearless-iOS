@@ -112,6 +112,9 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         case let .success(stashItem):
             self.stashItem = stashItem
             updateView()
+            if stashItem == nil {
+                wireframe.close(view: view)
+            }
         case let .failure(error):
             print(error)
         }
