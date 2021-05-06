@@ -22,13 +22,13 @@ extension DyStakingLedger {
         }
     }
 
-    func unbounding(inEra activeEra: UInt32) -> BigUInt {
-        unboundings(inEra: activeEra).reduce(BigUInt(0)) { result, item in
+    func unbonding(inEra activeEra: UInt32) -> BigUInt {
+        unbondings(inEra: activeEra).reduce(BigUInt(0)) { result, item in
             result + item.value
         }
     }
 
-    func unboundings(inEra activeEra: UInt32) -> [DyUnlockChunk] {
+    func unbondings(inEra activeEra: UInt32) -> [DyUnlockChunk] {
         unlocking.filter { $0.era > activeEra }
     }
 }
