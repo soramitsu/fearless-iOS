@@ -10,18 +10,22 @@ final class ControllerAccountPresenter {
     weak var view: ControllerAccountViewProtocol?
 
     private var stashItem: StashItem?
+    private var loadingAccounts = false
+    private var selectedAccount: AccountItem
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
         interactor: ControllerAccountInteractorInputProtocol,
         viewModelFactory: ControllerAccountViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
+        selectedAccount: AccountItem,
         chain: Chain
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
+        self.selectedAccount = selectedAccount
         self.chain = chain
     }
 
@@ -36,7 +40,15 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
         interactor.setup()
     }
 
-    func handleControllerAction() {}
+    func handleControllerAction() {
+        guard !loadingAccounts else {
+            return
+        }
+
+        loadingAccounts = true
+
+        interactor.fetchAccounts()
+    }
 
     func handleStashAction() {
         guard
@@ -74,5 +86,41 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         case let .failure(error):
             print(error)
         }
+    }
+
+    func didReceiveAccounts(result: Result<[AccountItem], Error>) {
+        loadingAccounts = false
+
+        switch result {
+        case let .success(accounts):
+            let context = PrimitiveContextWrapper(value: accounts)
+            let title = LocalizableResource<String> { locale in
+                R.string.localizable
+                    .stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
+            }
+            wireframe.presentAccountSelection(
+                accounts,
+                selectedAccountItem: selectedAccount,
+                delegate: self,
+                from: view,
+                context: context
+            )
+        case let .failure(error):
+            print(error)
+        }
+    }
+}
+
+extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let accounts =
+            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+        else {
+            return
+        }
+
+        selectedAccount = accounts[index]
+        // TODO:
     }
 }

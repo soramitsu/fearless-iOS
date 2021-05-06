@@ -18,12 +18,21 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
+    func fetchAccounts()
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceiveAccounts(result: Result<[AccountItem], Error>)
 }
 
 protocol ControllerAccountWireframeProtocol: WebPresentable, AddressOptionsPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
+    func presentAccountSelection(
+        _ accounts: [AccountItem],
+        selectedAccountItem: AccountItem,
+        delegate: ModalPickerViewControllerDelegate,
+        from view: ControllerBackedProtocol?,
+        context: AnyObject?
+    )
 }

@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 import FearlessUtils
+import RobinHood
 
 struct ControllerAccountViewFactory {
     static func createView() -> ControllerAccountViewProtocol? {
@@ -11,17 +12,29 @@ struct ControllerAccountViewFactory {
         )
         let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
+        let networkType = settings.selectedConnection.type
+        let facade = UserDataStorageFacade.shared
+
+        let filter = NSPredicate.filterAccountBy(networkType: networkType)
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            facade.createRepository(
+                filter: filter,
+                sortDescriptors: [.accountsByOrder]
+            )
         let interactor = ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
-            settings: settings
+            settings: settings,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: OperationManagerFacade.sharedManager
         )
         let wireframe = ControllerAccountWireframe()
-        guard let selectedAccountAddress = settings.selectedAccount?.address else {
+
+        guard let selectedAccount = settings.selectedAccount else {
             return nil
         }
         let viewModelFactory = ControllerAccountViewModelFactory(
-            selectedAccountAddress: selectedAccountAddress,
+            selectedAccountAddress: selectedAccount.address,
             iconGenerator: PolkadotIconGenerator()
         )
 
@@ -30,6 +43,7 @@ struct ControllerAccountViewFactory {
             interactor: interactor,
             viewModelFactory: viewModelFactory,
             applicationConfig: ApplicationConfig.shared,
+            selectedAccount: selectedAccount,
             chain: chain
         )
 
