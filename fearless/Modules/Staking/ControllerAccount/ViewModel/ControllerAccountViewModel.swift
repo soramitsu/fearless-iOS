@@ -1,10 +1,13 @@
-enum ControllerAccountActionButtonState {
+import SoraFoundation
+
+enum ControllerAccountActionButtonState: Equatable {
     case hidden
     case enabled(Bool)
 }
 
 struct ControllerAccountViewModel {
-    let stashViewModel: AccountInfoViewModel?
-    let controllerViewModel: AccountInfoViewModel?
+    let stashViewModel: LocalizableResource<AccountInfoViewModel>
+    let controllerViewModel: LocalizableResource<AccountInfoViewModel>
     let actionButtonState: ControllerAccountActionButtonState
+    let canChooseOtherController: Bool
 }

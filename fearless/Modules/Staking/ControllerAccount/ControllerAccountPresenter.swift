@@ -14,6 +14,7 @@ final class ControllerAccountPresenter {
     private let initialSelectedAccount: AccountItem
     private var selectedAccount: AccountItem
     private var accounts: [AccountItem]?
+    private var canChooseOtherController = false
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -42,6 +43,7 @@ final class ControllerAccountPresenter {
             selectedAccountItem: selectedAccount,
             accounts: accounts
         )
+        canChooseOtherController = viewModel.canChooseOtherController
         view?.reload(with: viewModel)
     }
 }
@@ -52,6 +54,11 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleControllerAction() {
+        guard canChooseOtherController else {
+            presentAccountOptions(for: stashItem?.controller)
+            return
+        }
+
         guard let accounts = accounts else { return }
         let context = PrimitiveContextWrapper(value: accounts)
         let title = LocalizableResource<String> { locale in
@@ -69,9 +76,13 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleStashAction() {
+        presentAccountOptions(for: stashItem?.stash)
+    }
+
+    private func presentAccountOptions(for address: AccountAddress?) {
         guard
             let view = view,
-            let address = stashItem?.stash
+            let address = address
         else { return }
         wireframe.presentAccountOptions(
             from: view,

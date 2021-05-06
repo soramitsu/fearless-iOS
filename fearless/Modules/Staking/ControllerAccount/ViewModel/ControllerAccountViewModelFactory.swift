@@ -16,8 +16,8 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         stashItem: StashItem,
         selectedAccountItem: AccountItem,
         accounts: [AccountItem]
-    ) -> LocalizableResource<ControllerAccountViewModel> {
-        LocalizableResource { locale in
+    ) -> ControllerAccountViewModel {
+        let stashViewModel = LocalizableResource<AccountInfoViewModel> { _ in
             let stashAddress = stashItem.stash
             let stashName: String = {
                 if let username = accounts.first(where: { $0.address == stashAddress })?.username {
@@ -32,13 +32,15 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                     size: UIConstants.smallAddressIconSize,
                     contentScale: UIScreen.main.scale
                 )
-            let stashViewModel = AccountInfoViewModel(
+            return AccountInfoViewModel(
                 title: "Stash account",
                 address: stashAddress,
                 name: stashName,
                 icon: stashIcon
             )
+        }
 
+        let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
             let selectedControllerAddress = selectedAccountItem.address
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
@@ -47,28 +49,31 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                     size: UIConstants.smallAddressIconSize,
                     contentScale: UIScreen.main.scale
                 )
-            let controllerViewModel = AccountInfoViewModel(
+            return AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
                 address: selectedControllerAddress,
                 name: selectedAccountItem.username,
                 icon: controllerIcon
             )
-
-            let buttonState: ControllerAccountActionButtonState = {
-                if stashItem.controller == self.selectedAccount.address {
-                    return .hidden
-                }
-                if selectedControllerAddress == self.selectedAccount.address {
-                    return .enabled(false)
-                }
-                return .enabled(true)
-            }()
-
-            return ControllerAccountViewModel(
-                stashViewModel: stashViewModel,
-                controllerViewModel: controllerViewModel,
-                actionButtonState: buttonState
-            )
         }
+
+        let buttonState: ControllerAccountActionButtonState = {
+            if stashItem.controller == self.selectedAccount.address {
+                return .hidden
+            }
+            if selectedAccountItem.address == self.selectedAccount.address {
+                return .enabled(false)
+            }
+            return .enabled(true)
+        }()
+
+        let canChooseOtherController = buttonState == .hidden ? false : true
+
+        return ControllerAccountViewModel(
+            stashViewModel: stashViewModel,
+            controllerViewModel: controllerViewModel,
+            actionButtonState: buttonState,
+            canChooseOtherController: canChooseOtherController
+        )
     }
 }

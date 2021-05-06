@@ -83,22 +83,18 @@ extension ControllerAccountViewController: Localizable {
 }
 
 extension ControllerAccountViewController: ControllerAccountViewProtocol {
-    func reload(with viewModel: LocalizableResource<ControllerAccountViewModel>) {
-        let localizedViewModel = viewModel.value(for: selectedLocale)
+    func reload(with viewModel: ControllerAccountViewModel) {
+        let stashViewModel = viewModel.stashViewModel.value(for: selectedLocale)
+        rootView.stashAccountView.title = stashViewModel.title
+        rootView.stashAccountView.subtitle = stashViewModel.name
+        rootView.stashAccountView.iconImage = stashViewModel.icon
 
-        if let stashViewModel = localizedViewModel.stashViewModel {
-            rootView.stashAccountView.title = stashViewModel.title
-            rootView.stashAccountView.subtitle = stashViewModel.name
-            rootView.stashAccountView.iconImage = stashViewModel.icon
-        }
+        let controllerModel = viewModel.controllerViewModel.value(for: selectedLocale)
+        rootView.controllerAccountView.title = controllerModel.title
+        rootView.controllerAccountView.subtitle = controllerModel.name
+        rootView.controllerAccountView.iconImage = controllerModel.icon
 
-        if let controllerModel = localizedViewModel.controllerViewModel {
-            rootView.controllerAccountView.title = controllerModel.title
-            rootView.controllerAccountView.subtitle = controllerModel.name
-            rootView.controllerAccountView.iconImage = controllerModel.icon
-        }
-
-        switch localizedViewModel.actionButtonState {
+        switch viewModel.actionButtonState {
         case let .enabled(isEnabled):
             rootView.actionButton.isEnabled = isEnabled
             rootView.actionButton.isHidden = false
@@ -107,5 +103,8 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
             rootView.actionButton.isHidden = true
             rootView.hintView.isHidden = false
         }
+
+        let actionImage = viewModel.canChooseOtherController ? R.image.iconSmallArrowDown() : R.image.iconMore()
+        rootView.controllerAccountView.actionImage = actionImage
     }
 }

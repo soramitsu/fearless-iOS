@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(with viewModel: LocalizableResource<ControllerAccountViewModel>)
+    func reload(with viewModel: ControllerAccountViewModel)
 }
 
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
@@ -9,7 +9,7 @@ protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
         stashItem: StashItem,
         selectedAccountItem: AccountItem,
         accounts: [AccountItem]
-    ) -> LocalizableResource<ControllerAccountViewModel>
+    ) -> ControllerAccountViewModel
 }
 
 protocol ControllerAccountPresenterProtocol: AnyObject {
