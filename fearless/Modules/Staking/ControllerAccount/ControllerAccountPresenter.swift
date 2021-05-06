@@ -11,6 +11,7 @@ final class ControllerAccountPresenter {
 
     private var stashItem: StashItem?
     private var loadingAccounts = false
+    private let initialSelectedAccount: AccountItem
     private var selectedAccount: AccountItem
 
     init(
@@ -25,12 +26,17 @@ final class ControllerAccountPresenter {
         self.interactor = interactor
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
+        initialSelectedAccount = selectedAccount
         self.selectedAccount = selectedAccount
         self.chain = chain
     }
 
     private func updateView() {
-        let viewModel = viewModelFactory.createViewModel(stashItem: stashItem)
+        guard let stashItem = stashItem else { return }
+        let viewModel = viewModelFactory.createViewModel(
+            stashAddress: stashItem.stash,
+            controllerAddress: stashItem.controller
+        )
         view?.reload(with: viewModel)
     }
 }
@@ -122,6 +128,6 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
         }
 
         selectedAccount = accounts[index]
-        // TODO:
+        updateView()
     }
 }

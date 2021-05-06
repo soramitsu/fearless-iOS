@@ -34,7 +34,7 @@ struct ControllerAccountViewFactory {
             return nil
         }
         let viewModelFactory = ControllerAccountViewModelFactory(
-            selectedAccountAddress: selectedAccount.address,
+            selectedAccount: selectedAccount,
             iconGenerator: PolkadotIconGenerator()
         )
 

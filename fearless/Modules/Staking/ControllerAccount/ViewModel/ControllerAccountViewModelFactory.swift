@@ -4,24 +4,18 @@ import FearlessUtils
 
 final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactoryProtocol {
     let iconGenerator: IconGenerating
-    let selectedAccountAddress: AccountAddress
+    let selectedAccount: AccountItem
 
-    init(selectedAccountAddress: AccountAddress, iconGenerator: IconGenerating) {
-        self.selectedAccountAddress = selectedAccountAddress
+    init(selectedAccount: AccountItem, iconGenerator: IconGenerating) {
+        self.selectedAccount = selectedAccount
         self.iconGenerator = iconGenerator
     }
 
-    func createViewModel(stashItem: StashItem?) -> LocalizableResource<ControllerAccountViewModel> {
+    func createViewModel(
+        stashAddress: AccountAddress,
+        controllerAddress: AccountAddress
+    ) -> LocalizableResource<ControllerAccountViewModel> {
         LocalizableResource { locale in
-            guard let stashItem = stashItem else {
-                return ControllerAccountViewModel(
-                    stashViewModel: nil,
-                    controllerViewModel: nil,
-                    actionButtonState: .hidden
-                )
-            }
-
-            let stashAddress = stashItem.stash
             let stashIcon = try? self.iconGenerator
                 .generateFromAddress(stashAddress)
                 .imageWithFillColor(
@@ -36,9 +30,8 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                 icon: stashIcon
             )
 
-            let contollerAddress = stashItem.controller
             let controllerIcon = try? self.iconGenerator
-                .generateFromAddress(contollerAddress)
+                .generateFromAddress(controllerAddress)
                 .imageWithFillColor(
                     R.color.colorWhite()!,
                     size: UIConstants.smallAddressIconSize,
@@ -46,13 +39,13 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
                 )
             let controllerViewModel = AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
-                address: contollerAddress,
-                name: contollerAddress,
+                address: controllerAddress,
+                name: controllerAddress,
                 icon: controllerIcon
             )
 
             let buttonState: ControllerAccountActionButtonState = {
-                if contollerAddress == self.selectedAccountAddress {
+                if controllerAddress == self.selectedAccount.address {
                     return .hidden
                 }
                 return .enabled(true)
