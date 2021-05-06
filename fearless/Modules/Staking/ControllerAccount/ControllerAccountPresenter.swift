@@ -13,6 +13,7 @@ final class ControllerAccountPresenter {
     private var loadingAccounts = false
     private let initialSelectedAccount: AccountItem
     private var selectedAccount: AccountItem
+    private var accounts: [AccountItem]?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -34,8 +35,9 @@ final class ControllerAccountPresenter {
     private func updateView() {
         guard let stashItem = stashItem else { return }
         let viewModel = viewModelFactory.createViewModel(
-            stashAddress: stashItem.stash,
-            controllerAddress: stashItem.controller
+            stashItem: stashItem,
+            selectedAccountItem: selectedAccount,
+            accounts: accounts
         )
         view?.reload(with: viewModel)
     }
@@ -99,6 +101,8 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
 
         switch result {
         case let .success(accounts):
+            self.accounts = accounts
+
             let context = PrimitiveContextWrapper(value: accounts)
             let title = LocalizableResource<String> { locale in
                 R.string.localizable

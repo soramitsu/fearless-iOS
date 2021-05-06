@@ -6,8 +6,9 @@ protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        stashAddress: AccountAddress,
-        controllerAddress: AccountAddress
+        stashItem: StashItem,
+        selectedAccountItem: AccountItem,
+        accounts: [AccountItem]?
     ) -> LocalizableResource<ControllerAccountViewModel>
 }
 
