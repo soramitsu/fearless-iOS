@@ -12,11 +12,23 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: settings.selectedConnection.type,
+            limit: StakingConstants.maxAmount
+        )
+
         let validatorInfoViewModelFactory = ValidatorInfoViewModelFactory(
             iconGenerator: PolkadotIconGenerator(),
             asset: asset,
-            amountFormatterFactory: AmountFormatterFactory()
+            amountFormatterFactory: AmountFormatterFactory(),
+            balanceViewModelFactory: balanceViewModelFactory
         )
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else { return nil }
+
+        let providerFactory = SingleValueProviderFactory.shared
+        let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
         let view = ValidatorInfoViewController(nib: R.nib.validatorInfoViewController)
         view.locale = localizationManager.selectedLocale
@@ -27,7 +39,10 @@ final class ValidatorInfoViewFactory: ValidatorInfoViewFactoryProtocol {
             locale: localizationManager.selectedLocale
         )
 
-        let interactor = ValidatorInfoInteractor(validatorInfo: validatorInfo)
+        let interactor = ValidatorInfoInteractor(
+            validatorInfo: validatorInfo,
+            priceProvider: priceProvider
+        )
         let wireframe = ValidatorInfoWireframe()
 
         view.presenter = presenter

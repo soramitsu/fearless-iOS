@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+    <device id="retina6_1" orientation="portrait" appearance="light"/>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <capability name="Named colors" minToolsVersion="9.0"/>
+        <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="System colors in document resources" minToolsVersion="11.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <customFonts key="customFonts">
+        <array key="sora-Regular.otf">
+            <string>sora-rc004-0417-Regular</string>
+        </array>
+    </customFonts>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" preservesSuperviewLayoutMargins="YES" selectionStyle="default" indentationWidth="10" reuseIdentifier="validatorInfoCellId" rowHeight="59" id="wPJ-gI-lpj" customClass="ValidatorInfoCell" customModule="fearless" customModuleProvider="target">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" preservesSuperviewLayoutMargins="YES" insetsLayoutMarginsFromSafeArea="NO" tableViewCell="wPJ-gI-lpj" id="olH-HQ-OaP">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="59"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="E6w-rP-rSh" customClass="BorderedContainerView" customModule="SoraUI">
+                        <rect key="frame" x="16" y="0.0" width="343" height="59"/>
+                        <color key="backgroundColor" systemColor="systemBackgroundColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_topBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_leftBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_bottomBorder" value="YES"/>
+                            <userDefinedRuntimeAttribute type="boolean" keyPath="_rightBorder" value="NO"/>
+                            <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
+                                <real key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="strokeColor">
+                                <color key="value" name="colorDarkGray"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
+                    </view>
+                    <stackView opaque="NO" contentMode="scaleToFill" distribution="equalSpacing" spacing="6" translatesAutoresizingMaskIntoConstraints="NO" id="adp-ym-PdF">
+                        <rect key="frame" x="245" y="8" width="114" height="43"/>
+                        <subviews>
+                            <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconWarning" translatesAutoresizingMaskIntoConstraints="NO" id="SGh-UH-f7l">
+                                <rect key="frame" x="0.0" y="0.0" width="16" height="43"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </imageView>
+                            <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" distribution="fillProportionally" alignment="bottom" translatesAutoresizingMaskIntoConstraints="NO" id="3vx-v7-zzg">
+                                <rect key="frame" x="22" y="0.0" width="70" height="43"/>
+                                <subviews>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0,265 KSM" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Edb-2U-aVR">
+                                        <rect key="frame" x="0.0" y="0.0" width="70" height="23.5"/>
+                                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                                        <color key="textColor" name="colorWhite"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="252" text="$500,45" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hSf-Hs-KfO">
+                                        <rect key="frame" x="26.5" y="23.5" width="43.5" height="19.5"/>
+                                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
+                                        <color key="textColor" name="colorGray"/>
+                                        <nil key="highlightedColor"/>
+                                    </label>
+                                </subviews>
+                                <viewLayoutGuide key="safeArea" id="QZX-Fd-eEK"/>
+                            </stackView>
+                            <imageView userInteractionEnabled="NO" contentMode="center" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAboutArrow" translatesAutoresizingMaskIntoConstraints="NO" id="klr-CY-tYa">
+                                <rect key="frame" x="98" y="0.0" width="16" height="43"/>
+                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            </imageView>
+                        </subviews>
+                    </stackView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="249" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="Total Stake" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" minimumScaleFactor="0.80000001192092896" translatesAutoresizingMaskIntoConstraints="NO" id="SnR-p7-Q7z">
+                        <rect key="frame" x="16" y="21.5" width="69.5" height="16.5"/>
+                        <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
+                        <color key="textColor" red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconInfoFilled" translatesAutoresizingMaskIntoConstraints="NO" id="rbo-ux-ktc">
+                        <rect key="frame" x="91.5" y="21.5" width="16" height="16"/>
+                        <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <color key="tintColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                    </imageView>
+                </subviews>
+                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                <constraints>
+                    <constraint firstItem="E6w-rP-rSh" firstAttribute="leading" secondItem="olH-HQ-OaP" secondAttribute="leading" constant="16" id="2Mt-WW-Ryb"/>
+                    <constraint firstAttribute="trailing" secondItem="E6w-rP-rSh" secondAttribute="trailing" constant="16" id="7i8-Pb-fAD"/>
+                    <constraint firstItem="SnR-p7-Q7z" firstAttribute="centerY" secondItem="olH-HQ-OaP" secondAttribute="centerY" id="AFt-gZ-YUX"/>
+                    <constraint firstItem="E6w-rP-rSh" firstAttribute="top" secondItem="olH-HQ-OaP" secondAttribute="top" id="BT8-jK-9wY"/>
+                    <constraint firstAttribute="bottom" secondItem="E6w-rP-rSh" secondAttribute="bottom" id="HvV-Kv-WJb"/>
+                    <constraint firstItem="SnR-p7-Q7z" firstAttribute="leading" secondItem="olH-HQ-OaP" secondAttribute="leading" constant="16" id="aJz-6e-ybM"/>
+                    <constraint firstAttribute="trailing" secondItem="adp-ym-PdF" secondAttribute="trailing" constant="16" id="aZ9-hU-5Yq"/>
+                    <constraint firstAttribute="bottom" secondItem="adp-ym-PdF" secondAttribute="bottom" constant="8" id="cPG-mm-Cg5"/>
+                    <constraint firstItem="adp-ym-PdF" firstAttribute="top" secondItem="olH-HQ-OaP" secondAttribute="top" constant="8" id="irz-qg-sBC"/>
+                    <constraint firstItem="rbo-ux-ktc" firstAttribute="leading" secondItem="SnR-p7-Q7z" secondAttribute="trailing" constant="6" id="kr1-Wh-okD"/>
+                    <constraint firstItem="rbo-ux-ktc" firstAttribute="centerY" secondItem="olH-HQ-OaP" secondAttribute="centerY" id="tmm-mx-pe3"/>
+                </constraints>
+            </tableViewCellContentView>
+            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+            <inset key="separatorInset" minX="20" minY="0.0" maxX="20" maxY="0.0"/>
+            <connections>
+                <outlet property="arrowIcon" destination="klr-CY-tYa" id="E0l-Ee-uGl"/>
+                <outlet property="auxSubtitleLabel" destination="hSf-Hs-KfO" id="B5u-R8-Pkc"/>
+                <outlet property="infoIcon" destination="rbo-ux-ktc" id="yuG-qc-Wjf"/>
+                <outlet property="subtitleLabel" destination="Edb-2U-aVR" id="nZZ-wC-fAv"/>
+                <outlet property="titleLabel" destination="SnR-p7-Q7z" id="lha-Qg-oNK"/>
+                <outlet property="warningIcon" destination="SGh-UH-f7l" id="8I7-e3-jNe"/>
+            </connections>
+            <point key="canvasLocation" x="1" y="-22"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="iconAboutArrow" width="16" height="16"/>
+        <image name="iconInfoFilled" width="16" height="16"/>
+        <image name="iconWarning" width="16" height="16"/>
+        <namedColor name="colorDarkGray">
+            <color red="0.26666666666666666" green="0.26666666666666666" blue="0.26666666666666666" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorGray">
+            <color red="0.52941176470588236" green="0.52941176470588236" blue="0.52941176470588236" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <namedColor name="colorWhite">
+            <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+        </namedColor>
+        <systemColor name="systemBackgroundColor">
+            <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+        </systemColor>
+    </resources>
+</document>

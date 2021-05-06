@@ -18,8 +18,13 @@ final class ValidatorInfoAccountCell: UITableViewCell {
     }
 
     func bind(model: ValidatorInfoAccountViewModelProtocol) {
-        detailsView.title = model.name
-        detailsView.subtitle = model.address
+        if let name = model.name {
+            detailsView.title = name
+            detailsView.subtitle = model.address
+        } else {
+            detailsView.layout = .singleTitle
+            detailsView.title = model.address
+        }
 
         detailsView.iconImage = model.icon
 
