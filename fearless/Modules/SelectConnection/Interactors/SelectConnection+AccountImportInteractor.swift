@@ -43,8 +43,7 @@ extension SelectConnection {
 
             let persistentOperation = accountRepository.saveOperation({
                 if try checkOperation
-                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil
-                {
+                    .extractResultData(throwing: BaseOperationError.parentOperationCancelled) != nil {
                     throw AccountCreateError.duplicated
                 }
 

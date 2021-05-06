@@ -2,15 +2,15 @@ import Foundation
 import CommonWallet
 
 final class WalletBuyCommand: WalletCommandProtocol {
-    let actions: [PurchaseAction]
+    let action: PurchaseAction
     weak var commandFactory: WalletCommandFactoryProtocol?
 
-    init(actions: [PurchaseAction], commandFactory: WalletCommandFactoryProtocol) {
-        self.actions = actions
+    init(action: PurchaseAction, commandFactory: WalletCommandFactoryProtocol) {
+        self.action = action
         self.commandFactory = commandFactory
     }
 
-    private func handle(action: PurchaseAction) throws {
+    func execute() throws {
         guard
             let commandFactory = commandFactory,
             let webView = PurchaseViewFactory.createView(
@@ -24,11 +24,5 @@ final class WalletBuyCommand: WalletCommandProtocol {
         let command = commandFactory.preparePresentationCommand(for: webView.controller)
         command.presentationStyle = .modal(inNavigation: false)
         try command.execute()
-    }
-
-    func execute() throws {
-        if let action = actions.first {
-            try handle(action: action)
-        }
     }
 }

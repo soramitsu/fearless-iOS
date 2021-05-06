@@ -51,7 +51,7 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
             walletAssetId = nil
         }
 
-        let actions = purchaseProvider.buildPurchaseAction(
+        let actions = purchaseProvider.buildPurchaseActions(
             for: chain,
             assetId: walletAssetId,
             address: address
@@ -59,7 +59,7 @@ class BaseAssetViewModelFactory: AccountListViewModelFactoryProtocol {
 
         let buyCommand: WalletCommandProtocol?
         if !actions.isEmpty {
-            buyCommand = WalletBuyCommand(actions: actions, commandFactory: commandFactory)
+            buyCommand = WalletSelectPurchaseProviderCommand(actions: actions, commandFactory: commandFactory)
         } else {
             buyCommand = nil
         }

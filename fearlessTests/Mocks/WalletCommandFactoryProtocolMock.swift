@@ -8,6 +8,7 @@ class WalletCommandProtocolMock: WalletCommandProtocol {
 class WalletPresentationCommandProtocolMock: WalletCommandProtocolMock, WalletPresentationCommandProtocol {
     var presentationStyle: WalletPresentationStyle = .push(hidesBottomBar: true)
     var animated: Bool = false
+    var completionBlock: (() -> Void)?
 }
 
 class AssetDetailsCommandProtocolMock: WalletPresentationCommandProtocolMock, AssetDetailsCommadProtocol {
@@ -15,10 +16,9 @@ class AssetDetailsCommandProtocolMock: WalletPresentationCommandProtocolMock, As
 }
 
 class WalletHideCommandProtocolMock: WalletCommandProtocolMock, WalletHideCommandProtocol {
-    var completionBlock: (() -> Void)?
-
     var actionType: WalletHideActionType = .dismiss
     var animated: Bool = false
+    var completionBlock: (() -> Void)?
 }
 
 final class WalletCommandFactoryProtocolMock: WalletCommandFactoryProtocol {
