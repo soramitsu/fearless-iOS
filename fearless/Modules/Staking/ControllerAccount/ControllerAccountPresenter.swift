@@ -137,11 +137,13 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
                 balance: balance,
                 fee: fee,
                 locale: locale
+            ),
+            dataValidatingFactory.ledgerNotExist(
+                stakingLedger: stakingLedger,
+                for: chosenAccountItem?.address,
+                addressType: chain.addressType,
+                locale: locale
             )
-            // dataValidatingFactory.ledgerNotExist(ledger)
-            /// выдаем ошибку, если ledger != nil
-            // или notReceived
-            // LoadingValueState
         ]).runValidation { [weak self] in
             self?.wireframe.showConfirmation(from: self?.view)
         }
