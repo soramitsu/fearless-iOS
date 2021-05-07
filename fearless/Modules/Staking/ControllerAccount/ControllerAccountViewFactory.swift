@@ -6,48 +6,17 @@ import RobinHood
 
 struct ControllerAccountViewFactory {
     static func createView() -> ControllerAccountViewProtocol? {
-        let substrateProviderFactory = SubstrateDataProviderFactory(
-            facade: SubstrateDataStorageFacade.shared,
-            operationManager: OperationManagerFacade.sharedManager
-        )
         let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
-        let networkType = settings.selectedConnection.type
-        let facade = UserDataStorageFacade.shared
 
-        let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
-            facade.createRepository(
-                filter: filter,
-                sortDescriptors: [.accountsByOrder]
-            )
         guard
             let selectedAccount = settings.selectedAccount,
-            let connection = WebSocketService.shared.connection
+            let connection = WebSocketService.shared.connection,
+            let interactor = createInteractor(connection: connection, settings: settings)
         else {
             return nil
         }
 
-        let operationManager = OperationManagerFacade.sharedManager
-        let runtimeService = RuntimeRegistryFacade.sharedService
-
-        let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: runtimeService,
-            engine: connection,
-            operationManager: operationManager
-        )
-
-        let interactor = ControllerAccountInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            substrateProviderFactory: substrateProviderFactory,
-            selectedAccountAddress: selectedAccount.address,
-            accountRepository: AnyDataProviderRepository(accountRepository),
-            operationManager: operationManager,
-            feeProxy: ExtrinsicFeeProxy(),
-            extrinsicService: extrinsicService
-        )
         let wireframe = ControllerAccountWireframe()
 
         let viewModelFactory = ControllerAccountViewModelFactory(
@@ -76,5 +45,46 @@ struct ControllerAccountViewFactory {
         interactor.presenter = presenter
 
         return view
+    }
+
+    private static func createInteractor(
+        connection: JSONRPCEngine,
+        settings: SettingsManagerProtocol
+    ) -> ControllerAccountInteractor? {
+        let operationManager = OperationManagerFacade.sharedManager
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
+        let networkType = settings.selectedConnection.type
+        let facade = UserDataStorageFacade.shared
+
+        let filter = NSPredicate.filterAccountBy(networkType: networkType)
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            facade.createRepository(
+                filter: filter,
+                sortDescriptors: [.accountsByOrder]
+            )
+
+        guard let selectedAccount = settings.selectedAccount else { return nil }
+        let extrinsicService = ExtrinsicService(
+            address: selectedAccount.address,
+            cryptoType: selectedAccount.cryptoType,
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
+        return ControllerAccountInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
+            selectedAccountAddress: selectedAccount.address,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: operationManager,
+            feeProxy: ExtrinsicFeeProxy(),
+            extrinsicService: extrinsicService
+        )
     }
 }
