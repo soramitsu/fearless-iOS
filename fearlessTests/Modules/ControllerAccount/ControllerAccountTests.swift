@@ -20,7 +20,6 @@ class ControllerAccountTests: XCTestCase {
             interactor: interactor,
             viewModelFactory: viewModelFactory,
             applicationConfig: ApplicationConfig.shared,
-            selectedAccount: .init(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data()),
             chain: .westend,
             dataValidatingFactory: dataValidatingFactory
         )
