@@ -170,6 +170,22 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
             logger?.error("Did receive fee error: \(error)")
         }
     }
+
+    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let accountInfo = accountInfo {
+                balance = Decimal.fromSubstrateAmount(
+                    accountInfo.data.available,
+                    precision: chain.addressType.precision
+                )
+            } else {
+                balance = nil
+            }
+        case let .failure(error):
+            logger?.error("Account Info subscription error: \(error)")
+        }
+    }
 }
 
 extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {

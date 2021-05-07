@@ -5,8 +5,9 @@ import RobinHood
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
-    private let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
     private let selectedAccountAddress: AccountAddress
     private let accountRepository: AnyDataProviderRepository<AccountItem>
     private let operationManager: OperationManagerProtocol
@@ -15,10 +16,12 @@ final class ControllerAccountInteractor {
     private lazy var callFactory = SubstrateCallFactory()
 
     private var stashItemProvider: StreamableProvider<StashItem>?
+    private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
 
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         selectedAccountAddress: AccountAddress,
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
@@ -27,6 +30,7 @@ final class ControllerAccountInteractor {
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
+        self.runtimeService = runtimeService
         self.selectedAccountAddress = selectedAccountAddress
         self.accountRepository = accountRepository
         self.operationManager = operationManager
@@ -72,9 +76,31 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 }
 
-extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
+extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
+    SingleValueProviderSubscriber, SingleValueSubscriptionHandler, AnyProviderAutoCleaning {
     func handleStashItem(result: Result<StashItem?, Error>) {
-        presenter.didReceiveStashItem(result: result)
+        do {
+            let maybeStashItem = try result.get()
+
+            clear(dataProvider: &accountInfoProvider)
+            presenter.didReceiveStashItem(result: result)
+
+            if let stashItem = maybeStashItem {
+                accountInfoProvider = subscribeToAccountInfoProvider(
+                    for: stashItem.controller,
+                    runtimeService: runtimeService
+                )
+            } else {
+                presenter.didReceiveAccountInfo(result: .success(nil))
+            }
+        } catch {
+            presenter.didReceiveStashItem(result: .failure(error))
+            presenter.didReceiveAccountInfo(result: .failure(error))
+        }
+    }
+
+    func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result)
     }
 }
 

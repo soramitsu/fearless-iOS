@@ -80,6 +80,7 @@ struct ControllerAccountViewFactory {
         return ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
+            runtimeService: runtimeService,
             selectedAccountAddress: selectedAccount.address,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
