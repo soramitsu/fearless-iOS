@@ -54,6 +54,7 @@ protocol UIFactoryProtocol {
     func createTitleValueView() -> TitleValueView
 
     func createHintView() -> HintView
+    func createLearnMoreView() -> LearnMoreView
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -368,5 +369,9 @@ final class UIFactory: UIFactoryProtocol {
 
     func createHintView() -> HintView {
         HintView()
+    }
+
+    func createLearnMoreView() -> LearnMoreView {
+        LearnMoreView()
     }
 }

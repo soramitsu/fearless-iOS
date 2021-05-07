@@ -14,7 +14,7 @@ final class ControllerAccountViewLayout: UIView {
 
     let hintView = UIFactory.default.createHintView()
 
-    let learnMoreView = LearnMoreView()
+    let learnMoreView = UIFactory.default.createLearnMoreView()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
