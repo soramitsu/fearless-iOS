@@ -35,7 +35,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let amount = formatter
-            .string(from: fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""
+            .stringFromDecimal(fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""
 
         return FeeViewModel(
             title: title,
@@ -72,7 +72,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         let balanceContext = BalanceContext(context: inputState.balance?.context ?? [:])
-        let amount = formatter.string(from: balanceContext.available) ?? ""
+        let amount = formatter.stringFromDecimal(balanceContext.available) ?? ""
 
         let subtitle = R.string.localizable
             .walletSendAvailableBalance(preferredLanguages: locale.rLanguages)

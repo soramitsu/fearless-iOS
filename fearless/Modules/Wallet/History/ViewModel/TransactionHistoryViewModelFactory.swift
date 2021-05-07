@@ -40,7 +40,7 @@ final class TransactionHistoryViewModelFactory {
 
         let amount = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
-            .string(from: data.amount.decimalValue)
+            .stringFromDecimal(data.amount.decimalValue)
             ?? ""
 
         let time = dateFormatter.value(for: locale)
@@ -94,7 +94,7 @@ final class TransactionHistoryViewModelFactory {
 
         let amount = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
-            .string(from: data.amount.decimalValue)
+            .stringFromDecimal(data.amount.decimalValue)
             ?? ""
 
         let time = dateFormatter.value(for: locale)
@@ -140,7 +140,7 @@ final class TransactionHistoryViewModelFactory {
 
         let amount = amountFormatterFactory.createTokenFormatter(for: asset)
             .value(for: locale)
-            .string(from: data.amount.decimalValue)
+            .stringFromDecimal(data.amount.decimalValue)
             ?? ""
 
         let time = dateFormatter.value(for: locale)

@@ -25,50 +25,102 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         return formatter.localizableResource()
     }
 
-    func createDisplayFormatter(for asset: WalletAsset?) -> LocalizableResource<NumberFormatter> {
-        if asset?.identifier == WalletAssetId.usd.rawValue {
-            return createUsdNumberFormatter(for: usdPrecision).localizableResource()
-        } else {
-            return createTokenNumberFormatter(for: assetPrecision).localizableResource()
+    func createDisplayFormatter(for asset: WalletAsset?) -> LocalizableResource<LocalizableDecimalFormatting> {
+        let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
+        let formatter = createCompoundFormatter(for: precision)
+        return LocalizableResource { locale in
+            formatter.locale = locale
+            return formatter
         }
     }
 
-    func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenAmountFormatter> {
+    func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenFormatter> {
+        let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
+        let formatter = createCompoundFormatter(for: precision)
+
         if asset?.identifier == WalletAssetId.usd.rawValue {
-            let numberFormatter = createUsdNumberFormatter(for: usdPrecision)
-            return TokenAmountFormatter(
-                numberFormatter: numberFormatter,
+            let tokenFormatter = TokenFormatter(
+                decimalFormatter: formatter,
                 tokenSymbol: asset?.symbol ?? "",
                 separator: "",
                 position: .prefix
-            ).localizableResource()
+            )
+
+            return LocalizableResource { locale in
+                tokenFormatter.locale = locale
+                return tokenFormatter
+            }
         } else {
-            let numberFormatter = createTokenNumberFormatter(for: assetPrecision)
-            return TokenAmountFormatter(
-                numberFormatter: numberFormatter,
+            let tokenFormatter = TokenFormatter(
+                decimalFormatter: formatter,
                 tokenSymbol: asset?.symbol ?? "",
                 separator: " ",
                 position: .suffix
-            ).localizableResource()
+            )
+
+            return LocalizableResource { locale in
+                tokenFormatter.locale = locale
+                return tokenFormatter
+            }
         }
     }
 
-    private func createUsdNumberFormatter(for precision: Int) -> NumberFormatter {
-        let formatter = NumberFormatter.amount
-        formatter.roundingMode = .floor
+    private func createCompoundFormatter(for preferredPrecision: Int) -> LocalizableDecimalFormatting {
+        let abbreviations: [BigNumberAbbreviation] = [
+            BigNumberAbbreviation(
+                threshold: 0,
+                divisor: 1.0,
+                suffix: "",
+                formatter: DynamicPrecisionFormatter(
+                    preferredPrecision: UInt8(preferredPrecision),
+                    roundingMode: .down
+                )
+            ),
+            BigNumberAbbreviation(
+                threshold: 1,
+                divisor: 1.0,
+                suffix: "",
+                formatter: NumberFormatter.decimalFormatter(
+                    precision: preferredPrecision,
+                    rounding: .down,
+                    usesIntGrouping: true
+                )
+            ),
+            BigNumberAbbreviation(
+                threshold: 1000,
+                divisor: 1.0,
+                suffix: "",
+                formatter: NumberFormatter.decimalFormatter(
+                    precision: preferredPrecision,
+                    rounding: .down,
+                    usesIntGrouping: true
+                )
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000,
+                divisor: 1_000_000.0,
+                suffix: "M",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000_000,
+                divisor: 1_000_000_000.0,
+                suffix: "B",
+                formatter: nil
+            ),
+            BigNumberAbbreviation(
+                threshold: 1_000_000_000_000,
+                divisor: 1_000_000_000_000.0,
+                suffix: "T",
+                formatter: nil
+            )
+        ]
 
-        formatter.maximumFractionDigits = precision
-
-        return formatter
-    }
-
-    private func createTokenNumberFormatter(for precision: Int) -> NumberFormatter {
-        let formatter = NumberFormatter.amount
-        formatter.roundingMode = .floor
-
-        formatter.minimumFractionDigits = 1
-        formatter.maximumFractionDigits = precision
-
-        return formatter
+        return BigNumberFormatter(
+            abbreviations: abbreviations,
+            precision: 2,
+            rounding: .down,
+            usesIntGrouping: true
+        )
     }
 }

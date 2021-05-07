@@ -6,11 +6,11 @@ final class WalletAccountInfoCommand: WalletCommandProtocol {
     weak var commandFactory: WalletCommandFactoryProtocol?
 
     let balanceContext: BalanceContext
-    let amountFormatter: LocalizableResource<NumberFormatter>
+    let amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
 
     init(
         balanceContext: BalanceContext,
-        amountFormatter: LocalizableResource<NumberFormatter>,
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
         commandFactory: WalletCommandFactoryProtocol
     ) {
         self.balanceContext = balanceContext

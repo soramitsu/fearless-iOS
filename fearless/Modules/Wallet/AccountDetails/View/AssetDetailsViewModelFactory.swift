@@ -33,7 +33,7 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
         let decimalBalance = balance.balance.decimalValue
         let amount: String
 
-        if let balanceString = amountFormatter.string(from: decimalBalance) {
+        if let balanceString = amountFormatter.stringFromDecimal(decimalBalance) {
             amount = balanceString
         } else {
             amount = balance.balance.stringValue
@@ -41,10 +41,10 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let balanceContext = BalanceContext(context: balance.context ?? [:])
 
-        let priceString = priceFormater.string(from: balanceContext.price) ?? ""
+        let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
 
         let totalPrice = balanceContext.price * balance.balance.decimalValue
-        let totalPriceString = priceFormater.string(from: totalPrice) ?? ""
+        let totalPriceString = priceFormater.stringFromDecimal(totalPrice) ?? ""
 
         let priceChangeString = NumberFormatter.percent
             .localizableResource()
@@ -67,11 +67,11 @@ final class AssetDetailsViewModelFactory: BaseAssetViewModelFactory {
 
         let leftDetails = numberFormatter
             .value(for: locale)
-            .string(from: context.available as NSNumber) ?? ""
+            .stringFromDecimal(context.available) ?? ""
 
         let rightDetails = numberFormatter
             .value(for: locale)
-            .string(from: context.frozen as NSNumber) ?? ""
+            .stringFromDecimal(context.frozen) ?? ""
 
         let imageViewModel: WalletImageViewModelProtocol?
 
