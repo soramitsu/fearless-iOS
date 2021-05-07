@@ -190,10 +190,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
 
 extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
     func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
-        guard
-            let accounts =
-            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
-        else {
+        guard let accounts = (context as? PrimitiveContextWrapper<[AccountItem]>)?.value else {
             return
         }
 
