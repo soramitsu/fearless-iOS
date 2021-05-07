@@ -39,13 +39,15 @@ struct ControllerAccountViewFactory {
             iconGenerator: PolkadotIconGenerator()
         )
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = ControllerAccountPresenter(
             wireframe: wireframe,
             interactor: interactor,
             viewModelFactory: viewModelFactory,
             applicationConfig: ApplicationConfig.shared,
             selectedAccount: selectedAccount,
-            chain: chain
+            chain: chain,
+            dataValidatingFactory: dataValidatingFactory
         )
 
         let view = ControllerAccountViewController(
@@ -53,6 +55,7 @@ struct ControllerAccountViewFactory {
             localizationManager: LocalizationManager.shared
         )
         presenter.view = view
+        dataValidatingFactory.view = view
         interactor.presenter = presenter
 
         return view

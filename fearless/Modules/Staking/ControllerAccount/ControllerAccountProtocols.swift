@@ -31,7 +31,10 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
 
 protocol ControllerAccountWireframeProtocol: WebPresentable,
     AddressOptionsPresentable,
-    AccountSelectionPresentable {
+    AccountSelectionPresentable,
+    StakingErrorPresentable,
+    AlertPresentable,
+    ErrorPresentable {
     func showConfirmation(from view: ControllerBackedProtocol?)
     func close(view: ControllerBackedProtocol?)
 }

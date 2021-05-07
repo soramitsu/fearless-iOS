@@ -7,6 +7,7 @@ final class ControllerAccountPresenter {
     let viewModelFactory: ControllerAccountViewModelFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
     let chain: Chain
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     weak var view: ControllerAccountViewProtocol?
 
     private var stashItem: StashItem?
@@ -15,6 +16,8 @@ final class ControllerAccountPresenter {
     private var selectedAccount: AccountItem
     private var accounts: [AccountItem]?
     private var canChooseOtherController = false
+    private var fee: Decimal?
+    private var balance: Decimal?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -22,7 +25,8 @@ final class ControllerAccountPresenter {
         viewModelFactory: ControllerAccountViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
         selectedAccount: AccountItem,
-        chain: Chain
+        chain: Chain,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
@@ -31,6 +35,7 @@ final class ControllerAccountPresenter {
         initialSelectedAccount = selectedAccount
         self.selectedAccount = selectedAccount
         self.chain = chain
+        self.dataValidatingFactory = dataValidatingFactory
     }
 
     private func updateView() {
@@ -102,7 +107,20 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func proceed() {
-        wireframe.showConfirmation(from: view)
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                // TODO: self?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.canPayFee(
+                balance: balance,
+                fee: fee,
+                locale: locale
+            )
+        ]).runValidation { [weak self] in
+            self?.wireframe.showConfirmation(from: self?.view)
+        }
     }
 }
 
