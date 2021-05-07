@@ -54,11 +54,13 @@ final class ControllerAccountPresenter {
     }
 
     func refreshFeeIfNeeded() {
-        guard fee == nil, let controller = stashItem?.controller else {
-            return
-        }
+        guard fee == nil else { return }
 
-        interactor.estimateFee(for: controller)
+        if let stashAccount = stashAccount {
+            interactor.estimateFee(for: stashAccount)
+        } else if let chosenAccountItem = chosenAccountItem {
+            interactor.estimateFee(for: chosenAccountItem)
+        }
     }
 
     func refreshLedgerIfNeeded() {
@@ -79,7 +81,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
 
     func handleControllerAction() {
         guard canChooseOtherController else {
-            presentAccountOptions(for: stashAccount?.address)
+            presentAccountOptions(for: stashItem?.controller)
             return
         }
 

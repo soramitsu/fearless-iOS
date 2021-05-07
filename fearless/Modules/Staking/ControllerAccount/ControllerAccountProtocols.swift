@@ -21,7 +21,7 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for controllerAddress: AccountAddress)
+    func estimateFee(for account: AccountItem)
     func fetchLedger(controllerAddress: AccountAddress)
 }
 

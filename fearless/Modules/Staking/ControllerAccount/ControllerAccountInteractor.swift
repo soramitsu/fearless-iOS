@@ -39,20 +39,6 @@ final class ControllerAccountInteractor {
         self.feeProxy = feeProxy
         self.extrinsicServiceFactory = extrinsicServiceFactory
     }
-
-    private func handleStash(accountItem: AccountItem) {
-        extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
-        do {
-            let setController = try callFactory.setController(accountItem.address)
-            let identifier = setController.callName + accountItem.identifier
-
-            feeProxy.estimateFee(using: extrinsicService!, reuseIdentifier: identifier) { builder in
-                try builder.adding(call: setController)
-            }
-        } catch {
-            presenter.didReceiveFee(result: .failure(error))
-        }
-    }
 }
 
 extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
@@ -68,10 +54,11 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         feeProxy.delegate = self
     }
 
-    func estimateFee(for controllerAddress: AccountAddress) {
+    func estimateFee(for account: AccountItem) {
+        extrinsicService = extrinsicServiceFactory.createService(accountItem: account)
         do {
-            let setController = try callFactory.setController(controllerAddress)
-            let identifier = setController.callName + controllerAddress
+            let setController = try callFactory.setController(account.address)
+            let identifier = setController.callName + account.identifier
 
             feeProxy.estimateFee(using: extrinsicService!, reuseIdentifier: identifier) { builder in
                 try builder.adding(call: setController)
@@ -97,6 +84,8 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
             clear(dataProvider: &accountInfoProvider)
 
             let maybeStashItem = try result.get()
+            presenter.didReceiveStashItem(result: .success(maybeStashItem))
+
             if let stashItem = maybeStashItem {
                 accountInfoProvider = subscribeToAccountInfoProvider(
                     for: stashItem.stash,
@@ -108,13 +97,11 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
                     operationManager: operationManager
                 ) { [weak self] result in
                     if case let .success(maybeStash) = result, let stash = maybeStash {
-                        self?.handleStash(accountItem: stash)
+                        self?.estimateFee(for: stash)
                     }
 
                     self?.presenter.didReceiveStashAccount(result: result)
                 }
-            } else {
-                presenter.didReceiveStashItem(result: .success(nil))
             }
         } catch {
             presenter.didReceiveStashItem(result: .failure(error))
