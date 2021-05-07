@@ -67,7 +67,7 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
 
     func createViewModel(
         from model: CalculatedReward,
-        amountFormatter: LocalizableResource<TokenAmountFormatter>,
+        amountFormatter: LocalizableResource<TokenFormatter>,
         type: RewardDestinationTypeViewModel
     ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let percentageAPYFormatter = NumberFormatter.positivePercentAPY.localizableResource()
@@ -76,16 +76,16 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
         return LocalizableResource { locale in
             let amountFormatter = amountFormatter.value(for: locale)
 
-            let zeroAmount = amountFormatter.string(from: 0.0) ?? "0"
+            let zeroAmount = amountFormatter.stringFromDecimal(0.0) ?? "0"
 
             let restakeAmount = model.restakeReturn > 0.0 ?
-                amountFormatter.string(from: model.restakeReturn) : nil
+                amountFormatter.stringFromDecimal(model.restakeReturn) : nil
             let restakePercentage = percentageAPYFormatter
                 .value(for: locale)
                 .string(from: model.restakeReturnPercentage as NSNumber)
 
             let payoutAmount = model.payoutReturn > 0.0 ?
-                amountFormatter.string(from: model.payoutReturn) : nil
+                amountFormatter.stringFromDecimal(model.payoutReturn) : nil
             let payoutPercentage = percentageAPRFormatter
                 .value(for: locale)
                 .string(from: model.payoutReturnPercentage as NSNumber)

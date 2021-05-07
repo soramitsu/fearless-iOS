@@ -67,7 +67,7 @@ extension TransactionDetailsViewModelFactory {
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        guard let amount = formatter.value(for: locale).string(from: totalAmount) else {
+        guard let amount = formatter.value(for: locale).stringFromDecimal(totalAmount) else {
             return nil
         }
 
