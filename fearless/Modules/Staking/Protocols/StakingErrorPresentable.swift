@@ -220,7 +220,7 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
     }
 
     func presentControllerIsAlreadyUsed(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = "Selected account is already in use as controller"
+        let message = R.string.localizable.stakingAccountIsUsedAsController(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 

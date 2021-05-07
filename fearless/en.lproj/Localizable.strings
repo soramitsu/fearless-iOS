@@ -386,3 +386,4 @@ Derivation path: %@";
 "staking.bond.more.completion" = "Bonding extra request has been submitted";
 "staking.rebond.completion" = "Rebond request has been submitted";
 "staking.current.account.is.controller" = "Your current account is a controller.";
+"staking.account.is.used.as.controller" = "Selected account is already in use as controller";
