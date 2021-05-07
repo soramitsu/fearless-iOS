@@ -14,8 +14,7 @@ final class ControllerAccountPresenter {
     private let logger: LoggerProtocol?
     private var stashItem: StashItem?
     private var loadingAccounts = false
-    private let initialSelectedAccount: AccountItem
-    private var selectedAccount: AccountItem
+    private var chosenAccountItem: AccountItem
     private var accounts: [AccountItem]?
     private var canChooseOtherController = false
     private var fee: Decimal?
@@ -35,8 +34,7 @@ final class ControllerAccountPresenter {
         self.interactor = interactor
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
-        initialSelectedAccount = selectedAccount
-        self.selectedAccount = selectedAccount
+        chosenAccountItem = selectedAccount
         self.chain = chain
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
@@ -49,7 +47,7 @@ final class ControllerAccountPresenter {
         else { return }
         let viewModel = viewModelFactory.createViewModel(
             stashItem: stashItem,
-            selectedAccountItem: selectedAccount,
+            chosenAccountItem: chosenAccountItem,
             accounts: accounts
         )
         canChooseOtherController = viewModel.canChooseOtherController
@@ -57,11 +55,11 @@ final class ControllerAccountPresenter {
     }
 
     func refreshFeeIfNeeded() {
-        guard fee == nil, selectedAccount.address != stashItem?.stash else {
+        guard fee == nil, chosenAccountItem.address != stashItem?.stash else {
             return
         }
 
-        interactor.estimateFee(controllerAddress: selectedAccount.address)
+        interactor.estimateFee(controllerAddress: chosenAccountItem.address)
     }
 }
 
@@ -84,7 +82,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
         }
         wireframe.presentAccountSelection(
             accounts,
-            selectedAccountItem: selectedAccount,
+            selectedAccountItem: chosenAccountItem,
             title: title,
             delegate: self,
             from: view,
@@ -124,7 +122,6 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
                 self?.refreshFeeIfNeeded()
             }),
-
             dataValidatingFactory.canPayFee(
                 balance: balance,
                 fee: fee,
@@ -184,7 +181,7 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
             return
         }
 
-        selectedAccount = accounts[index]
+        chosenAccountItem = accounts[index]
         refreshFeeIfNeeded()
         updateView()
     }

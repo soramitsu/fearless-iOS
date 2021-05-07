@@ -7,7 +7,7 @@ protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         stashItem: StashItem,
-        selectedAccountItem: AccountItem,
+        chosenAccountItem: AccountItem,
         accounts: [AccountItem]
     ) -> ControllerAccountViewModel
 }

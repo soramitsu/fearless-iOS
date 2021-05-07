@@ -51,7 +51,7 @@ struct ControllerAccountViewFactory {
         let wireframe = ControllerAccountWireframe()
 
         let viewModelFactory = ControllerAccountViewModelFactory(
-            selectedAccount: selectedAccount,
+            currentAccountItem: selectedAccount,
             iconGenerator: PolkadotIconGenerator()
         )
 

@@ -4,17 +4,17 @@ import FearlessUtils
 
 final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactoryProtocol {
     let iconGenerator: IconGenerating
-    let selectedAccount: AccountItem
+    let currentAccountItem: AccountItem
     private lazy var addressFactory = SS58AddressFactory()
 
-    init(selectedAccount: AccountItem, iconGenerator: IconGenerating) {
-        self.selectedAccount = selectedAccount
+    init(currentAccountItem: AccountItem, iconGenerator: IconGenerating) {
+        self.currentAccountItem = currentAccountItem
         self.iconGenerator = iconGenerator
     }
 
     func createViewModel(
         stashItem: StashItem,
-        selectedAccountItem: AccountItem,
+        chosenAccountItem: AccountItem,
         accounts: [AccountItem]
     ) -> ControllerAccountViewModel {
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
@@ -36,7 +36,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         }
 
         let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let selectedControllerAddress = selectedAccountItem.address
+            let selectedControllerAddress = chosenAccountItem.address
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
                 .imageWithFillColor(
@@ -47,16 +47,16 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
                 address: selectedControllerAddress,
-                name: selectedAccountItem.username,
+                name: chosenAccountItem.username,
                 icon: controllerIcon
             )
         }
 
         let buttonState: ControllerAccountActionButtonState = {
-            if stashItem.controller == self.selectedAccount.address {
+            if stashItem.controller == self.currentAccountItem.address {
                 return .hidden
             }
-            if selectedAccountItem.address == self.selectedAccount.address {
+            if chosenAccountItem.address == self.currentAccountItem.address {
                 return .enabled(false)
             }
             return .enabled(true)
