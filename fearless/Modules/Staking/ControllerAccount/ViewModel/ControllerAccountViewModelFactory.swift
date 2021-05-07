@@ -13,13 +13,11 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     }
 
     func createViewModel(
-        stashItem: StashItem,
-        chosenAccountItem: AccountItem,
-        accounts: [AccountItem]
+        stashAccountItem: AccountItem,
+        chosenAccountItem: AccountItem
     ) -> ControllerAccountViewModel {
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let stashAddress = stashItem.stash
-            let stashName = accounts.first(where: { $0.address == stashAddress })?.username ?? stashAddress
+            let stashAddress = stashAccountItem.address
             let stashIcon = try? self.iconGenerator
                 .generateFromAddress(stashAddress)
                 .imageWithFillColor(
@@ -30,7 +28,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stackingStashAccount(preferredLanguages: locale.rLanguages),
                 address: stashAddress,
-                name: stashName,
+                name: stashAccountItem.username,
                 icon: stashIcon
             )
         }

@@ -12,9 +12,10 @@ final class ControllerAccountPresenter {
     weak var view: ControllerAccountViewProtocol?
 
     private let logger: LoggerProtocol?
+    private var stashAccount: AccountItem?
     private var stashItem: StashItem?
     private var loadingAccounts = false
-    private var chosenAccountItem: AccountItem
+    private var chosenAccountItem: AccountItem?
     private var accounts: [AccountItem]?
     private var canChooseOtherController = false
     private var fee: Decimal?
@@ -26,7 +27,6 @@ final class ControllerAccountPresenter {
         interactor: ControllerAccountInteractorInputProtocol,
         viewModelFactory: ControllerAccountViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
-        selectedAccount: AccountItem,
         chain: Chain,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol? = nil
@@ -35,7 +35,6 @@ final class ControllerAccountPresenter {
         self.interactor = interactor
         self.viewModelFactory = viewModelFactory
         self.applicationConfig = applicationConfig
-        chosenAccountItem = selectedAccount
         self.chain = chain
         self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
@@ -43,24 +42,33 @@ final class ControllerAccountPresenter {
 
     private func updateView() {
         guard
-            let stashItem = stashItem,
-            let accounts = accounts
+            let stashAccountItem = stashAccount,
+            let chosenAccountItem = chosenAccountItem
         else { return }
         let viewModel = viewModelFactory.createViewModel(
-            stashItem: stashItem,
-            chosenAccountItem: chosenAccountItem,
-            accounts: accounts
+            stashAccountItem: stashAccountItem,
+            chosenAccountItem: chosenAccountItem
         )
         canChooseOtherController = viewModel.canChooseOtherController
         view?.reload(with: viewModel)
     }
 
     func refreshFeeIfNeeded() {
-        guard fee == nil, chosenAccountItem.address != stashItem?.stash else {
+        guard fee == nil, let controller = stashItem?.controller else {
             return
         }
 
-        interactor.estimateFee(controllerAddress: chosenAccountItem.address)
+        interactor.estimateFee(for: controller)
+    }
+
+    func refreshLedgerIfNeeded() {
+        guard let chosenControllerAddress = chosenAccountItem?.address else {
+            return
+        }
+        if chosenControllerAddress != stashItem?.controller {
+            stakingLedger = nil
+            interactor.fetchLedger(controllerAddress: chosenControllerAddress)
+        }
     }
 }
 
@@ -71,11 +79,13 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
 
     func handleControllerAction() {
         guard canChooseOtherController else {
-            presentAccountOptions(for: stashItem?.controller)
+            presentAccountOptions(for: stashAccount?.address)
             return
         }
 
-        guard let accounts = accounts else { return }
+        guard let accounts = accounts, let chosenAccountItem = chosenAccountItem else {
+            return
+        }
         let context = PrimitiveContextWrapper(value: accounts)
         let title = LocalizableResource<String> { locale in
             R.string.localizable
@@ -92,7 +102,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleStashAction() {
-        presentAccountOptions(for: stashItem?.stash)
+        presentAccountOptions(for: stashAccount?.address)
     }
 
     private func presentAccountOptions(for address: AccountAddress?) {
@@ -148,7 +158,18 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
                 wireframe.close(view: view)
             }
         case let .failure(error):
-            print(error)
+            logger?.error("Did receive stash item error: \(error)")
+        }
+    }
+
+    func didReceiveStashAccount(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            stashAccount = accountItem
+            chosenAccountItem = accountItem
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive stash account error: \(error)")
         }
     }
 
@@ -161,7 +182,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
 
             updateView()
         case let .failure(error):
-            print(error)
+            logger?.error("Did receive accounts error: \(error)")
         }
     }
 
@@ -209,11 +230,7 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
         }
 
         chosenAccountItem = accounts[index]
-        if chosenAccountItem.address != stashItem?.controller {
-            stakingLedger = nil
-            interactor.fetchLedger(controllerAddress: chosenAccountItem.address)
-        }
-        refreshFeeIfNeeded()
+        refreshLedgerIfNeeded()
         updateView()
     }
 }

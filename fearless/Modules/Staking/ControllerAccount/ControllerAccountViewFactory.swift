@@ -30,7 +30,6 @@ struct ControllerAccountViewFactory {
             interactor: interactor,
             viewModelFactory: viewModelFactory,
             applicationConfig: ApplicationConfig.shared,
-            selectedAccount: selectedAccount,
             chain: chain,
             dataValidatingFactory: dataValidatingFactory,
             logger: Logger.shared
@@ -69,9 +68,8 @@ struct ControllerAccountViewFactory {
             )
 
         guard let selectedAccount = settings.selectedAccount else { return nil }
-        let extrinsicService = ExtrinsicService(
-            address: selectedAccount.address,
-            cryptoType: selectedAccount.cryptoType,
+
+        let extrinsicServiceFactory = ExtrinsicServiceFactory(
             runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
@@ -85,7 +83,7 @@ struct ControllerAccountViewFactory {
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
             feeProxy: ExtrinsicFeeProxy(),
-            extrinsicService: extrinsicService
+            extrinsicServiceFactory: extrinsicServiceFactory
         )
     }
 }

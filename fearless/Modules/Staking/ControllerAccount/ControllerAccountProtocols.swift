@@ -6,9 +6,8 @@ protocol ControllerAccountViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        stashItem: StashItem,
-        chosenAccountItem: AccountItem,
-        accounts: [AccountItem]
+        stashAccountItem: AccountItem,
+        chosenAccountItem: AccountItem
     ) -> ControllerAccountViewModel
 }
 
@@ -22,12 +21,13 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(controllerAddress: AccountAddress)
+    func estimateFee(for controllerAddress: AccountAddress)
     func fetchLedger(controllerAddress: AccountAddress)
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceiveStashAccount(result: Result<AccountItem?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
