@@ -53,9 +53,9 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         }
 
         let buttonState: ControllerAccountActionButtonState = {
-//            if stashItem.controller == self.selectedAccount.address {
-//                return .hidden
-//            }
+            if stashItem.controller == self.selectedAccount.address {
+                return .hidden
+            }
             if selectedAccountItem.address == self.selectedAccount.address {
                 return .enabled(false)
             }

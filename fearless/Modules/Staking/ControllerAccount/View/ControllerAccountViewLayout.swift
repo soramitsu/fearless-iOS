@@ -80,6 +80,7 @@ final class ControllerAccountViewLayout: UIView {
 
         let bottomSeparator = UIView.createSeparator(color: R.color.colorDarkGray())
         containerView.stackView.addArrangedSubview(bottomSeparator)
+        containerView.stackView.setCustomSpacing(0, after: learnMoreView)
         bottomSeparator.snp.makeConstraints { make in
             make.height.equalTo(UIConstants.separatorHeight)
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)

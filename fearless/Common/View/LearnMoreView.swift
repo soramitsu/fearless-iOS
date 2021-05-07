@@ -33,6 +33,9 @@ final class LearnMoreView: UIView {
         let stackView = UIStackView(arrangedSubviews: [fearlessIconView, titleLabel, UIView(), arrowIconView])
         stackView.spacing = 12
         addSubview(stackView)
-        stackView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        stackView.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview()
+            make.bottom.top.equalToSuperview().inset(16)
+        }
     }
 }
