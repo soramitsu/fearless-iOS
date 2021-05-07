@@ -5,11 +5,14 @@ import RobinHood
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
 
-    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    private let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
-    let selectedAccountAddress: AccountAddress
-    let accountRepository: AnyDataProviderRepository<AccountItem>
-    let operationManager: OperationManagerProtocol
+    private let selectedAccountAddress: AccountAddress
+    private let accountRepository: AnyDataProviderRepository<AccountItem>
+    private let operationManager: OperationManagerProtocol
+    private let feeProxy: ExtrinsicFeeProxyProtocol
+    private let extrinsicService: ExtrinsicServiceProtocol
+    private lazy var callFactory = SubstrateCallFactory()
 
     private var stashItemProvider: StreamableProvider<StashItem>?
 
@@ -18,13 +21,17 @@ final class ControllerAccountInteractor {
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         selectedAccountAddress: AccountAddress,
         accountRepository: AnyDataProviderRepository<AccountItem>,
-        operationManager: OperationManagerProtocol
+        operationManager: OperationManagerProtocol,
+        feeProxy: ExtrinsicFeeProxyProtocol,
+        extrinsicService: ExtrinsicServiceProtocol
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.selectedAccountAddress = selectedAccountAddress
         self.accountRepository = accountRepository
         self.operationManager = operationManager
+        self.feeProxy = feeProxy
+        self.extrinsicService = extrinsicService
     }
 
     private func fetchAccounts() {
@@ -48,11 +55,31 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     func setup() {
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
         fetchAccounts()
+        feeProxy.delegate = self
+    }
+
+    func estimateFee(controllerAddress: AccountAddress) {
+        do {
+            let setController = try callFactory.setController(controllerAddress)
+            let identifier = setController.callName + controllerAddress
+
+            feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
+                try builder.adding(call: setController)
+            }
+        } catch {
+            presenter.didReceiveFee(result: .failure(error))
+        }
     }
 }
 
 extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler {
     func handleStashItem(result: Result<StashItem?, Error>) {
         presenter.didReceiveStashItem(result: result)
+    }
+}
+
+extension ControllerAccountInteractor: ExtrinsicFeeProxyDelegate {
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>, for _: ExtrinsicFeeId) {
+        presenter.didReceiveFee(result: result)
     }
 }

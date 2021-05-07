@@ -22,11 +22,13 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
+    func estimateFee(controllerAddress: AccountAddress)
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
 }
 
 protocol ControllerAccountWireframeProtocol: WebPresentable,

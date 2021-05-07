@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import BigInt
 
 final class ControllerAccountPresenter {
     let wireframe: ControllerAccountWireframeProtocol
@@ -10,6 +11,7 @@ final class ControllerAccountPresenter {
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     weak var view: ControllerAccountViewProtocol?
 
+    private let logger: LoggerProtocol?
     private var stashItem: StashItem?
     private var loadingAccounts = false
     private let initialSelectedAccount: AccountItem
@@ -26,7 +28,8 @@ final class ControllerAccountPresenter {
         applicationConfig: ApplicationConfigProtocol,
         selectedAccount: AccountItem,
         chain: Chain,
-        dataValidatingFactory: StakingDataValidatingFactoryProtocol
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        logger: LoggerProtocol? = nil
     ) {
         self.wireframe = wireframe
         self.interactor = interactor
@@ -36,6 +39,7 @@ final class ControllerAccountPresenter {
         self.selectedAccount = selectedAccount
         self.chain = chain
         self.dataValidatingFactory = dataValidatingFactory
+        self.logger = logger
     }
 
     private func updateView() {
@@ -50,6 +54,14 @@ final class ControllerAccountPresenter {
         )
         canChooseOtherController = viewModel.canChooseOtherController
         view?.reload(with: viewModel)
+    }
+
+    func refreshFeeIfNeeded() {
+        guard fee == nil, selectedAccount.address != stashItem?.stash else {
+            return
+        }
+
+        interactor.estimateFee(controllerAddress: selectedAccount.address)
     }
 }
 
@@ -110,7 +122,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
             dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                // TODO: self?.refreshFeeIfNeeded()
+                self?.refreshFeeIfNeeded()
             }),
 
             dataValidatingFactory.canPayFee(
@@ -150,6 +162,17 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
             print(error)
         }
     }
+
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
+        switch result {
+        case let .success(dispatchInfo):
+            if let fee = BigUInt(dispatchInfo.fee) {
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+            }
+        case let .failure(error):
+            logger?.error("Did receive fee error: \(error)")
+        }
+    }
 }
 
 extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
@@ -162,6 +185,7 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
         }
 
         selectedAccount = accounts[index]
+        refreshFeeIfNeeded()
         updateView()
     }
 }
