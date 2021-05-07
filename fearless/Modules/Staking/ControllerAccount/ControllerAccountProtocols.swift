@@ -23,6 +23,7 @@ protocol ControllerAccountPresenterProtocol: AnyObject {
 protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
     func estimateFee(controllerAddress: AccountAddress)
+    func fetchLedger(controllerAddress: AccountAddress)
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
@@ -30,6 +31,7 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
+    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
 }
 
 protocol ControllerAccountWireframeProtocol: WebPresentable,

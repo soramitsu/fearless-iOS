@@ -19,6 +19,7 @@ final class ControllerAccountPresenter {
     private var canChooseOtherController = false
     private var fee: Decimal?
     private var balance: Decimal?
+    private var stakingLedger: DyStakingLedger?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -127,6 +128,10 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
                 fee: fee,
                 locale: locale
             )
+            // dataValidatingFactory.ledgerNotExist(ledger)
+            /// выдаем ошибку, если ledger != nil
+            // или notReceived
+            // LoadingValueState
         ]).runValidation { [weak self] in
             self?.wireframe.showConfirmation(from: self?.view)
         }
@@ -186,6 +191,15 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
             logger?.error("Account Info subscription error: \(error)")
         }
     }
+
+    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+        switch result {
+        case let .success(stakingLedger):
+            self.stakingLedger = stakingLedger
+        case let .failure(error):
+            logger?.error("Staking ledger subscription error: \(error)")
+        }
+    }
 }
 
 extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
@@ -195,6 +209,10 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
         }
 
         chosenAccountItem = accounts[index]
+        if chosenAccountItem.address != stashItem?.controller {
+            stakingLedger = nil
+            interactor.fetchLedger(controllerAddress: chosenAccountItem.address)
+        }
         refreshFeeIfNeeded()
         updateView()
     }

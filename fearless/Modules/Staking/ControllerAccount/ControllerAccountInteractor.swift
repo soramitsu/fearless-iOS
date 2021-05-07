@@ -17,6 +17,7 @@ final class ControllerAccountInteractor {
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
 
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
@@ -74,6 +75,14 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
             presenter.didReceiveFee(result: .failure(error))
         }
     }
+
+    func fetchLedger(controllerAddress: AccountAddress) {
+        clear(dataProvider: &ledgerProvider)
+        ledgerProvider = subscribeToLedgerInfoProvider(
+            for: controllerAddress,
+            runtimeService: runtimeService
+        )
+    }
 }
 
 extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
@@ -85,11 +94,13 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
             clear(dataProvider: &accountInfoProvider)
             presenter.didReceiveStashItem(result: result)
 
+            // add func handleStashItem()
             if let stashItem = maybeStashItem {
                 accountInfoProvider = subscribeToAccountInfoProvider(
-                    for: stashItem.controller,
+                    for: stashItem.stash,
                     runtimeService: runtimeService
                 )
+                // init extrinisService
             } else {
                 presenter.didReceiveAccountInfo(result: .success(nil))
             }
@@ -101,6 +112,10 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
 
     func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handleLedgerInfo(result: Result<DyStakingLedger?, Error>, address _: AccountAddress) {
+        presenter.didReceiveStakingLedger(result: result)
     }
 }
 
