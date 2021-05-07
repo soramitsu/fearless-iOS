@@ -3,7 +3,7 @@ import Foundation
 struct StakingStateCommonData {
     let address: String?
     let chain: Chain?
-    let accountInfo: DyAccountInfo?
+    let accountInfo: AccountInfo?
     let price: PriceData?
     let calculatorEngine: RewardCalculatorEngineProtocol?
     let electionStatus: ElectionStatus?
@@ -47,7 +47,7 @@ extension StakingStateCommonData {
         )
     }
 
-    func byReplacing(accountInfo: DyAccountInfo?) -> StakingStateCommonData {
+    func byReplacing(accountInfo: AccountInfo?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
             chain: chain,

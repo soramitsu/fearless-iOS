@@ -198,7 +198,7 @@ extension PayoutRewardsService {
     }
 
     func createUnclaimedEraByStashOperation(
-        ledgerInfoOperation: BaseOperation<[DyStakingLedger]>,
+        ledgerInfoOperation: BaseOperation<[StakingLedger]>,
         historyRangeOperation: BaseOperation<ChainHistoryRange>
     ) throws -> BaseOperation<[Data: [EraIndex]]> {
         ClosureOperation<[Data: [EraIndex]]> {

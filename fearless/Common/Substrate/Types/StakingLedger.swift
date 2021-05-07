@@ -2,20 +2,20 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct DyStakingLedger: Decodable, Equatable {
+struct StakingLedger: Decodable, Equatable {
     let stash: Data
     @StringCodable var total: BigUInt
     @StringCodable var active: BigUInt
-    let unlocking: [DyUnlockChunk]
+    let unlocking: [UnlockChunk]
     let claimedRewards: [StringScaleMapper<UInt32>]
 }
 
-struct DyUnlockChunk: Decodable, Equatable {
+struct UnlockChunk: Decodable, Equatable {
     @StringCodable var value: BigUInt
     @StringCodable var era: UInt32
 }
 
-extension DyStakingLedger {
+extension StakingLedger {
     func redeemable(inEra activeEra: UInt32) -> BigUInt {
         unlocking.reduce(BigUInt(0)) { result, item in
             item.era <= activeEra ? (result + item.value) : result
@@ -28,7 +28,7 @@ extension DyStakingLedger {
         }
     }
 
-    func unbondings(inEra activeEra: UInt32) -> [DyUnlockChunk] {
+    func unbondings(inEra activeEra: UInt32) -> [UnlockChunk] {
         unlocking.filter { $0.era > activeEra }
     }
 }

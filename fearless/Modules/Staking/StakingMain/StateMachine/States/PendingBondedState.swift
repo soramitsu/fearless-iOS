@@ -5,7 +5,7 @@ final class PendingBondedState: BaseStashNextState {
         visitor.visit(state: self)
     }
 
-    override func process(ledgerInfo: DyStakingLedger?) {
+    override func process(ledgerInfo: StakingLedger?) {
         guard let stateMachine = stateMachine else {
             return
         }

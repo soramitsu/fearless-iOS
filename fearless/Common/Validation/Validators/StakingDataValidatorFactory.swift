@@ -37,7 +37,7 @@ protocol StakingDataValidatingFactoryProtocol {
         locale: Locale
     ) -> DataValidating
 
-    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
+    func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -235,7 +235,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         })
     }
 
-    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating {
+    func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
             guard let view = self?.view else {
                 return

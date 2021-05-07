@@ -144,7 +144,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationOutpu
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {

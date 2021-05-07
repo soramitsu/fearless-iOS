@@ -116,8 +116,8 @@ extension SingleValueProviderFactoryStub {
         let accountId = try! SS58AddressFactory().accountId(from: address)
 
         let unlockEra = WestendStub.activeEra.item.map({ $0.index - 1}) ?? 0
-        let unlockChunk = DyUnlockChunk(value: BigUInt(1e+12), era: unlockEra)
-        let ledgerInfo = DyStakingLedger(stash: accountId,
+        let unlockChunk = UnlockChunk(value: BigUInt(1e+12), era: unlockEra)
+        let ledgerInfo = StakingLedger(stash: accountId,
                                    total: BigUInt(2e+12),
                                    active: BigUInt(1e+12),
                                    unlocking: [unlockChunk],
@@ -153,8 +153,8 @@ extension SingleValueProviderFactoryStub {
         let accountId = try! SS58AddressFactory().accountId(from: address)
 
         let unlockEra = WestendStub.activeEra.item.map({ $0.index + 1}) ?? 0
-        let unlockChunk = DyUnlockChunk(value: BigUInt(1e+12), era: unlockEra)
-        let ledgerInfo = DyStakingLedger(stash: accountId,
+        let unlockChunk = UnlockChunk(value: BigUInt(1e+12), era: unlockEra)
+        let ledgerInfo = StakingLedger(stash: accountId,
                                    total: BigUInt(2e+12),
                                    active: BigUInt(1e+12),
                                    unlocking: [unlockChunk],

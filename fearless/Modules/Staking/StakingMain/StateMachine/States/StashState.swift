@@ -5,13 +5,13 @@ final class StashState: BaseStakingState {
     private(set) var totalReward: TotalRewardItem?
     private(set) var payee: RewardDestinationArg?
 
-    private(set) var ledgerInfo: DyStakingLedger?
+    private(set) var ledgerInfo: StakingLedger?
 
     init(
         stateMachine: StakingStateMachineProtocol,
         commonData: StakingStateCommonData,
         stashItem: StashItem,
-        ledgerInfo: DyStakingLedger?,
+        ledgerInfo: StakingLedger?,
         totalReward: TotalRewardItem?
     ) {
         self.stashItem = stashItem
@@ -44,7 +44,7 @@ final class StashState: BaseStakingState {
         }
     }
 
-    override func process(ledgerInfo: DyStakingLedger?) {
+    override func process(ledgerInfo: StakingLedger?) {
         self.ledgerInfo = ledgerInfo
 
         stateMachine?.transit(to: self)

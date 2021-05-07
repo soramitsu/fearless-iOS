@@ -16,7 +16,7 @@ extension WalletNetworkFacade {
 
             let codingFactoryOperation = runtimeCodingService.fetchCoderFactoryOperation()
 
-            let accountInfoWrapper: CompoundOperationWrapper<DyAccountInfo?> =
+            let accountInfoWrapper: CompoundOperationWrapper<AccountInfo?> =
                 localStorageRequestFactory.queryItems(
                     repository: chainStorage,
                     keyParam: { accountId },
@@ -64,8 +64,8 @@ extension WalletNetworkFacade {
 
     private func createBalanceMappingOperation(
         asset: WalletAsset,
-        dependingOn accountInfoWrapper: CompoundOperationWrapper<DyAccountInfo?>,
-        stakingLedgerWrapper: CompoundOperationWrapper<DyStakingLedger?>,
+        dependingOn accountInfoWrapper: CompoundOperationWrapper<AccountInfo?>,
+        stakingLedgerWrapper: CompoundOperationWrapper<StakingLedger?>,
         activeEraWrapper: CompoundOperationWrapper<ActiveEraInfo?>
     ) -> BaseOperation<[BalanceData]?> {
         ClosureOperation<[BalanceData]?> {
@@ -104,7 +104,7 @@ extension WalletNetworkFacade {
     private func createStakingLedgerOperation(
         for accountId: Data,
         dependingOn codingFactoryOperation: BaseOperation<RuntimeCoderFactoryProtocol>
-    ) -> CompoundOperationWrapper<DyStakingLedger?> {
+    ) -> CompoundOperationWrapper<StakingLedger?> {
         let controllerWrapper: CompoundOperationWrapper<Data?> =
             localStorageRequestFactory
                 .queryItems(
@@ -122,7 +122,7 @@ extension WalletNetworkFacade {
             }
         }
 
-        let controllerLedgerWrapper: CompoundOperationWrapper<DyStakingLedger?> =
+        let controllerLedgerWrapper: CompoundOperationWrapper<StakingLedger?> =
             localStorageRequestFactory.queryItems(
                 repository: chainStorage,
                 keyParam: controllerKey,

@@ -217,7 +217,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: totalReward)
     }
 
-    func didReceive(accountInfo: DyAccountInfo?) {
+    func didReceive(accountInfo: AccountInfo?) {
         if let availableValue = accountInfo?.data.available, let chain = chain {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
@@ -264,7 +264,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: stashItemError)
     }
 
-    func didReceive(ledgerInfo: DyStakingLedger?) {
+    func didReceive(ledgerInfo: StakingLedger?) {
         stateMachine.state.process(ledgerInfo: ledgerInfo)
 
         if let ledgerInfo = ledgerInfo {

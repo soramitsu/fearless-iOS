@@ -157,7 +157,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
@@ -173,7 +173,7 @@ extension StakingUnbondSetupPresenter: StakingUnbondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             if let stakingLedger = stakingLedger {

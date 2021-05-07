@@ -72,7 +72,7 @@ extension BalanceContext {
 }
 
 extension BalanceContext {
-    func byChangingAccountInfo(_ accountData: DyAccountData, precision: Int16) -> BalanceContext {
+    func byChangingAccountInfo(_ accountData: AccountData, precision: Int16) -> BalanceContext {
         let free = Decimal
             .fromSubstrateAmount(accountData.free, precision: precision) ?? .zero
         let reserved = Decimal
@@ -96,7 +96,7 @@ extension BalanceContext {
     }
 
     func byChangingStakingInfo(
-        _ stakingInfo: DyStakingLedger,
+        _ stakingInfo: StakingLedger,
         activeEra: UInt32,
         precision: Int16
     ) -> BalanceContext {
