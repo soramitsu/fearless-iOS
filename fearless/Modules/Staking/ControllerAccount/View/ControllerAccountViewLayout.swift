@@ -22,6 +22,14 @@ final class ControllerAccountViewLayout: UIView {
         return button
     }()
 
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -83,5 +91,14 @@ final class ControllerAccountViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+    }
+
+    private func applyLocalization() {
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
+        learnMoreView.titleLabel.text = R.string.localizable
+            .commonLearnMore(preferredLanguages: locale.rLanguages)
+        hintView.titleLabel.text = R.string.localizable
+            .stakingCurrentAccountIsController(preferredLanguages: locale.rLanguages)
     }
 }

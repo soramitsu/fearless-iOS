@@ -2841,13 +2841,13 @@
 		788647A9C0A8684C9A8AC310 /* ControllerAccount */ = {
 			isa = PBXGroup;
 			children = (
+				F4B06BFE26451AD2003214D5 /* View */,
 				F458D39126428EA90055CB75 /* ViewModel */,
 				F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */,
 				EDB9EDB05686DF11958145E1 /* ControllerAccountWireframe.swift */,
 				1E5CB64B91B35804B3671456 /* ControllerAccountPresenter.swift */,
 				748E0AF1A286016CB220155C /* ControllerAccountInteractor.swift */,
 				0B556386CEEB76C95ED59897 /* ControllerAccountViewController.swift */,
-				F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */,
 				002A29AE58EB53E915330490 /* ControllerAccountViewFactory.swift */,
 			);
 			path = ControllerAccount;
@@ -5919,6 +5919,14 @@
 				845E49822636C87B002F8C22 /* StakingManageViewModel.swift */,
 			);
 			path = Model;
+			sourceTree = "<group>";
+		};
+		F4B06BFE26451AD2003214D5 /* View */ = {
+			isa = PBXGroup;
+			children = (
+				F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */,
+			);
+			path = View;
 			sourceTree = "<group>";
 		};
 		F4D96BA92638528100B23D3D /* StakingBondMore */ = {

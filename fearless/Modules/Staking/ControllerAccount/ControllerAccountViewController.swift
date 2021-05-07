@@ -72,12 +72,7 @@ extension ControllerAccountViewController: Localizable {
         if isViewLoaded {
             title = R.string.localizable
                 .stakingControllerAccountTitle(preferredLanguages: selectedLocale.rLanguages)
-            rootView.actionButton.imageWithTitleView?.title = R.string.localizable
-                .commonContinue(preferredLanguages: selectedLocale.rLanguages)
-            rootView.learnMoreView.titleLabel.text = R.string.localizable
-                .commonLearnMore(preferredLanguages: selectedLocale.rLanguages)
-            rootView.hintView.titleLabel.text = R.string.localizable
-                .stakingCurrentAccountIsController(preferredLanguages: selectedLocale.rLanguages)
+            rootView.locale = selectedLocale
         }
     }
 }
