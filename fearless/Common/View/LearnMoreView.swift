@@ -1,14 +1,7 @@
 import UIKit
 
 final class LearnMoreView: UIView {
-    let fearlessIconView: UIView = {
-        let image = R.image.iconFearlessSmall()?
-            .withRenderingMode(.alwaysTemplate)
-            .tinted(with: R.color.colorWhite()!)
-        let imageView = UIImageView(image: image)
-        imageView.tintColor = .white
-        return imageView
-    }()
+    let fearlessIconView: UIView = UIImageView(image: R.image.iconFearlessSmall())
 
     let titleLabel: UILabel = {
         let label = UILabel()
@@ -17,7 +10,12 @@ final class LearnMoreView: UIView {
         return label
     }()
 
-    let arrowIconView: UIView = UIImageView(image: R.image.iconAboutArrow())
+    let arrowIconView: UIView = {
+        let imageView = UIImageView(image: R.image.iconAboutArrow())
+        imageView.tintColor = .white
+        imageView.contentMode = .scaleAspectFit
+        return imageView
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
