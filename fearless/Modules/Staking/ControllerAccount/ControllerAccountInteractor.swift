@@ -40,22 +40,6 @@ final class ControllerAccountInteractor {
         self.extrinsicServiceFactory = extrinsicServiceFactory
     }
 
-    private func fetchAccounts() {
-        let operation = accountRepository.fetchAllOperation(with: RepositoryFetchOptions())
-        operation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let accounts = try operation.extractNoCancellableResultData()
-                    self?.presenter.didReceiveAccounts(result: .success(accounts))
-                } catch {
-                    self?.presenter.didReceiveAccounts(result: .failure(error))
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-    }
-
     private func handleStash(accountItem: AccountItem) {
         extrinsicService = extrinsicServiceFactory.createService(accountItem: accountItem)
         do {
@@ -74,7 +58,13 @@ final class ControllerAccountInteractor {
 extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol {
     func setup() {
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
-        fetchAccounts()
+
+        fetchAllAccounts(
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveAccounts(result: result)
+        }
         feeProxy.delegate = self
     }
 
