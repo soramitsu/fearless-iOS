@@ -42,7 +42,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
 
             let amountString = amountFormatter.stringFromDecimal(reward) ?? ""
 
-            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+            let percentageFormatter = NumberFormatter.percentBase.localizableResource().value(for: locale)
 
             let rewardPercentageString = percentageFormatter.string(from: targetReturn as NSNumber)
 

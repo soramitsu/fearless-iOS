@@ -7,6 +7,7 @@ protocol RewardEstimationViewDelegate: AnyObject {
     func rewardEstimationView(_ view: RewardEstimationView, didChange amount: Decimal?)
     func rewardEstimationView(_ view: RewardEstimationView, didSelect percentage: Float)
     func rewardEstimationDidStartAction(_ view: RewardEstimationView)
+    func rewardEstimationDidRequestInfo(_ view: RewardEstimationView)
 }
 
 final class RewardEstimationView: LocalizableView {
@@ -18,12 +19,12 @@ final class RewardEstimationView: LocalizableView {
     @IBOutlet var monthlyTitleLabel: UILabel!
     @IBOutlet var monthlyAmountLabel: UILabel!
     @IBOutlet var monthlyFiatAmountLabel: UILabel!
-    @IBOutlet var monthlyPercentageLabel: UILabel!
 
     @IBOutlet var yearlyTitleLabel: UILabel!
     @IBOutlet var yearlyAmountLabel: UILabel!
     @IBOutlet var yearlyFiatAmountLabel: UILabel!
-    @IBOutlet var yearlyPercentageLabel: UILabel!
+
+    @IBOutlet private var infoButton: RoundedButton!
 
     @IBOutlet private var actionButton: TriangularedButton!
 
@@ -97,15 +98,25 @@ final class RewardEstimationView: LocalizableView {
         if let viewModel = widgetViewModel?.rewardViewModel?.value(for: locale) {
             stopLoadingIfNeeded()
 
+            infoButton.isHidden = false
+
+            monthlyTitleLabel.text = viewModel.monthlyReward.increase.map {
+                R.string.localizable.stakingMonthPeriodFormat($0, preferredLanguages: locale.rLanguages)
+            }
+
             monthlyAmountLabel.text = viewModel.monthlyReward.amount
             monthlyFiatAmountLabel.text = viewModel.monthlyReward.price
-            monthlyPercentageLabel.text = viewModel.monthlyReward.increase
+
+            yearlyTitleLabel.text = viewModel.yearlyReward.increase.map {
+                R.string.localizable.stakingYearPeriodFormat($0, preferredLanguages: locale.rLanguages)
+            }
 
             yearlyAmountLabel.text = viewModel.yearlyReward.amount
             yearlyFiatAmountLabel.text = viewModel.yearlyReward.price
-            yearlyPercentageLabel.text = viewModel.yearlyReward.increase
         } else {
             startLoadingIfNeeded()
+
+            infoButton.isHidden = true
         }
     }
 
@@ -139,10 +150,6 @@ final class RewardEstimationView: LocalizableView {
         let languages = locale.rLanguages
 
         estimateWidgetTitleLabel.text = R.string.localizable.stakingEstimateEarningTitle(preferredLanguages: languages)
-        monthlyTitleLabel.text = R.string.localizable
-            .stakingMonthPeriodTitle(preferredLanguages: languages)
-        yearlyTitleLabel.text = R.string.localizable
-            .stakingYearPeriodTitle(preferredLanguages: languages)
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
@@ -184,12 +191,12 @@ final class RewardEstimationView: LocalizableView {
             return
         }
 
+        monthlyTitleLabel.alpha = 0.0
         monthlyAmountLabel.alpha = 0.0
-        monthlyPercentageLabel.alpha = 0.0
         monthlyFiatAmountLabel.alpha = 0.0
 
+        yearlyTitleLabel.alpha = 0.0
         yearlyAmountLabel.alpha = 0.0
-        yearlyPercentageLabel.alpha = 0.0
         yearlyFiatAmountLabel.alpha = 0.0
 
         setupSkeleton()
@@ -204,12 +211,12 @@ final class RewardEstimationView: LocalizableView {
         skeletonView?.removeFromSuperview()
         skeletonView = nil
 
+        monthlyTitleLabel.alpha = 1.0
         monthlyAmountLabel.alpha = 1.0
-        monthlyPercentageLabel.alpha = 1.0
         monthlyFiatAmountLabel.alpha = 1.0
 
+        yearlyTitleLabel.alpha = 1.0
         yearlyAmountLabel.alpha = 1.0
-        yearlyPercentageLabel.alpha = 1.0
         yearlyFiatAmountLabel.alpha = 1.0
     }
 
@@ -237,51 +244,56 @@ final class RewardEstimationView: LocalizableView {
     private func createSkeletons(for spaceSize: CGSize) -> [Skeletonable] {
         let bigRowSize = CGSize(width: 72.0, height: 12.0)
         let smallRowSize = CGSize(width: 57.0, height: 6.0)
-        let topInset: CGFloat = 7.0
-        let verticalSpacing: CGFloat = 10.0
 
         return [
             createSkeletoRow(
-                under: monthlyTitleLabel,
+                inPlaceOf: monthlyTitleLabel,
                 in: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
-                size: bigRowSize
-            ),
-
-            createSkeletoRow(
-                under: monthlyTitleLabel,
-                in: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
                 size: smallRowSize
             ),
 
             createSkeletoRow(
-                under: yearlyTitleLabel,
+                inPlaceOf: monthlyAmountLabel,
                 in: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset),
                 size: bigRowSize
             ),
 
             createSkeletoRow(
-                under: yearlyTitleLabel,
+                inPlaceOf: monthlyFiatAmountLabel,
                 in: spaceSize,
-                offset: CGPoint(x: 0.0, y: topInset + bigRowSize.height + verticalSpacing),
+                size: smallRowSize
+            ),
+
+            createSkeletoRow(
+                inPlaceOf: yearlyTitleLabel,
+                in: spaceSize,
+                size: smallRowSize
+            ),
+
+            createSkeletoRow(
+                inPlaceOf: yearlyAmountLabel,
+                in: spaceSize,
+                size: bigRowSize
+            ),
+
+            createSkeletoRow(
+                inPlaceOf: yearlyFiatAmountLabel,
+                in: spaceSize,
                 size: smallRowSize
             )
         ]
     }
 
     private func createSkeletoRow(
-        under targetView: UIView,
+        inPlaceOf targetView: UIView,
         in spaceSize: CGSize,
-        offset: CGPoint,
         size: CGSize
     ) -> SingleSkeleton {
         let targetFrame = targetView.convert(targetView.bounds, to: self)
 
         let position = CGPoint(
-            x: targetFrame.minX + offset.x + size.width / 2.0,
-            y: targetFrame.maxY + offset.y + size.height / 2.0
+            x: targetFrame.minX + size.width / 2.0,
+            y: targetFrame.midY
         )
 
         let mappedSize = CGSize(
@@ -296,6 +308,10 @@ final class RewardEstimationView: LocalizableView {
         amountInputView.textField.resignFirstResponder()
 
         delegate?.rewardEstimationDidStartAction(self)
+    }
+
+    @IBAction private func infoTouchUpInside() {
+        delegate?.rewardEstimationDidRequestInfo(self)
     }
 }
 

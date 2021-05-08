@@ -49,12 +49,12 @@ final class StakingAmountPresenter {
             let reward: CalculatedReward?
 
             if let calculator = calculator {
-                let restake = try calculator.calculateNetworkReturn(
+                let restake = calculator.calculateMaxReturn(
                     isCompound: true,
                     period: .year
                 )
 
-                let payout = try calculator.calculateNetworkReturn(
+                let payout = calculator.calculateMaxReturn(
                     isCompound: false,
                     period: .year
                 )
