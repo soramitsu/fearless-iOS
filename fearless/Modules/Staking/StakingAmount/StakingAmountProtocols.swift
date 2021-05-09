@@ -35,7 +35,7 @@ protocol StakingAmountInteractorInputProtocol: AnyObject {
 protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(accounts: [AccountItem])
     func didReceive(price: PriceData?)
-    func didReceive(balance: DyAccountData?)
+    func didReceive(balance: AccountData?)
     func didReceive(
         paymentInfo: RuntimeDispatchInfo,
         for amount: BigUInt,

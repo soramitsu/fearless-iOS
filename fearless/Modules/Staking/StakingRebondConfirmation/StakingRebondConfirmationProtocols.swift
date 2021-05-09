@@ -22,8 +22,8 @@ protocol StakingRebondConfirmationInteractorInputProtocol: AnyObject {
 
 protocol StakingRebondConfirmationInteractorOutputProtocol: AnyObject {
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)

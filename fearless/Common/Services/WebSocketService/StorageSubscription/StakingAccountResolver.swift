@@ -12,7 +12,7 @@ final class StakingAccountResolver: WebSocketSubscribing {
 
     struct DecodedChanges {
         let controller: Data?
-        let ledger: DyStakingLedger?
+        let ledger: StakingLedger?
     }
 
     let address: String
@@ -228,7 +228,7 @@ extension StakingAccountResolver {
         )
         controllerDecoding?.addDependency(codingFactory)
 
-        let ledgerDecoding: BaseOperation<DyStakingLedger>? =
+        let ledgerDecoding: BaseOperation<StakingLedger>? =
             createDecodingOperation(
                 for: subscription.ledger,
                 path: .stakingLedger,

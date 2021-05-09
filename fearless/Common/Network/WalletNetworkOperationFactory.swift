@@ -54,17 +54,17 @@ final class WalletNetworkOperationFactory {
         )
     }
 
-    func createAccountInfoFetchOperation(_ accountId: Data) -> CompoundOperationWrapper<DyAccountInfo?> {
+    func createAccountInfoFetchOperation(_ accountId: Data) -> CompoundOperationWrapper<AccountInfo?> {
         let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
 
-        let wrapper: CompoundOperationWrapper<[StorageResponse<DyAccountInfo>]> = requestFactory.queryItems(
+        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = requestFactory.queryItems(
             engine: engine,
             keyParams: { [accountId] },
             factory: { try coderFactoryOperation.extractNoCancellableResultData() },
             storagePath: StorageCodingPath.account
         )
 
-        let mapOperation = ClosureOperation<DyAccountInfo?> {
+        let mapOperation = ClosureOperation<AccountInfo?> {
             try wrapper.targetOperation.extractNoCancellableResultData().first?.value
         }
 

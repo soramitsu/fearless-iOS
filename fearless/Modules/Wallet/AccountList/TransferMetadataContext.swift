@@ -7,7 +7,7 @@ struct TransferMetadataContext {
 }
 
 extension TransferMetadataContext {
-    init(data: DyAccountData, precision: Int16) {
+    init(data: AccountData, precision: Int16) {
         let free = Decimal
             .fromSubstrateAmount(data.free, precision: precision) ?? .zero
         let reserved = Decimal

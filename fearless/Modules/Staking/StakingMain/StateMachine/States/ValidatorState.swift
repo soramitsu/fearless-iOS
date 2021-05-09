@@ -1,14 +1,14 @@
 import Foundation
 
 final class ValidatorState: BaseStashNextState {
-    private(set) var ledgerInfo: DyStakingLedger
+    private(set) var ledgerInfo: StakingLedger
     private(set) var prefs: ValidatorPrefs
 
     init(
         stateMachine: StakingStateMachineProtocol,
         commonData: StakingStateCommonData,
         stashItem: StashItem,
-        ledgerInfo: DyStakingLedger,
+        ledgerInfo: StakingLedger,
         prefs: ValidatorPrefs,
         totalReward: TotalRewardItem?,
         payee: RewardDestinationArg?
@@ -29,7 +29,7 @@ final class ValidatorState: BaseStashNextState {
         visitor.visit(state: self)
     }
 
-    override func process(ledgerInfo: DyStakingLedger?) {
+    override func process(ledgerInfo: StakingLedger?) {
         guard let stateMachine = stateMachine else {
             return
         }

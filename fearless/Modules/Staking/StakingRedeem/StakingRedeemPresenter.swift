@@ -12,7 +12,7 @@ final class StakingRedeemPresenter {
     let chain: Chain
     let logger: LoggerProtocol?
 
-    private var stakingLedger: DyStakingLedger?
+    private var stakingLedger: StakingLedger?
     private var activeEra: UInt32?
     private var balance: Decimal?
     private var minimalBalance: BigUInt?
@@ -188,7 +188,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
@@ -204,7 +204,7 @@ extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             self.stakingLedger = stakingLedger

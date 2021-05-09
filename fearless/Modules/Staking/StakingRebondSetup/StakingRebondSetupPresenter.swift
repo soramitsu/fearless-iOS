@@ -17,7 +17,7 @@ final class StakingRebondSetupPresenter {
     private var priceData: PriceData?
     private var stashItem: StashItem?
     private var controller: AccountItem?
-    private var stakingLedger: DyStakingLedger?
+    private var stakingLedger: StakingLedger?
     private var electionStatus: ElectionStatus?
     private var activeEraInfo: ActiveEraInfo?
 
@@ -146,7 +146,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             self.stakingLedger = stakingLedger
@@ -204,7 +204,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
