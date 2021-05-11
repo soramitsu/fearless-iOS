@@ -7,6 +7,11 @@ protocol StakingRewardDestSetupViewProtocol: ControllerBackedProtocol, Localizab
 
 protocol StakingRewardDestSetupPresenterProtocol: AnyObject {
     func setup()
+    func selectRestakeDestination()
+    func selectPayoutDestination()
+    func selectPayoutAccount()
+    func displayLearnMore()
+    func proceed()
 }
 
 protocol StakingRewardDestSetupInteractorInputProtocol: AnyObject {
@@ -17,9 +22,8 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     #warning("Not implemented")
 }
 
-protocol StakingRewardDestSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
-    func close(view: StakingRewardDestSetupViewProtocol?)
     func proceed(view: StakingRewardDestSetupViewProtocol?)
 }
 

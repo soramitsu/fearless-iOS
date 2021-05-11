@@ -11,6 +11,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
     let restakeOptionView = createPayoutOptionView()
     let payoutOptionView = createPayoutOptionView()
+    let accountView = createAccountView()
 
     let networkFeeView = UIFactory.default.createNetworkFeeView()
     let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
@@ -50,6 +51,9 @@ final class StakingRewardDestSetupLayout: UIView {
         payoutOptionView.title = R.string.localizable
             .stakingPayoutTitle(preferredLanguages: locale.rLanguages)
 
+        accountView.title = R.string.localizable
+            .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
     }
@@ -71,6 +75,14 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(payoutOptionView)
         payoutOptionView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(72.0)
+        }
+
+        contentView.stackView.setCustomSpacing(16.0, after: payoutOptionView)
+
+        contentView.stackView.addArrangedSubview(accountView)
+        accountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(72.0)
         }
@@ -113,6 +125,16 @@ final class StakingRewardDestSetupLayout: UIView {
 
         view.iconView.image = R.image.listCheckmarkIcon()!
         view.isSelected = false
+
+        return view
+    }
+
+    private static func createAccountView() -> DetailsTriangularedView {
+        let view = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.highlightedFillColor = R.color.colorHighlightedPink()!
+        view.actionImage = R.image.iconSmallArrowDown()
 
         return view
     }
