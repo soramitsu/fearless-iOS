@@ -13,6 +13,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     }
 
     func createViewModel(
+        stashItem: StashItem,
         stashAccountItem: AccountItem,
         chosenAccountItem: AccountItem
     ) -> ControllerAccountViewModel {
@@ -54,7 +55,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             if stashAccountItem.address == self.currentAccountItem.address {
                 return .hidden
             }
-            if chosenAccountItem.address == self.currentAccountItem.address {
+            if chosenAccountItem.address == stashItem.controller {
                 return .enabled(false)
             }
             return .enabled(true)

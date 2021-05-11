@@ -42,10 +42,12 @@ final class ControllerAccountPresenter {
 
     private func updateView() {
         guard
+            let stashItem = stashItem,
             let stashAccountItem = stashAccount,
             let chosenAccountItem = chosenAccountItem
         else { return }
         let viewModel = viewModelFactory.createViewModel(
+            stashItem: stashItem,
             stashAccountItem: stashAccountItem,
             chosenAccountItem: chosenAccountItem
         )
