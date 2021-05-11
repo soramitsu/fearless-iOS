@@ -26,7 +26,7 @@ enum CalculationPeriod {
 protocol RewardCalculatorEngineProtocol {
     func calculateEarnings(
         amount: Decimal,
-        validatorAccountId: Data,
+        validatorAccountId: AccountId,
         isCompound: Bool,
         period: CalculationPeriod
     ) throws -> Decimal
@@ -38,7 +38,7 @@ protocol RewardCalculatorEngineProtocol {
 
 extension RewardCalculatorEngineProtocol {
     func calculateValidatorReturn(
-        validatorAccountId: Data,
+        validatorAccountId: AccountId,
         isCompound: Bool,
         period: CalculationPeriod
     ) throws -> Decimal {
@@ -132,6 +132,13 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
         return Decimal.fromSubstratePerbill(value: commission) ?? 0.0
     }()
 
+    private lazy var maxValidator: EraValidatorInfo? = {
+        validators.max {
+            calculateEarningsForValidator($0, amount: 1.0, isCompound: false, period: .year) <
+                calculateEarningsForValidator($1, amount: 1.0, isCompound: false, period: .year)
+        }
+    }()
+
     init(
         totalIssuance: BigUInt,
         validators: [EraValidatorInfo],
@@ -159,9 +166,16 @@ final class RewardCalculatorEngine: RewardCalculatorEngineProtocol {
     }
 
     func calculateMaxEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
-        validators
-            .map { calculateEarningsForValidator($0, amount: amount, isCompound: isCompound, period: period) }
-            .max() ?? 0.0
+        guard let validator = maxValidator else {
+            return 0.0
+        }
+
+        return calculateEarningsForValidator(
+            validator,
+            amount: amount,
+            isCompound: isCompound,
+            period: period
+        )
     }
 
     func calculateAvgEarnings(amount: Decimal, isCompound: Bool, period: CalculationPeriod) -> Decimal {
