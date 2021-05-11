@@ -247,17 +247,25 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
         if let reward = viewModel.rewardViewModel {
-            restakeView.earningTitle = reward.restakeAmount
-            restakeView.earningsSubtitle = reward.restakePercentage
-            payoutView.earningTitle = reward.payoutAmount
-            payoutView.earningsSubtitle = reward.payoutPercentage
+            restakeView.amountTitle = reward.restakeAmount
+            restakeView.incomeTitle = reward.restakePercentage
+            restakeView.priceTitle = reward.restakePrice
+            payoutView.amountTitle = reward.payoutAmount
+            payoutView.incomeTitle = reward.payoutPercentage
+            payoutView.priceTitle = reward.payoutPrice
         } else {
-            restakeView.earningTitle = "0"
-            payoutView.earningTitle = "0"
+            restakeView.amountTitle = ""
+            restakeView.priceTitle = ""
+            restakeView.incomeTitle = ""
+            payoutView.amountTitle = ""
+            payoutView.priceTitle = ""
+            payoutView.incomeTitle = ""
         }
 
         restakeView.titleLabel.textColor = restakeColor
+        restakeView.amountLabel.textColor = restakeColor
         payoutView.titleLabel.textColor = payoutColor
+        payoutView.amountLabel.textColor = payoutColor
 
         restakeView.setNeedsLayout()
         payoutView.setNeedsLayout()

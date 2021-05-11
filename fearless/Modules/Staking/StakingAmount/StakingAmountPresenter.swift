@@ -72,11 +72,11 @@ final class StakingAmountPresenter {
 
             switch rewardDestination {
             case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             case .payout:
                 let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: reward, account: payoutAccount)
+                    .createPayout(from: reward, priceData: priceData, account: payoutAccount)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             }
         } catch {
@@ -294,6 +294,7 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         priceData = price
         provideAsset()
         provideFee()
+        provideRewardDestination()
     }
 
     func didReceive(balance: AccountData?) {

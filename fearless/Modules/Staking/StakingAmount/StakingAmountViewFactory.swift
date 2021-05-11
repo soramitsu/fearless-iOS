@@ -52,12 +52,16 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        let rewardDestViewModelFactory = RewardDestinationViewModelFactory(asset: asset)
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
             selectedAddressType: networkType,
             limit: StakingConstants.maxAmount
         )
+
+        let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
         let presenter = StakingAmountPresenter(
             amount: amount,
             asset: asset,

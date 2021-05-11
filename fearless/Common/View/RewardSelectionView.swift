@@ -3,8 +3,9 @@ import SoraUI
 
 class RewardSelectionView: BackgroundedContentControl {
     private(set) var titleLabel: UILabel!
-    private(set) var earningsTitleLabel: UILabel!
-    private(set) var earningsSubtitleLabel: UILabel!
+    private(set) var incomeLabel: UILabel!
+    private(set) var amountLabel: UILabel!
+    private(set) var priceLabel: UILabel!
     private(set) var iconView: UIImageView!
 
     var triangularedBackgroundView: TriangularedView? {
@@ -36,11 +37,8 @@ class RewardSelectionView: BackgroundedContentControl {
     }
 
     override var intrinsicContentSize: CGSize {
-        let topContentHeight =
-            earningsTitleLabel.intrinsicContentSize.height
-
-        let bottomContentHeight =
-            earningsSubtitleLabel.intrinsicContentSize.height
+        let topContentHeight = max(titleLabel.intrinsicContentSize.height, amountLabel.intrinsicContentSize.height)
+        let bottomContentHeight = max(incomeLabel.intrinsicContentSize.height, priceLabel.intrinsicContentSize.height)
 
         let height = contentInsets.top + topContentHeight + verticalSpacing
             + bottomContentHeight + contentInsets.bottom
@@ -83,50 +81,57 @@ class RewardSelectionView: BackgroundedContentControl {
             width: selectionWidth,
             height: bounds.height
         )
+    }
 
+    private func layoutTopContent() {
         let availableWidth = bounds.width - selectionWidth - contentInsets.right
+
+        let amountSize = amountLabel.intrinsicContentSize
+
+        let amountClippedWidth = max(min(availableWidth, amountSize.width), 0.0)
+
+        amountLabel.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - amountClippedWidth,
+            y: bounds.minY + contentInsets.top,
+            width: amountClippedWidth,
+            height: amountSize.height
+        )
+
         let titleSize = titleLabel.intrinsicContentSize
+
+        let titleClippedWidth = max(min(availableWidth - amountClippedWidth - horizontalSpacing, titleSize.width), 0)
 
         titleLabel.frame = CGRect(
             x: bounds.minX + selectionWidth,
-            y: (bounds.height - titleSize.height) / 2.0,
-            width: min(availableWidth, titleSize.width),
+            y: bounds.minY + contentInsets.top,
+            width: titleClippedWidth,
             height: titleSize.height
         )
     }
 
-    private func layoutTopContent() {
-        let earningsSize = earningsTitleLabel.intrinsicContentSize
-
-        let centerY = bounds.minY + contentInsets.top + earningsSize.height / 2.0
-
-        let estimatedEarningsWidth = bounds.maxX - contentInsets.right
-            - titleLabel.frame.maxX - horizontalSpacing
-        let earningsWidth = max(min(estimatedEarningsWidth, earningsSize.width), 0.0)
-
-        earningsTitleLabel.frame = CGRect(
-            x: bounds.maxX - contentInsets.right - earningsWidth,
-            y: centerY - earningsSize.height / 2.0,
-            width: earningsWidth,
-            height: earningsSize.height
-        )
-    }
-
     private func layoutBottomContent() {
-        let earningsSize = earningsSubtitleLabel.intrinsicContentSize
+        let availableWidth = bounds.width - selectionWidth - contentInsets.right
 
-        let centerY = bounds.maxY - contentInsets.bottom -
-            earningsSize.height / 2.0
+        let incomeSize = incomeLabel.intrinsicContentSize
 
-        let estimatedEarningsWidth = bounds.maxX - contentInsets.right
-            - titleLabel.frame.maxX - horizontalSpacing
-        let earningsWidth = max(min(estimatedEarningsWidth, earningsSize.width), 0.0)
+        let incomeClippedWidth = max(min(availableWidth, incomeSize.width), 0.0)
 
-        earningsSubtitleLabel.frame = CGRect(
-            x: bounds.maxX - contentInsets.right - earningsWidth,
-            y: centerY - earningsSize.height / 2.0,
-            width: earningsWidth,
-            height: earningsSize.height
+        incomeLabel.frame = CGRect(
+            x: bounds.minX + selectionWidth,
+            y: bounds.maxY - contentInsets.bottom - incomeSize.height,
+            width: incomeClippedWidth,
+            height: incomeSize.height
+        )
+
+        let priceSize = priceLabel.intrinsicContentSize
+
+        let priceClippedWidth = max(min(availableWidth - incomeClippedWidth - horizontalSpacing, priceSize.width), 0)
+
+        priceLabel.frame = CGRect(
+            x: bounds.maxX - contentInsets.right - priceClippedWidth,
+            y: bounds.maxY - contentInsets.bottom - priceSize.height,
+            width: priceClippedWidth,
+            height: priceSize.height
         )
     }
 
@@ -163,14 +168,19 @@ class RewardSelectionView: BackgroundedContentControl {
             contentView?.addSubview(titleLabel)
         }
 
-        if earningsTitleLabel == nil {
-            earningsTitleLabel = UILabel()
-            contentView?.addSubview(earningsTitleLabel)
+        if amountLabel == nil {
+            amountLabel = UILabel()
+            contentView?.addSubview(amountLabel)
         }
 
-        if earningsSubtitleLabel == nil {
-            earningsSubtitleLabel = UILabel()
-            contentView?.addSubview(earningsSubtitleLabel)
+        if priceLabel == nil {
+            priceLabel = UILabel()
+            contentView?.addSubview(priceLabel)
+        }
+
+        if incomeLabel == nil {
+            incomeLabel = UILabel()
+            contentView?.addSubview(incomeLabel)
         }
 
         if iconView == nil {
