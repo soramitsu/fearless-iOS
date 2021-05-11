@@ -103,7 +103,7 @@ final class TransactionDetailsViewModelFactory {
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        guard let displayAmount = formatter.value(for: locale).string(from: amount) else {
+        guard let displayAmount = formatter.value(for: locale).stringFromDecimal(amount) else {
             return
         }
 
@@ -144,7 +144,7 @@ final class TransactionDetailsViewModelFactory {
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
 
         for fee in data.fees where fee.assetId == data.assetId {
-            guard let amount = formatter.string(from: fee.amount.decimalValue) else {
+            guard let amount = formatter.stringFromDecimal(fee.amount.decimalValue) else {
                 continue
             }
 

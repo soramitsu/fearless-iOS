@@ -31,8 +31,8 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveStashAccount(result: Result<AccountItem?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
 }
 
 protocol ControllerAccountWireframeProtocol: WebPresentable,

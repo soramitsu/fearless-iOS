@@ -3,11 +3,11 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
-typealias DecodedAccountInfo = ChainStorageDecodedItem<DyAccountInfo>
+typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
-typealias DecodedLedgerInfo = ChainStorageDecodedItem<DyStakingLedger>
+typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 

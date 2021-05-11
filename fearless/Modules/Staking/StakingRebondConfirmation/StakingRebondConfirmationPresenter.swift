@@ -46,7 +46,7 @@ final class StakingRebondConfirmationPresenter {
         }
     }
 
-    private var stakingLedger: DyStakingLedger?
+    private var stakingLedger: StakingLedger?
     private var activeEra: UInt32?
     private var balance: Decimal?
     private var priceData: PriceData?
@@ -183,7 +183,7 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteracto
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
@@ -199,7 +199,7 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteracto
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             self.stakingLedger = stakingLedger

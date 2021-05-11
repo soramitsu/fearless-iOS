@@ -11,7 +11,7 @@ final class StakingBalancePresenter {
     private var controllerAddress: AccountAddress?
     private var stashItem: StashItem?
     private var activeEra: EraIndex?
-    private var stakingLedger: DyStakingLedger?
+    private var stakingLedger: StakingLedger?
     private var priceData: PriceData?
     var electionStatus: ElectionStatus?
 
@@ -119,7 +119,7 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
 }
 
 extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
-    func didReceive(ledgerResult: Result<DyStakingLedger?, Error>) {
+    func didReceive(ledgerResult: Result<StakingLedger?, Error>) {
         switch ledgerResult {
         case let .success(ledger):
             stakingLedger = ledger

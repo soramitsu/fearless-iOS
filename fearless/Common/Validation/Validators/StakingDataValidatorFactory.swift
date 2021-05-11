@@ -38,14 +38,13 @@ protocol StakingDataValidatingFactoryProtocol {
         locale: Locale
     ) -> DataValidating
 
-    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
-
     func ledgerNotExist(
-        stakingLedger: DyStakingLedger?,
+        stakingLedger: StakingLedger?,
         for controller: AccountAddress?,
         addressType: SNAddressType,
         locale: Locale
     ) -> DataValidating
+    func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -243,7 +242,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         })
     }
 
-    func hasRedeemable(stakingLedger: DyStakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating {
+    func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
             guard let view = self?.view else {
                 return
@@ -260,7 +259,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
     }
 
     func ledgerNotExist(
-        stakingLedger: DyStakingLedger?,
+        stakingLedger: StakingLedger?,
         for controller: AccountAddress?,
         addressType: SNAddressType,
         locale: Locale

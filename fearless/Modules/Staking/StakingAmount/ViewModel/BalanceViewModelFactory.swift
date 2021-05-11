@@ -50,7 +50,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
-            return formatter.string(from: targetAmount) ?? ""
+            return formatter.stringFromDecimal(targetAmount) ?? ""
         }
     }
 
@@ -59,7 +59,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
 
         return LocalizableResource { locale in
             let formatter = localizableFormatter.value(for: locale)
-            return formatter.string(from: value) ?? ""
+            return formatter.stringFromDecimal(value) ?? ""
         }
     }
 
@@ -73,7 +73,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)
 
-            let amountString = amountFormatter.string(from: amount) ?? ""
+            let amountString = amountFormatter.stringFromDecimal(amount) ?? ""
 
             guard let priceData = priceData, let rate = Decimal(string: priceData.price) else {
                 return BalanceViewModel(amount: amountString, price: nil)
@@ -82,7 +82,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             let targetAmount = rate * amount
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
-            let priceString = priceFormatter.string(from: targetAmount) ?? ""
+            let priceString = priceFormatter.stringFromDecimal(targetAmount) ?? ""
 
             return BalanceViewModel(amount: amountString, price: priceString)
         }
@@ -126,7 +126,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
                 let targetAmount = rate * amount
 
                 let priceFormatter = localizablePriceFormatter.value(for: locale)
-                priceString = priceFormatter.string(from: targetAmount)
+                priceString = priceFormatter.stringFromDecimal(targetAmount)
             } else {
                 priceString = nil
             }
@@ -136,7 +136,7 @@ final class BalanceViewModelFactory: BalanceViewModelFactoryProtocol {
             let balanceString: String?
 
             if let balance = balance {
-                balanceString = balanceFormatter.string(from: balance)
+                balanceString = balanceFormatter.stringFromDecimal(balance)
             } else {
                 balanceString = nil
             }

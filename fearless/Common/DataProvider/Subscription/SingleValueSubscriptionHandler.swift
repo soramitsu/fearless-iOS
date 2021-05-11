@@ -9,7 +9,7 @@ protocol SingleValueSubscriptionHandler {
         assetId: WalletAssetId
     )
 
-    func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address: AccountAddress)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress)
 
     func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain: Chain)
 
@@ -17,7 +17,7 @@ protocol SingleValueSubscriptionHandler {
 
     func handleValidator(result: Result<ValidatorPrefs?, Error>, address: AccountAddress)
 
-    func handleLedgerInfo(result: Result<DyStakingLedger?, Error>, address: AccountAddress)
+    func handleLedgerInfo(result: Result<StakingLedger?, Error>, address: AccountAddress)
 
     func handleActiveEra(result: Result<ActiveEraInfo?, Error>, chain: Chain)
 
@@ -33,7 +33,7 @@ extension SingleValueSubscriptionHandler {
         assetId _: WalletAssetId
     ) {}
 
-    func handleAccountInfo(result _: Result<DyAccountInfo?, Error>, address _: AccountAddress) {}
+    func handleAccountInfo(result _: Result<AccountInfo?, Error>, address _: AccountAddress) {}
 
     func handleElectionStatus(result _: Result<ElectionStatus?, Error>, chain _: Chain) {}
 
@@ -41,7 +41,7 @@ extension SingleValueSubscriptionHandler {
 
     func handleValidator(result _: Result<ValidatorPrefs?, Error>, address _: AccountAddress) {}
 
-    func handleLedgerInfo(result _: Result<DyStakingLedger?, Error>, address _: AccountAddress) {}
+    func handleLedgerInfo(result _: Result<StakingLedger?, Error>, address _: AccountAddress) {}
 
     func handleActiveEra(result _: Result<ActiveEraInfo?, Error>, chain _: Chain) {}
 

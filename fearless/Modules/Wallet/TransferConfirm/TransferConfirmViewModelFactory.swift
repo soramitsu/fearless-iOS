@@ -34,7 +34,7 @@ final class TransferConfirmViewModelFactory {
         let context = BalanceContext(context: payload.transferInfo.context ?? [:])
 
         let amountFormatter = amountFormatterFactory.createTokenFormatter(for: asset)
-        let details = amountFormatter.value(for: locale).string(from: context.available) ?? ""
+        let details = amountFormatter.value(for: locale).stringFromDecimal(context.available) ?? ""
 
         let detailsCommand: WalletCommandProtocol?
 
@@ -90,7 +90,7 @@ final class TransferConfirmViewModelFactory {
         for fee in payload.transferInfo.fees {
             let decimalAmount = fee.value.decimalValue
 
-            guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+            guard let amount = formatter.value(for: locale).stringFromDecimal(decimalAmount) else {
                 return
             }
 
@@ -203,7 +203,7 @@ extension TransferConfirmViewModelFactory: TransferConfirmationViewModelFactoryO
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
-        guard let amount = formatter.value(for: locale).string(from: decimalAmount) else {
+        guard let amount = formatter.value(for: locale).stringFromDecimal(decimalAmount) else {
             return nil
         }
 

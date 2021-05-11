@@ -1,7 +1,7 @@
 import Foundation
 
 final class BondedState: BaseStashNextState {
-    private(set) var ledgerInfo: DyStakingLedger
+    private(set) var ledgerInfo: StakingLedger
 
     private(set) var rewardEstimationAmount: Decimal?
 
@@ -9,7 +9,7 @@ final class BondedState: BaseStashNextState {
         stateMachine: StakingStateMachineProtocol,
         commonData: StakingStateCommonData,
         stashItem: StashItem,
-        ledgerInfo: DyStakingLedger,
+        ledgerInfo: StakingLedger,
         totalReward: TotalRewardItem?,
         rewardEstimationAmount: Decimal? = nil,
         payee: RewardDestinationArg?
@@ -36,7 +36,7 @@ final class BondedState: BaseStashNextState {
         stateMachine?.transit(to: self)
     }
 
-    override func process(ledgerInfo: DyStakingLedger?) {
+    override func process(ledgerInfo: StakingLedger?) {
         guard let stateMachine = stateMachine else {
             return
         }

@@ -14,7 +14,7 @@ final class YourValidatorsPresenter {
     private var controllerAccount: AccountItem?
     private var stashItem: StashItem?
     private var electionStatus: ElectionStatus?
-    private var ledger: DyStakingLedger?
+    private var ledger: StakingLedger?
     private var rewardDestinationArg: RewardDestinationArg?
     private var lastError: Error?
 
@@ -176,7 +176,7 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         }
     }
 
-    func didReceiveLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(item):
             ledger = item

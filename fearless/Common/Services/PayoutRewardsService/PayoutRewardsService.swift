@@ -64,7 +64,7 @@ final class PayoutRewardsService: PayoutRewardsServiceProtocol {
                     $0.addDependency(codingFactoryOperation)
                 }
 
-            let ledgerInfos: CompoundOperationWrapper<[DyStakingLedger]> =
+            let ledgerInfos: CompoundOperationWrapper<[StakingLedger]> =
                 try createFetchAndMapOperation(
                     dependingOn: controllersWrapper.targetOperation,
                     codingFactoryOperation: codingFactoryOperation,

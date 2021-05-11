@@ -20,7 +20,7 @@ final class ControllerAccountPresenter {
     private var canChooseOtherController = false
     private var fee: Decimal?
     private var balance: Decimal?
-    private var stakingLedger: DyStakingLedger?
+    private var stakingLedger: StakingLedger?
 
     init(
         wireframe: ControllerAccountWireframeProtocol,
@@ -203,7 +203,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
@@ -219,7 +219,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             self.stakingLedger = stakingLedger
