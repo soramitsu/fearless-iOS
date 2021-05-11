@@ -201,7 +201,7 @@ final class ValidatorOperationFactory {
 
                     let stakeReturn = try returnCalculator.calculateValidatorReturn(
                         validatorAccountId: validatorId,
-                        isCompound: false,
+                        isCompound: true,
                         period: .year
                     )
 
@@ -282,7 +282,7 @@ final class ValidatorOperationFactory {
 
                     let stakeReturn = try returnCalculator.calculateValidatorReturn(
                         validatorAccountId: validator.accountId,
-                        isCompound: false,
+                        isCompound: true,
                         period: .year
                     )
 
