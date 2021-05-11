@@ -9,5 +9,10 @@ struct ControllerAccountViewModel {
     let stashViewModel: LocalizableResource<AccountInfoViewModel>
     let controllerViewModel: LocalizableResource<AccountInfoViewModel>
     let actionButtonState: ControllerAccountActionButtonState
-    let canChooseOtherController: Bool
+}
+
+extension ControllerAccountViewModel {
+    var canChooseOtherController: Bool {
+        actionButtonState == .hidden ? false : true
+    }
 }

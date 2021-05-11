@@ -61,13 +61,10 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return .enabled(true)
         }()
 
-        let canChooseOtherController = buttonState == .hidden ? false : true
-
         return ControllerAccountViewModel(
             stashViewModel: stashViewModel,
             controllerViewModel: controllerViewModel,
-            actionButtonState: buttonState,
-            canChooseOtherController: canChooseOtherController
+            actionButtonState: buttonState
         )
     }
 }
