@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 final class StakingRewardDestSetupPresenter {
     weak var view: StakingRewardDestSetupViewProtocol?
@@ -10,6 +11,12 @@ final class StakingRewardDestSetupPresenter {
     let applicationConfig: ApplicationConfigProtocol
     let chain: Chain
     let logger: LoggerProtocol?
+
+    private var rewardDestination: RewardDestination<AccountItem> = .restake
+    private var calculator: RewardCalculatorEngineProtocol?
+    private var priceData: PriceData?
+    private var amount: Decimal?
+    private var fee: Decimal?
 
     init(
         wireframe: StakingRewardDestSetupWireframeProtocol,
@@ -28,10 +35,64 @@ final class StakingRewardDestSetupPresenter {
         self.chain = chain
         self.logger = logger
     }
+
+    // MARK: - Private functions
+
+//    private func provideRewardDestination() {
+//        do {
+//            let reward: CalculatedReward?
+//
+//            if let calculator = calculator {
+//                let restake = try calculator.calculateNetworkReturn(
+//                    isCompound: true,
+//                    period: .year
+//                )
+//
+//                let payout = try calculator.calculateNetworkReturn(
+//                    isCompound: false,
+//                    period: .year
+//                )
+//
+//                let curAmount = amount ?? 0.0
+//                reward = CalculatedReward(
+//                    restakeReturn: restake * curAmount,
+//                    restakeReturnPercentage: restake,
+//                    payoutReturn: payout * curAmount,
+//                    payoutReturnPercentage: payout
+//                )
+//            } else {
+//                reward = nil
+//            }
+//
+//            switch rewardDestination {
+//            case .restake:
+//                let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
+//                view?.didReceiveRewardDestination(viewModel: viewModel)
+//            case .payout:
+//                let viewModel = try rewardDestViewModelFactory
+//                    .createPayout(from: reward, account: payoutAccount)
+//                view?.didReceiveRewardDestination(viewModel: viewModel)
+//            }
+//        } catch {
+//            logger.error("Can't create reward destination")
+//        }
+//    }
+//
+    private func provideFeeViewModel() {
+        if let fee = fee {
+            let feeViewModel = balanceViewModelFactory.balanceFromPrice(fee, priceData: priceData)
+            view?.didReceiveFee(viewModel: feeViewModel)
+        } else {
+            view?.didReceiveFee(viewModel: nil)
+        }
+    }
 }
 
 extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtocol {
     func setup() {
+//        provideRewardDestination()
+        provideFeeViewModel()
+
         interactor.setup()
     }
 
@@ -93,4 +154,17 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     }
 }
 
-extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutputProtocol {}
+extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutputProtocol {
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
+        switch result {
+        case let .success(dispatchInfo):
+            if let fee = BigUInt(dispatchInfo.fee) {
+                self.fee = Decimal.fromSubstrateAmount(fee, precision: chain.addressType.precision)
+            }
+
+            provideFeeViewModel()
+        case let .failure(error):
+            logger?.error("Did receive fee error: \(error)")
+        }
+    }
+}

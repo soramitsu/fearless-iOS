@@ -3,6 +3,7 @@ import SoraFoundation
 
 protocol StakingRewardDestSetupViewProtocol: ControllerBackedProtocol, Localizable {
     #warning("Not implemented")
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
 protocol StakingRewardDestSetupPresenterProtocol: AnyObject {
@@ -20,6 +21,7 @@ protocol StakingRewardDestSetupInteractorInputProtocol: AnyObject {
 
 protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     #warning("Not implemented")
+    func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
 }
 
 protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,

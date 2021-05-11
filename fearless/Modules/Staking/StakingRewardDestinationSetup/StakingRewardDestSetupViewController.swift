@@ -153,6 +153,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
         rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
         rootView.restakeOptionView.addTarget(self, action: #selector(actionRestake), for: .touchUpInside)
         rootView.payoutOptionView.addTarget(self, action: #selector(actionPayout), for: .touchUpInside)
+        rootView.accountView.addTarget(self, action: #selector(actionSelectPayoutAccount), for: .touchUpInside)
 
         rootView.restakeOptionView.isSelected = true
         rootView.payoutOptionView.isSelected = false
