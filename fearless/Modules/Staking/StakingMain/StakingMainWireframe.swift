@@ -99,4 +99,13 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
             animated: true
         )
     }
+
+    func showRewardDestination(from view: ControllerBackedProtocol?) {
+        guard let displayView = StakingRewardDestSetupViewFactory.createView() else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: displayView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }
