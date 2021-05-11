@@ -4,40 +4,37 @@ import FearlessUtils
 import CommonWallet
 
 protocol RewardDestinationViewModelFactoryProtocol {
-    func createRestake(from model: CalculatedReward?)
+    func createRestake(from model: CalculatedReward?, priceData: PriceData?)
         -> LocalizableResource<RewardDestinationViewModelProtocol>
 
-    func createPayout(from model: CalculatedReward?, account: AccountItem) throws
+    func createPayout(from model: CalculatedReward?, priceData: PriceData?, account: AccountItem) throws
         -> LocalizableResource<RewardDestinationViewModelProtocol>
 }
 
 final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
-    private lazy var tokenFormatter = AmountFormatterFactory()
+    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
 
-    let asset: WalletAsset
-
-    init(asset: WalletAsset) {
-        self.asset = asset
+    init(balanceViewModelFactory: BalanceViewModelFactoryProtocol) {
+        self.balanceViewModelFactory = balanceViewModelFactory
     }
 
     func createRestake(
-        from model: CalculatedReward?
+        from model: CalculatedReward?,
+        priceData: PriceData?
     ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         guard let model = model else {
             return createEmptyReturnViewModel(from: .restake)
         }
 
-        let amountFormatter = tokenFormatter.createTokenFormatter(for: asset)
-
         return createViewModel(
             from: model,
-            amountFormatter: amountFormatter,
+            priceData: priceData,
             type: .restake
         )
     }
 
-    func createPayout(from model: CalculatedReward?, account: AccountItem) throws
+    func createPayout(from model: CalculatedReward?, priceData: PriceData?, account: AccountItem) throws
         -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(account.address)
 
@@ -47,10 +44,9 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
             return createEmptyReturnViewModel(from: type)
         }
 
-        let amountFormatter = tokenFormatter.createTokenFormatter(for: asset)
         return createViewModel(
             from: model,
-            amountFormatter: amountFormatter,
+            priceData: priceData,
             type: type
         )
     }
@@ -67,34 +63,41 @@ final class RewardDestinationViewModelFactory: RewardDestinationViewModelFactory
 
     func createViewModel(
         from model: CalculatedReward,
-        amountFormatter: LocalizableResource<TokenFormatter>,
+        priceData: PriceData?,
         type: RewardDestinationTypeViewModel
     ) -> LocalizableResource<RewardDestinationViewModelProtocol> {
         let percentageAPYFormatter = NumberFormatter.positivePercentAPY.localizableResource()
         let percentageAPRFormatter = NumberFormatter.positivePercentAPR.localizableResource()
 
+        let localizedRestakeBalance = balanceViewModelFactory.balanceFromPrice(
+            model.restakeReturn,
+            priceData: priceData
+        )
+
+        let localizedPayoutBalance = balanceViewModelFactory.balanceFromPrice(
+            model.payoutReturn,
+            priceData: priceData
+        )
+
         return LocalizableResource { locale in
-            let amountFormatter = amountFormatter.value(for: locale)
+            let restakeBalance = localizedRestakeBalance.value(for: locale)
 
-            let zeroAmount = amountFormatter.stringFromDecimal(0.0) ?? "0"
-
-            let restakeAmount = model.restakeReturn > 0.0 ?
-                amountFormatter.stringFromDecimal(model.restakeReturn) : nil
             let restakePercentage = percentageAPYFormatter
                 .value(for: locale)
                 .string(from: model.restakeReturnPercentage as NSNumber)
 
-            let payoutAmount = model.payoutReturn > 0.0 ?
-                amountFormatter.stringFromDecimal(model.payoutReturn) : nil
+            let payoutBalance = localizedPayoutBalance.value(for: locale)
             let payoutPercentage = percentageAPRFormatter
                 .value(for: locale)
                 .string(from: model.payoutReturnPercentage as NSNumber)
 
             let rewardViewModel = DestinationReturnViewModel(
-                restakeAmount: restakeAmount ?? zeroAmount,
+                restakeAmount: restakeBalance.amount,
                 restakePercentage: restakePercentage ?? "",
-                payoutAmount: payoutAmount ?? zeroAmount,
-                payoutPercentage: payoutPercentage ?? ""
+                restakePrice: restakeBalance.price ?? "",
+                payoutAmount: payoutBalance.amount,
+                payoutPercentage: payoutPercentage ?? "",
+                payoutPrice: payoutBalance.price ?? ""
             )
 
             return RewardDestinationViewModel(

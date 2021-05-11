@@ -6,6 +6,7 @@ extension NumberFormatter {
         numberFormatter.numberStyle = .decimal
         numberFormatter.minimumIntegerDigits = 1
         numberFormatter.usesGroupingSeparator = true
+        numberFormatter.roundingMode = .down
         numberFormatter.alwaysShowsDecimalSeparator = false
         return numberFormatter
     }
@@ -16,6 +17,7 @@ extension NumberFormatter {
         numberFormatter.minimumIntegerDigits = 1
         numberFormatter.maximumFractionDigits = 2
         numberFormatter.minimumFractionDigits = 2
+        numberFormatter.roundingMode = .down
         numberFormatter.usesGroupingSeparator = true
         numberFormatter.alwaysShowsDecimalSeparator = false
         return numberFormatter

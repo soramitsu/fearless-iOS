@@ -169,6 +169,18 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         )
     }
 
+    func performRewardInfoAction() {
+        guard let rewardCalculator = stateMachine
+            .viewState(using: { (state: BaseStakingState) in state })?.commonData.calculatorEngine else {
+            return
+        }
+
+        let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
+        let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+
+        wireframe.showRewardDetails(from: view, maxReward: maxReward, avgReward: avgReward)
+    }
+
     func updateAmount(_ newValue: Decimal) {
         stateMachine.state.process(rewardEstimationAmount: newValue)
     }

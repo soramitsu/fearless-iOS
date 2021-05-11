@@ -7,17 +7,17 @@ import CommonWallet
 final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     var presenter: StakingAmountPresenterProtocol!
 
+    @IBOutlet private var inputContainerView: UIView!
     @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var amountInputView: AmountInputView!
-    @IBOutlet private var feeTitleLabel: UILabel!
-    @IBOutlet private var feeDetailsLabel: UILabel!
-    @IBOutlet private var feeActivityIndicator: UIActivityIndicatorView!
     @IBOutlet private var rewardDestinationTitleLabel: UILabel!
     @IBOutlet private var restakeView: RewardSelectionView!
     @IBOutlet private var payoutView: RewardSelectionView!
     @IBOutlet private var chooseRewardView: UIView!
     @IBOutlet private var learnMoreView: DetailsTriangularedView!
     @IBOutlet private var actionButton: TriangularedButton!
+
+    private lazy var networkFeeView = uiFactory.createNetworkFeeView()
 
     private var accountContainerView: UIView?
     private var accountView: DetailsTriangularedView?
@@ -84,6 +84,7 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         containerView.translatesAutoresizingMaskIntoConstraints = false
         containerView.backgroundColor = .clear
         containerView.addSubview(accountView)
+
         accountContainerView = containerView
 
         accountView.leadingAnchor.constraint(
@@ -118,6 +119,11 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
                let insertionIndex = stackView.arrangedSubviews
                .firstIndex(where: { $0 == chooseRewardView }) {
                 stackView.insertArrangedSubview(containerView, at: insertionIndex + 1)
+
+                containerView.widthAnchor.constraint(
+                    equalTo: stackView.widthAnchor,
+                    constant: 0.0
+                ).isActive = true
             }
         }
     }
@@ -148,18 +154,29 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func setupInitNetworkFee() {
-        feeDetailsLabel.text = ""
-        feeActivityIndicator.startAnimating()
+        guard let index = stackView.arrangedSubviews.firstIndex(of: inputContainerView) else {
+            return
+        }
+
+        stackView.insertArrangedSubview(networkFeeView, at: index + 1)
+        stackView.setCustomSpacing(10.0, after: inputContainerView)
+
+        networkFeeView.translatesAutoresizingMaskIntoConstraints = false
+        networkFeeView.widthAnchor.constraint(
+            equalTo: stackView.widthAnchor,
+            constant: -2 * UIConstants.horizontalInset
+        ).isActive = true
+
+        networkFeeView.bind(viewModel: nil)
     }
 
     private func setupLocalization() {
-        let languages = (localizationManager?.selectedLocale ?? Locale.current).rLanguages
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let languages = locale.rLanguages
 
         title = R.string.localizable.stakingStake(preferredLanguages: languages)
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: languages)
-        feeTitleLabel.text = R.string.localizable
-            .commonNetworkFee(preferredLanguages: languages)
         rewardDestinationTitleLabel.text = R.string.localizable
             .stakingRewardDestinationTitle(preferredLanguages: languages)
         restakeView.title = R.string.localizable.stakingRestakeTitle(preferredLanguages: languages)
@@ -168,6 +185,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
             .stakingRewardsLearnMore(preferredLanguages: languages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: languages)
+
+        networkFeeView.locale = locale
 
         applyAsset()
         applyFee()
@@ -203,34 +222,8 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
 
     private func applyFee() {
         let locale = localizationManager?.selectedLocale ?? Locale.current
-        if let fee = feeViewModel?.value(for: locale) {
-            feeActivityIndicator.stopAnimating()
-
-            let amountAttributedString = NSMutableAttributedString(
-                string: fee.amount + "  ",
-                attributes: [
-                    .foregroundColor: R.color.colorWhite()!,
-                    .font: UIFont.p1Paragraph
-                ]
-            )
-
-            if let price = fee.price {
-                let priceAttributedString = NSAttributedString(
-                    string: price,
-                    attributes: [
-                        .foregroundColor: R.color.colorGray()!,
-                        .font: UIFont.p1Paragraph
-                    ]
-                )
-                amountAttributedString.append(priceAttributedString)
-            }
-
-            feeDetailsLabel.attributedText = amountAttributedString
-
-        } else {
-            feeDetailsLabel.text = ""
-            feeActivityIndicator.startAnimating()
-        }
+        let fee = feeViewModel?.value(for: locale)
+        networkFeeView.bind(viewModel: fee)
     }
 
     private func applyRewardDestinationViewModel() {
@@ -247,17 +240,25 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
         let payoutColor = payoutView.isSelected ? R.color.colorWhite()! : R.color.colorLightGray()!
 
         if let reward = viewModel.rewardViewModel {
-            restakeView.earningTitle = reward.restakeAmount
-            restakeView.earningsSubtitle = reward.restakePercentage
-            payoutView.earningTitle = reward.payoutAmount
-            payoutView.earningsSubtitle = reward.payoutPercentage
+            restakeView.amountTitle = reward.restakeAmount
+            restakeView.incomeTitle = reward.restakePercentage
+            restakeView.priceTitle = reward.restakePrice
+            payoutView.amountTitle = reward.payoutAmount
+            payoutView.incomeTitle = reward.payoutPercentage
+            payoutView.priceTitle = reward.payoutPrice
         } else {
-            restakeView.earningTitle = "0"
-            payoutView.earningTitle = "0"
+            restakeView.amountTitle = ""
+            restakeView.priceTitle = ""
+            restakeView.incomeTitle = ""
+            payoutView.amountTitle = ""
+            payoutView.priceTitle = ""
+            payoutView.incomeTitle = ""
         }
 
         restakeView.titleLabel.textColor = restakeColor
+        restakeView.amountLabel.textColor = restakeColor
         payoutView.titleLabel.textColor = payoutColor
+        payoutView.amountLabel.textColor = payoutColor
 
         restakeView.setNeedsLayout()
         payoutView.setNeedsLayout()

@@ -16,14 +16,6 @@ final class StakingRebondSetupLayout: UIView {
 
     let networkFeeView = NetworkFeeView()
 
-    let footerLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorLightGray()
-        label.font = .p2Paragraph
-        label.numberOfLines = 0
-        return label
-    }()
-
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
