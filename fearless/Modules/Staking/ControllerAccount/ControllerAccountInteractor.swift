@@ -138,21 +138,7 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
             presenter.didReceiveStashItem(result: .success(maybeStashItem))
 
             if let stashItem = maybeStashItem {
-                accountInfoProvider = subscribeToAccountInfoProvider(
-                    for: stashItem.stash,
-                    runtimeService: runtimeService
-                )
-                fetchAccount(
-                    for: stashItem.stash,
-                    from: accountRepository,
-                    operationManager: operationManager
-                ) { [weak self] result in
-                    if case let .success(maybeStash) = result, let stash = maybeStash {
-                        self?.estimateFee(for: stash)
-                    }
-
-                    self?.presenter.didReceiveStashAccount(result: result)
-                }
+                handle(stashItem: stashItem)
             }
         } catch {
             presenter.didReceiveStashItem(result: .failure(error))
@@ -165,6 +151,32 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
 
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
         presenter.didReceiveStakingLedger(result: result)
+    }
+
+    private func handle(stashItem: StashItem) {
+        accountInfoProvider = subscribeToAccountInfoProvider(
+            for: stashItem.stash,
+            runtimeService: runtimeService
+        )
+        fetchAccount(
+            for: stashItem.stash,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveStashAccount(result: result)
+        }
+
+        fetchAccount(
+            for: stashItem.controller,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            if case let .success(maybeController) = result, let controller = maybeController {
+                self?.estimateFee(for: controller)
+            }
+
+            self?.presenter.didReceiveControllerAccount(result: result)
+        }
     }
 }
 

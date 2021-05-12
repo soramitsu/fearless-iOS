@@ -144,7 +144,6 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             ),
             dataValidatingFactory.ledgerNotExist(
                 stakingLedger: stakingLedger,
-                for: chosenAccountItem?.address,
                 addressType: chain.addressType,
                 locale: locale
             )
@@ -182,10 +181,19 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         switch result {
         case let .success(accountItem):
             stashAccount = accountItem
-            chosenAccountItem = accountItem
             updateView()
         case let .failure(error):
             logger?.error("Did receive stash account error: \(error)")
+        }
+    }
+
+    func didReceiveControllerAccount(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            chosenAccountItem = accountItem
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive controller account error: \(error)")
         }
     }
 
