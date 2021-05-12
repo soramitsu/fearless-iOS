@@ -5,7 +5,6 @@ import SoraKeystore
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
-        stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem
     ) -> ControllerAccountConfirmationViewProtocol? {
         let settings = SettingsManager.shared
@@ -18,7 +17,6 @@ struct ControllerAccountConfirmationViewFactory {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
         guard let interactor = createInteractor(
-            stashAccountItem: stashAccountItem,
             controllerAccountItem: controllerAccountItem,
             primitiveFactory: primitiveFactory,
             connection: engine,
@@ -37,7 +35,6 @@ struct ControllerAccountConfirmationViewFactory {
         )
 
         let presenter = ControllerAccountConfirmationPresenter(
-            stashAccountItem: stashAccountItem,
             controllerAccountItem: controllerAccountItem,
             chain: chain,
             iconGenerator: PolkadotIconGenerator(),
@@ -58,7 +55,6 @@ struct ControllerAccountConfirmationViewFactory {
     }
 
     private static func createInteractor(
-        stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem,
         primitiveFactory: WalletPrimitiveFactoryProtocol,
         connection: JSONRPCEngine,
@@ -72,8 +68,8 @@ struct ControllerAccountConfirmationViewFactory {
         }
 
         let extrinsicService = ExtrinsicService(
-            address: stashAccountItem.address,
-            cryptoType: stashAccountItem.cryptoType,
+            address: controllerAccountItem.address,
+            cryptoType: controllerAccountItem.cryptoType,
             runtimeRegistry: RuntimeRegistryFacade.sharedService,
             engine: connection,
             operationManager: OperationManagerFacade.sharedManager
@@ -85,7 +81,6 @@ struct ControllerAccountConfirmationViewFactory {
             signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,
-            stashAccountItem: stashAccountItem,
             controllerAccountItem: controllerAccountItem
         )
         return interactor

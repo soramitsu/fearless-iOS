@@ -4,11 +4,9 @@ import SoraFoundation
 final class ControllerAccountWireframe: ControllerAccountWireframeProtocol {
     func showConfirmation(
         from view: ControllerBackedProtocol?,
-        stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem
     ) {
         guard let confirmation = ControllerAccountConfirmationViewFactory.createView(
-            stashAccountItem: stashAccountItem,
             controllerAccountItem: controllerAccountItem
         ) else { return }
         view?.controller.navigationController?.pushViewController(confirmation.controller, animated: true)

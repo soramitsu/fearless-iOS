@@ -8,25 +8,23 @@ final class ControllerAccountConfirmationPresenter {
     var wireframe: ControllerAccountConfirmationWireframeProtocol!
     var interactor: ControllerAccountConfirmationInteractorInputProtocol!
 
-    let iconGenerator: IconGenerating
-    private let stashAccountItem: AccountItem
+    private let iconGenerator: IconGenerating
     private let controllerAccountItem: AccountItem
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
 
+    private var stashAccountItem: AccountItem?
     private var fee: Decimal?
     private var priceData: PriceData?
 
     init(
-        stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem,
         chain: Chain,
         iconGenerator: IconGenerating,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
-        self.stashAccountItem = stashAccountItem
         self.controllerAccountItem = controllerAccountItem
         self.chain = chain
         self.iconGenerator = iconGenerator
@@ -35,9 +33,11 @@ final class ControllerAccountConfirmationPresenter {
     }
 
     private func setupView() {
+        guard let stashAccountItem = stashAccountItem else { return }
+
         let viewModel = LocalizableResource<ControllerAccountConfirmationVM> { locale in
             let stashViewModel = self.createAccountInfoViewModel(
-                self.stashAccountItem,
+                stashAccountItem,
                 title: R.string.localizable.stackingStashAccount(preferredLanguages: locale.rLanguages)
             )
             let controllerViewModel = self.createAccountInfoViewModel(
@@ -88,7 +88,7 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
     }
 
     func handleStashAction() {
-        presentAccountOptions(for: stashAccountItem.address)
+        presentAccountOptions(for: stashAccountItem?.address)
     }
 
     func handleControllerAction() {
@@ -100,8 +100,11 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
         interactor.confirm()
     }
 
-    private func presentAccountOptions(for address: AccountAddress) {
-        guard let view = view else { return }
+    private func presentAccountOptions(for address: AccountAddress?) {
+        guard
+            let view = view,
+            let address = address
+        else { return }
         wireframe.presentAccountOptions(
             from: view,
             address: address,

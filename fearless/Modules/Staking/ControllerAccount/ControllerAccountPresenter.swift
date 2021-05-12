@@ -150,13 +150,11 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
         ]).runValidation { [weak self] in
             guard
                 let self = self,
-                let stashAccountItem = self.stashAccount,
                 let controllerAccountItem = self.chosenAccountItem
             else { return }
 
             self.wireframe.showConfirmation(
                 from: self.view,
-                stashAccountItem: stashAccountItem,
                 controllerAccountItem: controllerAccountItem
             )
         }

@@ -8,7 +8,6 @@ final class ControllerAccountConfirmationInteractor {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let signingWrapper: SigningWrapperProtocol
     private let assetId: WalletAssetId
-    private let stashAccountItem: AccountItem
     private let controllerAccountItem: AccountItem
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -20,7 +19,6 @@ final class ControllerAccountConfirmationInteractor {
         signingWrapper: SigningWrapperProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         assetId: WalletAssetId,
-        stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
@@ -28,14 +26,13 @@ final class ControllerAccountConfirmationInteractor {
         self.signingWrapper = signingWrapper
         self.feeProxy = feeProxy
         self.assetId = assetId
-        self.stashAccountItem = stashAccountItem
         self.controllerAccountItem = controllerAccountItem
     }
 
     private func estimateFee() {
         do {
-            let setController = try callFactory.setController(stashAccountItem.address)
-            let identifier = setController.callName + stashAccountItem.identifier
+            let setController = try callFactory.setController(controllerAccountItem.address)
+            let identifier = setController.callName + controllerAccountItem.identifier
 
             feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
                 try builder.adding(call: setController)
