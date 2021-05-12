@@ -41,6 +41,10 @@ protocol ControllerAccountWireframeProtocol: WebPresentable,
     StakingErrorPresentable,
     AlertPresentable,
     ErrorPresentable {
-    func showConfirmation(from view: ControllerBackedProtocol?)
+    func showConfirmation(
+        from view: ControllerBackedProtocol?,
+        stashAccountItem: AccountItem,
+        controllerAccountItem: AccountItem
+    )
     func close(view: ControllerBackedProtocol?)
 }

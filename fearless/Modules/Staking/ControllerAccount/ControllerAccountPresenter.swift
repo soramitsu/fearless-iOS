@@ -149,7 +149,17 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
                 locale: locale
             )
         ]).runValidation { [weak self] in
-            self?.wireframe.showConfirmation(from: self?.view)
+            guard
+                let self = self,
+                let stashAccountItem = self.stashAccount,
+                let controllerAccountItem = self.chosenAccountItem
+            else { return }
+
+            self.wireframe.showConfirmation(
+                from: self.view,
+                stashAccountItem: stashAccountItem,
+                controllerAccountItem: controllerAccountItem
+            )
         }
     }
 }

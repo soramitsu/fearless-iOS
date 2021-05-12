@@ -2,7 +2,10 @@ import Foundation
 import SoraFoundation
 
 struct ControllerAccountConfirmationViewFactory {
-    static func createView() -> ControllerAccountConfirmationViewProtocol? {
+    static func createView(
+        stashAccountItem _: AccountItem,
+        controllerAccountItem _: AccountItem
+    ) -> ControllerAccountConfirmationViewProtocol? {
         let interactor = ControllerAccountConfirmationInteractor()
         let wireframe = ControllerAccountConfirmationWireframe()
         let presenter = ControllerAccountConfirmationPresenter()
