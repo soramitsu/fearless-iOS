@@ -6,6 +6,10 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
 
     let presenter: ControllerAccountConfirmationPresenterProtocol
 
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
+
     init(
         presenter: ControllerAccountConfirmationPresenterProtocol,
         localizationManager: LocalizationManagerProtocol?
@@ -31,7 +35,21 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
     }
 }
 
-extension ControllerAccountConfirmationVC: ControllerAccountConfirmationViewProtocol {}
+extension ControllerAccountConfirmationVC: ControllerAccountConfirmationViewProtocol {
+    func reload(with viewModel: LocalizableResource<ControllerAccountConfirmationVM>) {
+        let localizedViewModel = viewModel.value(for: selectedLocale)
+
+        let stashViewModel = localizedViewModel.stashViewModel
+        rootView.stashAccountView.title = stashViewModel.title
+        rootView.stashAccountView.subtitle = stashViewModel.name
+        rootView.stashAccountView.iconImage = stashViewModel.icon
+
+        let controllerModel = localizedViewModel.controllerViewModel
+        rootView.controllerAccountView.title = controllerModel.title
+        rootView.controllerAccountView.subtitle = controllerModel.name
+        rootView.controllerAccountView.iconImage = controllerModel.icon
+    }
+}
 
 extension ControllerAccountConfirmationVC: Localizable {
     func applyLocalization() {}

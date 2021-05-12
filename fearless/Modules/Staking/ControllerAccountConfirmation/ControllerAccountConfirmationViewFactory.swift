@@ -1,14 +1,19 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
-        stashAccountItem _: AccountItem,
-        controllerAccountItem _: AccountItem
+        stashAccountItem: AccountItem,
+        controllerAccountItem: AccountItem
     ) -> ControllerAccountConfirmationViewProtocol? {
         let interactor = ControllerAccountConfirmationInteractor()
         let wireframe = ControllerAccountConfirmationWireframe()
-        let presenter = ControllerAccountConfirmationPresenter()
+        let presenter = ControllerAccountConfirmationPresenter(
+            stashAccountItem: stashAccountItem,
+            controllerAccountItem: controllerAccountItem,
+            iconGenerator: PolkadotIconGenerator()
+        )
 
         let view = ControllerAccountConfirmationVC(
             presenter: presenter,

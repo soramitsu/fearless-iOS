@@ -1,6 +1,8 @@
 import SoraFoundation
 
-protocol ControllerAccountConfirmationViewProtocol: ControllerBackedProtocol, Localizable {}
+protocol ControllerAccountConfirmationViewProtocol: ControllerBackedProtocol, Localizable {
+    func reload(with viewModel: LocalizableResource<ControllerAccountConfirmationVM>)
+}
 
 protocol ControllerAccountConfirmationPresenterProtocol: AnyObject {
     func setup()
