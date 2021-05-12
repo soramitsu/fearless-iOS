@@ -7,6 +7,9 @@ protocol ControllerAccountConfirmationViewProtocol: ControllerBackedProtocol, Lo
 
 protocol ControllerAccountConfirmationPresenterProtocol: AnyObject {
     func setup()
+    func handleStashAction()
+    func handleControllerAction()
+    func confirm()
 }
 
 protocol ControllerAccountConfirmationInteractorInputProtocol: AnyObject {
@@ -18,4 +21,4 @@ protocol ControllerAccountConfirmationInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
-protocol ControllerAccountConfirmationWireframeProtocol: AnyObject {}
+protocol ControllerAccountConfirmationWireframeProtocol: AddressOptionsPresentable {}

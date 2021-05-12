@@ -33,6 +33,7 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
         super.viewDidLoad()
 
         setupLocalization()
+        setupActions()
         presenter.setup()
     }
 
@@ -46,6 +47,28 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
     private func applyFeeViewModel() {
         let viewModel = feeViewModel?.value(for: selectedLocale)
         rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
+    }
+
+    private func setupActions() {
+        rootView.networkFeeConfirmView
+            .actionButton.addTarget(self, action: #selector(handleActionButton), for: .touchUpInside)
+        rootView.stashAccountView.addTarget(self, action: #selector(handleStashAction), for: .touchUpInside)
+        rootView.controllerAccountView.addTarget(self, action: #selector(handleControllerAction), for: .touchUpInside)
+    }
+
+    @objc
+    private func handleActionButton() {
+        presenter.confirm()
+    }
+
+    @objc
+    private func handleStashAction() {
+        presenter.handleStashAction()
+    }
+
+    @objc
+    private func handleControllerAction() {
+        presenter.handleControllerAction()
     }
 }
 

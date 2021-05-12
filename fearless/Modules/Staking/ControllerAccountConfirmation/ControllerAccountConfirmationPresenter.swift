@@ -86,6 +86,26 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
         provideFeeViewModel()
         interactor.setup()
     }
+
+    func handleStashAction() {
+        presentAccountOptions(for: stashAccountItem.address)
+    }
+
+    func handleControllerAction() {
+        presentAccountOptions(for: controllerAccountItem.address)
+    }
+
+    func confirm() {}
+
+    private func presentAccountOptions(for address: AccountAddress) {
+        guard let view = view else { return }
+        wireframe.presentAccountOptions(
+            from: view,
+            address: address,
+            chain: chain,
+            locale: view.localizationManager?.selectedLocale ?? .current
+        )
+    }
 }
 
 extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationInteractorOutputProtocol {
