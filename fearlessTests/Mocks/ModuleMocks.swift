@@ -22135,6 +22135,21 @@ import SoraFoundation
     
     
     
+     func performRewardInfoAction()  {
+        
+    return cuckoo_manager.call("performRewardInfoAction()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.performRewardInfoAction())
+        
+    }
+    
+    
+    
      func updateAmount(_ newValue: Decimal)  {
         
     return cuckoo_manager.call("updateAmount(_: Decimal)",
@@ -22217,6 +22232,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performValidationStatusAction()", parameterMatchers: matchers))
 	    }
 	    
+	    func performRewardInfoAction() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "performRewardInfoAction()", parameterMatchers: matchers))
+	    }
+	    
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal)> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainPresenterProtocol.self, method: "updateAmount(_: Decimal)", parameterMatchers: matchers))
@@ -22285,6 +22305,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func performRewardInfoAction() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("performRewardInfoAction()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func updateAmount<M1: Cuckoo.Matchable>(_ newValue: M1) -> Cuckoo.__DoNotUse<(Decimal), Void> where M1.MatchedType == Decimal {
 	        let matchers: [Cuckoo.ParameterMatcher<(Decimal)>] = [wrap(matchable: newValue) { $0 }]
 	        return cuckoo_manager.verify("updateAmount(_: Decimal)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -22332,6 +22358,10 @@ import SoraFoundation
     }
     
      func performValidationStatusAction()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func performRewardInfoAction()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -23458,6 +23488,21 @@ import SoraFoundation
     
     
     
+     func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)  {
+        
+    return cuckoo_manager.call("showRewardDetails(from: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)",
+            parameters: (view, maxReward, avgReward),
+            escapingParameters: (view, maxReward, avgReward),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showRewardDetails(from: view, maxReward: maxReward, avgReward: avgReward))
+        
+    }
+    
+    
+    
      func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)  {
         
     return cuckoo_manager.call("showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress)",
@@ -23605,6 +23650,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showStories(from: ControllerBackedProtocol?, startingFrom: Int)", parameterMatchers: matchers))
 	    }
 	    
+	    func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, maxReward: M2, avgReward: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, Decimal, Decimal)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Decimal, M3.MatchedType == Decimal {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Decimal, Decimal)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: maxReward) { $0.1 }, wrap(matchable: avgReward) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRewardDetails(from: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)", parameterMatchers: matchers))
+	    }
+	    
 	    func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, stashAddress: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountAddress)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress {
 	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainWireframeProtocol.self, method: "showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress)", parameterMatchers: matchers))
@@ -23686,6 +23736,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func showRewardDetails<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, maxReward: M2, avgReward: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, Decimal, Decimal), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == Decimal, M3.MatchedType == Decimal {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, Decimal, Decimal)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: maxReward) { $0.1 }, wrap(matchable: avgReward) { $0.2 }]
+	        return cuckoo_manager.verify("showRewardDetails(from: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func showRewardPayoutsForNominator<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, stashAddress: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountAddress), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountAddress {
 	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountAddress)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAddress) { $0.1 }]
 	        return cuckoo_manager.verify("showRewardPayoutsForNominator(from: ControllerBackedProtocol?, stashAddress: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -23755,6 +23811,10 @@ import SoraFoundation
     }
     
      func showStories(from view: ControllerBackedProtocol?, startingFrom index: Int)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

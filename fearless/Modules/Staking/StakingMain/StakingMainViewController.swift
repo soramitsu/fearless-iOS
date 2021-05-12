@@ -276,6 +276,10 @@ extension StakingMainViewController: RewardEstimationViewDelegate {
     func rewardEstimationDidStartAction(_: RewardEstimationView) {
         presenter.performMainAction()
     }
+
+    func rewardEstimationDidRequestInfo(_: RewardEstimationView) {
+        presenter.performRewardInfoAction()
+    }
 }
 
 extension StakingMainViewController: StakingMainViewProtocol {

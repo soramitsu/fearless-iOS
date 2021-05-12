@@ -52,6 +52,12 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
         view?.controller.present(storiesView.controller, animated: true, completion: nil)
     }
 
+    func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal) {
+        let infoVew = ModalInfoFactory.createRewardDetails(for: maxReward, avgReward: avgReward)
+
+        view?.controller.present(infoVew, animated: true, completion: nil)
+    }
+
     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress) {
         guard let rewardPayoutsView = StakingRewardPayoutsViewFactory
             .createViewForNominator(stashAddress: stashAddress) else { return }

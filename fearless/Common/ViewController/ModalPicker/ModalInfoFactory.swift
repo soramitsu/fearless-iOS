@@ -8,6 +8,56 @@ struct ModalInfoFactory {
     static let headerHeight: CGFloat = 40.0
     static let footerHeight: CGFloat = 0.0
 
+    static func createRewardDetails(
+        for maxReward: Decimal,
+        avgReward: Decimal
+    ) -> UIViewController {
+        let viewController: ModalPickerViewController<DetailsDisplayTableViewCell, TitleWithSubtitleViewModel>
+            = ModalPickerViewController(nib: R.nib.modalPickerViewController)
+        viewController.cellHeight = Self.rowHeight
+        viewController.headerHeight = Self.headerHeight
+        viewController.footerHeight = Self.footerHeight
+        viewController.allowsSelection = false
+        viewController.hasCloseItem = false
+
+        viewController.localizedTitle = LocalizableResource { locale in
+            R.string.localizable.stakingRewardInfoTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
+        viewController.modalPresentationStyle = .custom
+
+        let formatter = NumberFormatter.percentBase.localizableResource()
+
+        let maxViewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
+            let title = R.string.localizable.stakingRewardInfoMax(preferredLanguages: locale.rLanguages)
+            let details = formatter.value(for: locale).stringFromDecimal(maxReward) ?? ""
+
+            return TitleWithSubtitleViewModel(title: title, subtitle: details)
+        }
+
+        let avgViewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
+            let title = R.string.localizable.stakingRewardInfoAvg(preferredLanguages: locale.rLanguages)
+            let details = formatter.value(for: locale).stringFromDecimal(avgReward) ?? ""
+
+            return TitleWithSubtitleViewModel(title: title, subtitle: details)
+        }
+
+        let viewModels = [maxViewModel, avgViewModel]
+        viewController.viewModels = viewModels
+
+        let factory = ModalSheetPresentationFactory(configuration: ModalSheetPresentationConfiguration.fearless)
+        viewController.modalTransitioningFactory = factory
+
+        let height = viewController.headerHeight + CGFloat(viewModels.count) * viewController.cellHeight +
+            viewController.footerHeight
+        viewController.preferredContentSize = CGSize(width: 0.0, height: height)
+
+        viewController.localizationManager = LocalizationManager.shared
+
+        return viewController
+    }
+
     static func createFromBalanceContext(
         _ balanceContext: BalanceContext,
         amountFormatter: LocalizableResource<LocalizableDecimalFormatting>

@@ -16,7 +16,6 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
 
     func createInputFormatter(for asset: WalletAsset?) -> LocalizableResource<NumberFormatter> {
         let formatter = NumberFormatter.amount
-        formatter.roundingMode = .floor
 
         if let asset = asset {
             formatter.maximumFractionDigits = Int(asset.precision)

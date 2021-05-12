@@ -387,3 +387,8 @@ Derivation path: %@";
 "staking.rebond.completion" = "Rebond request has been submitted";
 "staking.current.account.is.controller" = "Your current account is a controller.";
 "staking.account.is.used.as.controller" = "Selected account is already in use as controller";
+"staking.month.period.format" = "%@ monthly";
+"staking.year.period.format" = "%@ yearly";
+"staking.reward.info.title" = "Earnings with restake";
+"staking.reward.info.max" = "Maximum APY";
+"staking.reward.info.avg" = "Average APY";
