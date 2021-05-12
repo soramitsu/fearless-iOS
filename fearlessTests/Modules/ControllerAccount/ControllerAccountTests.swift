@@ -40,11 +40,11 @@ class ControllerAccountTests: XCTestCase {
             }
         }
 
-        let accountInfo = DyAccountInfo(
+        let accountInfo = AccountInfo(
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: DyAccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 100000000000000, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfo))
 
@@ -68,11 +68,11 @@ class ControllerAccountTests: XCTestCase {
             }
         }
 
-        let accountInfoSmallBalance = DyAccountInfo(
+        let accountInfoSmallBalance = AccountInfo(
             nonce: 0,
             consumers: 0,
             providers: 0,
-            data: DyAccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
+            data: AccountData(free: 10, reserved: 0, miscFrozen: 0, feeFrozen: 0)
         )
         presenter.didReceiveAccountInfo(result: .success(accountInfoSmallBalance))
 
