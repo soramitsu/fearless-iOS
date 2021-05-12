@@ -95,7 +95,10 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
         presentAccountOptions(for: controllerAccountItem.address)
     }
 
-    func confirm() {}
+    func confirm() {
+        view?.didStartLoading()
+        interactor.confirm()
+    }
 
     private func presentAccountOptions(for address: AccountAddress) {
         guard let view = view else { return }
@@ -132,6 +135,21 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Did receive price data error: \(error)")
+        }
+    }
+
+    func didConfirmed(result: Result<String, Error>) {
+        view?.didStopLoading()
+
+        guard let view = view else {
+            return
+        }
+
+        switch result {
+        case .success:
+            wireframe.complete(from: view)
+        case .failure:
+            wireframe.presentExtrinsicFailed(from: view, locale: view.localizationManager?.selectedLocale)
         }
     }
 }

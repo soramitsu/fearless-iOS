@@ -36,6 +36,7 @@ struct ControllerAccountConfirmationViewFactory {
         let interactor = ControllerAccountConfirmationInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
+            signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,
             stashAccountItem: stashAccountItem

@@ -6,6 +6,7 @@ final class ControllerAccountConfirmationInteractor {
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let extrinsicService: ExtrinsicServiceProtocol
+    private let signingWrapper: SigningWrapperProtocol
     private let assetId: WalletAssetId
     private let stashAccountItem: AccountItem
     private lazy var callFactory = SubstrateCallFactory()
@@ -15,12 +16,14 @@ final class ControllerAccountConfirmationInteractor {
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        signingWrapper: SigningWrapperProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         assetId: WalletAssetId,
         stashAccountItem: AccountItem
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.extrinsicService = extrinsicService
+        self.signingWrapper = signingWrapper
         self.feeProxy = feeProxy
         self.assetId = assetId
         self.stashAccountItem = stashAccountItem
@@ -45,6 +48,25 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         priceProvider = subscribeToPriceProvider(for: assetId)
         estimateFee()
         feeProxy.delegate = self
+    }
+
+    func confirm() {
+        do {
+            let setController = try callFactory.setController(stashAccountItem.address)
+
+            extrinsicService.submit(
+                { builder in
+                    try builder.adding(call: setController)
+                },
+                signer: signingWrapper,
+                runningIn: .main,
+                completion: { [weak self] result in
+                    self?.presenter.didConfirmed(result: result)
+                }
+            )
+        } catch {
+            presenter.didConfirmed(result: .failure(error))
+        }
     }
 }
 
