@@ -58,9 +58,5 @@ final class LearnMoreView: BackgroundedContentControl {
         stackView.isUserInteractionEnabled = false
 
         contentView = stackView
-//        stackView.snp.makeConstraints { make in
-//            make.leading.trailing.equalToSuperview()
-//            make.bottom.top.equalToSuperview().inset(16)
-//        }
     }
 }
