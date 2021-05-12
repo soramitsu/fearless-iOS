@@ -15005,6 +15005,21 @@ import SoraFoundation
     
     
     
+     func didReceiveControllerAccount(result: Result<AccountItem?, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveControllerAccount(result: Result<AccountItem?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveControllerAccount(result: result))
+        
+    }
+    
+    
+    
      func didReceiveAccounts(result: Result<[AccountItem], Error>)  {
         
     return cuckoo_manager.call("didReceiveAccounts(result: Result<[AccountItem], Error>)",
@@ -15082,6 +15097,11 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method: "didReceiveStashAccount(result: Result<AccountItem?, Error>)", parameterMatchers: matchers))
 	    }
 	    
+	    func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<AccountItem?, Error>)> where M1.MatchedType == Result<AccountItem?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<AccountItem?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method: "didReceiveControllerAccount(result: Result<AccountItem?, Error>)", parameterMatchers: matchers))
+	    }
+	    
 	    func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<[AccountItem], Error>)> where M1.MatchedType == Result<[AccountItem], Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<[AccountItem], Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountInteractorOutputProtocol.self, method: "didReceiveAccounts(result: Result<[AccountItem], Error>)", parameterMatchers: matchers))
@@ -15131,6 +15151,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveControllerAccount<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<AccountItem?, Error>), Void> where M1.MatchedType == Result<AccountItem?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<AccountItem?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveControllerAccount(result: Result<AccountItem?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didReceiveAccounts<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<[AccountItem], Error>), Void> where M1.MatchedType == Result<[AccountItem], Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<[AccountItem], Error>)>] = [wrap(matchable: result) { $0 }]
 	        return cuckoo_manager.verify("didReceiveAccounts(result: Result<[AccountItem], Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -15168,6 +15194,10 @@ import SoraFoundation
     }
     
      func didReceiveStashAccount(result: Result<AccountItem?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveControllerAccount(result: Result<AccountItem?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -15216,16 +15246,16 @@ import SoraFoundation
     
     
     
-     func showConfirmation(from view: ControllerBackedProtocol?, stashAccountItem: AccountItem, controllerAccountItem: AccountItem)  {
+     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: AccountItem)  {
         
-    return cuckoo_manager.call("showConfirmation(from: ControllerBackedProtocol?, stashAccountItem: AccountItem, controllerAccountItem: AccountItem)",
-            parameters: (view, stashAccountItem, controllerAccountItem),
-            escapingParameters: (view, stashAccountItem, controllerAccountItem),
+    return cuckoo_manager.call("showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: AccountItem)",
+            parameters: (view, controllerAccountItem),
+            escapingParameters: (view, controllerAccountItem),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.showConfirmation(from: view, stashAccountItem: stashAccountItem, controllerAccountItem: controllerAccountItem))
+            defaultCall: __defaultImplStub!.showConfirmation(from: view, controllerAccountItem: controllerAccountItem))
         
     }
     
@@ -15298,9 +15328,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, stashAccountItem: M2, controllerAccountItem: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountItem, AccountItem)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountItem, M3.MatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountItem, AccountItem)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: controllerAccountItem) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method: "showConfirmation(from: ControllerBackedProtocol?, stashAccountItem: AccountItem, controllerAccountItem: AccountItem)", parameterMatchers: matchers))
+	    func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?, AccountItem)> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountItem)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountWireframeProtocol.self, method: "showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: AccountItem)", parameterMatchers: matchers))
 	    }
 	    
 	    func close<M1: Cuckoo.OptionalMatchable>(view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ControllerBackedProtocol?)> where M1.OptionalMatchedType == ControllerBackedProtocol {
@@ -15340,9 +15370,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(from view: M1, stashAccountItem: M2, controllerAccountItem: M3) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountItem, AccountItem), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountItem, M3.MatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountItem, AccountItem)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: controllerAccountItem) { $0.2 }]
-	        return cuckoo_manager.verify("showConfirmation(from: ControllerBackedProtocol?, stashAccountItem: AccountItem, controllerAccountItem: AccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func showConfirmation<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, controllerAccountItem: M2) -> Cuckoo.__DoNotUse<(ControllerBackedProtocol?, AccountItem), Void> where M1.OptionalMatchedType == ControllerBackedProtocol, M2.MatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(ControllerBackedProtocol?, AccountItem)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: controllerAccountItem) { $0.1 }]
+	        return cuckoo_manager.verify("showConfirmation(from: ControllerBackedProtocol?, controllerAccountItem: AccountItem)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -15378,7 +15408,7 @@ import SoraFoundation
     
 
     
-     func showConfirmation(from view: ControllerBackedProtocol?, stashAccountItem: AccountItem, controllerAccountItem: AccountItem)   {
+     func showConfirmation(from view: ControllerBackedProtocol?, controllerAccountItem: AccountItem)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

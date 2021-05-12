@@ -35,7 +35,7 @@ class ControllerAccountTests: XCTestCase {
             description: "Show Confirmation screen if user has sufficient balance to pay fee"
         )
         stub(wireframe) { stub in
-            when(stub).showConfirmation(from: any(), stashAccountItem: any(), controllerAccountItem: any()).then { _ in
+            when(stub).showConfirmation(from: any(), controllerAccountItem: any()).then { _ in
                 showConfirmationExpectation.fulfill()
             }
         }
