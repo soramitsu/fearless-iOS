@@ -5,6 +5,7 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
     typealias RootViewType = ControllerAccountConfirmationLayout
 
     let presenter: ControllerAccountConfirmationPresenterProtocol
+    private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -39,6 +40,12 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
         title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
 
         rootView.locale = selectedLocale
+        applyFeeViewModel()
+    }
+
+    private func applyFeeViewModel() {
+        let viewModel = feeViewModel?.value(for: selectedLocale)
+        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: viewModel)
     }
 }
 
@@ -55,6 +62,11 @@ extension ControllerAccountConfirmationVC: ControllerAccountConfirmationViewProt
         rootView.controllerAccountView.title = controllerModel.title
         rootView.controllerAccountView.subtitle = controllerModel.name
         rootView.controllerAccountView.iconImage = controllerModel.icon
+    }
+
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+        feeViewModel = viewModel
+        applyFeeViewModel()
     }
 }
 

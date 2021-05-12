@@ -1,18 +1,60 @@
 import Foundation
 import SoraFoundation
 import FearlessUtils
+import SoraKeystore
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
         stashAccountItem: AccountItem,
         controllerAccountItem: AccountItem
     ) -> ControllerAccountConfirmationViewProtocol? {
-        let interactor = ControllerAccountConfirmationInteractor()
+        let settings = SettingsManager.shared
+
+        guard let engine = WebSocketService.shared.connection else {
+            return nil
+        }
+
+        let chain = settings.selectedConnection.type.chain
+        let networkType = chain.addressType
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+
+        let extrinsicService = ExtrinsicService(
+            address: stashAccountItem.address,
+            cryptoType: stashAccountItem.cryptoType,
+            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            engine: engine,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let interactor = ControllerAccountConfirmationInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            extrinsicService: extrinsicService,
+            feeProxy: ExtrinsicFeeProxy(),
+            assetId: assetId,
+            stashAccountItem: stashAccountItem
+        )
+
         let wireframe = ControllerAccountConfirmationWireframe()
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
         let presenter = ControllerAccountConfirmationPresenter(
             stashAccountItem: stashAccountItem,
             controllerAccountItem: controllerAccountItem,
-            iconGenerator: PolkadotIconGenerator()
+            chain: chain,
+            iconGenerator: PolkadotIconGenerator(),
+            balanceViewModelFactory: balanceViewModelFactory
         )
 
         let view = ControllerAccountConfirmationVC(
