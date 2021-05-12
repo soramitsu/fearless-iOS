@@ -144,7 +144,6 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             ),
             dataValidatingFactory.ledgerNotExist(
                 stakingLedger: stakingLedger,
-                for: chosenAccountItem?.address,
                 addressType: chain.addressType,
                 locale: locale
             )

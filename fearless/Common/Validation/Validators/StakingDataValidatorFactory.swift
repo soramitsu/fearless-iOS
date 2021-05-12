@@ -40,7 +40,6 @@ protocol StakingDataValidatingFactoryProtocol {
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        for controller: AccountAddress?,
         addressType: SNAddressType,
         locale: Locale
     ) -> DataValidating
@@ -260,8 +259,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
     func ledgerNotExist(
         stakingLedger: StakingLedger?,
-        for controller: AccountAddress?,
-        addressType: SNAddressType,
+        addressType _: SNAddressType,
         locale: Locale
     ) -> DataValidating {
         ErrorConditionViolation(onError: { [weak self] in
@@ -271,18 +269,7 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentControllerIsAlreadyUsed(from: view, locale: locale)
         }, preservesCondition: {
-            if
-                let stakingLedger = stakingLedger,
-                let stashAddress = try? SS58AddressFactory().addressFromAccountId(
-                    data: stakingLedger.stash,
-                    type: addressType
-                ),
-                let controller = controller,
-                stashAddress == controller {
-                return false
-            } else {
-                return true
-            }
+            stakingLedger == nil
         })
     }
 }
