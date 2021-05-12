@@ -4,7 +4,7 @@ final class StakingUnbondConfirmWireframe: StakingUnbondConfirmWireframeProtocol
     func complete(from view: StakingUnbondConfirmViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingUnbondCompletionMessage(preferredLanguages: languages)
+            .commonTransactionSubmitted(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 
