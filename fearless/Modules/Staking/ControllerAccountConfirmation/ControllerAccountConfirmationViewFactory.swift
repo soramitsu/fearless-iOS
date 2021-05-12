@@ -19,6 +19,7 @@ struct ControllerAccountConfirmationViewFactory {
 
         guard let interactor = createInteractor(
             stashAccountItem: stashAccountItem,
+            controllerAccountItem: controllerAccountItem,
             primitiveFactory: primitiveFactory,
             connection: engine,
             chain: chain,
@@ -58,6 +59,7 @@ struct ControllerAccountConfirmationViewFactory {
 
     private static func createInteractor(
         stashAccountItem: AccountItem,
+        controllerAccountItem: AccountItem,
         primitiveFactory: WalletPrimitiveFactoryProtocol,
         connection: JSONRPCEngine,
         chain: Chain,
@@ -83,7 +85,8 @@ struct ControllerAccountConfirmationViewFactory {
             signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,
-            stashAccountItem: stashAccountItem
+            stashAccountItem: stashAccountItem,
+            controllerAccountItem: controllerAccountItem
         )
         return interactor
     }
