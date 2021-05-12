@@ -68,7 +68,7 @@ final class StakingRewardDestSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(restakeOptionView)
         restakeOptionView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(52.0)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: restakeOptionView)
@@ -76,7 +76,7 @@ final class StakingRewardDestSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(payoutOptionView)
         payoutOptionView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(52.0)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: payoutOptionView)
@@ -84,7 +84,7 @@ final class StakingRewardDestSetupLayout: UIView {
         contentView.stackView.addArrangedSubview(accountView)
         accountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
-            make.height.equalTo(72.0)
+            make.height.equalTo(52.0)
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: payoutOptionView)
@@ -120,8 +120,8 @@ final class StakingRewardDestSetupLayout: UIView {
         view.earningsSubtitleColor = R.color.colorGreen()!
 
         view.titleLabel.font = .p1Paragraph
-        view.earningsTitleLabel.font = .p2Paragraph
-        view.earningsTitleLabel.font = .p2Paragraph
+        view.earningsTitleLabel.font = .h6Title
+        view.earningsSubtitleLabel.font = .h6Title
 
         view.iconView.image = R.image.listCheckmarkIcon()!
         view.isSelected = false
