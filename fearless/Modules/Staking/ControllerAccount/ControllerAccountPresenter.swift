@@ -14,7 +14,6 @@ final class ControllerAccountPresenter {
     private let logger: LoggerProtocol?
     private var stashAccount: AccountItem?
     private var stashItem: StashItem?
-    private var loadingAccounts = false
     private var chosenAccountItem: AccountItem?
     private var accounts: [AccountItem]?
     private var canChooseOtherController = false
@@ -196,8 +195,6 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
     }
 
     func didReceiveAccounts(result: Result<[AccountItem], Error>) {
-        loadingAccounts = false
-
         switch result {
         case let .success(accounts):
             self.accounts = accounts
