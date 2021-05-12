@@ -51,6 +51,9 @@ class ControllerAccountTests: XCTestCase {
         let fee = RuntimeDispatchInfo(dispatchClass: "normal", fee: "12600002654", weight: 331759000)
         presenter.didReceiveFee(result: .success(fee))
 
+        let accountItem = AccountItem(address: "", cryptoType: .ecdsa, username: "usename", publicKeyData: Data())
+        presenter.didReceiveStashAccount(result: .success(accountItem))
+
         // when
         presenter.proceed()
 
