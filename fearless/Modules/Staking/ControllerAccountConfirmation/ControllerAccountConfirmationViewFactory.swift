@@ -15,32 +15,17 @@ struct ControllerAccountConfirmationViewFactory {
         }
 
         let chain = settings.selectedConnection.type.chain
-        let networkType = chain.addressType
-
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
-
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+        guard let interactor = createInteractor(
+            stashAccountItem: stashAccountItem,
+            primitiveFactory: primitiveFactory,
+            connection: engine,
+            chain: chain,
+            settings: settings
+        ) else {
             return nil
         }
-
-        let extrinsicService = ExtrinsicService(
-            address: stashAccountItem.address,
-            cryptoType: stashAccountItem.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-            engine: engine,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
-        let interactor = ControllerAccountConfirmationInteractor(
-            singleValueProviderFactory: SingleValueProviderFactory.shared,
-            extrinsicService: extrinsicService,
-            signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
-            feeProxy: ExtrinsicFeeProxy(),
-            assetId: assetId,
-            stashAccountItem: stashAccountItem
-        )
 
         let wireframe = ControllerAccountConfirmationWireframe()
 
@@ -69,5 +54,37 @@ struct ControllerAccountConfirmationViewFactory {
         interactor.presenter = presenter
 
         return view
+    }
+
+    private static func createInteractor(
+        stashAccountItem: AccountItem,
+        primitiveFactory: WalletPrimitiveFactoryProtocol,
+        connection: JSONRPCEngine,
+        chain: Chain,
+        settings: SettingsManagerProtocol
+    ) -> ControllerAccountConfirmationInteractor? {
+        let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+
+        let extrinsicService = ExtrinsicService(
+            address: stashAccountItem.address,
+            cryptoType: stashAccountItem.cryptoType,
+            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            engine: connection,
+            operationManager: OperationManagerFacade.sharedManager
+        )
+
+        let interactor = ControllerAccountConfirmationInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            extrinsicService: extrinsicService,
+            signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
+            feeProxy: ExtrinsicFeeProxy(),
+            assetId: assetId,
+            stashAccountItem: stashAccountItem
+        )
+        return interactor
     }
 }
