@@ -1,13 +1,17 @@
 import Foundation
+import SoraFoundation
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView() -> ControllerAccountConfirmationViewProtocol? {
-        let view = ControllerAccountConfirmationViewController()
-        let presenter = ControllerAccountConfirmationPresenter()
         let interactor = ControllerAccountConfirmationInteractor()
         let wireframe = ControllerAccountConfirmationWireframe()
+        let presenter = ControllerAccountConfirmationPresenter()
 
-        view.presenter = presenter
+        let view = ControllerAccountConfirmationVC(
+            presenter: presenter,
+            localizationManager: LocalizationManager.shared
+        )
+
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe

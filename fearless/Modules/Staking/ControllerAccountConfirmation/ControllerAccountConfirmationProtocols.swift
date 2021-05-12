@@ -1,4 +1,6 @@
-protocol ControllerAccountConfirmationViewProtocol: AnyObject {}
+import SoraFoundation
+
+protocol ControllerAccountConfirmationViewProtocol: ControllerBackedProtocol, Localizable {}
 
 protocol ControllerAccountConfirmationPresenterProtocol: AnyObject {
     func setup()
