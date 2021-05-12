@@ -31,7 +31,14 @@ final class ControllerAccountConfirmationVC: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupLocalization()
         presenter.setup()
+    }
+
+    private func setupLocalization() {
+        title = R.string.localizable.commonConfirmTitle(preferredLanguages: selectedLocale.rLanguages)
+
+        rootView.locale = selectedLocale
     }
 }
 
@@ -52,5 +59,9 @@ extension ControllerAccountConfirmationVC: ControllerAccountConfirmationViewProt
 }
 
 extension ControllerAccountConfirmationVC: Localizable {
-    func applyLocalization() {}
+    func applyLocalization() {
+        if isViewLoaded {
+            setupLocalization()
+        }
+    }
 }
