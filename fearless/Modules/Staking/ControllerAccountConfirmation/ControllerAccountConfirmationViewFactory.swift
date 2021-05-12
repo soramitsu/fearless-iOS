@@ -81,14 +81,6 @@ struct ControllerAccountConfirmationViewFactory {
             return nil
         }
 
-        let extrinsicService = ExtrinsicService(
-            address: controllerAccountItem.address,
-            cryptoType: controllerAccountItem.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
-            engine: connection,
-            operationManager: OperationManagerFacade.sharedManager
-        )
-
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: chain.addressType)
@@ -103,11 +95,17 @@ struct ControllerAccountConfirmationViewFactory {
             operationManager: operationManager
         )
 
+        let extrinsicServiceFactory = ExtrinsicServiceFactory(
+            runtimeRegistry: runtimeService,
+            engine: connection,
+            operationManager: operationManager
+        )
+
         let interactor = ControllerAccountConfirmationInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
             runtimeService: runtimeService,
-            extrinsicService: extrinsicService,
+            extrinsicServiceFactory: extrinsicServiceFactory,
             signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,

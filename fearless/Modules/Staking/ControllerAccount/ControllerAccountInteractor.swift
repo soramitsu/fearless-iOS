@@ -67,12 +67,12 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 
     func estimateFee(for account: AccountItem) {
-        extrinsicService = extrinsicServiceFactory.createService(accountItem: account)
+        guard let extrinsicService = extrinsicService else { return }
         do {
             let setController = try callFactory.setController(account.address)
             let identifier = setController.callName + account.identifier
 
-            feeProxy.estimateFee(using: extrinsicService!, reuseIdentifier: identifier) { builder in
+            feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
                 try builder.adding(call: setController)
             }
         } catch {
@@ -163,7 +163,16 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
-            self?.presenter.didReceiveStashAccount(result: result)
+            switch result {
+            case let .success(accountItem):
+                if let accountItem = accountItem {
+                    self?.extrinsicService = self?.extrinsicServiceFactory.createService(accountItem: accountItem)
+                    self?.estimateFee(for: accountItem)
+                }
+                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
+            case let .failure(error):
+                self?.presenter.didReceiveStashAccount(result: .failure(error))
+            }
         }
 
         fetchAccount(

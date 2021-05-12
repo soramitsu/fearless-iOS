@@ -52,10 +52,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         }
 
         let buttonState: ControllerAccountActionButtonState = {
-            if stashAccountItem.address == self.currentAccountItem.address {
-                return .hidden
-            }
-            if stashItem.stash == stashItem.controller {
+            if stashAccountItem.address != self.currentAccountItem.address {
                 return .hidden
             }
             if chosenAccountItem.address == stashItem.controller {

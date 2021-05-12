@@ -10,7 +10,7 @@ final class ControllerAccountConfirmationInteractor {
     let runtimeService: RuntimeCodingServiceProtocol
     private let selectedAccountAddress: AccountAddress
     private let feeProxy: ExtrinsicFeeProxyProtocol
-    private let extrinsicService: ExtrinsicServiceProtocol
+    private let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
     private let signingWrapper: SigningWrapperProtocol
     private let assetId: WalletAssetId
     private let controllerAccountItem: AccountItem
@@ -26,12 +26,13 @@ final class ControllerAccountConfirmationInteractor {
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
+    private var extrinsicService: ExtrinsicServiceProtocol?
 
     init(
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
-        extrinsicService: ExtrinsicServiceProtocol,
+        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
         signingWrapper: SigningWrapperProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         assetId: WalletAssetId,
@@ -46,7 +47,7 @@ final class ControllerAccountConfirmationInteractor {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
         self.runtimeService = runtimeService
-        self.extrinsicService = extrinsicService
+        self.extrinsicServiceFactory = extrinsicServiceFactory
         self.signingWrapper = signingWrapper
         self.feeProxy = feeProxy
         self.assetId = assetId
@@ -95,7 +96,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
         do {
             let setController = try callFactory.setController(controllerAccountItem.address)
 
-            extrinsicService.submit(
+            extrinsicService?.submit(
                 { builder in
                     try builder.adding(call: setController)
                 },
@@ -121,6 +122,7 @@ extension ControllerAccountConfirmationInteractor: ControllerAccountConfirmation
     }
 
     func estimateFee() {
+        guard let extrinsicService = extrinsicService else { return }
         do {
             let setController = try callFactory.setController(controllerAccountItem.address)
             let identifier = setController.callName + controllerAccountItem.identifier
@@ -196,7 +198,16 @@ extension ControllerAccountConfirmationInteractor: SubstrateProviderSubscriber, 
             from: accountRepository,
             operationManager: operationManager
         ) { [weak self] result in
-            self?.presenter.didReceiveStashAccount(result: result)
+            switch result {
+            case let .success(accountItem):
+                if let accountItem = accountItem {
+                    self?.extrinsicService = self?.extrinsicServiceFactory.createService(accountItem: accountItem)
+                    self?.estimateFee()
+                }
+                self?.presenter.didReceiveStashAccount(result: .success(accountItem))
+            case let .failure(error):
+                self?.presenter.didReceiveStashAccount(result: .failure(error))
+            }
         }
     }
 }
