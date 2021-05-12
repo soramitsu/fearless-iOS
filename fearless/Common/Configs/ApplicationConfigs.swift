@@ -18,6 +18,7 @@ protocol ApplicationConfigProtocol {
     var purchaseRedirect: URL { get }
     var phishingListURL: URL { get }
     var learnPayoutURL: URL { get }
+    var learnControllerAccountURL: URL { get }
 }
 
 final class ApplicationConfig {
@@ -83,8 +84,6 @@ extension ApplicationConfig: ApplicationConfigProtocol {
         return URL(string: logoString)!
     }
 
-    // swiftlint:enable line_length
-
     var purchaseAppName: String {
         "Fearless Wallet"
     }
@@ -103,5 +102,9 @@ extension ApplicationConfig: ApplicationConfigProtocol {
 
     var learnPayoutURL: URL {
         URL(string: "https://wiki.polkadot.network/docs/en/learn-simple-payouts")!
+    }
+
+    var learnControllerAccountURL: URL {
+        URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
     }
 }

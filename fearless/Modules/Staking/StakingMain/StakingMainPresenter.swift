@@ -151,12 +151,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 return [
                     .stakingBalance,
                     .rewardPayouts,
-                    .validators(count: nominatorState.nomination.targets.count)
+                    .validators(count: nominatorState.nomination.targets.count),
+                    .controllerAccount
                 ]
             } else {
                 return [
                     .stakingBalance,
-                    .rewardPayouts
+                    .rewardPayouts,
+                    .controllerAccount
                 ]
             }
         }()
@@ -446,6 +448,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
                 wireframe.showNominatorValidators(from: view)
             }
+        case .controllerAccount:
+            wireframe.showControllerAccount(from: view)
         }
     }
 }

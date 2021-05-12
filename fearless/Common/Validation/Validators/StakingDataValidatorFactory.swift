@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import IrohaCrypto
 
 protocol StakingDataValidatingFactoryProtocol {
     func canPayFeeAndAmount(
@@ -37,6 +38,11 @@ protocol StakingDataValidatingFactoryProtocol {
         locale: Locale
     ) -> DataValidating
 
+    func ledgerNotExist(
+        stakingLedger: StakingLedger?,
+        addressType: SNAddressType,
+        locale: Locale
+    ) -> DataValidating
     func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
 }
 
@@ -248,6 +254,22 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             } else {
                 return false
             }
+        })
+    }
+
+    func ledgerNotExist(
+        stakingLedger: StakingLedger?,
+        addressType _: SNAddressType,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentControllerIsAlreadyUsed(from: view, locale: locale)
+        }, preservesCondition: {
+            stakingLedger == nil
         })
     }
 }

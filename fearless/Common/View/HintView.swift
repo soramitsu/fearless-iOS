@@ -29,8 +29,7 @@ final class HintView: UIView {
     private func setupLayout() {
         addSubview(iconView)
         iconView.snp.makeConstraints { make in
-            make.leading.equalToSuperview()
-            make.top.equalToSuperview().inset(16.0)
+            make.leading.top.equalToSuperview()
             make.size.equalTo(14.0)
         }
 
@@ -38,11 +37,7 @@ final class HintView: UIView {
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(iconView.snp.top).offset(-1.0)
             make.leading.equalTo(iconView.snp.trailing).offset(9.0)
-            make.trailing.equalToSuperview()
-        }
-
-        snp.makeConstraints { make in
-            make.bottom.equalTo(titleLabel)
+            make.trailing.bottom.equalToSuperview()
         }
     }
 }
