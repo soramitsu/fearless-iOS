@@ -52,7 +52,7 @@ class ControllerAccountTests: XCTestCase {
         presenter.didReceiveFee(result: .success(fee))
 
         let accountItem = AccountItem(address: "", cryptoType: .ecdsa, username: "usename", publicKeyData: Data())
-        presenter.didReceiveStashAccount(result: .success(accountItem))
+        presenter.didReceiveControllerAccount(result: .success(accountItem))
 
         // when
         presenter.proceed()
