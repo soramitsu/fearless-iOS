@@ -12,7 +12,7 @@ struct ControllerAccountViewFactory {
         guard
             let selectedAccount = settings.selectedAccount,
             let connection = WebSocketService.shared.connection,
-            let interactor = createInteractor(connection: connection, settings: settings)
+            let interactor = createInteractor(connection: connection, chain: chain, settings: settings)
         else {
             return nil
         }
@@ -48,6 +48,7 @@ struct ControllerAccountViewFactory {
 
     private static func createInteractor(
         connection: JSONRPCEngine,
+        chain: Chain,
         settings: SettingsManagerProtocol
     ) -> ControllerAccountInteractor? {
         let operationManager = OperationManagerFacade.sharedManager
@@ -75,6 +76,11 @@ struct ControllerAccountViewFactory {
             operationManager: operationManager
         )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
         return ControllerAccountInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
@@ -83,7 +89,10 @@ struct ControllerAccountViewFactory {
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
             feeProxy: ExtrinsicFeeProxy(),
-            extrinsicServiceFactory: extrinsicServiceFactory
+            extrinsicServiceFactory: extrinsicServiceFactory,
+            storageRequestFactory: storageRequestFactory,
+            engine: connection,
+            chain: chain
         )
     }
 }

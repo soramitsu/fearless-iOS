@@ -1,6 +1,8 @@
 import UIKit
 import SoraKeystore
 import RobinHood
+import IrohaCrypto
+import FearlessUtils
 
 final class ControllerAccountInteractor {
     weak var presenter: ControllerAccountInteractorOutputProtocol!
@@ -13,7 +15,11 @@ final class ControllerAccountInteractor {
     private let operationManager: OperationManagerProtocol
     private let feeProxy: ExtrinsicFeeProxyProtocol
     private let extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
+    private let storageRequestFactory: StorageRequestFactoryProtocol
+    private let engine: JSONRPCEngine
+    private let chain: Chain
     private lazy var callFactory = SubstrateCallFactory()
+    private lazy var addressFactory = SS58AddressFactory()
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -28,7 +34,10 @@ final class ControllerAccountInteractor {
         accountRepository: AnyDataProviderRepository<AccountItem>,
         operationManager: OperationManagerProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
-        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol
+        extrinsicServiceFactory: ExtrinsicServiceFactoryProtocol,
+        storageRequestFactory: StorageRequestFactoryProtocol,
+        engine: JSONRPCEngine,
+        chain: Chain
     ) {
         self.singleValueProviderFactory = singleValueProviderFactory
         self.substrateProviderFactory = substrateProviderFactory
@@ -38,6 +47,9 @@ final class ControllerAccountInteractor {
         self.operationManager = operationManager
         self.feeProxy = feeProxy
         self.extrinsicServiceFactory = extrinsicServiceFactory
+        self.storageRequestFactory = storageRequestFactory
+        self.engine = engine
+        self.chain = chain
     }
 }
 
@@ -69,11 +81,50 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 
     func fetchLedger(controllerAddress: AccountAddress) {
-        clear(dataProvider: &ledgerProvider)
-        ledgerProvider = subscribeToLedgerInfoProvider(
-            for: controllerAddress,
-            runtimeService: runtimeService
+        do {
+            let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
+
+            let ledgerOperataion = createLedgerFetchOperation(accountId)
+            ledgerOperataion.targetOperation.completionBlock = { [weak presenter] in
+                DispatchQueue.main.async {
+                    do {
+                        let ledger = try ledgerOperataion.targetOperation.extractNoCancellableResultData()
+                        presenter?.didReceiveStakingLedger(result: .success(ledger))
+                    } catch {
+                        presenter?.didReceiveStakingLedger(result: .failure(error))
+                    }
+                }
+            }
+            operationManager.enqueue(
+                operations: ledgerOperataion.allOperations,
+                in: .transient
+            )
+        } catch {
+            presenter.didReceiveStakingLedger(result: .failure(error))
+        }
+    }
+
+    private func createLedgerFetchOperation(_ accountId: AccountId) -> CompoundOperationWrapper<StakingLedger?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<StakingLedger>]> = storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: { [accountId] },
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: .stakingLedger
         )
+
+        let mapOperation = ClosureOperation<StakingLedger?> {
+            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let dependencies = [coderFactoryOperation] + wrapper.allOperations
+
+        dependencies.forEach { mapOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
 }
 
