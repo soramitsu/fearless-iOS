@@ -55,6 +55,9 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             if stashAccountItem.address == self.currentAccountItem.address {
                 return .hidden
             }
+            if stashItem.stash == stashItem.controller {
+                return .hidden
+            }
             if chosenAccountItem.address == stashItem.controller {
                 return .enabled(false)
             }
