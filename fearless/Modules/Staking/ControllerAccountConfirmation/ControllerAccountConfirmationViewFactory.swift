@@ -35,11 +35,13 @@ struct ControllerAccountConfirmationViewFactory {
             limit: StakingConstants.maxAmount
         )
 
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = ControllerAccountConfirmationPresenter(
             controllerAccountItem: controllerAccountItem,
             chain: chain,
             iconGenerator: PolkadotIconGenerator(),
-            balanceViewModelFactory: balanceViewModelFactory
+            balanceViewModelFactory: balanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory
         )
 
         let view = ControllerAccountConfirmationVC(
@@ -51,6 +53,7 @@ struct ControllerAccountConfirmationViewFactory {
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         return view
     }
@@ -63,6 +66,7 @@ struct ControllerAccountConfirmationViewFactory {
         settings: SettingsManagerProtocol
     ) -> ControllerAccountConfirmationInteractor? {
         let operationManager = OperationManagerFacade.sharedManager
+        let runtimeService = RuntimeRegistryFacade.sharedService
         let substrateProviderFactory = SubstrateDataProviderFactory(
             facade: SubstrateDataStorageFacade.shared,
             operationManager: operationManager
@@ -94,9 +98,15 @@ struct ControllerAccountConfirmationViewFactory {
                 sortDescriptors: [.accountsByOrder]
             )
 
+        let storageRequestFactory = StorageRequestFactory(
+            remoteFactory: StorageKeyFactory(),
+            operationManager: operationManager
+        )
+
         let interactor = ControllerAccountConfirmationInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
+            runtimeService: runtimeService,
             extrinsicService: extrinsicService,
             signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
@@ -104,7 +114,10 @@ struct ControllerAccountConfirmationViewFactory {
             controllerAccountItem: controllerAccountItem,
             accountRepository: AnyDataProviderRepository(accountRepository),
             operationManager: operationManager,
-            selectedAccountAddress: selectedAccount.address
+            storageRequestFactory: storageRequestFactory,
+            selectedAccountAddress: selectedAccount.address,
+            engine: connection,
+            chain: chain
         )
         return interactor
     }

@@ -13,22 +13,27 @@ final class ControllerAccountConfirmationPresenter {
     private let chain: Chain
     private let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     private let logger: LoggerProtocol?
+    private let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     private var stashAccountItem: AccountItem?
     private var fee: Decimal?
     private var priceData: PriceData?
+    private var balance: Decimal?
+    private var stakingLedger: StakingLedger?
 
     init(
         controllerAccountItem: AccountItem,
         chain: Chain,
         iconGenerator: IconGenerating,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.controllerAccountItem = controllerAccountItem
         self.chain = chain
         self.iconGenerator = iconGenerator
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
     }
 
@@ -78,6 +83,11 @@ final class ControllerAccountConfirmationPresenter {
             view?.didReceiveFee(viewModel: nil)
         }
     }
+
+    private func refreshFeeIfNeeded() {
+        guard fee == nil else { return }
+        interactor.estimateFee()
+    }
 }
 
 extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationPresenterProtocol {
@@ -95,8 +105,25 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
     }
 
     func confirm() {
-        view?.didStartLoading()
-        interactor.confirm()
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.refreshFeeIfNeeded()
+            }),
+            dataValidatingFactory.canPayFee(
+                balance: balance,
+                fee: fee,
+                locale: locale
+            ),
+            dataValidatingFactory.ledgerNotExist(
+                stakingLedger: stakingLedger,
+                addressType: chain.addressType,
+                locale: locale
+            )
+        ]).runValidation { [weak self] in
+            self?.view?.didStartLoading()
+            self?.interactor.confirm()
+        }
     }
 
     private func presentAccountOptions(for address: AccountAddress?) {
@@ -160,6 +187,31 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationI
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Did receive price data error: \(error)")
+        }
+    }
+
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
+        switch result {
+        case let .success(stakingLedger):
+            self.stakingLedger = stakingLedger
+        case let .failure(error):
+            logger?.error("Staking ledger subscription error: \(error)")
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let accountInfo = accountInfo {
+                balance = Decimal.fromSubstrateAmount(
+                    accountInfo.data.available,
+                    precision: chain.addressType.precision
+                )
+            } else {
+                balance = nil
+            }
+        case let .failure(error):
+            logger?.error("Account Info subscription error: \(error)")
         }
     }
 

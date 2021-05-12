@@ -16,6 +16,7 @@ protocol ControllerAccountConfirmationInteractorInputProtocol: AnyObject {
     func setup()
     func confirm()
     func fetchStashAccountItem(for address: AccountAddress)
+    func estimateFee()
 }
 
 protocol ControllerAccountConfirmationInteractorOutputProtocol: AnyObject {
@@ -23,6 +24,8 @@ protocol ControllerAccountConfirmationInteractorOutputProtocol: AnyObject {
     func didReceiveStashAccount(result: Result<AccountItem?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didConfirmed(result: Result<String, Error>)
 }
 
