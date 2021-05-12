@@ -125,6 +125,12 @@ extension StakingMainInteractor {
     }
 
     func handle(stashItem: StashItem?) {
+        clearLedgerProvider()
+        clearNominatorProvider()
+        clearValidatorProvider()
+        clearTotalRewardProvider()
+        clearPayeeProvider()
+
         if let stashItem = stashItem {
             subscribeToLedger(address: stashItem.controller)
             subscribeToNominator(address: stashItem.stash)

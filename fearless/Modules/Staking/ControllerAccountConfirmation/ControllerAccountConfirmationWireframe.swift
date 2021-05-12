@@ -5,7 +5,7 @@ final class ControllerAccountConfirmationWireframe: ControllerAccountConfirmatio
     func complete(from view: ControllerAccountConfirmationViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
-            .stakingBondMoreCompletion(preferredLanguages: languages)
+            .commonTransactionSubmitted(preferredLanguages: languages)
 
         let presenter = view?.controller.navigationController?.presentingViewController
 
