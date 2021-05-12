@@ -15,9 +15,12 @@ protocol ControllerAccountConfirmationPresenterProtocol: AnyObject {
 protocol ControllerAccountConfirmationInteractorInputProtocol: AnyObject {
     func setup()
     func confirm()
+    func fetchStashAccountItem(for address: AccountAddress)
 }
 
 protocol ControllerAccountConfirmationInteractorOutputProtocol: AnyObject {
+    func didReceiveStashItem(result: Result<StashItem?, Error>)
+    func didReceiveStashAccount(result: Result<AccountItem?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didConfirmed(result: Result<String, Error>)
@@ -28,4 +31,5 @@ protocol ControllerAccountConfirmationWireframeProtocol: AddressOptionsPresentab
     AlertPresentable,
     StakingErrorPresentable {
     func complete(from view: ControllerAccountConfirmationViewProtocol?)
+    func close(view: ControllerBackedProtocol?)
 }

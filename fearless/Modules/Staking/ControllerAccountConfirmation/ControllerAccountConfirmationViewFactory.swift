@@ -2,6 +2,7 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 import SoraKeystore
+import RobinHood
 
 struct ControllerAccountConfirmationViewFactory {
     static func createView(
@@ -61,9 +62,18 @@ struct ControllerAccountConfirmationViewFactory {
         chain: Chain,
         settings: SettingsManagerProtocol
     ) -> ControllerAccountConfirmationInteractor? {
+        let operationManager = OperationManagerFacade.sharedManager
+        let substrateProviderFactory = SubstrateDataProviderFactory(
+            facade: SubstrateDataStorageFacade.shared,
+            operationManager: operationManager
+        )
+
         let asset = primitiveFactory.createAssetForAddressType(chain.addressType)
 
-        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let selectedAccount = settings.selectedAccount
+        else {
             return nil
         }
 
@@ -75,13 +85,26 @@ struct ControllerAccountConfirmationViewFactory {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let facade = UserDataStorageFacade.shared
+
+        let filter = NSPredicate.filterAccountBy(networkType: chain.addressType)
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            facade.createRepository(
+                filter: filter,
+                sortDescriptors: [.accountsByOrder]
+            )
+
         let interactor = ControllerAccountConfirmationInteractor(
             singleValueProviderFactory: SingleValueProviderFactory.shared,
+            substrateProviderFactory: substrateProviderFactory,
             extrinsicService: extrinsicService,
             signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
             feeProxy: ExtrinsicFeeProxy(),
             assetId: assetId,
-            controllerAccountItem: controllerAccountItem
+            controllerAccountItem: controllerAccountItem,
+            accountRepository: AnyDataProviderRepository(accountRepository),
+            operationManager: operationManager,
+            selectedAccountAddress: selectedAccount.address
         )
         return interactor
     }

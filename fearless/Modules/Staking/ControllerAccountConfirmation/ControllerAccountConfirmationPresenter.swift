@@ -32,7 +32,7 @@ final class ControllerAccountConfirmationPresenter {
         self.logger = logger
     }
 
-    private func setupView() {
+    private func updateView() {
         guard let stashAccountItem = stashAccountItem else { return }
 
         let viewModel = LocalizableResource<ControllerAccountConfirmationVM> { locale in
@@ -82,7 +82,6 @@ final class ControllerAccountConfirmationPresenter {
 
 extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationPresenterProtocol {
     func setup() {
-        setupView()
         provideFeeViewModel()
         interactor.setup()
     }
@@ -115,6 +114,29 @@ extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationP
 }
 
 extension ControllerAccountConfirmationPresenter: ControllerAccountConfirmationInteractorOutputProtocol {
+    func didReceiveStashItem(result: Result<StashItem?, Error>) {
+        switch result {
+        case let .success(stashItem):
+            if let stashItem = stashItem {
+                interactor.fetchStashAccountItem(for: stashItem.stash)
+            } else {
+                wireframe.close(view: view)
+            }
+        case let .failure(error):
+            logger?.error("Did receive stash item error: \(error)")
+        }
+    }
+
+    func didReceiveStashAccount(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            stashAccountItem = accountItem
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receive stash account error: \(error)")
+        }
+    }
+
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):

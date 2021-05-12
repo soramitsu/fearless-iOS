@@ -13,4 +13,8 @@ final class ControllerAccountConfirmationWireframe: ControllerAccountConfirmatio
             self.presentSuccessNotification(title, from: presenter, completion: nil)
         }
     }
+
+    func close(view: ControllerBackedProtocol?) {
+        view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
+    }
 }
