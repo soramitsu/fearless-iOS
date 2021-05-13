@@ -1757,21 +1757,6 @@ import SoraFoundation
     
     
     
-     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)  {
-        
-    return cuckoo_manager.call("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)",
-            parameters: (model),
-            escapingParameters: (model),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.setSelectedNetwork(model: model))
-        
-    }
-    
-    
-    
      func setDerivationPath(viewModel: InputViewModelProtocol)  {
         
     return cuckoo_manager.call("setDerivationPath(viewModel: InputViewModelProtocol)",
@@ -1797,21 +1782,6 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.didCompleteCryptoTypeSelection())
-        
-    }
-    
-    
-    
-     func didCompleteNetworkTypeSelection()  {
-        
-    return cuckoo_manager.call("didCompleteNetworkTypeSelection()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didCompleteNetworkTypeSelection())
         
     }
     
@@ -1859,11 +1829,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setSelectedCrypto(model: TitleWithSubtitleViewModel)", parameterMatchers: matchers))
 	    }
 	    
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectableViewModel<IconWithTitleViewModel>)> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", parameterMatchers: matchers))
-	    }
-	    
 	    func setDerivationPath<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "setDerivationPath(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
@@ -1872,11 +1837,6 @@ import SoraFoundation
 	    func didCompleteCryptoTypeSelection() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "didCompleteCryptoTypeSelection()", parameterMatchers: matchers))
-	    }
-	    
-	    func didCompleteNetworkTypeSelection() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateViewProtocol.self, method: "didCompleteNetworkTypeSelection()", parameterMatchers: matchers))
 	    }
 	    
 	    func didValidateDerivationPath<M1: Cuckoo.Matchable>(_ status: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(FieldStatus)> where M1.MatchedType == FieldStatus {
@@ -1923,12 +1883,6 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(SelectableViewModel<IconWithTitleViewModel>), Void> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
-	        return cuckoo_manager.verify("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func setDerivationPath<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(InputViewModelProtocol), Void> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
 	        return cuckoo_manager.verify("setDerivationPath(viewModel: InputViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -1938,12 +1892,6 @@ import SoraFoundation
 	    func didCompleteCryptoTypeSelection() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("didCompleteCryptoTypeSelection()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didCompleteNetworkTypeSelection() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("didCompleteNetworkTypeSelection()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -1985,19 +1933,11 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
      func setDerivationPath(viewModel: InputViewModelProtocol)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
      func didCompleteCryptoTypeSelection()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didCompleteNetworkTypeSelection()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2059,21 +1999,6 @@ import SoraFoundation
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
             defaultCall: __defaultImplStub!.selectCryptoType())
-        
-    }
-    
-    
-    
-     func selectNetworkType()  {
-        
-    return cuckoo_manager.call("selectNetworkType()",
-            parameters: (),
-            escapingParameters: (),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.selectNetworkType())
         
     }
     
@@ -2141,11 +2066,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreatePresenterProtocol.self, method: "selectCryptoType()", parameterMatchers: matchers))
 	    }
 	    
-	    func selectNetworkType() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreatePresenterProtocol.self, method: "selectNetworkType()", parameterMatchers: matchers))
-	    }
-	    
 	    func activateInfo() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreatePresenterProtocol.self, method: "activateInfo()", parameterMatchers: matchers))
@@ -2190,12 +2110,6 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func selectNetworkType() -> Cuckoo.__DoNotUse<(), Void> {
-	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return cuckoo_manager.verify("selectNetworkType()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func activateInfo() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("activateInfo()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -2227,10 +2141,6 @@ import SoraFoundation
     }
     
      func selectCryptoType()   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func selectNetworkType()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -2517,21 +2427,6 @@ import SoraFoundation
     
     
     
-     func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [Chain], selectedType: Chain, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)  {
-        
-    return cuckoo_manager.call("presentNetworkTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [Chain], selectedType: Chain, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)",
-            parameters: (view, availableTypes, selectedType, delegate, context),
-            escapingParameters: (view, availableTypes, selectedType, delegate, context),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.presentNetworkTypeSelection(from: view, availableTypes: availableTypes, selectedType: selectedType, delegate: delegate, context: context))
-        
-    }
-    
-    
-    
      func present(message: String?, title: String?, closeAction: String?, from view: ControllerBackedProtocol?)  {
         
     return cuckoo_manager.call("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)",
@@ -2579,11 +2474,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "presentCryptoTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", parameterMatchers: matchers))
 	    }
 	    
-	    func presentNetworkTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountCreateViewProtocol?, [Chain], Chain, ModalPickerViewControllerDelegate?, AnyObject?)> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [Chain], M3.MatchedType == Chain, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [Chain], Chain, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "presentNetworkTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [Chain], selectedType: Chain, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", parameterMatchers: matchers))
-	    }
-	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountCreateWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
@@ -2623,12 +2513,6 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentNetworkTypeSelection<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable, M4: Cuckoo.OptionalMatchable, M5: Cuckoo.OptionalMatchable>(from view: M1, availableTypes: M2, selectedType: M3, delegate: M4, context: M5) -> Cuckoo.__DoNotUse<(AccountCreateViewProtocol?, [Chain], Chain, ModalPickerViewControllerDelegate?, AnyObject?), Void> where M1.OptionalMatchedType == AccountCreateViewProtocol, M2.MatchedType == [Chain], M3.MatchedType == Chain, M4.OptionalMatchedType == ModalPickerViewControllerDelegate, M5.OptionalMatchedType == AnyObject {
-	        let matchers: [Cuckoo.ParameterMatcher<(AccountCreateViewProtocol?, [Chain], Chain, ModalPickerViewControllerDelegate?, AnyObject?)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: availableTypes) { $0.1 }, wrap(matchable: selectedType) { $0.2 }, wrap(matchable: delegate) { $0.3 }, wrap(matchable: context) { $0.4 }]
-	        return cuckoo_manager.verify("presentNetworkTypeSelection(from: AccountCreateViewProtocol?, availableTypes: [Chain], selectedType: Chain, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.__DoNotUse<(String?, String?, String?, ControllerBackedProtocol?), Void> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
 	        return cuckoo_manager.verify("present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -2654,10 +2538,6 @@ import SoraFoundation
     }
     
      func presentCryptoTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [CryptoType], selectedType: CryptoType, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func presentNetworkTypeSelection(from view: AccountCreateViewProtocol?, availableTypes: [Chain], selectedType: Chain, delegate: ModalPickerViewControllerDelegate?, context: AnyObject?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -36065,16 +35945,46 @@ import SoraFoundation
     
     
     
-     func set(viewModel: InputViewModelProtocol)  {
+     func setInput(viewModel: InputViewModelProtocol)  {
         
-    return cuckoo_manager.call("set(viewModel: InputViewModelProtocol)",
+    return cuckoo_manager.call("setInput(viewModel: InputViewModelProtocol)",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.set(viewModel: viewModel))
+            defaultCall: __defaultImplStub!.setInput(viewModel: viewModel))
+        
+    }
+    
+    
+    
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)  {
+        
+    return cuckoo_manager.call("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)",
+            parameters: (model),
+            escapingParameters: (model),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setSelectedNetwork(model: model))
+        
+    }
+    
+    
+    
+     func didCompleteNetworkSelection()  {
+        
+    return cuckoo_manager.call("didCompleteNetworkSelection()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didCompleteNetworkSelection())
         
     }
     
@@ -36097,9 +36007,19 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func set<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
+	    func setInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupViewProtocol.self, method: "set(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupViewProtocol.self, method: "setInput(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
+	    }
+	    
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectableViewModel<IconWithTitleViewModel>)> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupViewProtocol.self, method: "setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didCompleteNetworkSelection() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupViewProtocol.self, method: "didCompleteNetworkSelection()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -36129,9 +36049,21 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func set<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(InputViewModelProtocol), Void> where M1.MatchedType == InputViewModelProtocol {
+	    func setInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(InputViewModelProtocol), Void> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("set(viewModel: InputViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("setInput(viewModel: InputViewModelProtocol)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func setSelectedNetwork<M1: Cuckoo.Matchable>(model: M1) -> Cuckoo.__DoNotUse<(SelectableViewModel<IconWithTitleViewModel>), Void> where M1.MatchedType == SelectableViewModel<IconWithTitleViewModel> {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectableViewModel<IconWithTitleViewModel>)>] = [wrap(matchable: model) { $0 }]
+	        return cuckoo_manager.verify("setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didCompleteNetworkSelection() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("didCompleteNetworkSelection()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -36159,7 +36091,15 @@ import SoraFoundation
     
 
     
-     func set(viewModel: InputViewModelProtocol)   {
+     func setInput(viewModel: InputViewModelProtocol)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didCompleteNetworkSelection()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -36207,6 +36147,21 @@ import SoraFoundation
     
     
     
+     func selectNetworkType()  {
+        
+    return cuckoo_manager.call("selectNetworkType()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.selectNetworkType())
+        
+    }
+    
+    
+    
      func proceed()  {
         
     return cuckoo_manager.call("proceed()",
@@ -36232,6 +36187,11 @@ import SoraFoundation
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	    func selectNetworkType() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupPresenterProtocol.self, method: "selectNetworkType()", parameterMatchers: matchers))
 	    }
 	    
 	    func proceed() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -36262,6 +36222,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func selectNetworkType() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("selectNetworkType()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func proceed() -> Cuckoo.__DoNotUse<(), Void> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return cuckoo_manager.verify("proceed()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -36280,7 +36246,193 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
+     func selectNetworkType()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
      func proceed()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockUsernameSetupInteractorInputProtocol: UsernameSetupInteractorInputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = UsernameSetupInteractorInputProtocol
+    
+     typealias Stubbing = __StubbingProxy_UsernameSetupInteractorInputProtocol
+     typealias Verification = __VerificationProxy_UsernameSetupInteractorInputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: UsernameSetupInteractorInputProtocol?
+
+     func enableDefaultImplementation(_ stub: UsernameSetupInteractorInputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func setup()  {
+        
+    return cuckoo_manager.call("setup()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.setup())
+        
+    }
+    
+
+	 struct __StubbingProxy_UsernameSetupInteractorInputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_UsernameSetupInteractorInputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func setup() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("setup()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class UsernameSetupInteractorInputProtocolStub: UsernameSetupInteractorInputProtocol {
+    
+
+    
+
+    
+     func setup()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+}
+
+
+
+ class MockUsernameSetupInteractorOutputProtocol: UsernameSetupInteractorOutputProtocol, Cuckoo.ProtocolMock {
+    
+     typealias MocksType = UsernameSetupInteractorOutputProtocol
+    
+     typealias Stubbing = __StubbingProxy_UsernameSetupInteractorOutputProtocol
+     typealias Verification = __VerificationProxy_UsernameSetupInteractorOutputProtocol
+
+     let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
+
+    
+    private var __defaultImplStub: UsernameSetupInteractorOutputProtocol?
+
+     func enableDefaultImplementation(_ stub: UsernameSetupInteractorOutputProtocol) {
+        __defaultImplStub = stub
+        cuckoo_manager.enableDefaultStubImplementation()
+    }
+    
+
+    
+
+    
+
+    
+    
+    
+     func didReceive(metadata: UsernameSetupMetadata)  {
+        
+    return cuckoo_manager.call("didReceive(metadata: UsernameSetupMetadata)",
+            parameters: (metadata),
+            escapingParameters: (metadata),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceive(metadata: metadata))
+        
+    }
+    
+
+	 struct __StubbingProxy_UsernameSetupInteractorOutputProtocol: Cuckoo.StubbingProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	
+	     init(manager: Cuckoo.MockManager) {
+	        self.cuckoo_manager = manager
+	    }
+	    
+	    
+	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(UsernameSetupMetadata)> where M1.MatchedType == UsernameSetupMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupMetadata)>] = [wrap(matchable: metadata) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupInteractorOutputProtocol.self, method: "didReceive(metadata: UsernameSetupMetadata)", parameterMatchers: matchers))
+	    }
+	    
+	}
+
+	 struct __VerificationProxy_UsernameSetupInteractorOutputProtocol: Cuckoo.VerificationProxy {
+	    private let cuckoo_manager: Cuckoo.MockManager
+	    private let callMatcher: Cuckoo.CallMatcher
+	    private let sourceLocation: Cuckoo.SourceLocation
+	
+	     init(manager: Cuckoo.MockManager, callMatcher: Cuckoo.CallMatcher, sourceLocation: Cuckoo.SourceLocation) {
+	        self.cuckoo_manager = manager
+	        self.callMatcher = callMatcher
+	        self.sourceLocation = sourceLocation
+	    }
+	
+	    
+	
+	    
+	    @discardableResult
+	    func didReceive<M1: Cuckoo.Matchable>(metadata: M1) -> Cuckoo.__DoNotUse<(UsernameSetupMetadata), Void> where M1.MatchedType == UsernameSetupMetadata {
+	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupMetadata)>] = [wrap(matchable: metadata) { $0 }]
+	        return cuckoo_manager.verify("didReceive(metadata: UsernameSetupMetadata)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	}
+}
+
+ class UsernameSetupInteractorOutputProtocolStub: UsernameSetupInteractorOutputProtocol {
+    
+
+    
+
+    
+     func didReceive(metadata: UsernameSetupMetadata)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -36313,16 +36465,16 @@ import SoraFoundation
     
     
     
-     func proceed(from view: UsernameSetupViewProtocol?, username: String)  {
+     func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)  {
         
-    return cuckoo_manager.call("proceed(from: UsernameSetupViewProtocol?, username: String)",
-            parameters: (view, username),
-            escapingParameters: (view, username),
+    return cuckoo_manager.call("proceed(from: UsernameSetupViewProtocol?, model: UsernameSetupModel)",
+            parameters: (view, model),
+            escapingParameters: (view, model),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.proceed(from: view, username: username))
+            defaultCall: __defaultImplStub!.proceed(from: view, model: model))
         
     }
     
@@ -36365,9 +36517,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, username: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(UsernameSetupViewProtocol?, String)> where M1.OptionalMatchedType == UsernameSetupViewProtocol, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupViewProtocol?, String)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: username) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupWireframeProtocol.self, method: "proceed(from: UsernameSetupViewProtocol?, username: String)", parameterMatchers: matchers))
+	    func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, model: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(UsernameSetupViewProtocol?, UsernameSetupModel)> where M1.OptionalMatchedType == UsernameSetupViewProtocol, M2.MatchedType == UsernameSetupModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupViewProtocol?, UsernameSetupModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: model) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockUsernameSetupWireframeProtocol.self, method: "proceed(from: UsernameSetupViewProtocol?, model: UsernameSetupModel)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
@@ -36397,9 +36549,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, username: M2) -> Cuckoo.__DoNotUse<(UsernameSetupViewProtocol?, String), Void> where M1.OptionalMatchedType == UsernameSetupViewProtocol, M2.MatchedType == String {
-	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupViewProtocol?, String)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: username) { $0.1 }]
-	        return cuckoo_manager.verify("proceed(from: UsernameSetupViewProtocol?, username: String)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func proceed<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(from view: M1, model: M2) -> Cuckoo.__DoNotUse<(UsernameSetupViewProtocol?, UsernameSetupModel), Void> where M1.OptionalMatchedType == UsernameSetupViewProtocol, M2.MatchedType == UsernameSetupModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(UsernameSetupViewProtocol?, UsernameSetupModel)>] = [wrap(matchable: view) { $0.0 }, wrap(matchable: model) { $0.1 }]
+	        return cuckoo_manager.verify("proceed(from: UsernameSetupViewProtocol?, model: UsernameSetupModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -36423,7 +36575,7 @@ import SoraFoundation
     
 
     
-     func proceed(from view: UsernameSetupViewProtocol?, username: String)   {
+     func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

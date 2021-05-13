@@ -4,76 +4,49 @@ import SoraFoundation
 import SoraKeystore
 
 final class AccountCreateViewFactory: AccountCreateViewFactoryProtocol {
-    static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol? {
-        let interactor = AccountCreateInteractor(
-            mnemonicCreator: IRMnemonicCreator(),
-            supportedNetworkTypes: Chain.allCases,
-            defaultNetwork: ConnectionItem.defaultConnection.type.chain
-        )
+    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
         let wireframe = AccountCreateWireframe()
 
         return createViewForUsername(
-            username,
-            interactor: interactor,
+            model: model,
             wireframe: wireframe
         )
     }
 
-    static func createViewForAdding(username: String) -> AccountCreateViewProtocol? {
-        let defaultAddressType = SettingsManager.shared.selectedConnection.type
-
-        let interactor = AccountCreateInteractor(
-            mnemonicCreator: IRMnemonicCreator(),
-            supportedNetworkTypes: Chain.allCases,
-            defaultNetwork: defaultAddressType.chain
-        )
+    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
         let wireframe = AddAccount.AccountCreateWireframe()
 
         return createViewForUsername(
-            username,
-            interactor: interactor,
+            model: model,
             wireframe: wireframe
         )
     }
 
     static func createViewForConnection(
         item: ConnectionItem,
-        username: String
+        model: UsernameSetupModel
     ) -> AccountCreateViewProtocol? {
-        let interactor = AccountCreateInteractor(
-            mnemonicCreator: IRMnemonicCreator(),
-            supportedNetworkTypes: [item.type.chain],
-            defaultNetwork: item.type.chain
-        )
-
         let wireframe = SelectConnection.AccountCreateWireframe(connectionItem: item)
 
         return createViewForUsername(
-            username,
-            interactor: interactor,
+            model: model,
             wireframe: wireframe
         )
     }
 
-    static func createViewForSwitch(username: String) -> AccountCreateViewProtocol? {
-        let defaultAddressType = SettingsManager.shared.selectedConnection.type
-
-        let interactor = AccountCreateInteractor(
-            mnemonicCreator: IRMnemonicCreator(),
-            supportedNetworkTypes: Chain.allCases,
-            defaultNetwork: defaultAddressType.chain
-        )
+    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol? {
         let wireframe = SwitchAccount.AccountCreateWireframe()
-        return createViewForUsername(username, interactor: interactor, wireframe: wireframe)
+        return createViewForUsername(model: model, wireframe: wireframe)
     }
 
     static func createViewForUsername(
-        _ username: String,
-        interactor: AccountCreateInteractor,
+        model: UsernameSetupModel,
         wireframe: AccountCreateWireframeProtocol
     ) -> AccountCreateViewProtocol? {
         let view = AccountCreateViewController(nib: R.nib.accountCreateViewController)
-        let presenter = AccountCreatePresenter(username: username)
+        let presenter = AccountCreatePresenter(usernameSetup: model)
+
+        let interactor = AccountCreateInteractor(mnemonicCreator: IRMnemonicCreator())
 
         view.presenter = presenter
         presenter.view = view

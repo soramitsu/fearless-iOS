@@ -4,18 +4,15 @@ import SoraFoundation
 protocol AccountCreateViewProtocol: ControllerBackedProtocol {
     func set(mnemonic: [String])
     func setSelectedCrypto(model: TitleWithSubtitleViewModel)
-    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
     func setDerivationPath(viewModel: InputViewModelProtocol)
 
     func didCompleteCryptoTypeSelection()
-    func didCompleteNetworkTypeSelection()
     func didValidateDerivationPath(_ status: FieldStatus)
 }
 
 protocol AccountCreatePresenterProtocol: AnyObject {
     func setup()
     func selectCryptoType()
-    func selectNetworkType()
     func activateInfo()
     func validate()
     func proceed()
@@ -44,18 +41,16 @@ protocol AccountCreateWireframeProtocol: AlertPresentable, ErrorPresentable {
         delegate: ModalPickerViewControllerDelegate?,
         context: AnyObject?
     )
-    func presentNetworkTypeSelection(
-        from view: AccountCreateViewProtocol?,
-        availableTypes: [Chain],
-        selectedType: Chain,
-        delegate: ModalPickerViewControllerDelegate?,
-        context: AnyObject?
-    )
 }
 
 protocol AccountCreateViewFactoryProtocol: AnyObject {
-    static func createViewForOnboarding(username: String) -> AccountCreateViewProtocol?
-    static func createViewForAdding(username: String) -> AccountCreateViewProtocol?
-    static func createViewForConnection(item: ConnectionItem, username: String) -> AccountCreateViewProtocol?
-    static func createViewForSwitch(username: String) -> AccountCreateViewProtocol?
+    static func createViewForOnboarding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
+    static func createViewForAdding(model: UsernameSetupModel) -> AccountCreateViewProtocol?
+
+    static func createViewForConnection(
+        item: ConnectionItem,
+        model: UsernameSetupModel
+    ) -> AccountCreateViewProtocol?
+
+    static func createViewForSwitch(model: UsernameSetupModel) -> AccountCreateViewProtocol?
 }
