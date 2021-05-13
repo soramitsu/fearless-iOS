@@ -10,17 +10,23 @@ final class RootInteractor {
     let keystore: KeystoreProtocol
     let applicationConfig: ApplicationConfigProtocol
     let eventCenter: EventCenterProtocol
+    let migrators: [Migrating]
+    let logger: LoggerProtocol?
 
     init(
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol,
         applicationConfig: ApplicationConfigProtocol,
-        eventCenter: EventCenterProtocol
+        eventCenter: EventCenterProtocol,
+        migrators: [Migrating],
+        logger: LoggerProtocol? = nil
     ) {
         self.settings = settings
         self.keystore = keystore
         self.applicationConfig = applicationConfig
         self.eventCenter = eventCenter
+        self.migrators = migrators
+        self.logger = logger
     }
 
     private func setupURLHandlingService() {
@@ -33,6 +39,16 @@ final class RootInteractor {
         )
 
         URLHandlingService.shared.setup(children: [purchaseHandler, keystoreImportService])
+    }
+
+    private func runMigrators() {
+        migrators.forEach { migrator in
+            do {
+                try migrator.migrate()
+            } catch {
+                logger?.error(error.localizedDescription)
+            }
+        }
     }
 }
 
@@ -61,5 +77,6 @@ extension RootInteractor: RootInteractorInputProtocol {
 
     func setup() {
         setupURLHandlingService()
+        runMigrators()
     }
 }
