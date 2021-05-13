@@ -557,6 +557,7 @@
 		84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0424DA8663008F6A3F /* AccountCreationError.swift */; };
 		84893C0724DA890F008F6A3F /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0624DA890F008F6A3F /* CommonError.swift */; };
 		8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */; };
+		8489EDCE264DD4DA00FF997E /* RecommendationsComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */; };
 		848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848C3D0826248A3B005481C3 /* TransferCall.swift */; };
 		848DB98E260638340055DDE7 /* rewardFirstResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB98D260638340055DDE7 /* rewardFirstResponse.json */; };
 		848DB993260638440055DDE7 /* rewardSecondResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB992260638440055DDE7 /* rewardSecondResponse.json */; };
@@ -1791,6 +1792,7 @@
 		84893C0424DA8663008F6A3F /* AccountCreationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationError.swift; sourceTree = "<group>"; };
 		84893C0624DA890F008F6A3F /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposing.swift; sourceTree = "<group>"; };
+		8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposerTests.swift; sourceTree = "<group>"; };
 		848C3D0826248A3B005481C3 /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		848DB98D260638340055DDE7 /* rewardFirstResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardFirstResponse.json; sourceTree = "<group>"; };
 		848DB992260638440055DDE7 /* rewardSecondResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardSecondResponse.json; sourceTree = "<group>"; };
@@ -2823,6 +2825,7 @@
 			isa = PBXGroup;
 			children = (
 				C316BE4F5A0342D379F783E8 /* RecommendedValidatorsTests.swift */,
+				8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */,
 			);
 			path = RecommendedValidators;
 			sourceTree = "<group>";
@@ -7649,6 +7652,7 @@
 				0B3BC92678214517773B0539 /* AccountManagementTests.swift in Sources */,
 				AEE5FB0C2642990D002B8FDC /* StakingRebondSetupTests.swift in Sources */,
 				8401AEA726429E31000B03E3 /* BondMoreConfirmTests.swift in Sources */,
+				8489EDCE264DD4DA00FF997E /* RecommendationsComposerTests.swift in Sources */,
 				845C7F06263C45EC0024E797 /* AnyProviderAutoCleaner.swift in Sources */,
 				AEBE16F1262EAD7F00DF257C /* StakingPayoutsConfirmTests.swift in Sources */,
 				848DB998260639C70055DDE7 /* TotalRewardMock.swift in Sources */,
