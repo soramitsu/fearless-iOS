@@ -1,4 +1,5 @@
 import UIKit
+import SoraUI
 
 final class AlertsView: UIView {
     private let backgroundView: UIView = TriangularedBlurView()
@@ -98,7 +99,7 @@ final class AlertsView: UIView {
     }
 }
 
-private class AlertItemView: UIView {
+private class AlertItemView: BackgroundedContentControl {
     let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -124,6 +125,13 @@ private class AlertItemView: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+
+        let shapeView = ShapeView()
+        shapeView.isUserInteractionEnabled = false
+        shapeView.fillColor = .clear
+        shapeView.highlightedFillColor = R.color.colorCellSelection()!
+        backgroundView = shapeView
+
         setupLayout()
     }
 
@@ -132,28 +140,44 @@ private class AlertItemView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        contentView?.frame = bounds
+    }
+
+    override var intrinsicContentSize: CGSize {
+        CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: 77
+        )
+    }
+
     private func setupLayout() {
-        addSubview(iconImageView)
+        let containerView = UIView()
+        containerView.isUserInteractionEnabled = false
+
+        containerView.addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(13)
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
             make.size.equalTo(16)
         }
 
-        addSubview(titleLabel)
+        containerView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(13)
             make.leading.equalTo(iconImageView.snp.trailing).offset(8)
         }
 
-        addSubview(descriptionLabel)
+        containerView.addSubview(descriptionLabel)
         descriptionLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
             make.leading.equalTo(titleLabel.snp.leading)
             make.bottom.equalToSuperview().inset(14)
         }
 
-        addSubview(accessoryView)
+        containerView.addSubview(accessoryView)
         accessoryView.snp.makeConstraints { make in
             make.top.equalToSuperview().inset(9)
             make.trailing.equalToSuperview().inset(12)
@@ -161,6 +185,8 @@ private class AlertItemView: UIView {
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
             make.leading.greaterThanOrEqualTo(descriptionLabel.snp.trailing).offset(16)
         }
+
+        contentView = containerView
     }
 
     func bind(viewModel: StakingAlertViewModel) {

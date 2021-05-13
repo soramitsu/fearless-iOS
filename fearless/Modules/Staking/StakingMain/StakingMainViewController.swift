@@ -120,12 +120,17 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stackView.addArrangedSubview(alertsContainerView)
 
-        // TODO delete stub
+        // TODO: delete stub
         alertsView.bind(viewModels: [
             .init(
                 icon: R.image.iconAlert(),
                 title: "Change your validators.",
                 description: "None of your validators were elected by network."
+            ),
+            .init(
+                icon: R.image.iconAlert(),
+                title: "Bond more tokens.",
+                description: "Staking was inactive.\nCurrent minimal stake is 223.93 KSM."
             )
         ])
     }
