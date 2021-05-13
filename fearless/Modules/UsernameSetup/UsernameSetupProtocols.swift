@@ -1,16 +1,28 @@
 import SoraFoundation
 
 protocol UsernameSetupViewProtocol: ControllerBackedProtocol {
-    func set(viewModel: InputViewModelProtocol)
+    func setInput(viewModel: InputViewModelProtocol)
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>)
+
+    func didCompleteNetworkSelection()
 }
 
 protocol UsernameSetupPresenterProtocol: AnyObject {
     func setup()
+    func selectNetworkType()
     func proceed()
 }
 
-protocol UsernameSetupWireframeProtocol: AlertPresentable {
-    func proceed(from view: UsernameSetupViewProtocol?, username: String)
+protocol UsernameSetupInteractorInputProtocol: AnyObject {
+    func setup()
+}
+
+protocol UsernameSetupInteractorOutputProtocol: AnyObject {
+    func didReceive(metadata: UsernameSetupMetadata)
+}
+
+protocol UsernameSetupWireframeProtocol: AlertPresentable, NetworkTypeSelectionPresentable {
+    func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel)
 }
 
 protocol UsernameSetupViewFactoryProtocol: AnyObject {

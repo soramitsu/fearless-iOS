@@ -11,28 +11,41 @@ class UsernameSetupTests: XCTestCase {
         let view = MockUsernameSetupViewProtocol()
         let wireframe = MockUsernameSetupWireframeProtocol()
 
+        let defaultChain = Chain.westend
+        let interactor = UsernameSetupInteractor(
+            supportedNetworkTypes: Chain.allCases,
+            defaultNetwork: defaultChain
+        )
+
         let presenter = UsernameSetupPresenter()
         presenter.view = view
         presenter.wireframe = wireframe
+        presenter.interactor = interactor
+        interactor.presenter = presenter
 
-        let expectedName = "test name"
+        let expectedModel = UsernameSetupModel(username: "test name", selectedNetwork: defaultChain)
 
         var receivedViewModel: InputViewModelProtocol?
-        var receivedName: String?
+        var resultModel: UsernameSetupModel?
 
-        let viewModelExpectation = XCTestExpectation()
+        let inputViewModelExpectation = XCTestExpectation()
+        let networkViewModelExpectation = XCTestExpectation()
         let proceedExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).set(viewModel: any()).then { viewModel in
+            when(stub).setInput(viewModel: any()).then { viewModel in
                 receivedViewModel = viewModel
-                viewModelExpectation.fulfill()
+                inputViewModelExpectation.fulfill()
+            }
+
+            when(stub).setSelectedNetwork(model: any()).then { _ in
+                networkViewModelExpectation.fulfill()
             }
         }
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), username: any()).then { (_, name) in
-                receivedName = name
+            when(stub).proceed(from: any(), model: any()).then { (_, model) in
+                resultModel = model
 
                 proceedExpectation.fulfill()
             }
@@ -51,13 +64,19 @@ class UsernameSetupTests: XCTestCase {
 
         // then
 
-        wait(for: [viewModelExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(
+            for: [inputViewModelExpectation, networkViewModelExpectation],
+            timeout: Constants.defaultExpectationDuration
+        )
 
         // when
 
         guard
             let accepted = receivedViewModel?.inputHandler
-                .didReceiveReplacement(expectedName, for: NSRange(location: 0, length: 0)), accepted else {
+                .didReceiveReplacement(
+                    expectedModel.username,
+                    for: NSRange(location: 0, length: 0)
+                ), accepted else {
             XCTFail("Unexpected empty view model")
             return
         }
@@ -68,6 +87,6 @@ class UsernameSetupTests: XCTestCase {
 
         wait(for: [proceedExpectation], timeout: Constants.defaultExpectationDuration)
 
-        XCTAssertEqual(expectedName, receivedName)
+        XCTAssertEqual(expectedModel, resultModel)
     }
 }

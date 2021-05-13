@@ -1,5 +1,4 @@
 import Foundation
-import IrohaCrypto
 
 struct AccountCreationMetadata {
     let mnemonic: [String]
