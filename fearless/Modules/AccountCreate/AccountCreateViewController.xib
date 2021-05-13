@@ -26,7 +26,6 @@
                 <outlet property="derivationPathView" destination="TpH-WZ-8oM" id="hwp-s7-xjC"/>
                 <outlet property="detailsLabel" destination="Ihh-eg-GQw" id="F0e-x4-ZTp"/>
                 <outlet property="expadableControl" destination="oE5-fi-Ix8" id="EF1-2d-paz"/>
-                <outlet property="networkTypeView" destination="eM4-fP-HgV" id="Rl8-px-KPP"/>
                 <outlet property="nextButton" destination="YBP-AM-Ejm" id="cq0-W4-PL2"/>
                 <outlet property="scrollView" destination="j2J-jw-4dD" id="CyB-r4-B75"/>
                 <outlet property="stackView" destination="nt2-2c-HuT" id="Cn2-eT-eLd"/>
@@ -42,15 +41,15 @@
                     <rect key="frame" x="0.0" y="0.0" width="414" height="636"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="nt2-2c-HuT">
-                            <rect key="frame" x="16" y="0.0" width="382" height="376"/>
+                            <rect key="frame" x="16" y="0.0" width="382" height="300"/>
                             <subviews>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="43P-Ll-Had">
                                     <rect key="frame" x="0.0" y="0.0" width="382" height="100"/>
                                     <subviews>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
+                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" image="iconAlert" translatesAutoresizingMaskIntoConstraints="NO" id="ps1-21-qIL">
                                             <rect key="frame" x="0.0" y="38" width="24" height="24"/>
                                         </imageView>
-                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
+                                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" ambiguous="YES" text="Use non digital way to backup, such as writing it down on paper." textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ihh-eg-GQw">
                                             <rect key="frame" x="40" y="16" width="342" height="68"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorLightGray"/>
@@ -116,10 +115,10 @@
                                     </userDefinedRuntimeAttributes>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ufd-ci-pPo">
-                                    <rect key="frame" x="0.0" y="150" width="382" height="226"/>
+                                    <rect key="frame" x="0.0" y="150" width="382" height="150"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Mz8-da-wtW" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="16" width="380" height="48"/>
+                                            <rect key="frame" x="1" y="16" width="380" height="52"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
@@ -163,7 +162,7 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="TpH-WZ-8oM" customClass="TriangularedView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="80" width="380" height="52"/>
+                                            <rect key="frame" x="1" y="84" width="380" height="52"/>
                                             <subviews>
                                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Secret derivation path" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="i8u-Ig-8Iw">
                                                     <rect key="frame" x="16" y="8" width="319" height="14"/>
@@ -223,51 +222,15 @@
                                                 </userDefinedRuntimeAttribute>
                                             </userDefinedRuntimeAttributes>
                                         </view>
-                                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="eM4-fP-HgV" customClass="BorderedSubtitleActionView" customModule="fearless" customModuleProvider="target">
-                                            <rect key="frame" x="1" y="148" width="380" height="56.333333333333343"/>
-                                            <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                                            <userDefinedRuntimeAttributes>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="strokeWidth">
-                                                    <real key="value" value="1"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="shadowOpacity">
-                                                    <real key="value" value="0.0"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Choose network"/>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                                                    <color key="value" name="colorLightGray"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_layoutType">
-                                                    <integer key="value" value="1"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                                                    <real key="value" value="12"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitle" value="Kusama, Parity node"/>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="_subtitleColor">
-                                                    <color key="value" name="colorWhite"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="string" keyPath="_subtitleFontName" value="sora-rc004-0417-Regular"/>
-                                                <userDefinedRuntimeAttribute type="number" keyPath="_subtitleFontSize">
-                                                    <real key="value" value="14"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="image" keyPath="_subtitleIcon" value="iconKsmSmallBg"/>
-                                                <userDefinedRuntimeAttribute type="image" keyPath="_indicatorIcon" value="iconDropDown"/>
-                                            </userDefinedRuntimeAttributes>
-                                        </view>
                                     </subviews>
                                     <color key="backgroundColor" name="colorBlack"/>
                                     <constraints>
-                                        <constraint firstItem="eM4-fP-HgV" firstAttribute="top" secondItem="TpH-WZ-8oM" secondAttribute="bottom" constant="16" id="3LV-VU-Wbx"/>
-                                        <constraint firstAttribute="trailing" secondItem="eM4-fP-HgV" secondAttribute="trailing" constant="1" id="90J-li-h3x"/>
                                         <constraint firstItem="Mz8-da-wtW" firstAttribute="top" secondItem="ufd-ci-pPo" secondAttribute="top" constant="16" id="9t0-hb-mrS"/>
                                         <constraint firstItem="TpH-WZ-8oM" firstAttribute="leading" secondItem="ufd-ci-pPo" secondAttribute="leading" constant="1" id="IcR-N5-YrZ"/>
                                         <constraint firstItem="TpH-WZ-8oM" firstAttribute="top" secondItem="Mz8-da-wtW" secondAttribute="bottom" constant="16" id="Ky1-nB-l97"/>
-                                        <constraint firstItem="eM4-fP-HgV" firstAttribute="leading" secondItem="ufd-ci-pPo" secondAttribute="leading" constant="1" id="LV3-XM-RGY"/>
                                         <constraint firstItem="Mz8-da-wtW" firstAttribute="leading" secondItem="ufd-ci-pPo" secondAttribute="leading" constant="1" id="Otw-Ii-U8t"/>
                                         <constraint firstAttribute="trailing" secondItem="Mz8-da-wtW" secondAttribute="trailing" constant="1" id="TUD-GL-5Bc"/>
-                                        <constraint firstAttribute="height" constant="226" id="f1i-IW-n8c"/>
+                                        <constraint firstAttribute="height" constant="150" id="f1i-IW-n8c"/>
                                         <constraint firstAttribute="trailing" secondItem="TpH-WZ-8oM" secondAttribute="trailing" constant="1" id="t5w-jL-50u"/>
                                     </constraints>
                                 </view>
@@ -340,22 +303,18 @@
     </objects>
     <designables>
         <designable name="Mz8-da-wtW">
-            <size key="intrinsicContentSize" width="272.66666666666663" height="48"/>
+            <size key="intrinsicContentSize" width="326" height="52"/>
         </designable>
         <designable name="YBP-AM-Ejm">
-            <size key="intrinsicContentSize" width="43.333333333333329" height="31.666666666666664"/>
-        </designable>
-        <designable name="eM4-fP-HgV">
-            <size key="intrinsicContentSize" width="213.33333333333331" height="56.333333333333336"/>
+            <size key="intrinsicContentSize" width="51.333333333333336" height="33.666666666666671"/>
         </designable>
         <designable name="oE5-fi-Ix8">
-            <size key="intrinsicContentSize" width="85" height="20"/>
+            <size key="intrinsicContentSize" width="99.666666666666671" height="20"/>
         </designable>
     </designables>
     <resources>
         <image name="iconAlert" width="24" height="24"/>
         <image name="iconDropDown" width="24" height="24"/>
-        <image name="iconKsmSmallBg" width="24" height="24"/>
         <namedColor name="colorAccent">
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>

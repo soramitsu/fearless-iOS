@@ -10,7 +10,7 @@ extension SelectConnection {
 
         func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel) {
             guard let accountCreation = AccountCreateViewFactory
-                .createViewForConnection(item: connectionItem, username: model.username)
+                .createViewForConnection(item: connectionItem, model: model)
             else {
                 return
             }

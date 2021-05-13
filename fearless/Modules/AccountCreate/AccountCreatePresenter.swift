@@ -2,27 +2,21 @@ import UIKit
 import IrohaCrypto
 import SoraFoundation
 
-enum AccountCreateContext: String {
-    case cryptoType
-    case networkType
-}
-
 final class AccountCreatePresenter {
     weak var view: AccountCreateViewProtocol?
     var wireframe: AccountCreateWireframeProtocol!
     var interactor: AccountCreateInteractorInputProtocol!
 
-    let username: String
+    let usernameSetup: UsernameSetupModel
 
     private var metadata: AccountCreationMetadata?
 
     private var selectedCryptoType: CryptoType?
-    private var selectedNetworkType: Chain?
 
     private var derivationPathViewModel: InputViewModelProtocol?
 
-    init(username: String) {
-        self.username = username
+    init(usernameSetup: UsernameSetupModel) {
+        self.usernameSetup = usernameSetup
     }
 
     private func applyCryptoTypeViewModel() {
@@ -38,27 +32,6 @@ final class AccountCreatePresenter {
         )
 
         view?.setSelectedCrypto(model: viewModel)
-    }
-
-    private func applyNetworkTypeViewModel() {
-        guard let networkType = selectedNetworkType else {
-            return
-        }
-
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let contentViewModel = IconWithTitleViewModel(
-            icon: networkType.icon,
-            title: networkType.titleForLocale(locale)
-        )
-
-        let selectable = (metadata?.availableNetworks.count ?? 0) > 1
-        let viewModel = SelectableViewModel(
-            underlyingViewModel: contentViewModel,
-            selectable: selectable
-        )
-
-        view?.setSelectedNetwork(model: viewModel)
     }
 
     private func applyDerivationPathViewModel() {
@@ -139,35 +112,19 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
 
     func selectCryptoType() {
         if let metadata = metadata {
-            let context = AccountCreateContext.cryptoType.rawValue as NSString
             let selectedType = selectedCryptoType ?? metadata.defaultCryptoType
             wireframe.presentCryptoTypeSelection(
                 from: view,
                 availableTypes: metadata.availableCryptoTypes,
                 selectedType: selectedType,
                 delegate: self,
-                context: context
-            )
-        }
-    }
-
-    func selectNetworkType() {
-        if let metadata = metadata {
-            let context = AccountCreateContext.networkType.rawValue as NSString
-            let selectedType = selectedNetworkType ?? metadata.defaultNetwork
-            wireframe.presentNetworkTypeSelection(
-                from: view,
-                availableTypes: metadata.availableNetworks,
-                selectedType: selectedType,
-                delegate: self,
-                context: context
+                context: nil
             )
         }
     }
 
     func proceed() {
         guard
-            let networkType = selectedNetworkType,
             let cryptoType = selectedCryptoType,
             let viewModel = derivationPathViewModel,
             let metadata = metadata
@@ -182,8 +139,8 @@ extension AccountCreatePresenter: AccountCreatePresenterProtocol {
         }
 
         let request = AccountCreationRequest(
-            username: username,
-            type: networkType,
+            username: usernameSetup.username,
+            type: usernameSetup.selectedNetwork,
             derivationPath: viewModel.inputHandler.value,
             cryptoType: cryptoType
         )
@@ -201,12 +158,10 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
         self.metadata = metadata
 
         selectedCryptoType = metadata.defaultCryptoType
-        selectedNetworkType = metadata.defaultNetwork
 
         view?.set(mnemonic: metadata.mnemonic)
 
         applyCryptoTypeViewModel()
-        applyNetworkTypeViewModel()
         applyDerivationPathViewModel()
     }
 
@@ -226,38 +181,17 @@ extension AccountCreatePresenter: AccountCreateInteractorOutputProtocol {
 }
 
 extension AccountCreatePresenter: ModalPickerViewControllerDelegate {
-    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
-        if
-            let context = context as? NSString,
-            let selectionContext = AccountCreateContext(rawValue: context as String) {
-            switch selectionContext {
-            case .cryptoType:
-                selectedCryptoType = metadata?.availableCryptoTypes[index]
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context _: AnyObject?) {
+        selectedCryptoType = metadata?.availableCryptoTypes[index]
 
-                applyCryptoTypeViewModel()
-                applyDerivationPathViewModel()
+        applyCryptoTypeViewModel()
+        applyDerivationPathViewModel()
 
-                view?.didCompleteCryptoTypeSelection()
-            case .networkType:
-                selectedNetworkType = metadata?.availableNetworks[index]
-
-                applyNetworkTypeViewModel()
-                view?.didCompleteNetworkTypeSelection()
-            }
-        }
+        view?.didCompleteCryptoTypeSelection()
     }
 
-    func modalPickerDidCancel(context: AnyObject?) {
-        if
-            let context = context as? NSString,
-            let selectionContext = AccountCreateContext(rawValue: context as String) {
-            switch selectionContext {
-            case .cryptoType:
-                view?.didCompleteCryptoTypeSelection()
-            case .networkType:
-                view?.didCompleteNetworkTypeSelection()
-            }
-        }
+    func modalPickerDidCancel(context _: AnyObject?) {
+        view?.didCompleteCryptoTypeSelection()
     }
 }
 
@@ -265,7 +199,6 @@ extension AccountCreatePresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             applyCryptoTypeViewModel()
-            applyNetworkTypeViewModel()
         }
     }
 }

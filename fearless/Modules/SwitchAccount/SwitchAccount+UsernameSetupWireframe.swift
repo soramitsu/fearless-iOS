@@ -3,7 +3,7 @@ import Foundation
 extension SwitchAccount {
     final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
         func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel) {
-            guard let accountCreation = AccountCreateViewFactory.createViewForSwitch(username: model.username) else {
+            guard let accountCreation = AccountCreateViewFactory.createViewForSwitch(model: model) else {
                 return
             }
 
