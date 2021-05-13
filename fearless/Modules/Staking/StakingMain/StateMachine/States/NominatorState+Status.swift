@@ -35,6 +35,21 @@ extension NominatorState {
         }
     }
 
+    func stakingAlert(for _: BigUInt?) -> StakingAlert? {
+        switch status {
+        case .active:
+            return nil
+        case .inactive:
+            return .stakingIsInactive
+        case .waiting:
+            return nil
+        case .election:
+            return nil
+        case .undefined:
+            return nil
+        }
+    }
+
     func createStatusPresentableViewModel(
         for minimumStake: BigUInt?,
         locale: Locale?

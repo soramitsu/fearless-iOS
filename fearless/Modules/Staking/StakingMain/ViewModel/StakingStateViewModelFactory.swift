@@ -381,7 +381,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        lastViewModel = .nominator(viewModel: viewModel)
+        let alerts = [state.stakingAlert(for: nil)].compactMap { $0 }
+        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
     func visit(state: PendingValidatorState) {

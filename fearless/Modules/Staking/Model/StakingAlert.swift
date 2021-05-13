@@ -16,7 +16,7 @@ extension StakingAlert {
     func title(for _: Locale) -> String {
         switch self {
         case .stakingIsInactive:
-            return "Change your validators." // TODO
+            return "Change your validators." // TODO:
         }
     }
 

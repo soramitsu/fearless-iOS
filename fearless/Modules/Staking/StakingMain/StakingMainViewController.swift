@@ -120,8 +120,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stackView.addArrangedSubview(alertsContainerView)
 
-        // TODO: delete stub FLW-708
-        alertsView.bind(alerts: [.stakingIsInactive])
         alertsView.delegate = self
     }
 
@@ -258,6 +256,10 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         validationView?.delegate = self
         validationView?.bind(viewModel: viewModel)
     }
+
+    private func applyAlerts(_ alerts: [StakingAlert]) {
+        alertsView.bind(alerts: alerts)
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -326,8 +328,9 @@ extension StakingMainViewController: StakingMainViewProtocol {
             applyBonded(viewModel: viewModel)
         case let .noStash(viewModel):
             applyNoStash(viewModel: viewModel)
-        case let .nominator(viewModel):
+        case let .nominator(viewModel, alerts):
             applyNomination(viewModel: viewModel)
+            applyAlerts(alerts)
         case let .validator(viewModel):
             applyValidator(viewModel: viewModel)
         }
