@@ -119,6 +119,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         applyConstraints(for: alertsContainerView, innerView: alertsView)
 
         stackView.addArrangedSubview(alertsContainerView)
+
+        // TODO delete stub
+        alertsView.bind(viewModels: [
+            .init(
+                icon: R.image.iconAlert(),
+                title: "Change your validators.",
+                description: "None of your validators were elected by network."
+            )
+        ])
     }
 
     private func configureStoriesView() {
