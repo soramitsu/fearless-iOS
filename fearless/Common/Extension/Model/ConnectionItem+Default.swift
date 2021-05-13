@@ -49,4 +49,19 @@ extension ConnectionItem {
             )
         ]
     }
+
+    static var deprecatedConnections: [ConnectionItem] {
+        [
+            ConnectionItem(
+                title: "Kusama, Web3 Foundation node",
+                url: URL(string: "wss://cc3-5.kusama.network")!,
+                type: SNAddressType.kusamaMain
+            ),
+            ConnectionItem(
+                title: "Polkadot, Web3 Foundation node",
+                url: URL(string: "wss://cc1-1.polkadot.network")!,
+                type: SNAddressType.polkadotMain
+            ),
+        ]
+    }
 }
