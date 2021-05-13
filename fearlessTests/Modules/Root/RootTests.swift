@@ -116,7 +116,8 @@ class RootTests: XCTestCase {
         let interactor = RootInteractor(settings: settings,
                                         keystore: keystore,
                                         applicationConfig: ApplicationConfig.shared,
-                                        eventCenter: MockEventCenterProtocol())
+                                        eventCenter: MockEventCenterProtocol(),
+                                        migrators: [])
         let presenter = RootPresenter()
 
         presenter.view = UIWindow()
