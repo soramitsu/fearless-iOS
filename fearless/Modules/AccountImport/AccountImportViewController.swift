@@ -7,6 +7,7 @@ final class AccountImportViewController: UIViewController {
     private enum Constants {
         static let advancedFullHeight: CGFloat = 220.0
         static let advancedTruncHeight: CGFloat = 152.0
+        static let verticalSpacing: CGFloat = 16.0
     }
 
     var presenter: AccountImportPresenterProtocol!
@@ -94,6 +95,8 @@ final class AccountImportViewController: UIViewController {
 
     private func configure() {
         stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+
+        stackView.setCustomSpacing(Constants.verticalSpacing, after: networkTypeView)
 
         advancedContainerView.isHidden = !advancedControl.isActivated
 
