@@ -200,8 +200,8 @@ private class AlertItemView: BackgroundedContentControl {
             make.top.equalToSuperview().inset(9)
             make.trailing.equalToSuperview().inset(12)
             make.size.equalTo(24)
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
-            make.leading.greaterThanOrEqualTo(descriptionLabel.snp.trailing).offset(16)
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(UIConstants.horizontalInset)
+            make.leading.greaterThanOrEqualTo(descriptionLabel.snp.trailing).offset(UIConstants.horizontalInset)
         }
 
         contentView = containerView
