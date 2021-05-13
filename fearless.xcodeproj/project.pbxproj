@@ -556,6 +556,7 @@
 		84893C0324DA8641008F6A3F /* AccountCreationRequest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */; };
 		84893C0524DA8663008F6A3F /* AccountCreationError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0424DA8663008F6A3F /* AccountCreationError.swift */; };
 		84893C0724DA890F008F6A3F /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0624DA890F008F6A3F /* CommonError.swift */; };
+		8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */; };
 		848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848C3D0826248A3B005481C3 /* TransferCall.swift */; };
 		848DB98E260638340055DDE7 /* rewardFirstResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB98D260638340055DDE7 /* rewardFirstResponse.json */; };
 		848DB993260638440055DDE7 /* rewardSecondResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB992260638440055DDE7 /* rewardSecondResponse.json */; };
@@ -1786,6 +1787,7 @@
 		84893C0224DA8641008F6A3F /* AccountCreationRequest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationRequest.swift; sourceTree = "<group>"; };
 		84893C0424DA8663008F6A3F /* AccountCreationError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountCreationError.swift; sourceTree = "<group>"; };
 		84893C0624DA890F008F6A3F /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
+		8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposing.swift; sourceTree = "<group>"; };
 		848C3D0826248A3B005481C3 /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		848DB98D260638340055DDE7 /* rewardFirstResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardFirstResponse.json; sourceTree = "<group>"; };
 		848DB992260638440055DDE7 /* rewardSecondResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardSecondResponse.json; sourceTree = "<group>"; };
@@ -2925,6 +2927,7 @@
 				7E62CD2831DCF0A2D5DBB08F /* RecommendedValidatorsViewController.swift */,
 				27E722B58D9927B8916FD7AF /* RecommendedValidatorsViewController.xib */,
 				D4C391292F22D16427C77CD9 /* RecommendedValidatorsViewFactory.swift */,
+				8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */,
 			);
 			path = RecommendedValidators;
 			sourceTree = "<group>";
@@ -7369,6 +7372,7 @@
 				9B930BBA2856C998279AA38E /* NetworkManagementViewController.swift in Sources */,
 				846AF83E2525B85100868F37 /* WalletNetworkFacade.swift in Sources */,
 				929AF73A86C9878C987E429A /* NetworkManagementViewFactory.swift in Sources */,
+				8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */,
 				AEE5FB072641669B002B8FDC /* StakingRebondSetupLayout.swift in Sources */,
 				8423B0E2251A769300B8687C /* RPCMethod.swift in Sources */,
 				847119C0262EF3BD00716580 /* PayoutValidatorsFactoryProtocol.swift in Sources */,
