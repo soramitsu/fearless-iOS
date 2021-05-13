@@ -63,7 +63,7 @@ final class AlertsView: UIView {
         separatorView.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(15)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.height.equalTo(0.75)
+            make.height.equalTo(UIConstants.separatorHeight)
         }
 
         addSubview(noAlertsLabel)
@@ -93,8 +93,25 @@ final class AlertsView: UIView {
                 return itemView
             }
 
-            alertsStackView.arrangedSubviews.forEach { $0.removeFromSuperview() }
-            itemViews.forEach { alertsStackView.addArrangedSubview($0) }
+            let separators = (0 ..< itemViews.count).map { _ -> UIView in
+                UIView.createSeparator(
+                    color: R.color.colorWhite()?.withAlphaComponent(0.24),
+                    horizontalInset: UIConstants.horizontalInset
+                )
+            }
+
+            let itemViewsWithSeparators = zip(itemViews, separators).map { [$0, $1] }
+                .flatMap { $0 }
+                .dropLast()
+
+            alertsStackView.subviews.forEach { $0.removeFromSuperview() }
+            itemViewsWithSeparators.forEach { alertsStackView.addArrangedSubview($0) }
+
+            separators.dropLast().forEach { separator in
+                separator.snp.makeConstraints {
+                    $0.height.equalTo(UIConstants.separatorHeight)
+                }
+            }
         }
     }
 }
