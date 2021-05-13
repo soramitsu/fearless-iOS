@@ -389,3 +389,4 @@ Derivation path: %@";
 "staking.reward.info.title" = "Earnings with restake";
 "staking.reward.info.max" = "Maximum APY";
 "staking.reward.info.avg" = "Average APY";
+"staking.alerts.title" = "Alerts";
