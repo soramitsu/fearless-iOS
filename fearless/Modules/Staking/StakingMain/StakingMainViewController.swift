@@ -121,18 +121,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stackView.addArrangedSubview(alertsContainerView)
 
         // TODO: delete stub FLW-708
-        alertsView.bind(viewModels: [
-            .init(
-                icon: R.image.iconWarning(),
-                title: "Change your validators.",
-                description: "None of your validators were elected by network."
-            ),
-            .init(
-                icon: R.image.iconWarning(),
-                title: "Bond more tokens.",
-                description: "Staking was inactive.\nCurrent minimal stake is 223.93 KSM."
-            )
-        ])
+        alertsView.bind(alerts: [.stakingIsInactive])
+        alertsView.delegate = self
     }
 
     private func configureStoriesView() {
@@ -427,3 +417,10 @@ extension StakingMainViewController: ValidationViewDelegate {
 }
 
 extension StakingMainViewController: HiddableBarWhenPushed {}
+
+extension StakingMainViewController: AlertsViewDelegate {
+    func didSelectStakingAlert(_ alert: StakingAlert) {
+        print(alert)
+        // TODO: FLW-708 call presenter.handleStakingAlertAction
+    }
+}

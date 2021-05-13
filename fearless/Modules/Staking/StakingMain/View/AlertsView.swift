@@ -1,17 +1,23 @@
 import UIKit
 import SoraUI
 
+protocol AlertsViewDelegate: AnyObject {
+    func didSelectStakingAlert(_ alert: StakingAlert)
+}
+
 final class AlertsView: UIView {
+    weak var delegate: AlertsViewDelegate?
+
     private let backgroundView: UIView = TriangularedBlurView()
 
-    let titleLabel: UILabel = {
+    private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .h5Title
         label.textColor = R.color.colorWhite()
         return label
     }()
 
-    let noAlertsLabel: UILabel = {
+    private let noAlertsLabel: UILabel = {
         let label = UILabel()
         label.font = .p2Paragraph
         label.textColor = R.color.colorWhite()?.withAlphaComponent(0.64)
@@ -80,17 +86,17 @@ final class AlertsView: UIView {
         }
     }
 
-    func bind(viewModels: [StakingAlertViewModel]) {
-        if viewModels.isEmpty {
+    func bind(alerts: [StakingAlert]) {
+        if alerts.isEmpty {
             noAlertsLabel.isHidden = false
             alertsStackView.isHidden = true
         } else {
             noAlertsLabel.isHidden = true
             alertsStackView.isHidden = false
 
-            let itemViews = viewModels.map { viewModel -> UIView in
-                let itemView = AlertItemView()
-                itemView.bind(viewModel: viewModel)
+            let itemViews = alerts.map { alert -> UIView in
+                let itemView = AlertItemView(stakingAlert: alert, locale: locale)
+                itemView.addTarget(self, action: #selector(handleSelectItem), for: .touchUpInside)
                 return itemView
             }
 
@@ -115,9 +121,17 @@ final class AlertsView: UIView {
             }
         }
     }
+
+    @objc
+    private func handleSelectItem(sender: UIControl) {
+        guard let itemView = sender as? AlertItemView else { return }
+        delegate?.didSelectStakingAlert(itemView.alertType)
+    }
 }
 
 private class AlertItemView: BackgroundedContentControl {
+    let alertType: StakingAlert
+
     let iconImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.contentMode = .scaleAspectFit
@@ -141,8 +155,9 @@ private class AlertItemView: BackgroundedContentControl {
 
     let accessoryView: UIView = UIImageView(image: R.image.iconSmallArrow())
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(stakingAlert: StakingAlert, locale: Locale) {
+        alertType = stakingAlert
+        super.init(frame: .zero)
 
         let shapeView = ShapeView()
         shapeView.isUserInteractionEnabled = false
@@ -151,6 +166,10 @@ private class AlertItemView: BackgroundedContentControl {
         backgroundView = shapeView
 
         setupLayout()
+
+        iconImageView.image = stakingAlert.icon
+        titleLabel.text = stakingAlert.title(for: locale)
+        descriptionLabel.text = stakingAlert.description(for: locale)
     }
 
     @available(*, unavailable)
@@ -205,11 +224,5 @@ private class AlertItemView: BackgroundedContentControl {
         }
 
         contentView = containerView
-    }
-
-    func bind(viewModel: StakingAlertViewModel) {
-        iconImageView.image = viewModel.icon
-        titleLabel.text = viewModel.title
-        descriptionLabel.text = viewModel.description
     }
 }
