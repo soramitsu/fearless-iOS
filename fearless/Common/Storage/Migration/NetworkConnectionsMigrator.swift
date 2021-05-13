@@ -9,8 +9,12 @@ final class NetworkConnectionsMigrator: Migrating {
 
     func migrate() throws {
         let selectedConnection = settings.selectedConnection
-        if ConnectionItem.deprecatedConnections.contains(selectedConnection) {
-            settings.selectedConnection = .defaultConnection
+        let deprecatedConnections = ConnectionItem.deprecatedConnections
+        let supportedConnections = ConnectionItem.supportedConnections
+
+        if deprecatedConnections.contains(selectedConnection) {
+            let suitableConnection = supportedConnections.first(where: { $0.type == selectedConnection.type })
+            settings.selectedConnection = suitableConnection ?? .defaultConnection
         }
     }
 }

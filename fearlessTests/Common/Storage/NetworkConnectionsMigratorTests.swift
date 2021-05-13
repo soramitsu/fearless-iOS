@@ -6,15 +6,21 @@ final class NetworkConnectionsMigratorTests: XCTestCase {
 
     func testMigration() {
         var settings = InMemorySettingsManager()
-        settings.selectedConnection = ConnectionItem.deprecatedConnections[0]
+        settings.selectedConnection = ConnectionItem.deprecatedConnections[1]
         let migrator = NetworkConnectionsMigrator(settings: settings)
 
+        // given
+        let connectionTypeBeforeMigration = settings.selectedConnection.type
+
+        // when
         do {
             try migrator.migrate()
         } catch {
             XCTFail(error.localizedDescription)
         }
 
-        XCTAssert(settings.selectedConnection == .defaultConnection)
+        // then
+        let connectionTypeAfterMigration = settings.selectedConnection.type
+        XCTAssert(connectionTypeAfterMigration == connectionTypeBeforeMigration)
     }
 }

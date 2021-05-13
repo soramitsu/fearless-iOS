@@ -61,7 +61,7 @@ extension ConnectionItem {
                 title: "Polkadot, Web3 Foundation node",
                 url: URL(string: "wss://cc1-1.polkadot.network")!,
                 type: SNAddressType.polkadotMain
-            ),
+            )
         ]
     }
 }
