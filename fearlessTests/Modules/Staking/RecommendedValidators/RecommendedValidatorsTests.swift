@@ -11,7 +11,15 @@ class RecommendedValidatorsTests: XCTestCase {
         let wireframe = MockRecommendedValidatorsWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
-        let presenter = RecommendedValidatorsPresenter()
+        let recommendationsComposer = RecommendationsComposer(
+            resultSize: StakingConstants.maxTargets,
+            clusterSizeLimit: StakingConstants.targetsClusterLimit
+        )
+
+        let presenter = RecommendedValidatorsPresenter(
+            recommendationsComposer: recommendationsComposer
+        )
+
         let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
                                                          operationManager: OperationManager())
 
