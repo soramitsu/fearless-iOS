@@ -1,5 +1,9 @@
 import SoraKeystore
 
+enum NetworkConnectionsMigrationError: Error {
+    case cantFindSuitableConnection
+}
+
 final class NetworkConnectionsMigrator: Migrating {
     private(set) var settings: SettingsManagerProtocol
 
@@ -13,8 +17,11 @@ final class NetworkConnectionsMigrator: Migrating {
         let supportedConnections = ConnectionItem.supportedConnections
 
         if deprecatedConnections.contains(selectedConnection) {
-            let suitableConnection = supportedConnections.first(where: { $0.type == selectedConnection.type })
-            settings.selectedConnection = suitableConnection ?? .defaultConnection
+            if let suitableConnection = supportedConnections.first(where: { $0.type == selectedConnection.type }) {
+                settings.selectedConnection = suitableConnection
+            } else {
+                throw NetworkConnectionsMigrationError.cantFindSuitableConnection
+            }
         }
     }
 }
