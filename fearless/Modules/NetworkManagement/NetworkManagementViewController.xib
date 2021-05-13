@@ -53,7 +53,7 @@
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                            <real key="value" value="16"/>
+                            <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                             <real key="value" value="0.0"/>
@@ -104,7 +104,7 @@
     </objects>
     <designables>
         <designable name="Q7x-ZT-4hg">
-            <size key="intrinsicContentSize" width="135.5" height="18"/>
+            <size key="intrinsicContentSize" width="119.5" height="18"/>
         </designable>
     </designables>
     <resources>

@@ -308,7 +308,7 @@
                             <color key="value" name="colorWhite"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_leftInset">
-                            <real key="value" value="16"/>
+                            <real key="value" value="0.0"/>
                         </userDefinedRuntimeAttribute>
                         <userDefinedRuntimeAttribute type="number" keyPath="_topInset">
                             <real key="value" value="0.0"/>
@@ -376,7 +376,7 @@
             <size key="intrinsicContentSize" width="23" height="15"/>
         </designable>
         <designable name="fCi-jD-dBu">
-            <size key="intrinsicContentSize" width="129" height="18"/>
+            <size key="intrinsicContentSize" width="113" height="18"/>
         </designable>
     </designables>
     <resources>
