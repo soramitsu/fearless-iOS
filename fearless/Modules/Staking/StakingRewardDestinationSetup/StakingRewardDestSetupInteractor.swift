@@ -1,5 +1,6 @@
 import SoraKeystore
 import RobinHood
+import IrohaCrypto
 
 final class StakingRewardDestSetupInteractor: AccountFetching {
     weak var presenter: StakingRewardDestSetupInteractorOutputProtocol!
@@ -16,6 +17,7 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let assetId: WalletAssetId
     let chain: Chain
 
+    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -86,6 +88,7 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
+        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
         provideRewardCalculator()
 
@@ -104,6 +107,22 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
             try builder.adding(call: setPayeeCall)
         }
     }
+
+    func fetchPayoutAccounts() {
+        let operation = accountRepository.fetchAllOperation(with: RepositoryFetchOptions())
+        operation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let accounts = try operation.extractNoCancellableResultData()
+                    self?.presenter.didReceiveAccounts(result: .success(accounts))
+                } catch {
+                    self?.presenter.didReceiveAccounts(result: .failure(error))
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [operation], in: .transient)
+    }
 }
 
 extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
@@ -113,19 +132,13 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
         do {
             let maybeStashItem = try result.get()
 
-            clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &ledgerProvider)
+            clear(dataProvider: &payeeProvider)
 
             presenter.didReceiveStashItem(result: result)
 
             if let stashItem = maybeStashItem {
                 ledgerProvider = subscribeToLedgerInfoProvider(
-                    for: stashItem.controller,
-                    runtimeService: runtimeService
-                )
-
-                // TODO: Нужен ли accountInfo здесь?
-                accountInfoProvider = subscribeToAccountInfoProvider(
                     for: stashItem.controller,
                     runtimeService: runtimeService
                 )
@@ -149,12 +162,12 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
 
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
-                //                presenter.didReceiveAccountInfo(result: .success(nil))
+                presenter.didReceiveController(result: .success(nil))
             }
 
         } catch {
             presenter.didReceiveStashItem(result: .failure(error))
-            //            presenter.didReceiveAccountInfo(result: .failure(error))
+            presenter.didReceiveController(result: .success(nil))
             presenter.didReceiveStakingLedger(result: .failure(error))
         }
     }
@@ -169,6 +182,10 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
 
     func handlePayee(result: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {
         presenter.didReceivePayee(result: result)
+    }
+
+    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
+        presenter.didReceiveElectionStatus(result: result)
     }
 }
 

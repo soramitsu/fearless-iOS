@@ -2,7 +2,6 @@ import Foundation
 import SoraFoundation
 
 protocol StakingRewardDestSetupViewProtocol: ControllerBackedProtocol, Localizable {
-    #warning("Not implemented")
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
     func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
 }
@@ -19,10 +18,10 @@ protocol StakingRewardDestSetupPresenterProtocol: AnyObject {
 protocol StakingRewardDestSetupInteractorInputProtocol: AnyObject {
     func setup()
     func estimateFee()
+    func fetchPayoutAccounts()
 }
 
 protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
-    #warning("Not implemented")
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
@@ -30,12 +29,20 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>)
     func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
     func didReceiveCalculator(result: Result<RewardCalculatorEngineProtocol?, Error>)
-
-//    func didReceiveAccountInfo(result: Result<DyAccountInfo?, Error>)
+    func didReceiveAccounts(result: Result<[AccountItem], Error>)
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
 }
 
 protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
+    func presentAccountSelection(
+        _ accounts: [AccountItem],
+        selectedAccountItem: AccountItem,
+        delegate: ModalPickerViewControllerDelegate,
+        from view: StakingRewardDestSetupViewProtocol?,
+        context: AnyObject?
+    )
+
     func proceed(view: StakingRewardDestSetupViewProtocol?)
 }
 

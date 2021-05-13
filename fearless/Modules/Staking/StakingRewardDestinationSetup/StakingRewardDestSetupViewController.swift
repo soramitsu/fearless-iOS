@@ -119,7 +119,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
         }
     }
 
-    private func applyPayoutAddress(_ icon: DrawableIcon, title _: String) {
+    private func applyPayoutAddress(_ icon: DrawableIcon, title: String) {
         let icon = icon.imageWithFillColor(
             R.color.colorWhite()!,
             size: UIConstants.smallAddressIconSize,
@@ -133,7 +133,6 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
     // MARK: Data changes -
 
     private func applyRewardDestinationViewModel() {
-        #warning("Not implemented")
         if let rewardDestViewModel = rewardDestinationViewModel {
             let viewModel = rewardDestViewModel.value(for: selectedLocale)
             applyRewardDestinationType(from: viewModel)

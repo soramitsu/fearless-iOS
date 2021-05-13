@@ -10,6 +10,8 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
 
+        guard let selectedAccount = settings.selectedAccount else { return nil }
+
         guard let interactor = createInteractor(settings: settings) else {
             return nil
         }
@@ -30,6 +32,7 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
             rewardDestViewModelFactory: RewardDestinationViewModelFactory(asset: asset),
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
+            payoutAccount: selectedAccount,
             applicationConfig: ApplicationConfig.shared,
             chain: chain,
             logger: Logger.shared

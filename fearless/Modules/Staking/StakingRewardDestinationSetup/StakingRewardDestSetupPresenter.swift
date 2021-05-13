@@ -1,5 +1,6 @@
 import Foundation
 import BigInt
+import SoraFoundation
 
 final class StakingRewardDestSetupPresenter {
     weak var view: StakingRewardDestSetupViewProtocol?
@@ -15,7 +16,9 @@ final class StakingRewardDestSetupPresenter {
 
     private var rewardDestination: RewardDestination<AccountItem> = .restake
     private var calculator: RewardCalculatorEngineProtocol?
+    private var electionStatus: ElectionStatus?
     private var payee: RewardDestinationArg?
+    private var payoutAccount: AccountItem
     private var controller: AccountItem?
     private var priceData: PriceData?
     private var stashItem: StashItem?
@@ -28,6 +31,7 @@ final class StakingRewardDestSetupPresenter {
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
+        payoutAccount: AccountItem,
         applicationConfig: ApplicationConfigProtocol,
         chain: Chain,
         logger: LoggerProtocol? = nil
@@ -37,6 +41,7 @@ final class StakingRewardDestSetupPresenter {
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
+        self.payoutAccount = payoutAccount
         self.applicationConfig = applicationConfig
         self.chain = chain
         self.logger = logger
@@ -78,6 +83,7 @@ final class StakingRewardDestSetupPresenter {
                 reward = nil
             }
 
+            // TODO: Fill from presenter
             switch rewardDestination {
             case .restake:
                 let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
@@ -111,15 +117,17 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     }
 
     func selectRestakeDestination() {
-        #warning("Not implemented")
+        rewardDestination = .restake
+        provideRewardDestination()
     }
 
     func selectPayoutDestination() {
-        #warning("Not implemented")
+        rewardDestination = .payout(account: payoutAccount)
+        provideRewardDestination()
     }
 
     func selectPayoutAccount() {
-        #warning("Not implemented")
+        interactor.fetchPayoutAccounts()
     }
 
     func displayLearnMore() {
@@ -134,37 +142,25 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
 
     func proceed() {
         #warning("Not implemented")
-//        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
-//        DataValidationRunner(validators: [
-//            dataValidatingFactory.canUnbond(amount: inputAmount, bonded: bonded, locale: locale),
-//
-//            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-//                self?.interactor.estimateFee()
-//            }),
-//
-//            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-//
-//            dataValidatingFactory.has(
-//                controller: controller,
-//                for: stashItem?.controller ?? "",
-//                locale: locale
-//            ),
-//
-//            dataValidatingFactory.electionClosed(electionStatus, locale: locale),
-//
-//            dataValidatingFactory.stashIsNotKilledAfterUnbonding(
-//                amount: inputAmount,
-//                bonded: bonded,
-//                minimumAmount: minimalBalance,
-//                locale: locale
-//            )
-//        ]).runValidation { [weak self] in
-//            if let amount = self?.inputAmount {
-//                self?.wireframe.proceed(view: self?.view, amount: amount)
-//            } else {
-//                self?.logger?.warning("Missing amount after validation")
-//            }
-//        }
+    }
+}
+
+extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
+    func modalPickerDidSelectModelAtIndex(_ index: Int, context: AnyObject?) {
+        guard
+            let accounts =
+            (context as? PrimitiveContextWrapper<[AccountItem]>)?.value
+        else {
+            return
+        }
+
+        payoutAccount = accounts[index]
+
+        if case .payout = rewardDestination {
+            rewardDestination = .payout(account: payoutAccount)
+        }
+
+        provideRewardDestination()
     }
 }
 
@@ -224,8 +220,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
             } else {
                 amount = nil
             }
-            // TODO: Provide reward destination model
-//            provideAssetViewModel()
+
             provideRewardDestination()
         case let .failure(error):
             logger?.error("Staking ledger subscription error: \(error)")
@@ -239,8 +234,6 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
 
             refreshFeeIfNeeded()
 
-            // TODO: Provide reward destination model
-//            provideConfirmationViewModel()
             provideRewardDestination()
         case let .failure(error):
             logger?.error("Did receive payee item error: \(error)")
@@ -252,11 +245,36 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         case let .success(calculator):
             self.calculator = calculator
 
-            // TODO: Provide reward destination model
-//            provideConfirmationViewModel()
             provideRewardDestination()
         case let .failure(error):
             logger?.error("Did receive calculator error: \(error)")
+        }
+    }
+
+    func didReceiveAccounts(result: Result<[AccountItem], Error>) {
+        switch result {
+        case let .success(accounts):
+            let context = PrimitiveContextWrapper(value: accounts)
+
+            wireframe.presentAccountSelection(
+                accounts,
+                selectedAccountItem: payoutAccount,
+                delegate: self,
+                from: view,
+                context: context
+            )
+
+        case let .failure(error):
+            logger?.error("Did receive accounts retrieval error: \(error)")
+        }
+    }
+
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
+        switch result {
+        case let .success(electionStatus):
+            self.electionStatus = electionStatus
+        case let .failure(error):
+            logger?.error("Election status error: \(error)")
         }
     }
 }

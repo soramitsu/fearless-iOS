@@ -234,12 +234,12 @@ final class StakingAmountViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyRewardDestinationViewModel() {
-        if let rewardDestViewModel = rewardDestinationViewModel {
-            let locale = localizationManager?.selectedLocale ?? Locale.current
-            let viewModel = rewardDestViewModel.value(for: locale)
-            applyRewardDestinationType(from: viewModel)
-            applyRewardDestinationContent(from: viewModel)
-        }
+        guard let rewardDestViewModel = rewardDestinationViewModel else { return }
+
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let viewModel = rewardDestViewModel.value(for: locale)
+        applyRewardDestinationType(from: viewModel)
+        applyRewardDestinationContent(from: viewModel)
     }
 
     private func applyRewardDestinationContent(from viewModel: RewardDestinationViewModelProtocol) {
