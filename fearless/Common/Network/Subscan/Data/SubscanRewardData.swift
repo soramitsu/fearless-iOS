@@ -22,7 +22,6 @@ struct SubscanRewardItemData: Codable {
         case eventIndex = "event_idx"
         case amount
         case timestamp = "block_timestamp"
-        case slashKton = "slash_kton"
     }
 
     let recordId: String
@@ -35,5 +34,4 @@ struct SubscanRewardItemData: Codable {
     let eventIndex: Int
     let amount: String
     let timestamp: Int64
-    let slashKton: String
 }

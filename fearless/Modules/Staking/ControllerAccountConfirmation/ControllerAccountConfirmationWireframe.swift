@@ -1,7 +1,8 @@
 import Foundation
 
-final class StakingRedeemWireframe: StakingRedeemWireframeProtocol, ModalAlertPresenting {
-    func complete(from view: StakingRedeemViewProtocol?) {
+final class ControllerAccountConfirmationWireframe: ControllerAccountConfirmationWireframeProtocol,
+    ModalAlertPresenting {
+    func complete(from view: ControllerAccountConfirmationViewProtocol?) {
         let languages = view?.localizationManager?.selectedLocale.rLanguages
         let title = R.string.localizable
             .commonTransactionSubmitted(preferredLanguages: languages)
@@ -11,5 +12,9 @@ final class StakingRedeemWireframe: StakingRedeemWireframeProtocol, ModalAlertPr
         presenter?.dismiss(animated: true) {
             self.presentSuccessNotification(title, from: presenter, completion: nil)
         }
+    }
+
+    func close(view: ControllerBackedProtocol?) {
+        view?.controller.presentingViewController?.dismiss(animated: true, completion: nil)
     }
 }

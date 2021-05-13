@@ -5,7 +5,7 @@ extension YourValidators {
         func complete(from view: StakingConfirmViewProtocol?) {
             let languages = view?.localizationManager?.selectedLocale.rLanguages
             let title = R.string.localizable
-                .stakingValidatorsChangeMessage(preferredLanguages: languages)
+                .commonTransactionSubmitted(preferredLanguages: languages)
 
             let navigationController = view?.controller.navigationController
             navigationController?.popToRootViewController(animated: true)
