@@ -21,6 +21,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var networkInfoContainerView: UIView!
     private var networkInfoView: NetworkInfoView!
+    private lazy var alertsContainerView = UIView()
+    private lazy var alertsView = AlertsView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -38,6 +40,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLoad()
 
         setupNetworkInfoView()
+        setupAlertsView()
         setupLocalization()
         presenter.setup()
     }
@@ -107,6 +110,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stackView.insertArrangedSubview(networkInfoContainerView, at: headerIndex + 1)
 
         configureStoriesView()
+    }
+
+    private func setupAlertsView() {
+        alertsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        alertsContainerView.addSubview(alertsView)
+
+        applyConstraints(for: alertsContainerView, innerView: alertsView)
+
+        stackView.addArrangedSubview(alertsContainerView)
     }
 
     private func configureStoriesView() {
@@ -254,6 +266,7 @@ extension StakingMainViewController: Localizable {
 
         networkInfoView.locale = locale
         stateView?.locale = locale
+        alertsView.locale = locale
     }
 
     func applyLocalization() {
