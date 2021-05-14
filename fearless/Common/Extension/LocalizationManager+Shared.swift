@@ -15,6 +15,9 @@ extension LocalizationManagerProtocol {
 extension LocalizationManager {
     static let shared = LocalizationManager(
         settings: SettingsManager.shared,
-        key: SettingsKey.selectedLocalization.rawValue
+        key: SettingsKey.selectedLocalization.rawValue,
+        preferredLanguages: ["en"],
+        availableLocalizations: ["en"],
+        defaultLocalization: "en"
     )
 }
