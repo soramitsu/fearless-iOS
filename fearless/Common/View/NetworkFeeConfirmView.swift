@@ -49,7 +49,7 @@ final class NetworkFeeConfirmView: UIView {
             make.height.equalTo(UIConstants.actionHeight)
             make.top.equalTo(networkFeeView.snp.bottom).offset(UIConstants.horizontalInset)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
     }
 }
