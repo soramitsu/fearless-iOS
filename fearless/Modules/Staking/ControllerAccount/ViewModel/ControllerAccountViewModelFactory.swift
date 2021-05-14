@@ -35,7 +35,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         }
 
         let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let selectedControllerAddress = stashItem.controller
+            let selectedControllerAddress = chosenAccountItem?.address ?? stashItem.controller
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
                 .imageWithFillColor(

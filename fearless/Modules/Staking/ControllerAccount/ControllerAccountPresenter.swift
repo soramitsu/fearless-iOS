@@ -103,7 +103,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleStashAction() {
-        presentAccountOptions(for: stashAccountItem?.address)
+        presentAccountOptions(for: stashItem?.stash)
     }
 
     private func presentAccountOptions(for address: AccountAddress?) {
