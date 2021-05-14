@@ -12,7 +12,7 @@ final class ControllerAccountPresenter {
     weak var view: ControllerAccountViewProtocol?
 
     private let logger: LoggerProtocol?
-    private var stashAccount: AccountItem?
+    private var stashAccountItem: AccountItem?
     private var stashItem: StashItem?
     private var chosenAccountItem: AccountItem?
     private var accounts: [AccountItem]?
@@ -40,10 +40,9 @@ final class ControllerAccountPresenter {
     }
 
     private func updateView() {
-        guard
-            let stashItem = stashItem,
-            let stashAccountItem = stashAccount
-        else { return }
+        guard let stashItem = stashItem else {
+            return
+        }
         let viewModel = viewModelFactory.createViewModel(
             stashItem: stashItem,
             stashAccountItem: stashAccountItem,
@@ -56,8 +55,8 @@ final class ControllerAccountPresenter {
     func refreshFeeIfNeeded() {
         guard fee == nil else { return }
 
-        if let stashAccount = stashAccount {
-            interactor.estimateFee(for: stashAccount)
+        if let stashAccountItem = stashAccountItem {
+            interactor.estimateFee(for: stashAccountItem)
         } else if let chosenAccountItem = chosenAccountItem {
             interactor.estimateFee(for: chosenAccountItem)
         }
@@ -104,7 +103,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
     }
 
     func handleStashAction() {
-        presentAccountOptions(for: stashAccount?.address)
+        presentAccountOptions(for: stashAccountItem?.address)
     }
 
     private func presentAccountOptions(for address: AccountAddress?) {
@@ -176,7 +175,7 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
     func didReceiveStashAccount(result: Result<AccountItem?, Error>) {
         switch result {
         case let .success(accountItem):
-            stashAccount = accountItem
+            stashAccountItem = accountItem
             updateView()
         case let .failure(error):
             logger?.error("Did receive stash account error: \(error)")
