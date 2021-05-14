@@ -130,12 +130,16 @@ final class ControllerAccountViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        descriptionLabel.text = "Set a separate account as a controller to increase staking management security."
-        stashHintView.titleLabel.text = "Stash can bond more and set the controller."
-        controllerHintView.titleLabel.text = "Controller can unbond, redeem, rebond, change reward destination and validators."
+        descriptionLabel.text = R.string.localizable
+            .stakingSetSeparateAccountController(preferredLanguages: locale.rLanguages)
+        stashHintView.titleLabel.text = R.string.localizable
+            .stakingStashCanHint(preferredLanguages: locale.rLanguages)
+        controllerHintView.titleLabel.text = R.string.localizable
+            .stakingControllerCanHint(preferredLanguages: locale.rLanguages)
         learnMoreView.titleLabel.text = R.string.localizable
             .commonLearnMore(preferredLanguages: locale.rLanguages)
-        currentAccountIsControllerHint.titleLabel.text = "Switch your account to stash to set the controller."
+        currentAccountIsControllerHint.titleLabel.text = R.string.localizable
+            .stakingSwitchAccountToStash(preferredLanguages: locale.rLanguages)
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
     }
