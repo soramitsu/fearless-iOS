@@ -7,7 +7,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     let usdPrecision: Int
 
     init(
-        assetPrecision: Int = 4,
+        assetPrecision: Int = 5,
         usdPrecision: Int = 2
     ) {
         self.assetPrecision = assetPrecision

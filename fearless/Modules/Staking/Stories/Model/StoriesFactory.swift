@@ -59,8 +59,8 @@ extension StoriesFactory: StoriesFactoryProtocol {
         // swiftlint:enable line_length
 
         let story1 = Story(icon: "💰", title: "What is Staking?", slides: slides1)
-        let story2 = Story(icon: "💎", title: "Who is Nominator?", slides: slides2)
-        let story3 = Story(icon: "⛏", title: "Who is Validator?", slides: slides3)
+        let story2 = Story(icon: "💎", title: "Who is a Nominator?", slides: slides2)
+        let story3 = Story(icon: "⛏", title: "Who is a Validator?", slides: slides3)
         let story4 = Story(icon: "🎁", title: "Claiming Rewards", slides: slides4)
 
         return StoriesModel(stories: [story1, story2, story3, story4])

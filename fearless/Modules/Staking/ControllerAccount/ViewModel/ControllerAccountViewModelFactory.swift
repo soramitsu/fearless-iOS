@@ -51,7 +51,10 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             )
         }
 
-        let currentAccountIsController = stashItem.controller == currentAccountItem.address
+        let currentAccountIsController =
+            (stashItem.stash != stashItem.controller) &&
+            stashItem.controller == currentAccountItem.address
+
         let actionButtonIsEnabled: Bool = {
             if stashAddress != self.currentAccountItem.address {
                 return false
