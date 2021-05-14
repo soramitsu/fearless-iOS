@@ -1130,6 +1130,8 @@
 		F418E86F264D0F0400699085 /* Migrating.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E86E264D0F0400699085 /* Migrating.swift */; };
 		F418E877264D0F4100699085 /* NetworkConnectionsMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E876264D0F4100699085 /* NetworkConnectionsMigrator.swift */; };
 		F418E87C264D14DA00699085 /* NetworkConnectionsMigratorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E87B264D14DA00699085 /* NetworkConnectionsMigratorTests.swift */; };
+		F418E887264D308700699085 /* StakingAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E886264D308700699085 /* StakingAlert.swift */; };
+		F418E891264D318C00699085 /* AlertsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F418E890264D318C00699085 /* AlertsView.swift */; };
 		F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */; };
 		F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */; };
 		F441BE0E263984DD0096B67B /* BondExtraCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE0D263984DD0096B67B /* BondExtraCall.swift */; };
@@ -2383,6 +2385,8 @@
 		F418E86E264D0F0400699085 /* Migrating.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Migrating.swift; sourceTree = "<group>"; };
 		F418E876264D0F4100699085 /* NetworkConnectionsMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionsMigrator.swift; sourceTree = "<group>"; };
 		F418E87B264D14DA00699085 /* NetworkConnectionsMigratorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionsMigratorTests.swift; sourceTree = "<group>"; };
+		F418E886264D308700699085 /* StakingAlert.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingAlert.swift; sourceTree = "<group>"; };
+		F418E890264D318C00699085 /* AlertsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertsView.swift; sourceTree = "<group>"; };
 		F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewLayout.swift; sourceTree = "<group>"; };
 		F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewModel.swift; sourceTree = "<group>"; };
 		F441BE0D263984DD0096B67B /* BondExtraCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondExtraCall.swift; sourceTree = "<group>"; };
@@ -3513,6 +3517,7 @@
 				8425EB1A25EADD8600C307C9 /* StakingConstants.swift */,
 				AEBE16E5262EA7C100DF257C /* StakingErrors.swift */,
 				84BAB60F2642C286007782D0 /* SelectedRebondVariant.swift */,
+				F418E886264D308700699085 /* StakingAlert.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -5593,6 +5598,7 @@
 				84FFE50C261290BC0054EA63 /* NetworkInfoView.xib */,
 				AEF507C7262573870098574D /* ValidationView.xib */,
 				AEF507CC262573970098574D /* ValidationView.swift */,
+				F418E890264D318C00699085 /* AlertsView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -7152,6 +7158,7 @@
 				840D891D26242AE500AB231B /* StorageRequest.swift in Sources */,
 				8401AEC82642A71D000B03E3 /* StakingRebondConfirmationProtocols.swift in Sources */,
 				849014BA24AA87E4008F705E /* PinSetupProtocol.swift in Sources */,
+				F418E887264D308700699085 /* StakingAlert.swift in Sources */,
 				84DD5F7C263DFEC600425ACF /* StakingDataValidatorFactory.swift in Sources */,
 				84E1CCF5260DCB91001E81B5 /* SwitchAccount+AccountManagementWireframe.swift in Sources */,
 				849ABE6D2627949E00011A2A /* BatchMapper.swift in Sources */,
@@ -7543,6 +7550,7 @@
 				1550A6E8789263C0D734091A /* StakingUnbondSetupWireframe.swift in Sources */,
 				4FBD73DD27CAA339727616B5 /* StakingUnbondSetupPresenter.swift in Sources */,
 				F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */,
+				F418E891264D318C00699085 /* AlertsView.swift in Sources */,
 				CCF5A7CED175D5E43B2C9971 /* StakingUnbondSetupViewController.swift in Sources */,
 				57E20F0723C4748D576C4882 /* StakingUnbondSetupViewFactory.swift in Sources */,
 				0FB6781AB0186A1ED474CAD6 /* StakingUnbondConfirmProtocols.swift in Sources */,

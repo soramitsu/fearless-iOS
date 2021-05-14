@@ -21,6 +21,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var networkInfoContainerView: UIView!
     private var networkInfoView: NetworkInfoView!
+    private lazy var alertsContainerView = UIView()
+    private lazy var alertsView = AlertsView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -38,6 +40,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLoad()
 
         setupNetworkInfoView()
+        setupAlertsView()
         setupLocalization()
         presenter.setup()
     }
@@ -107,6 +110,19 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stackView.insertArrangedSubview(networkInfoContainerView, at: headerIndex + 1)
 
         configureStoriesView()
+    }
+
+    private func setupAlertsView() {
+        alertsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        alertsContainerView.addSubview(alertsView)
+
+        applyConstraints(for: alertsContainerView, innerView: alertsView)
+
+        stackView.addArrangedSubview(alertsContainerView)
+
+        // TODO: delete stub FLW-708
+        alertsView.bind(alerts: [.stakingIsInactive, .stakingIsInactive])
+        alertsView.delegate = self
     }
 
     private func configureStoriesView() {
@@ -254,6 +270,7 @@ extension StakingMainViewController: Localizable {
 
         networkInfoView.locale = locale
         stateView?.locale = locale
+        alertsView.locale = locale
     }
 
     func applyLocalization() {
@@ -400,3 +417,10 @@ extension StakingMainViewController: ValidationViewDelegate {
 }
 
 extension StakingMainViewController: HiddableBarWhenPushed {}
+
+extension StakingMainViewController: AlertsViewDelegate {
+    func didSelectStakingAlert(_ alert: StakingAlert) {
+        print(alert)
+        // TODO: FLW-708 call presenter.handleStakingAlertAction
+    }
+}
