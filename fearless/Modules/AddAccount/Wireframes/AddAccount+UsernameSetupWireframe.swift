@@ -2,8 +2,8 @@ import Foundation
 
 extension AddAccount {
     final class UsernameSetupWireframe: UsernameSetupWireframeProtocol {
-        func proceed(from view: UsernameSetupViewProtocol?, username: String) {
-            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(username: username) else {
+        func proceed(from view: UsernameSetupViewProtocol?, model: UsernameSetupModel) {
+            guard let accountCreation = AccountCreateViewFactory.createViewForAdding(model: model) else {
                 return
             }
 

@@ -40,27 +40,4 @@ final class AccountCreateWireframe: AccountCreateWireframeProtocol {
             completion: nil
         )
     }
-
-    func presentNetworkTypeSelection(
-        from view: AccountCreateViewProtocol?,
-        availableTypes: [Chain],
-        selectedType: Chain,
-        delegate: ModalPickerViewControllerDelegate?,
-        context: AnyObject?
-    ) {
-        guard let modalPicker = ModalPickerFactory.createPickerForList(
-            availableTypes,
-            selectedType: selectedType,
-            delegate: delegate,
-            context: context
-        ) else {
-            return
-        }
-
-        view?.controller.navigationController?.present(
-            modalPicker,
-            animated: true,
-            completion: nil
-        )
-    }
 }

@@ -270,8 +270,6 @@ extension StoriesViewController: Localizable {
 
         learnMoreButton.imageWithTitleView?.title = R.string.localizable
             .commonLearnMore(preferredLanguages: languages)
-        learnMoreButton.imageWithTitleView?.titleFont = .h5Title
-        learnMoreButton.imageWithTitleView?.iconImage = nil
     }
 
     func applyLocalization() {

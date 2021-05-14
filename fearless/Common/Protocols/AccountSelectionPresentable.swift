@@ -3,7 +3,7 @@ import SoraFoundation
 protocol AccountSelectionPresentable: AnyObject {
     func presentAccountSelection(
         _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
+        selectedAccountItem: AccountItem?,
         title: LocalizableResource<String>,
         delegate: ModalPickerViewControllerDelegate,
         from view: ControllerBackedProtocol?,
@@ -14,7 +14,7 @@ protocol AccountSelectionPresentable: AnyObject {
 extension AccountSelectionPresentable {
     func presentAccountSelection(
         _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
+        selectedAccountItem: AccountItem?,
         title: LocalizableResource<String>,
         delegate: ModalPickerViewControllerDelegate,
         from view: ControllerBackedProtocol?,
