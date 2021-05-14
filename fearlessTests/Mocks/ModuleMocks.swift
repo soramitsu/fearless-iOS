@@ -14402,9 +14402,9 @@ import SoraFoundation
     
     
     
-     func createViewModel(stashItem: StashItem, stashAccountItem: AccountItem, chosenAccountItem: AccountItem) -> ControllerAccountViewModel {
+     func createViewModel(stashItem: StashItem, stashAccountItem: AccountItem?, chosenAccountItem: AccountItem?) -> ControllerAccountViewModel {
         
-    return cuckoo_manager.call("createViewModel(stashItem: StashItem, stashAccountItem: AccountItem, chosenAccountItem: AccountItem) -> ControllerAccountViewModel",
+    return cuckoo_manager.call("createViewModel(stashItem: StashItem, stashAccountItem: AccountItem?, chosenAccountItem: AccountItem?) -> ControllerAccountViewModel",
             parameters: (stashItem, stashAccountItem, chosenAccountItem),
             escapingParameters: (stashItem, stashAccountItem, chosenAccountItem),
             superclassCall:
@@ -14424,9 +14424,9 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3) -> Cuckoo.ProtocolStubFunction<(StashItem, AccountItem, AccountItem), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.MatchedType == AccountItem, M3.MatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(StashItem, AccountItem, AccountItem)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountViewModelFactoryProtocol.self, method: "createViewModel(stashItem: StashItem, stashAccountItem: AccountItem, chosenAccountItem: AccountItem) -> ControllerAccountViewModel", parameterMatchers: matchers))
+	    func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3) -> Cuckoo.ProtocolStubFunction<(StashItem, AccountItem?, AccountItem?), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == AccountItem, M3.OptionalMatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(StashItem, AccountItem?, AccountItem?)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockControllerAccountViewModelFactoryProtocol.self, method: "createViewModel(stashItem: StashItem, stashAccountItem: AccountItem?, chosenAccountItem: AccountItem?) -> ControllerAccountViewModel", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -14446,9 +14446,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3) -> Cuckoo.__DoNotUse<(StashItem, AccountItem, AccountItem), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.MatchedType == AccountItem, M3.MatchedType == AccountItem {
-	        let matchers: [Cuckoo.ParameterMatcher<(StashItem, AccountItem, AccountItem)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }]
-	        return cuckoo_manager.verify("createViewModel(stashItem: StashItem, stashAccountItem: AccountItem, chosenAccountItem: AccountItem) -> ControllerAccountViewModel", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func createViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable>(stashItem: M1, stashAccountItem: M2, chosenAccountItem: M3) -> Cuckoo.__DoNotUse<(StashItem, AccountItem?, AccountItem?), ControllerAccountViewModel> where M1.MatchedType == StashItem, M2.OptionalMatchedType == AccountItem, M3.OptionalMatchedType == AccountItem {
+	        let matchers: [Cuckoo.ParameterMatcher<(StashItem, AccountItem?, AccountItem?)>] = [wrap(matchable: stashItem) { $0.0 }, wrap(matchable: stashAccountItem) { $0.1 }, wrap(matchable: chosenAccountItem) { $0.2 }]
+	        return cuckoo_manager.verify("createViewModel(stashItem: StashItem, stashAccountItem: AccountItem?, chosenAccountItem: AccountItem?) -> ControllerAccountViewModel", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -14460,7 +14460,7 @@ import SoraFoundation
     
 
     
-     func createViewModel(stashItem: StashItem, stashAccountItem: AccountItem, chosenAccountItem: AccountItem) -> ControllerAccountViewModel  {
+     func createViewModel(stashItem: StashItem, stashAccountItem: AccountItem?, chosenAccountItem: AccountItem?) -> ControllerAccountViewModel  {
         return DefaultValueRegistry.defaultValue(for: (ControllerAccountViewModel).self)
     }
     
