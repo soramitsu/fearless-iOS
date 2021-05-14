@@ -391,3 +391,7 @@ Derivation path: %@";
 "staking.reward.info.avg" = "Average APY";
 "staking.alerts.title" = "Alerts";
 "staking.recommended.hint5" = "Limit of 2 validators per identity";
+"staking.set.separate.account.controller" = "Set a separate account as a controller to increase staking management security.";
+"staking.stash.can.hint" = "Stash can bond more and set the controller.";
+"staking.controller.can.hint" = "Controller can unbond, redeem, rebond, change reward destination and validators.";
+"staking.switch.account.to.stash" = "Switch your account to stash to set the controller.";
