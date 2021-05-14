@@ -14,11 +14,11 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
 
     func createViewModel(
         stashItem: StashItem,
-        stashAccountItem: AccountItem,
-        chosenAccountItem: AccountItem
+        stashAccountItem: AccountItem?,
+        chosenAccountItem: AccountItem?
     ) -> ControllerAccountViewModel {
+        let stashAddress = stashItem.stash
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let stashAddress = stashAccountItem.address
             let stashIcon = try? self.iconGenerator
                 .generateFromAddress(stashAddress)
                 .imageWithFillColor(
@@ -29,13 +29,13 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stackingStashAccount(preferredLanguages: locale.rLanguages),
                 address: stashAddress,
-                name: stashAccountItem.username,
+                name: stashAccountItem?.username ?? stashAddress,
                 icon: stashIcon
             )
         }
 
         let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let selectedControllerAddress = chosenAccountItem.address
+            let selectedControllerAddress = chosenAccountItem?.address ?? stashItem.controller
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
                 .imageWithFillColor(
@@ -46,14 +46,17 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
                 address: selectedControllerAddress,
-                name: chosenAccountItem.username,
+                name: chosenAccountItem?.username ?? selectedControllerAddress,
                 icon: controllerIcon
             )
         }
 
         let buttonState: ControllerAccountActionButtonState = {
-            if stashAccountItem.address != self.currentAccountItem.address {
+            if stashAddress != self.currentAccountItem.address {
                 return .hidden
+            }
+            guard let chosenAccountItem = chosenAccountItem else {
+                return .enabled(false)
             }
             if chosenAccountItem.address == stashItem.controller {
                 return .enabled(false)

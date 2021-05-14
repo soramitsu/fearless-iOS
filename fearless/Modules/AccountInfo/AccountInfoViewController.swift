@@ -80,8 +80,6 @@ final class AccountInfoViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .commonExport(preferredLanguages: locale?.rLanguages)
-        addActionControl.imageWithTitleView?.titleFont = .h5Title
-        addActionControl.imageWithTitleView?.iconImage = nil
 
         navigationItem.rightBarButtonItem?.title = R.string.localizable
             .commonSave(preferredLanguages: locale?.rLanguages)

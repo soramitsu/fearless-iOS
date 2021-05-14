@@ -5,8 +5,9 @@ import SoraUI
 
 final class AccountImportViewController: UIViewController {
     private enum Constants {
-        static let advancedFullHeight: CGFloat = 220.0
-        static let advancedTruncHeight: CGFloat = 152.0
+        static let advancedFullHeight: CGFloat = 152.0
+        static let advancedTruncHeight: CGFloat = 84.0
+        static let verticalSpacing: CGFloat = 16.0
     }
 
     var presenter: AccountImportPresenterProtocol!
@@ -18,17 +19,14 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet private var usernameTextField: AnimatedTextField!
     @IBOutlet private var usernameFooterLabel: UILabel!
     @IBOutlet private var passwordView: TriangularedView!
-    @IBOutlet private var passwordSeparatorView: UIView!
     @IBOutlet private var passwordTextField: AnimatedTextField!
     @IBOutlet private var textPlaceholderLabel: UILabel!
     @IBOutlet private var textView: UITextView!
     @IBOutlet private var nextButton: TriangularedButton!
 
     @IBOutlet private var textContainerView: UIView!
-    @IBOutlet private var textContainerSeparatorView: UIView!
 
     @IBOutlet private var uploadView: DetailsTriangularedView!
-    @IBOutlet private var uploadSeparatorView: UIView!
 
     @IBOutlet private var warningView: UIView!
     @IBOutlet private var warningLabel: UILabel!
@@ -42,7 +40,6 @@ final class AccountImportViewController: UIViewController {
     @IBOutlet var derivationPathImageView: UIImageView!
 
     @IBOutlet var advancedContainerView: UIView!
-    @IBOutlet var advancedView: UIView!
     @IBOutlet var advancedControl: ExpandableActionControl!
 
     @IBOutlet var advancedContainerHeight: NSLayoutConstraint!
@@ -94,6 +91,10 @@ final class AccountImportViewController: UIViewController {
 
     private func configure() {
         stackView.arrangedSubviews.forEach { $0.backgroundColor = R.color.colorBlack() }
+
+        stackView.setCustomSpacing(Constants.verticalSpacing, after: sourceTypeView)
+        stackView.setCustomSpacing(Constants.verticalSpacing, after: uploadView)
+        stackView.setCustomSpacing(Constants.verticalSpacing, after: networkTypeView)
 
         advancedContainerView.isHidden = !advancedControl.isActivated
 
@@ -306,7 +307,6 @@ extension AccountImportViewController: AccountImportViewProtocol {
         switch type {
         case .mnemonic:
             passwordView.isHidden = true
-            passwordSeparatorView.isHidden = true
             passwordTextField.text = nil
             passwordViewModel = nil
 
@@ -314,14 +314,11 @@ extension AccountImportViewController: AccountImportViewProtocol {
             advancedContainerHeight.constant = Constants.advancedFullHeight
 
             uploadView.isHidden = true
-            uploadSeparatorView.isHidden = true
 
             textContainerView.isHidden = false
-            textContainerSeparatorView.isHidden = false
 
         case .seed:
             passwordView.isHidden = true
-            passwordSeparatorView.isHidden = true
             passwordTextField.text = nil
             passwordViewModel = nil
 
@@ -329,24 +326,19 @@ extension AccountImportViewController: AccountImportViewProtocol {
             advancedContainerHeight.constant = Constants.advancedFullHeight
 
             uploadView.isHidden = true
-            uploadSeparatorView.isHidden = true
 
             textContainerView.isHidden = false
-            textContainerSeparatorView.isHidden = false
 
         case .keystore:
             passwordView.isHidden = false
-            passwordSeparatorView.isHidden = false
 
             derivationPathView.isHidden = true
             advancedContainerHeight.constant = Constants.advancedTruncHeight
 
             uploadView.isHidden = false
-            uploadSeparatorView.isHidden = false
 
             textContainerView.isHidden = true
             textView.text = nil
-            textContainerSeparatorView.isHidden = true
         }
 
         warningView.isHidden = true

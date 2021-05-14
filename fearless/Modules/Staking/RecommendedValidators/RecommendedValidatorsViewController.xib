@@ -32,6 +32,7 @@
                 <outlet property="hint2" destination="Sgp-Kt-dYL" id="Xkj-at-Qna"/>
                 <outlet property="hint3" destination="xfe-hK-UX5" id="yHx-do-Goj"/>
                 <outlet property="hint4" destination="O9j-gG-NIg" id="KIv-3J-2SL"/>
+                <outlet property="hint5" destination="v2q-2V-CbM" id="EuT-xr-PO8"/>
                 <outlet property="sectionTitleLabel" destination="xLN-Qv-Daq" id="2Df-XC-RhT"/>
                 <outlet property="validatorsCell" destination="g6a-OX-WP3" id="WUQ-Kc-sxO"/>
                 <outlet property="validatorsContainer" destination="cst-IG-Zd7" id="Bkb-lI-xtx"/>
@@ -52,7 +53,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v0U-sH-wHU">
-                    <rect key="frame" x="16" y="94" width="343" height="82"/>
+                    <rect key="frame" x="16" y="94" width="343" height="104"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
                             <rect key="frame" x="0.0" y="0.0" width="117" height="16"/>
@@ -126,13 +127,33 @@
                                 </userDefinedRuntimeAttribute>
                             </userDefinedRuntimeAttributes>
                         </view>
+                        <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v2q-2V-CbM" customClass="ImageWithTitleView" customModule="SoraUI">
+                            <rect key="frame" x="0.0" y="88" width="207.5" height="16"/>
+                            <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                            <userDefinedRuntimeAttributes>
+                                <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAlgoItem"/>
+                                <userDefinedRuntimeAttribute type="string" keyPath="title" value="Limit of 2 validators per identity"/>
+                                <userDefinedRuntimeAttribute type="color" keyPath="titleColor">
+                                    <color key="value" name="colorWhite"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Regular"/>
+                                <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
+                                    <real key="value" value="14"/>
+                                </userDefinedRuntimeAttribute>
+                                <userDefinedRuntimeAttribute type="number" keyPath="spacingBetweenLabelAndIcon">
+                                    <real key="value" value="8"/>
+                                </userDefinedRuntimeAttribute>
+                            </userDefinedRuntimeAttributes>
+                        </view>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
+                        <constraint firstAttribute="bottom" secondItem="v2q-2V-CbM" secondAttribute="bottom" id="0HI-bS-CyV"/>
                         <constraint firstItem="O9j-gG-NIg" firstAttribute="leading" secondItem="v0U-sH-wHU" secondAttribute="leading" id="2kZ-8d-W0a"/>
                         <constraint firstItem="xfe-hK-UX5" firstAttribute="top" secondItem="Sgp-Kt-dYL" secondAttribute="bottom" constant="6" id="Gsp-Hd-5aE"/>
-                        <constraint firstAttribute="bottom" secondItem="O9j-gG-NIg" secondAttribute="bottom" id="Gx6-QM-HNK"/>
                         <constraint firstItem="JGu-sj-Eoi" firstAttribute="leading" secondItem="v0U-sH-wHU" secondAttribute="leading" id="JBy-5y-izH"/>
+                        <constraint firstItem="v2q-2V-CbM" firstAttribute="leading" secondItem="v0U-sH-wHU" secondAttribute="leading" id="Oab-O3-7bZ"/>
+                        <constraint firstItem="v2q-2V-CbM" firstAttribute="top" secondItem="O9j-gG-NIg" secondAttribute="bottom" constant="6" id="aBN-dJ-pkg"/>
                         <constraint firstItem="JGu-sj-Eoi" firstAttribute="top" secondItem="v0U-sH-wHU" secondAttribute="top" id="gyk-2g-DvS"/>
                         <constraint firstItem="Sgp-Kt-dYL" firstAttribute="leading" secondItem="v0U-sH-wHU" secondAttribute="leading" id="ifJ-zm-QkL"/>
                         <constraint firstItem="xfe-hK-UX5" firstAttribute="leading" secondItem="v0U-sH-wHU" secondAttribute="leading" id="l7O-9u-L1s"/>
@@ -141,7 +162,7 @@
                     </constraints>
                 </view>
                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Tck-WI-Kkf">
-                    <rect key="frame" x="177.5" y="201" width="20" height="20"/>
+                    <rect key="frame" x="177.5" y="223" width="20" height="20"/>
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Recommended validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xLN-Qv-Daq">
@@ -151,7 +172,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UV7-1T-hlO">
-                    <rect key="frame" x="0.0" y="249" width="375" height="48"/>
+                    <rect key="frame" x="0.0" y="271" width="375" height="48"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gpJ-Ri-cah" customClass="BorderedContainerView" customModule="SoraUI">
                             <rect key="frame" x="16" y="0.0" width="343" height="48"/>
@@ -239,7 +260,7 @@
                     </constraints>
                 </view>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cst-IG-Zd7">
-                    <rect key="frame" x="0.0" y="201" width="375" height="48"/>
+                    <rect key="frame" x="0.0" y="223" width="375" height="48"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sny-7g-S5M" customClass="BorderedContainerView" customModule="SoraUI">
                             <rect key="frame" x="16" y="0.0" width="343" height="48"/>
@@ -443,6 +464,9 @@
         <designable name="g6a-OX-WP3">
             <size key="intrinsicContentSize" width="55" height="15"/>
         </designable>
+        <designable name="v2q-2V-CbM">
+            <size key="intrinsicContentSize" width="207.5" height="16"/>
+        </designable>
         <designable name="xfe-hK-UX5">
             <size key="intrinsicContentSize" width="159.5" height="16"/>
         </designable>
@@ -454,7 +478,7 @@
         <image name="iconEdit" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorDarkGray">
-            <color red="0.2669999897480011" green="0.2669999897480011" blue="0.2669999897480011" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.26666666666666666" green="0.26666666666666666" blue="0.26666666666666666" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorHighlightedPink">
             <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>

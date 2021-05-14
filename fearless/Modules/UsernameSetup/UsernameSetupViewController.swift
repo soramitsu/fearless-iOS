@@ -5,6 +5,7 @@ import SoraUI
 final class UsernameSetupViewController: UIViewController {
     var presenter: UsernameSetupPresenterProtocol!
 
+    @IBOutlet private var networkView: BorderedSubtitleActionView!
     @IBOutlet private var inputField: AnimatedTextField!
     @IBOutlet private var hintLabel: UILabel!
     @IBOutlet private var nextButton: TriangularedButton!
@@ -18,6 +19,7 @@ final class UsernameSetupViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configureNetworkView()
         configureTextField()
         setupLocalization()
 
@@ -54,6 +56,14 @@ final class UsernameSetupViewController: UIViewController {
         super.viewDidLayoutSubviews()
     }
 
+    private func configureNetworkView() {
+        networkView.actionControl.addTarget(
+            self,
+            action: #selector(actionOpenNetworkType),
+            for: .valueChanged
+        )
+    }
+
     private func configureTextField() {
         inputField.textField.returnKeyType = .done
         inputField.textField.textContentType = .nickname
@@ -86,6 +96,12 @@ final class UsernameSetupViewController: UIViewController {
         inputField.resignFirstResponder()
 
         presenter.proceed()
+    }
+
+    @objc private func actionOpenNetworkType() {
+        if networkView.actionControl.isActivated {
+            presenter.selectNetworkType()
+        }
     }
 }
 
@@ -130,10 +146,27 @@ extension UsernameSetupViewController: KeyboardViewAdoptable {
 }
 
 extension UsernameSetupViewController: UsernameSetupViewProtocol {
-    func set(viewModel: InputViewModelProtocol) {
+    func setInput(viewModel: InputViewModelProtocol) {
         self.viewModel = viewModel
 
         updateActionButton()
+    }
+
+    func setSelectedNetwork(model: SelectableViewModel<IconWithTitleViewModel>) {
+        networkView.actionControl.contentView.subtitleImageView.image = model.underlyingViewModel.icon
+        networkView.actionControl.contentView.subtitleLabelView.text = model.underlyingViewModel.title
+
+        networkView.actionControl.showsImageIndicator = model.selectable
+        networkView.isUserInteractionEnabled = model.selectable
+        networkView.fillColor = model.selectable ? .clear : R.color.colorDarkGray()!
+        networkView.strokeColor = model.selectable ? R.color.colorGray()! : .clear
+
+        networkView.actionControl.contentView.invalidateLayout()
+        networkView.actionControl.invalidateLayout()
+    }
+
+    func didCompleteNetworkSelection() {
+        networkView.actionControl.deactivate(animated: true)
     }
 }
 
