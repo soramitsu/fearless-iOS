@@ -94,31 +94,18 @@ final class AlertsView: UIView {
             noAlertsLabel.isHidden = true
             alertsStackView.isHidden = false
 
-            let itemViews = alerts.map { alert -> UIView in
+            var itemViews = [UIView]()
+            for (index, alert) in alerts.enumerated() {
                 let itemView = AlertItemView(stakingAlert: alert, locale: locale)
+                if index == alerts.count - 1 {
+                    itemView.borderView.borderType = .none
+                }
                 itemView.addTarget(self, action: #selector(handleSelectItem), for: .touchUpInside)
-                return itemView
+                itemViews.append(itemView)
             }
-
-            let separators = (0 ..< itemViews.count).map { _ -> UIView in
-                UIView.createSeparator(
-                    color: R.color.colorWhite()?.withAlphaComponent(0.24),
-                    horizontalInset: UIConstants.horizontalInset
-                )
-            }
-
-            let itemViewsWithSeparators = zip(itemViews, separators).map { [$0, $1] }
-                .flatMap { $0 }
-                .dropLast()
 
             alertsStackView.subviews.forEach { $0.removeFromSuperview() }
-            itemViewsWithSeparators.forEach { alertsStackView.addArrangedSubview($0) }
-
-            separators.dropLast().forEach { separator in
-                separator.snp.makeConstraints {
-                    $0.height.equalTo(UIConstants.separatorHeight)
-                }
-            }
+            itemViews.forEach { alertsStackView.addArrangedSubview($0) }
         }
     }
 
@@ -154,6 +141,15 @@ private class AlertItemView: BackgroundedContentControl {
     }()
 
     let accessoryView: UIView = UIImageView(image: R.image.iconSmallArrow())
+
+    let borderView: BorderedContainerView = {
+        let view = BorderedContainerView()
+        view.backgroundColor = .clear
+        view.borderType = .bottom
+        view.strokeWidth = 1.0
+        view.strokeColor = R.color.colorWhite()!.withAlphaComponent(0.24)
+        return view
+    }()
 
     init(stakingAlert: StakingAlert, locale: Locale) {
         alertType = stakingAlert
@@ -193,6 +189,12 @@ private class AlertItemView: BackgroundedContentControl {
     private func setupLayout() {
         let containerView = UIView()
         containerView.isUserInteractionEnabled = false
+
+        containerView.addSubview(borderView)
+        borderView.snp.makeConstraints { make in
+            make.top.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
 
         containerView.addSubview(iconImageView)
         iconImageView.snp.makeConstraints { make in

@@ -121,7 +121,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stackView.addArrangedSubview(alertsContainerView)
 
         // TODO: delete stub FLW-708
-        alertsView.bind(alerts: [.stakingIsInactive])
+        alertsView.bind(alerts: [.stakingIsInactive, .stakingIsInactive])
         alertsView.delegate = self
     }
 
