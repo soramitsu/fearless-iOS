@@ -39,13 +39,14 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let governanceController = createGovernanceController(for: localizationManager) else {
-            return nil
-        }
+        // TODO: Apple doesn't allow not completed functionality
+        /* guard let governanceController = createGovernanceController(for: localizationManager) else {
+             return nil
+         }
 
-        guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
-            return nil
-        }
+         guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
+             return nil
+         } */
 
         guard let settingsController = createProfileController(for: localizationManager) else {
             return nil
@@ -54,9 +55,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let view = MainTabBarViewController()
         view.viewControllers = [
             walletController,
-            polkaswapController,
             stakingController,
-            governanceController,
             settingsController
         ]
 
