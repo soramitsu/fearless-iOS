@@ -51,23 +51,27 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             )
         }
 
-        let buttonState: ControllerAccountActionButtonState = {
+        let canChooseOtherController = stashAddress == currentAccountItem.address
+        let currentAccountIsController = stashItem.controller == currentAccountItem.address
+        let actionButtonIsEnabled: Bool = {
             if stashAddress != self.currentAccountItem.address {
-                return .hidden
+                return false
             }
             guard let chosenAccountItem = chosenAccountItem else {
-                return .enabled(false)
+                return false
             }
             if chosenAccountItem.address == stashItem.controller {
-                return .enabled(false)
+                return false
             }
-            return .enabled(true)
+            return true
         }()
 
         return ControllerAccountViewModel(
             stashViewModel: stashViewModel,
             controllerViewModel: controllerViewModel,
-            actionButtonState: buttonState
+            canChooseOtherController: canChooseOtherController,
+            currentAccountIsController: currentAccountIsController,
+            actionButtonIsEnabled: actionButtonIsEnabled
         )
     }
 }
