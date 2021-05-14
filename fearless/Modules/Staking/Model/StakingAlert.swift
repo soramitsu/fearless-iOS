@@ -4,7 +4,7 @@ import BigInt
 
 enum StakingAlert {
     case nominatorNoValidators
-    case nominatorLowStake(minimumStake: BigUInt)
+    case nominatorLowStake(minimalStake: BigUInt)
 }
 
 extension StakingAlert {

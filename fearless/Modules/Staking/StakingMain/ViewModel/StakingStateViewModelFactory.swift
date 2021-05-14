@@ -227,6 +227,26 @@ final class StakingStateViewModelFactory {
             amount: amount
         )
     }
+
+    private func stakingAlert(state: NominatorState) -> StakingAlert? {
+        switch state.status {
+        case .active:
+            return nil
+        case .inactive:
+            guard let minimalStake = state.commonData.minimalStake else {
+                return nil
+            }
+            return state.ledgerInfo.active < minimalStake ?
+                .nominatorLowStake(minimalStake: minimalStake)
+                : .nominatorNoValidators
+        case .waiting:
+            return nil
+        case .election:
+            return nil
+        case .undefined:
+            return nil
+        }
+    }
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
@@ -345,8 +365,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        let minimumStake = state.commonData.minimumStake
-        let alerts = [state.stakingAlert(minimumStake: minimumStake)].compactMap { $0 }
+        let alerts = [stakingAlert(state: state)].compactMap { $0 }
         lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 

@@ -358,8 +358,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
+        stateMachine.state.process(minimalStake: networkStakingInfo.minimalStake)
         provideStakingInfo()
-        provideState()
     }
 
     func didReceive(networkStakingInfoError: Error) {

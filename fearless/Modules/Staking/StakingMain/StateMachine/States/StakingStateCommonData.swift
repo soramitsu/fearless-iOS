@@ -9,7 +9,7 @@ struct StakingStateCommonData {
     let calculatorEngine: RewardCalculatorEngineProtocol?
     let electionStatus: ElectionStatus?
     let eraStakersInfo: EraStakersInfo?
-    let minimumStake: BigUInt?
+    let minimalStake: BigUInt?
 }
 
 extension StakingStateCommonData {
@@ -22,7 +22,7 @@ extension StakingStateCommonData {
             calculatorEngine: nil,
             electionStatus: nil,
             eraStakersInfo: nil,
-            minimumStake: nil
+            minimalStake: nil
         )
     }
 
@@ -35,7 +35,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -48,7 +48,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -61,7 +61,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -74,7 +74,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -87,7 +87,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -100,7 +100,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
@@ -113,11 +113,11 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 
-    func byReplacing(minimumStake: BigUInt?) -> StakingStateCommonData {
+    func byReplacing(minimalStake: BigUInt?) -> StakingStateCommonData {
         StakingStateCommonData(
             address: address,
             chain: chain,
@@ -126,7 +126,7 @@ extension StakingStateCommonData {
             calculatorEngine: calculatorEngine,
             electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
-            minimumStake: minimumStake
+            minimalStake: minimalStake
         )
     }
 }

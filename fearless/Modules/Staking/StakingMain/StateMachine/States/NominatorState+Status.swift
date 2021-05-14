@@ -35,26 +35,6 @@ extension NominatorState {
         }
     }
 
-    func stakingAlert(minimumStake: BigUInt?) -> StakingAlert? {
-        switch status {
-        case .active:
-            return nil
-        case .inactive:
-            guard let minimumStake = minimumStake else {
-                return nil
-            }
-            return ledgerInfo.active < minimumStake ?
-                .nominatorLowStake(minimumStake: minimumStake)
-                : .nominatorNoValidators
-        case .waiting:
-            return nil
-        case .election:
-            return nil
-        case .undefined:
-            return nil
-        }
-    }
-
     func createStatusPresentableViewModel(
         for minimumStake: BigUInt?,
         locale: Locale?

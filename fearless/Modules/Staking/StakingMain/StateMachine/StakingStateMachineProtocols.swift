@@ -30,7 +30,7 @@ protocol StakingStateProtocol {
     func process(eraStakersInfo: EraStakersInfo?)
     func process(totalReward: TotalRewardItem?)
     func process(payee: RewardDestinationArg?)
-    func process(minimumStake: BigUInt?)
+    func process(minimalStake: BigUInt?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {
