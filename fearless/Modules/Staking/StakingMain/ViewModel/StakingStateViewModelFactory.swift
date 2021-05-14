@@ -5,7 +5,10 @@ import BigInt
 import IrohaCrypto
 
 protocol StakingStateViewModelFactoryProtocol {
-    func createViewModel(from state: StakingStateProtocol) -> StakingViewState
+    func createViewModel(
+        from state: StakingStateProtocol,
+        minimumStake: BigUInt?
+    ) -> StakingViewState
 }
 
 final class StakingStateViewModelFactory {
@@ -17,6 +20,7 @@ final class StakingStateViewModelFactory {
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChain: Chain?
+    private var minimumStake: BigUInt?
 
     private lazy var addressFactory = SS58AddressFactory()
 
@@ -77,42 +81,6 @@ final class StakingStateViewModelFactory {
         rewardViewModelFactory = factory
 
         return factory
-    }
-
-    private func createNominationStatus(
-        for _: Chain,
-        commonData: StakingStateCommonData,
-        stashItem: StashItem,
-        nomination: Nomination
-    ) -> NominationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
-            return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
-        }
-
-        do {
-            let accountId = try addressFactory.accountId(from: stashItem.stash)
-
-            if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
-                return .active(era: eraStakers.era)
-            }
-
-            if nomination.submittedIn >= eraStakers.era {
-                return .waiting
-            }
-
-            return .inactive(era: eraStakers.era)
-
-        } catch {
-            return .undefined
-        }
     }
 
     private func createNominationViewModel(
@@ -381,7 +349,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        let alerts = [state.stakingAlert(for: nil)].compactMap { $0 }
+        let alerts = [state.stakingAlert(minimumStake: minimumStake)].compactMap { $0 }
         lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
@@ -420,7 +388,11 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 }
 
 extension StakingStateViewModelFactory: StakingStateViewModelFactoryProtocol {
-    func createViewModel(from state: StakingStateProtocol) -> StakingViewState {
+    func createViewModel(
+        from state: StakingStateProtocol,
+        minimumStake: BigUInt?
+    ) -> StakingViewState {
+        self.minimumStake = minimumStake
         state.accept(visitor: self)
         return lastViewModel
     }

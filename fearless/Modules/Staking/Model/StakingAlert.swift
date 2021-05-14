@@ -1,29 +1,38 @@
 import Foundation
 import UIKit.UIImage
+import BigInt
 
 enum StakingAlert {
-    case stakingIsInactive
+    case nominatorNoValidators
+    case nominatorLowStake(minimumStake: BigUInt)
 }
 
 extension StakingAlert {
     var icon: UIImage? {
         switch self {
-        case .stakingIsInactive:
+        case .nominatorNoValidators:
+            return R.image.iconWarning()
+        case .nominatorLowStake:
             return R.image.iconWarning()
         }
     }
 
     func title(for _: Locale) -> String {
         switch self {
-        case .stakingIsInactive:
+        case .nominatorNoValidators:
             return "Change your validators." // TODO:
+        case .nominatorLowStake:
+            return "Bond more tokens."
         }
     }
 
-    func description(for _: Locale) -> String {
+    func description(for locale: Locale) -> String {
         switch self {
-        case .stakingIsInactive:
-            return "None of your validators were elected by network."
+        case .nominatorNoValidators:
+            return R.string.localizable
+                .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale.rLanguages)
+        case .nominatorLowStake:
+            return "Staking is currently inactive.\nCurrent minimal stake is 223.93 DOT."
         }
     }
 }

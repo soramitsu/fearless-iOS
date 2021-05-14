@@ -68,7 +68,10 @@ final class StakingMainPresenter {
     }
 
     private func provideState() {
-        let state = stateViewModelFactory.createViewModel(from: stateMachine.state)
+        let state = stateViewModelFactory.createViewModel(
+            from: stateMachine.state,
+            minimumStake: networkStakingInfo?.minimalStake
+        )
         view?.didReceiveStakingState(viewModel: state)
     }
 
@@ -359,6 +362,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
         provideStakingInfo()
+        provideState()
     }
 
     func didReceive(networkStakingInfoError: Error) {
