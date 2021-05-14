@@ -558,6 +558,8 @@
 		84893C0724DA890F008F6A3F /* CommonError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84893C0624DA890F008F6A3F /* CommonError.swift */; };
 		8489EDBA264DB25500FF997E /* RecommendationsComposing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */; };
 		8489EDCE264DD4DA00FF997E /* RecommendationsComposerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */; };
+		8489EDD4264DDF6C00FF997E /* InconsistentStateMigrator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */; };
+		8489EDDA264DE42500FF997E /* InconsistentStateMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */; };
 		848C3D0926248A3B005481C3 /* TransferCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = 848C3D0826248A3B005481C3 /* TransferCall.swift */; };
 		848DB98E260638340055DDE7 /* rewardFirstResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB98D260638340055DDE7 /* rewardFirstResponse.json */; };
 		848DB993260638440055DDE7 /* rewardSecondResponse.json in Resources */ = {isa = PBXBuildFile; fileRef = 848DB992260638440055DDE7 /* rewardSecondResponse.json */; };
@@ -1793,6 +1795,8 @@
 		84893C0624DA890F008F6A3F /* CommonError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonError.swift; sourceTree = "<group>"; };
 		8489EDB9264DB25500FF997E /* RecommendationsComposing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposing.swift; sourceTree = "<group>"; };
 		8489EDCD264DD4DA00FF997E /* RecommendationsComposerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendationsComposerTests.swift; sourceTree = "<group>"; };
+		8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InconsistentStateMigrator.swift; sourceTree = "<group>"; };
+		8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InconsistentStateMigrationTests.swift; sourceTree = "<group>"; };
 		848C3D0826248A3B005481C3 /* TransferCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferCall.swift; sourceTree = "<group>"; };
 		848DB98D260638340055DDE7 /* rewardFirstResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardFirstResponse.json; sourceTree = "<group>"; };
 		848DB992260638440055DDE7 /* rewardSecondResponse.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = rewardSecondResponse.json; sourceTree = "<group>"; };
@@ -3274,6 +3278,7 @@
 		842D1E7E24D0BED200C30A7A /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				8489EDD8264DE40800FF997E /* Migration */,
 				848DB99C26063BA90055DDE7 /* DataProvider */,
 				84452F8725D5E6CC00F47EC5 /* Services */,
 				84F4A90E25500119000CF0A3 /* Helpers */,
@@ -3352,7 +3357,6 @@
 				8432E55024EFDF6100B05B58 /* AccountItemMapperTests.swift */,
 				84563D0224EFE6D70055591D /* NetworkItemMapperTests.swift */,
 				84563D0824F46B7F0055591D /* ManagedAccountItemMapperTests.swift */,
-				F418E87B264D14DA00699085 /* NetworkConnectionsMigratorTests.swift */,
 			);
 			path = Storage;
 			sourceTree = "<group>";
@@ -3809,7 +3813,6 @@
 		8467FD4E24EFD0EC005D486C /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				F418E86D264D0EF600699085 /* Migration */,
 				843910CA253F7E6500E3C217 /* SubstrateDataModel.xcdatamodeld */,
 				8467FD4F24EFD11E005D486C /* UserDataModel.xcdatamodeld */,
 				8467FD5224EFD210005D486C /* UserDataStorageFacade.swift */,
@@ -4023,6 +4026,15 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		8489EDD8264DE40800FF997E /* Migration */ = {
+			isa = PBXGroup;
+			children = (
+				F418E87B264D14DA00699085 /* NetworkConnectionsMigratorTests.swift */,
+				8489EDD9264DE42500FF997E /* InconsistentStateMigrationTests.swift */,
+			);
+			path = Migration;
+			sourceTree = "<group>";
+		};
 		848DB99C26063BA90055DDE7 /* DataProvider */ = {
 			isa = PBXGroup;
 			children = (
@@ -4106,6 +4118,7 @@
 		849013D124A92686008F705E /* Common */ = {
 			isa = PBXGroup;
 			children = (
+				F418E86D264D0EF600699085 /* Migration */,
 				84DD5F3C263DE5DF00425ACF /* Validation */,
 				849014C924AA8B75008F705E /* Animation */,
 				849013D524A927E2008F705E /* Configs */,
@@ -5833,6 +5846,7 @@
 			children = (
 				F418E86E264D0F0400699085 /* Migrating.swift */,
 				F418E876264D0F4100699085 /* NetworkConnectionsMigrator.swift */,
+				8489EDD3264DDF6C00FF997E /* InconsistentStateMigrator.swift */,
 			);
 			path = Migration;
 			sourceTree = "<group>";
@@ -6802,6 +6816,7 @@
 				84FD3DB92540F70400A234E3 /* TransactionHistoryItem+Extrinsic.swift in Sources */,
 				84F6B6432619A8480038F10D /* SubscanConcreteExtrinsicsData.swift in Sources */,
 				AEE5FAFF26415E0C002B8FDC /* StakingRebondSetupPresenter.swift in Sources */,
+				8489EDD4264DDF6C00FF997E /* InconsistentStateMigrator.swift in Sources */,
 				8472975D260B1B71009B86D0 /* ExistingBonding.swift in Sources */,
 				8490144C24A93D0B008F705E /* FearlessNavigationController.swift in Sources */,
 				F4E339632614A03F0028B6B1 /* ExtrinsicsInfo.swift in Sources */,
@@ -7659,6 +7674,7 @@
 				84FACB1725F559F200F32ED4 /* WestendStub.swift in Sources */,
 				036183230C5F04D0D199330C /* AccountInfoTests.swift in Sources */,
 				1E766A1656C2117F3F64769A /* NetworkManagementTests.swift in Sources */,
+				8489EDDA264DE42500FF997E /* InconsistentStateMigrationTests.swift in Sources */,
 				84F43BB925DEFA0A00AEDA56 /* DefaultStub.swift in Sources */,
 				F47BBD6F263144D10087DA11 /* StakingBalanceTests.swift in Sources */,
 				84155DF3253A1DBA00A27058 /* SchedulerTests.swift in Sources */,
