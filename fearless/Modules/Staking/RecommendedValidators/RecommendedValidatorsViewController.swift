@@ -30,11 +30,17 @@ final class RecommendedValidatorsViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        configure()
         setupLocalization()
         updateLoadingState()
         updateRecommended()
 
         presenter.setup()
+    }
+
+    private func configure() {
+        // TODO: enable when flow is done
+        customValidatorsContainer.isHidden = true
     }
 
     private func setupLocalization() {
@@ -71,8 +77,10 @@ final class RecommendedValidatorsViewController: UIViewController {
         let isViewModelSet = (viewModel != nil)
 
         validatorsContainer.isHidden = !isViewModelSet
-        customValidatorsContainer.isHidden = !isViewModelSet
         continueButton.isEnabled = isViewModelSet
+
+        // TODO: enable when flow is done
+        // customValidatorsContainer.isHidden = !isViewModelSet
 
         if isViewModelSet {
             activityView.stopAnimating()
