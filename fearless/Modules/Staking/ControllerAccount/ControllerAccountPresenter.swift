@@ -42,8 +42,7 @@ final class ControllerAccountPresenter {
     private func updateView() {
         guard
             let stashItem = stashItem,
-            let stashAccountItem = stashAccount,
-            let chosenAccountItem = chosenAccountItem
+            let stashAccountItem = stashAccount
         else { return }
         let viewModel = viewModelFactory.createViewModel(
             stashItem: stashItem,
@@ -86,7 +85,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
             return
         }
 
-        guard let accounts = accounts, let chosenAccountItem = chosenAccountItem else {
+        guard let accounts = accounts else {
             return
         }
         let context = PrimitiveContextWrapper(value: accounts)
@@ -198,8 +197,6 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         switch result {
         case let .success(accounts):
             self.accounts = accounts
-
-            updateView()
         case let .failure(error):
             logger?.error("Did receive accounts error: \(error)")
         }

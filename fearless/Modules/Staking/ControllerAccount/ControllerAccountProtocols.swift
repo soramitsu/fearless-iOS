@@ -8,7 +8,7 @@ protocol ControllerAccountViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         stashItem: StashItem,
         stashAccountItem: AccountItem,
-        chosenAccountItem: AccountItem
+        chosenAccountItem: AccountItem?
     ) -> ControllerAccountViewModel
 }
 

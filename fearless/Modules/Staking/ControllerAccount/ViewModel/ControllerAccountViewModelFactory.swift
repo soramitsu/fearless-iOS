@@ -15,7 +15,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
     func createViewModel(
         stashItem: StashItem,
         stashAccountItem: AccountItem,
-        chosenAccountItem: AccountItem
+        chosenAccountItem: AccountItem?
     ) -> ControllerAccountViewModel {
         let stashViewModel = LocalizableResource<AccountInfoViewModel> { locale in
             let stashAddress = stashAccountItem.address
@@ -35,7 +35,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         }
 
         let controllerViewModel = LocalizableResource<AccountInfoViewModel> { locale in
-            let selectedControllerAddress = chosenAccountItem.address
+            let selectedControllerAddress = chosenAccountItem?.address ?? stashItem.controller
             let controllerIcon = try? self.iconGenerator
                 .generateFromAddress(selectedControllerAddress)
                 .imageWithFillColor(
@@ -46,7 +46,7 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             return AccountInfoViewModel(
                 title: R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages),
                 address: selectedControllerAddress,
-                name: chosenAccountItem.username,
+                name: chosenAccountItem?.username ?? selectedControllerAddress,
                 icon: controllerIcon
             )
         }
@@ -54,6 +54,9 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         let buttonState: ControllerAccountActionButtonState = {
             if stashAccountItem.address != self.currentAccountItem.address {
                 return .hidden
+            }
+            guard let chosenAccountItem = chosenAccountItem else {
+                return .enabled(false)
             }
             if chosenAccountItem.address == stashItem.controller {
                 return .enabled(false)
