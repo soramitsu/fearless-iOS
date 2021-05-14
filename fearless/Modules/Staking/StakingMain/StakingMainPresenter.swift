@@ -68,10 +68,7 @@ final class StakingMainPresenter {
     }
 
     private func provideState() {
-        let state = stateViewModelFactory.createViewModel(
-            from: stateMachine.state,
-            minimumStake: networkStakingInfo?.minimalStake
-        )
+        let state = stateViewModelFactory.createViewModel(from: stateMachine.state)
         view?.didReceiveStakingState(viewModel: state)
     }
 

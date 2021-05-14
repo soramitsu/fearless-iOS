@@ -5,10 +5,7 @@ import BigInt
 import IrohaCrypto
 
 protocol StakingStateViewModelFactoryProtocol {
-    func createViewModel(
-        from state: StakingStateProtocol,
-        minimumStake: BigUInt?
-    ) -> StakingViewState
+    func createViewModel(from state: StakingStateProtocol) -> StakingViewState
 }
 
 final class StakingStateViewModelFactory {
@@ -20,7 +17,6 @@ final class StakingStateViewModelFactory {
     private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChain: Chain?
-    private var minimumStake: BigUInt?
 
     private lazy var addressFactory = SS58AddressFactory()
 
@@ -349,6 +345,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
+        let minimumStake = state.commonData.minimumStake
         let alerts = [state.stakingAlert(minimumStake: minimumStake)].compactMap { $0 }
         lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
@@ -388,11 +385,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 }
 
 extension StakingStateViewModelFactory: StakingStateViewModelFactoryProtocol {
-    func createViewModel(
-        from state: StakingStateProtocol,
-        minimumStake: BigUInt?
-    ) -> StakingViewState {
-        self.minimumStake = minimumStake
+    func createViewModel(from state: StakingStateProtocol) -> StakingViewState {
         state.accept(visitor: self)
         return lastViewModel
     }
