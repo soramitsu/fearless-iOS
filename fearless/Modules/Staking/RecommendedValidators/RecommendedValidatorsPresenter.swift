@@ -11,7 +11,10 @@ final class RecommendedValidatorsPresenter {
     var allValidators: [ElectedValidatorInfo]?
     var recommended: [ElectedValidatorInfo]?
 
-    init(logger: LoggerProtocol? = nil) {
+    let recommendationsComposer: RecommendationsComposing
+
+    init(recommendationsComposer: RecommendationsComposing, logger: LoggerProtocol? = nil) {
+        self.recommendationsComposer = recommendationsComposer
         self.logger = logger
     }
 
@@ -81,11 +84,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputP
     func didReceive(validators: [ElectedValidatorInfo]) {
         allValidators = validators
 
-        let recommended = validators
-            .filter { $0.hasIdentity && !$0.hasSlashes && !$0.oversubscribed && !$0.blocked }
-            .sorted(by: { $0.stakeReturn >= $1.stakeReturn })
-            .prefix(StakingConstants.maxTargets)
-        self.recommended = Array(recommended)
+        recommended = recommendationsComposer.compose(from: validators)
 
         updateView()
     }

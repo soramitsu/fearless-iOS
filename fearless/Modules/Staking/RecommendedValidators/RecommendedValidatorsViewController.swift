@@ -11,6 +11,7 @@ final class RecommendedValidatorsViewController: UIViewController {
     @IBOutlet private var hint2: ImageWithTitleView!
     @IBOutlet private var hint3: ImageWithTitleView!
     @IBOutlet private var hint4: ImageWithTitleView!
+    @IBOutlet private var hint5: ImageWithTitleView!
 
     @IBOutlet private var validatorsContainer: UIView!
     @IBOutlet private var validatorsCell: DetailsTriangularedView!
@@ -48,6 +49,7 @@ final class RecommendedValidatorsViewController: UIViewController {
         hint2.title = R.string.localizable.stakingRecommendedHint2(preferredLanguages: languages)
         hint3.title = R.string.localizable.stakingRecommendedHint3(preferredLanguages: languages)
         hint4.title = R.string.localizable.stakingRecommendedHint4(preferredLanguages: languages)
+        hint5.title = R.string.localizable.stakingRecommendedHint5(preferredLanguages: languages)
 
         validatorsCell.title = R.string.localizable
             .stakingRecommendedValidatorsTitle(preferredLanguages: languages)

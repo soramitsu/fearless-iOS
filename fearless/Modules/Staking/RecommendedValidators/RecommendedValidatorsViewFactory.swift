@@ -32,8 +32,17 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
             return nil
         }
 
+        let recomendationsComposer = RecommendationsComposer(
+            resultSize: StakingConstants.maxTargets,
+            clusterSizeLimit: StakingConstants.targetsClusterLimit
+        )
+
         let view = RecommendedValidatorsViewController(nib: R.nib.recommendedValidatorsViewController)
-        let presenter = RecommendedValidatorsPresenter(logger: Logger.shared)
+
+        let presenter = RecommendedValidatorsPresenter(
+            recommendationsComposer: recomendationsComposer,
+            logger: Logger.shared
+        )
 
         let eraValidatorService = EraValidatorFacade.sharedService
         let runtimeService = RuntimeRegistryFacade.sharedService
