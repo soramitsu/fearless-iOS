@@ -8,13 +8,29 @@ final class ControllerAccountViewLayout: UIView {
         return view
     }()
 
+    let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        label.numberOfLines = 0
+        return label
+    }()
+
     let stashAccountView = UIFactory.default.createAccountView()
+
+    let stashHintView = UIFactory.default.createHintView()
 
     let controllerAccountView = UIFactory.default.createAccountView()
 
-    let hintView = UIFactory.default.createHintView()
+    let controllerHintView = UIFactory.default.createHintView()
 
     let learnMoreView = UIFactory.default.createLearnMoreView()
+
+    let currentAccountIsControllerHint: HintView = {
+        let hintView = HintView()
+        hintView.iconView.image = R.image.iconWarning()
+        return hintView
+    }()
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -40,6 +56,7 @@ final class ControllerAccountViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    // swiftlint:disable function_body_length
     private func setupLayout() {
         let separator = UIView.createSeparator(color: R.color.colorDarkGray())
         addSubview(separator)
@@ -56,10 +73,21 @@ final class ControllerAccountViewLayout: UIView {
         }
 
         containerView.stackView.spacing = 16
+        containerView.stackView.addArrangedSubview(descriptionLabel)
+        descriptionLabel.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+        }
+
         containerView.stackView.addArrangedSubview(stashAccountView)
         stashAccountView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(52.0)
+        }
+
+        containerView.stackView.setCustomSpacing(8, after: stashAccountView)
+        containerView.stackView.addArrangedSubview(stashHintView)
+        stashHintView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
         containerView.stackView.addArrangedSubview(controllerAccountView)
@@ -68,8 +96,9 @@ final class ControllerAccountViewLayout: UIView {
             make.height.equalTo(52.0)
         }
 
-        containerView.stackView.addArrangedSubview(hintView)
-        hintView.snp.makeConstraints { make in
+        containerView.stackView.setCustomSpacing(8, after: controllerAccountView)
+        containerView.stackView.addArrangedSubview(controllerHintView)
+        controllerHintView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
@@ -92,14 +121,22 @@ final class ControllerAccountViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        addSubview(currentAccountIsControllerHint)
+        currentAccountIsControllerHint.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(actionButton.snp.top).offset(-UIConstants.horizontalInset)
+        }
     }
 
     private func applyLocalization() {
-        actionButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: locale.rLanguages)
+        descriptionLabel.text = "Set a separate account as a controller to increase staking management security."
+        stashHintView.titleLabel.text = "Stash can bond more and set the controller."
+        controllerHintView.titleLabel.text = "Controller can unbond, redeem, rebond, change reward destination and validators."
         learnMoreView.titleLabel.text = R.string.localizable
             .commonLearnMore(preferredLanguages: locale.rLanguages)
-        hintView.titleLabel.text = R.string.localizable
-            .stakingCurrentAccountIsController(preferredLanguages: locale.rLanguages)
+        currentAccountIsControllerHint.titleLabel.text = "Switch your account to stash to set the controller."
+        actionButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: locale.rLanguages)
     }
 }
