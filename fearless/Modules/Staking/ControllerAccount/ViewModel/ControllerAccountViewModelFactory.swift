@@ -51,7 +51,6 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
             )
         }
 
-        let canChooseOtherController = stashAddress == currentAccountItem.address
         let currentAccountIsController = stashItem.controller == currentAccountItem.address
         let actionButtonIsEnabled: Bool = {
             if stashAddress != self.currentAccountItem.address {
@@ -69,7 +68,6 @@ final class ControllerAccountViewModelFactory: ControllerAccountViewModelFactory
         return ControllerAccountViewModel(
             stashViewModel: stashViewModel,
             controllerViewModel: controllerViewModel,
-            canChooseOtherController: canChooseOtherController,
             currentAccountIsController: currentAccountIsController,
             actionButtonIsEnabled: actionButtonIsEnabled
         )
