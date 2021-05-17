@@ -197,6 +197,12 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func selectStory(at index: Int) {
         wireframe.showStories(from: view, startingFrom: index)
     }
+
+    func performChangeValidatorsAction() {
+        if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
+            wireframe.showNominatorValidators(from: view)
+        }
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {

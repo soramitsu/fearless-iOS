@@ -423,7 +423,12 @@ extension StakingMainViewController: HiddableBarWhenPushed {}
 
 extension StakingMainViewController: AlertsViewDelegate {
     func didSelectStakingAlert(_ alert: StakingAlert) {
-        print(alert)
-        // TODO: FLW-708 call presenter.handleStakingAlertAction
+        switch alert {
+        case .nominatorNoValidators:
+            presenter.performChangeValidatorsAction()
+        default:
+            // TODO: FLW-708
+            break
+        }
     }
 }

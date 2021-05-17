@@ -18,6 +18,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performNominationStatusAction()
     func performValidationStatusAction()
     func performRewardInfoAction()
+    func performChangeValidatorsAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
