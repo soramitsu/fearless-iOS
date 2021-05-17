@@ -197,6 +197,16 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func selectStory(at index: Int) {
         wireframe.showStories(from: view, startingFrom: index)
     }
+
+    func performChangeValidatorsAction() {
+        if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
+            wireframe.showNominatorValidators(from: view)
+        }
+    }
+
+    func performBondMoreAction() {
+        wireframe.showBondMore(from: view)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
@@ -358,6 +368,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
+        stateMachine.state.process(minimalStake: networkStakingInfo.minimalStake)
         provideStakingInfo()
     }
 

@@ -79,42 +79,6 @@ final class StakingStateViewModelFactory {
         return factory
     }
 
-    private func createNominationStatus(
-        for _: Chain,
-        commonData: StakingStateCommonData,
-        stashItem: StashItem,
-        nomination: Nomination
-    ) -> NominationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
-            return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
-        }
-
-        do {
-            let accountId = try addressFactory.accountId(from: stashItem.stash)
-
-            if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
-                return .active(era: eraStakers.era)
-            }
-
-            if nomination.submittedIn >= eraStakers.era {
-                return .waiting
-            }
-
-            return .inactive(era: eraStakers.era)
-
-        } catch {
-            return .undefined
-        }
-    }
-
     private func createNominationViewModel(
         for chain: Chain,
         commonData: StakingStateCommonData,
@@ -263,6 +227,45 @@ final class StakingStateViewModelFactory {
             amount: amount
         )
     }
+
+    private func stakingAlert(state: NominatorState) -> StakingAlert? {
+        switch state.status {
+        case .active:
+            return nil
+        case .inactive:
+            guard let minimalStake = state.commonData.minimalStake else {
+                return nil
+            }
+            if state.ledgerInfo.active < minimalStake {
+                guard
+                    let chain = state.commonData.chain,
+                    let minimalStakeDecimal = Decimal.fromSubstrateAmount(
+                        minimalStake,
+                        precision: chain.addressType.precision
+                    ),
+                    let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
+                else {
+                    return nil
+                }
+                let localizedString = LocalizableResource<String> { locale in
+                    R.string.localizable
+                        .stakingInactiveCurrentMinimalStake(
+                            minimalStakeAmount.value(for: locale),
+                            preferredLanguages: locale.rLanguages
+                        )
+                }
+                return .nominatorLowStake(localizedString)
+            } else {
+                return .nominatorNoValidators
+            }
+        case .waiting:
+            return nil
+        case .election:
+            return .electionPeriod
+        case .undefined:
+            return nil
+        }
+    }
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
@@ -381,7 +384,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        lastViewModel = .nominator(viewModel: viewModel)
+        let alerts = [stakingAlert(state: state)].compactMap { $0 }
+        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
     func visit(state: PendingValidatorState) {

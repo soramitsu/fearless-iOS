@@ -1,29 +1,55 @@
 import Foundation
 import UIKit.UIImage
+import SoraFoundation
 
 enum StakingAlert {
-    case stakingIsInactive
+    case nominatorNoValidators
+    case nominatorLowStake(LocalizableResource<String>)
+    case electionPeriod
 }
 
 extension StakingAlert {
+    var hasAssociatedAction: Bool {
+        switch self {
+        case .nominatorLowStake, .nominatorNoValidators:
+            return true
+        case .electionPeriod:
+            return false
+        }
+    }
+
     var icon: UIImage? {
         switch self {
-        case .stakingIsInactive:
+        case .nominatorNoValidators:
             return R.image.iconWarning()
+        case .nominatorLowStake:
+            return R.image.iconWarning()
+        case .electionPeriod:
+            return R.image.iconPending()
         }
     }
 
-    func title(for _: Locale) -> String {
+    func title(for locale: Locale) -> String {
         switch self {
-        case .stakingIsInactive:
-            return "Change your validators." // TODO:
+        case .nominatorNoValidators:
+            return R.string.localizable.stakingChangeYourValidators(preferredLanguages: locale.rLanguages)
+        case .nominatorLowStake:
+            return R.string.localizable.stakingBondMoreTokens(preferredLanguages: locale.rLanguages)
+        case .electionPeriod:
+            return R.string.localizable.stakingActionsUnavailable(preferredLanguages: locale.rLanguages)
         }
     }
 
-    func description(for _: Locale) -> String {
+    func description(for locale: Locale) -> String {
         switch self {
-        case .stakingIsInactive:
-            return "None of your validators were elected by network."
+        case .nominatorNoValidators:
+            return R.string.localizable
+                .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale.rLanguages)
+        case let .nominatorLowStake(localizedString):
+            return localizedString.value(for: locale)
+        case .electionPeriod:
+            return R.string.localizable
+                .stakingNetworkIsElectingValidators(preferredLanguages: locale.rLanguages)
         }
     }
 }
