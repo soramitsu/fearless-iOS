@@ -5,7 +5,10 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         switch state.status {
         case .active:
-            return []
+            let localizedString = LocalizableResource<String> { _ in
+                "0.0041 KSM."
+            }
+            return [.redeemUnbonded(localizedString)]
         case .inactive:
             guard let minimalStake = state.commonData.minimalStake else {
                 return []

@@ -207,6 +207,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     func performBondMoreAction() {
         wireframe.showBondMore(from: view)
     }
+
+    func performRedeemAction() {
+        wireframe.showRedeem(from: view)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
