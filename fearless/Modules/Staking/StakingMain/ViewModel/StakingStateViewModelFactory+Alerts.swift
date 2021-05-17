@@ -5,8 +5,19 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         switch state.status {
         case .active:
-            let localizedString = LocalizableResource<String> { _ in
-                "0.0041 KSM."
+            guard
+                let era = state.commonData.eraStakersInfo?.era,
+                let precision = state.commonData.chain?.addressType.precision,
+                let redeemable = Decimal.fromSubstrateAmount(
+                    state.ledgerInfo.redeemable(inEra: era),
+                    precision: precision
+                ),
+                redeemable > 0,
+                let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable)
+            else { return [] }
+
+            let localizedString = LocalizableResource<String> { locale in
+                redeemableAmount.value(for: locale)
             }
             return [.redeemUnbonded(localizedString)]
         case .inactive:
