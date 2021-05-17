@@ -41,8 +41,7 @@ extension StakingAlert {
         case .electionPeriod:
             return R.string.localizable.stakingActionsUnavailable(preferredLanguages: locale.rLanguages)
         case .redeemUnbonded:
-            // TODO:
-            return "Redeem unbonded tokens."
+            return R.string.localizable.stakingRedeemUnbondedTokens(preferredLanguages: locale.rLanguages)
         }
     }
 
