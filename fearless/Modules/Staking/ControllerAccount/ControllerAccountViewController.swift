@@ -86,15 +86,8 @@ extension ControllerAccountViewController: ControllerAccountViewProtocol {
         rootView.controllerAccountView.subtitle = controllerModel.name
         rootView.controllerAccountView.iconImage = controllerModel.icon
 
-        switch viewModel.actionButtonState {
-        case let .enabled(isEnabled):
-            rootView.actionButton.isEnabled = isEnabled
-            rootView.actionButton.isHidden = false
-            rootView.hintView.isHidden = true
-        case .hidden:
-            rootView.actionButton.isHidden = true
-            rootView.hintView.isHidden = false
-        }
+        rootView.actionButton.isEnabled = viewModel.actionButtonIsEnabled
+        rootView.currentAccountIsControllerHint.isHidden = !viewModel.currentAccountIsController
 
         let actionImage = viewModel.canChooseOtherController ? R.image.iconSmallArrowDown() : R.image.iconMore()
         rootView.controllerAccountView.actionImage = actionImage

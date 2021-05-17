@@ -14,10 +14,7 @@ final class StakingPayoutConfirmationViewLayout: UIView {
         return tableView
     }()
 
-    let payoutConfirmView: TransferConfirmAccessoryView! = {
-        UINib(resource: R.nib.transferConfirmAccessoryView)
-            .instantiate(withOwner: nil, options: nil)[0] as? TransferConfirmAccessoryView
-    }()
+    let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -45,11 +42,9 @@ final class StakingPayoutConfirmationViewLayout: UIView {
             make.leading.bottom.trailing.equalToSuperview()
         }
 
-        let bottomViewHeight = Constants.bottomViewHeight - safeAreaInsets.bottom
-        addSubview(payoutConfirmView)
-        payoutConfirmView.snp.makeConstraints { make in
-            make.leading.trailing.bottom.equalToSuperview()
-            make.height.equalTo(bottomViewHeight)
+        addSubview(networkFeeConfirmView)
+        networkFeeConfirmView.snp.makeConstraints { make in
+            make.leading.bottom.trailing.equalToSuperview()
         }
     }
 }
