@@ -203,6 +203,10 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             wireframe.showNominatorValidators(from: view)
         }
     }
+
+    func performBondMoreAction() {
+        wireframe.showBondMore(from: view)
+    }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {

@@ -426,9 +426,8 @@ extension StakingMainViewController: AlertsViewDelegate {
         switch alert {
         case .nominatorNoValidators:
             presenter.performChangeValidatorsAction()
-        default:
-            // TODO: FLW-708
-            break
+        case .nominatorLowStake:
+            presenter.performBondMoreAction()
         }
     }
 }

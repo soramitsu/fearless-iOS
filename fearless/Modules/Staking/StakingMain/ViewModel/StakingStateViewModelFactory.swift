@@ -236,9 +236,11 @@ final class StakingStateViewModelFactory {
             guard let minimalStake = state.commonData.minimalStake else {
                 return nil
             }
-            return state.ledgerInfo.active < minimalStake ?
-                .nominatorLowStake(minimalStake: minimalStake)
-                : .nominatorNoValidators
+            return .nominatorLowStake(minimalStake: minimalStake)
+        // TODO: handle
+//            return state.ledgerInfo.active < minimalStake ?
+//                .nominatorLowStake(minimalStake: minimalStake)
+//                : .nominatorNoValidators
         case .waiting:
             return nil
         case .election:
