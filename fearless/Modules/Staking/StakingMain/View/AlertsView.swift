@@ -166,6 +166,7 @@ private class AlertItemView: BackgroundedContentControl {
         iconImageView.image = stakingAlert.icon
         titleLabel.text = stakingAlert.title(for: locale)
         descriptionLabel.text = stakingAlert.description(for: locale)
+        accessoryView.isHidden = !stakingAlert.hasAssociatedAction
     }
 
     @available(*, unavailable)

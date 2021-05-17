@@ -395,3 +395,7 @@ Derivation path: %@";
 "staking.stash.can.hint" = "Stash can bond more and set the controller.";
 "staking.controller.can.hint" = "Controller can unbond, redeem, rebond, change reward destination and validators.";
 "staking.switch.account.to.stash" = "Switch your account to stash to set the controller.";
+"staking.inactive.current.minimal.stake" = "Staking is currently inactive.\nCurrent minimal stake is %@.";
+"staking.change.your.validators" = "Change your validators.";
+"staking.bond.more.tokens" = "Bond more tokens.";
+"staking.actions.unavailable" = "Staking actions are currently unavailable.";

@@ -247,8 +247,12 @@ final class StakingStateViewModelFactory {
                 else {
                     return nil
                 }
-                let localizedString = LocalizableResource<String> { _ in
-                    "Staking is currently inactive.\nCurrent minimal stake is \(minimalStakeAmount)"
+                let localizedString = LocalizableResource<String> { locale in
+                    R.string.localizable
+                        .stakingInactiveCurrentMinimalStake(
+                            minimalStakeAmount.value(for: locale),
+                            preferredLanguages: locale.rLanguages
+                        )
                 }
                 return .nominatorLowStake(localizedString)
             } else {
@@ -257,7 +261,7 @@ final class StakingStateViewModelFactory {
         case .waiting:
             return nil
         case .election:
-            return nil
+            return .electionPeriod
         case .undefined:
             return nil
         }
