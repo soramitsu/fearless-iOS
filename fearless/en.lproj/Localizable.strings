@@ -399,3 +399,4 @@ Derivation path: %@";
 "staking.change.your.validators" = "Change your validators.";
 "staking.bond.more.tokens" = "Bond more tokens.";
 "staking.actions.unavailable" = "Staking actions are currently unavailable.";
+"staking.network.is.electing.validators" = "The network is electing validators.\nUsually it takes less than 10 minutes.";

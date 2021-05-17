@@ -49,7 +49,7 @@ extension StakingAlert {
             return localizedString.value(for: locale)
         case .electionPeriod:
             return R.string.localizable
-                .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale.rLanguages)
+                .stakingNetworkIsElectingValidators(preferredLanguages: locale.rLanguages)
         }
     }
 }

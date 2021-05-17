@@ -236,7 +236,7 @@ final class StakingStateViewModelFactory {
             guard let minimalStake = state.commonData.minimalStake else {
                 return nil
             }
-            if state.ledgerInfo.active < 1000 * minimalStake {
+            if state.ledgerInfo.active < minimalStake {
                 guard
                     let chain = state.commonData.chain,
                     let minimalStakeDecimal = Decimal.fromSubstrateAmount(
