@@ -62,12 +62,12 @@ final class StakingRewardDestSetupPresenter {
             let reward: CalculatedReward?
 
             if let calculator = calculator {
-                let restake = try calculator.calculateNetworkReturn(
+                let restake = calculator.calculateMaxReturn(
                     isCompound: true,
                     period: .year
                 )
 
-                let payout = try calculator.calculateNetworkReturn(
+                let payout = calculator.calculateMaxReturn(
                     isCompound: false,
                     period: .year
                 )
@@ -83,14 +83,13 @@ final class StakingRewardDestSetupPresenter {
                 reward = nil
             }
 
-            // TODO: Fill from presenter
             switch rewardDestination {
             case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: reward)
+                let viewModel = rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
-            case let .payout(payoutAccount):
+            case .payout:
                 let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: reward, account: payoutAccount)
+                    .createPayout(from: reward, priceData: priceData, account: payoutAccount)
                 view?.didReceiveRewardDestination(viewModel: viewModel)
             }
         } catch {
@@ -209,7 +208,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceiveStakingLedger(result: Result<DyStakingLedger?, Error>) {
+    func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
             if let stakingLedger = stakingLedger {

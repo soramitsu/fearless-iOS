@@ -109,13 +109,13 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
 
     private func applyRewardDestinationContent(from viewModel: RewardDestinationViewModelProtocol) {
         if let reward = viewModel.rewardViewModel {
-            rootView.restakeOptionView.earningTitle = reward.restakeAmount
-            rootView.restakeOptionView.earningsSubtitle = reward.restakePercentage
-            rootView.payoutOptionView.earningTitle = reward.payoutAmount
-            rootView.payoutOptionView.earningsSubtitle = reward.payoutPercentage
+            rootView.restakeOptionView.amountTitle = reward.restakeAmount
+            rootView.restakeOptionView.priceTitle = reward.restakePercentage
+            rootView.payoutOptionView.amountTitle = reward.payoutAmount
+            rootView.payoutOptionView.priceTitle = reward.payoutPercentage
         } else {
-            rootView.restakeOptionView.earningTitle = "0"
-            rootView.payoutOptionView.earningTitle = "0"
+            rootView.restakeOptionView.amountTitle = ""
+            rootView.payoutOptionView.priceTitle = ""
         }
     }
 

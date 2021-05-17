@@ -152,13 +152,15 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                     .stakingBalance,
                     .rewardPayouts,
                     .rewardDestination,
-                    .validators(count: nominatorState.nomination.targets.count)
+                    .validators(count: nominatorState.nomination.targets.count),
+                    .controllerAccount
                 ]
             } else {
                 return [
                     .stakingBalance,
                     .rewardPayouts,
-                    .rewardDestination
+                    .rewardDestination,
+                    .controllerAccount
                 ]
             }
         }()
@@ -169,6 +171,18 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             delegate: self,
             context: managedItems as NSArray
         )
+    }
+
+    func performRewardInfoAction() {
+        guard let rewardCalculator = stateMachine
+            .viewState(using: { (state: BaseStakingState) in state })?.commonData.calculatorEngine else {
+            return
+        }
+
+        let maxReward = rewardCalculator.calculateMaxReturn(isCompound: true, period: .year)
+        let avgReward = rewardCalculator.calculateAvgReturn(isCompound: true, period: .year)
+
+        wireframe.showRewardDetails(from: view, maxReward: maxReward, avgReward: avgReward)
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -219,7 +233,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: totalReward)
     }
 
-    func didReceive(accountInfo: DyAccountInfo?) {
+    func didReceive(accountInfo: AccountInfo?) {
         if let availableValue = accountInfo?.data.available, let chain = chain {
             balance = Decimal.fromSubstrateAmount(
                 availableValue,
@@ -266,7 +280,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: stashItemError)
     }
 
-    func didReceive(ledgerInfo: DyStakingLedger?) {
+    func didReceive(ledgerInfo: StakingLedger?) {
         stateMachine.state.process(ledgerInfo: ledgerInfo)
 
         if let ledgerInfo = ledgerInfo {
@@ -438,6 +452,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
                 wireframe.showNominatorValidators(from: view)
             }
+        case .controllerAccount:
+            wireframe.showControllerAccount(from: view)
         }
     }
 }

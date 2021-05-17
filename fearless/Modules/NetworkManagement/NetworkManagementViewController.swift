@@ -60,8 +60,6 @@ final class NetworkManagementViewController: UIViewController {
 
         addActionControl.imageWithTitleView?.title = R.string.localizable
             .connectionsAddConnection(preferredLanguages: locale?.rLanguages)
-        addActionControl.imageWithTitleView?.titleFont = .h5Title
-        addActionControl.imageWithTitleView?.iconImage = nil
 
         updateRightItem()
     }

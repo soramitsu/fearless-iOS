@@ -117,118 +117,176 @@ extension RewardSelectionView {
     }
 
     @IBInspectable
-    var earningTitle: String? {
+    var amountTitle: String? {
         get {
-            earningsTitleLabel?.text
+            amountLabel?.text
         }
 
         set {
-            earningsTitleLabel?.text = newValue
+            amountLabel?.text = newValue
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    private var _earningTitleFontName: String? {
+    private var _amountFontName: String? {
         get {
-            earningsTitleLabel.font.fontName
+            amountLabel.font.fontName
         }
 
         set(newValue) {
             guard let fontName = newValue else {
-                earningsTitleLabel.font = nil
+                amountLabel.font = nil
                 return
             }
 
-            let pointSize = earningsTitleLabel.font.pointSize
+            let pointSize = amountLabel.font.pointSize
 
-            earningsTitleLabel.font = UIFont(name: fontName, size: pointSize)
+            amountLabel.font = UIFont(name: fontName, size: pointSize)
 
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    private var _earningTitleFontSize: CGFloat {
+    private var _amountFontSize: CGFloat {
         get {
-            earningsTitleLabel.font.pointSize
+            amountLabel.font.pointSize
         }
 
         set(newValue) {
-            let fontName = earningsTitleLabel.font.fontName
+            let fontName = amountLabel.font.fontName
 
-            earningsTitleLabel.font = UIFont(name: fontName, size: newValue)
+            amountLabel.font = UIFont(name: fontName, size: newValue)
 
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    var earningTitleColor: UIColor? {
+    var amountTitleColor: UIColor? {
         get {
-            earningsTitleLabel.textColor
+            amountLabel.textColor
         }
 
         set {
-            earningsTitleLabel.textColor = newValue
+            amountLabel.textColor = newValue
         }
     }
 
     @IBInspectable
-    var earningsSubtitle: String? {
+    var priceTitle: String? {
         get {
-            earningsSubtitleLabel.text
+            priceLabel.text
         }
 
         set {
-            earningsSubtitleLabel.text = newValue
+            priceLabel.text = newValue
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    private var _earningsSubtitleFontName: String? {
+    private var _priceFontName: String? {
         get {
-            earningsSubtitleLabel.font.fontName
+            priceLabel.font.fontName
         }
 
         set(newValue) {
             guard let fontName = newValue else {
-                earningsSubtitleLabel.font = nil
+                priceLabel.font = nil
                 return
             }
 
-            let pointSize = earningsSubtitleLabel.font.pointSize
+            let pointSize = priceLabel.font.pointSize
 
-            earningsSubtitleLabel.font = UIFont(name: fontName, size: pointSize)
+            priceLabel.font = UIFont(name: fontName, size: pointSize)
 
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    private var _earningsSubtitleFontSize: CGFloat {
+    private var _priceFontSize: CGFloat {
         get {
-            earningsSubtitleLabel.font.pointSize
+            priceLabel.font.pointSize
         }
 
         set(newValue) {
-            let fontName = earningsSubtitleLabel.font.fontName
+            let fontName = priceLabel.font.fontName
 
-            earningsSubtitleLabel.font = UIFont(name: fontName, size: newValue)
+            priceLabel.font = UIFont(name: fontName, size: newValue)
 
             setNeedsLayout()
         }
     }
 
     @IBInspectable
-    var earningsSubtitleColor: UIColor? {
+    var priceColor: UIColor? {
         get {
-            earningsSubtitleLabel.textColor
+            priceLabel.textColor
         }
 
         set {
-            earningsSubtitleLabel.textColor = newValue
+            priceLabel.textColor = newValue
+        }
+    }
+
+    @IBInspectable
+    var incomeTitle: String? {
+        get {
+            incomeLabel.text
+        }
+
+        set {
+            incomeLabel.text = newValue
+            setNeedsLayout()
+        }
+    }
+
+    @IBInspectable
+    private var _incomeFontName: String? {
+        get {
+            incomeLabel.font.fontName
+        }
+
+        set(newValue) {
+            guard let fontName = newValue else {
+                incomeLabel.font = nil
+                return
+            }
+
+            let pointSize = incomeLabel.font.pointSize
+
+            incomeLabel.font = UIFont(name: fontName, size: pointSize)
+
+            setNeedsLayout()
+        }
+    }
+
+    @IBInspectable
+    private var _incomeFontSize: CGFloat {
+        get {
+            incomeLabel.font.pointSize
+        }
+
+        set(newValue) {
+            let fontName = incomeLabel.font.fontName
+
+            incomeLabel.font = UIFont(name: fontName, size: newValue)
+
+            setNeedsLayout()
+        }
+    }
+
+    @IBInspectable
+    var incomeColor: UIColor? {
+        get {
+            incomeLabel.textColor
+        }
+
+        set {
+            incomeLabel.textColor = newValue
         }
     }
 

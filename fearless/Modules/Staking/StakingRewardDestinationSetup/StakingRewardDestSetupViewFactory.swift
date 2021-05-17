@@ -5,10 +5,8 @@ import RobinHood
 final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactoryProtocol {
     static func createView() -> StakingRewardDestSetupViewProtocol? {
         let settings = SettingsManager.shared
-        let networkType = settings.selectedConnection.type
         let chain = settings.selectedConnection.type.chain
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-        let asset = primitiveFactory.createAssetForAddressType(networkType)
 
         guard let selectedAccount = settings.selectedAccount else { return nil }
 
@@ -26,10 +24,14 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
             limit: StakingConstants.maxAmount
         )
 
+        let rewardDestinationViewModelFactory = RewardDestinationViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
         let presenter = StakingRewardDestSetupPresenter(
             wireframe: wireframe,
             interactor: interactor,
-            rewardDestViewModelFactory: RewardDestinationViewModelFactory(asset: asset),
+            rewardDestViewModelFactory: rewardDestinationViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             payoutAccount: selectedAccount,

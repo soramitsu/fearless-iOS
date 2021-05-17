@@ -176,7 +176,7 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
         presenter.didReceivePriceData(result: result)
     }
 
-    func handleLedgerInfo(result: Result<DyStakingLedger?, Error>, address _: AccountAddress) {
+    func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
         presenter.didReceiveStakingLedger(result: result)
     }
 

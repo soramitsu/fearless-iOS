@@ -30,7 +30,8 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
     override func viewDidLoad() {
         super.viewDidLoad()
 
-        setupInitialFeeView()
+        rootView.networkFeeConfirmView.actionButton
+            .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
         applyLocalization()
         setupTable()
         presenter.setup()
@@ -44,25 +45,6 @@ final class StakingPayoutConfirmationViewController: UIViewController, ViewHolde
 
     @objc
     private func presentPayoutOptionsAction() {}
-
-    private func setupInitialFeeView() {
-        let locale = localizationManager?.selectedLocale ?? Locale.current
-
-        let viewModel = ExtrinisicConfirmViewModel(
-            title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
-            amount: "",
-            price: nil,
-            icon: nil,
-            action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
-            numberOfLines: 1,
-            shouldAllowAction: true
-        )
-
-        rootView.payoutConfirmView.bind(viewModel: viewModel)
-
-        rootView.payoutConfirmView.actionButton
-            .addTarget(self, action: #selector(confirmAction), for: .touchUpInside)
-    }
 
     private func setupTable() {
         rootView.tableView.registerClassesForCell([
@@ -103,19 +85,8 @@ extension StakingPayoutConfirmationViewController: Localizable {
     }
 
     private func setupConfirmViewLocalization(_ locale: Locale) {
-        guard let feeViewModel = feeViewModel?.value(for: locale) else { return }
-
-        let viewModel = ExtrinisicConfirmViewModel(
-            title: R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages),
-            amount: feeViewModel.amount,
-            price: feeViewModel.price,
-            icon: nil,
-            action: R.string.localizable.commonConfirm(preferredLanguages: locale.rLanguages),
-            numberOfLines: 1,
-            shouldAllowAction: true
-        )
-
-        rootView.payoutConfirmView.bind(viewModel: viewModel)
+        let localizedViewModel = feeViewModel?.value(for: locale)
+        rootView.networkFeeConfirmView.networkFeeView.bind(viewModel: localizedViewModel)
     }
 
     func applyLocalization() {

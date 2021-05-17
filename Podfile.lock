@@ -2,9 +2,10 @@ PODS:
   - BigInt (5.2.0)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.6.0)
-    - SoraFoundation/DateProcessing (~> 0.9.0)
-    - SoraFoundation/Localization (~> 0.9.0)
-    - SoraFoundation/NotificationHandlers (~> 0.9.0)
+    - SoraFoundation/DateProcessing (~> 0.10.0)
+    - SoraFoundation/Localization (~> 0.10.0)
+    - SoraFoundation/NotificationHandlers (~> 0.10.0)
+    - SoraFoundation/NumberProcessing (~> 0.10.0)
     - SoraUI (~> 1.10.0)
   - Cuckoo (1.5.0):
     - Cuckoo/Swift (= 1.5.0)
@@ -42,24 +43,24 @@ PODS:
   - scrypt.c (0.1.1)
   - secp256k1.c (0.1.2)
   - SnapKit (5.0.1)
-  - SoraFoundation (0.9.1):
-    - SoraFoundation/DateProcessing (= 0.9.1)
-    - SoraFoundation/Localization (= 0.9.1)
-    - SoraFoundation/NotificationHandlers (= 0.9.1)
-    - SoraFoundation/NumberProcessing (= 0.9.1)
-    - SoraFoundation/QueryProcessing (= 0.9.1)
-    - SoraFoundation/Timer (= 0.9.1)
-    - SoraFoundation/ViewModel (= 0.9.1)
-  - SoraFoundation/DateProcessing (0.9.1):
+  - SoraFoundation (0.10.0):
+    - SoraFoundation/DateProcessing (= 0.10.0)
+    - SoraFoundation/Localization (= 0.10.0)
+    - SoraFoundation/NotificationHandlers (= 0.10.0)
+    - SoraFoundation/NumberProcessing (= 0.10.0)
+    - SoraFoundation/QueryProcessing (= 0.10.0)
+    - SoraFoundation/Timer (= 0.10.0)
+    - SoraFoundation/ViewModel (= 0.10.0)
+  - SoraFoundation/DateProcessing (0.10.0):
     - SoraFoundation/Localization
-  - SoraFoundation/Localization (0.9.1):
+  - SoraFoundation/Localization (0.10.0):
     - SoraKeystore (~> 0.1.5)
-  - SoraFoundation/NotificationHandlers (0.9.1)
-  - SoraFoundation/NumberProcessing (0.9.1)
-  - SoraFoundation/QueryProcessing (0.9.1)
-  - SoraFoundation/Timer (0.9.1):
+  - SoraFoundation/NotificationHandlers (0.10.0)
+  - SoraFoundation/NumberProcessing (0.10.0)
+  - SoraFoundation/QueryProcessing (0.10.0)
+  - SoraFoundation/Timer (0.10.0):
     - SoraFoundation/NotificationHandlers
-  - SoraFoundation/ViewModel (0.9.1)
+  - SoraFoundation/ViewModel (0.10.0)
   - SoraKeystore (0.1.5)
   - SoraUI (1.10.1):
     - SoraUI/AdaptiveDesign (= 1.10.1)
@@ -103,15 +104,15 @@ PODS:
   - xxHash-Swift (1.0.13)
 
 DEPENDENCIES:
-  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `60f43fcc0b711ba3cc75d6472ac072aed265d2a1`)
+  - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `4023d9421cbae65d9313c3e342d6c727663cbdcc`)
   - Cuckoo
-  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `2c14fbf0415f405ee6654ff5de1b82cb0f55762f`)
+  - FearlessUtils (~> 0.9.0)
   - FireMock
   - R.swift
   - ReachabilitySwift
   - RobinHood (~> 2.6.0)
   - SnapKit (~> 5.0.0)
-  - SoraFoundation (~> 0.9.0)
+  - SoraFoundation (~> 0.10.0)
   - SoraKeystore
   - SoraUI (~> 1.10.1)
   - Sourcery (~> 1.4)
@@ -125,6 +126,7 @@ SPEC REPOS:
   trunk:
     - BigInt
     - Cuckoo
+    - FearlessUtils
     - FireMock
     - IrohaCrypto
     - R.swift
@@ -147,29 +149,23 @@ SPEC REPOS:
 
 EXTERNAL SOURCES:
   CommonWallet:
-    :commit: 60f43fcc0b711ba3cc75d6472ac072aed265d2a1
+    :commit: 4023d9421cbae65d9313c3e342d6c727663cbdcc
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
 
 CHECKOUT OPTIONS:
   CommonWallet:
-    :commit: 60f43fcc0b711ba3cc75d6472ac072aed265d2a1
+    :commit: 4023d9421cbae65d9313c3e342d6c727663cbdcc
     :git: https://github.com/soramitsu/Capital-iOS.git
-  FearlessUtils:
-    :commit: 2c14fbf0415f405ee6654ff5de1b82cb0f55762f
-    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
-  CommonWallet: a829172b9eee3c65a7e534d739c152b264fa6e47
+  CommonWallet: 216009b2274247ec0a7f80b57f1f4d1ffbdd0a72
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 8c05cb6cf737943f343e6a1fb4be2ac6fafebb9d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
@@ -181,7 +177,7 @@ SPEC CHECKSUMS:
   scrypt.c: b42ae06183251329d2b2c620c226fb541a4a3592
   secp256k1.c: db47b726585d80f027423682eb369729e61b3b20
   SnapKit: 97b92857e3df3a0c71833cce143274bf6ef8e5eb
-  SoraFoundation: 664b374247c33b5498bdb77ec3e308c3bf5be7af
+  SoraFoundation: 65987e30345860c4d95c01a2c2fea823ddc8f51d
   SoraKeystore: 408a26aafda780fc3005b20ab336791832b5419e
   SoraUI: bd2260bcc0a01c35c2b10e724e4243dac3016710
   Sourcery: db66600e8b285c427701821598d07cf3c7e6c476
@@ -193,6 +189,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 0665ff6ff8896789f3e2afafa6935aed28c575fa
+PODFILE CHECKSUM: a2488d43855ce4bab0589e55c0e7eed4deee7379
 
 COCOAPODS: 1.10.1

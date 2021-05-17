@@ -44,7 +44,7 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
         let decimalBalance = balance.balance.decimalValue
         let amount: String
 
-        if let balanceString = amountFormatter.string(from: decimalBalance as NSNumber) {
+        if let balanceString = amountFormatter.stringFromDecimal(decimalBalance) {
             amount = balanceString
         } else {
             amount = balance.balance.stringValue
@@ -54,10 +54,10 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
 
         let balanceContext = BalanceContext(context: balance.context ?? [:])
 
-        let priceString = priceFormater.string(from: balanceContext.price) ?? ""
+        let priceString = priceFormater.stringFromDecimal(balanceContext.price) ?? ""
 
         let totalPrice = balanceContext.price * balance.balance.decimalValue
-        let totalPriceString = priceFormater.string(from: totalPrice)
+        let totalPriceString = priceFormater.stringFromDecimal(totalPrice)
 
         let priceChangeString = NumberFormatter.percent
             .localizableResource()
@@ -107,7 +107,7 @@ final class WalletAssetViewModelFactory: BaseAssetViewModelFactory {
         let decimalBalance = balance.balance.decimalValue
         let amount: String
 
-        if let balanceString = priceFormater.string(from: decimalBalance) {
+        if let balanceString = priceFormater.stringFromDecimal(decimalBalance) {
             amount = balanceString
         } else {
             amount = balance.balance.stringValue

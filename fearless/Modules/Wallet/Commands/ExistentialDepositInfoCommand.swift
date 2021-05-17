@@ -11,13 +11,13 @@ struct TransferExistentialState {
 
 final class ExistentialDepositInfoCommand: WalletCommandProtocol {
     let transferState: TransferExistentialState
-    let amountFormatter: LocalizableResource<NumberFormatter>
+    let amountFormatter: LocalizableResource<LocalizableDecimalFormatting>
 
     weak var commandFactory: WalletCommandFactoryProtocol?
 
     init(
         transferState: TransferExistentialState,
-        amountFormatter: LocalizableResource<NumberFormatter>,
+        amountFormatter: LocalizableResource<LocalizableDecimalFormatting>,
         commandFactory: WalletCommandFactoryProtocol
     ) {
         self.transferState = transferState

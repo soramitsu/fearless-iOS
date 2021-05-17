@@ -17,6 +17,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performManageStakingAction()
     func performNominationStatusAction()
     func performValidationStatusAction()
+    func performRewardInfoAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
@@ -33,13 +34,13 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(priceError: Error)
     func didReceive(totalReward: TotalRewardItem)
     func didReceive(totalReward: Error)
-    func didReceive(accountInfo: DyAccountInfo?)
+    func didReceive(accountInfo: AccountInfo?)
     func didReceive(balanceError: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
     func didReceive(stashItem: StashItem?)
     func didReceive(stashItemError: Error)
-    func didReceive(ledgerInfo: DyStakingLedger?)
+    func didReceive(ledgerInfo: StakingLedger?)
     func didReceive(ledgerInfoError: Error)
     func didReceive(nomination: Nomination?)
     func didReceive(nominationError: Error)
@@ -79,11 +80,14 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
         startingFrom index: Int
     )
 
+    func showRewardDetails(from view: ControllerBackedProtocol?, maxReward: Decimal, avgReward: Decimal)
+
     func showRewardPayoutsForNominator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showStakingBalance(from view: ControllerBackedProtocol?)
     func showNominatorValidators(from view: ControllerBackedProtocol?)
     func showRewardDestination(from view: ControllerBackedProtocol?)
+    func showControllerAccount(from view: ControllerBackedProtocol?)
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
 }

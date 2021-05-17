@@ -206,7 +206,7 @@ extension StakingPayoutConfirmationPresenter: StakingPayoutConfirmationInteracto
         handle(error: feeError)
     }
 
-    func didReceive(balance: DyAccountData?) {
+    func didReceive(balance: AccountData?) {
         if let availableValue = balance?.available {
             self.balance = Decimal.fromSubstrateAmount(
                 availableValue,

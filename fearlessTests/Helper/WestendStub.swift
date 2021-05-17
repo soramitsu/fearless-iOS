@@ -29,12 +29,12 @@ struct WestendStub {
 
     static let accountInfo: DecodedAccountInfo = {
 
-        let data = DyAccountData(free: BigUInt(1e+13),
+        let data = AccountData(free: BigUInt(1e+13),
                                  reserved: BigUInt(0),
                                  miscFrozen: BigUInt(0),
                                  feeFrozen: BigUInt(0))
 
-        let info = DyAccountInfo(nonce: 1,
+        let info = AccountInfo(nonce: 1,
                                  consumers: 0,
                                  providers: 0,
                                  data: data)
@@ -59,7 +59,7 @@ struct WestendStub {
     static let ledgerInfo: DecodedLedgerInfo = {
         let address = "5DnQFjSrJUiCnDb9mrbbCkGRXwKZc5v31M261PMMTTMFDawq"
         let accountId = try! SS58AddressFactory().accountId(from: address)
-        let info = DyStakingLedger(stash: accountId,
+        let info = StakingLedger(stash: accountId,
                                    total: BigUInt(1e+12),
                                    active: BigUInt(1e+12),
                                    unlocking: [],

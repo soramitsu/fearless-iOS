@@ -29,7 +29,7 @@ protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(price: PriceData?)
     func didReceive(priceError: Error)
 
-    func didReceive(balance: DyAccountData?)
+    func didReceive(balance: AccountData?)
     func didReceive(balanceError: Error)
 
     func didStartNomination()

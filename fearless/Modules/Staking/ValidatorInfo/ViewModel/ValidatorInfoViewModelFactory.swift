@@ -73,7 +73,10 @@ final class ValidatorInfoViewModelFactory {
 
     // MARK: Stake Rows
 
-    private func createTotalStakeRow(with totalStake: Decimal, priceData: PriceData?) -> LocalizableResource<StakingAmountViewModel> {
+    private func createTotalStakeRow(
+        with totalStake: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingAmountViewModel> {
         let title = LocalizableResource { locale in
             R.string.localizable
                 .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)

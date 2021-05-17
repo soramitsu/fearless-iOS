@@ -51,7 +51,7 @@ class BaseStakingState: StakingStateProtocol {
         }
     }
 
-    func process(accountInfo: DyAccountInfo?) {
+    func process(accountInfo: AccountInfo?) {
         commonData = commonData.byReplacing(accountInfo: accountInfo)
 
         stateMachine?.transit(to: self)
@@ -83,7 +83,7 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(rewardEstimationAmount _: Decimal?) {}
     func process(stashItem _: StashItem?) {}
-    func process(ledgerInfo _: DyStakingLedger?) {}
+    func process(ledgerInfo _: StakingLedger?) {}
     func process(nomination _: Nomination?) {}
     func process(validatorPrefs _: ValidatorPrefs?) {}
     func process(totalReward _: TotalRewardItem?) {}

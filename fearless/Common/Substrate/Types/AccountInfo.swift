@@ -2,21 +2,21 @@ import Foundation
 import FearlessUtils
 import BigInt
 
-struct DyAccountInfo: Codable, Equatable {
+struct AccountInfo: Codable, Equatable {
     @StringCodable var nonce: UInt32
     @StringCodable var consumers: UInt32
     @StringCodable var providers: UInt32
-    let data: DyAccountData
+    let data: AccountData
 }
 
-struct DyAccountData: Codable, Equatable {
+struct AccountData: Codable, Equatable {
     @StringCodable var free: BigUInt
     @StringCodable var reserved: BigUInt
     @StringCodable var miscFrozen: BigUInt
     @StringCodable var feeFrozen: BigUInt
 }
 
-extension DyAccountData {
+extension AccountData {
     var total: BigUInt { free + reserved }
     var frozen: BigUInt { reserved + locked }
     var locked: BigUInt { max(miscFrozen, feeFrozen) }

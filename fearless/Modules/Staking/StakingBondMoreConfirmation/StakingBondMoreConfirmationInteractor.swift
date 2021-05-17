@@ -153,7 +153,7 @@ extension StakingBondMoreConfirmationInteractor: SingleValueProviderSubscriber, 
         }
     }
 
-    func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
     }
 

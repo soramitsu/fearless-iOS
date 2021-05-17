@@ -148,7 +148,7 @@ extension StakingRebondSetupInteractor: SubstrateProviderSubscriber,
         presenter.didReceivePriceData(result: result)
     }
 
-    func handleAccountInfo(result: Result<DyAccountInfo?, Error>, address _: AccountAddress) {
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
     }
 
@@ -156,7 +156,7 @@ extension StakingRebondSetupInteractor: SubstrateProviderSubscriber,
         presenter.didReceiveElectionStatus(result: result)
     }
 
-    func handleLedgerInfo(result: Result<DyStakingLedger?, Error>, address _: AccountAddress) {
+    func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
         presenter.didReceiveStakingLedger(result: result)
     }
 

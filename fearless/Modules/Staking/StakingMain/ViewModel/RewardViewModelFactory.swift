@@ -40,9 +40,9 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
         return LocalizableResource { locale in
             let amountFormatter = localizableAmountFormatter.value(for: locale)
 
-            let amountString = amountFormatter.string(from: reward) ?? ""
+            let amountString = amountFormatter.stringFromDecimal(reward) ?? ""
 
-            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+            let percentageFormatter = NumberFormatter.percentBase.localizableResource().value(for: locale)
 
             let rewardPercentageString = percentageFormatter.string(from: targetReturn as NSNumber)
 
@@ -57,7 +57,7 @@ final class RewardViewModelFactory: RewardViewModelFactoryProtocol {
             let priceAmount = rate * reward
 
             let priceFormatter = localizablePriceFormatter.value(for: locale)
-            let priceString = priceFormatter.string(from: priceAmount) ?? ""
+            let priceString = priceFormatter.stringFromDecimal(priceAmount) ?? ""
 
             return RewardViewModel(
                 amount: amountString,

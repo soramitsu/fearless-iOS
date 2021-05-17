@@ -76,6 +76,17 @@ extension Chain {
         }
     }
 
+    var totalRewardURL: URL? {
+        switch self {
+        case .polkadot:
+            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward")
+        case .kusama:
+            return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
+        case .westend:
+            return nil
+        }
+    }
+
     func preparedDefaultTypeDefPath() -> String? {
         R.file.runtimeDefaultJson.path()
     }

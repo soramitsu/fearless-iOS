@@ -2,5 +2,5 @@ command -v generamba >/dev/null 2>&1 || { echo "generamba is required to continu
 command -v pod install >/dev/null 2>&1 || { echo "cocoapods is required to continue... Run gem install cocoapods " >&2; exit 1; }
 
 generamba template install
-generamba gen $1 "sora-viper"
+generamba gen $1 "viper-code-layout"
 pod install

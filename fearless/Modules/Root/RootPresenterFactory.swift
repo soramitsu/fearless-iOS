@@ -6,12 +6,22 @@ final class RootPresenterFactory: RootPresenterFactoryProtocol {
     static func createPresenter(with view: UIWindow) -> RootPresenterProtocol {
         let presenter = RootPresenter()
         let wireframe = RootWireframe()
+        let settings = SettingsManager.shared
+        let keychain = Keychain()
+
+        let networkConnectionsMigrator = NetworkConnectionsMigrator(settings: settings)
+        let inconsistentStateMigrator = InconsistentStateMigrator(
+            settings: settings,
+            keychain: keychain
+        )
 
         let interactor = RootInteractor(
-            settings: SettingsManager.shared,
-            keystore: Keychain(),
+            settings: settings,
+            keystore: keychain,
             applicationConfig: ApplicationConfig.shared,
-            eventCenter: EventCenter.shared
+            eventCenter: EventCenter.shared,
+            migrators: [inconsistentStateMigrator, networkConnectionsMigrator],
+            logger: Logger.shared
         )
 
         presenter.view = view

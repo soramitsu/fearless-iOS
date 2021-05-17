@@ -3,11 +3,11 @@ import RobinHood
 import IrohaCrypto
 import FearlessUtils
 
-typealias DecodedAccountInfo = ChainStorageDecodedItem<DyAccountInfo>
+typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
-typealias DecodedLedgerInfo = ChainStorageDecodedItem<DyStakingLedger>
+typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 
@@ -60,8 +60,14 @@ final class SingleValueProviderFactory {
         assetId.rawValue + "PriceId"
     }
 
-    private func totalRewardIdentifier(for address: String, assetId: WalletAssetId) -> String {
-        assetId.rawValue + address + "Reward"
+    private func totalRewardIdentifier(
+        for address: String,
+        assetId: WalletAssetId,
+        supportsSubquery: Bool
+    ) -> String {
+        let methodName = supportsSubquery ? "subquery" : "subscan"
+
+        return assetId.rawValue + address + "Reward" + methodName
     }
 
     private func electionStatusId(for chain: Chain) -> String {
@@ -200,35 +206,48 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     ) throws -> AnySingleValueProvider<TotalRewardItem> {
         clearIfNeeded()
 
-        let identifier = totalRewardIdentifier(for: address, assetId: assetId)
+        let addressFactory = SS58AddressFactory()
+        let type = try addressFactory.extractAddressType(from: address)
+        let chain = type.chain
+
+        let identifier = totalRewardIdentifier(
+            for: address,
+            assetId: assetId,
+            supportsSubquery: chain.totalRewardURL != nil
+        )
 
         if let provider = providers[identifier]?.target as? SingleValueProvider<TotalRewardItem> {
             return AnySingleValueProvider(provider)
         }
-
-        let addressFactory = SS58AddressFactory()
-        let type = try addressFactory.extractAddressType(from: address)
 
         let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> =
             facade.createRepository()
 
         let trigger = DataProviderProxyTrigger()
 
-        let source = SubscanRewardSource(
-            address: address,
-            assetId: assetId,
-            chain: type.chain,
-            targetIdentifier: identifier,
-            repository: AnyDataProviderRepository(repository),
-            operationFactory: SubscanOperationFactory(),
-            trigger: trigger,
-            operationManager: operationManager,
-            logger: logger
-        )
+        let anySource: AnySingleValueProviderSource<TotalRewardItem> = {
+            if let url = chain.totalRewardURL {
+                let source = SubqueryRewardSource(address: address, url: url, chain: chain)
+                return AnySingleValueProviderSource(source)
+            } else {
+                let source = SubscanRewardSource(
+                    address: address,
+                    assetId: assetId,
+                    chain: chain,
+                    targetIdentifier: identifier,
+                    repository: AnyDataProviderRepository(repository),
+                    operationFactory: SubscanOperationFactory(),
+                    trigger: trigger,
+                    operationManager: operationManager,
+                    logger: logger
+                )
+                return AnySingleValueProviderSource(source)
+            }
+        }()
 
         let provider = SingleValueProvider(
             targetIdentifier: identifier,
-            source: AnySingleValueProviderSource(source),
+            source: anySource,
             repository: AnyDataProviderRepository(repository),
             updateTrigger: trigger
         )

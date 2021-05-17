@@ -116,12 +116,12 @@ final class StakingRewardDestSetupLayout: UIView {
         view.strokeColor = R.color.colorGray()!
         view.highlightedStrokeColor = R.color.colorPink()!
         view.titleColor = R.color.colorWhite()!
-        view.earningTitleColor = R.color.colorWhite()!
-        view.earningsSubtitleColor = R.color.colorGreen()!
+        view.amountTitleColor = R.color.colorWhite()!
+        view.priceColor = R.color.colorGreen()!
 
         view.titleLabel.font = .p1Paragraph
-        view.earningsTitleLabel.font = .h6Title
-        view.earningsSubtitleLabel.font = .h6Title
+        view.amountLabel.font = .h6Title
+        view.priceLabel.font = .h6Title
 
         view.iconView.image = R.image.listCheckmarkIcon()!
         view.isSelected = false
@@ -137,68 +137,5 @@ final class StakingRewardDestSetupLayout: UIView {
         view.actionImage = R.image.iconSmallArrowDown()
 
         return view
-    }
-}
-
-// TODO: Remove after merge
-import SoraUI
-
-final class LearnMoreView: BackgroundedContentControl {
-    let fearlessIconView: UIView = {
-        let view = UIImageView(image: R.image.iconFearlessSmall())
-        view.contentMode = .scaleAspectFit
-        return view
-    }()
-
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
-        return label
-    }()
-
-    let arrowIconView: UIView = {
-        let imageView = UIImageView(image: R.image.iconAboutArrow())
-        imageView.tintColor = .white
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    override init(frame: CGRect) {
-        super.init(frame: frame)
-
-        let shapeView = ShapeView()
-        shapeView.isUserInteractionEnabled = false
-        shapeView.fillColor = .clear
-        shapeView.highlightedFillColor = R.color.colorCellSelection()!
-        backgroundView = shapeView
-
-        setupLayout()
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-
-    override func layoutSubviews() {
-        super.layoutSubviews()
-
-        contentView?.frame = bounds
-    }
-
-    override var intrinsicContentSize: CGSize {
-        CGSize(
-            width: UIView.noIntrinsicMetric,
-            height: 48.0
-        )
-    }
-
-    private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [fearlessIconView, titleLabel, UIView(), arrowIconView])
-        stackView.spacing = 12
-        stackView.isUserInteractionEnabled = false
-
-        contentView = stackView
     }
 }
