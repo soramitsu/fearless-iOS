@@ -63,7 +63,7 @@ extension TransactionDetailsViewModelFactory {
 
         let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
 
-        let totalAmount = data.fees.reduce(data.amount.decimalValue) { $0 + $1.amount.decimalValue }
+        let totalAmount = data.amount.decimalValue
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 
