@@ -58,7 +58,21 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
         switch state.status {
         case .active:
-            return []
+            guard
+                let era = state.commonData.eraStakersInfo?.era,
+                let precision = state.commonData.chain?.addressType.precision,
+                let redeemable = Decimal.fromSubstrateAmount(
+                    state.ledgerInfo.redeemable(inEra: era),
+                    precision: precision
+                ),
+                redeemable > 0,
+                let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable)
+            else { return [] }
+
+            let localizedString = LocalizableResource<String> { locale in
+                redeemableAmount.value(for: locale)
+            }
+            return [.redeemUnbonded(localizedString)]
         case .inactive:
             return []
         case .election:
@@ -73,7 +87,21 @@ extension StakingStateViewModelFactory {
         case .open:
             return [.electionPeriod]
         case .none, .close:
-            return []
+            guard
+                let era = state.commonData.eraStakersInfo?.era,
+                let precision = state.commonData.chain?.addressType.precision,
+                let redeemable = Decimal.fromSubstrateAmount(
+                    state.ledgerInfo.redeemable(inEra: era),
+                    precision: precision
+                ),
+                redeemable > 0,
+                let redeemableAmount = balanceViewModelFactory?.amountFromValue(redeemable)
+            else { return [] }
+
+            let localizedString = LocalizableResource<String> { locale in
+                redeemableAmount.value(for: locale)
+            }
+            return [.redeemUnbonded(localizedString)]
         }
     }
 
