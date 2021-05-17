@@ -1,10 +1,10 @@
 import Foundation
 import UIKit.UIImage
-import BigInt
+import SoraFoundation
 
 enum StakingAlert {
     case nominatorNoValidators
-    case nominatorLowStake(minimalStake: BigUInt)
+    case nominatorLowStake(LocalizableResource<String>)
 }
 
 extension StakingAlert {
@@ -31,8 +31,8 @@ extension StakingAlert {
         case .nominatorNoValidators:
             return R.string.localizable
                 .stakingNominatorStatusAlertNoValidators(preferredLanguages: locale.rLanguages)
-        case .nominatorLowStake:
-            return "Staking is currently inactive.\nCurrent minimal stake is 223.93 DOT."
+        case let .nominatorLowStake(localizedString):
+            return localizedString.value(for: locale)
         }
     }
 }

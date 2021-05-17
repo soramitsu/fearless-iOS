@@ -236,11 +236,24 @@ final class StakingStateViewModelFactory {
             guard let minimalStake = state.commonData.minimalStake else {
                 return nil
             }
-            return .nominatorLowStake(minimalStake: minimalStake)
-        // TODO: handle
-//            return state.ledgerInfo.active < minimalStake ?
-//                .nominatorLowStake(minimalStake: minimalStake)
-//                : .nominatorNoValidators
+            if state.ledgerInfo.active < 1000 * minimalStake {
+                guard
+                    let chain = state.commonData.chain,
+                    let minimalStakeDecimal = Decimal.fromSubstrateAmount(
+                        minimalStake,
+                        precision: chain.addressType.precision
+                    ),
+                    let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
+                else {
+                    return nil
+                }
+                let localizedString = LocalizableResource<String> { _ in
+                    "Staking is currently inactive.\nCurrent minimal stake is \(minimalStakeAmount)"
+                }
+                return .nominatorLowStake(localizedString)
+            } else {
+                return .nominatorNoValidators
+            }
         case .waiting:
             return nil
         case .election:
