@@ -3,7 +3,7 @@ import SoraFoundation
 
 protocol StakingRewardDestSetupViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?)
-    func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>)
+    func didReceiveRewardDestination(viewModel: ChangeRewardDestinationViewModel?)
 }
 
 protocol StakingRewardDestSetupPresenterProtocol: AnyObject {
@@ -26,24 +26,20 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)
+    func didReceiveStash(result: Result<AccountItem?, Error>)
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<AccountItem>?, Error>)
+    func didReceiveRewardDestinationAddress(result: Result<RewardDestination<AccountAddress>?, Error>)
     func didReceiveCalculator(result: Result<RewardCalculatorEngineProtocol?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
+    func didReceiveNomination(result: Result<Nomination?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }
 
 protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable,
-    StakingErrorPresentable {
-    func presentAccountSelection(
-        _ accounts: [AccountItem],
-        selectedAccountItem: AccountItem,
-        delegate: ModalPickerViewControllerDelegate,
-        from view: StakingRewardDestSetupViewProtocol?,
-        context: AnyObject?
-    )
-
-    func proceed(view: StakingRewardDestSetupViewProtocol?)
+    StakingErrorPresentable, AccountSelectionPresentable {
+    func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<AccountItem>)
 }
 
 protocol StakingRewardDestSetupViewFactoryProtocol {

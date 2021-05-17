@@ -8,8 +8,6 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
         let chain = settings.selectedConnection.type.chain
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
-        guard let selectedAccount = settings.selectedAccount else { return nil }
-
         guard let interactor = createInteractor(settings: settings) else {
             return nil
         }
@@ -34,7 +32,6 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
             rewardDestViewModelFactory: rewardDestinationViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
-            payoutAccount: selectedAccount,
             applicationConfig: ApplicationConfig.shared,
             chain: chain,
             logger: Logger.shared
@@ -55,7 +52,11 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
     private static func createInteractor(
         settings: SettingsManagerProtocol
     ) -> StakingRewardDestSetupInteractor? {
-        guard let engine = WebSocketService.shared.connection else { return nil }
+        guard
+            let engine = WebSocketService.shared.connection,
+            let selectedAddress = settings.selectedAccount?.address else {
+            return nil
+        }
 
         let chain = settings.selectedConnection.type.chain
 
@@ -80,14 +81,13 @@ final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactory
         )
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
-        let accountRepository:
-            CoreDataRepository<AccountItem, CDAccountItem> =
-            UserDataStorageFacade.shared.createRepository(
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> = UserDataStorageFacade.shared
+            .createRepository(
                 filter: filter, sortDescriptors: [.accountsByOrder]
             )
 
         return StakingRewardDestSetupInteractor(
-            settings: settings,
+            selectedAccountAddress: selectedAddress,
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicServiceFactory: extrinsicServiceFactory,
             substrateProviderFactory: substrateProviderFactory,

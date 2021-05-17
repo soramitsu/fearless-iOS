@@ -6,7 +6,7 @@ enum RewardDestination<A> {
     case payout(account: A)
 }
 
-extension RewardDestination where A == AccountAddress {
+extension RewardDestination: Equatable where A == AccountAddress {
     init(payee: RewardDestinationArg, stashItem: StashItem, chain: Chain) throws {
         switch payee {
         case .staked:
@@ -32,6 +32,15 @@ extension RewardDestination where A == AccountItem {
             return .restake
         case let .payout(account):
             return .payout(account: account.address)
+        }
+    }
+
+    var payoutAccount: AccountItem? {
+        switch self {
+        case .restake:
+            return nil
+        case let .payout(account):
+            return account
         }
     }
 }

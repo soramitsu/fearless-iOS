@@ -9,10 +9,10 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
     let presenter: StakingRewardDestSetupPresenterProtocol
 
     var selectedLocale: Locale {
-        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+        localizationManager?.selectedLocale ?? Locale.current
     }
 
-    private var rewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>?
+    private var rewardDestinationViewModel: ChangeRewardDestinationViewModel?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
     init(
@@ -88,7 +88,9 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
             rootView.payoutOptionView.isSelected = false
 
             rootView.restakeOptionView.titleLabel.textColor = activeTextColor
+            rootView.restakeOptionView.amountLabel.textColor = activeTextColor
             rootView.payoutOptionView.titleLabel.textColor = inactiveTextColor
+            rootView.payoutOptionView.amountLabel.textColor = inactiveTextColor
 
             updateAccountView()
 
@@ -97,7 +99,9 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
             rootView.payoutOptionView.isSelected = true
 
             rootView.restakeOptionView.titleLabel.textColor = inactiveTextColor
+            rootView.restakeOptionView.amountLabel.textColor = inactiveTextColor
             rootView.payoutOptionView.titleLabel.textColor = activeTextColor
+            rootView.payoutOptionView.amountLabel.textColor = activeTextColor
 
             updateAccountView()
             applyPayoutAddress(icon, title: title)
@@ -110,12 +114,18 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
     private func applyRewardDestinationContent(from viewModel: RewardDestinationViewModelProtocol) {
         if let reward = viewModel.rewardViewModel {
             rootView.restakeOptionView.amountTitle = reward.restakeAmount
-            rootView.restakeOptionView.priceTitle = reward.restakePercentage
+            rootView.restakeOptionView.priceTitle = reward.restakePrice
+            rootView.restakeOptionView.incomeTitle = reward.restakePercentage
             rootView.payoutOptionView.amountTitle = reward.payoutAmount
-            rootView.payoutOptionView.priceTitle = reward.payoutPercentage
+            rootView.payoutOptionView.priceTitle = reward.payoutPrice
+            rootView.payoutOptionView.incomeTitle = reward.payoutPercentage
         } else {
             rootView.restakeOptionView.amountTitle = ""
+            rootView.restakeOptionView.priceTitle = ""
+            rootView.restakeOptionView.incomeTitle = ""
+            rootView.payoutOptionView.amountTitle = ""
             rootView.payoutOptionView.priceTitle = ""
+            rootView.payoutOptionView.incomeTitle = ""
         }
     }
 
@@ -134,10 +144,12 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
 
     private func applyRewardDestinationViewModel() {
         if let rewardDestViewModel = rewardDestinationViewModel {
-            let viewModel = rewardDestViewModel.value(for: selectedLocale)
+            let viewModel = rewardDestViewModel.selectionViewModel.value(for: selectedLocale)
             applyRewardDestinationType(from: viewModel)
             applyRewardDestinationContent(from: viewModel)
         }
+
+        rootView.actionButton.isEnabled = rewardDestinationViewModel?.canApply ?? false
     }
 
     private func applyFee() {
@@ -160,8 +172,7 @@ final class StakingRewardDestSetupViewController: UIViewController, ViewHolder {
 }
 
 extension StakingRewardDestSetupViewController: StakingRewardDestSetupViewProtocol {
-    #warning("Not implemented")
-    func didReceiveRewardDestination(viewModel: LocalizableResource<RewardDestinationViewModelProtocol>) {
+    func didReceiveRewardDestination(viewModel: ChangeRewardDestinationViewModel?) {
         rewardDestinationViewModel = viewModel
         applyRewardDestinationViewModel()
     }

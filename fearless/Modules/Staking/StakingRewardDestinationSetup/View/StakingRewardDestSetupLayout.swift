@@ -9,9 +9,9 @@ final class StakingRewardDestSetupLayout: UIView {
         return view
     }()
 
-    let restakeOptionView = createPayoutOptionView()
-    let payoutOptionView = createPayoutOptionView()
-    let accountView = createAccountView()
+    let restakeOptionView = UIFactory.default.createRewardSelectionView()
+    let payoutOptionView = UIFactory.default.createRewardSelectionView()
+    let accountView = UIFactory.default.createAccountView(for: .selection)
 
     let networkFeeView = UIFactory.default.createNetworkFeeView()
     let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
@@ -105,37 +105,5 @@ final class StakingRewardDestSetupLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.actionBottomInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
-    }
-
-    private static func createPayoutOptionView() -> RewardSelectionView {
-        let view = RewardSelectionView()
-
-        view.borderWidth = 1.0
-        view.fillColor = .clear
-        view.highlightedFillColor = .clear
-        view.strokeColor = R.color.colorGray()!
-        view.highlightedStrokeColor = R.color.colorPink()!
-        view.titleColor = R.color.colorWhite()!
-        view.amountTitleColor = R.color.colorWhite()!
-        view.priceColor = R.color.colorGreen()!
-
-        view.titleLabel.font = .p1Paragraph
-        view.amountLabel.font = .h6Title
-        view.priceLabel.font = .h6Title
-
-        view.iconView.image = R.image.listCheckmarkIcon()!
-        view.isSelected = false
-
-        return view
-    }
-
-    private static func createAccountView() -> DetailsTriangularedView {
-        let view = UIFactory.default.createDetailsView(with: .smallIconTitleSubtitle, filled: false)
-
-        view.translatesAutoresizingMaskIntoConstraints = false
-        view.highlightedFillColor = R.color.colorHighlightedPink()!
-        view.actionImage = R.image.iconSmallArrowDown()
-
-        return view
     }
 }

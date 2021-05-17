@@ -1,6 +1,7 @@
 import Foundation
 import BigInt
 import SoraFoundation
+import IrohaCrypto
 
 final class StakingRewardDestSetupPresenter {
     weak var view: StakingRewardDestSetupViewProtocol?
@@ -14,16 +15,18 @@ final class StakingRewardDestSetupPresenter {
     let chain: Chain
     let logger: LoggerProtocol?
 
-    private var rewardDestination: RewardDestination<AccountItem> = .restake
+    private var rewardDestination: RewardDestination<AccountItem>?
     private var calculator: RewardCalculatorEngineProtocol?
     private var electionStatus: ElectionStatus?
-    private var payee: RewardDestinationArg?
-    private var payoutAccount: AccountItem
-    private var controller: AccountItem?
+    private var originalDestination: RewardDestination<AccountAddress>?
+    private var stashAccount: AccountItem?
+    private var controllerAccount: AccountItem?
     private var priceData: PriceData?
     private var stashItem: StashItem?
-    private var amount: Decimal?
+    private var bonded: Decimal?
+    private var balance: Decimal?
     private var fee: Decimal?
+    private var nomination: Nomination?
 
     init(
         wireframe: StakingRewardDestSetupWireframeProtocol,
@@ -31,7 +34,6 @@ final class StakingRewardDestSetupPresenter {
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
-        payoutAccount: AccountItem,
         applicationConfig: ApplicationConfigProtocol,
         chain: Chain,
         logger: LoggerProtocol? = nil
@@ -41,7 +43,6 @@ final class StakingRewardDestSetupPresenter {
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
-        self.payoutAccount = payoutAccount
         self.applicationConfig = applicationConfig
         self.chain = chain
         self.logger = logger
@@ -50,51 +51,149 @@ final class StakingRewardDestSetupPresenter {
     // MARK: - Private functions
 
     private func refreshFeeIfNeeded() {
-        guard fee == nil, controller != nil, payee != nil, amount != nil else {
+        guard fee == nil else {
             return
         }
 
         interactor.estimateFee()
     }
 
-    private func provideRewardDestination() {
-        do {
-            let reward: CalculatedReward?
+    private func createRewardDestinationViewModelForReward(
+        _ reward: CalculatedReward
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
+        if let rewardDestination = rewardDestination {
+            switch rewardDestination {
+            case .restake:
+                return rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
+            case let .payout(account):
+                return try rewardDestViewModelFactory
+                    .createPayout(from: reward, priceData: priceData, account: account)
+            }
+        }
 
-            if let calculator = calculator {
-                let restake = calculator.calculateMaxReturn(
-                    isCompound: true,
-                    period: .year
-                )
+        if let originalDestination = originalDestination {
+            switch originalDestination {
+            case .restake:
+                return rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
+            case let .payout(address):
+                return try rewardDestViewModelFactory
+                    .createPayout(from: reward, priceData: priceData, address: address)
+            }
+        }
 
-                let payout = calculator.calculateMaxReturn(
+        return nil
+    }
+
+    private func createRewardDestinationViewModelForValidatorId(
+        _ validatorId: AccountId,
+        bonded: Decimal,
+        calculator: RewardCalculatorEngineProtocol
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
+        let restakeReturn = try calculator.calculateValidatorReturn(
+            validatorAccountId: validatorId,
+            isCompound: true,
+            period: .year
+        )
+
+        let payoutReturn = try calculator.calculateValidatorReturn(
+            validatorAccountId: validatorId,
+            isCompound: false,
+            period: .year
+        )
+
+        let reward = CalculatedReward(
+            restakeReturn: restakeReturn * bonded,
+            restakeReturnPercentage: restakeReturn,
+            payoutReturn: payoutReturn * bonded,
+            payoutReturnPercentage: payoutReturn
+        )
+
+        return try createRewardDestinationViewModelForReward(reward)
+    }
+
+    private func createMaxReturnRewardDestinationViewModel(
+        for bonded: Decimal,
+        calculator: RewardCalculatorEngineProtocol
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
+        let restakeReturn = calculator.calculateMaxReturn(isCompound: true, period: .year)
+
+        let payoutReturn = calculator.calculateMaxReturn(isCompound: false, period: .year)
+
+        let reward = CalculatedReward(
+            restakeReturn: restakeReturn * bonded,
+            restakeReturnPercentage: restakeReturn,
+            payoutReturn: payoutReturn * bonded,
+            payoutReturnPercentage: payoutReturn
+        )
+
+        return try createRewardDestinationViewModelForReward(reward)
+    }
+
+    private func createRewardDestinationViewModelFromNomination(
+        _ nomination: Nomination,
+        bonded: Decimal,
+        using calculator: RewardCalculatorEngineProtocol
+    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
+        let (maxTarget, _): (AccountId?, Decimal?) = nomination.targets
+            .reduce((nil, nil)) { result, target in
+                let targetReturn = try? calculator.calculateValidatorReturn(
+                    validatorAccountId: target,
                     isCompound: false,
                     period: .year
                 )
 
-                let curAmount = amount ?? 0.0
-                reward = CalculatedReward(
-                    restakeReturn: restake * curAmount,
-                    restakeReturnPercentage: restake,
-                    payoutReturn: payout * curAmount,
-                    payoutReturnPercentage: payout
-                )
-            } else {
-                reward = nil
+                guard let oldReturn = result.1 else {
+                    return targetReturn != nil ? (target, targetReturn) : result
+                }
+
+                return targetReturn.map { $0 > oldReturn ? (target, $0) : result } ?? result
             }
 
-            switch rewardDestination {
-            case .restake:
-                let viewModel = rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
-                view?.didReceiveRewardDestination(viewModel: viewModel)
-            case .payout:
-                let viewModel = try rewardDestViewModelFactory
-                    .createPayout(from: reward, priceData: priceData, account: payoutAccount)
-                view?.didReceiveRewardDestination(viewModel: viewModel)
-            }
-        } catch {
-            logger?.error("Can't create reward destination")
+        if let target = maxTarget {
+            return try createRewardDestinationViewModelForValidatorId(
+                target,
+                bonded: bonded,
+                calculator: calculator
+            )
+        } else {
+            return try createMaxReturnRewardDestinationViewModel(
+                for: bonded,
+                calculator: calculator
+            )
         }
+    }
+
+    private func provideRewardDestination() {
+        guard let bonded = bonded, let calculator = calculator else {
+            view?.didReceiveRewardDestination(viewModel: nil)
+            return
+        }
+
+        let maybeRewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>? = {
+            if let nomination = nomination {
+                return try? createRewardDestinationViewModelFromNomination(
+                    nomination,
+                    bonded: bonded,
+                    using: calculator
+                )
+            }
+
+            return try? createMaxReturnRewardDestinationViewModel(for: bonded, calculator: calculator)
+        }()
+
+        guard let selectionViewModel = maybeRewardDestinationViewModel else {
+            view?.didReceiveRewardDestination(viewModel: nil)
+            return
+        }
+
+        let alreadyApplied = rewardDestination == nil || (rewardDestination?.accountAddress == originalDestination)
+
+        let viewModel = ChangeRewardDestinationViewModel(
+            selectionViewModel: selectionViewModel,
+            canApply: !alreadyApplied
+        )
+
+        view?.didReceiveRewardDestination(viewModel: viewModel)
     }
 
     private func provideFeeViewModel() {
@@ -121,7 +220,12 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     }
 
     func selectPayoutDestination() {
-        rewardDestination = .payout(account: payoutAccount)
+        if let stashAccount = stashAccount {
+            rewardDestination = .payout(account: stashAccount)
+        } else if let controller = controllerAccount {
+            rewardDestination = .payout(account: controller)
+        }
+
         provideRewardDestination()
     }
 
@@ -140,7 +244,30 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     }
 
     func proceed() {
-        #warning("Not implemented")
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.refreshFeeIfNeeded()
+            }),
+
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: stashItem?.controller ?? "",
+                locale: locale
+            ),
+
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
+
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+
+        ]).runValidation { [weak self] in
+            guard let rewardDestination = self?.rewardDestination else { return }
+
+            self?.wireframe.proceed(
+                view: self?.view,
+                rewardDestination: rewardDestination
+            )
+        }
     }
 }
 
@@ -153,11 +280,7 @@ extension StakingRewardDestSetupPresenter: ModalPickerViewControllerDelegate {
             return
         }
 
-        payoutAccount = accounts[index]
-
-        if case .payout = rewardDestination {
-            rewardDestination = .payout(account: payoutAccount)
-        }
+        rewardDestination = .payout(account: accounts[index])
 
         provideRewardDestination()
     }
@@ -199,10 +322,17 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
 
     func didReceiveController(result: Result<AccountItem?, Error>) {
         switch result {
-        case let .success(accountItem):
-            if let accountItem = accountItem {
-                controller = accountItem
-            }
+        case let .success(account):
+            controllerAccount = account
+        case let .failure(error):
+            logger?.error("Did receive controller account error: \(error)")
+        }
+    }
+
+    func didReceiveStash(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(account):
+            stashAccount = account
         case let .failure(error):
             logger?.error("Did receive controller account error: \(error)")
         }
@@ -211,14 +341,9 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>) {
         switch result {
         case let .success(stakingLedger):
-            if let stakingLedger = stakingLedger {
-                amount = Decimal.fromSubstrateAmount(
-                    stakingLedger.active,
-                    precision: chain.addressType.precision
-                )
-            } else {
-                amount = nil
-            }
+            bonded = stakingLedger.map {
+                Decimal.fromSubstrateAmount($0.active, precision: chain.addressType.precision)
+            } ?? nil
 
             provideRewardDestination()
         case let .failure(error):
@@ -226,16 +351,29 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         }
     }
 
-    func didReceivePayee(result: Result<RewardDestinationArg?, Error>) {
+    func didReceiveRewardDestinationAccount(result: Result<RewardDestination<AccountItem>?, Error>) {
         switch result {
-        case let .success(payee):
-            self.payee = payee
+        case let .success(rewardDestination):
+            if self.rewardDestination == nil {
+                self.rewardDestination = rewardDestination
+            }
 
-            refreshFeeIfNeeded()
+            originalDestination = rewardDestination?.accountAddress
 
             provideRewardDestination()
         case let .failure(error):
-            logger?.error("Did receive payee item error: \(error)")
+            logger?.error("Reward destination account error: \(error)")
+        }
+    }
+
+    func didReceiveRewardDestinationAddress(result: Result<RewardDestination<AccountAddress>?, Error>) {
+        switch result {
+        case let .success(rewardDestination):
+            originalDestination = rewardDestination
+
+            provideRewardDestination()
+        case let .failure(error):
+            logger?.error("Reward destination account error: \(error)")
         }
     }
 
@@ -255,9 +393,15 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
         case let .success(accounts):
             let context = PrimitiveContextWrapper(value: accounts)
 
+            let title = LocalizableResource { locale in
+                R.string.localizable
+                    .stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+            }
+
             wireframe.presentAccountSelection(
                 accounts,
-                selectedAccountItem: payoutAccount,
+                selectedAccountItem: rewardDestination?.payoutAccount,
+                title: title,
                 delegate: self,
                 from: view,
                 context: context
@@ -274,6 +418,28 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
             self.electionStatus = electionStatus
         case let .failure(error):
             logger?.error("Election status error: \(error)")
+        }
+    }
+
+    func didReceiveNomination(result: Result<Nomination?, Error>) {
+        switch result {
+        case let .success(nomination):
+            self.nomination = nomination
+
+            provideRewardDestination()
+        case let .failure(error):
+            logger?.error("Nomination error: \(error)")
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            balance = accountInfo.map {
+                Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
+            } ?? nil
+        case let .failure(error):
+            logger?.error("Account info error: \(error)")
         }
     }
 }
