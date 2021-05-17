@@ -324,10 +324,12 @@ extension StakingMainViewController: StakingMainViewProtocol {
         switch viewModel {
         case .undefined:
             clearStateView()
-        case let .bonded(viewModel):
+        case let .bonded(viewModel, alerts):
             applyBonded(viewModel: viewModel)
-        case let .noStash(viewModel):
+            applyAlerts(alerts)
+        case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
+            applyAlerts(alerts)
         case let .nominator(viewModel, alerts):
             applyNomination(viewModel: viewModel)
             applyAlerts(alerts)

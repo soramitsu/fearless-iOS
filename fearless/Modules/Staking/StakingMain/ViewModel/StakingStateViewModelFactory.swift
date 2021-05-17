@@ -279,6 +279,24 @@ final class StakingStateViewModelFactory {
             return []
         }
     }
+
+    private func stakingAlertsForBondedState(_ state: BondedState) -> [StakingAlert] {
+        switch state.commonData.electionStatus {
+        case .open:
+            return [.electionPeriod]
+        case .none, .close:
+            return []
+        }
+    }
+
+    private func stakingAlertsNoStashState(_ state: NoStashState) -> [StakingAlert] {
+        switch state.commonData.electionStatus {
+        case .open:
+            return [.electionPeriod]
+        case .none, .close:
+            return []
+        }
+    }
 }
 
 extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
@@ -312,7 +330,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
                 amount: state.rewardEstimationAmount
             )
 
-            lastViewModel = .noStash(viewModel: viewModel)
+            let alerts = stakingAlertsNoStashState(state)
+            lastViewModel = .noStash(viewModel: viewModel, alerts: alerts)
         } catch {
             lastViewModel = .undefined
         }
@@ -361,7 +380,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
                 amount: state.rewardEstimationAmount ?? 0.0
             )
 
-            lastViewModel = .noStash(viewModel: viewModel)
+            let alerts = stakingAlertsForBondedState(state)
+            lastViewModel = .bonded(viewModel: viewModel, alerts: alerts)
         } catch {
             lastViewModel = .undefined
         }
