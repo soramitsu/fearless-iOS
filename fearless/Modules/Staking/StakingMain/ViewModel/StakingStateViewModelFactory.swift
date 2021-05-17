@@ -14,7 +14,7 @@ final class StakingStateViewModelFactory {
 
     private var lastViewModel: StakingViewState = .undefined
 
-    private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
+    var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChain: Chain?
 
@@ -226,76 +226,6 @@ final class StakingStateViewModelFactory {
             inputLimit: StakingConstants.maxAmount,
             amount: amount
         )
-    }
-
-    private func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
-        switch state.status {
-        case .active:
-            return []
-        case .inactive:
-            guard let minimalStake = state.commonData.minimalStake else {
-                return []
-            }
-            if state.ledgerInfo.active < minimalStake {
-                guard
-                    let chain = state.commonData.chain,
-                    let minimalStakeDecimal = Decimal.fromSubstrateAmount(
-                        minimalStake,
-                        precision: chain.addressType.precision
-                    ),
-                    let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
-                else {
-                    return []
-                }
-                let localizedString = LocalizableResource<String> { locale in
-                    R.string.localizable
-                        .stakingInactiveCurrentMinimalStake(
-                            minimalStakeAmount.value(for: locale),
-                            preferredLanguages: locale.rLanguages
-                        )
-                }
-                return [.nominatorLowStake(localizedString)]
-            } else {
-                return [.nominatorNoValidators]
-            }
-        case .waiting:
-            return []
-        case .election:
-            return [.electionPeriod]
-        case .undefined:
-            return []
-        }
-    }
-
-    private func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
-        switch state.status {
-        case .active:
-            return []
-        case .inactive:
-            return []
-        case .election:
-            return [.electionPeriod]
-        case .undefined:
-            return []
-        }
-    }
-
-    private func stakingAlertsForBondedState(_ state: BondedState) -> [StakingAlert] {
-        switch state.commonData.electionStatus {
-        case .open:
-            return [.electionPeriod]
-        case .none, .close:
-            return []
-        }
-    }
-
-    private func stakingAlertsNoStashState(_ state: NoStashState) -> [StakingAlert] {
-        switch state.commonData.electionStatus {
-        case .open:
-            return [.electionPeriod]
-        case .none, .close:
-            return []
-        }
     }
 }
 
