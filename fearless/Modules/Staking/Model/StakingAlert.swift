@@ -25,7 +25,7 @@ extension StakingAlert {
         case .nominatorLowStake:
             return R.image.iconWarning()
         case .electionPeriod:
-            return R.image.iconTxPending()
+            return R.image.iconPending()
         }
     }
 
