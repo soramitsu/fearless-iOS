@@ -331,8 +331,9 @@ extension StakingMainViewController: StakingMainViewProtocol {
         case let .nominator(viewModel, alerts):
             applyNomination(viewModel: viewModel)
             applyAlerts(alerts)
-        case let .validator(viewModel):
+        case let .validator(viewModel, alerts):
             applyValidator(viewModel: viewModel)
+            applyAlerts(alerts)
         }
     }
 }

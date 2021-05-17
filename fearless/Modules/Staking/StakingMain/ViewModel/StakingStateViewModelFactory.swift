@@ -228,13 +228,13 @@ final class StakingStateViewModelFactory {
         )
     }
 
-    private func stakingAlert(state: NominatorState) -> StakingAlert? {
+    private func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         switch state.status {
         case .active:
-            return nil
+            return []
         case .inactive:
             guard let minimalStake = state.commonData.minimalStake else {
-                return nil
+                return []
             }
             if state.ledgerInfo.active < minimalStake {
                 guard
@@ -245,7 +245,7 @@ final class StakingStateViewModelFactory {
                     ),
                     let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
                 else {
-                    return nil
+                    return []
                 }
                 let localizedString = LocalizableResource<String> { locale in
                     R.string.localizable
@@ -254,16 +254,29 @@ final class StakingStateViewModelFactory {
                             preferredLanguages: locale.rLanguages
                         )
                 }
-                return .nominatorLowStake(localizedString)
+                return [.nominatorLowStake(localizedString)]
             } else {
-                return .nominatorNoValidators
+                return [.nominatorNoValidators]
             }
         case .waiting:
-            return nil
+            return []
         case .election:
-            return .electionPeriod
+            return [.electionPeriod]
         case .undefined:
-            return nil
+            return []
+        }
+    }
+
+    private func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
+        switch state.status {
+        case .active:
+            return []
+        case .inactive:
+            return []
+        case .election:
+            return [.electionPeriod]
+        case .undefined:
+            return []
         }
     }
 }
@@ -384,7 +397,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        let alerts = [stakingAlert(state: state)].compactMap { $0 }
+        let alerts = stakingAlertsForNominatorState(state)
         lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
@@ -418,7 +431,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        lastViewModel = .validator(viewModel: viewModel)
+        let alerts = stakingAlertsForValidatorState(state)
+        lastViewModel = .validator(viewModel: viewModel, alerts: alerts)
     }
 }
 
