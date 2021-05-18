@@ -41,7 +41,3 @@ protocol StakingRewardDestSetupWireframeProtocol: WebPresentable, AlertPresentab
     StakingErrorPresentable, AccountSelectionPresentable {
     func proceed(view: StakingRewardDestSetupViewProtocol?, rewardDestination: RewardDestination<AccountItem>)
 }
-
-protocol StakingRewardDestSetupViewFactoryProtocol {
-    static func createView() -> StakingRewardDestSetupViewProtocol?
-}

@@ -246,15 +246,15 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
     func proceed() {
         let locale = view?.localizationManager?.selectedLocale ?? Locale.current
         DataValidationRunner(validators: [
-            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
-                self?.refreshFeeIfNeeded()
-            }),
-
             dataValidatingFactory.has(
                 controller: controllerAccount,
                 for: stashItem?.controller ?? "",
                 locale: locale
             ),
+
+            dataValidatingFactory.has(fee: fee, locale: locale, onError: { [weak self] in
+                self?.refreshFeeIfNeeded()
+            }),
 
             dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
 

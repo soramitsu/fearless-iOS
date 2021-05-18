@@ -2,7 +2,7 @@ import SoraFoundation
 import SoraKeystore
 import RobinHood
 
-final class StakingRewardDestSetupViewFactory: StakingRewardDestSetupViewFactoryProtocol {
+struct StakingRewardDestSetupViewFactory {
     static func createView() -> StakingRewardDestSetupViewProtocol? {
         let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
