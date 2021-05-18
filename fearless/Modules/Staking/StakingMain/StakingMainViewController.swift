@@ -21,6 +21,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
     private var networkInfoContainerView: UIView!
     private var networkInfoView: NetworkInfoView!
+    private lazy var alertsContainerView = UIView()
+    private lazy var alertsView = AlertsView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -38,6 +40,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         super.viewDidLoad()
 
         setupNetworkInfoView()
+        setupAlertsView()
         setupLocalization()
         presenter.setup()
     }
@@ -109,6 +112,17 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         configureStoriesView()
     }
 
+    private func setupAlertsView() {
+        alertsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        alertsContainerView.addSubview(alertsView)
+
+        applyConstraints(for: alertsContainerView, innerView: alertsView)
+
+        stackView.addArrangedSubview(alertsContainerView)
+
+        alertsView.delegate = self
+    }
+
     private func configureStoriesView() {
         networkInfoView.collectionView.backgroundView = nil
         networkInfoView.collectionView.backgroundColor = UIColor.clear
@@ -130,6 +144,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stateContainerView = nil
         stateView = nil
+        alertsView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -242,6 +257,11 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         validationView?.delegate = self
         validationView?.bind(viewModel: viewModel)
     }
+
+    private func applyAlerts(_ alerts: [StakingAlert]) {
+        alertsView.isHidden = false
+        alertsView.bind(alerts: alerts)
+    }
 }
 
 extension StakingMainViewController: Localizable {
@@ -254,6 +274,7 @@ extension StakingMainViewController: Localizable {
 
         networkInfoView.locale = locale
         stateView?.locale = locale
+        alertsView.locale = locale
     }
 
     func applyLocalization() {
@@ -305,14 +326,18 @@ extension StakingMainViewController: StakingMainViewProtocol {
         switch viewModel {
         case .undefined:
             clearStateView()
-        case let .bonded(viewModel):
+        case let .bonded(viewModel, alerts):
             applyBonded(viewModel: viewModel)
-        case let .noStash(viewModel):
+            applyAlerts(alerts)
+        case let .noStash(viewModel, alerts):
             applyNoStash(viewModel: viewModel)
-        case let .nominator(viewModel):
+            applyAlerts(alerts)
+        case let .nominator(viewModel, alerts):
             applyNomination(viewModel: viewModel)
-        case let .validator(viewModel):
+            applyAlerts(alerts)
+        case let .validator(viewModel, alerts):
             applyValidator(viewModel: viewModel)
+            applyAlerts(alerts)
         }
     }
 }
@@ -400,3 +425,18 @@ extension StakingMainViewController: ValidationViewDelegate {
 }
 
 extension StakingMainViewController: HiddableBarWhenPushed {}
+
+extension StakingMainViewController: AlertsViewDelegate {
+    func didSelectStakingAlert(_ alert: StakingAlert) {
+        switch alert {
+        case .nominatorNoValidators:
+            presenter.performChangeValidatorsAction()
+        case .nominatorLowStake:
+            presenter.performBondMoreAction()
+        case .electionPeriod:
+            break
+        case .redeemUnbonded:
+            presenter.performRedeemAction()
+        }
+    }
+}

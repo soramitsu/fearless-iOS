@@ -4,15 +4,8 @@ import BigInt
 
 extension NominatorState {
     var status: NominationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
+        guard let eraStakers = commonData.eraStakersInfo else {
             return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
         }
 
         do {
@@ -46,8 +39,6 @@ extension NominatorState {
             return createInactiveStatus(for: minimumStake, locale: locale)
         case .waiting:
             return createWaitingStatus(for: minimumStake, locale: locale)
-        case .election:
-            return createElectionStatus(for: minimumStake, locale: locale)
         case .undefined:
             return createUndefinedStatus(for: minimumStake, locale: locale)
         }
