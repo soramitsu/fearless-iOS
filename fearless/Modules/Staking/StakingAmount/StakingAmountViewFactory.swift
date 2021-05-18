@@ -57,6 +57,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAddressType: networkType,
             limit: StakingConstants.maxAmount
         )
+        let errorBalanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount,
+            formatterFactory: AmountFormatterFactory(assetPrecision: 40)
+        )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory
@@ -68,6 +74,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAccount: selectedAccount,
             rewardDestViewModelFactory: rewardDestViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            errorBalanceViewModelFactory: errorBalanceViewModelFactory,
             applicationConfig: ApplicationConfig.shared,
             logger: Logger.shared
         )
