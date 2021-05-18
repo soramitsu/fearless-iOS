@@ -47,7 +47,9 @@ extension TransactionDetailsViewModelFactory {
         populateStatus(into: &viewModels, data: data, locale: locale)
         populateTime(into: &viewModels, data: data, locale: locale)
         populateTransferAmount(into: &viewModels, data: data, locale: locale)
-        populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        if type != .incoming {
+            populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        }
 
         return viewModels
     }
