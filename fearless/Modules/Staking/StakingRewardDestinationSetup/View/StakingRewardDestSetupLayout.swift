@@ -88,6 +88,7 @@ final class StakingRewardDestSetupLayout: UIView {
         }
 
         contentView.stackView.setCustomSpacing(16.0, after: payoutOptionView)
+        contentView.stackView.setCustomSpacing(16.0, after: accountView)
 
         contentView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
