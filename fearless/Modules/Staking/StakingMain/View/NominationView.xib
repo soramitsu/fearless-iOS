@@ -287,6 +287,14 @@
             <point key="canvasLocation" x="76.811594202898561" y="133.59375"/>
         </view>
     </objects>
+    <designables>
+        <designable name="eSO-sw-XgP">
+            <size key="intrinsicContentSize" width="16" height="16"/>
+        </designable>
+        <designable name="ty6-60-FB0">
+            <size key="intrinsicContentSize" width="16" height="16"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconHorMore" width="24" height="24"/>
         <image name="iconSmallArrow" width="24" height="24"/>
@@ -294,7 +302,7 @@
             <color red="0.054901960784313725" green="0.82745098039215681" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorHighlightedPink">
-            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorTransparentText">
             <color red="1" green="1" blue="1" alpha="0.63999998569488525" colorSpace="custom" customColorSpace="sRGB"/>
