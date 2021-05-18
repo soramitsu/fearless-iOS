@@ -89,11 +89,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let operationManager = OperationManagerFacade.sharedManager
+
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(
                 for: selectedAccount.address,
-                runtimeService: RuntimeRegistryFacade.sharedService
+                runtimeService: runtimeService
             )
         else {
             return nil
@@ -111,14 +114,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let extrinsicService = ExtrinsicService(
             address: selectedAccount.address,
             cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            runtimeRegistry: runtimeService,
             engine: connection,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: operationManager
         )
 
         let eraInfoOperationFactory = NetworkStakingInfoOperationFactory(
             eraValidatorService: EraValidatorFacade.sharedService,
-            runtimeService: RuntimeRegistryFacade.sharedService
+            runtimeService: runtimeService
         )
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
@@ -129,9 +132,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceProvider: AnyDataProvider(balanceProvider),
             extrinsicService: extrinsicService,
             rewardService: RewardCalculatorFacade.sharedService,
-            runtimeService: RuntimeRegistryFacade.sharedService,
             eraInfoOperationFactory: eraInfoOperationFactory,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: operationManager
         )
 
         return interactor

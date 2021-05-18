@@ -12,7 +12,6 @@ final class StakingAmountInteractor {
     private let priceProvider: AnySingleValueProvider<PriceData>
     private let balanceProvider: AnyDataProvider<DecodedAccountInfo>
     private let extrinsicService: ExtrinsicServiceProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
     private let rewardService: RewardCalculatorServiceProtocol
     private let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
@@ -23,7 +22,6 @@ final class StakingAmountInteractor {
         balanceProvider: AnyDataProvider<DecodedAccountInfo>,
         extrinsicService: ExtrinsicServiceProtocol,
         rewardService: RewardCalculatorServiceProtocol,
-        runtimeService: RuntimeCodingServiceProtocol,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
@@ -32,7 +30,6 @@ final class StakingAmountInteractor {
         self.balanceProvider = balanceProvider
         self.extrinsicService = extrinsicService
         self.rewardService = rewardService
-        self.runtimeService = runtimeService
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.operationManager = operationManager
     }
