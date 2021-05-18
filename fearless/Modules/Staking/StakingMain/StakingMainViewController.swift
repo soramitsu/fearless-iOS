@@ -435,6 +435,8 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter.performBondMoreAction()
         case .electionPeriod:
             break
+        case .redeemUnbonded:
+            presenter.performRedeemAction()
         }
     }
 }

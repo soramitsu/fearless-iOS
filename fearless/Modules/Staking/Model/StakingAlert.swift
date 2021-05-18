@@ -6,12 +6,13 @@ enum StakingAlert {
     case nominatorNoValidators
     case nominatorLowStake(LocalizableResource<String>)
     case electionPeriod
+    case redeemUnbonded(LocalizableResource<String>)
 }
 
 extension StakingAlert {
     var hasAssociatedAction: Bool {
         switch self {
-        case .nominatorLowStake, .nominatorNoValidators:
+        case .nominatorLowStake, .nominatorNoValidators, .redeemUnbonded:
             return true
         case .electionPeriod:
             return false
@@ -26,6 +27,8 @@ extension StakingAlert {
             return R.image.iconWarning()
         case .electionPeriod:
             return R.image.iconPending()
+        case .redeemUnbonded:
+            return R.image.iconWarning()
         }
     }
 
@@ -37,6 +40,8 @@ extension StakingAlert {
             return R.string.localizable.stakingBondMoreTokens(preferredLanguages: locale.rLanguages)
         case .electionPeriod:
             return R.string.localizable.stakingActionsUnavailable(preferredLanguages: locale.rLanguages)
+        case .redeemUnbonded:
+            return R.string.localizable.stakingRedeemUnbondedTokens(preferredLanguages: locale.rLanguages)
         }
     }
 
@@ -50,6 +55,8 @@ extension StakingAlert {
         case .electionPeriod:
             return R.string.localizable
                 .stakingNetworkIsElectingValidators(preferredLanguages: locale.rLanguages)
+        case let .redeemUnbonded(localizedString):
+            return localizedString.value(for: locale)
         }
     }
 }
