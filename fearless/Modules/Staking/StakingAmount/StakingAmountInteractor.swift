@@ -14,6 +14,7 @@ final class StakingAmountInteractor {
     private let extrinsicService: ExtrinsicServiceProtocol
     private let runtimeService: RuntimeCodingServiceProtocol
     private let rewardService: RewardCalculatorServiceProtocol
+    private let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     private let operationManager: OperationManagerProtocol
 
     init(
@@ -23,6 +24,7 @@ final class StakingAmountInteractor {
         extrinsicService: ExtrinsicServiceProtocol,
         rewardService: RewardCalculatorServiceProtocol,
         runtimeService: RuntimeCodingServiceProtocol,
+        eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.repository = repository
@@ -31,6 +33,7 @@ final class StakingAmountInteractor {
         self.extrinsicService = extrinsicService
         self.rewardService = rewardService
         self.runtimeService = runtimeService
+        self.eraInfoOperationFactory = eraInfoOperationFactory
         self.operationManager = operationManager
     }
 
@@ -113,34 +116,20 @@ final class StakingAmountInteractor {
     }
 
     private func provideMinimumAmount() {
-        let factoryOperation = runtimeService.fetchCoderFactoryOperation()
+        let wrapper = eraInfoOperationFactory.networkStakingOperation()
 
-        let minimumOperation = PrimitiveConstantOperation<BigUInt>(path: .existentialDeposit)
-        minimumOperation.configurationBlock = {
-            do {
-                minimumOperation.codingFactory = try factoryOperation.extractNoCancellableResultData()
-            } catch {
-                minimumOperation.result = .failure(error)
-            }
-        }
-
-        minimumOperation.addDependency(factoryOperation)
-
-        minimumOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
+        wrapper.targetOperation.completionBlock = {
+            DispatchQueue.main.async { [weak self] in
                 do {
-                    let value = try minimumOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(minimalAmount: value)
+                    let info = try wrapper.targetOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceive(minimalAmount: info.minimalStake)
                 } catch {
                     self?.presenter.didReceive(error: error)
                 }
             }
         }
 
-        operationManager.enqueue(
-            operations: [factoryOperation, minimumOperation],
-            in: .transient
-        )
+        operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 }
 

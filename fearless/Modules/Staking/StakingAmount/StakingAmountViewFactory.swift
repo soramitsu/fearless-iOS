@@ -116,6 +116,11 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: OperationManagerFacade.sharedManager
         )
 
+        let eraInfoOperationFactory = NetworkStakingInfoOperationFactory(
+            eraValidatorService: EraValidatorFacade.sharedService,
+            runtimeService: RuntimeRegistryFacade.sharedService
+        )
+
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
         let interactor = StakingAmountInteractor(
@@ -125,6 +130,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             extrinsicService: extrinsicService,
             rewardService: RewardCalculatorFacade.sharedService,
             runtimeService: RuntimeRegistryFacade.sharedService,
+            eraInfoOperationFactory: eraInfoOperationFactory,
             operationManager: OperationManagerFacade.sharedManager
         )
 

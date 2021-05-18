@@ -139,15 +139,7 @@ final class StakingAmountPresenter {
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
-        let value: String
-
-        if let amount = minimalAmount {
-            value = balanceViewModelFactory.amountFromValue(amount).value(for: locale)
-        } else {
-            value = ""
-        }
-
-        wireframe.presentAmountTooLow(value: value, from: view, locale: locale)
+        wireframe.presentEnterMoreThanMinimalStake(from: view, locale: locale)
     }
 }
 
