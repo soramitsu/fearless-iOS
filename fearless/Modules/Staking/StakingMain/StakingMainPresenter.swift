@@ -151,6 +151,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 return [
                     .stakingBalance,
                     .rewardPayouts,
+                    .rewardDestination,
                     .validators(count: nominatorState.nomination.targets.count),
                     .controllerAccount
                 ]
@@ -158,6 +159,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 return [
                     .stakingBalance,
                     .rewardPayouts,
+                    .rewardDestination,
                     .controllerAccount
                 ]
             }
@@ -457,6 +459,8 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
                 return
             }
+        case .rewardDestination:
+            wireframe.showRewardDestination(from: view)
         case .stakingBalance:
             wireframe.showStakingBalance(from: view)
         case .validators:
