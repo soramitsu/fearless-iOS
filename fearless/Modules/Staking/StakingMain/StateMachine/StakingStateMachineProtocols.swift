@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 protocol StakingStateVisitorProtocol {
     func visit(state: InitialStakingState)
@@ -29,6 +30,7 @@ protocol StakingStateProtocol {
     func process(eraStakersInfo: EraStakersInfo?)
     func process(totalReward: TotalRewardItem?)
     func process(payee: RewardDestinationArg?)
+    func process(minimalStake: BigUInt?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {
