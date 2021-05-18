@@ -78,8 +78,6 @@ final class ValidationView: UIView, LocalizableViewProtocol {
             presentActiveStatus(for: era)
         case let .inactive(era):
             presentInactiveStatus(for: era)
-        case .election:
-            presentElectionStatus()
         }
     }
 
@@ -109,15 +107,6 @@ final class ValidationView: UIView, LocalizableViewProtocol {
             .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
         statusDetailsLabel.text = R.string.localizable
             .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
-    }
-
-    private func presentElectionStatus() {
-        statusIndicatorView.fillColor = R.color.colorTransparentText()!
-        statusTitleLabel.textColor = R.color.colorTransparentText()!
-
-        statusTitleLabel.text = R.string.localizable
-            .stakingNominatorStatusElection(preferredLanguages: locale.rLanguages).uppercased()
-        statusDetailsLabel.text = ""
     }
 
     @IBAction private func actionOnMore() {

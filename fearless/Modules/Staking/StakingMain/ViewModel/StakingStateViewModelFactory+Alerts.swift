@@ -5,7 +5,12 @@ extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         switch state.status {
         case .active:
-            return []
+            switch state.commonData.electionStatus {
+            case .open:
+                return [.electionPeriod]
+            case .none, .close:
+                return []
+            }
         case .inactive:
             guard let minimalStake = state.commonData.minimalStake else {
                 return []
@@ -34,22 +39,16 @@ extension StakingStateViewModelFactory {
             }
         case .waiting:
             return []
-        case .election:
-            return [.electionPeriod]
         case .undefined:
             return []
         }
     }
 
     func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
-        switch state.status {
-        case .active:
-            return []
-        case .inactive:
-            return []
-        case .election:
+        switch state.commonData.electionStatus {
+        case .open:
             return [.electionPeriod]
-        case .undefined:
+        case .none, .close:
             return []
         }
     }
