@@ -3,7 +3,6 @@ import Foundation
 protocol StakingErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
-    func presentEnterMoreThanMinimalStake(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
 
@@ -54,14 +53,6 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
 
     func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable.stakingSetupAmountTooLow(value)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
-    }
-
-    func presentEnterMoreThanMinimalStake(from view: ControllerBackedProtocol, locale: Locale?) {
-        let message = "You should enter amount more than minimal stake"
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
