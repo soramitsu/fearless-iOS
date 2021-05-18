@@ -275,6 +275,7 @@ extension TransactionDetailsViewModelFactory: WalletTransactionDetailsFactoryOve
             return createTransferAccessoryViewModel(
                 data: data,
                 commandFactory: commandFactory,
+                isIncoming: transactionType == .incoming,
                 locale: locale
             )
         case .reward, .slash:
