@@ -4,25 +4,23 @@ import SoraFoundation
 extension StakingStateViewModelFactory {
     func stakingAlertsForNominatorState(_ state: NominatorState) -> [StakingAlert] {
         [
+            findInactiveAlert(state: state),
             findElectionAlert(commonData: state.commonData),
-            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
-            findLowStakeAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
 
     func stakingAlertsForValidatorState(_ state: ValidatorState) -> [StakingAlert] {
         [
             findElectionAlert(commonData: state.commonData),
-            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
-            findLowStakeAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
 
     func stakingAlertsForBondedState(_ state: BondedState) -> [StakingAlert] {
         [
             findElectionAlert(commonData: state.commonData),
-            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo),
-            findLowStakeAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
+            findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
     }
 
@@ -62,31 +60,36 @@ extension StakingStateViewModelFactory {
         return .redeemUnbonded(localizedString)
     }
 
-    private func findLowStakeAlert(
-        commonData: StakingStateCommonData,
-        ledgerInfo: StakingLedger
-    ) -> StakingAlert? {
+    private func findInactiveAlert(state: NominatorState) -> StakingAlert? {
+        guard case .inactive = state.status else { return nil }
+
+        let commonData = state.commonData
+        let ledgerInfo = state.ledgerInfo
+
         guard let minimalStake = commonData.minimalStake else {
             return nil
         }
-        guard
-            ledgerInfo.active >= minimalStake,
-            let chain = commonData.chain,
-            let minimalStakeDecimal = Decimal.fromSubstrateAmount(
-                minimalStake,
-                precision: chain.addressType.precision
-            ),
-            let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
-        else {
-            return nil
-        }
+        if ledgerInfo.active < minimalStake {
+            guard
+                let chain = commonData.chain,
+                let minimalStakeDecimal = Decimal.fromSubstrateAmount(
+                    minimalStake,
+                    precision: chain.addressType.precision
+                ),
+                let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
+            else {
+                return nil
+            }
 
-        let localizedString = LocalizableResource<String> { locale in
-            R.string.localizable.stakingInactiveCurrentMinimalStake(
-                minimalStakeAmount.value(for: locale),
-                preferredLanguages: locale.rLanguages
-            )
+            let localizedString = LocalizableResource<String> { locale in
+                R.string.localizable.stakingInactiveCurrentMinimalStake(
+                    minimalStakeAmount.value(for: locale),
+                    preferredLanguages: locale.rLanguages
+                )
+            }
+            return .nominatorLowStake(localizedString)
+        } else {
+            return .nominatorNoValidators
         }
-        return .nominatorLowStake(localizedString)
     }
 }
