@@ -17,7 +17,7 @@ extension Chain {
         case .polkadot:
             return Decimal(string: "1")!
         case .kusama:
-            return Decimal(string: "0.001666666666")!
+            return Decimal(string: "0.000033333333")!
         case .westend:
             return Decimal(string: "0.01")!
         }
