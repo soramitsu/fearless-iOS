@@ -5,7 +5,6 @@ enum NominationViewStatus {
     case active(era: UInt32)
     case inactive(era: UInt32)
     case waiting
-    case election
 }
 
 protocol NominationViewModelProtocol {

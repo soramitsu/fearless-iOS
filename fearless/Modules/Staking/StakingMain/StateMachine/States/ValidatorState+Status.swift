@@ -4,15 +4,8 @@ import BigInt
 
 extension ValidatorState {
     var status: ValidationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
+        guard let eraStakers = commonData.eraStakersInfo else {
             return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
         }
 
         do {
@@ -37,8 +30,6 @@ extension ValidatorState {
             return createActiveStatus(for: locale)
         case .inactive:
             return createInactiveStatus(for: locale)
-        case .election:
-            return createElectionStatus(for: locale)
         case .undefined:
             return createUndefinedStatus(for: locale)
         }

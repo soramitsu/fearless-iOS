@@ -113,4 +113,10 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
             animated: true
         )
     }
+
+    func showBondMore(from view: ControllerBackedProtocol?) {
+        guard let bondMoreView = StakingBondMoreViewFactory.createView() else { return }
+        let navigationController = FearlessNavigationController(rootViewController: bondMoreView.controller)
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
 }
