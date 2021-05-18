@@ -47,10 +47,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
     }
 
     private func applyLocalization() {
-        // TODO:
-        titleLabel.text = "Your stake"
-        stakedTitleLabel.text = "Bonded"
-        rewardTitleLabel.text = "Earned"
+        titleLabel.text = R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages)
+        stakedTitleLabel.text = R.string.localizable.stakingBonded(preferredLanguages: locale.rLanguages)
+        rewardTitleLabel.text = R.string.localizable.stakingEarned(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {

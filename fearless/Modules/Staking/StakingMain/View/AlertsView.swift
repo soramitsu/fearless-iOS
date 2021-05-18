@@ -52,8 +52,7 @@ final class AlertsView: UIView {
 
     private func applyLocalization() {
         titleLabel.text = R.string.localizable.stakingAlertsTitle(preferredLanguages: locale.rLanguages)
-        // TODO: review mockup and delete noAlertsLabel?
-        noAlertsLabel.text = "Everything is fine now. Alerts will appear here."
+        noAlertsLabel.text = R.string.localizable.stakingNoAlerts(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
