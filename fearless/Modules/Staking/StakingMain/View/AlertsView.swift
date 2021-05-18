@@ -87,6 +87,7 @@ final class AlertsView: UIView {
     }
 
     func bind(alerts: [StakingAlert]) {
+        alertsStackView.subviews.forEach { $0.removeFromSuperview() }
         if alerts.isEmpty {
             noAlertsLabel.isHidden = false
             alertsStackView.isHidden = true
@@ -104,7 +105,6 @@ final class AlertsView: UIView {
                 itemViews.append(itemView)
             }
 
-            alertsStackView.subviews.forEach { $0.removeFromSuperview() }
             itemViews.forEach { alertsStackView.addArrangedSubview($0) }
         }
     }
