@@ -401,3 +401,7 @@ Derivation path: %@";
 "staking.actions.unavailable" = "Staking actions are currently unavailable.";
 "staking.network.is.electing.validators" = "The network is electing validators.\nUsually it takes less than 10 minutes.";
 "staking.redeem.unbonded.tokens" = "Redeem unbonded tokens.";
+"staking.no.alerts" = "Everything is fine now. Alerts will appear here.";
+"staking.your.stake" = "Your stake";
+"staking.bonded" = "Bonded";
+"staking.earned" = "Earned";

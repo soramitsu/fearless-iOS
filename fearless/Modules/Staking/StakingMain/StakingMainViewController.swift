@@ -144,6 +144,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stateContainerView = nil
         stateView = nil
+        alertsView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -258,6 +259,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     }
 
     private func applyAlerts(_ alerts: [StakingAlert]) {
+        alertsView.isHidden = false
         alertsView.bind(alerts: alerts)
     }
 }

@@ -47,10 +47,9 @@ final class NominationView: UIView, LocalizableViewProtocol {
     }
 
     private func applyLocalization() {
-        // TODO:
-        titleLabel.text = "Your stake"
-        stakedTitleLabel.text = "Bonded"
-        rewardTitleLabel.text = "Earned"
+        titleLabel.text = R.string.localizable.stakingYourStake(preferredLanguages: locale.rLanguages)
+        stakedTitleLabel.text = R.string.localizable.stakingBonded(preferredLanguages: locale.rLanguages)
+        rewardTitleLabel.text = R.string.localizable.stakingEarned(preferredLanguages: locale.rLanguages)
     }
 
     private func applyViewModel() {
@@ -78,8 +77,6 @@ final class NominationView: UIView, LocalizableViewProtocol {
             presentInactiveStatus(for: era)
         case .waiting:
             presentWaitingStatus()
-        case .election:
-            presentElectionStatus()
         }
     }
 
@@ -109,15 +106,6 @@ final class NominationView: UIView, LocalizableViewProtocol {
             .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
         statusDetailsLabel.text = R.string.localizable
             .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
-    }
-
-    private func presentElectionStatus() {
-        statusIndicatorView.fillColor = R.color.colorTransparentText()!
-        statusTitleLabel.textColor = R.color.colorTransparentText()!
-
-        statusTitleLabel.text = R.string.localizable
-            .stakingNominatorStatusElection(preferredLanguages: locale.rLanguages).uppercased()
-        statusDetailsLabel.text = ""
     }
 
     private func presentWaitingStatus() {
