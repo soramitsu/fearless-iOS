@@ -176,7 +176,13 @@ class StakingRewardDestinationSetupTests: XCTestCase {
             limit: StakingConstants.maxAmount
         )
 
-        let viewModelFactory = RewardDestinationViewModelFactory(balanceViewModelFactory: balanceViewModelFactory)
+        let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
+        let viewModelFactory = ChangeRewardDestinationViewModelFactory(
+            rewardDestinationViewModelFactory: rewardDestViewModelFactory
+        )
 
         let presenter = StakingRewardDestSetupPresenter(
             wireframe: wireframe,

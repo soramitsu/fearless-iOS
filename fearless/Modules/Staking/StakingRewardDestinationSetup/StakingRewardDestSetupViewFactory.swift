@@ -26,10 +26,14 @@ struct StakingRewardDestSetupViewFactory {
             balanceViewModelFactory: balanceViewModelFactory
         )
 
+        let changeRewardDestViewModelFactory = ChangeRewardDestinationViewModelFactory(
+            rewardDestinationViewModelFactory: rewardDestinationViewModelFactory
+        )
+
         let presenter = StakingRewardDestSetupPresenter(
             wireframe: wireframe,
             interactor: interactor,
-            rewardDestViewModelFactory: rewardDestinationViewModelFactory,
+            rewardDestViewModelFactory: changeRewardDestViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             applicationConfig: ApplicationConfig.shared,

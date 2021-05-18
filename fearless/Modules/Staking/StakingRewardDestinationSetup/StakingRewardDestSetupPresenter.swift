@@ -8,7 +8,7 @@ final class StakingRewardDestSetupPresenter {
 
     let wireframe: StakingRewardDestSetupWireframeProtocol
     let interactor: StakingRewardDestSetupInteractorInputProtocol
-    let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
+    let rewardDestViewModelFactory: ChangeRewardDestinationViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let applicationConfig: ApplicationConfigProtocol
@@ -31,7 +31,7 @@ final class StakingRewardDestSetupPresenter {
     init(
         wireframe: StakingRewardDestSetupWireframeProtocol,
         interactor: StakingRewardDestSetupInteractorInputProtocol,
-        rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
+        rewardDestViewModelFactory: ChangeRewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
@@ -58,139 +58,22 @@ final class StakingRewardDestSetupPresenter {
         interactor.estimateFee()
     }
 
-    private func createRewardDestinationViewModelForReward(
-        _ reward: CalculatedReward
-    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        if let rewardDestination = rewardDestination {
-            switch rewardDestination {
-            case .restake:
-                return rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
-            case let .payout(account):
-                return try rewardDestViewModelFactory
-                    .createPayout(from: reward, priceData: priceData, account: account)
-            }
-        }
-
-        if let originalDestination = originalDestination {
-            switch originalDestination {
-            case .restake:
-                return rewardDestViewModelFactory.createRestake(from: reward, priceData: priceData)
-            case let .payout(address):
-                return try rewardDestViewModelFactory
-                    .createPayout(from: reward, priceData: priceData, address: address)
-            }
-        }
-
-        return nil
-    }
-
-    private func createRewardDestinationViewModelForValidatorId(
-        _ validatorId: AccountId,
-        bonded: Decimal,
-        calculator: RewardCalculatorEngineProtocol
-    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        let restakeReturn = try calculator.calculateValidatorReturn(
-            validatorAccountId: validatorId,
-            isCompound: true,
-            period: .year
-        )
-
-        let payoutReturn = try calculator.calculateValidatorReturn(
-            validatorAccountId: validatorId,
-            isCompound: false,
-            period: .year
-        )
-
-        let reward = CalculatedReward(
-            restakeReturn: restakeReturn * bonded,
-            restakeReturnPercentage: restakeReturn,
-            payoutReturn: payoutReturn * bonded,
-            payoutReturnPercentage: payoutReturn
-        )
-
-        return try createRewardDestinationViewModelForReward(reward)
-    }
-
-    private func createMaxReturnRewardDestinationViewModel(
-        for bonded: Decimal,
-        calculator: RewardCalculatorEngineProtocol
-    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        let restakeReturn = calculator.calculateMaxReturn(isCompound: true, period: .year)
-
-        let payoutReturn = calculator.calculateMaxReturn(isCompound: false, period: .year)
-
-        let reward = CalculatedReward(
-            restakeReturn: restakeReturn * bonded,
-            restakeReturnPercentage: restakeReturn,
-            payoutReturn: payoutReturn * bonded,
-            payoutReturnPercentage: payoutReturn
-        )
-
-        return try createRewardDestinationViewModelForReward(reward)
-    }
-
-    private func createRewardDestinationViewModelFromNomination(
-        _ nomination: Nomination,
-        bonded: Decimal,
-        using calculator: RewardCalculatorEngineProtocol
-    ) throws -> LocalizableResource<RewardDestinationViewModelProtocol>? {
-        let (maxTarget, _): (AccountId?, Decimal?) = nomination.targets
-            .reduce((nil, nil)) { result, target in
-                let targetReturn = try? calculator.calculateValidatorReturn(
-                    validatorAccountId: target,
-                    isCompound: false,
-                    period: .year
-                )
-
-                guard let oldReturn = result.1 else {
-                    return targetReturn != nil ? (target, targetReturn) : result
-                }
-
-                return targetReturn.map { $0 > oldReturn ? (target, $0) : result } ?? result
-            }
-
-        if let target = maxTarget {
-            return try createRewardDestinationViewModelForValidatorId(
-                target,
-                bonded: bonded,
-                calculator: calculator
-            )
-        } else {
-            return try createMaxReturnRewardDestinationViewModel(
-                for: bonded,
-                calculator: calculator
-            )
-        }
-    }
-
     private func provideRewardDestination() {
-        guard let bonded = bonded, let calculator = calculator else {
+        guard
+            let bonded = bonded,
+            let calculator = calculator,
+            let originalRewardDestination = originalDestination else {
             view?.didReceiveRewardDestination(viewModel: nil)
             return
         }
 
-        let maybeRewardDestinationViewModel: LocalizableResource<RewardDestinationViewModelProtocol>? = {
-            if let nomination = nomination {
-                return try? createRewardDestinationViewModelFromNomination(
-                    nomination,
-                    bonded: bonded,
-                    using: calculator
-                )
-            }
-
-            return try? createMaxReturnRewardDestinationViewModel(for: bonded, calculator: calculator)
-        }()
-
-        guard let selectionViewModel = maybeRewardDestinationViewModel else {
-            view?.didReceiveRewardDestination(viewModel: nil)
-            return
-        }
-
-        let alreadyApplied = rewardDestination == nil || (rewardDestination?.accountAddress == originalDestination)
-
-        let viewModel = ChangeRewardDestinationViewModel(
-            selectionViewModel: selectionViewModel,
-            canApply: !alreadyApplied
+        let viewModel = rewardDestViewModelFactory.createViewModel(
+            from: originalRewardDestination,
+            selectedRewardDestination: rewardDestination,
+            bondedAmount: bonded,
+            calculator: calculator,
+            nomination: nomination,
+            priceData: priceData
         )
 
         view?.didReceiveRewardDestination(viewModel: viewModel)
