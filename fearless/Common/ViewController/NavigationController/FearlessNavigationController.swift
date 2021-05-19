@@ -32,6 +32,10 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
 
         navigationBar.setBackgroundImage(UIImage(), for: UIBarMetrics.default)
         navigationBar.shadowImage = UIImage()
+        navigationBar.backIndicatorImage = R.image.iconBack()
+        navigationBar.backIndicatorTransitionMaskImage = R.image.iconBack()
+
+        navigationItem.leftItemsSupplementBackButton = true
 
         navigationBar.titleTextAttributes = FearlessNavigationBarStyle.titleAttributes
     }
