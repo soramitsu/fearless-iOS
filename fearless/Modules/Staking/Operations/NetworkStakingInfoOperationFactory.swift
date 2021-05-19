@@ -94,14 +94,9 @@ final class NetworkStakingInfoOperationFactory {
                 limitedBy: maxNominators
             )
 
-            #warning("""
-            DELETE after PR approve! For test purposes only.
-            Switch to Westend network, minimalStake is displayed as 0.00624 WND, which is less than actual 0.006244,
-            so when the user enters amount for staking `0.00624` an error occurs
-            """)
             return NetworkStakingInfo(
                 totalStake: totalStake,
-                minimalStake: minimalStake, // TODO: revert changes
+                minimalStake: max(minimalStake, minBalance),
                 activeNominatorsCount: activeNominatorsCount,
                 lockUpPeriod: lockUpPeriod
             )

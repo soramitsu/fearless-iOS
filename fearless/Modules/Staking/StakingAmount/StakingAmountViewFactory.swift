@@ -57,11 +57,13 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAddressType: networkType,
             limit: StakingConstants.maxAmount
         )
+
+        let selectedConnectionType = settings.selectedConnection.type
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
             selectedAddressType: networkType,
             limit: StakingConstants.maxAmount,
-            formatterFactory: AmountFormatterFactory(assetPrecision: 40)
+            formatterFactory: AmountFormatterFactory(assetPrecision: Int(selectedConnectionType.precision))
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
@@ -126,11 +128,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: operationManager
         )
 
-        let eraInfoOperationFactory = NetworkStakingInfoOperationFactory(
-            eraValidatorService: EraValidatorFacade.sharedService,
-            runtimeService: runtimeService
-        )
-
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
 
         let interactor = StakingAmountInteractor(
@@ -139,7 +136,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceProvider: AnyDataProvider(balanceProvider),
             extrinsicService: extrinsicService,
             rewardService: RewardCalculatorFacade.sharedService,
-            eraInfoOperationFactory: eraInfoOperationFactory,
+            runtimeService: runtimeService,
             operationManager: operationManager
         )
 
