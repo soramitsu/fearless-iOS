@@ -29,6 +29,12 @@ protocol StakingErrorPresentable {
         locale: Locale?
     )
 
+    func presentControllerBalanceIsZero(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    )
+
     func presentStashKilledAfterUnbond(
         from view: ControllerBackedProtocol,
         action: @escaping () -> Void,
@@ -139,6 +145,24 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
         let message = R.string.localizable
             .stakingWarningTinyPayout(preferredLanguages: locale?.rLanguages)
+
+        presentWarning(
+            for: title,
+            message: message,
+            action: action,
+            view: view,
+            locale: locale
+        )
+    }
+
+    func presentControllerBalanceIsZero(
+        from view: ControllerBackedProtocol,
+        action: @escaping () -> Void,
+        locale: Locale?
+    ) {
+        let title = R.string.localizable
+            .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
+        let message = "attention about 0 balance of new controller." // TODO:
 
         presentWarning(
             for: title,
