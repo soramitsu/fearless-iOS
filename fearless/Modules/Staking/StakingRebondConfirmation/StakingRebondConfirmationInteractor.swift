@@ -146,6 +146,7 @@ extension StakingRebondConfirmationInteractor: SingleValueProviderSubscriber, Si
                     runtimeService: runtimeService
                 )
 
+                // TODO: Remove?
                 payeeProvider = subscribeToPayeeProvider(
                     for: stashItem.stash,
                     runtimeService: runtimeService
