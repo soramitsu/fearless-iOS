@@ -10,6 +10,8 @@ extension SNAddressType {
             self = .kusamaMain
         case .westend:
             self = .genericSubstrate
+        case .rococo:
+            self = .kusamaSecondary
         }
     }
 
@@ -19,6 +21,8 @@ extension SNAddressType {
             return .kusama
         case .polkadotMain:
             return .polkadot
+        case .kusamaSecondary:
+            return .rococo
         default:
             return .westend
         }
