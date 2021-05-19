@@ -23,7 +23,6 @@ final class ControllerAccountInteractor {
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var controllerAccountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
 
@@ -79,14 +78,6 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         } catch {
             presenter.didReceiveFee(result: .failure(error))
         }
-    }
-
-    func fetchControllerAccountInfo(controllerAddress: AccountAddress) {
-        clear(dataProvider: &controllerAccountInfoProvider)
-        controllerAccountInfoProvider = subscribeToAccountInfoProvider(
-            for: controllerAddress,
-            runtimeService: runtimeService
-        )
     }
 
     func fetchLedger(controllerAddress: AccountAddress) {
@@ -154,8 +145,8 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
         }
     }
 
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result, address: address)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result)
     }
 
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
