@@ -58,6 +58,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
+        let selectedConnectionType = settings.selectedConnection.type
+        let errorBalanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount,
+            formatterFactory: AmountFormatterFactory(assetPrecision: Int(selectedConnectionType.precision))
+        )
+
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
             balanceViewModelFactory: balanceViewModelFactory
         )
@@ -68,6 +76,7 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAccount: selectedAccount,
             rewardDestViewModelFactory: rewardDestViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            errorBalanceViewModelFactory: errorBalanceViewModelFactory,
             applicationConfig: ApplicationConfig.shared,
             logger: Logger.shared
         )
@@ -89,11 +98,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        let runtimeService = RuntimeRegistryFacade.sharedService
+        let operationManager = OperationManagerFacade.sharedManager
+
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(
                 for: selectedAccount.address,
-                runtimeService: RuntimeRegistryFacade.sharedService
+                runtimeService: runtimeService
             )
         else {
             return nil
@@ -111,9 +123,9 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let extrinsicService = ExtrinsicService(
             address: selectedAccount.address,
             cryptoType: selectedAccount.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            runtimeRegistry: runtimeService,
             engine: connection,
-            operationManager: OperationManagerFacade.sharedManager
+            operationManager: operationManager
         )
 
         let priceProvider = providerFactory.getPriceProvider(for: assetId)
@@ -124,8 +136,8 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             balanceProvider: AnyDataProvider(balanceProvider),
             extrinsicService: extrinsicService,
             rewardService: RewardCalculatorFacade.sharedService,
-            runtimeService: RuntimeRegistryFacade.sharedService,
-            operationManager: OperationManagerFacade.sharedManager
+            runtimeService: runtimeService,
+            operationManager: operationManager
         )
 
         return interactor
