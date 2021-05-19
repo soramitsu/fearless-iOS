@@ -103,7 +103,7 @@ extension StakingRewardDestConfirmViewController: StakingRewardDestConfirmViewPr
         applyConfirmationViewModel()
     }
 
-    func didReceiveFeeViewModel(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
+    func didReceiveFee(viewModel: LocalizableResource<BalanceViewModelProtocol>?) {
         feeViewModel = viewModel
 
         applyFeeViewModel()

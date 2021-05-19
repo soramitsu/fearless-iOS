@@ -41,7 +41,7 @@ final class StakingRewardDestConfirmPresenter {
 
     private func provideFeeViewModel() {
         let viewModel = fee.map { balanceViewModelFactory.balanceFromPrice($0, priceData: priceData) }
-        view?.didReceiveFeeViewModel(viewModel: viewModel)
+        view?.didReceiveFee(viewModel: viewModel)
     }
 
     private func provideConfirmationViewModel() {
@@ -98,6 +98,8 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
 
         ]).runValidation { [weak self] in
             guard let rewardDestination = self?.rewardDestination, let stashItem = self?.stashItem else { return }
+
+            self?.view?.didStartLoading()
 
             self?.interactor.submit(rewardDestination: rewardDestination.accountAddress, for: stashItem)
         }
