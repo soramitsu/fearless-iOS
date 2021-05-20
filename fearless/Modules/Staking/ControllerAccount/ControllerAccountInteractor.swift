@@ -80,6 +80,27 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         }
     }
 
+    func fetchControllerAccountInfo(controllerAddress: AccountAddress) {
+        do {
+            let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
+
+            let accountInfoOperation = createAccountInfoFetchOperation(accountId)
+            accountInfoOperation.targetOperation.completionBlock = { [weak presenter] in
+                DispatchQueue.main.async {
+                    do {
+                        let accountInfo = try accountInfoOperation.targetOperation.extractNoCancellableResultData()
+                        presenter?.didReceiveAccountInfo(result: .success(accountInfo), address: controllerAddress)
+                    } catch {
+                        presenter?.didReceiveAccountInfo(result: .failure(error), address: controllerAddress)
+                    }
+                }
+            }
+            operationManager.enqueue(operations: accountInfoOperation.allOperations, in: .transient)
+        } catch {
+            presenter.didReceiveAccountInfo(result: .failure(error), address: controllerAddress)
+        }
+    }
+
     func fetchLedger(controllerAddress: AccountAddress) {
         do {
             let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
@@ -126,6 +147,31 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
 
         return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
     }
+
+    private func createAccountInfoFetchOperation(
+        _ accountId: Data
+    ) -> CompoundOperationWrapper<AccountInfo?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: { [accountId] },
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: .account
+        )
+
+        let mapOperation = ClosureOperation<AccountInfo?> {
+            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let dependencies = [coderFactoryOperation] + wrapper.allOperations
+
+        dependencies.forEach { mapOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
 }
 
 extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
@@ -145,8 +191,8 @@ extension ControllerAccountInteractor: SubstrateProviderSubscriber, SubstratePro
         }
     }
 
-    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
-        presenter.didReceiveAccountInfo(result: result)
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result, address: address)
     }
 
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {
