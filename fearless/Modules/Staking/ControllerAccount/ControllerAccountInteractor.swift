@@ -23,7 +23,6 @@ final class ControllerAccountInteractor {
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
-    private var controllerAccountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinsicService: ExtrinsicServiceProtocol?
 
@@ -82,11 +81,21 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
     }
 
     func fetchControllerAccountInfo(controllerAddress: AccountAddress) {
-        clear(dataProvider: &controllerAccountInfoProvider)
-        controllerAccountInfoProvider = subscribeToAccountInfoProvider(
-            for: controllerAddress,
-            runtimeService: runtimeService
-        )
+        do {
+            let accountId = try addressFactory.accountId(fromAddress: controllerAddress, type: chain.addressType)
+
+            let accountInfoOperation = createAccountInfoFetchOperation(accountId)
+            accountInfoOperation.targetOperation.completionBlock = { [weak presenter] in
+                DispatchQueue.main.async {
+                    if let result = accountInfoOperation.targetOperation.result {
+                        presenter?.didReceiveAccountInfo(result: result, address: controllerAddress)
+                    }
+                }
+            }
+            operationManager.enqueue(operations: accountInfoOperation.allOperations, in: .transient)
+        } catch {
+            presenter.didReceiveAccountInfo(result: .failure(error), address: controllerAddress)
+        }
     }
 
     func fetchLedger(controllerAddress: AccountAddress) {
@@ -124,6 +133,31 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
         )
 
         let mapOperation = ClosureOperation<StakingLedger?> {
+            try wrapper.targetOperation.extractNoCancellableResultData().first?.value
+        }
+
+        wrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let dependencies = [coderFactoryOperation] + wrapper.allOperations
+
+        dependencies.forEach { mapOperation.addDependency($0) }
+
+        return CompoundOperationWrapper(targetOperation: mapOperation, dependencies: dependencies)
+    }
+
+    private func createAccountInfoFetchOperation(
+        _ accountId: Data
+    ) -> CompoundOperationWrapper<AccountInfo?> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let wrapper: CompoundOperationWrapper<[StorageResponse<AccountInfo>]> = storageRequestFactory.queryItems(
+            engine: engine,
+            keyParams: { [accountId] },
+            factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+            storagePath: .account
+        )
+
+        let mapOperation = ClosureOperation<AccountInfo?> {
             try wrapper.targetOperation.extractNoCancellableResultData().first?.value
         }
 
