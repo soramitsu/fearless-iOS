@@ -405,3 +405,4 @@ Derivation path: %@";
 "staking.your.stake" = "Your stake";
 "staking.bonded" = "Bonded";
 "staking.earned" = "Earned";
+"staking.controller.account.zero.balance" = "We found that this account has no free tokens, are you sure that you want to change the controller?";

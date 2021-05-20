@@ -162,7 +162,8 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
     ) {
         let title = R.string.localizable
             .commonConfirmationTitle(preferredLanguages: locale?.rLanguages)
-        let message = "Selected controller's balance is zero. You will need some tokens to use it." // TODO:
+        let message = R.string.localizable
+            .stakingControllerAccountZeroBalance(preferredLanguages: locale?.rLanguages)
 
         presentWarning(
             for: title,
