@@ -8,6 +8,7 @@ final class StakingAmountPresenter {
     var interactor: StakingAmountInteractorInputProtocol!
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let errorBalanceViewModelFactory: BalanceViewModelFactoryProtocol
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
@@ -31,6 +32,7 @@ final class StakingAmountPresenter {
         selectedAccount: AccountItem,
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        errorBalanceViewModelFactory: BalanceViewModelFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
         logger: LoggerProtocol
     ) {
@@ -40,6 +42,7 @@ final class StakingAmountPresenter {
         payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.errorBalanceViewModelFactory = errorBalanceViewModelFactory
         self.applicationConfig = applicationConfig
         self.logger = logger
     }
@@ -139,13 +142,12 @@ final class StakingAmountPresenter {
 
         let locale = view.localizationManager?.selectedLocale ?? Locale.current
 
-        let value: String
-
-        if let amount = minimalAmount {
-            value = balanceViewModelFactory.amountFromValue(amount).value(for: locale)
-        } else {
-            value = ""
-        }
+        let value: String = {
+            if let amount = minimalAmount {
+                return errorBalanceViewModelFactory.amountFromValue(amount).value(for: locale)
+            }
+            return ""
+        }()
 
         wireframe.presentAmountTooLow(value: value, from: view, locale: locale)
     }
