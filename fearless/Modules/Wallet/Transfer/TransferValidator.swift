@@ -36,8 +36,7 @@ final class TransferValidator: TransferValidating {
 
         let receiverTotalAfterTransfer = transferMetadataContext.receiverBalance + sendingAmount
         guard
-            let chain = WalletAssetId(rawValue: info.asset)?.chain,
-            receiverTotalAfterTransfer >= chain.existentialDeposit
+            receiverTotalAfterTransfer >= balanceContext.minimalBalance
         else {
             throw FearlessTransferValidatingError.receiverBalanceTooLow
         }

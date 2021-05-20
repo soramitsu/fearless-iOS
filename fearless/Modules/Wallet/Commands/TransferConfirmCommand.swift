@@ -28,9 +28,7 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
     }
 
     func execute() throws {
-        guard let context = payload.transferInfo.context,
-              let chain = WalletAssetId(rawValue: payload.transferInfo.asset)?.chain
-        else {
+        guard let context = payload.transferInfo.context else {
             try undelyingCommand?.execute()
             return
         }
@@ -41,7 +39,7 @@ final class TransferConfirmCommand: WalletCommandDecoratorProtocol, WalletComman
         let totalFee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
         let totalAfterTransfer = balanceContext.total - (transferAmount + totalFee)
 
-        guard totalAfterTransfer < chain.existentialDeposit else {
+        guard totalAfterTransfer < balanceContext.minimalBalance else {
             try undelyingCommand?.execute()
             return
         }
