@@ -87,8 +87,11 @@ extension ControllerAccountInteractor: ControllerAccountInteractorInputProtocol 
             let accountInfoOperation = createAccountInfoFetchOperation(accountId)
             accountInfoOperation.targetOperation.completionBlock = { [weak presenter] in
                 DispatchQueue.main.async {
-                    if let result = accountInfoOperation.targetOperation.result {
-                        presenter?.didReceiveAccountInfo(result: result, address: controllerAddress)
+                    do {
+                        let accountInfo = try accountInfoOperation.targetOperation.extractNoCancellableResultData()
+                        presenter?.didReceiveAccountInfo(result: .success(accountInfo), address: controllerAddress)
+                    } catch {
+                        presenter?.didReceiveAccountInfo(result: .failure(error), address: controllerAddress)
                     }
                 }
             }

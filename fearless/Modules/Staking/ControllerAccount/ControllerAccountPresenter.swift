@@ -69,6 +69,7 @@ final class ControllerAccountPresenter {
         }
         if chosenControllerAddress != stashItem?.controller {
             stakingLedger = nil
+            controllerBalance = nil
             interactor.fetchLedger(controllerAddress: chosenControllerAddress)
             interactor.fetchControllerAccountInfo(controllerAddress: chosenControllerAddress)
         }
