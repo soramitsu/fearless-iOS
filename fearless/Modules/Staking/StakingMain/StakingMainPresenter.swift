@@ -261,11 +261,8 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
-    func stateMachineDidChangeState(_ stateMachine: StakingStateMachineProtocol) {
+    func stateMachineDidChangeState(_: StakingStateMachineProtocol) {
         provideState()
-        if let stashItem = stateMachine.viewState(using: { (state: BondedState) in state.stashItem }) {
-            interactor.fetchController(for: stashItem.controller)
-        }
     }
 }
 
