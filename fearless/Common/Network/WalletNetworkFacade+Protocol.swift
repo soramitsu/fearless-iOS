@@ -23,6 +23,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             }
         }
 
+        let minimalBalanceOperation: CompoundOperationWrapper<BigUInt> = fetchMinimalBalanceOperation()
+
         let currentTotalPriceId = totalPriceAssetId.rawValue
 
         let mergeOperation: BaseOperation<[BalanceData]?> = ClosureOperation {
@@ -32,6 +34,9 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                 try? operation.targetOperation
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             }
+
+            let rawMinimalBalance = try minimalBalanceOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             // match balance with price and form context
 
@@ -44,8 +49,19 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                         return balanceData
                     }
 
+                    let minimalBalance: Decimal
+                    if let asset = userAssets.first(where: { $0.identifier == balanceData.identifier }) {
+                        minimalBalance = Decimal.fromSubstrateAmount(
+                            rawMinimalBalance,
+                            precision: asset.precision
+                        ) ?? .zero
+                    } else {
+                        minimalBalance = .zero
+                    }
+
                     let context = BalanceContext(context: balanceData.context ?? [:])
                         .byChangingPrice(price.lastValue, newPriceChange: price.change)
+                        .byChangingMinimalBalance(to: minimalBalance)
                         .toContext()
 
                     return BalanceData(
@@ -83,7 +99,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             }
         }
 
-        let dependencies = balanceOperation.allOperations + flatenedPriceOperations
+        let dependencies = balanceOperation.allOperations + flatenedPriceOperations + minimalBalanceOperation.allOperations
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 
