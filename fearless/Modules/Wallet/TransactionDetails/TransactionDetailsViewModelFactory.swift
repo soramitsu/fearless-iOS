@@ -141,7 +141,7 @@ final class TransactionDetailsViewModelFactory {
     ) {
         let asset = assets.first(where: { $0.identifier == data.assetId })
 
-        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset).value(for: locale)
 
         for fee in data.fees where fee.assetId == data.assetId {
             guard let amount = formatter.stringFromDecimal(fee.amount.decimalValue) else {
