@@ -111,45 +111,26 @@ final class StakingAmountInteractor {
             in: .transient
         )
     }
-
-    private func provideMinimumAmount() {
-        let factoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let minimumOperation = PrimitiveConstantOperation<BigUInt>(path: .existentialDeposit)
-        minimumOperation.configurationBlock = {
-            do {
-                minimumOperation.codingFactory = try factoryOperation.extractNoCancellableResultData()
-            } catch {
-                minimumOperation.result = .failure(error)
-            }
-        }
-
-        minimumOperation.addDependency(factoryOperation)
-
-        minimumOperation.completionBlock = { [weak self] in
-            DispatchQueue.main.async {
-                do {
-                    let value = try minimumOperation.extractNoCancellableResultData()
-                    self?.presenter.didReceive(minimalAmount: value)
-                } catch {
-                    self?.presenter.didReceive(error: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(
-            operations: [factoryOperation, minimumOperation],
-            in: .transient
-        )
-    }
 }
 
-extension StakingAmountInteractor: StakingAmountInteractorInputProtocol {
+extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, RuntimeConstantFetching {
     func setup() {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         provideRewardCalculator()
-        provideMinimumAmount()
+
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            switch result {
+            case let .success(amount):
+                self?.presenter.didReceive(minimalAmount: amount)
+            case let .failure(error):
+                self?.presenter.didReceive(error: error)
+            }
+        }
     }
 
     func fetchAccounts() {
