@@ -79,7 +79,6 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let detailsCommand: WalletCommandProtocol?
 
-        // TODO: Refactor out existential deposit
         if let context = inputState.balance?.context, let commandFactory = commandFactory {
             let balanceContext = BalanceContext(context: context)
             let transferring = inputState.amount ?? .zero
