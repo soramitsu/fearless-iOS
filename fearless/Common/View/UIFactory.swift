@@ -50,7 +50,7 @@ protocol UIFactoryProtocol {
         locale: Locale
     ) -> UIToolbar
 
-    func createAccountView(for mode: AccountViewMode) -> DetailsTriangularedView
+    func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView
 
     func createNetworkFeeView() -> NetworkFeeView
 
@@ -67,7 +67,7 @@ protocol UIFactoryProtocol {
 
 extension UIFactoryProtocol {
     func createAccountView() -> DetailsTriangularedView {
-        createAccountView(for: .options)
+        createAccountView(for: .options, filled: false)
     }
 }
 
@@ -96,8 +96,8 @@ final class UIFactory: UIFactoryProtocol {
         if !filled {
             view.fillColor = .clear
             view.highlightedFillColor = .clear
-            view.strokeColor = R.color.colorGray()!
-            view.highlightedStrokeColor = R.color.colorGray()!
+            view.strokeColor = R.color.colorStrokeGray()!
+            view.highlightedStrokeColor = R.color.colorStrokeGray()!
             view.borderWidth = 1.0
         } else {
             view.fillColor = R.color.colorDarkGray()!
@@ -359,8 +359,8 @@ final class UIFactory: UIFactoryProtocol {
         return toolBar
     }
 
-    func createAccountView(for mode: AccountViewMode) -> DetailsTriangularedView {
-        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+    func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView {
+        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: filled)
         view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
 
         switch mode {
@@ -371,7 +371,6 @@ final class UIFactory: UIFactoryProtocol {
         }
 
         view.highlightedFillColor = R.color.colorHighlightedPink()!
-        view.strokeColor = R.color.colorStrokeGray()!
         view.borderWidth = 1
         return view
     }
