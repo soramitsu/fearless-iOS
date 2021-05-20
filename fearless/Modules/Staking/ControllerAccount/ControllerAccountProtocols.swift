@@ -24,6 +24,7 @@ protocol ControllerAccountInteractorInputProtocol: AnyObject {
     func setup()
     func estimateFee(for account: AccountItem)
     func fetchLedger(controllerAddress: AccountAddress)
+    func fetchControllerAccountInfo(controllerAddress: AccountAddress)
 }
 
 protocol ControllerAccountInteractorOutputProtocol: AnyObject {
@@ -32,7 +33,7 @@ protocol ControllerAccountInteractorOutputProtocol: AnyObject {
     func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress)
     func didReceiveStakingLedger(result: Result<StakingLedger?, Error>)
 }
 

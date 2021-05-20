@@ -34,8 +34,19 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
     }
 
     func createTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenFormatter> {
+        createTokenFormatterCommon(for: asset, roundingMode: .down)
+    }
+
+    func createFeeTokenFormatter(for asset: WalletAsset?) -> LocalizableResource<TokenFormatter> {
+        createTokenFormatterCommon(for: asset, roundingMode: .up)
+    }
+
+    private func createTokenFormatterCommon(
+        for asset: WalletAsset?,
+        roundingMode: NumberFormatter.RoundingMode
+    ) -> LocalizableResource<TokenFormatter> {
         let precision = asset?.identifier == WalletAssetId.usd.rawValue ? usdPrecision : assetPrecision
-        let formatter = createCompoundFormatter(for: precision)
+        let formatter = createCompoundFormatter(for: precision, roundingMode: roundingMode)
 
         if asset?.identifier == WalletAssetId.usd.rawValue {
             let tokenFormatter = TokenFormatter(
@@ -64,7 +75,10 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         }
     }
 
-    private func createCompoundFormatter(for preferredPrecision: Int) -> LocalizableDecimalFormatting {
+    private func createCompoundFormatter(
+        for preferredPrecision: Int,
+        roundingMode: NumberFormatter.RoundingMode = .down
+    ) -> LocalizableDecimalFormatting {
         let abbreviations: [BigNumberAbbreviation] = [
             BigNumberAbbreviation(
                 threshold: 0,
@@ -72,7 +86,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 suffix: "",
                 formatter: DynamicPrecisionFormatter(
                     preferredPrecision: UInt8(preferredPrecision),
-                    roundingMode: .down
+                    roundingMode: roundingMode
                 )
             ),
             BigNumberAbbreviation(
@@ -81,7 +95,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 suffix: "",
                 formatter: NumberFormatter.decimalFormatter(
                     precision: preferredPrecision,
-                    rounding: .down,
+                    rounding: roundingMode,
                     usesIntGrouping: true
                 )
             ),
@@ -91,7 +105,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
                 suffix: "",
                 formatter: NumberFormatter.decimalFormatter(
                     precision: preferredPrecision,
-                    rounding: .down,
+                    rounding: roundingMode,
                     usesIntGrouping: true
                 )
             ),
@@ -118,7 +132,7 @@ struct AmountFormatterFactory: NumberFormatterFactoryProtocol {
         return BigNumberFormatter(
             abbreviations: abbreviations,
             precision: 2,
-            rounding: .down,
+            rounding: roundingMode,
             usesIntGrouping: true
         )
     }

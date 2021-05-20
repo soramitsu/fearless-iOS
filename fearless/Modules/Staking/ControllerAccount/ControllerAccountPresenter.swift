@@ -19,6 +19,7 @@ final class ControllerAccountPresenter {
     private var canChooseOtherController = false
     private var fee: Decimal?
     private var balance: Decimal?
+    private var controllerBalance: Decimal?
     private var stakingLedger: StakingLedger?
 
     init(
@@ -62,13 +63,15 @@ final class ControllerAccountPresenter {
         }
     }
 
-    func refreshLedgerIfNeeded() {
+    private func refreshControllerInfoIfNeeded() {
         guard let chosenControllerAddress = chosenAccountItem?.address else {
             return
         }
         if chosenControllerAddress != stashItem?.controller {
             stakingLedger = nil
+            controllerBalance = nil
             interactor.fetchLedger(controllerAddress: chosenControllerAddress)
+            interactor.fetchControllerAccountInfo(controllerAddress: chosenControllerAddress)
         }
     }
 }
@@ -139,6 +142,7 @@ extension ControllerAccountPresenter: ControllerAccountPresenterProtocol {
                 fee: fee,
                 locale: locale
             ),
+            dataValidatingFactory.controllerBalanceIsNotZero(controllerBalance, locale: locale),
             dataValidatingFactory.ledgerNotExist(
                 stakingLedger: stakingLedger,
                 addressType: chain.addressType,
@@ -212,16 +216,24 @@ extension ControllerAccountPresenter: ControllerAccountInteractorOutputProtocol 
         }
     }
 
-    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress) {
         switch result {
         case let .success(accountInfo):
             if let accountInfo = accountInfo {
-                balance = Decimal.fromSubstrateAmount(
+                let amount = Decimal.fromSubstrateAmount(
                     accountInfo.data.available,
                     precision: chain.addressType.precision
                 )
-            } else {
-                balance = nil
+                switch address {
+                case chosenAccountItem?.address:
+                    controllerBalance = amount
+                case stashItem?.stash:
+                    balance = amount
+                default:
+                    logger?.warning("Recieved \(String(describing: amount)) for unknown address \(address)")
+                }
+            } else if chosenAccountItem?.address == address {
+                controllerBalance = nil
             }
         case let .failure(error):
             logger?.error("Account Info subscription error: \(error)")
@@ -245,7 +257,7 @@ extension ControllerAccountPresenter: ModalPickerViewControllerDelegate {
         }
 
         chosenAccountItem = accounts[index]
-        refreshLedgerIfNeeded()
+        refreshControllerInfoIfNeeded()
         updateView()
     }
 }
