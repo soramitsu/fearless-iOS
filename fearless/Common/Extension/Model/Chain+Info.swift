@@ -12,7 +12,7 @@ extension Chain {
         }
     }
 
-    var existentialDeposit: Decimal {
+    var minimalBalance: Decimal {
         switch self {
         case .polkadot:
             return Decimal(string: "1")!

@@ -38,8 +38,6 @@ final class TransferConfirmViewModelFactory {
 
         let detailsCommand: WalletCommandProtocol?
 
-        let existentialDeposit = assetId.chain?.existentialDeposit ?? .zero
-
         if let commandFactory = commandFactory {
             let transferring = payload.transferInfo.amount.decimalValue
             let fee = payload.transferInfo.fees.reduce(Decimal(0.0)) { $0 + $1.value.decimalValue }
@@ -48,7 +46,7 @@ final class TransferConfirmViewModelFactory {
                 totalAmount: context.total,
                 availableAmount: context.available,
                 totalAfterTransfer: remaining,
-                existentialDeposit: existentialDeposit
+                existentialDeposit: context.minimalBalance
             )
 
             let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)

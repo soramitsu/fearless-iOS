@@ -79,8 +79,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let detailsCommand: WalletCommandProtocol?
 
-        let existentialDeposit = assetId.chain?.existentialDeposit ?? .zero
-
+        // TODO: Refactor out existential deposit
         if let context = inputState.balance?.context, let commandFactory = commandFactory {
             let balanceContext = BalanceContext(context: context)
             let transferring = inputState.amount ?? .zero
@@ -90,7 +89,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
                 totalAmount: balanceContext.total,
                 availableAmount: balanceContext.available,
                 totalAfterTransfer: remaining,
-                existentialDeposit: existentialDeposit
+                existentialDeposit: balanceContext.minimalBalance
             )
 
             let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)
