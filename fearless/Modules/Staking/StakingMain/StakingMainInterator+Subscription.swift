@@ -137,6 +137,7 @@ extension StakingMainInteractor {
             subscribeToValidator(address: stashItem.stash)
             subscribeToTotalReward(address: stashItem.stash)
             subscribeToPayee(address: stashItem.stash)
+            fetchController(for: stashItem.controller)
         }
 
         presenter?.didReceive(stashItem: stashItem)

@@ -33,6 +33,7 @@ final class StakingMainPresenter {
 
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
+    private var controllerAccount: AccountItem?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -95,16 +96,49 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        let bonded = stateMachine.viewState { (_: BondedState) in true } ?? false
-
-        if bonded {
-            if let stashItem = stateMachine.viewState(using: { (state: BondedState) in state.stashItem }) {
-                interactor.fetchController(for: stashItem.controller)
-            } else {
-                logger?.warning("Unexpected state on main action")
-            }
-        } else {
+        guard let bonded = stateMachine.viewState(using: { (state: BondedState) in state }) else {
             wireframe.showSetupAmount(from: view, amount: amount)
+            return
+        }
+
+        guard let controllerAccount = controllerAccount else {
+            if let view = view {
+                let locale = view.localizationManager?.selectedLocale
+                let controllerAddress = bonded.stashItem.controller
+                wireframe.presentMissingController(from: view, address: controllerAddress, locale: locale)
+            }
+
+            return
+        }
+
+        let optExistingBonding: ExistingBonding? = stateMachine.viewState { (state: BondedState) in
+            guard
+                let chain = state.commonData.chain,
+                let amount = Decimal.fromSubstrateAmount(
+                    state.ledgerInfo.active,
+                    precision: chain.addressType.precision
+                ),
+                let payee = state.payee,
+                let rewardDestination = try? RewardDestination(
+                    payee: payee,
+                    stashItem: state.stashItem,
+                    chain: chain
+                ),
+                controllerAccount.address == state.stashItem.controller
+            else {
+                return nil
+            }
+
+            return ExistingBonding(
+                stashAddress: state.stashItem.stash,
+                controllerAccount: controllerAccount,
+                amount: amount,
+                rewardDestination: rewardDestination
+            )
+        }
+
+        if let existingBonding = optExistingBonding {
+            wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
         }
     }
 
@@ -211,13 +245,27 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performRedeemAction() {
+        guard let view = view else { return }
+        let selectedLocale = view.localizationManager?.selectedLocale
+        guard controllerAccount != nil else {
+            let baseState = stateMachine.viewState(using: { (state: BaseStashNextState) in state })
+            wireframe.presentMissingController(
+                from: view,
+                address: baseState?.stashItem.controller ?? "",
+                locale: selectedLocale
+            )
+            return
+        }
         wireframe.showRedeem(from: view)
     }
 }
 
 extension StakingMainPresenter: StakingStateMachineDelegate {
-    func stateMachineDidChangeState(_: StakingStateMachineProtocol) {
+    func stateMachineDidChangeState(_ stateMachine: StakingStateMachineProtocol) {
         provideState()
+        if let stashItem = stateMachine.viewState(using: { (state: BondedState) in state.stashItem }) {
+            interactor.fetchController(for: stashItem.controller)
+        }
     }
 }
 
@@ -390,48 +438,12 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didFetchController(_ controller: AccountItem?, for address: AccountAddress) {
-        guard let controller = controller else {
-            if let view = view {
-                let locale = view.localizationManager?.selectedLocale
-                wireframe.presentMissingController(from: view, address: address, locale: locale)
-            }
-
-            return
-        }
-
-        let optExistingBonding: ExistingBonding? = stateMachine.viewState { (state: BondedState) in
-            guard
-                let chain = state.commonData.chain,
-                let amount = Decimal.fromSubstrateAmount(
-                    state.ledgerInfo.active,
-                    precision: chain.addressType.precision
-                ),
-                let payee = state.payee,
-                let rewardDestination = try? RewardDestination(
-                    payee: payee,
-                    stashItem: state.stashItem,
-                    chain: chain
-                ),
-                controller.address == state.stashItem.controller
-            else {
-                return nil
-            }
-
-            return ExistingBonding(
-                stashAddress: state.stashItem.stash,
-                controllerAccount: controller,
-                amount: amount,
-                rewardDestination: rewardDestination
-            )
-        }
-
-        if let existingBonding = optExistingBonding {
-            wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
-        }
+    func didFetchController(_ controller: AccountItem?, for _: AccountAddress) {
+        controllerAccount = controller
     }
 
     func didReceive(fetchControllerError: Error) {
+        controllerAccount = nil
         handle(error: fetchControllerError)
     }
 }
