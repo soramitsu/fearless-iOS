@@ -12,17 +12,15 @@ extension NominatorState {
             let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
 
             if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil
-            {
-                return .active(era: eraStakers.era)
+                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
+                return .active
             }
 
             if nomination.submittedIn >= eraStakers.era {
                 return .waiting
             }
 
-            return .inactive(era: eraStakers.era)
-
+            return .inactive
         } catch {
             return .undefined
         }

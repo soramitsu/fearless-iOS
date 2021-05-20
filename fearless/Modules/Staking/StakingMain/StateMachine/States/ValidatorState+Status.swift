@@ -11,12 +11,10 @@ extension ValidatorState {
         do {
             let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
 
-            if eraStakers.validators
-                .first(where: { $0.accountId == accountId }) != nil {
-                return .active(era: eraStakers.era)
+            if eraStakers.validators.first(where: { $0.accountId == accountId }) != nil {
+                return .active
             }
-            return .inactive(era: eraStakers.era)
-
+            return .inactive
         } catch {
             return .undefined
         }

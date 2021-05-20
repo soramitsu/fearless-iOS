@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
@@ -67,46 +67,46 @@
                     <rect key="frame" x="0.0" y="0.0" width="414" height="131"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Staking" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="qWM-dm-mLK">
-                            <rect key="frame" x="16" y="15" width="56" height="18"/>
+                            <rect key="frame" x="16" y="15" width="47.5" height="16.5"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="14"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconHorMore" translatesAutoresizingMaskIntoConstraints="NO" id="WOg-aC-Mcs">
-                            <rect key="frame" x="374" y="12" width="24" height="24"/>
+                            <rect key="frame" x="374" y="11.5" width="24" height="24"/>
                         </imageView>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$812" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Fhk-jh-pW9">
-                            <rect key="frame" x="16" y="90.5" width="191" height="15.5"/>
+                            <rect key="frame" x="16" y="92" width="191" height="14"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                             <color key="textColor" name="colorTransparentText"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="10.00003 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="4pA-EK-QHl">
-                            <rect key="frame" x="16" y="68" width="191" height="20.5"/>
+                            <rect key="frame" x="16" y="65" width="191" height="25"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Total staked" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="twS-ZJ-9RP">
-                            <rect key="frame" x="16" y="48.5" width="191" height="15.5"/>
+                            <rect key="frame" x="16" y="47" width="191" height="14"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                             <color key="textColor" name="colorTransparentText"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" text="0.45 KSM" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="rFT-3I-w8w">
-                            <rect key="frame" x="207" y="68" width="191" height="20.5"/>
+                            <rect key="frame" x="207" y="65" width="191" height="25"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="16"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="252" text="Total rewards" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ABS-p6-AK0">
-                            <rect key="frame" x="207" y="48.5" width="191" height="15.5"/>
+                            <rect key="frame" x="207" y="47" width="191" height="14"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                             <color key="textColor" name="colorTransparentText"/>
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="$40.51" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="utf-CN-3GC">
-                            <rect key="frame" x="207" y="90.5" width="191" height="15.5"/>
+                            <rect key="frame" x="207" y="92" width="191" height="14"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="12"/>
                             <color key="textColor" name="colorTransparentText"/>
                             <nil key="highlightedColor"/>
@@ -191,32 +191,18 @@
                             </userDefinedRuntimeAttributes>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" text="ACTIVE" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="6Yr-ex-mku">
-                            <rect key="frame" x="16" y="16.5" width="38.5" height="13"/>
+                            <rect key="frame" x="16" y="17" width="34.5" height="12"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
                             <color key="textColor" name="colorGreen"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="ERA #1498" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dJM-N2-P95">
-                            <rect key="frame" x="62.5" y="16.5" width="293.5" height="13"/>
-                            <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="10"/>
-                            <color key="textColor" red="1" green="1" blue="1" alpha="0.64000000000000001" colorSpace="custom" customColorSpace="calibratedRGB"/>
-                            <nil key="highlightedColor"/>
-                        </label>
-                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="751" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="76R-Oj-nF6">
-                            <rect key="frame" x="356" y="10" width="24" height="24"/>
-                        </imageView>
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                     <constraints>
-                        <constraint firstItem="dJM-N2-P95" firstAttribute="centerY" secondItem="6Yr-ex-mku" secondAttribute="centerY" id="9FO-UG-qmY"/>
                         <constraint firstAttribute="height" constant="44" id="A5x-Zz-vlK"/>
                         <constraint firstItem="dWB-k1-miH" firstAttribute="leading" secondItem="fMa-jf-RbY" secondAttribute="leading" id="KzJ-Ba-PLX"/>
                         <constraint firstItem="dWB-k1-miH" firstAttribute="centerY" secondItem="fMa-jf-RbY" secondAttribute="centerY" id="OfO-05-AFq"/>
                         <constraint firstItem="6Yr-ex-mku" firstAttribute="centerY" secondItem="fMa-jf-RbY" secondAttribute="centerY" constant="1" id="QZm-eo-8yF"/>
-                        <constraint firstItem="76R-Oj-nF6" firstAttribute="leading" secondItem="dJM-N2-P95" secondAttribute="trailing" id="WAt-sW-ydG"/>
-                        <constraint firstAttribute="trailing" secondItem="76R-Oj-nF6" secondAttribute="trailing" constant="2" id="f9H-qE-95e"/>
-                        <constraint firstItem="76R-Oj-nF6" firstAttribute="centerY" secondItem="fMa-jf-RbY" secondAttribute="centerY" id="jrY-9R-xu3"/>
-                        <constraint firstItem="dJM-N2-P95" firstAttribute="leading" secondItem="6Yr-ex-mku" secondAttribute="trailing" constant="8" id="opg-2X-KOD"/>
                         <constraint firstItem="6Yr-ex-mku" firstAttribute="leading" secondItem="dWB-k1-miH" secondAttribute="trailing" constant="8" id="xdP-FU-J0U"/>
                     </constraints>
                     <userDefinedRuntimeAttributes>
@@ -278,9 +264,7 @@
                 <outlet property="stakedPriceLabel" destination="Fhk-jh-pW9" id="AUu-jY-je0"/>
                 <outlet property="stakedTitleLabel" destination="twS-ZJ-9RP" id="QJp-lD-uG8"/>
                 <outlet property="statusButton" destination="eSO-sw-XgP" id="S9h-kF-5Gn"/>
-                <outlet property="statusDetailsLabel" destination="dJM-N2-P95" id="sbg-RR-4VT"/>
                 <outlet property="statusIndicatorView" destination="dWB-k1-miH" id="aU2-YM-UB5"/>
-                <outlet property="statusNavigationView" destination="76R-Oj-nF6" id="4KZ-cd-eDr"/>
                 <outlet property="statusTitleLabel" destination="6Yr-ex-mku" id="jT7-Ju-Jhu"/>
                 <outlet property="titleLabel" destination="qWM-dm-mLK" id="wut-Ug-bDb"/>
             </connections>
@@ -297,12 +281,11 @@
     </designables>
     <resources>
         <image name="iconHorMore" width="24" height="24"/>
-        <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorGreen">
             <color red="0.054901960784313725" green="0.82745098039215681" blue="0.23137254901960785" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorHighlightedPink">
-            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.29999999999999999" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.0" blue="0.60392156862745094" alpha="0.30000001192092896" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorTransparentText">
             <color red="1" green="1" blue="1" alpha="0.63999998569488525" colorSpace="custom" customColorSpace="sRGB"/>

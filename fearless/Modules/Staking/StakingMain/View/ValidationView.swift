@@ -18,8 +18,6 @@ final class ValidationView: UIView, LocalizableViewProtocol {
     @IBOutlet private var rewardPriceLabel: UILabel!
     @IBOutlet private var statusIndicatorView: RoundedView!
     @IBOutlet private var statusTitleLabel: UILabel!
-    @IBOutlet private var statusDetailsLabel: UILabel!
-    @IBOutlet private var statusNavigationView: UIImageView!
 
     @IBOutlet private var statusButton: TriangularedButton!
 
@@ -74,39 +72,33 @@ final class ValidationView: UIView, LocalizableViewProtocol {
         switch viewModel.status {
         case .undefined:
             break
-        case let .active(era):
-            presentActiveStatus(for: era)
-        case let .inactive(era):
-            presentInactiveStatus(for: era)
+        case .active:
+            presentActiveStatus()
+        case .inactive:
+            presentInactiveStatus()
         }
     }
 
     private func toggleStatus(_ shouldShow: Bool) {
         statusTitleLabel.isHidden = !shouldShow
-        statusDetailsLabel.isHidden = !shouldShow
         statusIndicatorView.isHidden = !shouldShow
-        statusNavigationView.isHidden = !shouldShow
         statusButton.isUserInteractionEnabled = shouldShow
     }
 
-    private func presentActiveStatus(for era: UInt32) {
+    private func presentActiveStatus() {
         statusIndicatorView.fillColor = R.color.colorGreen()!
         statusTitleLabel.textColor = R.color.colorGreen()!
 
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages).uppercased()
-        statusDetailsLabel.text = R.string.localizable
-            .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
     }
 
-    private func presentInactiveStatus(for era: UInt32) {
+    private func presentInactiveStatus() {
         statusIndicatorView.fillColor = R.color.colorRed()!
         statusTitleLabel.textColor = R.color.colorRed()!
 
         statusTitleLabel.text = R.string.localizable
             .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages).uppercased()
-        statusDetailsLabel.text = R.string.localizable
-            .stakingEraTitle("\(era)", preferredLanguages: locale.rLanguages).uppercased()
     }
 
     @IBAction private func actionOnMore() {
