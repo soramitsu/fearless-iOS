@@ -405,3 +405,4 @@ Derivation path: %@";
 "staking.your.stake" = "Your stake";
 "staking.bonded" = "Bonded";
 "staking.earned" = "Earned";
+"tabbar.crowdloan.title" = "Crowdloan";
