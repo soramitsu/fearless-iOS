@@ -35,7 +35,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol, RuntimeCon
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             }
 
-            let rawMinimalBalance = try? minimalBalanceOperation.targetOperation
+            let rawMinimalBalance = try minimalBalanceOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
 
             // match balance with price and form context
@@ -51,12 +51,10 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol, RuntimeCon
 
                     let minimalBalance: Decimal
                     if let asset = userAssets.first(where: { $0.identifier == balanceData.identifier }) {
-                        let chain = WalletAssetId(rawValue: asset.identifier)?.chain
-
                         minimalBalance = Decimal.fromSubstrateAmount(
-                            rawMinimalBalance ?? .zero,
+                            rawMinimalBalance,
                             precision: asset.precision
-                        ) ?? chain?.minimalBalance ?? .zero
+                        ) ?? .zero
                     } else {
                         minimalBalance = .zero
                     }
