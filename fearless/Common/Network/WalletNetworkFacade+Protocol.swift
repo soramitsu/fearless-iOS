@@ -4,7 +4,7 @@ import RobinHood
 import IrohaCrypto
 import BigInt
 
-extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol, RuntimeConstantFetching {
+extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
     func fetchBalanceOperation(_ assets: [String]) -> CompoundOperationWrapper<[BalanceData]?> {
         let userAssets: [WalletAsset] = assets.compactMap { identifier in
             guard identifier != totalPriceAssetId.rawValue else {
