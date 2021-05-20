@@ -32,7 +32,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
 
-        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset).value(for: locale)
 
         let amount = formatter
             .stringFromDecimal(fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""

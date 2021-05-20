@@ -83,7 +83,7 @@ final class TransferConfirmViewModelFactory {
             return
         }
 
-        let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
+        let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset)
 
         for fee in payload.transferInfo.fees {
             let decimalAmount = fee.value.decimalValue
