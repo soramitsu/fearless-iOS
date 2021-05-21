@@ -6,7 +6,7 @@ extension AccountItem: Identifiable {
 }
 
 extension ConnectionItem: Identifiable {
-    var identifier: String { (url.scheme ?? "") + "://" + (url.host ?? "") }
+    var identifier: String { url.absoluteString }
 }
 
 extension ManagedAccountItem: Identifiable {
