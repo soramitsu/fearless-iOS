@@ -35,8 +35,6 @@ final class FearlessNavigationController: UINavigationController, UINavigationCo
         navigationBar.backIndicatorImage = R.image.iconBack()
         navigationBar.backIndicatorTransitionMaskImage = R.image.iconBack()
 
-        navigationItem.leftItemsSupplementBackButton = true
-
         navigationBar.titleTextAttributes = FearlessNavigationBarStyle.titleAttributes
     }
 
