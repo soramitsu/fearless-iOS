@@ -1,13 +1,20 @@
 import UIKit
+import SoraFoundation
 
-final class CrowdloanListViewController: UIViewController {
+final class CrowdloanListViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanListViewLayout
 
     let presenter: CrowdloanListPresenterProtocol
 
-    init(presenter: CrowdloanListPresenterProtocol) {
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? Locale.current
+    }
+
+    init(presenter: CrowdloanListPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
@@ -24,6 +31,19 @@ final class CrowdloanListViewController: UIViewController {
 
         presenter.setup()
     }
+
+    func setupLocalization() {
+        let languages = selectedLocale.rLanguages
+        title = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: languages)
+    }
 }
 
 extension CrowdloanListViewController: CrowdloanListViewProtocol {}
+
+extension CrowdloanListViewController: Localizable {
+    func applyLocalization() {
+        if isViewLoaded {
+            setupLocalization()
+        }
+    }
+}

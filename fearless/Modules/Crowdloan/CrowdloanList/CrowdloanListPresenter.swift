@@ -15,7 +15,13 @@ final class CrowdloanListPresenter {
 }
 
 extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
-    func setup() {}
+    func setup() {
+        interactor.setup()
+    }
+
+    func refresh() {
+        interactor.refresh()
+    }
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {}
