@@ -4,8 +4,8 @@ import IrohaCrypto
 extension ConnectionItem {
     static var defaultConnection: ConnectionItem {
         ConnectionItem(
-            title: "Kusama, Parity node",
-            url: URL(string: "wss://kusama-rpc.polkadot.io")!,
+            title: "Kusama, OnFinality node",
+            url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
             type: SNAddressType.kusamaMain
         )
     }
@@ -13,13 +13,13 @@ extension ConnectionItem {
     static var supportedConnections: [ConnectionItem] {
         [
             ConnectionItem(
-                title: "Kusama, Parity node",
-                url: URL(string: "wss://kusama-rpc.polkadot.io")!,
+                title: "Kusama, OnFinality node",
+                url: URL(string: "wss://kusama.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
                 type: SNAddressType.kusamaMain
             ),
             ConnectionItem(
-                title: "Kusama, OnFinality node",
-                url: URL(string: "wss://kusama.api.onfinality.io/public-ws")!,
+                title: "Kusama, Parity node",
+                url: URL(string: "wss://kusama-rpc.polkadot.io")!,
                 type: SNAddressType.kusamaMain
             ),
             ConnectionItem(
@@ -28,13 +28,13 @@ extension ConnectionItem {
                 type: SNAddressType.kusamaMain
             ),
             ConnectionItem(
-                title: "Polkadot, Parity node",
-                url: URL(string: "wss://rpc.polkadot.io")!,
+                title: "Polkadot, OnFinality node",
+                url: URL(string: "wss://polkadot.api.onfinality.io/ws?apikey=767ba403-66b9-402b-8018-640799c48793")!,
                 type: SNAddressType.polkadotMain
             ),
             ConnectionItem(
-                title: "Polkadot, OnFinality node",
-                url: URL(string: "wss://polkadot.api.onfinality.io/public-ws")!,
+                title: "Polkadot, Parity node",
+                url: URL(string: "wss://rpc.polkadot.io")!,
                 type: SNAddressType.polkadotMain
             ),
             ConnectionItem(
