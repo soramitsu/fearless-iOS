@@ -7,7 +7,7 @@ struct CrowdloanDisplayInfo: Codable, Equatable {
     let description: String
     let website: String
     let icon: String
-    let rewardRate: Decimal
+    let rewardRate: Decimal?
 }
 
 typealias CrowdloanDisplayInfoList = [CrowdloanDisplayInfo]

@@ -14,6 +14,12 @@ final class MainTabBarWireframe: MainTabBarWireframeProtocol {
         }
     }
 
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?) {
+        if let view = view {
+            MainTabBarViewFactory.reloadCrowdloanView(on: view)
+        }
+    }
+
     func reloadWalletContent() {
         try? walletContext.prepareAccountUpdateCommand().execute()
     }
