@@ -70,6 +70,36 @@ class TransferValidatorTests: XCTestCase {
 
         wait(for: [errorExpectation], timeout: Constants.defaultExpectationDuration)
     }
+
+    func testThrowSenderBalanceTooLowError() {
+        let validator = TransferValidator()
+        let positiveAmount = AmountDecimal(value: 1)
+        let asset = "assetId"
+        let fee = Fee(value: AmountDecimal(value: 0.01), feeDescription: .stub)
+        let transferInfo = TransferInfo.stub(amount: positiveAmount, asset: asset, fees: [fee])
+        let transferMetadata = TransferMetaData(feeDescriptions: [])
+        let balance = BalanceData(
+            identifier: asset,
+            balance: positiveAmount,
+            context: [
+                BalanceContext.freeKey: "1.0001",
+                BalanceContext.minimalBalanceKey: "1.0",
+            ]
+        )
+
+        let errorExpectation = XCTestExpectation()
+        do {
+            _ = try validator.validate(info: transferInfo, balances: [balance], metadata: transferMetadata)
+        } catch {
+            if case FearlessTransferValidatingError.senderBalanceTooLow = error {
+                errorExpectation.fulfill()
+            } else {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        wait(for: [errorExpectation], timeout: Constants.defaultExpectationDuration)
+    }
 }
 
 private extension TransferInfo {
