@@ -6,8 +6,8 @@ import CommonWallet
 class TransferValidatorTests: XCTestCase {
     func testThrowErrorIfAmountIsNotPositive() {
         let validator = TransferValidator()
-        let zeroAmount = AmountDecimal(value: 0)
-        let transferInfo = TransferInfo.stub(amount: zeroAmount)
+        let transferAmount = AmountDecimal(value: 0)
+        let transferInfo = TransferInfo.stub(amount: transferAmount)
         let transferMetadata = TransferMetaData(feeDescriptions: [])
 
         let errorExpectation = XCTestExpectation()
@@ -26,8 +26,8 @@ class TransferValidatorTests: XCTestCase {
 
     func testThrowMissingBalanceError() {
         let validator = TransferValidator()
-        let positiveAmount = AmountDecimal(value: 1)
-        let transferInfo = TransferInfo.stub(amount: positiveAmount)
+        let transferAmount = AmountDecimal(value: 1)
+        let transferInfo = TransferInfo.stub(amount: transferAmount)
         let transferMetadata = TransferMetaData(feeDescriptions: [])
 
         let errorExpectation = XCTestExpectation()
@@ -46,14 +46,15 @@ class TransferValidatorTests: XCTestCase {
 
     func testThrowUnsuffientFundsError() {
         let validator = TransferValidator()
-        let positiveAmount = AmountDecimal(value: 1)
+        let transferAmount = AmountDecimal(value: 0.9)
+        let availableAmount = AmountDecimal(value: 1)
         let asset = "assetId"
         let fee = Fee(value: AmountDecimal(value: 0.01), feeDescription: .stub)
-        let transferInfo = TransferInfo.stub(amount: positiveAmount, asset: asset, fees: [fee])
+        let transferInfo = TransferInfo.stub(amount: transferAmount, asset: asset, fees: [fee])
         let transferMetadata = TransferMetaData(feeDescriptions: [])
         let balance = BalanceData(
             identifier: asset,
-            balance: positiveAmount,
+            balance: availableAmount,
             context: [BalanceContext.freeKey: "0.9"]
         )
 
@@ -73,14 +74,15 @@ class TransferValidatorTests: XCTestCase {
 
     func testThrowSenderBalanceTooLowError() {
         let validator = TransferValidator()
-        let positiveAmount = AmountDecimal(value: 1)
+        let transferAmount = AmountDecimal(value: 0.9)
+        let availableAmount = AmountDecimal(value: 1)
         let asset = "assetId"
         let fee = Fee(value: AmountDecimal(value: 0.01), feeDescription: .stub)
-        let transferInfo = TransferInfo.stub(amount: positiveAmount, asset: asset, fees: [fee])
+        let transferInfo = TransferInfo.stub(amount: transferAmount, asset: asset, fees: [fee])
         let transferMetadata = TransferMetaData(feeDescriptions: [])
         let balance = BalanceData(
             identifier: asset,
-            balance: positiveAmount,
+            balance: availableAmount,
             context: [
                 BalanceContext.freeKey: "1.0001",
                 BalanceContext.minimalBalanceKey: "1.0",
@@ -92,6 +94,38 @@ class TransferValidatorTests: XCTestCase {
             _ = try validator.validate(info: transferInfo, balances: [balance], metadata: transferMetadata)
         } catch {
             if case FearlessTransferValidatingError.senderBalanceTooLow = error {
+                errorExpectation.fulfill()
+            } else {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        wait(for: [errorExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testThrowReceiverBalanceTooLowError() {
+        let validator = TransferValidator()
+        let transferAmount = AmountDecimal(value: 0.1)
+        let availableAmount = AmountDecimal(value: 1.2)
+        let asset = "assetId"
+        let fee = Fee(value: AmountDecimal(value: 0.1), feeDescription: .stub)
+        let transferInfo = TransferInfo.stub(amount: transferAmount, asset: asset, fees: [fee])
+        let transferMetadata = TransferMetaData(feeDescriptions: [])
+        let balance = BalanceData(
+            identifier: asset,
+            balance: availableAmount,
+            context: [
+                BalanceContext.freeKey: availableAmount.stringValue,
+                TransferMetadataContext.receiverBalanceKey: "0.1",
+                BalanceContext.minimalBalanceKey: "1.0",
+            ]
+        )
+
+        let errorExpectation = XCTestExpectation()
+        do {
+            _ = try validator.validate(info: transferInfo, balances: [balance], metadata: transferMetadata)
+        } catch {
+            if case FearlessTransferValidatingError.receiverBalanceTooLow = error {
                 errorExpectation.fulfill()
             } else {
                 XCTFail(error.localizedDescription)
