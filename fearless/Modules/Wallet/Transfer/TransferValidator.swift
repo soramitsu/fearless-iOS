@@ -27,7 +27,7 @@ final class TransferValidator: TransferValidating {
         let minimalBalance = balanceContext.minimalBalance
 
         guard availableBalance - totalFee >= minimalBalance else {
-            throw FearlessTransferValidatingError.senderBalanceTooLow
+            throw FearlessTransferValidatingError.cantPayFee
         }
 
         guard totalAmount < availableBalance else {

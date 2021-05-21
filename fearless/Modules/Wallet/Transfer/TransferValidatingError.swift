@@ -3,7 +3,7 @@ import CommonWallet
 
 enum FearlessTransferValidatingError: Error {
     case receiverBalanceTooLow
-    case senderBalanceTooLow
+    case cantPayFee
 }
 
 extension FearlessTransferValidatingError: WalletErrorContentConvertible {
@@ -17,7 +17,7 @@ extension FearlessTransferValidatingError: WalletErrorContentConvertible {
                 .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable
                 .walletSendDeadRecipientMessage(preferredLanguages: locale?.rLanguages)
-        case .senderBalanceTooLow:
+        case .cantPayFee:
             title = R.string.localizable
                 .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
             message = R.string.localizable

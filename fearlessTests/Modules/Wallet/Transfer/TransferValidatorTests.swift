@@ -93,7 +93,7 @@ class TransferValidatorTests: XCTestCase {
         do {
             _ = try validator.validate(info: transferInfo, balances: [balance], metadata: transferMetadata)
         } catch {
-            if case FearlessTransferValidatingError.senderBalanceTooLow = error {
+            if case FearlessTransferValidatingError.cantPayFee = error {
                 errorExpectation.fulfill()
             } else {
                 XCTFail(error.localizedDescription)
