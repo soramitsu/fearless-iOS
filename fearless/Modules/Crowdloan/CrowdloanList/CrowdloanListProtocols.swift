@@ -14,6 +14,7 @@ protocol CrowdloanListInteractorInputProtocol: AnyObject {
 
 protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveCrowdloans(result: Result<[Crowdloan], Error>)
+    func didReceiveDisplayInfo(result: Result<CrowdloanDisplayInfoDict, Error>)
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {}

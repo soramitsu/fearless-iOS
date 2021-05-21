@@ -1,6 +1,6 @@
 import Foundation
 
 struct Crowdloan {
-    let paraId: UInt32
+    let paraId: ParaId
     let fundInfo: CrowdloanFunds
 }

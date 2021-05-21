@@ -2,6 +2,7 @@ import Foundation
 
 typealias AccountAddress = String
 typealias AccountId = Data
+typealias ParaId = UInt32
 
 extension AccountId {
     static func matchHex(_ value: String) -> AccountId? {

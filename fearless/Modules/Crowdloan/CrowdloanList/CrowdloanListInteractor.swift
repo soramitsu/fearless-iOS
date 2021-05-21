@@ -9,17 +9,20 @@ final class CrowdloanListInteractor {
     let requestOperationFactory: StorageRequestFactoryProtocol
     let connection: JSONRPCEngine
     let operationManager: OperationManagerProtocol
+    let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
     let logger: LoggerProtocol?
 
     init(
         runtimeService: RuntimeCodingServiceProtocol,
         requestOperationFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
+        displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.runtimeService = runtimeService
         self.requestOperationFactory = requestOperationFactory
+        self.displayInfoProvider = displayInfoProvider
         self.connection = connection
         self.operationManager = operationManager
         self.logger = logger
@@ -68,7 +71,7 @@ final class CrowdloanListInteractor {
 
         mapOperation.addDependency(fundsOperation.targetOperation)
 
-        fundsOperation.targetOperation.completionBlock = { [weak self] in
+        mapOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
                     let crowdloans = try mapOperation.extractNoCancellableResultData()
@@ -83,14 +86,39 @@ final class CrowdloanListInteractor {
 
         operationManager.enqueue(operations: operations, in: .transient)
     }
+
+    private func subscribeToDisplayInfo() {
+        let updateClosure: ([DataProviderChange<CrowdloanDisplayInfoList>]) -> Void = { [weak self] changes in
+            if let result = changes.reduceToLastChange() {
+                self?.presenter.didReceiveDisplayInfo(result: .success(result.toMap()))
+            }
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceiveDisplayInfo(result: .failure(error))
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: true, waitsInProgressSyncOnAdd: false)
+
+        displayInfoProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
+        subscribeToDisplayInfo()
         provideCrowdloans()
     }
 
     func refresh() {
+        displayInfoProvider.refresh()
+
         provideCrowdloans()
     }
 }
