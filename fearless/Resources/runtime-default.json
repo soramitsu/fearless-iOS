@@ -14,6 +14,7 @@
     "H256": "H256",
     "H512": "H512",
     "Hash": "H256",
+    "BlockHash": "Hash",
     "CallHash": "Hash",
     "CallHashOf": "CallHash",
     "Fixed64": "u64",
@@ -2597,6 +2598,162 @@
         ]
       ]
     },
+    "BridgedBlockHash": "H256",
+    "BridgedBlockNumber": "BlockNumber",
+    "BridgedHeader": "Header",
+    "Precommit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "target_hash",
+          "BridgedBlockHash"
+        ],
+        [
+          "target_number",
+          "BridgedBlockNumber"
+        ]
+      ]
+    },
+    "SignedPrecommit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "precommit",
+          "Precommit"
+        ],
+        [
+          "signature",
+          "AuthoritySignature"
+        ],
+        [
+          "id",
+          "AuthorityId"
+        ]
+      ]
+    },
+    "Commit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "target_hash",
+          "BridgedBlockHash"
+        ],
+        [
+          "target_number",
+          "BridgedBlockNumber"
+        ],
+        [
+          "precommits",
+          "Vec<SignedPrecommit>"
+        ]
+      ]
+    },
+    "InitializationData": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "header",
+          "Header"
+        ],
+        [
+          "authorityList",
+          "AuthorityList"
+        ],
+        [
+          "setId",
+          "SetId"
+        ],
+        [
+          "isHalted",
+          "bool"
+        ]
+      ]
+    },
+    "super::initializationdata<bridgedheader<t, i>>": "InitializationData",
+    "AuthoritySet": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "currentAuthorities",
+          "AuthorityList"
+        ],
+        [
+          "setId",
+          "u64"
+        ],
+        [
+          "pendingStandardChanges",
+          "ForkTreePendingChange"
+        ],
+        [
+          "pendingForcedChanges",
+          "Vec<PendingChange>"
+        ],
+        [
+          "authoritySetChanges",
+          "AuthoritySetChanges"
+        ]
+      ]
+    },
+    "ForkTreePendingChange": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "roots",
+          "Vec<ForkTreePendingChangeNode>"
+        ],
+        [
+          "bestFinalizedNumber",
+          "Option<BlockNumber>"
+        ]
+      ]
+    },
+    "ForkTreePendingChangeNode": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "hash",
+          "BlockHash"
+        ],
+        [
+          "number",
+          "BlockNumber"
+        ],
+        [
+          "data",
+          "PendingChange"
+        ],
+        [
+          "children",
+          "Vec<ForkTreePendingChangeNode>"
+        ]
+      ]
+    },
+    "AuthoritySetChange": "(U64, BlockNumber)",
+    "AuthoritySetChanges": "Vec<AuthoritySetChange>",
+    "DelayKind": {
+      "type": "enum",
+      "type_mapping": [
+        [
+          "Finalized",
+          "Null"
+        ],
+        [
+          "Best",
+          "DelayKindBest"
+        ]
+      ]
+    },
+    "DelayKindBest": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "medianLastFinalized",
+          "BlockNumber"
+        ]
+      ]
+    },
+    "bp_header_chain::authorityset": "AuthoritySet",
     "HeaderPartial": {
       "type": "struct",
       "type_mapping": [
@@ -3135,6 +3292,107 @@
         [
           "votes16",
           "Vec<(NominatorIndexCompact, [CompactScoreCompact; 15], ValidatorIndexCompact)>"
+        ]
+      ]
+    },
+    "CompactAssignmentsFrom265": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "votes1",
+          "Vec<(NominatorIndexCompact, ValidatorIndexCompact)>"
+        ],
+        [
+          "votes2",
+          "Vec<(NominatorIndexCompact, CompactScoreCompact, ValidatorIndexCompact)>"
+        ],
+        [
+          "votes3",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 2], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes4",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 3], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes5",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 4], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes6",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 5], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes7",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 6], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes8",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 7], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes9",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 8], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes10",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 9], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes11",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 10], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes12",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 11], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes13",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 12], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes14",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 13], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes15",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 14], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes16",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 15], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes17",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 16], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes18",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 17], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes19",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 18], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes20",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 19], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes21",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 20], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes22",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 21], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes23",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 22], ValidatorIndexCompact)>"
+        ],
+        [
+          "votes24",
+          "Vec<(NominatorIndexCompact, [CompactScoreCompact; 23], ValidatorIndexCompact)>"
         ]
       ]
     },
@@ -3914,6 +4172,70 @@
         [
           "targetNumber",
           "BlockNumber"
+        ]
+      ]
+    },
+    "GrandpaCommit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "targetHash",
+          "BlockHash"
+        ],
+        [
+          "targetNumber",
+          "BlockNumber"
+        ],
+        [
+          "precommits",
+          "Vec<GrandpaSignedPrecommit>"
+        ]
+      ]
+    },
+    "GrandpaPrecommit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "targetHash",
+          "BlockHash"
+        ],
+        [
+          "targetNumber",
+          "BlockNumber"
+        ]
+      ]
+    },
+    "GrandpaSignedPrecommit": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "precommit",
+          "GrandpaPrecommit"
+        ],
+        [
+          "signature",
+          "AuthoritySignature"
+        ],
+        [
+          "id",
+          "AuthorityId"
+        ]
+      ]
+    },
+    "GrandpaJustification": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "round",
+          "u64"
+        ],
+        [
+          "commit",
+          "GrandpaCommit"
+        ],
+        [
+          "votesAncestries",
+          "Vec<Header>"
         ]
       ]
     },
@@ -5527,7 +5849,6 @@
         "Approve"
       ]
     },
-    "BlockHash": "Hash",
     "UncleEntryItem": {
       "type": "enum",
       "type_mapping": [
@@ -5740,10 +6061,6 @@
       "type": "struct",
       "type_mapping": [
         [
-          "retiring",
-          "bool"
-        ],
-        [
           "depositor",
           "AccountId"
         ],
@@ -5817,6 +6134,31 @@
         [
           "second",
           "(GrandpaPrevote, AuthoritySignature)"
+        ]
+      ]
+    },
+    "PendingChange": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "nextAuthorities",
+          "AuthorityList"
+        ],
+        [
+          "delay",
+          "BlockNumber"
+        ],
+        [
+          "canonHeight",
+          "BlockNumber"
+        ],
+        [
+          "canonHash",
+          "BlockHash"
+        ],
+        [
+          "delayKind",
+          "DelayKind"
         ]
       ]
     },
@@ -6478,6 +6820,127 @@
         [
           "validatorPayment",
           "Compact<Balance>"
+        ]
+      ]
+    },
+    "ClassId": "u32",
+    "InstanceId": "u32",
+    "DepositBalance": "Balance",
+    "DepositBalanceOf": "Balance",
+    "ClassDetails": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "owner",
+          "AccountId"
+        ],
+        [
+          "issuer",
+          "AccountId"
+        ],
+        [
+          "admin",
+          "AccountId"
+        ],
+        [
+          "freezer",
+          "AccountId"
+        ],
+        [
+          "totalTeposit",
+          "DepositBalance"
+        ],
+        [
+          "freeHolding",
+          "bool"
+        ],
+        [
+          "instances",
+          "u32"
+        ],
+        [
+          "instanceMetadatas",
+          "u32"
+        ],
+        [
+          "isFrozen",
+          "bool"
+        ]
+      ]
+    },
+    "DestroyWitness": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "instances",
+          "Compact<u32>"
+        ],
+        [
+          "instanceMetadatas",
+          "Compact<u32>"
+        ]
+      ]
+    },
+    "InstanceDetails": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "owner",
+          "AccountId"
+        ],
+        [
+          "approved",
+          "Option<AccountId>"
+        ],
+        [
+          "isFrozen",
+          "bool"
+        ],
+        [
+          "deposit",
+          "DepositBalance"
+        ]
+      ]
+    },
+    "ClassMetadata": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "deposit",
+          "DepositBalance"
+        ],
+        [
+          "name",
+          "Vec<u8>"
+        ],
+        [
+          "information",
+          "Vec<u8>"
+        ],
+        [
+          "isFrozen",
+          "bool"
+        ]
+      ]
+    },
+    "InstanceMetadata": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "deposit",
+          "DepositBalance"
+        ],
+        [
+          "name",
+          "Vec<u8>"
+        ],
+        [
+          "information",
+          "Vec<u8>"
+        ],
+        [
+          "isFrozen",
+          "bool"
         ]
       ]
     },
@@ -8285,7 +8748,6 @@
       ]
     },
     "Text, Text": "(Text, Text)",
-    "DestroyWitness": "AssetDestroyWitness",
     "Phase<BlockNumber>": {
       "type": "enum",
       "type_mapping": [

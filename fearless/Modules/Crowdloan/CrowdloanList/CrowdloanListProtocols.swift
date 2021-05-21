@@ -12,6 +12,8 @@ protocol CrowdloanListInteractorInputProtocol: AnyObject {
     func refresh()
 }
 
-protocol CrowdloanListInteractorOutputProtocol: AnyObject {}
+protocol CrowdloanListInteractorOutputProtocol: AnyObject {
+    func didReceiveCrowdloans(result: Result<[Crowdloan], Error>)
+}
 
 protocol CrowdloanListWireframeProtocol: AnyObject {}

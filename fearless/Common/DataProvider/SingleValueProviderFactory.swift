@@ -29,6 +29,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedActiveEra>
     func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedPayee>
+
+    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 }
 
 final class SingleValueProviderFactory {
@@ -371,5 +373,27 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             runtimeService: runtimeService,
             shouldUseFallback: false
         )
+    }
+
+    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T> {
+        let localKey = url.absoluteString
+
+        if let provider = providers[localKey]?.target as? SingleValueProvider<T> {
+            return AnySingleValueProvider(provider)
+        }
+
+        let source = JsonSingleProviderSource<T>(url: url)
+
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = facade.createRepository()
+
+        let singleValueProvider = SingleValueProvider(
+            targetIdentifier: localKey,
+            source: AnySingleValueProviderSource(source),
+            repository: AnyDataProviderRepository(repository)
+        )
+
+        providers[localKey] = WeakWrapper(target: singleValueProvider)
+
+        return AnySingleValueProvider(singleValueProvider)
     }
 }

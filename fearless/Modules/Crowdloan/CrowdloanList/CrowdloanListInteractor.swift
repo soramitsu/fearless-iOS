@@ -31,8 +31,8 @@ final class CrowdloanListInteractor {
         let codingKeyFactory = StorageKeyFactory()
 
         let mapper = StorageKeySuffixMapper<StringScaleMapper<UInt32>>(
-            type: "ParaId",
-            suffixLength: 4,
+            type: SubstrateConstants.paraIdType,
+            suffixLength: SubstrateConstants.paraIdLength,
             coderFactoryClosure: { try coderFactoryOperation.extractNoCancellableResultData() }
         )
 
@@ -43,7 +43,7 @@ final class CrowdloanListInteractor {
             mapper: AnyMapper(mapper: mapper)
         ).longrunOperation()
 
-        let fundsOperation: CompoundOperationWrapper<[StorageResponse<JSON>]> =
+        let fundsOperation: CompoundOperationWrapper<[StorageResponse<CrowdloanFunds>]> =
             requestOperationFactory.queryItems(
                 engine: connection,
                 keyParams: {
@@ -56,18 +56,30 @@ final class CrowdloanListInteractor {
 
         fundsOperation.allOperations.forEach { $0.addDependency(paraIdsOperation) }
 
+        let mapOperation = ClosureOperation<[Crowdloan]> {
+            try fundsOperation.targetOperation.extractNoCancellableResultData().compactMap { response in
+                guard let fundInfo = response.value, let paraId = mapper.map(input: response.key)?.value else {
+                    return nil
+                }
+
+                return Crowdloan(paraId: paraId, fundInfo: fundInfo)
+            }
+        }
+
+        mapOperation.addDependency(fundsOperation.targetOperation)
+
         fundsOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let crowdloans = try fundsOperation.targetOperation.extractNoCancellableResultData()
-                    self?.logger?.info("Crowdloans: \(crowdloans)")
+                    let crowdloans = try mapOperation.extractNoCancellableResultData()
+                    self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
-                    self?.logger?.error("Did receive error: \(error)")
+                    self?.presenter.didReceiveCrowdloans(result: .failure(error))
                 }
             }
         }
 
-        let operations = [coderFactoryOperation, paraIdsOperation] + fundsOperation.allOperations
+        let operations = [coderFactoryOperation, paraIdsOperation] + fundsOperation.allOperations + [mapOperation]
 
         operationManager.enqueue(operations: operations, in: .transient)
     }

@@ -24,4 +24,6 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     }
 }
 
-extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {}
+extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
+    func didReceiveCrowdloans(result _: Result<[Crowdloan], Error>) {}
+}
