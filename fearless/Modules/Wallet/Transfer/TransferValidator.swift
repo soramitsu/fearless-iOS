@@ -24,6 +24,11 @@ final class TransferValidator: TransferValidating {
         let sendingAmount = info.amount.decimalValue
         let totalAmount = sendingAmount + totalFee
         let availableBalance = balanceContext.available
+        let minimalBalance = balanceContext.minimalBalance
+
+        guard availableBalance - totalFee >= minimalBalance else {
+            throw FearlessTransferValidatingError.cantPayFee
+        }
 
         guard totalAmount < availableBalance else {
             throw TransferValidatingError.unsufficientFunds(
@@ -35,9 +40,7 @@ final class TransferValidator: TransferValidating {
         let transferMetadataContext = TransferMetadataContext(context: metadata.context ?? [:])
 
         let receiverTotalAfterTransfer = transferMetadataContext.receiverBalance + sendingAmount
-        guard
-            receiverTotalAfterTransfer >= balanceContext.minimalBalance
-        else {
+        guard receiverTotalAfterTransfer >= balanceContext.minimalBalance else {
             throw FearlessTransferValidatingError.receiverBalanceTooLow
         }
 

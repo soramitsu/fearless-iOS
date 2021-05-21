@@ -43,12 +43,6 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let balances: [BalanceData]? = try balanceOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)?
                 .map { balanceData in
-                    guard let price = prices
-                        .first(where: { $0.assetId.rawValue == balanceData.identifier })
-                    else {
-                        return balanceData
-                    }
-
                     let minimalBalance: Decimal
                     if let asset = userAssets.first(where: { $0.identifier == balanceData.identifier }) {
                         minimalBalance = Decimal.fromSubstrateAmount(
@@ -60,14 +54,19 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                     }
 
                     let context = BalanceContext(context: balanceData.context ?? [:])
-                        .byChangingPrice(price.lastValue, newPriceChange: price.change)
                         .byChangingMinimalBalance(to: minimalBalance)
-                        .toContext()
+
+                    let contextWithPrice: BalanceContext = {
+                        guard
+                            let price = prices.first(where: { $0.assetId.rawValue == balanceData.identifier })
+                        else { return context }
+                        return context.byChangingPrice(price.lastValue, newPriceChange: price.change)
+                    }()
 
                     return BalanceData(
                         identifier: balanceData.identifier,
                         balance: balanceData.balance,
-                        context: context
+                        context: contextWithPrice.toContext()
                     )
                 }
 
