@@ -12,7 +12,7 @@ class TransferValidatorTests: XCTestCase {
 
         let zeroAmountErrorThrowsExpectation = XCTestExpectation()
         do {
-            _ = try validator.validate(info: transferInfo, balances: [], metadata:  transferMetadata)
+            _ = try validator.validate(info: transferInfo, balances: [], metadata: transferMetadata)
         } catch {
             if case TransferValidatingError.zeroAmount = error {
                 zeroAmountErrorThrowsExpectation.fulfill()
@@ -22,6 +22,26 @@ class TransferValidatorTests: XCTestCase {
         }
 
         wait(for: [zeroAmountErrorThrowsExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testThrowMissingBalanceError() {
+        let validator = TransferValidator()
+        let positiveAmount = AmountDecimal(value: 1)
+        let transferInfo = TransferInfo.stub(amount: positiveAmount)
+        let transferMetadata = TransferMetaData(feeDescriptions: [])
+
+        let missingBalanceErrorThrowsExpectation = XCTestExpectation()
+        do {
+            _ = try validator.validate(info: transferInfo, balances: [], metadata: transferMetadata)
+        } catch {
+            if case TransferValidatingError.missingBalance = error {
+                missingBalanceErrorThrowsExpectation.fulfill()
+            } else {
+                XCTFail(error.localizedDescription)
+            }
+        }
+
+        wait(for: [missingBalanceErrorThrowsExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }
 
