@@ -20,7 +20,8 @@ extension FearlessTransferValidatingError: WalletErrorContentConvertible {
         case .senderBalanceTooLow:
             title = R.string.localizable
                 .walletSendDeadRecipientTitle(preferredLanguages: locale?.rLanguages)
-            message = "You have to pay a fee over and above the existential deposit." // TODO:
+            message = R.string.localizable
+                .walletFeeOverExistentialDeposit(preferredLanguages: locale?.rLanguages)
         }
 
         return ErrorContent(title: title, message: message)
