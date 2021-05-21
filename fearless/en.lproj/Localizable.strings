@@ -406,4 +406,4 @@ Derivation path: %@";
 "staking.earned" = "Earned";
 "staking.controller.account.zero.balance" = "We found that this account has no free tokens, are you sure that you want to change the controller?";
 "wallet.send.balance.minimal" = "Minimal balance";
-"wallet.fee.over.existential.deposit" = "You have to pay a fee over and above the existential deposit.";
+"wallet.fee.over.existential.deposit" = "You should have funds to pay fee and remain above minimal balance.";
