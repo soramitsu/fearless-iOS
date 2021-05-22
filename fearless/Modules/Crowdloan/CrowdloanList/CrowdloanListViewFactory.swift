@@ -11,21 +11,31 @@ struct CrowdloanListViewFactory {
 
         let wireframe = CrowdloanListWireframe()
 
-        let presenter = CrowdloanListPresenter(
-            interactor: interactor,
-            wireframe: wireframe,
-            logger: Logger.shared
-        )
+        let localizationManager = LocalizationManager.shared
 
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
+        let viewModelFactory = CrowdloansViewModelFactory(
+            amountFormatterFactory: AmountFormatterFactory(),
+            asset: asset,
+            chain: addressType.chain
+        )
+
+        let presenter = CrowdloanListPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory,
+            localizationManager: localizationManager,
+            logger: Logger.shared
+        )
+
         let view = CrowdloanListViewController(
             presenter: presenter,
             tokenSymbol: LocalizableResource { _ in asset.symbol },
-            localizationManager: LocalizationManager.shared
+            localizationManager: localizationManager
         )
 
         presenter.view = view

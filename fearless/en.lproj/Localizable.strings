@@ -408,3 +408,7 @@ Derivation path: %@";
 "tabbar.crowdloan.title" = "Crowdloan";
 "crowdloan.list.section.format" = "Select parachains to contribute your %@. You will receive rewards if the parachain acquires a slot by the end of the auction.";
 "crowdloan.you.contributions.title" = "Your contributions";
+"crowdloan.progress.format" = "Raised: %@ of %@";
+"crowdloan.active.section.format" = "Active (%@)";
+"crowdloan.completed.section.format" = "Completed (%@)";
+"crowdloan.empty.message" = "Information about crowdloans\n will appear here";

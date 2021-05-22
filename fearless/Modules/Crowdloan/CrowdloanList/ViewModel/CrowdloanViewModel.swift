@@ -5,19 +5,24 @@ import CommonWallet
 enum CrowdloanListState {
     case loading
     case loaded(viewModel: CrowdloansViewModel)
-    case error
+    case error(message: String)
     case empty
 }
 
 struct CrowdloansViewModel {
-    let contributionsCount: LocalizableResource<String>?
+    let contributionsCount: String?
     let active: CrowdloansSectionViewModel<ActiveCrowdloanViewModel>?
     let completed: CrowdloansSectionViewModel<CompletedCrowdloanViewModel>?
 }
 
 struct CrowdloansSectionViewModel<T> {
-    let title: LocalizableResource<String>
-    let crowdloans: [LocalizableResource<T>]
+    let title: String
+    let crowdloans: [CrowdloanSectionItem<T>]
+}
+
+struct CrowdloanSectionItem<T> {
+    let paraId: ParaId
+    let content: T
 }
 
 struct ActiveCrowdloanViewModel {

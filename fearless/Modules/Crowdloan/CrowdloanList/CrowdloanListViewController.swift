@@ -1,5 +1,6 @@
 import UIKit
 import SoraFoundation
+import SoraUI
 
 final class CrowdloanListViewController: UIViewController, ViewHolder {
     typealias RootViewType = CrowdloanListViewLayout
@@ -7,10 +8,6 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     let presenter: CrowdloanListPresenterProtocol
 
     let tokenSymbol: LocalizableResource<String>
-
-    var selectedLocale: Locale {
-        localizationManager?.selectedLocale ?? Locale.current
-    }
 
     private var state: CrowdloanListState = .loading
 
@@ -56,9 +53,26 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         rootView.tableView.delegate = self
     }
 
-    func setupLocalization() {
+    private func setupLocalization() {
         let languages = selectedLocale.rLanguages
         title = R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: languages)
+    }
+
+    private func applyState() {
+        switch state {
+        case .loading:
+            rootView.tableView.isHidden = true
+            didStartLoading()
+        case .loaded:
+            didStopLoading()
+            rootView.tableView.isHidden = false
+            rootView.tableView.reloadData()
+        case .empty, .error:
+            didStopLoading()
+            rootView.tableView.isHidden = true
+        }
+
+        reloadEmptyState(animated: false)
     }
 }
 
@@ -106,7 +120,7 @@ extension CrowdloanListViewController: UITableViewDataSource {
                 return titleCell
             case 1:
                 let yourCrowdloansCell = tableView.dequeueReusableCellWithType(YourCrowdloansTableViewCell.self)!
-                let counter = viewModel.contributionsCount?.value(for: selectedLocale) ?? ""
+                let counter = viewModel.contributionsCount ?? ""
                 yourCrowdloansCell.bind(details: counter, for: selectedLocale)
                 return yourCrowdloansCell
             default:
@@ -115,14 +129,14 @@ extension CrowdloanListViewController: UITableViewDataSource {
         } else if indexPath.section == 1, let active = viewModel.active {
             return createActiveTableViewCell(
                 tableView,
-                viewModel: active.crowdloans[indexPath.row].value(for: selectedLocale)
+                viewModel: active.crowdloans[indexPath.row].content
             )
         }
 
         if let completed = viewModel.completed {
             return createCompletedTableViewCell(
                 tableView,
-                viewModel: completed.crowdloans[indexPath.row].value(for: selectedLocale)
+                viewModel: completed.crowdloans[indexPath.row].content
             )
         }
 
@@ -161,32 +175,24 @@ extension CrowdloanListViewController: UITableViewDelegate {
         let headerView: CrowdloanStatusSectionView = tableView.dequeueReusableHeaderFooterView()
 
         if section == 1, let active = viewModel.active {
-            headerView.bind(title: active.title.value(for: selectedLocale), status: .active)
+            headerView.bind(title: active.title, status: .active)
         } else if let completed = viewModel.completed {
-            headerView.bind(title: completed.title.value(for: selectedLocale), status: .completed)
+            headerView.bind(title: completed.title, status: .completed)
         }
 
         return headerView
     }
 
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        40.0
+    func tableView(_: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
+        section > 0 ? 40.0 : 0.0
     }
 }
 
 extension CrowdloanListViewController: CrowdloanListViewProtocol {
     func didReceive(state: CrowdloanListState) {
         self.state = state
-        rootView.tableView.reloadData()
-    }
 
-    func didUpdateProgress(for viewModel: CrowdloansViewModel) {
-        guard case .loaded = state else {
-            return
-        }
-
-        state = .loaded(viewModel: viewModel)
-        rootView.tableView.reloadData()
+        applyState()
     }
 }
 
@@ -194,7 +200,52 @@ extension CrowdloanListViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
-            rootView.tableView.reloadData()
         }
+    }
+}
+
+extension CrowdloanListViewController: LoadableViewProtocol {}
+
+extension CrowdloanListViewController: EmptyStateViewOwnerProtocol {
+    var emptyStateDelegate: EmptyStateDelegate { self }
+    var emptyStateDataSource: EmptyStateDataSource { self }
+}
+
+extension CrowdloanListViewController: EmptyStateDataSource {
+    var viewForEmptyState: UIView? {
+        switch state {
+        case let .error(message):
+            let errorView = ErrorStateView()
+            errorView.errorDescriptionLabel.text = message
+            errorView.delegate = self
+            return errorView
+        case .empty:
+            let emptyView = EmptyStateView()
+            emptyView.image = R.image.iconEmptyHistory()
+            emptyView.title = R.string.localizable
+                .crowdloanEmptyMessage(preferredLanguages: selectedLocale.rLanguages)
+            emptyView.titleColor = R.color.colorLightGray()!
+            emptyView.titleFont = .p2Paragraph
+            return emptyView
+        case .loading, .loaded:
+            return nil
+        }
+    }
+}
+
+extension CrowdloanListViewController: EmptyStateDelegate {
+    var shouldDisplayEmptyState: Bool {
+        switch state {
+        case .error, .empty:
+            return true
+        case .loading, .loaded:
+            return false
+        }
+    }
+}
+
+extension CrowdloanListViewController: ErrorStateViewDelegate {
+    func didRetry(errorView _: ErrorStateView) {
+        presenter.refresh()
     }
 }

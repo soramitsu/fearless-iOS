@@ -106,7 +106,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
             make.top.equalToSuperview().inset(11)
         }
 
-        addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.horizontalInset)
@@ -121,7 +121,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
             make.centerY.equalTo(titleLabel)
         }
 
-        addSubview(timeLabel)
+        contentView.addSubview(timeLabel)
 
         timeLabel.snp.makeConstraints { make in
             make.trailing.equalTo(navigationImageView.snp.leading).offset(-8.0)
@@ -129,7 +129,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
         }
 
-        addSubview(detailsLabel)
+        contentView.addSubview(detailsLabel)
 
         detailsLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
@@ -137,11 +137,12 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        addSubview(progressLabel)
+        contentView.addSubview(progressLabel)
 
         progressLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
             make.top.equalTo(detailsLabel.snp.bottom).offset(8.0)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.bottom.equalToSuperview().inset(12.0)
         }
     }

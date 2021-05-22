@@ -77,7 +77,13 @@ final class CrowdloanListInteractor {
                     let crowdloans = try mapOperation.extractNoCancellableResultData()
                     self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
-                    self?.presenter.didReceiveCrowdloans(result: .failure(error))
+                    if
+                        let encodingError = error as? StorageKeyEncodingOperationError,
+                        encodingError == .invalidStoragePath {
+                        self?.presenter.didReceiveCrowdloans(result: .success([]))
+                    } else {
+                        self?.presenter.didReceiveCrowdloans(result: .failure(error))
+                    }
                 }
             }
         }
