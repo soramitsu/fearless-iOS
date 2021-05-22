@@ -406,3 +406,5 @@ Derivation path: %@";
 "staking.bonded" = "Bonded";
 "staking.earned" = "Earned";
 "tabbar.crowdloan.title" = "Crowdloan";
+"crowdloan.list.section.format" = "Select parachains to contribute your %@. You will receive rewards if the parachain acquires a slot by the end of the auction.";
+"crowdloan.you.contributions.title" = "Your contributions";
