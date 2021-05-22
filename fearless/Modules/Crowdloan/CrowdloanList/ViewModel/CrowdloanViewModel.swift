@@ -17,7 +17,6 @@ struct CrowdloansViewModel {
 
 struct CrowdloansSectionViewModel<T> {
     let title: LocalizableResource<String>
-    let status: CrowdloanStatus
     let crowdloans: [LocalizableResource<T>]
 }
 
@@ -26,12 +25,12 @@ struct ActiveCrowdloanViewModel {
     let timeleft: String
     let description: String
     let progress: String
-    let image: WalletImageViewModelProtocol
+    let iconViewModel: WalletImageViewModelProtocol
 }
 
 struct CompletedCrowdloanViewModel {
     let title: String
     let description: String
     let progress: String
-    let image: WalletImageViewModelProtocol
+    let iconViewModel: WalletImageViewModelProtocol
 }

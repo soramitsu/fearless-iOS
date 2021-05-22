@@ -43,6 +43,15 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         return label
     }()
 
+    private var viewModel: ActiveCrowdloanViewModel?
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        viewModel?.iconViewModel.cancel()
+        iconImageView.image = nil
+    }
+
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
@@ -56,7 +65,22 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
     }
 
     func bind(viewModel: ActiveCrowdloanViewModel) {
-        
+        self.viewModel = viewModel
+
+        titleLabel.text = viewModel.title
+        detailsLabel.text = viewModel.description
+        progressLabel.text = viewModel.progress
+        timeLabel.text = viewModel.timeleft
+
+        if let image = viewModel.iconViewModel.image {
+            iconImageView.image = image
+        } else {
+            viewModel.iconViewModel.loadImage { [weak self] image, _ in
+                if let image = image {
+                    self?.iconImageView.image = image
+                }
+            }
+        }
     }
 
     private func configure() {

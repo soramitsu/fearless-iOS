@@ -17,8 +17,14 @@ struct CrowdloanListViewFactory {
             logger: Logger.shared
         )
 
+        let settings = SettingsManager.shared
+        let addressType = settings.selectedConnection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: SettingsManager.shared)
+        let asset = primitiveFactory.createAssetForAddressType(addressType)
+
         let view = CrowdloanListViewController(
             presenter: presenter,
+            tokenSymbol: LocalizableResource { _ in asset.symbol },
             localizationManager: LocalizationManager.shared
         )
 

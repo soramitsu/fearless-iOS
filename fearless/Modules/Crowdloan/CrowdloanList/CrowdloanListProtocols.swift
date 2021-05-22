@@ -1,6 +1,9 @@
 import SoraFoundation
 
-protocol CrowdloanListViewProtocol: ControllerBackedProtocol, Localizable {}
+protocol CrowdloanListViewProtocol: ControllerBackedProtocol, Localizable {
+    func didReceive(state: CrowdloanListState)
+    func didUpdateProgress(for viewModel: CrowdloansViewModel)
+}
 
 protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()

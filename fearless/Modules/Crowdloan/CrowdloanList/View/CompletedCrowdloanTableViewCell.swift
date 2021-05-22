@@ -36,13 +36,36 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
         setupLayout()
     }
 
+    private var viewModel: CompletedCrowdloanViewModel?
+
+    override func prepareForReuse() {
+        super.prepareForReuse()
+
+        viewModel?.iconViewModel.cancel()
+        iconImageView.image = nil
+    }
+
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
 
     func bind(viewModel: CompletedCrowdloanViewModel) {
+        self.viewModel = viewModel
 
+        titleLabel.text = viewModel.title
+        detailsLabel.text = viewModel.description
+        progressLabel.text = viewModel.progress
+
+        if let image = viewModel.iconViewModel.image {
+            iconImageView.image = image
+        } else {
+            viewModel.iconViewModel.loadImage { [weak self] image, _ in
+                if let image = image {
+                    self?.iconImageView.image = image
+                }
+            }
+        }
     }
 
     private func configure() {

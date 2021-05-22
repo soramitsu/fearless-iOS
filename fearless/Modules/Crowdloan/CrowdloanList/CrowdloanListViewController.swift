@@ -63,7 +63,6 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 }
 
 extension CrowdloanListViewController: UITableViewDataSource {
-
     func numberOfSections(in _: UITableView) -> Int {
         switch state {
         case let .loaded(viewModel):
@@ -161,6 +160,12 @@ extension CrowdloanListViewController: UITableViewDelegate {
 
         let headerView: CrowdloanStatusSectionView = tableView.dequeueReusableHeaderFooterView()
 
+        if section == 1, let active = viewModel.active {
+            headerView.bind(title: active.title.value(for: selectedLocale), status: .active)
+        } else if let completed = viewModel.completed {
+            headerView.bind(title: completed.title.value(for: selectedLocale), status: .completed)
+        }
+
         return headerView
     }
 
@@ -169,12 +174,27 @@ extension CrowdloanListViewController: UITableViewDelegate {
     }
 }
 
-extension CrowdloanListViewController: CrowdloanListViewProtocol {}
+extension CrowdloanListViewController: CrowdloanListViewProtocol {
+    func didReceive(state: CrowdloanListState) {
+        self.state = state
+        rootView.tableView.reloadData()
+    }
+
+    func didUpdateProgress(for viewModel: CrowdloansViewModel) {
+        guard case .loaded = state else {
+            return
+        }
+
+        state = .loaded(viewModel: viewModel)
+        rootView.tableView.reloadData()
+    }
+}
 
 extension CrowdloanListViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()
+            rootView.tableView.reloadData()
         }
     }
 }
