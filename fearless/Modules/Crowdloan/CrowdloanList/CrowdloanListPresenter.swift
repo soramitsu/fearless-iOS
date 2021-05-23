@@ -45,15 +45,20 @@ final class CrowdloanListPresenter {
         }
 
         guard
-            case let .success(crowdloans) = crowdloansResult,
-            case let .success(blockDuration) = blockDurationResult,
-            case let .success(leasingPeriod) = leasingPeriodResult else {
+            case let .success(crowdloans) = crowdloansResult else {
             provideViewErrorState()
             return
         }
 
         guard !crowdloans.isEmpty else {
             view?.didReceive(state: .empty)
+            return
+        }
+
+        guard
+            case let .success(blockDuration) = blockDurationResult,
+            case let .success(leasingPeriod) = leasingPeriodResult else {
+            provideViewErrorState()
             return
         }
 
