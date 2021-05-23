@@ -88,6 +88,12 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
+    func process(maxNominatorsPerValidator: UInt32?) {
+        commonData = commonData.byReplacing(maxNominatorsPerValidator: maxNominatorsPerValidator)
+
+        stateMachine?.transit(to: self)
+    }
+
     func process(rewardEstimationAmount _: Decimal?) {}
     func process(stashItem _: StashItem?) {}
     func process(ledgerInfo _: StakingLedger?) {}

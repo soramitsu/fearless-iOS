@@ -23073,6 +23073,21 @@ import SoraFoundation
     
     
     
+     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveMaxNominatorsPerValidator(result: result))
+        
+    }
+    
+    
+    
      func didFetchController(_ controller: AccountItem?, for address: AccountAddress)  {
         
     return cuckoo_manager.call("didFetchController(_: AccountItem?, for: AccountAddress)",
@@ -23238,6 +23253,11 @@ import SoraFoundation
 	    func didReceive<M1: Cuckoo.Matchable>(newChain: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Chain)> where M1.MatchedType == Chain {
 	        let matchers: [Cuckoo.ParameterMatcher<(Chain)>] = [wrap(matchable: newChain) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(newChain: Chain)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveMaxNominatorsPerValidator<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<UInt32, Error>)> where M1.MatchedType == Result<UInt32, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt32, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(AccountItem?, AccountAddress)> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
@@ -23423,6 +23443,12 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveMaxNominatorsPerValidator<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<UInt32, Error>), Void> where M1.MatchedType == Result<UInt32, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<UInt32, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didFetchController<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.Matchable>(_ controller: M1, for address: M2) -> Cuckoo.__DoNotUse<(AccountItem?, AccountAddress), Void> where M1.OptionalMatchedType == AccountItem, M2.MatchedType == AccountAddress {
 	        let matchers: [Cuckoo.ParameterMatcher<(AccountItem?, AccountAddress)>] = [wrap(matchable: controller) { $0.0 }, wrap(matchable: address) { $0.1 }]
 	        return cuckoo_manager.verify("didFetchController(_: AccountItem?, for: AccountAddress)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -23544,6 +23570,10 @@ import SoraFoundation
     }
     
      func didReceive(newChain: Chain)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

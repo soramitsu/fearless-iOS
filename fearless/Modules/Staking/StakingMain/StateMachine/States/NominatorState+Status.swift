@@ -11,9 +11,19 @@ extension NominatorState {
         do {
             let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
 
-            if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil
-            {
+            let maybeValidator = eraStakers.validators.first { validator in
+                let nominators: [IndividualExposure] = {
+                    if let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator {
+                        return validator.exposure.clippedNominators(for: maxNominatorsPerValidator)
+                    } else {
+                        return validator.exposure.others
+                    }
+                }()
+
+                return nominators.contains(where: { $0.who == accountId })
+            }
+
+            if maybeValidator != nil {
                 return .active(era: eraStakers.era)
             }
 

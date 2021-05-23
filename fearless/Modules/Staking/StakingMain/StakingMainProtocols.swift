@@ -59,6 +59,8 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 
+    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
+
     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)
     func didReceive(fetchControllerError: Error)
 }
