@@ -25,4 +25,8 @@ extension ConstantCodingPath {
     static var paraLeasingPeriod: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Slots", constantName: "LeasePeriod")
     }
+
+    static var babeBlockTime: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Babe", constantName: "ExpectedBlockTime")
+    }
 }

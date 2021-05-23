@@ -2,7 +2,7 @@ import UIKit
 import FearlessUtils
 import RobinHood
 
-final class CrowdloanListInteractor {
+final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
 
     let runtimeService: RuntimeCodingServiceProtocol
@@ -125,6 +125,24 @@ final class CrowdloanListInteractor {
             options: options
         )
     }
+
+    private func provideConstants() {
+        fetchConstant(
+            for: .babeBlockTime,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BlockTime, Error>) in
+            self?.presenter.didReceiveBlockDuration(result: result)
+        }
+
+        fetchConstant(
+            for: .paraLeasingPeriod,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<LeasingPeriod, Error>) in
+            self?.presenter.didReceiveLeasingPeriod(result: result)
+        }
+    }
 }
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
@@ -134,12 +152,16 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
         subscribeToDisplayInfo()
 
         blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
+
+        provideConstants()
     }
 
     func refresh() {
         displayInfoProvider.refresh()
 
         provideCrowdloans()
+
+        provideConstants()
     }
 }
 

@@ -11,6 +11,8 @@ final class CrowdloanListPresenter {
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
     private var blockNumber: BlockNumber?
+    private var blockDurationResult: Result<BlockTime, Error>?
+    private var leasingPeriodResult: Result<LeasingPeriod, Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -26,19 +28,28 @@ final class CrowdloanListPresenter {
         self.localizationManager = localizationManager
     }
 
+    private func provideViewErrorState() {
+        let message = R.string.localizable
+            .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
+        view?.didReceive(state: .error(message: message))
+    }
+
     private func updateView() {
         guard
             let crowdloansResult = crowdloansResult,
             let displayInfoResult = displayInfoResult,
+            let blockDurationResult = blockDurationResult,
+            let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber else {
             view?.didReceive(state: .loading)
             return
         }
 
-        guard case let .success(crowdloans) = crowdloansResult else {
-            let message = R.string.localizable
-                .commonErrorNoDataRetrieved(preferredLanguages: selectedLocale.rLanguages)
-            view?.didReceive(state: .error(message: message))
+        guard
+            case let .success(crowdloans) = crowdloansResult,
+            case let .success(blockDuration) = blockDurationResult,
+            case let .success(leasingPeriod) = leasingPeriodResult else {
+            provideViewErrorState()
             return
         }
 
@@ -49,10 +60,16 @@ final class CrowdloanListPresenter {
 
         let displayInfo = try? displayInfoResult.get()
 
+        let metadata = CrowdloanMetadata(
+            blockNumber: blockNumber,
+            blockDuration: blockDuration,
+            leasingPeriod: leasingPeriod
+        )
+
         let viewModel = viewModelFactory.createViewModel(
             from: crowdloans,
             displayInfo: displayInfo,
-            blockNumber: blockNumber,
+            metadata: metadata,
             locale: selectedLocale
         )
 
@@ -99,6 +116,16 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         case let .failure(error):
             logger?.error("Did receivee block number error: \(error)")
         }
+    }
+
+    func didReceiveBlockDuration(result: Result<BlockTime, Error>) {
+        blockDurationResult = result
+        updateView()
+    }
+
+    func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>) {
+        leasingPeriodResult = result
+        updateView()
     }
 }
 

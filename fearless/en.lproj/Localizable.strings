@@ -412,3 +412,5 @@ Derivation path: %@";
 "crowdloan.active.section.format" = "Active (%@)";
 "crowdloan.completed.section.format" = "Completed (%@)";
 "crowdloan.empty.message" = "Information about crowdloans\n will appear here";
+"common.time.left.format" = "%@ left";
+

@@ -4,11 +4,17 @@ import SoraFoundation
 import IrohaCrypto
 import FearlessUtils
 
+struct CrowdloanMetadata {
+    let blockNumber: BlockNumber
+    let blockDuration: BlockTime
+    let leasingPeriod: LeasingPeriod
+}
+
 protocol CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
         displayInfo: CrowdloanDisplayInfoDict?,
-        blockNumber: BlockNumber,
+        metadata: CrowdloanMetadata,
         locale: Locale
     ) -> CrowdloansViewModel
 }
@@ -25,6 +31,7 @@ final class CrowdloansViewModelFactory {
         let token: TokenFormatter
         let quantity: NumberFormatter
         let display: LocalizableDecimalFormatting
+        let time: TimeFormatterProtocol
     }
 
     let amountFormatterFactory: NumberFormatterFactoryProtocol
@@ -33,6 +40,10 @@ final class CrowdloansViewModelFactory {
 
     private lazy var addressFactory = SS58AddressFactory()
     private lazy var iconGenerator = PolkadotIconGenerator()
+
+    private lazy var dateFormatter = {
+        CompoundDateFormatterBuilder()
+    }()
 
     init(amountFormatterFactory: NumberFormatterFactoryProtocol, asset: WalletAsset, chain: Chain) {
         self.amountFormatterFactory = amountFormatterFactory
@@ -97,9 +108,14 @@ final class CrowdloansViewModelFactory {
     private func createActiveCrowdloanViewModel(
         from model: Crowdloan,
         displayInfo: CrowdloanDisplayInfo?,
+        metadata: CrowdloanMetadata,
         formatters: Formatters,
         locale: Locale
     ) -> ActiveCrowdloanViewModel? {
+        guard !model.isCompleted(at: metadata.blockNumber) else {
+            return nil
+        }
+
         guard let commonContent = createCommonContent(
             from: model,
             displayInfo: displayInfo,
@@ -109,9 +125,54 @@ final class CrowdloansViewModelFactory {
             return nil
         }
 
+        let timeLeft: String = {
+            let remainedTime = model.remainedTime(
+                at: metadata.blockNumber,
+                blockDuration: metadata.blockDuration
+            )
+
+            let dayDuration: TimeInterval = 24 * 3600
+
+            if remainedTime >= dayDuration {
+                let daysLeft = Int(remainedTime / dayDuration)
+                return R.string.localizable.stakingPayoutsDaysLeft(format: daysLeft)
+            } else {
+                let time = try? formatters.time.string(from: remainedTime)
+                return R.string.localizable.commonTimeLeftFormat(time ?? "")
+            }
+        }()
+
         return ActiveCrowdloanViewModel(
             title: commonContent.title,
-            timeleft: "",
+            timeleft: timeLeft,
+            description: commonContent.details,
+            progress: commonContent.progress,
+            iconViewModel: commonContent.imageViewModel
+        )
+    }
+
+    private func createCompletedCrowdloanViewModel(
+        from model: Crowdloan,
+        displayInfo: CrowdloanDisplayInfo?,
+        metadata: CrowdloanMetadata,
+        formatters: Formatters,
+        locale: Locale
+    ) -> CompletedCrowdloanViewModel? {
+        guard model.isCompleted(at: metadata.blockNumber) else {
+            return nil
+        }
+
+        guard let commonContent = createCommonContent(
+            from: model,
+            displayInfo: displayInfo,
+            formatters: formatters,
+            locale: locale
+        ) else {
+            return nil
+        }
+
+        return CompletedCrowdloanViewModel(
+            title: commonContent.title,
             description: commonContent.details,
             progress: commonContent.progress,
             iconViewModel: commonContent.imageViewModel
@@ -123,9 +184,10 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
         displayInfo: CrowdloanDisplayInfoDict?,
-        blockNumber _: BlockNumber,
+        metadata: CrowdloanMetadata,
         locale: Locale
     ) -> CrowdloansViewModel {
+        let timeFormatter = TotalTimeFormatter()
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)
         let tokenFormatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
         let displayFormatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
@@ -133,7 +195,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         let formatters = Formatters(
             token: tokenFormatter,
             quantity: quantityFormatter,
-            display: displayFormatter
+            display: displayFormatter,
+            time: timeFormatter
         )
 
         let activeCrowdloans: [CrowdloanSectionItem<ActiveCrowdloanViewModel>] =
@@ -141,6 +204,7 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
                 guard let viewModel = createActiveCrowdloanViewModel(
                     from: crowdloan,
                     displayInfo: displayInfo?[crowdloan.paraId],
+                    metadata: metadata,
                     formatters: formatters,
                     locale: locale
                 ) else {
@@ -161,10 +225,38 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             return CrowdloansSectionViewModel(title: title, crowdloans: activeCrowdloans)
         }()
 
+        let completedCrowdloans: [CrowdloanSectionItem<CompletedCrowdloanViewModel>] =
+            crowdloans.compactMap { crowdloan in
+                guard let viewModel = createCompletedCrowdloanViewModel(
+                    from: crowdloan,
+                    displayInfo: displayInfo?[crowdloan.paraId],
+                    metadata: metadata,
+                    formatters: formatters,
+                    locale: locale
+                ) else {
+                    return nil
+                }
+
+                return CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
+            }
+
+        let completedSection: CrowdloansSectionViewModel<CompletedCrowdloanViewModel>? = {
+            guard !completedCrowdloans.isEmpty else {
+                return nil
+            }
+
+            let countString = quantityFormatter.string(
+                from: NSNumber(value: completedCrowdloans.count)
+            ) ?? ""
+            let title = R.string.localizable.crowdloanCompletedSectionFormat(countString)
+
+            return CrowdloansSectionViewModel(title: title, crowdloans: completedCrowdloans)
+        }()
+
         return CrowdloansViewModel(
             contributionsCount: nil,
             active: activeSection,
-            completed: nil
+            completed: completedSection
         )
     }
 }

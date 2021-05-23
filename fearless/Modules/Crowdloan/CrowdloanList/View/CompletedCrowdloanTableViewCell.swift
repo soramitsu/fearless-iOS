@@ -91,7 +91,7 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
             make.top.equalToSuperview().inset(11)
         }
 
-        addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
 
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.horizontalInset)
@@ -99,7 +99,7 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        addSubview(detailsLabel)
+        contentView.addSubview(detailsLabel)
 
         detailsLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
@@ -107,7 +107,7 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        addSubview(progressLabel)
+        contentView.addSubview(progressLabel)
 
         progressLabel.snp.makeConstraints { make in
             make.leading.equalTo(titleLabel)
