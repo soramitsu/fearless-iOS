@@ -18,6 +18,7 @@ abstract_target 'fearlessAll' do
   pod 'SnapKit', '~> 5.0.0'
   pod 'SwiftFormat/CLI', '~> 0.47.13'
   pod 'Sourcery', '~> 1.4'
+  pod 'Kingfisher', :inhibit_warnings => true
 
   target 'fearlessTests' do
     inherit! :search_paths

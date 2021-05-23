@@ -41,7 +41,6 @@ final class CrowdloanListPresenter {
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber else {
-            view?.didReceive(state: .loading)
             return
         }
 
@@ -86,8 +85,6 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 
     func refresh() {
         crowdloansResult = nil
-
-        updateView()
 
         interactor.refresh()
     }

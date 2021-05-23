@@ -6,6 +6,7 @@ final class CrowdloanListViewLayout: UIView {
         let view = UITableView()
         view.backgroundColor = .clear
         view.separatorColor = R.color.colorDarkGray()
+        view.refreshControl = UIRefreshControl()
         return view
     }()
 

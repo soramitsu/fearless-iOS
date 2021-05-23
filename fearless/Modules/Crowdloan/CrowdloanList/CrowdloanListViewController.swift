@@ -38,6 +38,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
         configure()
         setupLocalization()
+        applyState()
 
         presenter.setup()
     }
@@ -51,6 +52,10 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
+
+        if let refreshControl = rootView.tableView.refreshControl {
+            refreshControl.addTarget(self, action: #selector(actionRefresh), for: .valueChanged)
+        }
     }
 
     private func setupLocalization() {
@@ -64,15 +69,21 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
             rootView.tableView.isHidden = true
             didStartLoading()
         case .loaded:
+            rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
             rootView.tableView.isHidden = false
             rootView.tableView.reloadData()
         case .empty, .error:
+            rootView.tableView.refreshControl?.endRefreshing()
             didStopLoading()
             rootView.tableView.isHidden = true
         }
 
         reloadEmptyState(animated: false)
+    }
+
+    @objc func actionRefresh() {
+        presenter.refresh()
     }
 }
 

@@ -30,12 +30,12 @@ struct ActiveCrowdloanViewModel {
     let timeleft: String
     let description: String
     let progress: String
-    let iconViewModel: WalletImageViewModelProtocol
+    let iconViewModel: ImageViewModelProtocol
 }
 
 struct CompletedCrowdloanViewModel {
     let title: String
     let description: String
     let progress: String
-    let iconViewModel: WalletImageViewModelProtocol
+    let iconViewModel: ImageViewModelProtocol
 }

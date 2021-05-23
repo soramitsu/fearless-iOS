@@ -24,7 +24,7 @@ final class CrowdloansViewModelFactory {
         let title: String
         let details: String
         let progress: String
-        let imageViewModel: WalletImageViewModelProtocol
+        let imageViewModel: ImageViewModelProtocol
     }
 
     struct Formatters {
@@ -89,19 +89,26 @@ final class CrowdloansViewModelFactory {
             }
         }()
 
-        let icon = try? iconGenerator.generateFromAddress(depositorAddress).imageWithFillColor(
-            R.color.colorWhite()!,
-            size: UIConstants.normalAddressIconSize,
-            contentScale: UIScreen.main.scale
-        )
+        let iconViewModel: ImageViewModelProtocol = {
+            if let urlString = displayInfo?.icon, let url = URL(string: urlString) {
+                return RemoteImageViewModel(url: url)
+            } else {
+                let icon = try? iconGenerator.generateFromAddress(depositorAddress).imageWithFillColor(
+                    R.color.colorWhite()!,
+                    size: UIConstants.normalAddressIconSize,
+                    contentScale: UIScreen.main.scale
+                )
 
-        let imageViewModel = WalletStaticImageViewModel(staticImage: icon ?? UIImage())
+                return WalletStaticImageViewModel(staticImage: icon ?? UIImage())
+            }
+
+        }()
 
         return CommonContent(
             title: title ?? "",
             details: details ?? "",
             progress: progress,
-            imageViewModel: imageViewModel
+            imageViewModel: iconViewModel
         )
     }
 

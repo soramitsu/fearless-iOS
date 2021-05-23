@@ -48,7 +48,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
     override func prepareForReuse() {
         super.prepareForReuse()
 
-        viewModel?.iconViewModel.cancel()
+        viewModel?.iconViewModel.cancel(on: iconImageView)
         iconImageView.image = nil
     }
 
@@ -72,15 +72,11 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         progressLabel.text = viewModel.progress
         timeLabel.text = viewModel.timeleft
 
-        if let image = viewModel.iconViewModel.image {
-            iconImageView.image = image
-        } else {
-            viewModel.iconViewModel.loadImage { [weak self] image, _ in
-                if let image = image {
-                    self?.iconImageView.image = image
-                }
-            }
-        }
+        viewModel.iconViewModel.loadImage(
+            on: iconImageView,
+            targetSize: CrowdloanViewConstants.iconSize,
+            animated: true
+        )
     }
 
     private func configure() {
@@ -102,7 +98,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
 
         iconImageView.snp.makeConstraints { make in
             make.left.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.size.equalTo(28)
+            make.size.equalTo(CrowdloanViewConstants.iconSize)
             make.top.equalToSuperview().inset(11)
         }
 
