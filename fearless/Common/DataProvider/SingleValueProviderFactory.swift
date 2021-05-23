@@ -10,6 +10,7 @@ typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
+typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -29,6 +30,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedActiveEra>
     func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedPayee>
+    func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBlockNumber>
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 }
@@ -372,6 +375,18 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             hasher: .twox64Concat,
             runtimeService: runtimeService,
             shouldUseFallback: false
+        )
+    }
+
+    func getBlockNumber(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBlockNumber> {
+        try getProviderForChain(
+            chain,
+            path: .blockNumber,
+            runtimeService: runtimeService,
+            shouldUseFallback: true
         )
     }
 

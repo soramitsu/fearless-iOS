@@ -101,4 +101,8 @@ extension StorageCodingPath {
     static var crowdloanFunds: StorageCodingPath {
         StorageCodingPath(moduleName: "Crowdloan", itemName: "Funds")
     }
+
+    static var blockNumber: StorageCodingPath {
+        StorageCodingPath(moduleName: "System", itemName: "Number")
+    }
 }

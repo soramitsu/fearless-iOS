@@ -10,21 +10,32 @@ final class CrowdloanListInteractor {
     let connection: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let chain: Chain
     let logger: LoggerProtocol?
+
+    private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
 
     init(
         runtimeService: RuntimeCodingServiceProtocol,
         requestOperationFactory: StorageRequestFactoryProtocol,
         connection: JSONRPCEngine,
-        displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        chain: Chain,
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
         self.runtimeService = runtimeService
         self.requestOperationFactory = requestOperationFactory
-        self.displayInfoProvider = displayInfoProvider
+
+        displayInfoProvider = singleValueProviderFactory.getJson(
+            for: chain.crowdloanDisplayInfoURL()
+        )
+
+        self.singleValueProviderFactory = singleValueProviderFactory
         self.connection = connection
         self.operationManager = operationManager
+        self.chain = chain
         self.logger = logger
     }
 
@@ -118,13 +129,22 @@ final class CrowdloanListInteractor {
 
 extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
     func setup() {
-        subscribeToDisplayInfo()
         provideCrowdloans()
+
+        subscribeToDisplayInfo()
+
+        blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
     }
 
     func refresh() {
         displayInfoProvider.refresh()
 
         provideCrowdloans()
+    }
+}
+
+extension CrowdloanListInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+    func handleBlockNumber(result: Result<BlockNumber?, Error>, chain _: Chain) {
+        presenter.didReceiveBlockNumber(result: result)
     }
 }

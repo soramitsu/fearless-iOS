@@ -21,4 +21,8 @@ extension ConstantCodingPath {
     static var existentialDeposit: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Balances", constantName: "ExistentialDeposit")
     }
+
+    static var paraLeasingPeriod: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Slots", constantName: "LeasePeriod")
+    }
 }

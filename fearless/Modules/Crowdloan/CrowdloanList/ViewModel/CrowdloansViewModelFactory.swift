@@ -8,6 +8,7 @@ protocol CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
         displayInfo: CrowdloanDisplayInfoDict?,
+        blockNumber: BlockNumber,
         locale: Locale
     ) -> CrowdloansViewModel
 }
@@ -122,6 +123,7 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
         displayInfo: CrowdloanDisplayInfoDict?,
+        blockNumber _: BlockNumber,
         locale: Locale
     ) -> CrowdloansViewModel {
         let quantityFormatter = NumberFormatter.quantity.localizableResource().value(for: locale)

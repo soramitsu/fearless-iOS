@@ -347,6 +347,45 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
 
         return payeeProvider
     }
+
+    func subscribeToBlockNumber(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedBlockNumber>? {
+        guard let blockNumberProvider = try? singleValueProviderFactory
+            .getBlockNumber(for: chain, runtimeService: runtimeService)
+        else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedBlockNumber>]) in
+            let blockNumber = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleBlockNumber(
+                result: .success(blockNumber?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleBlockNumber(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        blockNumberProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return blockNumberProvider
+    }
 }
 
 extension SingleValueProviderSubscriber where Self: SingleValueSubscriptionHandler {

@@ -10,6 +10,7 @@ final class CrowdloanListPresenter {
 
     private var crowdloansResult: Result<[Crowdloan], Error>?
     private var displayInfoResult: Result<CrowdloanDisplayInfoDict, Error>?
+    private var blockNumber: BlockNumber?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -26,7 +27,10 @@ final class CrowdloanListPresenter {
     }
 
     private func updateView() {
-        guard let crowdloansResult = crowdloansResult, let displayInfoResult = displayInfoResult else {
+        guard
+            let crowdloansResult = crowdloansResult,
+            let displayInfoResult = displayInfoResult,
+            let blockNumber = blockNumber else {
             view?.didReceive(state: .loading)
             return
         }
@@ -48,6 +52,7 @@ final class CrowdloanListPresenter {
         let viewModel = viewModelFactory.createViewModel(
             from: crowdloans,
             displayInfo: displayInfo,
+            blockNumber: blockNumber,
             locale: selectedLocale
         )
 
@@ -84,6 +89,16 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 
         crowdloansResult = result
         updateView()
+    }
+
+    func didReceiveBlockNumber(result: Result<BlockNumber?, Error>) {
+        switch result {
+        case let .success(blockNumber):
+            self.blockNumber = blockNumber
+            updateView()
+        case let .failure(error):
+            logger?.error("Did receivee block number error: \(error)")
+        }
     }
 }
 

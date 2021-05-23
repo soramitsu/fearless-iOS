@@ -59,14 +59,14 @@ struct CrowdloanListViewFactory {
             operationManager: operationManager
         )
 
-        let singleValueProvider: AnySingleValueProvider<CrowdloanDisplayInfoList> =
-            SingleValueProviderFactory.shared.getJson(for: chain.crowdloanDisplayInfoURL())
+        let providerFactory = SingleValueProviderFactory.shared
 
         return CrowdloanListInteractor(
             runtimeService: runtimeService,
             requestOperationFactory: storageRequestFactory,
             connection: connection,
-            displayInfoProvider: singleValueProvider,
+            singleValueProviderFactory: providerFactory,
+            chain: chain,
             operationManager: operationManager,
             logger: Logger.shared
         )
