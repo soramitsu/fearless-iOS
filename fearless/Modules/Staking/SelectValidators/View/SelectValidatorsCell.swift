@@ -69,6 +69,6 @@ final class SelectValidatorsCell: UITableViewCell {
             addressImageView.bind(icon: icon)
         }
         usernameLabel.text = viewModel.name
-        apyLabel.text = viewModel.apy
+        apyLabel.text = viewModel.apyPercentage
     }
 }
