@@ -212,6 +212,8 @@
 		8423B0E2251A769300B8687C /* RPCMethod.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0E1251A769300B8687C /* RPCMethod.swift */; };
 		8423B0E4251A774700B8687C /* SNAddressType+Chain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0E3251A774700B8687C /* SNAddressType+Chain.swift */; };
 		8423B0E8251B2DAD00B8687C /* SubstrateOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8423B0E7251B2DAD00B8687C /* SubstrateOperationFactory.swift */; };
+		8424308D265B1814003E07EC /* CrowdloanOperationFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8424308C265B1814003E07EC /* CrowdloanOperationFactory.swift */; };
+		84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84243094265B1888003E07EC /* CrowdloanMetadata.swift */; };
 		8424A8C7262EC0E50091BFB1 /* PayoutInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8424A8C6262EC0E50091BFB1 /* PayoutInfo.swift */; };
 		8425EA8B25EA7AF200C307C9 /* UnappliedSlashes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8425EA8A25EA7AF200C307C9 /* UnappliedSlashes.swift */; };
 		8425EA9025EA7E5800C307C9 /* ElectedValidatorInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8425EA8F25EA7E5800C307C9 /* ElectedValidatorInfo.swift */; };
@@ -1487,6 +1489,8 @@
 		8423B0E1251A769300B8687C /* RPCMethod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RPCMethod.swift; sourceTree = "<group>"; };
 		8423B0E3251A774700B8687C /* SNAddressType+Chain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SNAddressType+Chain.swift"; sourceTree = "<group>"; };
 		8423B0E7251B2DAD00B8687C /* SubstrateOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubstrateOperationFactory.swift; sourceTree = "<group>"; };
+		8424308C265B1814003E07EC /* CrowdloanOperationFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanOperationFactory.swift; sourceTree = "<group>"; };
+		84243094265B1888003E07EC /* CrowdloanMetadata.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanMetadata.swift; sourceTree = "<group>"; };
 		8424A8C6262EC0E50091BFB1 /* PayoutInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PayoutInfo.swift; sourceTree = "<group>"; };
 		8425EA8A25EA7AF200C307C9 /* UnappliedSlashes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnappliedSlashes.swift; sourceTree = "<group>"; };
 		8425EA8F25EA7E5800C307C9 /* ElectedValidatorInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ElectedValidatorInfo.swift; sourceTree = "<group>"; };
@@ -3231,6 +3235,14 @@
 			path = Error;
 			sourceTree = "<group>";
 		};
+		8424308B265B17EC003E07EC /* Operation */ = {
+			isa = PBXGroup;
+			children = (
+				8424308C265B1814003E07EC /* CrowdloanOperationFactory.swift */,
+			);
+			path = Operation;
+			sourceTree = "<group>";
+		};
 		8428764224ADDE0200D91AD8 /* Profile */ = {
 			isa = PBXGroup;
 			children = (
@@ -3502,6 +3514,7 @@
 		8438C486265649F800047E3F /* Crowdloan */ = {
 			isa = PBXGroup;
 			children = (
+				8424308B265B17EC003E07EC /* Operation */,
 				843F65782658548A00829C14 /* Model */,
 				88B5D9DDFC571E12501230F1 /* CrowdloanList */,
 			);
@@ -3633,6 +3646,8 @@
 			children = (
 				843F6579265854A700829C14 /* CrowdloanDisplayInfo.swift */,
 				848EAEAF2659310A00676CEA /* CrowdloanStatus.swift */,
+				8473D4202657FFFB00B394B2 /* Crowdloan.swift */,
+				84243094265B1888003E07EC /* CrowdloanMetadata.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -4392,7 +4407,6 @@
 				84ACEBF9261E684A00AAE665 /* WalletHistoryFilter.swift */,
 				844DB61E262D9C070025A8F0 /* ChainHistoryRange.swift */,
 				844DB623262D9C710025A8F0 /* ErasRewardDistribution.swift */,
-				8473D4202657FFFB00B394B2 /* Crowdloan.swift */,
 			);
 			path = Model;
 			sourceTree = "<group>";
@@ -7148,6 +7162,7 @@
 				84D2F45F25EF0599008B914D /* SelectedValidatorCell.swift in Sources */,
 				8490151324AB8A3A008F705E /* WalletEmptyStateDataSource.swift in Sources */,
 				84DF21AB25363C9F005454AE /* Chain+Info.swift in Sources */,
+				84243095265B1888003E07EC /* CrowdloanMetadata.swift in Sources */,
 				84CFF1ED26526FBC00DB7CF7 /* StakingBondMoreConfirmationWireframe.swift in Sources */,
 				847119D5262EF95A00716580 /* PayoutInfoFactoryProtocol.swift in Sources */,
 				84F2FF0F25E7D059008338D5 /* EraValidatorFacade.swift in Sources */,
@@ -7355,6 +7370,7 @@
 				8428765B24ADDE0200D91AD8 /* ProfileWireframe.swift in Sources */,
 				8430AAFB260230C5005B1066 /* ValidatorState.swift in Sources */,
 				84293E67261BC50F008E5EDD /* TransactionDetailsViewModelFactory+RewardsAndSlashes.swift in Sources */,
+				8424308D265B1814003E07EC /* CrowdloanOperationFactory.swift in Sources */,
 				849013E224A9288B008F705E /* Language.swift in Sources */,
 				84754C882510BAFE00854599 /* ModalAlertFactory.swift in Sources */,
 				8430AACC2602249B005B1066 /* InitialStakingState.swift in Sources */,

@@ -6,7 +6,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
 
     let runtimeService: RuntimeCodingServiceProtocol
-    let requestOperationFactory: StorageRequestFactoryProtocol
+    let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let connection: JSONRPCEngine
     let operationManager: OperationManagerProtocol
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
@@ -18,7 +18,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
 
     init(
         runtimeService: RuntimeCodingServiceProtocol,
-        requestOperationFactory: StorageRequestFactoryProtocol,
+        crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
         connection: JSONRPCEngine,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         chain: Chain,
@@ -26,7 +26,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         logger: LoggerProtocol? = nil
     ) {
         self.runtimeService = runtimeService
-        self.requestOperationFactory = requestOperationFactory
+        self.crowdloanOperationFactory = crowdloanOperationFactory
 
         displayInfoProvider = singleValueProviderFactory.getJson(
             for: chain.crowdloanDisplayInfoURL()
@@ -40,52 +40,16 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     private func provideCrowdloans() {
-        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
-
-        let codingKeyFactory = StorageKeyFactory()
-
-        let mapper = StorageKeySuffixMapper<StringScaleMapper<UInt32>>(
-            type: SubstrateConstants.paraIdType,
-            suffixLength: SubstrateConstants.paraIdLength,
-            coderFactoryClosure: { try coderFactoryOperation.extractNoCancellableResultData() }
+        let crowdloanWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
+            connection: connection,
+            runtimeService: runtimeService,
+            chain: chain
         )
 
-        let paraIdsOperation = StorageKeysQueryService(
-            connection: connection,
-            operationManager: operationManager,
-            prefixKeyClosure: { try codingKeyFactory.key(from: .crowdloanFunds) },
-            mapper: AnyMapper(mapper: mapper)
-        ).longrunOperation()
-
-        let fundsOperation: CompoundOperationWrapper<[StorageResponse<CrowdloanFunds>]> =
-            requestOperationFactory.queryItems(
-                engine: connection,
-                keyParams: {
-                    try paraIdsOperation.extractNoCancellableResultData()
-                },
-                factory: {
-                    try coderFactoryOperation.extractNoCancellableResultData()
-                }, storagePath: .crowdloanFunds
-            )
-
-        fundsOperation.allOperations.forEach { $0.addDependency(paraIdsOperation) }
-
-        let mapOperation = ClosureOperation<[Crowdloan]> {
-            try fundsOperation.targetOperation.extractNoCancellableResultData().compactMap { response in
-                guard let fundInfo = response.value, let paraId = mapper.map(input: response.key)?.value else {
-                    return nil
-                }
-
-                return Crowdloan(paraId: paraId, fundInfo: fundInfo)
-            }
-        }
-
-        mapOperation.addDependency(fundsOperation.targetOperation)
-
-        mapOperation.completionBlock = { [weak self] in
+        crowdloanWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
                 do {
-                    let crowdloans = try mapOperation.extractNoCancellableResultData()
+                    let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
                     self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
                     if
@@ -99,9 +63,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             }
         }
 
-        let operations = [coderFactoryOperation, paraIdsOperation] + fundsOperation.allOperations + [mapOperation]
-
-        operationManager.enqueue(operations: operations, in: .transient)
+        operationManager.enqueue(operations: crowdloanWrapper.allOperations, in: .transient)
     }
 
     private func subscribeToDisplayInfo() {

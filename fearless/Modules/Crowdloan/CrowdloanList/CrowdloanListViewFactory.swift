@@ -61,9 +61,14 @@ struct CrowdloanListViewFactory {
 
         let providerFactory = SingleValueProviderFactory.shared
 
+        let crowdloanOperationFactory = CrowdloanOperationFactory(
+            requestOperationFactory: storageRequestFactory,
+            operationManager: operationManager
+        )
+
         return CrowdloanListInteractor(
             runtimeService: runtimeService,
-            requestOperationFactory: storageRequestFactory,
+            crowdloanOperationFactory: crowdloanOperationFactory,
             connection: connection,
             singleValueProviderFactory: providerFactory,
             chain: chain,

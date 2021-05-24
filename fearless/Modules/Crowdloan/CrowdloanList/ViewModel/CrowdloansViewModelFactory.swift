@@ -4,12 +4,6 @@ import SoraFoundation
 import IrohaCrypto
 import FearlessUtils
 
-struct CrowdloanMetadata {
-    let blockNumber: BlockNumber
-    let blockDuration: BlockTime
-    let leasingPeriod: LeasingPeriod
-}
-
 protocol CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
@@ -119,7 +113,7 @@ final class CrowdloansViewModelFactory {
         formatters: Formatters,
         locale: Locale
     ) -> ActiveCrowdloanViewModel? {
-        guard !model.isCompleted(at: metadata.blockNumber) else {
+        guard !model.isCompleted(for: metadata) else {
             return nil
         }
 
@@ -165,7 +159,7 @@ final class CrowdloansViewModelFactory {
         formatters: Formatters,
         locale: Locale
     ) -> CompletedCrowdloanViewModel? {
-        guard model.isCompleted(at: metadata.blockNumber) else {
+        guard model.isCompleted(for: metadata) else {
             return nil
         }
 
