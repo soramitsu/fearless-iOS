@@ -4,7 +4,7 @@ import RobinHood
 import FearlessUtils
 import SoraFoundation
 
-final class StakingMainInteractor {
+final class StakingMainInteractor: RuntimeConstantFetching {
     weak var presenter: StakingMainInteractorOutputProtocol!
 
     let providerFactory: SingleValueProviderFactoryProtocol
@@ -70,6 +70,16 @@ final class StakingMainInteractor {
         }
 
         presenter.didReceive(selectedAddress: address)
+    }
+
+    func provideMaxNominatorsPerValidator() {
+        fetchConstant(
+            for: .maxNominatorRewardedPerValidator,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceiveMaxNominatorsPerValidator(result: result)
+        }
     }
 
     func provideNewChain() {

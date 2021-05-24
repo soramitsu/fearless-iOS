@@ -9,6 +9,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         provideNewChain()
         provideSelectedAccount()
+        provideMaxNominatorsPerValidator()
 
         subscribeToPriceChanges()
         subscribeToAccountChanges()
@@ -60,6 +61,7 @@ extension StakingMainInteractor: EventVisitorProtocol {
             provideEraStakersInfo()
             provideNetworkStakingInfo()
             provideRewardCalculator()
+            provideMaxNominatorsPerValidator()
         }
     }
 
