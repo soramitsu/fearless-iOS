@@ -16,7 +16,7 @@ protocol CrowdloansViewModelFactoryProtocol {
 final class CrowdloansViewModelFactory {
     struct CommonContent {
         let title: String
-        let details: String
+        let details: CrowdloanDescViewModel
         let progress: String
         let imageViewModel: ImageViewModelProtocol
     }
@@ -59,11 +59,11 @@ final class CrowdloansViewModelFactory {
         }
 
         let title = displayInfo?.name ?? formatters.quantity.string(from: NSNumber(value: model.paraId))
-        let details: String? = {
+        let details: CrowdloanDescViewModel = {
             if let desc = displayInfo?.description {
-                return desc
+                return .text(desc)
             } else {
-                return depositorAddress
+                return .address(depositorAddress)
             }
         }()
 
@@ -100,7 +100,7 @@ final class CrowdloansViewModelFactory {
 
         return CommonContent(
             title: title ?? "",
-            details: details ?? "",
+            details: details,
             progress: progress,
             imageViewModel: iconViewModel
         )
@@ -179,6 +179,45 @@ final class CrowdloansViewModelFactory {
             iconViewModel: commonContent.imageViewModel
         )
     }
+
+    func createSections(
+        from crowdloans: [Crowdloan],
+        displayInfo: CrowdloanDisplayInfoDict?,
+        metadata: CrowdloanMetadata,
+        formatters: Formatters,
+        locale: Locale
+    ) -> ([CrowdloanActiveSection], [CrowdloanCompletedSection]) {
+        let initial = (
+            [CrowdloanActiveSection](),
+            [CrowdloanCompletedSection]()
+        )
+
+        return crowdloans.reduce(into: initial) { result, crowdloan in
+            if crowdloan.isCompleted(for: metadata) {
+                if let viewModel = createCompletedCrowdloanViewModel(
+                    from: crowdloan,
+                    displayInfo: displayInfo?[crowdloan.paraId],
+                    metadata: metadata,
+                    formatters: formatters,
+                    locale: locale
+                ) {
+                    let sectionItem = CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
+                    result.1.append(sectionItem)
+                }
+            } else {
+                if let viewModel = createActiveCrowdloanViewModel(
+                    from: crowdloan,
+                    displayInfo: displayInfo?[crowdloan.paraId],
+                    metadata: metadata,
+                    formatters: formatters,
+                    locale: locale
+                ) {
+                    let sectionItem = CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
+                    result.0.append(sectionItem)
+                }
+            }
+        }
+    }
 }
 
 extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
@@ -200,58 +239,34 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             time: timeFormatter
         )
 
-        let activeCrowdloans: [CrowdloanSectionItem<ActiveCrowdloanViewModel>] =
-            crowdloans.compactMap { crowdloan in
-                guard let viewModel = createActiveCrowdloanViewModel(
-                    from: crowdloan,
-                    displayInfo: displayInfo?[crowdloan.paraId],
-                    metadata: metadata,
-                    formatters: formatters,
-                    locale: locale
-                ) else {
-                    return nil
-                }
-
-                return CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
-            }
+        let (active, completed) = createSections(
+            from: crowdloans,
+            displayInfo: displayInfo,
+            metadata: metadata,
+            formatters: formatters,
+            locale: locale
+        )
 
         let activeSection: CrowdloansSectionViewModel<ActiveCrowdloanViewModel>? = {
-            guard !activeCrowdloans.isEmpty else {
+            guard !active.isEmpty else {
                 return nil
             }
 
-            let countString = quantityFormatter.string(from: NSNumber(value: activeCrowdloans.count)) ?? ""
+            let countString = quantityFormatter.string(from: NSNumber(value: active.count)) ?? ""
             let title = R.string.localizable.crowdloanActiveSectionFormat(countString)
 
-            return CrowdloansSectionViewModel(title: title, crowdloans: activeCrowdloans)
+            return CrowdloansSectionViewModel(title: title, crowdloans: active)
         }()
 
-        let completedCrowdloans: [CrowdloanSectionItem<CompletedCrowdloanViewModel>] =
-            crowdloans.compactMap { crowdloan in
-                guard let viewModel = createCompletedCrowdloanViewModel(
-                    from: crowdloan,
-                    displayInfo: displayInfo?[crowdloan.paraId],
-                    metadata: metadata,
-                    formatters: formatters,
-                    locale: locale
-                ) else {
-                    return nil
-                }
-
-                return CrowdloanSectionItem(paraId: crowdloan.paraId, content: viewModel)
-            }
-
         let completedSection: CrowdloansSectionViewModel<CompletedCrowdloanViewModel>? = {
-            guard !completedCrowdloans.isEmpty else {
+            guard !completed.isEmpty else {
                 return nil
             }
 
-            let countString = quantityFormatter.string(
-                from: NSNumber(value: completedCrowdloans.count)
-            ) ?? ""
+            let countString = quantityFormatter.string(from: NSNumber(value: completed.count)) ?? ""
             let title = R.string.localizable.crowdloanCompletedSectionFormat(countString)
 
-            return CrowdloansSectionViewModel(title: title, crowdloans: completedCrowdloans)
+            return CrowdloansSectionViewModel(title: title, crowdloans: completed)
         }()
 
         return CrowdloansViewModel(

@@ -25,17 +25,25 @@ struct CrowdloanSectionItem<T> {
     let content: T
 }
 
+typealias CrowdloanActiveSection = CrowdloanSectionItem<ActiveCrowdloanViewModel>
+typealias CrowdloanCompletedSection = CrowdloanSectionItem<CompletedCrowdloanViewModel>
+
+enum CrowdloanDescViewModel {
+    case address(_ address: String)
+    case text(_ text: String)
+}
+
 struct ActiveCrowdloanViewModel {
     let title: String
     let timeleft: String
-    let description: String
+    let description: CrowdloanDescViewModel
     let progress: String
     let iconViewModel: ImageViewModelProtocol
 }
 
 struct CompletedCrowdloanViewModel {
     let title: String
-    let description: String
+    let description: CrowdloanDescViewModel
     let progress: String
     let iconViewModel: ImageViewModelProtocol
 }

@@ -18,7 +18,7 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorStrokeGray()
         label.font = .p2Paragraph
-        label.numberOfLines = 0
+        label.lineBreakMode = .byTruncatingMiddle
         return label
     }()
 
@@ -54,7 +54,16 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
         self.viewModel = viewModel
 
         titleLabel.text = viewModel.title
-        detailsLabel.text = viewModel.description
+
+        switch viewModel.description {
+        case let .address(address):
+            detailsLabel.numberOfLines = 1
+            detailsLabel.text = address
+        case let .text(text):
+            detailsLabel.numberOfLines = 0
+            detailsLabel.text = text
+        }
+
         progressLabel.text = viewModel.progress
 
         viewModel.iconViewModel.loadImage(
