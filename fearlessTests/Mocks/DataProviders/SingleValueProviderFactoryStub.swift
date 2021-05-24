@@ -229,4 +229,51 @@ extension SingleValueProviderFactoryStub {
                                               blockNumber: blockNumber,
                                               jsonProviders: jsonProviders)
     }
+
+    func withBlockNumber(
+        blockNumber: BlockNumber
+    ) -> SingleValueProviderFactoryStub {
+        let decodedBlockNumber = DecodedBlockNumber(
+            identifier: "block_number",
+            item: StringScaleMapper(value: blockNumber)
+        )
+
+        let blockProvider = DataProviderStub(models: [decodedBlockNumber])
+        return SingleValueProviderFactoryStub(price: price,
+                                              totalReward: totalReward,
+                                              balance: balance,
+                                              electionStatus: electionStatus,
+                                              nomination: nomination,
+                                              validatorPrefs: validatorPrefs,
+                                              ledgerInfo: ledgerInfo,
+                                              activeEra: activeEra,
+                                              payee: payee,
+                                              blockNumber: AnyDataProvider(blockProvider),
+                                              jsonProviders: jsonProviders)
+    }
+
+    func withJSON<T>(
+        value: T,
+        for url: URL
+    ) -> SingleValueProviderFactoryStub where T : Decodable, T : Encodable, T : Equatable {
+
+        let singleValueProvider = SingleValueProviderStub(item: value)
+
+        var currentProviders = jsonProviders
+        currentProviders[url] = AnySingleValueProvider(singleValueProvider)
+
+        return SingleValueProviderFactoryStub(
+            price: price,
+            totalReward: totalReward,
+            balance: balance,
+            electionStatus: electionStatus,
+            nomination: nomination,
+            validatorPrefs: validatorPrefs,
+            ledgerInfo: ledgerInfo,
+            activeEra: activeEra,
+            payee: payee,
+            blockNumber: blockNumber,
+            jsonProviders: currentProviders
+        )
+    }
 }
