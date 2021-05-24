@@ -39,6 +39,11 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
         // rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(SelectValidatorsCell.self)
     }
+
+    @objc
+    private func handleValidatorInfo() {
+        presenter.didSelectValidator(at: 0)
+    }
 }
 
 extension SelectValidatorsViewController: Localizable {
@@ -65,6 +70,7 @@ extension SelectValidatorsViewController: UITableViewDataSource {
         let cell = tableView.dequeueReusableCellWithType(SelectValidatorsCell.self)!
         let viewModel = cellViewModels[indexPath.row]
         cell.bind(viewModel: viewModel)
+        cell.infoButton.addTarget(self, action: #selector(handleValidatorInfo), for: .touchUpInside)
         return cell
     }
 }

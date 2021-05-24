@@ -6,6 +6,7 @@ protocol SelectValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol SelectValidatorsPresenterProtocol: AnyObject {
     func setup()
+    func didSelectValidator(at index: Int)
 }
 
 protocol SelectValidatorsViewModelFactoryProtocol: AnyObject {
@@ -16,4 +17,9 @@ protocol SelectValidatorsInteractorInputProtocol: AnyObject {}
 
 protocol SelectValidatorsInteractorOutputProtocol: AnyObject {}
 
-protocol SelectValidatorsWireframeProtocol: AnyObject {}
+protocol SelectValidatorsWireframeProtocol: AnyObject {
+    func showValidatorInfo(
+        from view: ControllerBackedProtocol?,
+        validatorInfo: ValidatorInfoProtocol
+    )
+}
