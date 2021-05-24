@@ -39,9 +39,13 @@ class RecommendedValidatorsWireframe: RecommendedValidatorsWireframeProtocol {
     }
 
     func showCustom(
-        from _: RecommendedValidatorsViewProtocol?,
+        from view: ControllerBackedProtocol?,
         validators _: [ElectedValidatorInfo]
     ) {
-        // TODO: FLW-593
+        guard let selectValidators = SelectValidatorsViewFactory.createView() else { return }
+        view?.controller.navigationController?.pushViewController(
+            selectValidators.controller,
+            animated: true
+        )
     }
 }

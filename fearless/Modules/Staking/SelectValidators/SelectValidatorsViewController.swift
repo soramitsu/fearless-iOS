@@ -26,4 +26,8 @@ final class SelectValidatorsViewController: UIViewController {
     }
 }
 
-extension SelectValidatorsViewController: SelectValidatorsViewProtocol {}
+extension SelectValidatorsViewController: SelectValidatorsViewProtocol {
+    func applyLocalization() {
+        if isViewLoaded {}
+    }
+}

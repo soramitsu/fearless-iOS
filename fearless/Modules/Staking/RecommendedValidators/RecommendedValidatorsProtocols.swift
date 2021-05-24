@@ -35,7 +35,7 @@ protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresenta
         maxTargets: Int
     )
 
-    func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
+    func showCustom(from view: ControllerBackedProtocol?, validators: [ElectedValidatorInfo])
 }
 
 protocol RecommendedValidatorsViewFactoryProtocol: AnyObject {
