@@ -6,9 +6,7 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
 
     let presenter: SelectValidatorsPresenterProtocol
 
-    private var cellStub: [SelectValidatorsCellViewModel] {
-        []
-    }
+    private var cellViewModels: [SelectValidatorsCellViewModel] = []
 
     init(
         presenter: SelectValidatorsPresenterProtocol,
@@ -43,7 +41,7 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension SelectValidatorsViewController: SelectValidatorsViewProtocol {
+extension SelectValidatorsViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             title = "Select validators"
@@ -51,15 +49,22 @@ extension SelectValidatorsViewController: SelectValidatorsViewProtocol {
     }
 }
 
+extension SelectValidatorsViewController: SelectValidatorsViewProtocol {
+    func reload(with viewModel: [SelectValidatorsCellViewModel]) {
+        cellViewModels = viewModel
+        rootView.tableView.reloadData()
+    }
+}
+
 extension SelectValidatorsViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
-        cellStub.count
+        cellViewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(SelectValidatorsCell.self)!
-        let vm = cellStub[indexPath.row]
-        cell.bind(viewModel: vm)
+        let viewModel = cellViewModels[indexPath.row]
+        cell.bind(viewModel: viewModel)
         return cell
     }
 }

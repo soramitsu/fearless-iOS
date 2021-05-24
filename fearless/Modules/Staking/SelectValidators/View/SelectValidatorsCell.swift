@@ -58,12 +58,14 @@ final class SelectValidatorsCell: UITableViewCell {
         contentView.addSubview(stackView)
         stackView.snp.makeConstraints { make in
             make.top.bottom.equalToSuperview().inset(12)
-            make.leading.trailing.equalTo(16)
+            make.leading.trailing.equalToSuperview().inset(16)
         }
     }
 
     func bind(viewModel: SelectValidatorsCellViewModel) {
-        addressImageView.bind(icon: viewModel.icon)
+        if let icon = viewModel.icon {
+            addressImageView.bind(icon: icon)
+        }
         usernameLabel.text = viewModel.name
         apyLabel.text = viewModel.apy
     }

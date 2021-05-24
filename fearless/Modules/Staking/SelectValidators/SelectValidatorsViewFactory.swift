@@ -1,11 +1,17 @@
 import Foundation
 
 struct SelectValidatorsViewFactory {
-    static func createView() -> SelectValidatorsViewProtocol? {
+    static func createView(selectedValidators: [ElectedValidatorInfo]) -> SelectValidatorsViewProtocol? {
         let interactor = SelectValidatorsInteractor()
         let wireframe = SelectValidatorsWireframe()
+        let viewModelFactory = SelectValidatorsViewModelFactory()
 
-        let presenter = SelectValidatorsPresenter(interactor: interactor, wireframe: wireframe)
+        let presenter = SelectValidatorsPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory,
+            validators: selectedValidators
+        )
 
         let view = SelectValidatorsViewController(presenter: presenter)
 
