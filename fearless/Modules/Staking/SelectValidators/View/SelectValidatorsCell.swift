@@ -60,6 +60,8 @@ final class SelectValidatorsCell: UITableViewCell {
             make.top.bottom.equalToSuperview().inset(12)
             make.leading.trailing.equalToSuperview().inset(16)
         }
+
+        addressImageView.snp.makeConstraints { $0.size.equalTo(24) }
     }
 
     func bind(viewModel: SelectValidatorsCellViewModel) {
