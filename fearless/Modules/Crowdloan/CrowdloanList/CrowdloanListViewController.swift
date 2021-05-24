@@ -11,6 +11,8 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
 
     private var state: CrowdloanListState = .loading
 
+    private var shouldUpdateOnAppearance: Bool = false
+
     init(
         presenter: CrowdloanListPresenterProtocol,
         tokenSymbol: LocalizableResource<String>,
@@ -41,6 +43,16 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         applyState()
 
         presenter.setup()
+    }
+
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+
+        if shouldUpdateOnAppearance {
+            presenter.refresh()
+        } else {
+            shouldUpdateOnAppearance = true
+        }
     }
 
     func configure() {

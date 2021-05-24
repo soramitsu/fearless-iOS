@@ -1,5 +1,6 @@
 import UIKit
 import Kingfisher
+import SVGKit
 
 final class RemoteImageViewModel: NSObject {
     private var url: URL
@@ -11,13 +12,15 @@ final class RemoteImageViewModel: NSObject {
 
 extension RemoteImageViewModel: ImageViewModelProtocol {
     func loadImage(on imageView: UIImageView, targetSize: CGSize, animated: Bool) {
-        let processor = DownsamplingImageProcessor(size: targetSize)
+        let processor = SVGProcessor()
+            |> DownsamplingImageProcessor(size: targetSize)
             |> RoundCornerImageProcessor(cornerRadius: targetSize.height / 2.0)
 
         var options: KingfisherOptionsInfo = [
             .processor(processor),
             .scaleFactor(UIScreen.main.scale),
-            .cacheOriginalImage
+            .cacheOriginalImage,
+            .diskCacheExpiration(.days(1))
         ]
 
         if animated {
@@ -32,5 +35,23 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
 
     func cancel(on imageView: UIImageView) {
         imageView.kf.cancelDownloadTask()
+    }
+}
+
+private final class SVGProcessor: ImageProcessor {
+    let identifier: String = "jp.co.soramitsu.fearless.kf.svg.processor"
+
+    func process(item: ImageProcessItem, options _: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {
+        switch item {
+        case let .image(image):
+            return image
+        case let .data(data):
+            if let uiImage = UIImage(data: data) {
+                return uiImage
+            } else {
+                let imsvg = SVGKImage(data: data)
+                return imsvg?.uiImage
+            }
+        }
     }
 }
