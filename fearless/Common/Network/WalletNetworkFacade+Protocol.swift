@@ -43,12 +43,6 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             let balances: [BalanceData]? = try balanceOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)?
                 .map { balanceData in
-                    guard let price = prices
-                        .first(where: { $0.assetId.rawValue == balanceData.identifier })
-                    else {
-                        return balanceData
-                    }
-
                     let minimalBalance: Decimal
                     if let asset = userAssets.first(where: { $0.identifier == balanceData.identifier }) {
                         minimalBalance = Decimal.fromSubstrateAmount(
@@ -60,14 +54,19 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                     }
 
                     let context = BalanceContext(context: balanceData.context ?? [:])
-                        .byChangingPrice(price.lastValue, newPriceChange: price.change)
                         .byChangingMinimalBalance(to: minimalBalance)
-                        .toContext()
+
+                    let contextWithPrice: BalanceContext = {
+                        guard
+                            let price = prices.first(where: { $0.assetId.rawValue == balanceData.identifier })
+                        else { return context }
+                        return context.byChangingPrice(price.lastValue, newPriceChange: price.change)
+                    }()
 
                     return BalanceData(
                         identifier: balanceData.identifier,
                         balance: balanceData.balance,
-                        context: context
+                        context: contextWithPrice.toContext()
                     )
                 }
 
@@ -122,8 +121,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
 
         guard !historyContext.isComplete,
               let asset = accountSettings.assets.first(where: { $0.identifier != totalPriceAssetId.rawValue }),
-              let assetId = WalletAssetId(rawValue: asset.identifier),
-              let baseUrl = assetId.subscanUrl
+              let assetId = WalletAssetId(rawValue: asset.identifier)
         else {
             let pageData = AssetTransactionPageData(
                 transactions: [],
@@ -135,16 +133,24 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             return CompoundOperationWrapper(targetOperation: operation)
         }
 
-        let remoteHistoryFactory = WalletRemoteHistoryFactory(
-            baseURL: baseUrl,
-            filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
-        )
+        let remoteHistoryWrapper: CompoundOperationWrapper<WalletRemoteHistoryData>
 
-        let remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(
-            for: historyContext,
-            address: address,
-            count: pagination.count
-        )
+        if let baseUrl = assetId.subscanUrl {
+            let remoteHistoryFactory = WalletRemoteHistoryFactory(
+                baseURL: baseUrl,
+                filter: WalletRemoteHistoryClosureFilter.transfersInExtrinsics
+            )
+
+            remoteHistoryWrapper = remoteHistoryFactory.createOperationWrapper(
+                for: historyContext,
+                address: address,
+                count: pagination.count
+            )
+        } else {
+            let context = TransactionHistoryContext(context: [:], defaultRow: 0)
+            let result = WalletRemoteHistoryData(historyItems: [], context: context)
+            remoteHistoryWrapper = CompoundOperationWrapper.createWithResult(result)
+        }
 
         var dependencies = remoteHistoryWrapper.allOperations
 

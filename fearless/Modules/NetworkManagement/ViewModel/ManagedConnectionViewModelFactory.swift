@@ -30,7 +30,7 @@ final class ManagedConnectionViewModelFactory: ManagedConnectionViewModelFactory
         selected: Bool
     ) -> ManagedConnectionViewModel {
         ManagedConnectionViewModel(
-            identifier: item.identifier,
+            identifier: item.displayTitle,
             name: item.title,
             type: item.type,
             isSelected: selected

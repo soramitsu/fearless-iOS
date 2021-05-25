@@ -26,7 +26,7 @@ extension WalletAssetId {
         switch self {
         case .dot, .kusama:
             return true
-        case .usd, .westend:
+        case .usd, .westend, .roc:
             return false
         }
     }

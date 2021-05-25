@@ -26,9 +26,15 @@ extension EraValidatorService {
                 return nil
             }
 
+            let exposure = ValidatorExposure(
+                total: item.1.total,
+                own: item.1.own,
+                others: item.1.others.sorted { $0.value > $1.value }
+            )
+
             return EraValidatorInfo(
                 accountId: item.0,
-                exposure: item.1,
+                exposure: exposure,
                 prefs: pref
             )
         }

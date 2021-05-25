@@ -49,4 +49,9 @@ protocol SingleValueProviderSubscriber {
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedPayee>?
+
+    func subscribeToBlockNumber(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedBlockNumber>?
 }

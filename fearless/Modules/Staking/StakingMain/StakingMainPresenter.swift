@@ -438,6 +438,15 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         controllerAccount = nil
         handle(error: fetchControllerError)
     }
+
+    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>) {
+        switch result {
+        case let .success(maxNominatorsPerValidator):
+            stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
 }
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {

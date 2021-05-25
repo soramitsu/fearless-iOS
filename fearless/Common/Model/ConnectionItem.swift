@@ -28,3 +28,7 @@ extension ConnectionItem {
         )
     }
 }
+
+extension ConnectionItem {
+    var displayTitle: String { (url.scheme ?? "") + "://" + (url.host ?? "") }
+}

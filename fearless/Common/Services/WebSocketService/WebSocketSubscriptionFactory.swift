@@ -107,8 +107,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
     private func createGlobalSubscriptions(_ factory: ChildSubscriptionFactoryProtocol)
         throws -> [StorageChildSubscribing] {
-        let upgradeV28Subscription = try createV28Subscription(factory)
-
         let activeEraSubscription = try createActiveEraSubscription(factory)
 
         let currentEraSubscription = try createCurrentEraSubscription(factory)
@@ -117,12 +115,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
 
         let historyDepthSubscription = try createHistoryDepthSubscription(factory)
 
+        let blockNumberSubscription = try createBlockNumberSubscription(factory)
+
         let subscriptions: [StorageChildSubscribing] = [
-            upgradeV28Subscription,
             activeEraSubscription,
             currentEraSubscription,
             totalIssuanceSubscription,
-            historyDepthSubscription
+            historyDepthSubscription,
+            blockNumberSubscription
         ]
 
         return subscriptions
@@ -186,15 +186,6 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         )
 
         return subscription
-    }
-
-    private func createV28Subscription(_ factory: ChildSubscriptionFactoryProtocol)
-        throws -> StorageChildSubscribing {
-        let remoteStorageKey = try storageKeyFactory.updatedDualRefCount()
-
-        return factory.createEventEmittingSubscription(remoteKey: remoteStorageKey) { _ in
-            WalletBalanceChanged()
-        }
     }
 
     private func createTransactionSubscription(
@@ -304,6 +295,13 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         _ factory: ChildSubscriptionFactoryProtocol
     ) throws -> StorageChildSubscribing {
         let remoteStorageKey = try storageKeyFactory.historyDepth()
+        return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
+    }
+
+    private func createBlockNumberSubscription(
+        _ factory: ChildSubscriptionFactoryProtocol
+    ) throws -> StorageChildSubscribing {
+        let remoteStorageKey = try storageKeyFactory.key(from: .blockNumber)
         return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 }
