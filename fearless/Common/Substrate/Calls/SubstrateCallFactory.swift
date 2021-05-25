@@ -114,3 +114,31 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "set_controller", args: args)
     }
 }
+
+extension SubstrateCallFactory {
+    func setRewardDestination(
+        _ rewardDestination: RewardDestination<AccountAddress>,
+        stashItem: StashItem
+    ) throws -> RuntimeCall<SetPayeeCall> {
+        let arg: RewardDestinationArg = try {
+            switch rewardDestination {
+            case .restake:
+                return .staked
+            case let .payout(accountAddress):
+                if accountAddress == stashItem.stash {
+                    return .stash
+                }
+
+                if accountAddress == stashItem.controller {
+                    return .controller
+                }
+
+                let accountId = try SS58AddressFactory().accountId(from: accountAddress)
+
+                return .account(accountId)
+            }
+        }()
+
+        return setPayee(for: arg)
+    }
+}

@@ -24,6 +24,7 @@ protocol StakingDataValidatingFactoryProtocol {
     func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating
     func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating
+    func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating
 
     func rewardIsHigherThanFee(
         reward: Decimal?,
@@ -212,6 +213,28 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
         }, preservesCondition: {
             if let reward = reward, let fee = fee {
                 return reward > fee
+            } else {
+                return false
+            }
+        })
+    }
+
+    func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating {
+        WarningConditionViolation(onWarning: { [weak self] delegate in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentControllerBalanceIsZero(
+                from: view,
+                action: {
+                    delegate.didCompleteWarningHandling()
+                },
+                locale: locale
+            )
+        }, preservesCondition: {
+            if let balance = balance, balance > 0 {
+                return true
             } else {
                 return false
             }

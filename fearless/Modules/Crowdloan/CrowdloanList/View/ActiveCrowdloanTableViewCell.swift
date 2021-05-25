@@ -49,6 +49,8 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         super.prepareForReuse()
 
         viewModel?.iconViewModel.cancel(on: iconImageView)
+        viewModel = nil
+
         iconImageView.image = nil
     }
 
@@ -106,7 +108,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         contentView.addSubview(iconImageView)
 
         iconImageView.snp.makeConstraints { make in
-            make.left.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
             make.size.equalTo(CrowdloanViewConstants.iconSize)
             make.top.equalToSuperview().inset(11)
         }
@@ -121,7 +123,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         contentView.addSubview(navigationImageView)
 
         navigationImageView.snp.makeConstraints { make in
-            make.right.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.size.equalTo(24)
             make.centerY.equalTo(titleLabel)
         }

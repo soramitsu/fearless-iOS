@@ -8,7 +8,8 @@ struct WalletCommonStyleConfigurator {
             shadowColor: .clear,
             itemTintColor: R.color.colorWhite()!,
             titleColor: R.color.colorWhite()!,
-            titleFont: UIFont.h3Title
+            titleFont: UIFont.h3Title,
+            backButtonImage: R.image.iconBack()
         )
         return navigationBarStyle
     }()

@@ -9,6 +9,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         provideNewChain()
         provideSelectedAccount()
+        provideMaxNominatorsPerValidator()
 
         subscribeToPriceChanges()
         subscribeToAccountChanges()
@@ -26,13 +27,13 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
     func fetchController(for address: AccountAddress) {
         let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
 
-        operation.completionBlock = {
+        operation.completionBlock = { [weak presenter] in
             DispatchQueue.main.async {
                 do {
                     let accountItem = try operation.extractNoCancellableResultData()
-                    self.presenter.didFetchController(accountItem, for: address)
+                    presenter?.didFetchController(accountItem, for: address)
                 } catch {
-                    self.presenter.didReceive(fetchControllerError: error)
+                    presenter?.didReceive(fetchControllerError: error)
                 }
             }
         }
@@ -60,6 +61,7 @@ extension StakingMainInteractor: EventVisitorProtocol {
             provideEraStakersInfo()
             provideNetworkStakingInfo()
             provideRewardCalculator()
+            provideMaxNominatorsPerValidator()
         }
     }
 

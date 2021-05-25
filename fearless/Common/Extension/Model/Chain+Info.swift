@@ -14,19 +14,6 @@ extension Chain {
         }
     }
 
-    var existentialDeposit: Decimal {
-        switch self {
-        case .polkadot:
-            return Decimal(string: "1")!
-        case .kusama:
-            return Decimal(string: "0.001666666666")!
-        case .westend:
-            return Decimal(string: "0.01")!
-        case .rococo:
-            return Decimal(string: "0.01")!
-        }
-    }
-
     var erasPerDay: Int {
         switch self {
         case .polkadot:

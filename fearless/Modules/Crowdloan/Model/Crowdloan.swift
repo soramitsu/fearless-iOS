@@ -7,7 +7,7 @@ struct Crowdloan {
 
 extension Crowdloan {
     func isCompleted(for metadata: CrowdloanMetadata) -> Bool {
-        metadata.blockNumber >= fundInfo.end || metadata.leasingIndex > fundInfo.firstSlot
+        metadata.blockNumber >= fundInfo.end || metadata.leasingIndex > fundInfo.firstPeriod
     }
 
     func remainedTime(at blockNumber: BlockNumber, blockDuration: BlockTime) -> TimeInterval {

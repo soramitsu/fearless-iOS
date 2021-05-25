@@ -1,11 +1,11 @@
-protocol CrowdloanContributionSetupViewProtocol: class {}
+protocol CrowdloanContributionSetupViewProtocol: AnyObject {}
 
-protocol CrowdloanContributionSetupPresenterProtocol: class {
+protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func setup()
 }
 
-protocol CrowdloanContributionSetupInteractorInputProtocol: class {}
+protocol CrowdloanContributionSetupInteractorInputProtocol: AnyObject {}
 
-protocol CrowdloanContributionSetupInteractorOutputProtocol: class {}
+protocol CrowdloanContributionSetupInteractorOutputProtocol: AnyObject {}
 
-protocol CrowdloanContributionSetupWireframeProtocol: class {}
+protocol CrowdloanContributionSetupWireframeProtocol: AnyObject {}

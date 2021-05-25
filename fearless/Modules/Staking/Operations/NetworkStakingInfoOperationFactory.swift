@@ -47,7 +47,7 @@ final class NetworkStakingInfoOperationFactory {
         from eraStakersInfo: EraStakersInfo,
         limitedBy maxNominators: Int
     ) -> BigUInt {
-        eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
+        eraStakersInfo.validators.map(\.exposure.others)
             .flatMap { Array($0.prefix(maxNominators)) }
             .reduce(into: [Data: BigUInt]()) { result, item in
                 if let maybeStake = result[item.who], let stake = maybeStake {
@@ -64,7 +64,7 @@ final class NetworkStakingInfoOperationFactory {
         from eraStakersInfo: EraStakersInfo,
         limitedBy maxNominators: Int
     ) -> Int {
-        eraStakersInfo.validators.map { $0.exposure.others.sorted { $0.value > $1.value } }
+        eraStakersInfo.validators.map(\.exposure.others)
             .flatMap { Array($0.prefix(maxNominators)) }
             .reduce(into: Set<Data>()) { $0.insert($1.who) }
             .count

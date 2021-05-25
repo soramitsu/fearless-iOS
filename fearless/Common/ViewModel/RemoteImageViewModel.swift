@@ -3,7 +3,7 @@ import Kingfisher
 import SVGKit
 
 final class RemoteImageViewModel: NSObject {
-    private var url: URL
+    let url: URL
 
     init(url: URL) {
         self.url = url
