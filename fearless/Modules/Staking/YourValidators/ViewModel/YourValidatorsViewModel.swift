@@ -28,8 +28,8 @@ enum YourValidatorsViewState {
 
 struct YourValidatorsSection {
     let status: YourValidatorsSectionStatus
-    let title: LocalizableResource<String?>
-    let description: LocalizableResource<String?>
+    let title: LocalizableResource<String>?
+    let description: LocalizableResource<String>?
     let validators: [YourValidatorViewModel]
 }
 

@@ -45,26 +45,23 @@ final class YourValidatorsViewModelFactory {
     private func createTitle(
         for sectionStatus: YourValidatorsSectionStatus,
         count: Int
-    ) -> LocalizableResource<String?> {
-        let formatter = NumberFormatter.quantity.localizableResource()
+    ) -> LocalizableResource<String>? {
+        guard sectionStatus != .stakeNotAllocated else {
+            return nil
+        }
 
         return LocalizableResource { locale in
+            let formatter = NumberFormatter.quantity.localizableResource()
             let localizedFormatter = formatter.value(for: locale)
             let countString = localizedFormatter.string(from: NSNumber(value: count)) ?? "0"
 
             switch sectionStatus {
-            case .stakeAllocated:
+            case .stakeAllocated, .inactive:
                 return R.string.localizable.stakingYourActiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
-            case .stakeNotAllocated:
-                return nil
-            case .inactive:
-                return R.string.localizable.stakingYourInactiveFormat(
-                    countString,
-                    preferredLanguages: locale.rLanguages
-                )
+
             case .pending:
                 let maxCountString = localizedFormatter
                     .string(from: NSNumber(value: StakingConstants.maxTargets)) ?? "0"
@@ -73,13 +70,16 @@ final class YourValidatorsViewModelFactory {
                     maxCountString,
                     preferredLanguages: locale.rLanguages
                 )
+
+            default:
+                return ""
             }
         }
     }
 
     private func createDescription(
         for sectionStatus: YourValidatorsSectionStatus
-    ) -> LocalizableResource<String?> {
+    ) -> LocalizableResource<String>? {
         LocalizableResource { locale in
             switch sectionStatus {
             case .stakeAllocated:
@@ -108,7 +108,7 @@ final class YourValidatorsViewModelFactory {
     ) -> [YourValidatorsSection] {
         order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
-                let title: LocalizableResource<String?> = {
+                let title: LocalizableResource<String>? = {
                     let validatorsCount: Int = {
                         if status == .stakeAllocated {
                             return validators.count + (mapping[.stakeNotAllocated]?.count ?? 0)
