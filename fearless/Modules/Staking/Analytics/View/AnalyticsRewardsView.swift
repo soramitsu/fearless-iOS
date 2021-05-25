@@ -45,6 +45,8 @@ final class AnalyticsRewardsView: UIView {
     let receivedSummaryView = AnalyticsSummaryRewardView()
     let payableSummaryView = AnalyticsSummaryRewardView()
 
+    let payoutButton: TriangularedButton = UIFactory.default.createMainActionButton()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -88,5 +90,13 @@ final class AnalyticsRewardsView: UIView {
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
         separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
+
+        addSubview(payoutButton)
+        payoutButton.snp.makeConstraints { make in
+            make.top.equalTo(summaryStack.snp.bottom).offset(16)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.height.equalTo(50)
+            make.bottom.equalToSuperview()
+        }
     }
 }

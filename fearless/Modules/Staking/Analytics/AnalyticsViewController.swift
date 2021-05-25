@@ -46,6 +46,7 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
                 indicatorColor: R.color.colorAccent()
             )
         )
+        rootView.rewardsView.payoutButton.imageWithTitleView?.title = "Payout rewards"
     }
 }
 

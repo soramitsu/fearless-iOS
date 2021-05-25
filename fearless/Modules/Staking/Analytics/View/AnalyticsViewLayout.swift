@@ -50,6 +50,7 @@ final class AnalyticsViewLayout: UIView {
         }
 
         let scrollContentView = UIStackView(arrangedSubviews: [rewardsView, stakeView, validatorsView])
+        scrollContentView.alignment = .top
         horizontalScrollView.addSubview(scrollContentView)
         scrollContentView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
