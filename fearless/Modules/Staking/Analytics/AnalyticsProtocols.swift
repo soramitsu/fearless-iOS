@@ -1,4 +1,6 @@
-protocol AnalyticsViewProtocol: AnyObject {}
+import SoraFoundation
+
+protocol AnalyticsViewProtocol: ControllerBackedProtocol {}
 
 protocol AnalyticsPresenterProtocol: AnyObject {
     func setup()

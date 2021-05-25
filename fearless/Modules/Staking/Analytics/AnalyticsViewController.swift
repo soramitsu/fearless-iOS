@@ -1,6 +1,6 @@
 import UIKit
 
-final class AnalyticsViewController: UIViewController {
+final class AnalyticsViewController: UIViewController, ViewHolder {
     typealias RootViewType = AnalyticsViewLayout
 
     let presenter: AnalyticsPresenterProtocol
@@ -23,6 +23,8 @@ final class AnalyticsViewController: UIViewController {
         super.viewDidLoad()
 
         presenter.setup()
+        rootView.segmentedControl.configure()
+        rootView.segmentedControl.titles = ["Rewards", "Stake", "Validators"]
     }
 }
 
