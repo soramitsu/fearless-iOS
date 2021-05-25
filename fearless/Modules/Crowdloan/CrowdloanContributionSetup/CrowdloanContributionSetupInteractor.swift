@@ -1,5 +1,6 @@
 import UIKit
 import RobinHood
+import BigInt
 
 final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanContributionSetupInteractorOutputProtocol!
@@ -17,6 +18,8 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+
+    private lazy var callFactory = SubstrateCallFactory()
 
     init(
         paraId: ParaId,
@@ -132,7 +135,15 @@ extension CrowdloanContributionSetupInteractor: CrowdloanContributionSetupIntera
         provideConstants()
     }
 
-    func estimateFee(for _: Decimal) {}
+    func estimateFee(for amount: BigUInt) {
+        let call = callFactory.contribute(to: paraId, amount: amount)
+
+        let identifier = String(amount)
+
+        feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
+            try builder.adding(call: call)
+        }
+    }
 }
 
 extension CrowdloanContributionSetupInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {

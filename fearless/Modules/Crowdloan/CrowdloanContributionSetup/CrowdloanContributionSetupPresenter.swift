@@ -69,6 +69,14 @@ final class CrowdloanContributionSetupPresenter {
         provideInputViewModel()
         provideCrowdloanContributionViewModel()
     }
+
+    private func refreshFee() {
+        guard let amount = (inputAmount ?? 0).toSubstrateAmount(precision: chain.addressType.precision) else {
+            return
+        }
+
+        interactor.estimateFee(for: amount)
+    }
 }
 
 extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresenterProtocol {
@@ -77,7 +85,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
 
         interactor.setup()
 
-        interactor.estimateFee(for: inputAmount ?? 0.0)
+        refreshFee()
     }
 
     func selectAmountPercentage(_: Float) {}
@@ -85,7 +93,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
     func updateAmount(_ newValue: Decimal) {
         inputAmount = newValue
 
-        interactor.estimateFee(for: newValue)
+        refreshFee()
     }
 
     func proceed() {}

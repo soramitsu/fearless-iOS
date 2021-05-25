@@ -1,5 +1,6 @@
 import Foundation
 import CommonWallet
+import BigInt
 
 protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol {
     func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)
@@ -17,7 +18,7 @@ protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
 
 protocol CrowdloanContributionSetupInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for amount: Decimal)
+    func estimateFee(for amount: BigUInt)
 }
 
 protocol CrowdloanContributionSetupInteractorOutputProtocol: AnyObject {
