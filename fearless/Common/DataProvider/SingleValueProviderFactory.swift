@@ -10,6 +10,7 @@ typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
+typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -29,6 +30,10 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedActiveEra>
     func getPayee(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedPayee>
+    func getBlockNumber(for chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBlockNumber>
+
+    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
 }
 
 final class SingleValueProviderFactory {
@@ -371,5 +376,39 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             runtimeService: runtimeService,
             shouldUseFallback: false
         )
+    }
+
+    func getBlockNumber(
+        for chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBlockNumber> {
+        try getProviderForChain(
+            chain,
+            path: .blockNumber,
+            runtimeService: runtimeService,
+            shouldUseFallback: true
+        )
+    }
+
+    func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T> {
+        let localKey = url.absoluteString
+
+        if let provider = providers[localKey]?.target as? SingleValueProvider<T> {
+            return AnySingleValueProvider(provider)
+        }
+
+        let source = JsonSingleProviderSource<T>(url: url)
+
+        let repository: CoreDataRepository<SingleValueProviderObject, CDSingleValue> = facade.createRepository()
+
+        let singleValueProvider = SingleValueProvider(
+            targetIdentifier: localKey,
+            source: AnySingleValueProviderSource(source),
+            repository: AnyDataProviderRepository(repository)
+        )
+
+        providers[localKey] = WeakWrapper(target: singleValueProvider)
+
+        return AnySingleValueProvider(singleValueProvider)
     }
 }

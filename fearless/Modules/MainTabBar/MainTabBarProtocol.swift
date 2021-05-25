@@ -27,6 +27,8 @@ protocol MainTabBarWireframeProtocol: AlertPresentable, AuthorizationAccessible 
     func showNewWalletView(on view: MainTabBarViewProtocol?)
     func reloadWalletContent()
 
+    func showNewCrowdloan(on view: MainTabBarViewProtocol?)
+
     func presentAccountImport(on view: MainTabBarViewProtocol?)
 }
 
@@ -36,4 +38,6 @@ protocol MainTabBarViewFactoryProtocol: AnyObject {
         on view: MainTabBarViewProtocol,
         wireframe: MainTabBarWireframeProtocol
     )
+
+    static func reloadCrowdloanView(on view: MainTabBarViewProtocol)
 }

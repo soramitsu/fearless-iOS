@@ -1,5 +1,8 @@
 PODS:
   - BigInt (5.2.0)
+  - CocoaLumberjack (3.7.2):
+    - CocoaLumberjack/Core (= 3.7.2)
+  - CocoaLumberjack/Core (3.7.2)
   - CommonWallet/Core (1.14.0):
     - RobinHood (~> 2.6.0)
     - SoraFoundation/DateProcessing (~> 0.10.0)
@@ -35,6 +38,7 @@ PODS:
     - IrohaCrypto/BIP39
     - IrohaCrypto/blake2
     - IrohaCrypto/Common
+  - Kingfisher (6.3.0)
   - R.swift (5.4.0):
     - R.swift.Library (~> 5.3.0)
   - R.swift.Library (5.3.0)
@@ -96,6 +100,8 @@ PODS:
   - SoraUI/Skrull (1.10.1)
   - Sourcery (1.4.1)
   - Starscream (4.0.4)
+  - SVGKit (2.1.0):
+    - CocoaLumberjack (~> 3.0)
   - SwiftFormat/CLI (0.47.13)
   - SwiftGifOrigin (1.7.0)
   - SwiftLint (0.43.1)
@@ -106,8 +112,9 @@ PODS:
 DEPENDENCIES:
   - CommonWallet/Core (from `https://github.com/soramitsu/Capital-iOS.git`, commit `18c385ef79256c2c2e9b3e9f983adafa4727720e`)
   - Cuckoo
-  - FearlessUtils (~> 0.9.0)
+  - FearlessUtils (from `https://github.com/soramitsu/fearless-utils-iOS.git`, commit `8a8bacda093463c81889a47b078503787056233e`)
   - FireMock
+  - Kingfisher
   - R.swift
   - ReachabilitySwift
   - RobinHood (~> 2.6.0)
@@ -117,6 +124,7 @@ DEPENDENCIES:
   - SoraUI (~> 1.10.1)
   - Sourcery (~> 1.4)
   - Starscream (from `https://github.com/ERussel/Starscream.git`, branch `feature/without-origin`)
+  - SVGKit (from `https://github.com/SVGKit/SVGKit.git`, tag `3.0.0`)
   - SwiftFormat/CLI (~> 0.47.13)
   - SwiftGifOrigin (~> 1.7.0)
   - SwiftLint
@@ -125,10 +133,11 @@ DEPENDENCIES:
 SPEC REPOS:
   trunk:
     - BigInt
+    - CocoaLumberjack
     - Cuckoo
-    - FearlessUtils
     - FireMock
     - IrohaCrypto
+    - Kingfisher
     - R.swift
     - R.swift.Library
     - ReachabilitySwift
@@ -151,25 +160,39 @@ EXTERNAL SOURCES:
   CommonWallet:
     :commit: 18c385ef79256c2c2e9b3e9f983adafa4727720e
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 8a8bacda093463c81889a47b078503787056233e
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :branch: feature/without-origin
     :git: https://github.com/ERussel/Starscream.git
+  SVGKit:
+    :git: https://github.com/SVGKit/SVGKit.git
+    :tag: 3.0.0
 
 CHECKOUT OPTIONS:
   CommonWallet:
     :commit: 18c385ef79256c2c2e9b3e9f983adafa4727720e
     :git: https://github.com/soramitsu/Capital-iOS.git
+  FearlessUtils:
+    :commit: 8a8bacda093463c81889a47b078503787056233e
+    :git: https://github.com/soramitsu/fearless-utils-iOS.git
   Starscream:
     :commit: b9e69390d96e71427463469f47cdafb8c0db1b21
     :git: https://github.com/ERussel/Starscream.git
+  SVGKit:
+    :git: https://github.com/SVGKit/SVGKit.git
+    :tag: 3.0.0
 
 SPEC CHECKSUMS:
   BigInt: f668a80089607f521586bbe29513d708491ef2f7
+  CocoaLumberjack: b7e05132ff94f6ae4dfa9d5bce9141893a21d9da
   CommonWallet: 216009b2274247ec0a7f80b57f1f4d1ffbdd0a72
   Cuckoo: 09ff1b7c6613b9c27dafea90702ca32208fe59d3
   FearlessUtils: 8c05cb6cf737943f343e6a1fb4be2ac6fafebb9d
   FireMock: 3eed872059c12f94855413347da83b9d6d1a6fac
   IrohaCrypto: 753b4f9c2af9ddb97538e6b919d087f87112e708
+  Kingfisher: 6c3df386db71d82c0817a429d2c9421a77396529
   R.swift: c533450b0f7dc494e0993f5f1a1db925d84c3006
   R.swift.Library: 0fc583cb55a99e28901299cc451614cad1161962
   ReachabilitySwift: 985039c6f7b23a1da463388634119492ff86c825
@@ -182,6 +205,7 @@ SPEC CHECKSUMS:
   SoraUI: bd2260bcc0a01c35c2b10e724e4243dac3016710
   Sourcery: db66600e8b285c427701821598d07cf3c7e6c476
   Starscream: 5178aed56b316f13fa3bc55694e583d35dd414d9
+  SVGKit: 132b010efbf57ec345309fe4a7f627c0a40c5d63
   SwiftFormat: 73573b89257437c550b03d934889725fbf8f75e5
   SwiftGifOrigin: fbd6cf37afcfcf97a5c3db996ddc0492e5c5c145
   SwiftLint: 99f82d07b837b942dd563c668de129a03fc3fb52
@@ -189,6 +213,6 @@ SPEC CHECKSUMS:
   TweetNacl: 3abf4d1d2082b0114e7a67410e300892448951e6
   xxHash-Swift: 30bd6a7507b3b7348a277c49b1cb6346c2905ec7
 
-PODFILE CHECKSUM: 6b89d16dbbf75c8d36309cbaefe25c57088fb649
+PODFILE CHECKSUM: 27f6abe4ab3545ed281863b5800bfea2f4aa66ca
 
 COCOAPODS: 1.10.1

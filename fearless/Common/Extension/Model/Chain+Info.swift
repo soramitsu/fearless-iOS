@@ -131,5 +131,20 @@ extension Chain {
             return base?.appendingPathComponent("rococo.json")
         }
     }
+
+    func crowdloanDisplayInfoURL() -> URL {
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+
+        switch self {
+        case .westend:
+            return base.appendingPathComponent("westend.json")
+        case .kusama:
+            return base.appendingPathComponent("kusama.json")
+        case .polkadot:
+            return base.appendingPathComponent("polkadot.json")
+        case .rococo:
+            return base.appendingPathComponent("rococo.json")
+        }
+    }
     // swiftlint:enable line_length
 }

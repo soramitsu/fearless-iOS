@@ -5,6 +5,7 @@ import CommonWallet
 
 final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
     static let walletIndex: Int = 0
+    static let crowdloanIndex: Int = 1
 
     static func createView() -> MainTabBarViewProtocol? {
         guard let keystoreImportService: KeystoreImportServiceProtocol = URLHandlingService.shared
@@ -43,7 +44,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
             return nil
         }
 
-        guard let polkaswapController = createPolkaswapController(for: localizationManager) else {
+        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
             return nil
         }
 
@@ -54,7 +55,7 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
         let view = MainTabBarViewController()
         view.viewControllers = [
             walletController,
-            polkaswapController,
+            crowdloanController,
             stakingController,
             governanceController,
             settingsController
@@ -91,6 +92,15 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         wireframe.walletContext = walletContext
         view.didReplaceView(for: walletController, for: Self.walletIndex)
+    }
+
+    static func reloadCrowdloanView(on view: MainTabBarViewProtocol) {
+        let localizationManager = LocalizationManager.shared
+        guard let crowdloanController = createCrowdloanController(for: localizationManager) else {
+            return
+        }
+
+        view.didReplaceView(for: crowdloanController, for: Self.crowdloanIndex)
     }
 
     static func createWalletController(
@@ -239,6 +249,39 @@ final class MainTabBarViewFactory: MainTabBarViewFactoryProtocol {
 
         let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
         let icon = R.image.iconTabSettings()
+        let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
+            .withRenderingMode(.alwaysOriginal)
+        let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
+            .withRenderingMode(.alwaysOriginal)
+        navigationController.tabBarItem = createTabBarItem(
+            title: currentTitle,
+            normalImage: normalIcon,
+            selectedImage: selectedIcon
+        )
+
+        localizationManager.addObserver(with: navigationController) { [weak navigationController] _, _ in
+            let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+            navigationController?.tabBarItem.title = currentTitle
+        }
+
+        return navigationController
+    }
+
+    static func createCrowdloanController(
+        for localizationManager: LocalizationManagerProtocol
+    ) -> UIViewController? {
+        guard let crowloanView = CrowdloanListViewFactory.createView() else {
+            return nil
+        }
+
+        let navigationController = FearlessNavigationController(rootViewController: crowloanView.controller)
+
+        let localizableTitle = LocalizableResource { locale in
+            R.string.localizable.tabbarCrowdloanTitle(preferredLanguages: locale.rLanguages)
+        }
+
+        let currentTitle = localizableTitle.value(for: localizationManager.selectedLocale)
+        let icon = R.image.iconTabCrowloan()
         let normalIcon = icon?.tinted(with: R.color.colorGray()!)?
             .withRenderingMode(.alwaysOriginal)
         let selectedIcon = icon?.tinted(with: R.color.colorWhite()!)?
