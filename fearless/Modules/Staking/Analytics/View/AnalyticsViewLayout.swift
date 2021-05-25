@@ -2,7 +2,15 @@ import UIKit
 import SoraUI
 
 final class AnalyticsViewLayout: UIView {
-    let segmentedControl = PlainSegmentedControl()
+    let segmentedControl: PlainSegmentedControl = {
+        let segmentedControl = PlainSegmentedControl()
+        segmentedControl.selectionWidth = 1
+        segmentedControl.titleColor = R.color.colorGray()!
+        segmentedControl.selectionColor = R.color.colorWhite()!
+        segmentedControl.selectedTitleColor = R.color.colorWhite()!
+        segmentedControl.titleFont = .p1Paragraph
+        return segmentedControl
+    }()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
