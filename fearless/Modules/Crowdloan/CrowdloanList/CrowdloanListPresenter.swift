@@ -88,8 +88,12 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
         interactor.setup()
     }
 
-    func refresh() {
+    func refresh(shouldReset: Bool) {
         crowdloansResult = nil
+
+        if shouldReset {
+            view?.didReceive(state: .loading)
+        }
 
         interactor.refresh()
     }

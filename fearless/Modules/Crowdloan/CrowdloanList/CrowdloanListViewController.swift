@@ -49,7 +49,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         super.viewDidAppear(animated)
 
         if shouldUpdateOnAppearance {
-            presenter.refresh()
+            presenter.refresh(shouldReset: false)
         } else {
             shouldUpdateOnAppearance = true
         }
@@ -95,7 +95,7 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
     }
 
     @objc func actionRefresh() {
-        presenter.refresh()
+        presenter.refresh(shouldReset: false)
     }
 }
 
@@ -269,6 +269,6 @@ extension CrowdloanListViewController: EmptyStateDelegate {
 
 extension CrowdloanListViewController: ErrorStateViewDelegate {
     func didRetry(errorView _: ErrorStateView) {
-        presenter.refresh()
+        presenter.refresh(shouldReset: true)
     }
 }

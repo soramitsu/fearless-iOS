@@ -10,7 +10,7 @@ struct CrowdloanFunds: Codable {
     @StringCodable var end: UInt32
     @StringCodable var cap: BigUInt
     let lastContribution: CrowdloanLastContribution
-    @StringCodable var firstSlot: UInt32
-    @StringCodable var lastSlot: UInt32
+    @StringCodable var firstPeriod: UInt32
+    @StringCodable var lastPeriod: UInt32
     @StringCodable var trieIndex: UInt32
 }

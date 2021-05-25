@@ -29,14 +29,14 @@ class StatusSectionView: UITableViewHeaderFooterView {
     }
 
     private func setupLayout() {
-        addSubview(indicatorView)
+        contentView.addSubview(indicatorView)
         indicatorView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
-            make.width.height.equalTo(8.0)
+            make.size.equalTo(8.0)
         }
 
-        addSubview(titleLabel)
+        contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(indicatorView.snp.trailing).offset(8)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)

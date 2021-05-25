@@ -6,7 +6,7 @@ protocol CrowdloanListViewProtocol: ControllerBackedProtocol {
 
 protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()
-    func refresh()
+    func refresh(shouldReset: Bool)
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
