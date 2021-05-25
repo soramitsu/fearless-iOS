@@ -1,9 +1,18 @@
 import Foundation
+import CommonWallet
 
-protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol {}
+protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol {
+    func didReceiveAsset(viewModel: AssetBalanceViewModelProtocol)
+    func didReceiveFee(viewModel: BalanceViewModelProtocol?)
+    func didReceiveInput(viewModel: AmountInputViewModelProtocol)
+    func didReceiveCrowdloan(viewModel: CrowdloanContributionViewModel)
+}
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func setup()
+    func selectAmountPercentage(_ percentage: Float)
+    func updateAmount(_ newValue: Decimal)
+    func proceed()
 }
 
 protocol CrowdloanContributionSetupInteractorInputProtocol: AnyObject {
@@ -12,7 +21,7 @@ protocol CrowdloanContributionSetupInteractorInputProtocol: AnyObject {
 }
 
 protocol CrowdloanContributionSetupInteractorOutputProtocol: AnyObject {
-    func didReceiveCrowdloans(result: Result<Crowdloan, Error>)
+    func didReceiveCrowdloan(result: Result<Crowdloan, Error>)
     func didReceiveDisplayInfo(result: Result<CrowdloanDisplayInfo?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceiveBlockNumber(result: Result<BlockNumber?, Error>)

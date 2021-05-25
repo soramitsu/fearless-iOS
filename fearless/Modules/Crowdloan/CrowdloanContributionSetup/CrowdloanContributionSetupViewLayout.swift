@@ -4,7 +4,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
 
@@ -63,11 +63,60 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(assetViewModel: AssetBalanceViewModelProtocol) {
+        amountInputView.priceText = assetViewModel.price
+
+        if let balance = assetViewModel.balance {
+            amountInputView.balanceText = R.string.localizable.stakingBondedFormat(
+                balance,
+                preferredLanguages: locale.rLanguages
+            )
+        } else {
+            amountInputView.balanceText = nil
+        }
+
+        amountInputView.assetIcon = assetViewModel.icon
+
+        let symbol = assetViewModel.symbol.uppercased()
+        amountInputView.symbol = symbol
+
+        hintView.titleLabel.text = R.string.localizable.crowdloanUnlockHint(
+            symbol,
+            preferredLanguages: locale.rLanguages
+        )
+    }
+
+    func bind(feeViewModel: BalanceViewModelProtocol?) {
+        networkFeeView.bind(viewModel: feeViewModel)
+    }
+
+    func bind(crowdloanViewModel: CrowdloanContributionViewModel) {
+        leasingPeriodView.valueTop.text = crowdloanViewModel.leasingPeriod
+        leasingPeriodView.valueBottom.text = crowdloanViewModel.leasingCompletionDate
+
+        raisedView.valueTop.text = crowdloanViewModel.raisedProgress
+        raisedView.valueBottom.text = crowdloanViewModel.raisedPercentage
+
+        timeLeftVew.valueLabel.text = crowdloanViewModel.remainedTime
+    }
+
     private func applyLocalization() {
+        contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
+            preferredLanguages: locale.rLanguages
+        )
+
         networkFeeView.locale = locale
+        leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
+            preferredLanguages: locale.rLanguages
+        )
 
         amountInputView.title = R.string.localizable
             .walletSendAmountTitle(preferredLanguages: locale.rLanguages)
+
+        crowdloanInfoTitleLabel.text = R.string.localizable.crowdloanInfo(preferredLanguages: locale.rLanguages)
+
+        raisedView.titleLabel.text = R.string.localizable.crowdloanRaised(preferredLanguages: locale.rLanguages)
+        timeLeftVew.titleLabel.text = R.string.localizable.commonTimeLeft(preferredLanguages: locale.rLanguages)
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
@@ -85,11 +134,15 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
         }
 
+        contentView.stackView.setCustomSpacing(16.0, after: contributionTitleLabel)
+
         contentView.stackView.addArrangedSubview(amountInputView)
         amountInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(72.0)
         }
+
+        contentView.stackView.setCustomSpacing(16.0, after: amountInputView)
 
         contentView.stackView.addArrangedSubview(hintView)
         hintView.snp.makeConstraints { make in
@@ -110,7 +163,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        contentView.stackView.setCustomSpacing(16.0, after: leasingPeriodView)
+        contentView.stackView.setCustomSpacing(24.0, after: leasingPeriodView)
 
         contentView.stackView.addArrangedSubview(crowdloanInfoTitleLabel)
         crowdloanInfoTitleLabel.snp.makeConstraints { make in

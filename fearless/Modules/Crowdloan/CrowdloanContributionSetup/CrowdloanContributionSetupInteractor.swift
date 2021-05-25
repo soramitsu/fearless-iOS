@@ -7,12 +7,12 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
     let paraId: ParaId
     let selectedAccountAddress: AccountAddress
     let chain: Chain
-    let connection: JSONRPCEngine
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
     let displayInfoProvider: AnySingleValueProvider<CrowdloanDisplayInfoList>
+    let crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>
     let operationManager: OperationManagerProtocol
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
@@ -22,17 +22,18 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
         paraId: ParaId,
         selectedAccountAddress: AccountAddress,
         chain: Chain,
-        connection: JSONRPCEngine,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         operationManager: OperationManagerProtocol
     ) {
         self.paraId = paraId
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
-        self.connection = connection
+        self.crowdloanFundsProvider = crowdloanFundsProvider
+
         self.runtimeService = runtimeService
         self.feeProxy = feeProxy
         self.extrinsicService = extrinsicService
@@ -86,6 +87,32 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
             options: options
         )
     }
+
+    private func subscribeToCrowdloanFunds() {
+        let updateClosure: ([DataProviderChange<DecodedCrowdloanFunds>]) -> Void = { [weak self] changes in
+            if
+                let result = changes.reduceToLastChange(),
+                let crowdloanFunds = result.item,
+                let paraId = self?.paraId {
+                let crowdloan = Crowdloan(paraId: paraId, fundInfo: crowdloanFunds)
+                self?.presenter.didReceiveCrowdloan(result: .success(crowdloan))
+            }
+        }
+
+        let failureClosure: (Error) -> Void = { [weak self] error in
+            self?.presenter.didReceiveDisplayInfo(result: .failure(error))
+        }
+
+        let options = DataProviderObserverOptions(alwaysNotifyOnRefresh: false, waitsInProgressSyncOnAdd: false)
+
+        crowdloanFundsProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
 }
 
 extension CrowdloanContributionSetupInteractor: CrowdloanContributionSetupInteractorInputProtocol {
@@ -100,6 +127,7 @@ extension CrowdloanContributionSetupInteractor: CrowdloanContributionSetupIntera
         )
 
         subscribeToDisplayInfo()
+        subscribeToCrowdloanFunds()
 
         provideConstants()
     }

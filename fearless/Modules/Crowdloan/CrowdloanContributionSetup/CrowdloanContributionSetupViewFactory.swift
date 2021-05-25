@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SoraFoundation
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(for paraId: ParaId) -> CrowdloanContributionSetupViewProtocol? {
@@ -9,9 +10,31 @@ struct CrowdloanContributionSetupViewFactory {
 
         let wireframe = CrowdloanContributionSetupWireframe()
 
-        let presenter = CrowdloanContributionSetupPresenter(interactor: interactor, wireframe: wireframe)
+        let settings = SettingsManager.shared
+        let addressType = settings.selectedConnection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
 
-        let view = CrowdloanContributionSetupViewController(presenter: presenter)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let localizationManager = LocalizationManager.shared
+
+        let presenter = CrowdloanContributionSetupPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            balanceViewModelFactory: balanceViewModelFactory,
+            chain: addressType.chain,
+            localizationManager: localizationManager,
+            logger: Logger.shared
+        )
+
+        let view = CrowdloanContributionSetupViewController(
+            presenter: presenter,
+            localizationManager: localizationManager
+        )
 
         presenter.view = view
         interactor.presenter = presenter
@@ -20,7 +43,7 @@ struct CrowdloanContributionSetupViewFactory {
     }
 
     private static func createInteractor(for paraId: ParaId) -> CrowdloanContributionSetupInteractor? {
-        guard let connection = WebSocketService.shared.connection else {
+        guard let engine = WebSocketService.shared.connection else {
             return nil
         }
 
@@ -40,7 +63,7 @@ struct CrowdloanContributionSetupViewFactory {
             address: selectedAccount.address,
             cryptoType: selectedAccount.cryptoType,
             runtimeRegistry: runtimeService,
-            engine: connection,
+            engine: engine,
             operationManager: operationManager
         )
 
@@ -48,14 +71,21 @@ struct CrowdloanContributionSetupViewFactory {
 
         let singleValueProviderFactory = SingleValueProviderFactory.shared
 
+        let crowdloanFundsProvider = singleValueProviderFactory.getCrowdloanFunds(
+            for: paraId,
+            connection: settings.selectedConnection,
+            engine: engine,
+            runtimeService: runtimeService
+        )
+
         return CrowdloanContributionSetupInteractor(
             paraId: paraId,
             selectedAccountAddress: selectedAccount.address,
             chain: chain,
-            connection: connection,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,
+            crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
             operationManager: operationManager
         )
