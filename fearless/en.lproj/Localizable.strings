@@ -405,6 +405,12 @@ Derivation path: %@";
 "staking.your.stake" = "Your stake";
 "staking.bonded" = "Bonded";
 "staking.earned" = "Earned";
+"staking.controller.account.zero.balance" = "We found that this account has no free tokens, are you sure that you want to change the controller?";
+"wallet.send.balance.minimal" = "Minimal balance";
+"wallet.fee.over.existential.deposit" = "You should have funds to pay fee and remain above minimal balance.";
+"staking.your.allocated.description" = "Your stake is allocated to the following validators";
+"staking.your.not.allocated.description" = "Others, who are active without your stake allocation";
+"staking.your.inactive.description" = "Validators who were not elected in this era";
 "tabbar.crowdloan.title" = "Crowdloan";
 "crowdloan.list.section.format" = "Select parachains to contribute your %@. You will receive rewards if the parachain acquires a slot by the end of the auction.";
 "crowdloan.you.contributions.title" = "Your contributions";
@@ -413,4 +419,3 @@ Derivation path: %@";
 "crowdloan.completed.section.format" = "Completed (%@)";
 "crowdloan.empty.message" = "Information about crowdloans\n will appear here";
 "common.time.left.format" = "%@ left";
-

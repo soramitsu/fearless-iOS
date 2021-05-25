@@ -191,13 +191,19 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
 
             } else {
                 presenter.didReceiveStakingLedger(result: .success(nil))
+                presenter.didReceiveAccountInfo(result: .success(nil))
+                presenter.didReceiveRewardDestinationAccount(result: .success(nil))
+                presenter.didReceiveNomination(result: .success(nil))
                 presenter.didReceiveController(result: .success(nil))
             }
 
         } catch {
             presenter.didReceiveStashItem(result: .failure(error))
-            presenter.didReceiveController(result: .success(nil))
+            presenter.didReceiveController(result: .failure(error))
             presenter.didReceiveStakingLedger(result: .failure(error))
+            presenter.didReceiveAccountInfo(result: .failure(error))
+            presenter.didReceiveRewardDestinationAccount(result: .failure(error))
+            presenter.didReceiveNomination(result: .failure(error))
         }
     }
 

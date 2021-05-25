@@ -23,6 +23,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             }
         }
 
+        let minimalBalanceOperation: CompoundOperationWrapper<BigUInt> = fetchMinimalBalanceOperation()
+
         let currentTotalPriceId = totalPriceAssetId.rawValue
 
         let mergeOperation: BaseOperation<[BalanceData]?> = ClosureOperation {
@@ -33,25 +35,38 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
                     .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
             }
 
+            let rawMinimalBalance = try minimalBalanceOperation.targetOperation
+                .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+
             // match balance with price and form context
 
             let balances: [BalanceData]? = try balanceOperation.targetOperation
                 .extractResultData(throwing: BaseOperationError.parentOperationCancelled)?
                 .map { balanceData in
-                    guard let price = prices
-                        .first(where: { $0.assetId.rawValue == balanceData.identifier })
-                    else {
-                        return balanceData
+                    let minimalBalance: Decimal
+                    if let asset = userAssets.first(where: { $0.identifier == balanceData.identifier }) {
+                        minimalBalance = Decimal.fromSubstrateAmount(
+                            rawMinimalBalance,
+                            precision: asset.precision
+                        ) ?? .zero
+                    } else {
+                        minimalBalance = .zero
                     }
 
                     let context = BalanceContext(context: balanceData.context ?? [:])
-                        .byChangingPrice(price.lastValue, newPriceChange: price.change)
-                        .toContext()
+                        .byChangingMinimalBalance(to: minimalBalance)
+
+                    let contextWithPrice: BalanceContext = {
+                        guard
+                            let price = prices.first(where: { $0.assetId.rawValue == balanceData.identifier })
+                        else { return context }
+                        return context.byChangingPrice(price.lastValue, newPriceChange: price.change)
+                    }()
 
                     return BalanceData(
                         identifier: balanceData.identifier,
                         balance: balanceData.balance,
-                        context: context
+                        context: contextWithPrice.toContext()
                     )
                 }
 
@@ -83,7 +98,7 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             }
         }
 
-        let dependencies = balanceOperation.allOperations + flatenedPriceOperations
+        let dependencies = balanceOperation.allOperations + flatenedPriceOperations + minimalBalanceOperation.allOperations
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 

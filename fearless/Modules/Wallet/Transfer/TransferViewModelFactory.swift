@@ -32,7 +32,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let title = R.string.localizable.walletSendFeeTitle(preferredLanguages: locale.rLanguages)
 
-        let formatter = amountFormatterFactory.createTokenFormatter(for: asset).value(for: locale)
+        let formatter = amountFormatterFactory.createFeeTokenFormatter(for: asset).value(for: locale)
 
         let amount = formatter
             .stringFromDecimal(fee.feeDescription.parameters.first?.decimalValue ?? 0) ?? ""
@@ -79,8 +79,6 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
 
         let detailsCommand: WalletCommandProtocol?
 
-        let existentialDeposit = assetId.chain?.existentialDeposit ?? .zero
-
         if let context = inputState.balance?.context, let commandFactory = commandFactory {
             let balanceContext = BalanceContext(context: context)
             let transferring = inputState.amount ?? .zero
@@ -90,7 +88,7 @@ final class TransferViewModelFactory: TransferViewModelFactoryOverriding {
                 totalAmount: balanceContext.total,
                 availableAmount: balanceContext.available,
                 totalAfterTransfer: remaining,
-                existentialDeposit: existentialDeposit
+                existentialDeposit: balanceContext.minimalBalance
             )
 
             let amountFormatter = amountFormatterFactory.createDisplayFormatter(for: asset)

@@ -31,6 +31,7 @@ protocol StakingStateProtocol {
     func process(totalReward: TotalRewardItem?)
     func process(payee: RewardDestinationArg?)
     func process(minimalStake: BigUInt?)
+    func process(maxNominatorsPerValidator: UInt32?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

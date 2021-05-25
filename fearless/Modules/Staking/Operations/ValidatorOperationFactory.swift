@@ -130,8 +130,7 @@ final class ValidatorOperationFactory {
 
                 if let electedValidator = allElectedValidators.validators
                     .first(where: { $0.accountId == accountId }) {
-                    let exposuresClipped = electedValidator.exposure.others.sorted(by: { $0.value > $1.value })
-                        .prefix(Int(maxNominators))
+                    let exposuresClipped = electedValidator.exposure.others.prefix(Int(maxNominators))
                     if let amount = exposuresClipped.first(where: { $0.who == nominatorId })?.value,
                        let amountDecimal = Decimal.fromSubstrateAmount(amount, precision: addressType.precision) {
                         return .active(amount: amountDecimal)
@@ -254,7 +253,6 @@ final class ValidatorOperationFactory {
             return try electedStakers.validators
                 .reduce(into: [AccountId: ValidatorStakeInfo]()) { result, validator in
                     let exposures = validator.exposure.others
-                        .sorted { $0.value > $1.value }
                         .prefix(Int(maxNominatorsRewarded))
 
                     guard exposures.contains(where: { $0.who == nominatorAccountId }) else {

@@ -19,8 +19,8 @@ class CrowdloanListTests: XCTestCase {
                 end: currentBlockNumber + 100,
                 cap: 1000,
                 lastContribution: .never,
-                firstSlot: 100,
-                lastSlot: 101,
+                firstPeriod: 100,
+                lastPeriod: 101,
                 trieIndex: 1)
         )
     ]
@@ -36,8 +36,8 @@ class CrowdloanListTests: XCTestCase {
                 end: currentBlockNumber,
                 cap: 1000,
                 lastContribution: .never,
-                firstSlot: 100,
-                lastSlot: 101,
+                firstPeriod: 100,
+                lastPeriod: 101,
                 trieIndex: 1)
         )
     ]
