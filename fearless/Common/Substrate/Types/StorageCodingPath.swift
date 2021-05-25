@@ -93,4 +93,16 @@ extension StorageCodingPath {
     static var electionPhase: StorageCodingPath {
         StorageCodingPath(moduleName: "ElectionProviderMultiPhase", itemName: "CurrentPhase")
     }
+
+    static var parachains: StorageCodingPath {
+        StorageCodingPath(moduleName: "Paras", itemName: "Parachains")
+    }
+
+    static var crowdloanFunds: StorageCodingPath {
+        StorageCodingPath(moduleName: "Crowdloan", itemName: "Funds")
+    }
+
+    static var blockNumber: StorageCodingPath {
+        StorageCodingPath(moduleName: "System", itemName: "Number")
+    }
 }

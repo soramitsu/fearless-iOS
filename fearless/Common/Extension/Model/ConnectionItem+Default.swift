@@ -46,6 +46,11 @@ extension ConnectionItem {
                 title: "Westend, Parity node",
                 url: URL(string: "wss://westend-rpc.polkadot.io")!,
                 type: SNAddressType.genericSubstrate
+            ),
+            ConnectionItem(
+                title: "Rococo, Laminar node",
+                url: URL(string: "wss://rococo-community-rpc.laminar.codes/ws")!,
+                type: SNAddressType.kusamaSecondary
             )
         ]
     }

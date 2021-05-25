@@ -5,6 +5,7 @@ enum Chain: String, Codable, CaseIterable {
     case kusama = "Kusama"
     case polkadot = "Polkadot"
     case westend = "Westend"
+    case rococo = "Rococo"
 }
 
 extension Chain {
@@ -16,6 +17,8 @@ extension Chain {
             return .kusamaMain
         case .westend:
             return .genericSubstrate
+        case .rococo:
+            return .kusamaSecondary
         }
     }
 }

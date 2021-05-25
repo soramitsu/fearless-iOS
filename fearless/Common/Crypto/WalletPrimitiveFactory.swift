@@ -39,6 +39,11 @@ final class WalletPrimitiveFactory: WalletPrimitiveFactoryProtocol {
             localizableName = LocalizableResource<String> { _ in "Westend" }
             platformName = LocalizableResource<String> { _ in "Westend" }
             symbol = "WND"
+        case .kusamaSecondary:
+            identifier = WalletAssetId.roc.rawValue
+            localizableName = LocalizableResource<String> { _ in "Rococo" }
+            platformName = LocalizableResource<String> { _ in "Rococo" }
+            symbol = "ROC"
         default:
             identifier = WalletAssetId.kusama.rawValue
             localizableName = LocalizableResource<String> { _ in "Kusama" }

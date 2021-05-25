@@ -19,7 +19,8 @@
         "CancelProxy"
       ]
     },
-    "RefCount": "u32"
+    "RefCount": "u32",
+    "CompactAssignments": "CompactAssignmentsFrom258"
   },
   "versioning": [
     {
