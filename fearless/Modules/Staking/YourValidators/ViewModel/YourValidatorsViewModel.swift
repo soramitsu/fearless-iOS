@@ -37,6 +37,7 @@ enum YourValidatorsSectionStatus {
     case stakeAllocated
     case stakeNotAllocated
     case inactive
+    case pending
 }
 
 struct YourValidatorViewModel {

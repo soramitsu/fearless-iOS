@@ -65,6 +65,14 @@ final class YourValidatorsViewModelFactory {
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
+            case .pending:
+                let maxCountString = localizedFormatter
+                    .string(from: NSNumber(value: StakingConstants.maxTargets)) ?? "0"
+                return R.string.localizable.stakingYourPendingFormat(
+                    countString,
+                    maxCountString,
+                    preferredLanguages: locale.rLanguages
+                )
             }
         }
     }
@@ -84,6 +92,10 @@ final class YourValidatorsViewModelFactory {
                 )
             case .inactive:
                 return R.string.localizable.stakingYourInactiveDescription(
+                    preferredLanguages: locale.rLanguages
+                )
+            case .pending:
+                return R.string.localizable.stakingYourValidatorsChangingTitle(
                     preferredLanguages: locale.rLanguages
                 )
             }
@@ -127,7 +139,7 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
             into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
             let sectionStatus: YourValidatorsSectionStatus = {
                 guard let modelStatus = item.myNomination else {
-                    return .inactive
+                    return .pending
                 }
 
                 switch modelStatus {
@@ -146,7 +158,7 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
         }
 
         let sectionsOrder: [YourValidatorsSectionStatus] = [
-            .stakeAllocated, .stakeNotAllocated, .inactive
+            .stakeAllocated, .pending, .stakeNotAllocated, .inactive
         ]
 
         return createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)
