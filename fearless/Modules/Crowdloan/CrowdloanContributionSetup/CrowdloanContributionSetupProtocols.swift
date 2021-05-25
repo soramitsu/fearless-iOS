@@ -1,4 +1,4 @@
-protocol CrowdloanContributionSetupViewProtocol: AnyObject {}
+protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol {}
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func setup()

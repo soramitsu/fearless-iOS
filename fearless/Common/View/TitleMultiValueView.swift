@@ -32,28 +32,15 @@ final class TitleMultiValueView: UIView {
         return view
     }()
 
-    var locale = Locale.current {
-        didSet {
-            if locale != oldValue {
-                applyLocalization()
-            }
-        }
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 
-        applyLocalization()
         setupLayout()
     }
 
     @available(*, unavailable)
     required init?(coder _: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-
-    private func applyLocalization() {
-        titleLabel.text = R.string.localizable.commonNetworkFee(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {

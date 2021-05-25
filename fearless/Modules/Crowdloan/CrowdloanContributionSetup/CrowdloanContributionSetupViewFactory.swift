@@ -1,7 +1,7 @@
 import Foundation
 
 struct CrowdloanContributionSetupViewFactory {
-    static func createView() -> CrowdloanContributionSetupViewProtocol? {
+    static func createView(for _: ParaId) -> CrowdloanContributionSetupViewProtocol? {
         let interactor = CrowdloanContributionSetupInteractor()
         let wireframe = CrowdloanContributionSetupWireframe()
 
