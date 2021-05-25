@@ -29,6 +29,12 @@ class YourValidatorTableCell: UITableViewCell {
         return imageView
     }()
 
+    let errorImageView: UIImageView = {
+        let imageView = UIImageView()
+        imageView.image = R.image.iconErrorFilled()
+        return imageView
+    }()
+
     let infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconInfo()
@@ -71,6 +77,12 @@ class YourValidatorTableCell: UITableViewCell {
             make.centerY.equalToSuperview()
         }
 
+        contentView.addSubview(errorImageView)
+        errorImageView.snp.makeConstraints { make in
+            make.trailing.equalTo(infoImageView.snp.leading).offset(-10)
+            make.centerY.equalToSuperview()
+        }
+
         contentView.addSubview(warningImageView)
         warningImageView.snp.makeConstraints { make in
             make.trailing.equalTo(infoImageView.snp.leading).offset(-10)
@@ -101,8 +113,6 @@ class YourValidatorTableCell: UITableViewCell {
             titleLabel.lineBreakMode = .byTruncatingMiddle
         }
 
-        warningImageView.isHidden = !viewModel.shouldHaveWarning
-
         let amountTitle = viewModel.amount?.value(for: locale)
         let isDetailsEmpty = amountTitle?.isEmpty ?? true
 
@@ -123,6 +133,14 @@ class YourValidatorTableCell: UITableViewCell {
             } else {
                 make.top.equalToSuperview().inset(8)
             }
+        }
+
+        warningImageView.isHidden = !viewModel.shouldHaveWarning
+        errorImageView.isHidden = !viewModel.shouldHaveError
+
+        warningImageView.snp.updateConstraints { make in
+            let offset = viewModel.shouldHaveError ? -10 : -20 - errorImageView.intrinsicContentSize.width
+            make.trailing.equalTo(infoImageView.snp.leading).offset(offset)
         }
     }
 }

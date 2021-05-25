@@ -14,6 +14,13 @@ class YourValidatorStatusSectionView: UITableViewHeaderFooterView {
         return label
     }()
 
+    let descriptionLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p2Paragraph
+        label.textColor = R.color.colorLightGray()!
+        return label
+    }()
+
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
 
@@ -32,28 +39,51 @@ class YourValidatorStatusSectionView: UITableViewHeaderFooterView {
         addSubview(indicatorView)
         indicatorView.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
             make.width.height.equalTo(8.0)
+            make.top.equalToSuperview().offset(16)
         }
 
         addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.equalTo(indicatorView.snp.trailing).offset(8)
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
+            make.centerY.equalTo(indicatorView.snp.centerY)
+        }
+
+        addSubview(descriptionLabel)
+        descriptionLabel.snp.makeConstraints { make in
+            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalTo(titleLabel.snp.bottom).offset(10)
+            make.bottom.equalToSuperview().inset(8)
         }
     }
 
-    func bind(title: String, for status: YourValidatorsSectionStatus) {
-        titleLabel.text = title.uppercased()
+    func bind(title: String?, description: String?, for status: YourValidatorsSectionStatus) {
+        if let title = title {
+            titleLabel.text = title.uppercased()
+            titleLabel.isHidden = false
+            indicatorView.isHidden = false
+        } else {
+            titleLabel.isHidden = true
+            indicatorView.isHidden = true
+
+            descriptionLabel.snp.updateConstraints { make in
+                make.top.equalTo(titleLabel.snp.bottom).offset(-titleLabel.intrinsicContentSize.height)
+            }
+        }
+
+        if let description = description {
+            descriptionLabel.text = description
+        } else {
+            descriptionLabel.removeFromSuperview()
+        }
 
         let color: UIColor = {
             switch status {
-            case .active:
+            case .stakeAllocated:
                 return R.color.colorGreen()!
-            case .slashed:
-                return R.color.colorRed()!
-            case .inactive, .waiting, .pending:
+            default:
                 return R.color.colorLightGray()!
             }
         }()

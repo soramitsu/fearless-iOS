@@ -28,19 +28,24 @@ final class YourValidatorsViewModelFactory {
             return balanceViewModeFactory.amountFromValue(amount)
         }()
 
+        let shouldHaveError: Bool = {
+            { if case .slashed = model.myNomination { return true }; return false }()
+        }()
+
         return YourValidatorViewModel(
             address: model.address,
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
-            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false
+            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
+            shouldHaveError: shouldHaveError
         )
     }
 
     private func createTitle(
         for sectionStatus: YourValidatorsSectionStatus,
         count: Int
-    ) -> LocalizableResource<String> {
+    ) -> LocalizableResource<String?> {
         let formatter = NumberFormatter.quantity.localizableResource()
 
         return LocalizableResource { locale in
@@ -48,32 +53,37 @@ final class YourValidatorsViewModelFactory {
             let countString = localizedFormatter.string(from: NSNumber(value: count)) ?? "0"
 
             switch sectionStatus {
-            case .active:
+            case .stakeAllocated:
                 return R.string.localizable.stakingYourActiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
+            case .stakeNotAllocated:
+                return nil
             case .inactive:
                 return R.string.localizable.stakingYourInactiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
-            case .waiting:
-                return R.string.localizable.stakingYourWaitingFormat(
-                    countString,
+            }
+        }
+    }
+
+    private func createDescription(
+        for sectionStatus: YourValidatorsSectionStatus
+    ) -> LocalizableResource<String?> {
+        LocalizableResource { locale in
+            switch sectionStatus {
+            case .stakeAllocated:
+                return R.string.localizable.stakingYourAllocatedDescription(
                     preferredLanguages: locale.rLanguages
                 )
-            case .slashed:
-                return R.string.localizable.stakingYourSlashedFormat(
-                    countString,
+            case .stakeNotAllocated:
+                return R.string.localizable.stakingYourNotAllocatedDescription(
                     preferredLanguages: locale.rLanguages
                 )
-            case .pending:
-                let maxCountString = localizedFormatter
-                    .string(from: NSNumber(value: StakingConstants.maxTargets)) ?? "0"
-                return R.string.localizable.stakingYourPendingFormat(
-                    countString,
-                    maxCountString,
+            case .inactive:
+                return R.string.localizable.stakingYourInactiveDescription(
                     preferredLanguages: locale.rLanguages
                 )
             }
@@ -86,10 +96,22 @@ final class YourValidatorsViewModelFactory {
     ) -> [YourValidatorsSection] {
         order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
-                let title = createTitle(for: status, count: validators.count)
+                let title: LocalizableResource<String?> = {
+                    let validatorsCount: Int = {
+                        if status == .stakeAllocated {
+                            return validators.count + (mapping[.stakeNotAllocated]?.count ?? 0)
+                        }
+                        return mapping[status]?.count ?? 0
+                    }()
+
+                    return createTitle(for: status, count: validatorsCount)
+                }()
+                let description = createDescription(for: status)
                 return YourValidatorsSection(
                     status: status,
-                    title: title, validators: validators
+                    title: title,
+                    description: description,
+                    validators: validators
                 )
             } else {
                 return nil
@@ -104,10 +126,15 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
         let validatorsMapping = allValidatos.reduce(
             into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
             let sectionStatus: YourValidatorsSectionStatus = {
-                if let modelStatus = item.myNomination {
-                    return YourValidatorsSectionStatus(modelStatus: modelStatus)
-                } else {
-                    return .pending
+                guard let modelStatus = item.myNomination else {
+                    return .inactive
+                }
+
+                switch modelStatus {
+                case .active:
+                    return .stakeAllocated
+                default:
+                    return item.stakeInfo == nil ? .inactive : .stakeNotAllocated
                 }
             }()
 
@@ -119,7 +146,7 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
         }
 
         let sectionsOrder: [YourValidatorsSectionStatus] = [
-            .active, .slashed, .pending, .inactive, .waiting
+            .stakeAllocated, .stakeNotAllocated, .inactive
         ]
 
         return createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)

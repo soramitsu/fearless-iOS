@@ -390,3 +390,6 @@ Chemin de dérivation : %@";
 "staking.reward.info.avg" = "";
 "staking.alerts.title" = "";
 "staking.recommended.hint5" = "";
+"staking.your.allocated.description" = "";
+"staking.your.not.allocated.description" = "";
+"staking.your.inactive.description" = "";
