@@ -12,6 +12,8 @@ final class AnalyticsViewLayout: UIView {
         return segmentedControl
     }()
 
+    let rewardsView = AnalyticsRewardsView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .black
@@ -29,6 +31,12 @@ final class AnalyticsViewLayout: UIView {
             make.top.equalTo(safeAreaLayoutGuide)
             make.leading.trailing.equalToSuperview()
             make.height.equalTo(40)
+        }
+
+        addSubview(rewardsView)
+        rewardsView.snp.makeConstraints { make in
+            make.top.equalTo(segmentedControl.snp.bottom)
+            make.leading.trailing.equalToSuperview()
         }
     }
 }
