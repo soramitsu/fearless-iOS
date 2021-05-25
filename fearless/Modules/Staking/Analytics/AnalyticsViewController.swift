@@ -28,6 +28,24 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
 
         rootView.periodView.configure(periods: AnalyticsPeriod.allCases)
         rootView.periodView.delegate = self
+
+        rootView.receivedSummaryView.configure(
+            with: .init(
+                title: "Received",
+                tokenAmount: "0.02931 KSM",
+                usdAmount: "$11.72",
+                indicatorColor: R.color.colorGray()
+            )
+        )
+
+        rootView.payableSummaryView.configure(
+            with: .init(
+                title: "Payable",
+                tokenAmount: "0.00875 KSM",
+                usdAmount: "$3.5",
+                indicatorColor: R.color.colorAccent()
+            )
+        )
     }
 }
 
