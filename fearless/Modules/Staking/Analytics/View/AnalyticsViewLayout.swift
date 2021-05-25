@@ -14,6 +14,8 @@ final class AnalyticsViewLayout: UIView {
 
     let rewardsView = AnalyticsRewardsView()
 
+    let periodView = AnalyticsPeriodView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .black
@@ -36,6 +38,13 @@ final class AnalyticsViewLayout: UIView {
         addSubview(rewardsView)
         rewardsView.snp.makeConstraints { make in
             make.top.equalTo(segmentedControl.snp.bottom)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        addSubview(periodView)
+        periodView.snp.makeConstraints { make in
+            make.top.equalTo(rewardsView.snp.bottom)
+            make.height.equalTo(24)
             make.leading.trailing.equalToSuperview()
         }
     }

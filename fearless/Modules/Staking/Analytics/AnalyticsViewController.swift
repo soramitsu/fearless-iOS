@@ -25,7 +25,16 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
         presenter.setup()
         rootView.segmentedControl.configure()
         rootView.segmentedControl.titles = ["Rewards", "Stake", "Validators"]
+
+        rootView.periodView.configure(periods: AnalyticsPeriod.allCases)
+        rootView.periodView.delegate = self
     }
 }
 
 extension AnalyticsViewController: AnalyticsViewProtocol {}
+
+extension AnalyticsViewController: AnalyticsPeriodViewDelegate {
+    func didSelect(period: AnalyticsPeriod) {
+        print(period)
+    }
+}

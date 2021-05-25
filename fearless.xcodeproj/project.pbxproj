@@ -1185,6 +1185,8 @@
 		F41C728326428A9400E8BB41 /* ControllerAccountViewLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */; };
 		F41E479F265CE3C100311BED /* AnalyticsRewardsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41E479E265CE3C100311BED /* AnalyticsRewardsView.swift */; };
 		F41E47A4265CE50800311BED /* Stacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41E47A3265CE50800311BED /* Stacks.swift */; };
+		F41E47A9265CEDC600311BED /* AnalyticsPeriodView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41E47A8265CEDC600311BED /* AnalyticsPeriodView.swift */; };
+		F41E47AF265CF26A00311BED /* AnalyticsPeriod.swift in Sources */ = {isa = PBXBuildFile; fileRef = F41E47AE265CF26A00311BED /* AnalyticsPeriod.swift */; };
 		F429324F26280F6B00752C2C /* StakingRewardDetailsViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */; };
 		F441BE0E263984DD0096B67B /* BondExtraCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE0D263984DD0096B67B /* BondExtraCall.swift */; };
 		F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */; };
@@ -2482,6 +2484,8 @@
 		F41C728226428A9400E8BB41 /* ControllerAccountViewLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControllerAccountViewLayout.swift; sourceTree = "<group>"; };
 		F41E479E265CE3C100311BED /* AnalyticsRewardsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsRewardsView.swift; sourceTree = "<group>"; };
 		F41E47A3265CE50800311BED /* Stacks.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Stacks.swift; sourceTree = "<group>"; };
+		F41E47A8265CEDC600311BED /* AnalyticsPeriodView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriodView.swift; sourceTree = "<group>"; };
+		F41E47AE265CF26A00311BED /* AnalyticsPeriod.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsPeriod.swift; sourceTree = "<group>"; };
 		F429324E26280F6B00752C2C /* StakingRewardDetailsViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsViewModel.swift; sourceTree = "<group>"; };
 		F441BE0D263984DD0096B67B /* BondExtraCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BondExtraCall.swift; sourceTree = "<group>"; };
 		F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtrinsicServiceTests.swift; sourceTree = "<group>"; };
@@ -6100,6 +6104,14 @@
 			path = Migration;
 			sourceTree = "<group>";
 		};
+		F41E47AD265CF25A00311BED /* Model */ = {
+			isa = PBXGroup;
+			children = (
+				F41E47AE265CF26A00311BED /* AnalyticsPeriod.swift */,
+			);
+			path = Model;
+			sourceTree = "<group>";
+		};
 		F429324D26280F5F00752C2C /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -6134,6 +6146,7 @@
 				983E4D54D5ABB5B157C2B933 /* AnalyticsViewLayout.swift */,
 				F461CBD3265C035300A09A76 /* ChartView.swift */,
 				F41E479E265CE3C100311BED /* AnalyticsRewardsView.swift */,
+				F41E47A8265CEDC600311BED /* AnalyticsPeriodView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -6325,6 +6338,7 @@
 		FCE0BA756D6126893D622C37 /* Analytics */ = {
 			isa = PBXGroup;
 			children = (
+				F41E47AD265CF25A00311BED /* Model */,
 				F461CBD2265C033800A09A76 /* View */,
 				1E356B5089605424954B72CA /* AnalyticsProtocols.swift */,
 				DDE79F78A681C3B124BE8C4F /* AnalyticsWireframe.swift */,
@@ -7297,6 +7311,7 @@
 				F4A12BF7260B61E900392C33 /* StakingManageOption.swift in Sources */,
 				84FAB07425436D6300319F74 /* ContactsConstants.swift in Sources */,
 				8409C268252218FF0049B5C8 /* WalletFearlessDefinitionFactory.swift in Sources */,
+				F41E47A9265CEDC600311BED /* AnalyticsPeriodView.swift in Sources */,
 				8409C27B25228AA10049B5C8 /* TransferConfirmAccessoryViewFactory.swift in Sources */,
 				84CFF1E526526FBC00DB7CF7 /* StakingBondMoreViewController.swift in Sources */,
 				84E1CD11260DCD44001E81B5 /* SwitchAccount+AccountImportWireframe.swift in Sources */,
@@ -7521,6 +7536,7 @@
 				84F4386B25D9B9EA00AEDA56 /* RuntimeRegistryFacade.swift in Sources */,
 				4448B591D4A193DBC9E2E3BF /* AccountCreateInteractor.swift in Sources */,
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
+				F41E47AF265CF26A00311BED /* AnalyticsPeriod.swift in Sources */,
 				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
 				84E6D57C262E2CE8000EA3F5 /* OperationCombiningService.swift in Sources */,
 				8460E1252542293A00826F55 /* WalletCompoundDetailsView.swift in Sources */,
