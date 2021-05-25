@@ -38,7 +38,37 @@ class YourValidatorTableCell: UITableViewCell {
     let infoImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconInfo()
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         return imageView
+    }()
+
+    let mainStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.layoutMargins = UIEdgeInsets(
+            top: 8,
+            left: UIConstants.horizontalInset,
+            bottom: 8,
+            right: UIConstants.horizontalInset
+        )
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.axis = .horizontal
+        stackView.spacing = 12
+        return stackView
+    }()
+
+    let labelsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        return stackView
+    }()
+
+    let iconsStackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .horizontal
+        stackView.spacing = 10
+        stackView.alignment = .center
+        return stackView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -64,44 +94,29 @@ class YourValidatorTableCell: UITableViewCell {
     }
 
     func setupLayout() {
-        contentView.addSubview(iconView)
+        contentView.addSubview(mainStackView)
+        mainStackView.snp.makeConstraints { make in
+            make.trailing.equalToSuperview()
+            make.leading.equalToSuperview()
+            make.top.equalToSuperview()
+            make.bottom.equalToSuperview()
+        }
+
+        mainStackView.addArrangedSubview(iconView)
         iconView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
             make.width.height.equalTo(24)
         }
 
-        contentView.addSubview(infoImageView)
-        infoImageView.snp.makeConstraints { make in
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
-        }
+        mainStackView.addArrangedSubview(labelsStackView)
 
-        contentView.addSubview(errorImageView)
-        errorImageView.snp.makeConstraints { make in
-            make.trailing.equalTo(infoImageView.snp.leading).offset(-10)
-            make.centerY.equalToSuperview()
-        }
+        labelsStackView.addArrangedSubview(titleLabel)
+        labelsStackView.addArrangedSubview(detailsLabel)
 
-        contentView.addSubview(warningImageView)
-        warningImageView.snp.makeConstraints { make in
-            make.trailing.equalTo(infoImageView.snp.leading).offset(-10)
-            make.centerY.equalToSuperview()
-        }
+        mainStackView.addArrangedSubview(iconsStackView)
 
-        contentView.addSubview(titleLabel)
-        titleLabel.snp.makeConstraints { make in
-            make.top.equalToSuperview().inset(8.0)
-            make.leading.equalTo(iconView.snp.trailing).offset(12)
-            make.trailing.lessThanOrEqualTo(warningImageView.snp.leading).offset(-8.0)
-        }
-
-        contentView.addSubview(detailsLabel)
-        detailsLabel.snp.makeConstraints { make in
-            make.bottom.equalToSuperview().inset(8.0)
-            make.leading.equalTo(iconView.snp.trailing).offset(12)
-            make.trailing.lessThanOrEqualTo(warningImageView.snp.leading).offset(-8.0)
-        }
+        iconsStackView.addArrangedSubview(warningImageView)
+        iconsStackView.addArrangedSubview(errorImageView)
+        iconsStackView.addArrangedSubview(infoImageView)
     }
 
     func bind(viewModel: YourValidatorViewModel, for locale: Locale) {
@@ -114,7 +129,6 @@ class YourValidatorTableCell: UITableViewCell {
         }
 
         let amountTitle = viewModel.amount?.value(for: locale)
-        let isDetailsEmpty = amountTitle?.isEmpty ?? true
 
         if let details = amountTitle {
             detailsLabel.text = R.string.localizable.stakingYourNominatedFormat(
@@ -127,20 +141,7 @@ class YourValidatorTableCell: UITableViewCell {
 
         iconView.bind(icon: viewModel.icon)
 
-        titleLabel.snp.updateConstraints { make in
-            if isDetailsEmpty {
-                make.top.equalToSuperview().inset(16)
-            } else {
-                make.top.equalToSuperview().inset(8)
-            }
-        }
-
         warningImageView.isHidden = !viewModel.shouldHaveWarning
         errorImageView.isHidden = !viewModel.shouldHaveError
-
-        warningImageView.snp.updateConstraints { make in
-            let offset = viewModel.shouldHaveError ? -10 : -20 - errorImageView.intrinsicContentSize.width
-            make.trailing.equalTo(infoImageView.snp.leading).offset(offset)
-        }
     }
 }
