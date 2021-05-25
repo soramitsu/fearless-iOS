@@ -40,6 +40,11 @@ final class AnalyticsRewardsView: UIView {
         return label
     }()
 
+    let periodView = AnalyticsPeriodView()
+
+    let receivedSummaryView = AnalyticsSummaryRewardView()
+    let payableSummaryView = AnalyticsSummaryRewardView()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
         setupLayout()
@@ -51,7 +56,7 @@ final class AnalyticsRewardsView: UIView {
     }
 
     private func setupLayout() {
-        let stack: UIView = .vStack(
+        let statsStack: UIView = .vStack(
             alignment: .leading,
             distribution: .fill,
             spacing: 4,
@@ -63,9 +68,25 @@ final class AnalyticsRewardsView: UIView {
             ]
         )
 
-        addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(16)
+        addSubview(statsStack)
+        statsStack.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
+
+        addSubview(periodView)
+        periodView.snp.makeConstraints { make in
+            make.top.equalTo(statsStack.snp.bottom)
+            make.height.equalTo(24)
+            make.leading.trailing.equalToSuperview()
+        }
+
+        let separator = UIView.createSeparator()
+        let summaryStack: UIView = .vStack([receivedSummaryView, separator, payableSummaryView])
+        addSubview(summaryStack)
+        summaryStack.snp.makeConstraints { make in
+            make.top.equalTo(periodView.snp.bottom).offset(24)
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+        }
+        separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
     }
 }

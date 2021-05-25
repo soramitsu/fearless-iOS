@@ -26,10 +26,10 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
         rootView.segmentedControl.configure()
         rootView.segmentedControl.titles = ["Rewards", "Stake", "Validators"]
 
-        rootView.periodView.configure(periods: AnalyticsPeriod.allCases)
-        rootView.periodView.delegate = self
+        rootView.rewardsView.periodView.configure(periods: AnalyticsPeriod.allCases)
+        rootView.rewardsView.periodView.delegate = self
 
-        rootView.receivedSummaryView.configure(
+        rootView.rewardsView.receivedSummaryView.configure(
             with: .init(
                 title: "Received",
                 tokenAmount: "0.02931 KSM",
@@ -38,7 +38,7 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
             )
         )
 
-        rootView.payableSummaryView.configure(
+        rootView.rewardsView.payableSummaryView.configure(
             with: .init(
                 title: "Payable",
                 tokenAmount: "0.00875 KSM",
