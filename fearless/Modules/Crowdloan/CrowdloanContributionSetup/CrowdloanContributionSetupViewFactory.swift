@@ -4,16 +4,20 @@ import SoraFoundation
 
 struct CrowdloanContributionSetupViewFactory {
     static func createView(for paraId: ParaId) -> CrowdloanContributionSetupViewProtocol? {
-        guard let interactor = createInteractor(for: paraId) else {
-            return nil
-        }
-
-        let wireframe = CrowdloanContributionSetupWireframe()
-
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+
+        guard let interactor = createInteractor(for: paraId, assetId: assetId) else {
+            return nil
+        }
+
+        let wireframe = CrowdloanContributionSetupWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -50,7 +54,10 @@ struct CrowdloanContributionSetupViewFactory {
         return view
     }
 
-    private static func createInteractor(for paraId: ParaId) -> CrowdloanContributionSetupInteractor? {
+    private static func createInteractor(
+        for paraId: ParaId,
+        assetId: WalletAssetId
+    ) -> CrowdloanContributionSetupInteractor? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
         }
@@ -90,6 +97,7 @@ struct CrowdloanContributionSetupViewFactory {
             paraId: paraId,
             selectedAccountAddress: selectedAccount.address,
             chain: chain,
+            assetId: assetId,
             runtimeService: runtimeService,
             feeProxy: feeProxy,
             extrinsicService: extrinsicService,

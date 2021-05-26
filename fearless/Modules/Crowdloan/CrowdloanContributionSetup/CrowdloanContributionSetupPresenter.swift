@@ -19,8 +19,11 @@ final class CrowdloanContributionSetupPresenter {
     private var blockNumber: BlockNumber?
     private var blockDuration: BlockTime?
     private var leasingPeriod: LeasingPeriod?
+    private var minimumBalance: Decimal?
 
-    private var inputAmount: Decimal?
+    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+
+    private var inputResult: AmountInputResult?
 
     init(
         interactor: CrowdloanContributionSetupInteractorInputProtocol,
@@ -41,8 +44,10 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideAssetVewModel() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
+
         let assetViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
-            inputAmount ?? 0.0,
+            inputAmount,
             balance: balance,
             priceData: priceData
         ).value(for: selectedLocale)
@@ -59,9 +64,19 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideInputViewModel() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
+
         let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
             .value(for: selectedLocale)
         view?.didReceiveInput(viewModel: inputViewModel)
+    }
+
+    private func provideInputViewModelIfRate() {
+        guard case .rate = inputResult else {
+            return
+        }
+
+        provideInputViewModel()
     }
 
     private func provideCrowdloanContributionViewModel() {
@@ -90,9 +105,10 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideEstimatedRewardViewModel() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel = displayInfo.map {
             contributionViewModelFactory.createEstimatedRewardViewModel(
-                inputAmount: inputAmount ?? 0,
+                inputAmount: inputAmount,
                 displayInfo: $0,
                 locale: selectedLocale
             )
@@ -110,7 +126,8 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func refreshFee() {
-        guard let amount = (inputAmount ?? 0).toSubstrateAmount(precision: chain.addressType.precision) else {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
+        guard let amount = inputAmount.toSubstrateAmount(precision: chain.addressType.precision) else {
             return
         }
 
@@ -127,10 +144,18 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         refreshFee()
     }
 
-    func selectAmountPercentage(_: Float) {}
+    func selectAmountPercentage(_ percentage: Float) {
+        inputResult = .rate(Decimal(Double(percentage)))
+
+        provideInputViewModel()
+
+        refreshFee()
+        provideAssetVewModel()
+        provideEstimatedRewardViewModel()
+    }
 
     func updateAmount(_ newValue: Decimal) {
-        inputAmount = newValue
+        inputResult = .absolute(newValue)
 
         refreshFee()
         provideAssetVewModel()
@@ -211,6 +236,18 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         }
     }
 
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+
+            provideAssetVewModel()
+            provideFeeViewModel()
+        case let .failure(error):
+            logger?.error("Did receive price error: \(error)")
+        }
+    }
+
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>) {
         switch result {
         case let .success(dispatchInfo):
@@ -219,8 +256,21 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             } ?? nil
 
             provideFeeViewModel()
+            provideInputViewModelIfRate()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
+        }
+    }
+
+    func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
+        switch result {
+        case let .success(minimumBalance):
+            self.minimumBalance = Decimal.fromSubstrateAmount(
+                minimumBalance,
+                precision: chain.addressType.precision
+            )
+        case let .failure(error):
+            logger?.error("Did receive minimum balance error: \(error)")
         }
     }
 }

@@ -8,6 +8,7 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
     let paraId: ParaId
     let selectedAccountAddress: AccountAddress
     let chain: Chain
+    let assetId: WalletAssetId
     let runtimeService: RuntimeCodingServiceProtocol
     let feeProxy: ExtrinsicFeeProxyProtocol
     let extrinsicService: ExtrinsicServiceProtocol
@@ -18,6 +19,7 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
 
     private lazy var callFactory = SubstrateCallFactory()
 
@@ -25,6 +27,7 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
         paraId: ParaId,
         selectedAccountAddress: AccountAddress,
         chain: Chain,
+        assetId: WalletAssetId,
         runtimeService: RuntimeCodingServiceProtocol,
         feeProxy: ExtrinsicFeeProxyProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
@@ -35,6 +38,7 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
         self.paraId = paraId
         self.selectedAccountAddress = selectedAccountAddress
         self.chain = chain
+        self.assetId = assetId
         self.crowdloanFundsProvider = crowdloanFundsProvider
 
         self.runtimeService = runtimeService
@@ -64,6 +68,14 @@ final class CrowdloanContributionSetupInteractor: RuntimeConstantFetching {
             operationManager: operationManager
         ) { [weak self] (result: Result<LeasingPeriod, Error>) in
             self?.presenter.didReceiveLeasingPeriod(result: result)
+        }
+
+        fetchConstant(
+            for: .existentialDeposit,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter.didReceiveMinimumBalance(result: result)
         }
     }
 
@@ -129,6 +141,8 @@ extension CrowdloanContributionSetupInteractor: CrowdloanContributionSetupIntera
             runtimeService: runtimeService
         )
 
+        priceProvider = subscribeToPriceProvider(for: assetId)
+
         subscribeToDisplayInfo()
         subscribeToCrowdloanFunds()
 
@@ -153,6 +167,10 @@ extension CrowdloanContributionSetupInteractor: SingleValueProviderSubscriber, S
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePriceData(result: result)
     }
 }
 
