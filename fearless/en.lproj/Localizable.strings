@@ -436,3 +436,5 @@ Derivation path: %@";
 "crowdloan.raised.amount" = "%@ of %@";
 "crowdloan.raised" = "Raised";
 "crowdloan.leasing.period" = "Leasing period";
+"common.till.date" = "till %@";
+"crowdloan.reward" = "Estimated reward";

@@ -7,6 +7,7 @@ protocol CrowdloanContributionSetupViewProtocol: ControllerBackedProtocol {
     func didReceiveFee(viewModel: BalanceViewModelProtocol?)
     func didReceiveInput(viewModel: AmountInputViewModelProtocol)
     func didReceiveCrowdloan(viewModel: CrowdloanContributionViewModel)
+    func didReceiveEstimatedReward(viewModel: String?)
 }
 
 protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {

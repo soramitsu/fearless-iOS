@@ -13,6 +13,7 @@ struct CrowdloanContributionSetupViewFactory {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(addressType)
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -22,10 +23,17 @@ struct CrowdloanContributionSetupViewFactory {
 
         let localizationManager = LocalizationManager.shared
 
+        let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
+            amountFormatterFactory: AmountFormatterFactory(),
+            chainDateCalculator: ChainDateCalculator(),
+            asset: asset
+        )
+
         let presenter = CrowdloanContributionSetupPresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
+            contributionViewModelFactory: contributionViewModelFactory,
             chain: addressType.chain,
             localizationManager: localizationManager,
             logger: Logger.shared

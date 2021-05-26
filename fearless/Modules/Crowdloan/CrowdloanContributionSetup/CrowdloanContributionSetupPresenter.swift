@@ -7,6 +7,7 @@ final class CrowdloanContributionSetupPresenter {
     let wireframe: CrowdloanContributionSetupWireframeProtocol
     let interactor: CrowdloanContributionSetupInteractorInputProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
 
@@ -25,6 +26,7 @@ final class CrowdloanContributionSetupPresenter {
         interactor: CrowdloanContributionSetupInteractorInputProtocol,
         wireframe: CrowdloanContributionSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -32,6 +34,7 @@ final class CrowdloanContributionSetupPresenter {
         self.interactor = interactor
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.contributionViewModelFactory = contributionViewModelFactory
         self.chain = chain
         self.logger = logger
         self.localizationManager = localizationManager
@@ -61,13 +64,49 @@ final class CrowdloanContributionSetupPresenter {
         view?.didReceiveInput(viewModel: inputViewModel)
     }
 
-    private func provideCrowdloanContributionViewModel() {}
+    private func provideCrowdloanContributionViewModel() {
+        guard
+            let crowdloan = crowdloan,
+            let blockNumber = blockNumber,
+            let blockDuration = blockDuration,
+            let leasingPeriod = leasingPeriod else {
+            return
+        }
+
+        let metadata = CrowdloanMetadata(
+            blockNumber: blockNumber,
+            blockDuration: blockDuration,
+            leasingPeriod: leasingPeriod
+        )
+
+        let viewModel = contributionViewModelFactory.createCrowdloanViewModel(
+            from: crowdloan,
+            displayInfo: displayInfo,
+            metadata: metadata,
+            locale: selectedLocale
+        )
+
+        view?.didReceiveCrowdloan(viewModel: viewModel)
+    }
+
+    private func provideEstimatedRewardViewModel() {
+        let viewModel = displayInfo.map {
+            contributionViewModelFactory.createEstimatedRewardViewModel(
+                inputAmount: inputAmount ?? 0,
+                displayInfo: $0,
+                locale: selectedLocale
+            )
+        } ?? nil
+
+        view?.didReceiveEstimatedReward(viewModel: viewModel)
+    }
 
     private func provideViewModels() {
         provideAssetVewModel()
         provideFeeViewModel()
         provideInputViewModel()
         provideCrowdloanContributionViewModel()
+        provideEstimatedRewardViewModel()
     }
 
     private func refreshFee() {
@@ -94,6 +133,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         inputAmount = newValue
 
         refreshFee()
+        provideAssetVewModel()
+        provideEstimatedRewardViewModel()
     }
 
     func proceed() {}
@@ -117,6 +158,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             self.displayInfo = displayInfo
 
             provideCrowdloanContributionViewModel()
+            provideEstimatedRewardViewModel()
         case let .failure(error):
             logger?.error("Did receive display info error: \(error)")
         }

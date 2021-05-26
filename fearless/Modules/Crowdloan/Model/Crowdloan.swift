@@ -13,10 +13,6 @@ extension Crowdloan {
     }
 
     func remainedTime(at blockNumber: BlockNumber, blockDuration: BlockTime) -> TimeInterval {
-        guard fundInfo.end > blockNumber else {
-            return 0.0
-        }
-
-        return TimeInterval(fundInfo.end - blockNumber) * TimeInterval(blockDuration).seconds
+        max(blockNumber.secondsTo(block: fundInfo.end, blockDuration: blockDuration), 0)
     }
 }

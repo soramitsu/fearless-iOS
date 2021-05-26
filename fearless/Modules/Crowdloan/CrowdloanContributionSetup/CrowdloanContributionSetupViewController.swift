@@ -9,6 +9,8 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
 
     private var amountInputViewModel: AmountInputViewModelProtocol?
 
+    var uiFactory: UIFactoryProtocol = UIFactory.default
+
     init(
         presenter: CrowdloanContributionSetupPresenterProtocol,
         localizationManager: LocalizationManagerProtocol
@@ -31,6 +33,8 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        setupBalanceAccessoryView()
+        setupAmountInputView()
         setupLocalization()
 
         presenter.setup()
@@ -40,9 +44,25 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
         rootView.locale = selectedLocale
     }
 
+    private func setupAmountInputView() {
+        rootView.amountInputView.textField.delegate = self
+
+        rootView.actionButton.addTarget(self, action: #selector(actionProceed), for: .touchUpInside)
+    }
+
+    private func setupBalanceAccessoryView() {
+        let locale = localizationManager?.selectedLocale ?? Locale.current
+        let accessoryView = uiFactory.createAmountAccessoryView(for: self, locale: locale)
+        rootView.amountInputView.textField.inputAccessoryView = accessoryView
+    }
+
     private func updateActionButton() {
         let isEnabled = (amountInputViewModel?.isValid == true)
         rootView.actionButton.isEnabled = isEnabled
+    }
+
+    @objc func actionProceed() {
+        presenter.proceed()
     }
 }
 
@@ -67,12 +87,46 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
     }
 
     func didReceiveCrowdloan(viewModel: CrowdloanContributionViewModel) {
+        title = viewModel.title
         rootView.bind(crowdloanViewModel: viewModel)
+    }
+
+    func didReceiveEstimatedReward(viewModel: String?) {
+        rootView.bind(estimatedReward: viewModel)
+    }
+}
+
+extension CrowdloanContributionSetupViewController: AmountInputAccessoryViewDelegate {
+    func didSelect(on _: AmountInputAccessoryView, percentage: Float) {
+        rootView.amountInputView.textField.resignFirstResponder()
+
+        presenter.selectAmountPercentage(percentage)
+    }
+
+    func didSelectDone(on _: AmountInputAccessoryView) {
+        rootView.amountInputView.textField.resignFirstResponder()
     }
 }
 
 extension CrowdloanContributionSetupViewController: AmountInputViewModelObserver {
-    func amountInputDidChange() {}
+    func amountInputDidChange() {
+        rootView.amountInputView.fieldText = amountInputViewModel?.displayAmount
+
+        updateActionButton()
+
+        let amount = amountInputViewModel?.decimalAmount ?? 0.0
+        presenter.updateAmount(amount)
+    }
+}
+
+extension CrowdloanContributionSetupViewController: UITextFieldDelegate {
+    func textField(
+        _: UITextField,
+        shouldChangeCharactersIn range: NSRange,
+        replacementString string: String
+    ) -> Bool {
+        amountInputViewModel?.didReceiveReplacement(string, for: range) ?? false
+    }
 }
 
 extension CrowdloanContributionSetupViewController: Localizable {

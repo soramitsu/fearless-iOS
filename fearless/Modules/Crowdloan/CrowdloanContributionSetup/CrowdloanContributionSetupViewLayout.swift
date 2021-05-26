@@ -35,6 +35,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     let raisedView = TitleMultiValueView()
     let timeLeftVew = TitleValueView()
 
+    private(set) var learnMore: LearnMoreView?
+
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
         button.applyDefaultStyle()
@@ -67,7 +69,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         amountInputView.priceText = assetViewModel.price
 
         if let balance = assetViewModel.balance {
-            amountInputView.balanceText = R.string.localizable.stakingBondedFormat(
+            amountInputView.balanceText = R.string.localizable.commonAvailableFormat(
                 balance,
                 preferredLanguages: locale.rLanguages
             )
@@ -100,6 +102,15 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         timeLeftVew.valueLabel.text = crowdloanViewModel.remainedTime
     }
 
+    func bind(estimatedReward: String?) {
+        if let estimatedReward = estimatedReward {
+            createEstimatedRewardViewIfNeeded()
+            estimatedRewardView?.valueLabel.text = estimatedReward
+        } else {
+            removeEstimatedRewardViewIfNeeded()
+        }
+    }
+
     private func applyLocalization() {
         contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
             preferredLanguages: locale.rLanguages
@@ -120,6 +131,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         actionButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: locale.rLanguages)
+
+        estimatedRewardView?.titleLabel.text = R.string.localizable.crowdloanReward(
+            preferredLanguages: locale.rLanguages
+        )
     }
 
     private func setupLayout() {
@@ -188,5 +203,36 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+    }
+
+    private func createEstimatedRewardViewIfNeeded() {
+        guard estimatedRewardView == nil else {
+            return
+        }
+
+        guard
+            let networkFeeIndex = contentView.stackView.arrangedSubviews.firstIndex(of: networkFeeView) else {
+            return
+        }
+
+        let view = TitleValueView()
+        view.titleLabel.text = R.string.localizable.crowdloanReward(preferredLanguages: locale.rLanguages)
+
+        contentView.stackView.insertArrangedSubview(view, at: networkFeeIndex + 1)
+        view.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
+
+        estimatedRewardView = view
+    }
+
+    private func removeEstimatedRewardViewIfNeeded() {
+        guard let estimatedRewardView = estimatedRewardView else {
+            return
+        }
+
+        contentView.stackView.removeArrangedSubview(estimatedRewardView)
+        estimatedRewardView.removeFromSuperview()
     }
 }
