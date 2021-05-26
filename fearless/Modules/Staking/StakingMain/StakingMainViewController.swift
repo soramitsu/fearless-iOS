@@ -23,6 +23,8 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private var networkInfoView: NetworkInfoView!
     private lazy var alertsContainerView = UIView()
     private lazy var alertsView = AlertsView()
+    private lazy var analyticsContainerView = UIView()
+    private lazy var analyticsView = RewardAnalyticsWidgetView()
 
     private var stateContainerView: UIView?
     private var stateView: LocalizableView?
@@ -41,6 +43,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         setupNetworkInfoView()
         setupAlertsView()
+        setupAnalyticsView()
         setupLocalization()
         presenter.setup()
     }
@@ -121,6 +124,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stackView.addArrangedSubview(alertsContainerView)
 
         alertsView.delegate = self
+    }
+
+    private func setupAnalyticsView() {
+        analyticsContainerView.translatesAutoresizingMaskIntoConstraints = false
+        analyticsContainerView.addSubview(analyticsView)
+
+        applyConstraints(for: analyticsContainerView, innerView: analyticsView)
+
+        stackView.addArrangedSubview(analyticsContainerView)
     }
 
     private func configureStoriesView() {
