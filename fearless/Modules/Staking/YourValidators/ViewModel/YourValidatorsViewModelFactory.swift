@@ -28,17 +28,13 @@ final class YourValidatorsViewModelFactory {
             return balanceViewModeFactory.amountFromValue(amount)
         }()
 
-        let shouldHaveError: Bool = {
-            { if case .slashed = model.myNomination { return true }; return false }()
-        }()
-
         return YourValidatorViewModel(
             address: model.address,
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
             shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
-            shouldHaveError: shouldHaveError
+            shouldHaveError: model.slashed
         )
     }
 
@@ -56,8 +52,14 @@ final class YourValidatorsViewModelFactory {
             let countString = localizedFormatter.string(from: NSNumber(value: count)) ?? "0"
 
             switch sectionStatus {
-            case .stakeAllocated, .inactive:
+            case .stakeAllocated:
                 return R.string.localizable.stakingYourActiveFormat(
+                    countString,
+                    preferredLanguages: locale.rLanguages
+                )
+
+            case .inactive:
+                return R.string.localizable.stakingYourInactiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
@@ -134,8 +136,8 @@ final class YourValidatorsViewModelFactory {
 
 extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol {
     func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorsSection] {
-        let allValidatos = model.currentValidators + model.pendingValidators
-        let validatorsMapping = allValidatos.reduce(
+//        let allValidatos = model.currentValidators + model.pendingValidators
+        let validatorsMapping = model.allValidators.reduce(
             into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
             let sectionStatus: YourValidatorsSectionStatus = {
                 guard let modelStatus = item.myNomination else {
@@ -145,8 +147,10 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
                 switch modelStatus {
                 case .active:
                     return .stakeAllocated
-                default:
-                    return item.stakeInfo == nil ? .inactive : .stakeNotAllocated
+                case .elected:
+                    return .stakeNotAllocated
+                case .unelected:
+                    return .inactive
                 }
             }()
 

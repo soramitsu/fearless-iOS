@@ -74,7 +74,7 @@ extension ValidatorInfoViewController: UITableViewDelegate {
 
         case let .myNomination(rows):
             switch rows[indexPath.row] {
-            case let .status(_, state): presenter.presentStateDescription(for: state)
+            case .status: presenter.presentStateDescription()
             default: break
             }
 
@@ -152,14 +152,14 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         func statusCell(
             with model: LocalizableResource<TitleWithSubtitleViewModel>,
-            state: ValidatorMyNominationStatus
+            status: StatusViewModel
         ) -> UITableViewCell {
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: R.reuseIdentifier.validatorInfoCellId,
                 for: indexPath
             )!
             cell.setStyle(.info)
-            cell.bind(model: model.value(for: locale), state: state)
+            cell.bind(model: model.value(for: locale), status: status)
             return cell
         }
 
@@ -239,7 +239,7 @@ extension ValidatorInfoViewController: UITableViewDataSource {
 
         case let .myNomination(rows):
             switch rows[indexPath.row] {
-            case let .status(model, state): return statusCell(with: model, state: state)
+            case let .status(model, status): return statusCell(with: model, status: status)
             case let .nominatedAmount(model): return balanceCell(with: model)
             }
 

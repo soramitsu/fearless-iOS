@@ -26,12 +26,16 @@ class YourValidatorTableCell: UITableViewCell {
     let warningImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconWarning()
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         return imageView
     }()
 
     let errorImageView: UIImageView = {
         let imageView = UIImageView()
         imageView.image = R.image.iconErrorFilled()
+        imageView.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        imageView.setContentHuggingPriority(.defaultHigh, for: .vertical)
         return imageView
     }()
 

@@ -16,6 +16,7 @@ protocol ValidatorInfoProtocol {
     var identity: AccountIdentity? { get }
     var stakeInfo: ValidatorStakeInfoProtocol? { get }
     var myNomination: ValidatorMyNominationStatus? { get }
+    var slashed: Bool { get }
 }
 
 // MARK: - View
@@ -46,7 +47,7 @@ protocol ValidatorInfoPresenterProtocol: AnyObject {
     func setup()
 
     func presentAccountOptions()
-    func presentStateDescription(for state: ValidatorMyNominationStatus)
+    func presentStateDescription()
 
     func presentTotalStake()
     func activateEmail()

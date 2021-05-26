@@ -6,17 +6,20 @@ struct SelectedValidatorInfo: ValidatorInfoProtocol {
     let identity: AccountIdentity?
     let stakeInfo: ValidatorStakeInfoProtocol?
     let myNomination: ValidatorMyNominationStatus?
+    let slashed: Bool
 
     init(
         address: AccountAddress,
         identity: AccountIdentity? = nil,
         stakeInfo: ValidatorStakeInfoProtocol? = nil,
-        myNomination: ValidatorMyNominationStatus? = nil
+        myNomination: ValidatorMyNominationStatus? = nil,
+        slashed: Bool = false
     ) {
         self.address = address
         self.identity = identity
         self.stakeInfo = stakeInfo
         self.myNomination = myNomination
+        self.slashed = slashed
     }
 }
 
@@ -45,7 +48,6 @@ struct ValidatorStakeInfo: ValidatorStakeInfoProtocol {
 
 enum ValidatorMyNominationStatus {
     case active(amount: Decimal)
-    case inactive
-    case waiting
-    case slashed
+    case elected
+    case unelected
 }
