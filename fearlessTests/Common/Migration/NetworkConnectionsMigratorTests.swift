@@ -23,4 +23,32 @@ final class NetworkConnectionsMigratorTests: XCTestCase {
         let connectionTypeAfterMigration = settings.selectedConnection.type
         XCTAssert(connectionTypeAfterMigration == connectionTypeBeforeMigration)
     }
+
+    func testOnFinalityMigration() {
+        guard
+            let deprecatedOnFinalityConnection = ConnectionItem
+                .deprecatedConnections
+                .first(where: { $0.title.contains("OnFinality")} )
+        else {
+            XCTFail("Unexpected OnFinality connection")
+            return
+        }
+        var settings = InMemorySettingsManager()
+
+        // given
+        settings.selectedConnection = deprecatedOnFinalityConnection
+        let migrator = NetworkConnectionsMigrator(settings: settings)
+
+        // when
+        do {
+            try migrator.migrate()
+        } catch {
+            XCTFail(error.localizedDescription)
+        }
+
+        // then
+        let сonnectionAfterMigration = settings.selectedConnection
+        XCTAssert(сonnectionAfterMigration.title.contains("OnFinality"))
+        XCTAssert(сonnectionAfterMigration != deprecatedOnFinalityConnection)
+    }
 }

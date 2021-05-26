@@ -66,6 +66,16 @@ extension ConnectionItem {
                 title: "Polkadot, Web3 Foundation node",
                 url: URL(string: "wss://cc1-1.polkadot.network")!,
                 type: SNAddressType.polkadotMain
+            ),
+            ConnectionItem(
+                title: "Kusama, OnFinality node",
+                url: URL(string: "wss://kusama.api.onfinality.io/public-ws")!,
+                type: SNAddressType.kusamaMain
+            ),
+            ConnectionItem(
+                title: "Polkadot, OnFinality node",
+                url: URL(string: "wss://polkadot.api.onfinality.io/public-ws")!,
+                type: SNAddressType.polkadotMain
             )
         ]
     }
