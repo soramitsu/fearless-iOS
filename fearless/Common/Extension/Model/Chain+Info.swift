@@ -9,6 +9,8 @@ extension Chain {
             return "b0a8d493285c2df73290dfb7e61f870f17b41801197a149ca93654499ea3dafe"
         case .westend:
             return "e143f23803ac50e8f6f8e62695d1ce9e4e1d68aa36c1cd2cfd15340213f3423e"
+        case .rococo:
+            return "1ab7fbd1d7c3532386268ec23fe4ff69f5bb6b3e3697947df3a2ec2786424de3"
         }
     }
 
@@ -16,7 +18,7 @@ extension Chain {
         switch self {
         case .polkadot:
             return 1
-        case .kusama, .westend:
+        case .kusama, .westend, .rococo:
             return 4
         }
     }
@@ -27,7 +29,7 @@ extension Chain {
             return URL(string: "https://polkascan.io/polkadot/extrinsic/\(hash)")
         case .kusama:
             return URL(string: "https://polkascan.io/kusama/extrinsic/\(hash)")
-        case .westend:
+        case .westend, .rococo:
             return nil
         }
     }
@@ -38,7 +40,7 @@ extension Chain {
             return URL(string: "https://polkascan.io/polkadot/account/\(address)")
         case .kusama:
             return URL(string: "https://polkascan.io/kusama/account/\(address)")
-        case .westend:
+        case .westend, .rococo:
             return nil
         }
     }
@@ -51,6 +53,8 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
         case .westend:
             return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
+        case .rococo:
+            return nil
         }
     }
 
@@ -62,6 +66,8 @@ extension Chain {
             return URL(string: "https://kusama.subscan.io/account/\(address)")
         case .westend:
             return URL(string: "https://westend.subscan.io/account/\(address)")
+        case .rococo:
+            return nil
         }
     }
 
@@ -71,7 +77,7 @@ extension Chain {
             return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward")
         case .kusama:
             return URL(string: "https://api.subquery.network/sq/OnFinality-io/sum-reward-kusama")
-        case .westend:
+        case .westend, .rococo:
             return nil
         }
     }
@@ -88,6 +94,8 @@ extension Chain {
             return R.file.runtimeKusamaJson.path()
         case .westend:
             return R.file.runtimeWestendJson.path()
+        case .rococo:
+            return R.file.runtimeRococoJson.path()
         }
     }
 
@@ -106,6 +114,23 @@ extension Chain {
             return base?.appendingPathComponent("kusama.json")
         case .polkadot:
             return base?.appendingPathComponent("polkadot.json")
+        case .rococo:
+            return base?.appendingPathComponent("rococo.json")
+        }
+    }
+
+    func crowdloanDisplayInfoURL() -> URL {
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan/")!
+
+        switch self {
+        case .westend:
+            return base.appendingPathComponent("westend.json")
+        case .kusama:
+            return base.appendingPathComponent("kusama.json")
+        case .polkadot:
+            return base.appendingPathComponent("polkadot.json")
+        case .rococo:
+            return base.appendingPathComponent("rococo.json")
         }
     }
     // swiftlint:enable line_length

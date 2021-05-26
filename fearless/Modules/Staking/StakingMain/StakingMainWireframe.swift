@@ -75,9 +75,8 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showStakingBalance(from view: ControllerBackedProtocol?) {
-        // guard let stakingBalance = StakingBalanceViewFactory.createView() else { return }
-        let vvv = AnalyticsViewFactory.createView()!
-        let controller = vvv.controller
+        guard let stakingBalance = StakingBalanceViewFactory.createView() else { return }
+        let controller = stakingBalance.controller
         controller.hidesBottomBarWhenPushed = true
 
         view?.controller
