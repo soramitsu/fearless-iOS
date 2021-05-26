@@ -1282,6 +1282,8 @@
 		F4FB8569265E3960002D381A /* AnalyticsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB855C265E3960002D381A /* AnalyticsWireframe.swift */; };
 		F4FB856A265E3960002D381A /* AnalyticsInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB855D265E3960002D381A /* AnalyticsInteractor.swift */; };
 		F4FB856B265E3960002D381A /* AnalyticsViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB855E265E3960002D381A /* AnalyticsViewFactory.swift */; };
+		F4FB8577265E3BFD002D381A /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB8576265E3BFD002D381A /* AnalyticsService.swift */; };
+		F4FB857F265E4096002D381A /* AnalyticsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB857E265E4096002D381A /* AnalyticsServiceTests.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		F7EB8F835CFA7FC949EF4C22 /* YourValidatorsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 906C55FC079AF6112AF0745B /* YourValidatorsWireframe.swift */; };
 		F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101339CC1292531CC4DB0AC /* StakingUnbondSetupInteractor.swift */; };
@@ -2629,6 +2631,8 @@
 		F4FB855C265E3960002D381A /* AnalyticsWireframe.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsWireframe.swift; sourceTree = "<group>"; };
 		F4FB855D265E3960002D381A /* AnalyticsInteractor.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsInteractor.swift; sourceTree = "<group>"; };
 		F4FB855E265E3960002D381A /* AnalyticsViewFactory.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsViewFactory.swift; sourceTree = "<group>"; };
+		F4FB8576265E3BFD002D381A /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
+		F4FB857E265E4096002D381A /* AnalyticsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsServiceTests.swift; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F61D8973ADEB461DE2AD3E13 /* SelectedValidatorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorsViewController.swift; sourceTree = "<group>"; };
 		F829E7F8B39EE7D977001510 /* ControllerAccountProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ControllerAccountProtocols.swift; sourceTree = "<group>"; };
@@ -3223,6 +3227,7 @@
 		84155DE8253980D700A27058 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				F4FB8575265E3BEE002D381A /* AnalyticsService */,
 				846CD24B2656FE9D00A2E4B6 /* StorageQueryService */,
 				845CB6ED262760A3005F798B /* SubscanQueryService */,
 				F4DCAE4526207ECD00CCA6BF /* PayoutRewardsService */,
@@ -3586,6 +3591,7 @@
 		8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
+				F4FB857E265E4096002D381A /* AnalyticsServiceTests.swift */,
 				F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */,
 				8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */,
 				8438E1D324BFAAD2001BDB13 /* Info.plist */,
@@ -6505,6 +6511,14 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		F4FB8575265E3BEE002D381A /* AnalyticsService */ = {
+			isa = PBXGroup;
+			children = (
+				F4FB8576265E3BFD002D381A /* AnalyticsService.swift */,
+			);
+			path = AnalyticsService;
+			sourceTree = "<group>";
+		};
 		F685BF5EBC18637F5237B929 /* CrowdloanList */ = {
 			isa = PBXGroup;
 			children = (
@@ -6991,6 +7005,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				849ABE8A262833C000011A2A /* PayoutRewardsServiceTests.swift in Sources */,
+				F4FB857F265E4096002D381A /* AnalyticsServiceTests.swift in Sources */,
 				8438E1D224BFAAD2001BDB13 /* JSONRPCTests.swift in Sources */,
 				AEE4E37225ECF83F00D6DF31 /* StakingInfoTests.swift in Sources */,
 				F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */,
@@ -7613,6 +7628,7 @@
 				8490151624AB8C45008F705E /* WalletAccountListConfigurator.swift in Sources */,
 				849014A624AA801B008F705E /* TextSharingSource.swift in Sources */,
 				8490152524ABCBF3008F705E /* AmountFormatterFactory.swift in Sources */,
+				F4FB8577265E3BFD002D381A /* AnalyticsService.swift in Sources */,
 				8468B86524F59D1D00B76BC6 /* IconTitleHeaderView.swift in Sources */,
 				84FFE505261290830054EA63 /* NetworkInfoView.swift in Sources */,
 				8490144F24A93E2E008F705E /* UIImage+Drawing.swift in Sources */,
