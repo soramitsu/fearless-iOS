@@ -34,6 +34,8 @@ final class RewardAnalyticsWidgetView: UIView {
         return label
     }()
 
+    let chartView = ChartView()
+
     private let payableIndicatorView: UIView = {
         let view = UIView()
         view.backgroundColor = R.color.colorAccent()
@@ -93,8 +95,6 @@ final class RewardAnalyticsWidgetView: UIView {
         addSubview(backgroundView)
         backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
 
-        let chartView = UIView()
-        chartView.backgroundColor = .red
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
 
         let stackView: UIView = .vStack(
