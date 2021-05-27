@@ -1,4 +1,6 @@
-protocol CrowdloanContributionConfirmViewProtocol: AnyObject {}
+import SoraFoundation
+
+protocol CrowdloanContributionConfirmViewProtocol: ControllerBackedProtocol, Localizable {}
 
 protocol CrowdloanContributionConfirmPresenterProtocol: AnyObject {
     func setup()

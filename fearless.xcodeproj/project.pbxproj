@@ -397,6 +397,8 @@
 		844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DB61E262D9C070025A8F0 /* ChainHistoryRange.swift */; };
 		844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DB623262D9C710025A8F0 /* ErasRewardDistribution.swift */; };
 		844DD65525EAF32D00B1DA97 /* RecommendedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DD65425EAF32D00B1DA97 /* RecommendedViewModel.swift */; };
+		844EFB5A265FCD9F0090ACB1 /* CrowdloanConfributionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844EFB59265FCD9F0090ACB1 /* CrowdloanConfributionProtocols.swift */; };
+		844EFB5F265FCE180090ACB1 /* CrowdloanContributionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844EFB5E265FCE180090ACB1 /* CrowdloanContributionInteractor.swift */; };
 		8454C21D2632A78900657DAD /* EventRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C21C2632A78900657DAD /* EventRecord.swift */; };
 		8454C2652632B0EF00657DAD /* EventCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C2642632B0EF00657DAD /* EventCodingPath.swift */; };
 		8454C26A2632B8CE00657DAD /* BalanceDepositEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8454C2692632B8CE00657DAD /* BalanceDepositEvent.swift */; };
@@ -1719,6 +1721,8 @@
 		844DB61E262D9C070025A8F0 /* ChainHistoryRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainHistoryRange.swift; sourceTree = "<group>"; };
 		844DB623262D9C710025A8F0 /* ErasRewardDistribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErasRewardDistribution.swift; sourceTree = "<group>"; };
 		844DD65425EAF32D00B1DA97 /* RecommendedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedViewModel.swift; sourceTree = "<group>"; };
+		844EFB59265FCD9F0090ACB1 /* CrowdloanConfributionProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanConfributionProtocols.swift; sourceTree = "<group>"; };
+		844EFB5E265FCE180090ACB1 /* CrowdloanContributionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionInteractor.swift; sourceTree = "<group>"; };
 		8454C21C2632A78900657DAD /* EventRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventRecord.swift; sourceTree = "<group>"; };
 		8454C2642632B0EF00657DAD /* EventCodingPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventCodingPath.swift; sourceTree = "<group>"; };
 		8454C2692632B8CE00657DAD /* BalanceDepositEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BalanceDepositEvent.swift; sourceTree = "<group>"; };
@@ -3031,7 +3035,6 @@
 				5C92E3ED704CB0BBAB3A669F /* CrowdloanContributionConfirmViewLayout.swift */,
 				5F791FE1B479CE1DF936F79F /* CrowdloanContributionConfirmViewFactory.swift */,
 			);
-			name = CrowdloanContributionConfirm;
 			path = CrowdloanContributionConfirm;
 			sourceTree = "<group>";
 		};
@@ -3624,8 +3627,10 @@
 				84DBEA4C265ED53A00FDF73C /* Validation */,
 				8424308B265B17EC003E07EC /* Operation */,
 				843F65782658548A00829C14 /* Model */,
+				844EFB58265FCD740090ACB1 /* CrowdloanContribution */,
 				88B5D9DDFC571E12501230F1 /* CrowdloanList */,
 				E01524612035A176DA0793E7 /* CrowdloanContributionSetup */,
+				5AA9DD83BBA839623389411E /* CrowdloanContributionConfirm */,
 			);
 			path = Crowdloan;
 			sourceTree = "<group>";
@@ -3858,6 +3863,15 @@
 				844DD65425EAF32D00B1DA97 /* RecommendedViewModel.swift */,
 			);
 			path = ViewModel;
+			sourceTree = "<group>";
+		};
+		844EFB58265FCD740090ACB1 /* CrowdloanContribution */ = {
+			isa = PBXGroup;
+			children = (
+				844EFB59265FCD9F0090ACB1 /* CrowdloanConfributionProtocols.swift */,
+				844EFB5E265FCE180090ACB1 /* CrowdloanContributionInteractor.swift */,
+			);
+			path = CrowdloanContribution;
 			sourceTree = "<group>";
 		};
 		84585A32251CE1BF00390F7A /* Contacts */ = {
@@ -4472,7 +4486,6 @@
 				84E1CCF3260DC973001E81B5 /* SwitchAccount */,
 				C7AEDB8341B78EC46F6F98DC /* UsernameSetup */,
 				849014FD24AB698B008F705E /* Wallet */,
-				5AA9DD83BBA839623389411E /* CrowdloanContributionConfirm */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -5886,7 +5899,6 @@
 			children = (
 				385FE8691EA37DE9F562B34E /* CrowdloanContributionConfirmTests.swift */,
 			);
-			name = CrowdloanContributionConfirm;
 			path = CrowdloanContributionConfirm;
 			sourceTree = "<group>";
 		};
@@ -7000,7 +7012,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -7021,7 +7033,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/MoonPayCIKeys.generated.swift",
-				"$PROJECT_DIR/MoonPayCIKeys.generated.swift",
+				$PROJECT_DIR/MoonPayCIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -7185,6 +7197,7 @@
 				8423B0E4251A774700B8687C /* SNAddressType+Chain.swift in Sources */,
 				84452FA525D679F200F47EC5 /* CDRuntimeMetadataItem+CoreDataCodable.swift in Sources */,
 				84D97ECF2521CA2F00F07405 /* WalletBaseTokenView.swift in Sources */,
+				844EFB5A265FCD9F0090ACB1 /* CrowdloanConfributionProtocols.swift in Sources */,
 				F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */,
 				845E49832636C87B002F8C22 /* StakingManageViewModel.swift in Sources */,
 				8409C277252286760049B5C8 /* TransferConfirmAccessoryView.swift in Sources */,
@@ -7680,6 +7693,7 @@
 				8468B86E24F63D1400B76BC6 /* AddAccount+OnboardingMainWireframe.swift in Sources */,
 				84729741260A9C13009B86D0 /* DisplayAddress.swift in Sources */,
 				84F4386125D9A83100AEDA56 /* TimeInterval+Time.swift in Sources */,
+				844EFB5F265FCE180090ACB1 /* CrowdloanContributionInteractor.swift in Sources */,
 				8475AE0C258ACA8800B058F3 /* BaseAssetViewModelFactory.swift in Sources */,
 				AE89725B25F20794008EC414 /* ValidatorInfoHeaderView.swift in Sources */,
 				845BB8C025E4508800E5FCDC /* SS58FactoryExtensions.swift in Sources */,

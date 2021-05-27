@@ -220,8 +220,11 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             )
 
         ]).runValidation { [weak self] in
-            guard let strongSelf = self, let contribution = contributionDecimal else { return }
-            strongSelf.wireframe.showConfirmation(from: strongSelf.view, inputAmount: contribution)
+            guard
+                let strongSelf = self,
+                let contribution = contributionDecimal,
+                let paraId = strongSelf.crowdloan?.paraId else { return }
+            strongSelf.wireframe.showConfirmation(from: strongSelf.view, paraId: paraId, inputAmount: contribution)
         }
     }
 }
