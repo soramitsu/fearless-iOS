@@ -253,11 +253,11 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
-            totalBalanceValue = accountInfo?.data.total
+            totalBalanceValue = accountInfo?.data.total ?? 0
 
             balance = accountInfo.map {
                 Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
-            } ?? nil
+            } ?? 0.0
 
             provideAssetVewModel()
             provideCrowdloanContributionViewModel()
