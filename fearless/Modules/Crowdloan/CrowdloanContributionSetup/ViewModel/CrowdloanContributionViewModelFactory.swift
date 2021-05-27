@@ -133,7 +133,7 @@ final class CrowdloanContributionViewModelFactory {
         locale: Locale
     ) -> String {
         if let displayInfo = displayInfo {
-            return displayInfo.name + "(\(displayInfo.token)"
+            return displayInfo.name + "(\(displayInfo.token))"
         } else {
             return NumberFormatter.quantity.localizableResource().value(for: locale).string(
                 from: NSNumber(value: crowdloan.paraId)
