@@ -16,3 +16,12 @@ extension AccountId {
         return data.count == SubstrateConstants.accountIdLength ? data : nil
     }
 }
+
+extension BlockNumber {
+    func secondsTo(block: BlockNumber, blockDuration: UInt64) -> TimeInterval {
+        let durationInSeconds = TimeInterval(blockDuration).seconds
+        let diffBlock = TimeInterval(Int(block) - Int(self))
+        let seconds = diffBlock * durationInSeconds
+        return seconds
+    }
+}
