@@ -26,10 +26,18 @@ struct CrowdloanContributionSetupViewFactory {
         )
 
         let localizationManager = LocalizationManager.shared
+        let amountFormatterFactory = AmountFormatterFactory()
 
         let contributionViewModelFactory = CrowdloanContributionViewModelFactory(
-            amountFormatterFactory: AmountFormatterFactory(),
+            amountFormatterFactory: amountFormatterFactory,
             chainDateCalculator: ChainDateCalculator(),
+            asset: asset
+        )
+
+        let dataValidatingFactory = CrowdloanDataValidatingFactory(
+            presentable: wireframe,
+            amountFormatterFactory: amountFormatterFactory,
+            chain: addressType.chain,
             asset: asset
         )
 
@@ -38,6 +46,7 @@ struct CrowdloanContributionSetupViewFactory {
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
             contributionViewModelFactory: contributionViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             chain: addressType.chain,
             localizationManager: localizationManager,
             logger: Logger.shared
@@ -50,6 +59,7 @@ struct CrowdloanContributionSetupViewFactory {
 
         presenter.view = view
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         return view
     }

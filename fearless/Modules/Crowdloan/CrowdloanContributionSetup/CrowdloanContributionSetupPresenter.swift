@@ -8,20 +8,37 @@ final class CrowdloanContributionSetupPresenter {
     let interactor: CrowdloanContributionSetupInteractorInputProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
+    let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
 
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
+    private var totalBalanceValue: BigUInt?
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
     private var blockNumber: BlockNumber?
     private var blockDuration: BlockTime?
     private var leasingPeriod: LeasingPeriod?
-    private var minimumBalance: Decimal?
+    private var minimumBalance: BigUInt?
 
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
+
+    private var crowdloanMetadata: CrowdloanMetadata? {
+        if
+            let blockNumber = blockNumber,
+            let blockDuration = blockDuration,
+            let leasingPeriod = leasingPeriod {
+            return CrowdloanMetadata(
+                blockNumber: blockNumber,
+                blockDuration: blockDuration,
+                leasingPeriod: leasingPeriod
+            )
+        } else {
+            return nil
+        }
+    }
 
     private var inputResult: AmountInputResult?
 
@@ -30,6 +47,7 @@ final class CrowdloanContributionSetupPresenter {
         wireframe: CrowdloanContributionSetupWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
+        dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -38,6 +56,7 @@ final class CrowdloanContributionSetupPresenter {
         self.wireframe = wireframe
         self.balanceViewModelFactory = balanceViewModelFactory
         self.contributionViewModelFactory = contributionViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.chain = chain
         self.logger = logger
         self.localizationManager = localizationManager
@@ -80,19 +99,9 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideCrowdloanContributionViewModel() {
-        guard
-            let crowdloan = crowdloan,
-            let blockNumber = blockNumber,
-            let blockDuration = blockDuration,
-            let leasingPeriod = leasingPeriod else {
+        guard let crowdloan = crowdloan, let metadata = crowdloanMetadata else {
             return
         }
-
-        let metadata = CrowdloanMetadata(
-            blockNumber: blockNumber,
-            blockDuration: blockDuration,
-            leasingPeriod: leasingPeriod
-        )
 
         let viewModel = contributionViewModelFactory.createCrowdloanViewModel(
             from: crowdloan,
@@ -162,7 +171,55 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         provideEstimatedRewardViewModel()
     }
 
-    func proceed() {}
+    func proceed() {
+        let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
+        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
+        let spendingValue = (controbutionValue ?? 0) +
+            (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: selectedLocale, onError: { [weak self] in
+                self?.refreshFee()
+            }),
+
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: contributionDecimal,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.contributesAtLeastMinimumBalance(
+                contribution: controbutionValue,
+                minimumBalance: minimumBalance,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.capNotExceeding(
+                contribution: controbutionValue,
+                raised: crowdloan?.fundInfo.raised,
+                cap: crowdloan?.fundInfo.cap,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.crowdloanIsNotCompleted(
+                crowdloan: crowdloan,
+                metadata: crowdloanMetadata,
+                locale: selectedLocale
+            ),
+
+            dataValidatingFactory.exsitentialDepositIsNotViolated(
+                spendingAmount: spendingValue,
+                totalAmount: totalBalanceValue,
+                minimumBalance: minimumBalance,
+                locale: selectedLocale
+            )
+
+        ]).runValidation { [weak self] in
+            guard let strongSelf = self, let contribution = contributionDecimal else { return }
+            strongSelf.wireframe.showConfirmation(from: strongSelf.view, inputAmount: contribution)
+        }
+    }
 }
 
 extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInteractorOutputProtocol {
@@ -192,6 +249,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
+            totalBalanceValue = accountInfo?.data.total
+
             balance = accountInfo.map {
                 Decimal.fromSubstrateAmount($0.data.available, precision: chain.addressType.precision)
             } ?? nil
@@ -265,10 +324,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
     func didReceiveMinimumBalance(result: Result<BigUInt, Error>) {
         switch result {
         case let .success(minimumBalance):
-            self.minimumBalance = Decimal.fromSubstrateAmount(
-                minimumBalance,
-                precision: chain.addressType.precision
-            )
+            self.minimumBalance = minimumBalance
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }

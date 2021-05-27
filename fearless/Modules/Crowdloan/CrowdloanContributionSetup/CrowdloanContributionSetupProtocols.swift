@@ -34,4 +34,7 @@ protocol CrowdloanContributionSetupInteractorOutputProtocol: AnyObject {
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)
 }
 
-protocol CrowdloanContributionSetupWireframeProtocol: AnyObject {}
+protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
+    CrowdloanErrorPresentable {
+    func showConfirmation(from view: CrowdloanContributionSetupViewProtocol?, inputAmount: Decimal)
+}
