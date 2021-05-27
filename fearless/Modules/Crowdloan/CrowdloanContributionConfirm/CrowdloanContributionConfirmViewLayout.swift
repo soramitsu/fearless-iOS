@@ -4,7 +4,7 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
     let contentView: ScrollableContainerView = {
         let view = ScrollableContainerView()
         view.stackView.isLayoutMarginsRelativeArrangement = true
-        view.stackView.layoutMargins = UIEdgeInsets(top: 24.0, left: 0.0, bottom: 0.0, right: 0.0)
+        view.stackView.layoutMargins = UIEdgeInsets(top: 16.0, left: 0.0, bottom: 0.0, right: 0.0)
         return view
     }()
 
@@ -75,7 +75,25 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         }
     }
 
+    func bind(confirmationViewModel: CrowdloanContributeConfirmViewModel) {
+        let icon = confirmationViewModel.senderIcon.imageWithFillColor(
+            R.color.colorWhite()!,
+            size: UIConstants.smallAddressIconSize,
+            contentScale: UIScreen.main.scale
+        )
+
+        accountView.iconImage = icon
+        accountView.subtitle = confirmationViewModel.senderName
+
+        amountInputView.fieldText = confirmationViewModel.inputAmount
+
+        leasingPeriodView.valueTop.text = confirmationViewModel.leasingPeriod
+        leasingPeriodView.valueBottom.text = confirmationViewModel.leasingCompletionDate
+    }
+
     private func applyLocalization() {
+        accountView.title = R.string.localizable.commonAccount(preferredLanguages: locale.rLanguages)
+
         networkFeeConfirmView.locale = locale
 
         leasingPeriodView.titleLabel.text = R.string.localizable.crowdloanLeasingPeriod(
@@ -131,8 +149,9 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
             return
         }
 
-        guard
-            let leasingPeriodIndex = contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView) else {
+        guard let leasingPeriodIndex = contentView.stackView.arrangedSubviews.firstIndex(
+            of: leasingPeriodView
+        ) else {
             return
         }
 

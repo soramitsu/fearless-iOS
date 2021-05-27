@@ -2,8 +2,8 @@ import UIKit
 import RobinHood
 import BigInt
 
-class CrowdloanContributionInteractor: RuntimeConstantFetching {
-    weak var presenter: CrowdloanContributionSetupInteractorOutputProtocol!
+class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol, RuntimeConstantFetching {
+    weak var presenter: CrowdloanContributionInteractorOutputProtocol!
 
     let paraId: ParaId
     let selectedAccountAddress: AccountAddress
@@ -21,7 +21,7 @@ class CrowdloanContributionInteractor: RuntimeConstantFetching {
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
-    private lazy var callFactory = SubstrateCallFactory()
+    private(set) lazy var callFactory = SubstrateCallFactory()
 
     init(
         paraId: ParaId,
@@ -128,9 +128,7 @@ class CrowdloanContributionInteractor: RuntimeConstantFetching {
             options: options
         )
     }
-}
 
-extension CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProtocol {
     func setup() {
         feeProxy.delegate = self
 

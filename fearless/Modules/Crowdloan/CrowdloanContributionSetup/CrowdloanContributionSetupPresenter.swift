@@ -107,7 +107,7 @@ final class CrowdloanContributionSetupPresenter {
             return
         }
 
-        let viewModel = contributionViewModelFactory.createCrowdloanViewModel(
+        let viewModel = contributionViewModelFactory.createContributionSetupViewModel(
             from: crowdloan,
             displayInfo: displayInfo,
             metadata: metadata,

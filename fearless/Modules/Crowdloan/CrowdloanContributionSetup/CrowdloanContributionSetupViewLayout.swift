@@ -92,7 +92,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         networkFeeView.bind(viewModel: feeViewModel)
     }
 
-    func bind(crowdloanViewModel: CrowdloanContributionViewModel) {
+    func bind(crowdloanViewModel: CrowdloanContributionSetupViewModel) {
         leasingPeriodView.valueTop.text = crowdloanViewModel.leasingPeriod
         leasingPeriodView.valueBottom.text = crowdloanViewModel.leasingCompletionDate
 

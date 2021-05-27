@@ -86,7 +86,7 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
         updateActionButton()
     }
 
-    func didReceiveCrowdloan(viewModel: CrowdloanContributionViewModel) {
+    func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
         title = viewModel.title
         rootView.bind(crowdloanViewModel: viewModel)
     }
