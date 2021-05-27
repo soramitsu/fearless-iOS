@@ -48,11 +48,11 @@ extension Chain {
     func subscanExtrinsicURL(_ hash: String) -> URL? {
         switch self {
         case .polkadot:
-            return URL(string: "https://polkadot.subscan.io/extrinsic/\(hash)")
+            return URL(string: "https://polkadot.api.subscan.io/extrinsic/\(hash)")
         case .kusama:
-            return URL(string: "https://kusama.subscan.io/extrinsic/\(hash)")
+            return URL(string: "https://kusama.api.subscan.io/extrinsic/\(hash)")
         case .westend:
-            return URL(string: "https://westend.subscan.io/extrinsic/\(hash)")
+            return URL(string: "https://westend.api.subscan.io/extrinsic/\(hash)")
         case .rococo:
             return nil
         }
@@ -61,11 +61,11 @@ extension Chain {
     func subscanAddressURL(_ address: String) -> URL? {
         switch self {
         case .polkadot:
-            return URL(string: "https://polkadot.subscan.io/account/\(address)")
+            return URL(string: "https://polkadot.api.subscan.io/account/\(address)")
         case .kusama:
-            return URL(string: "https://kusama.subscan.io/account/\(address)")
+            return URL(string: "https://kusama.api.subscan.io/account/\(address)")
         case .westend:
-            return URL(string: "https://westend.subscan.io/account/\(address)")
+            return URL(string: "https://westend.api.subscan.io/account/\(address)")
         case .rococo:
             return nil
         }

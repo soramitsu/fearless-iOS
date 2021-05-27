@@ -22,6 +22,10 @@ final class SubscanOperationFactory {
                 HttpContentType.json.rawValue,
                 forHTTPHeaderField: HttpHeaderKey.contentType.rawValue
             )
+            request.setValue(
+                SubscanCIKeys.apiKey, forHTTPHeaderField:
+                ApplicationConfig.shared.subscanAPIHeaderKey
+            )
             request.httpMethod = HttpMethod.post.rawValue
             return request
         }

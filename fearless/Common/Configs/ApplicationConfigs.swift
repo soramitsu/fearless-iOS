@@ -107,4 +107,8 @@ extension ApplicationConfig: ApplicationConfigProtocol {
     var learnControllerAccountURL: URL {
         URL(string: "https://wiki.polkadot.network/docs/en/maintain-guides-how-to-nominate-polkadot#setting-up-stash-and-controller-keys")!
     }
+
+    var subscanAPIHeaderKey: String {
+        "X-API-Key"
+    }
 }
