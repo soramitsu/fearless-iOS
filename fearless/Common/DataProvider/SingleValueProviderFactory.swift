@@ -11,6 +11,7 @@ typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
 typealias DecodedActiveEra = ChainStorageDecodedItem<ActiveEraInfo>
 typealias DecodedPayee = ChainStorageDecodedItem<RewardDestinationArg>
 typealias DecodedBlockNumber = ChainStorageDecodedItem<StringScaleMapper<BlockNumber>>
+typealias DecodedCrowdloanFunds = ChainStorageDecodedItem<CrowdloanFunds>
 
 protocol SingleValueProviderFactoryProtocol {
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData>
@@ -34,6 +35,13 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedBlockNumber>
 
     func getJson<T: Codable & Equatable>(for url: URL) -> AnySingleValueProvider<T>
+
+    func getCrowdloanFunds(
+        for paraId: ParaId,
+        connection: ConnectionItem,
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedCrowdloanFunds>
 }
 
 final class SingleValueProviderFactory {
@@ -410,5 +418,60 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         providers[localKey] = WeakWrapper(target: singleValueProvider)
 
         return AnySingleValueProvider(singleValueProvider)
+    }
+
+    func getCrowdloanFunds(
+        for paraId: ParaId,
+        connection: ConnectionItem,
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedCrowdloanFunds> {
+        clearIfNeeded()
+
+        let codingPath = StorageCodingPath.crowdloanFunds
+        let localKey = connection.identifier + codingPath.moduleName + codingPath.itemName + String(paraId)
+
+        if let dataProvider = providers[localKey]?.target as? DataProvider<DecodedCrowdloanFunds> {
+            return AnyDataProvider(dataProvider)
+        }
+
+        let repository = InMemoryDataProviderRepository<DecodedCrowdloanFunds>()
+
+        let trigger = DataProviderProxyTrigger()
+        let source: WebSocketProviderSource<CrowdloanFunds> = WebSocketProviderSource(
+            itemIdentifier: localKey,
+            codingPath: codingPath,
+            keyOperationClosure: { factoryClosure in
+                let operation = MapKeyEncodingOperation(
+                    path: .crowdloanFunds,
+                    storageKeyFactory: StorageKeyFactory(),
+                    keyParams: [StringScaleMapper(value: paraId)]
+                )
+
+                operation.configurationBlock = {
+                    do {
+                        operation.codingFactory = try factoryClosure()
+                    } catch {
+                        operation.result = .failure(error)
+                    }
+                }
+
+                return operation
+            },
+            runtimeService: runtimeService,
+            engine: engine,
+            trigger: trigger,
+            operationManager: operationManager
+        )
+
+        let dataProvider = DataProvider(
+            source: AnyDataProviderSource(source),
+            repository: AnyDataProviderRepository(repository),
+            updateTrigger: trigger
+        )
+
+        providers[localKey] = WeakWrapper(target: dataProvider)
+
+        return AnyDataProvider(dataProvider)
     }
 }

@@ -188,6 +188,14 @@ extension CrowdloanListViewController: UITableViewDataSource {
 extension CrowdloanListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
+
+        guard case let .loaded(viewModel) = state else {
+            return
+        }
+
+        if indexPath.section == 1, let active = viewModel.active {
+            presenter.selectViewModel(active.crowdloans[indexPath.row])
+        }
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
