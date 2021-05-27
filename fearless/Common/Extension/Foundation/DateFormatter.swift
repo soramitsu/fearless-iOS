@@ -21,4 +21,14 @@ extension DateFormatter {
             return dateFormatter
         }
     }
+
+    static var shortDate: LocalizableResource<DateFormatter> {
+        LocalizableResource { locale in
+            let format = DateFormatter.dateFormat(fromTemplate: "ddMMMyyyy", options: 0, locale: locale)
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = format
+            dateFormatter.locale = locale
+            return dateFormatter
+        }
+    }
 }

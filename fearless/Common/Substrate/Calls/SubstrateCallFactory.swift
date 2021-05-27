@@ -27,6 +27,8 @@ protocol SubstrateCallFactoryProtocol {
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall>
 
     func setController(_ controller: AccountAddress) throws -> RuntimeCall<SetControllerCall>
+
+    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -112,6 +114,11 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let controllerId = try addressFactory.accountId(from: controller)
         let args = SetControllerCall(controller: .accoundId(controllerId))
         return RuntimeCall(moduleName: "Staking", callName: "set_controller", args: args)
+    }
+
+    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall> {
+        let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
+        return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
     }
 }
 

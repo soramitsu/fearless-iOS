@@ -2,26 +2,12 @@ import Foundation
 import SoraFoundation
 import IrohaCrypto
 
-protocol StakingDataValidatingFactoryProtocol {
-    func canPayFeeAndAmount(
-        balance: Decimal?,
-        fee: Decimal?,
-        spendingAmount: Decimal?,
-        locale: Locale
-    ) -> DataValidating
-
-    func canPayFee(
-        balance: Decimal?,
-        fee: Decimal?,
-        locale: Locale
-    ) -> DataValidating
-
+protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol {
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating
     func canRebond(amount: Decimal?, unbonding: Decimal?, locale: Locale) -> DataValidating
 
     func has(controller: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
     func has(stash: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
-    func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating
     func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating
     func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating
@@ -49,56 +35,13 @@ protocol StakingDataValidatingFactoryProtocol {
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
     weak var view: (ControllerBackedProtocol & Localizable)?
+
+    var basePresentable: BaseErrorPresentable { presentable }
+
     let presentable: StakingErrorPresentable
 
     init(presentable: StakingErrorPresentable) {
         self.presentable = presentable
-    }
-
-    func canPayFeeAndAmount(
-        balance: Decimal?,
-        fee: Decimal?,
-        spendingAmount: Decimal?,
-        locale: Locale
-    ) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            guard let view = self?.view else {
-                return
-            }
-
-            self?.presentable.presentAmountTooHigh(from: view, locale: locale)
-
-        }, preservesCondition: {
-            if let balance = balance,
-               let fee = fee,
-               let amount = spendingAmount {
-                return amount + fee <= balance
-            } else {
-                return false
-            }
-        })
-    }
-
-    func canPayFee(
-        balance: Decimal?,
-        fee: Decimal?,
-        locale: Locale
-    ) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            guard let view = self?.view else {
-                return
-            }
-
-            self?.presentable.presentFeeTooHigh(from: view, locale: locale)
-
-        }, preservesCondition: {
-            if let balance = balance,
-               let fee = fee {
-                return fee <= balance
-            } else {
-                return false
-            }
-        })
     }
 
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating {
@@ -155,20 +98,6 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentMissingStash(from: view, address: address, locale: locale)
         }, preservesCondition: { stash != nil })
-    }
-
-    func has(fee: Decimal?, locale: Locale, onError: (() -> Void)?) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            defer {
-                onError?()
-            }
-
-            guard let view = self?.view else {
-                return
-            }
-
-            self?.presentable.presentFeeNotReceived(from: view, locale: locale)
-        }, preservesCondition: { fee != nil })
     }
 
     func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating {

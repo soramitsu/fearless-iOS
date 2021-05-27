@@ -54,6 +54,13 @@ extension NumberFormatter {
         return numberFormatter
     }
 
+    static var percentSingle: NumberFormatter {
+        let numberFormatter = percentBase
+        numberFormatter.percentSymbol = "%"
+        numberFormatter.minimumFractionDigits = 0
+        return numberFormatter
+    }
+
     static var quantity: NumberFormatter {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .decimal
