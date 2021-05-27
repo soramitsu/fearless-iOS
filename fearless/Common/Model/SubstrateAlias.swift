@@ -19,6 +19,9 @@ extension AccountId {
 
 extension BlockNumber {
     func secondsTo(block: BlockNumber, blockDuration: UInt64) -> TimeInterval {
-        TimeInterval(block - self) * TimeInterval(blockDuration).seconds
+        let durationInSeconds = TimeInterval(blockDuration).seconds
+        let diffBlock = TimeInterval(Int(block) - Int(self))
+        let seconds = diffBlock * durationInSeconds
+        return seconds
     }
 }
