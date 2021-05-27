@@ -15,7 +15,7 @@ class CrowdloanListTests: XCTestCase {
                 depositor: Data(repeating: 0, count: 32),
                 verifier: nil,
                 deposit: 100,
-                raised: 1000,
+                raised: 100,
                 end: currentBlockNumber + 100,
                 cap: 1000,
                 lastContribution: .never,

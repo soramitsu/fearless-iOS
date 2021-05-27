@@ -63,6 +63,10 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideAssetVewModel() {
+        guard minimumBalance != nil else {
+            return
+        }
+
         let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
 
         let assetViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
@@ -325,6 +329,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         switch result {
         case let .success(minimumBalance):
             self.minimumBalance = minimumBalance
+
+            provideAssetVewModel()
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }
