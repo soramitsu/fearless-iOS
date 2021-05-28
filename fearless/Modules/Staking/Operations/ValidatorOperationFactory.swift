@@ -129,8 +129,7 @@ final class ValidatorOperationFactory {
     private func createStatusesOperation(
         for validatorIds: [AccountId],
         electedValidatorsOperation: BaseOperation<EraStakersInfo>,
-        nominatorAddress: AccountAddress,
-        nomination _: Nomination
+        nominatorAddress: AccountAddress
     ) -> CompoundOperationWrapper<[ValidatorMyNominationStatus]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
@@ -468,8 +467,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
         let statusesWrapper = createStatusesOperation(
             for: nomination.targets,
             electedValidatorsOperation: electedValidatorsOperation,
-            nominatorAddress: nominatorAddress,
-            nomination: nomination
+            nominatorAddress: nominatorAddress
         )
 
         statusesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }

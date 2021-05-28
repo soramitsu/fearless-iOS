@@ -136,7 +136,6 @@ final class YourValidatorsViewModelFactory {
 
 extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol {
     func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorsSection] {
-//        let allValidatos = model.currentValidators + model.pendingValidators
         let validatorsMapping = model.allValidators.reduce(
             into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
             let sectionStatus: YourValidatorsSectionStatus = {
