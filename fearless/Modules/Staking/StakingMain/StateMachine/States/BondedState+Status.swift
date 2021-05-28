@@ -24,7 +24,7 @@ extension BondedState {
             .stakingNominatorStatusAlertInactiveTitle(preferredLanguages: locale?.rLanguages)
         let message: String
 
-        message = "You are neither nominating nor validating"
+        message = R.string.localizable.stakingBondedInactive(preferredLanguages: locale?.rLanguages)
 
         return AlertPresentableViewModel(
             title: title,
