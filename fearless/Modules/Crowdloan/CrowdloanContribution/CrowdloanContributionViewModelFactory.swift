@@ -1,14 +1,22 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import FearlessUtils
 
 protocol CrowdloanContributionViewModelFactoryProtocol {
-    func createCrowdloanViewModel(
+    func createContributionSetupViewModel(
         from crowdloan: Crowdloan,
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
         locale: Locale
-    ) -> CrowdloanContributionViewModel
+    ) -> CrowdloanContributionSetupViewModel
+
+    func createContributionConfirmViewModel(
+        from crowdloan: Crowdloan,
+        metadata: CrowdloanMetadata,
+        confirmationData: CrowdloanContributionConfirmData,
+        locale: Locale
+    ) throws -> CrowdloanContributeConfirmViewModel
 
     func createEstimatedRewardViewModel(
         inputAmount: Decimal,
@@ -31,6 +39,8 @@ final class CrowdloanContributionViewModelFactory {
         let absoluteProgress: String
         let percentageProgress: String
     }
+
+    private lazy var iconGenerator = PolkadotIconGenerator()
 
     init(
         amountFormatterFactory: NumberFormatterFactoryProtocol,
@@ -133,7 +143,7 @@ final class CrowdloanContributionViewModelFactory {
         locale: Locale
     ) -> String {
         if let displayInfo = displayInfo {
-            return displayInfo.name + "(\(displayInfo.token)"
+            return displayInfo.name + "(\(displayInfo.token))"
         } else {
             return NumberFormatter.quantity.localizableResource().value(for: locale).string(
                 from: NSNumber(value: crowdloan.paraId)
@@ -154,12 +164,12 @@ final class CrowdloanContributionViewModelFactory {
 }
 
 extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol {
-    func createCrowdloanViewModel(
+    func createContributionSetupViewModel(
         from crowdloan: Crowdloan,
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
         locale: Locale
-    ) -> CrowdloanContributionViewModel {
+    ) -> CrowdloanContributionSetupViewModel {
         let displayLeasingPeriod = createDisplayLeasingPeriod(
             from: crowdloan,
             metadata: metadata,
@@ -174,7 +184,7 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
 
         let learnMoreViewModel = displayInfo.map { createLearnMore(from: $0, locale: locale) }
 
-        return CrowdloanContributionViewModel(
+        return CrowdloanContributionSetupViewModel(
             title: title,
             leasingPeriod: displayLeasingPeriod.leasingPeriod,
             leasingCompletionDate: displayLeasingPeriod.leasingEndDate,
@@ -182,6 +192,34 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
             raisedPercentage: displayProgress.percentageProgress,
             remainedTime: remainedTime,
             learnMore: learnMoreViewModel
+        )
+    }
+
+    func createContributionConfirmViewModel(
+        from crowdloan: Crowdloan,
+        metadata: CrowdloanMetadata,
+        confirmationData: CrowdloanContributionConfirmData,
+        locale: Locale
+    ) throws -> CrowdloanContributeConfirmViewModel {
+        let displayLeasingPeriod = createDisplayLeasingPeriod(
+            from: crowdloan,
+            metadata: metadata,
+            locale: locale
+        )
+
+        let senderIcon = try iconGenerator.generateFromAddress(confirmationData.displayAddress.address)
+        let senderName = !confirmationData.displayAddress.username.isEmpty ?
+            confirmationData.displayAddress.username : confirmationData.displayAddress.address
+
+        let formatter = amountFormatterFactory.createDisplayFormatter(for: asset).value(for: locale)
+        let inputAmount = formatter.stringFromDecimal(confirmationData.contribution) ?? ""
+
+        return CrowdloanContributeConfirmViewModel(
+            senderIcon: senderIcon,
+            senderName: senderName,
+            inputAmount: inputAmount,
+            leasingPeriod: displayLeasingPeriod.leasingPeriod,
+            leasingCompletionDate: displayLeasingPeriod.leasingEndDate
         )
     }
 

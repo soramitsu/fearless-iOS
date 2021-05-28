@@ -47,7 +47,7 @@ extension TransactionHistoryItem {
                 fee: String(result.processingResult.fee ?? 0),
                 blockNumber: result.blockNumber,
                 txIndex: result.txIndex,
-                callPath: CallCodingPath.transfer,
+                callPath: result.processingResult.callPath,
                 call: encodedCall
             )
 
