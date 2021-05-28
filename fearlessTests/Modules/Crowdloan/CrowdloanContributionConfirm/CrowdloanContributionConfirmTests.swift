@@ -6,7 +6,7 @@ import RobinHood
 import SoraFoundation
 import Cuckoo
 
-class CrowdloanContributionSetupTests: XCTestCase {
+class CrowdloanContributionConfirmTests: XCTestCase {
     static let currentBlockNumber: BlockNumber = 1337
 
     let crowdloan = Crowdloan(
@@ -24,7 +24,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
             trieIndex: 1)
     )
 
-    func testContributionSetupAndContinue() throws {
+    func testContributionConfirmation() throws {
         // given
 
         let settings = InMemorySettingsManager()
@@ -42,28 +42,27 @@ class CrowdloanContributionSetupTests: XCTestCase {
                                                             keychain: keychain,
                                                             settings: settings)
 
-        let view = MockCrowdloanContributionSetupViewProtocol()
-        let wireframe = MockCrowdloanContributionSetupWireframeProtocol()
+        let view = MockCrowdloanContributionConfirmViewProtocol()
+        let wireframe = MockCrowdloanContributionConfirmWireframeProtocol()
+
+        let expectedAmount: Decimal = 0.1
 
         let presenter = try createPresenter(
             for: view,
             wireframe: wireframe,
-            settings: settings, runtimeService: runtimeCodingService
+            settings: settings,
+            inputAmount: expectedAmount,
+            runtimeService: runtimeCodingService
         )
 
         // when
 
-        let inputViewModelReceived = XCTestExpectation()
         let assetReceived = XCTestExpectation()
         let feeReceived = XCTestExpectation()
         let estimatedRewardReceived = XCTestExpectation()
         let crowdloanReceived = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didReceiveInput(viewModel: any()).then { viewModel in
-                inputViewModelReceived.fulfill()
-            }
-
             when(stub).didReceiveAsset(viewModel: any()).then { viewModel in
                 if viewModel.balance != nil {
                     assetReceived.fulfill()
@@ -84,6 +83,9 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 crowdloanReceived.fulfill()
             }
 
+            when(stub).didStartLoading().thenDoNothing()
+            when(stub).didStopLoading().thenDoNothing()
+
             when(stub).isSetup.get.thenReturn(false, true)
         }
 
@@ -91,7 +93,6 @@ class CrowdloanContributionSetupTests: XCTestCase {
 
         wait(
             for: [
-                inputViewModelReceived,
                 assetReceived,
                 feeReceived,
                 estimatedRewardReceived,
@@ -100,24 +101,15 @@ class CrowdloanContributionSetupTests: XCTestCase {
             timeout: 10
         )
 
-        let expectedAmount: Decimal = 0.1
-
-        presenter.updateAmount(expectedAmount)
-
         let completionExpectation = XCTestExpectation()
 
         stub(wireframe) { stub in
-            when(stub).showConfirmation(
-                from: any(),
-                paraId: any(),
-                inputAmount: any()
-            ).then { (_, _, amount) in
-                XCTAssertEqual(expectedAmount, amount)
+            when(stub).complete(on: any()).then { _ in
                 completionExpectation.fulfill()
             }
         }
 
-        presenter.proceed()
+        presenter.confirm()
 
         // then
 
@@ -125,11 +117,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
     }
 
     private func createPresenter(
-        for view: MockCrowdloanContributionSetupViewProtocol,
-        wireframe: MockCrowdloanContributionSetupWireframeProtocol,
+        for view: MockCrowdloanContributionConfirmViewProtocol,
+        wireframe: MockCrowdloanContributionConfirmWireframeProtocol,
         settings: SettingsManagerProtocol,
+        inputAmount: Decimal,
         runtimeService: RuntimeCodingServiceProtocol
-    ) throws -> CrowdloanContributionSetupPresenter {
+    ) throws -> CrowdloanContributionConfirmPresenter {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let addressType = settings.selectedConnection.type
         let asset = primitiveFactory.createAssetForAddressType(addressType)
@@ -157,12 +150,13 @@ class CrowdloanContributionSetupTests: XCTestCase {
             asset: asset
         )
 
-        let presenter = CrowdloanContributionSetupPresenter(
+        let presenter = CrowdloanContributionConfirmPresenter(
             interactor: interactor,
             wireframe: wireframe,
             balanceViewModelFactory: balanceViewModelFactory,
             contributionViewModelFactory: crowdloanViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
+            inputAmount: inputAmount,
             chain: addressType.chain,
             localizationManager: LocalizationManager.shared
         )
@@ -178,7 +172,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
         asset: WalletAsset,
         settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol
-    ) -> CrowdloanContributionSetupInteractor {
+    ) -> CrowdloanContributionConfirmInteractor {
         let chain = settings.selectedConnection.type.chain
 
         let providerFactory = SingleValueProviderFactoryStub
@@ -188,7 +182,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
 
         let extrinsicService = ExtrinsicServiceStub.dummy()
 
-        return CrowdloanContributionSetupInteractor(
+        let signingWrapper = try! DummySigner(cryptoType: .sr25519)
+
+        let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
+            UserDataStorageTestFacade().createRepository()
+
+        return CrowdloanContributionConfirmInteractor(
             paraId: crowdloan.paraId,
             selectedAccountAddress: settings.selectedAccount!.address,
             chain: chain,
@@ -196,9 +195,12 @@ class CrowdloanContributionSetupTests: XCTestCase {
             runtimeService: runtimeService,
             feeProxy: ExtrinsicFeeProxy(),
             extrinsicService: extrinsicService,
+            signingWrapper: signingWrapper,
+            accountRepository: AnyDataProviderRepository(accountRepository),
             crowdloanFundsProvider: providerFactory.crowdloanFunds,
             singleValueProviderFactory: providerFactory,
             operationManager: OperationManager()
         )
     }
+
 }

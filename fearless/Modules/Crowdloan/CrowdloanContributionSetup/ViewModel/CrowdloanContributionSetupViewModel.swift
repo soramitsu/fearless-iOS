@@ -1,6 +1,6 @@
 import Foundation
 
-struct CrowdloanContributionViewModel {
+struct CrowdloanContributionSetupViewModel {
     let title: String
     let leasingPeriod: String
     let leasingCompletionDate: String
