@@ -1,9 +1,10 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class LearnMoreView: BackgroundedContentControl {
-    let fearlessIconView: UIView = {
-        let view = UIImageView(image: R.image.iconFearlessSmall())
+    let iconView: UIImageView = {
+        let view = UIImageView(frame: CGRect(origin: .zero, size: CGSize(width: 24.0, height: 24.0)))
         view.contentMode = .scaleAspectFit
         return view
     }()
@@ -22,6 +23,8 @@ final class LearnMoreView: BackgroundedContentControl {
         return imageView
     }()
 
+    private var viewModel: LearnMoreViewModel?
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -39,10 +42,25 @@ final class LearnMoreView: BackgroundedContentControl {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(viewModel: LearnMoreViewModel?) {
+        self.viewModel?.iconViewModel?.cancel(on: iconView)
+        iconView.image = nil
+
+        self.viewModel = viewModel
+
+        viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconView.frame.size, animated: true)
+        titleLabel.text = viewModel?.title
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        contentView?.frame = bounds
+        contentView?.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: bounds.minY + contentInsets.top,
+            width: bounds.width - contentInsets.left - contentInsets.right,
+            height: bounds.height - contentInsets.top - contentInsets.bottom
+        )
     }
 
     override var intrinsicContentSize: CGSize {
@@ -53,7 +71,7 @@ final class LearnMoreView: BackgroundedContentControl {
     }
 
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [fearlessIconView, titleLabel, UIView(), arrowIconView])
+        let stackView = UIStackView(arrangedSubviews: [iconView, titleLabel, UIView(), arrowIconView])
         stackView.spacing = 12
         stackView.isUserInteractionEnabled = false
 
