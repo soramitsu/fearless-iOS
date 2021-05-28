@@ -82,12 +82,13 @@ final class StakingStateViewModelFactory {
     private func createNominationViewModel(
         for chain: Chain,
         commonData: StakingStateCommonData,
-        state: NominatorState,
+        state: BaseStashNextState,
+        ledgerInfo: StakingLedger,
         viewStatus: NominationViewStatus
     ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)
+        let stakedAmount = convertAmount(ledgerInfo.active, for: chain, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
             priceData: commonData.price
@@ -303,18 +304,24 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         updateCacheForChain(chain)
 
-        do {
-            let viewModel = try createEstimationViewModel(
-                for: chain,
-                commonData: state.commonData,
-                amount: state.rewardEstimationAmount ?? 0.0
-            )
+        let status: NominationViewStatus = {
+            if let era = state.commonData.eraStakersInfo?.era {
+                return .inactive(era: era)
+            } else {
+                return .undefined
+            }
+        }()
 
-            let alerts = stakingAlertsForBondedState(state)
-            lastViewModel = .bonded(viewModel: viewModel, alerts: alerts)
-        } catch {
-            lastViewModel = .undefined
-        }
+        let viewModel = createNominationViewModel(
+            for: chain,
+            commonData: state.commonData,
+            state: state,
+            ledgerInfo: state.ledgerInfo,
+            viewStatus: status
+        )
+
+        let alerts = stakingAlertsForBondedState(state)
+        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
     func visit(state: PendingNominatorState) {
@@ -344,6 +351,7 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             for: chain,
             commonData: state.commonData,
             state: state,
+            ledgerInfo: state.ledgerInfo,
             viewStatus: state.status
         )
 
