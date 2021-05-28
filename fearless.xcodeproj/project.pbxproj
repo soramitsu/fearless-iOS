@@ -1076,7 +1076,7 @@
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
-		AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */; };
+		AE2060B02637068700357578 /* CIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* CIKeys.stencil */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
 		AE2C846525EE884900986716 /* RewardViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C846425EE884900986716 /* RewardViewModelFactory.swift */; };
 		AE2C84CA25EF986E00986716 /* ValidatorInfoProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */; };
@@ -1104,7 +1104,7 @@
 		AE89725625F20774008EC414 /* ValidatorInfoHeaderView.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89725525F20774008EC414 /* ValidatorInfoHeaderView.xib */; };
 		AE89725B25F20794008EC414 /* ValidatorInfoHeaderView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE89725A25F20794008EC414 /* ValidatorInfoHeaderView.swift */; };
 		AE89727B25F21F26008EC414 /* ValidatorInfoCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE89727A25F21F26008EC414 /* ValidatorInfoCell.xib */; };
-		AE8D028E2638074D00780D18 /* MoonPayCIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* MoonPayCIKeys.generated.swift */; };
+		AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8D028D2638074D00780D18 /* CIKeys.generated.swift */; };
 		AE8E67CD263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */; };
 		AE8E67CF263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */; };
 		AE8E67D1263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */; };
@@ -1119,6 +1119,7 @@
 		AE9EF27D260B53130026910A /* StoriesViewFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF27C260B53130026910A /* StoriesViewFactory.swift */; };
 		AE9EF282260B58250026910A /* StoriesViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = AE9EF281260B58250026910A /* StoriesViewController.xib */; };
 		AE9EF2C5260C85370026910A /* StoriesProgressAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */; };
+		AEACD5F9265E94AB00A09892 /* StatusViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */; };
 		AEB9979026119E4D005C60A5 /* StoriesViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */; };
 		AEB99798261310D5005C60A5 /* StoriesProgressBar.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */; };
 		AEBE16E6262EA7C100DF257C /* StakingErrors.swift in Sources */ = {isa = PBXBuildFile; fileRef = AEBE16E5262EA7C100DF257C /* StakingErrors.swift */; };
@@ -2411,7 +2412,7 @@
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		ADD348E749EC6A7E3BB069DE /* StakingUnbondConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmProtocols.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
-		AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = MoonPayCIKeys.stencil; sourceTree = "<group>"; };
+		AE2060AF2637068700357578 /* CIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = CIKeys.stencil; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
 		AE2C846425EE884900986716 /* RewardViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModelFactory.swift; sourceTree = "<group>"; };
 		AE2C84C925EF986E00986716 /* ValidatorInfoProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoProtocols.swift; sourceTree = "<group>"; };
@@ -2446,7 +2447,7 @@
 		AE89725525F20774008EC414 /* ValidatorInfoHeaderView.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoHeaderView.xib; sourceTree = "<group>"; };
 		AE89725A25F20794008EC414 /* ValidatorInfoHeaderView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoHeaderView.swift; sourceTree = "<group>"; };
 		AE89727A25F21F26008EC414 /* ValidatorInfoCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = ValidatorInfoCell.xib; sourceTree = "<group>"; };
-		AE8D028D2638074D00780D18 /* MoonPayCIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MoonPayCIKeys.generated.swift; sourceTree = SOURCE_ROOT; };
+		AE8D028D2638074D00780D18 /* CIKeys.generated.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CIKeys.generated.swift; sourceTree = SOURCE_ROOT; };
 		AE8E67CC263952B4002EA1AA /* ValidatorInfoEmptyStakeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoEmptyStakeCell.swift; sourceTree = "<group>"; };
 		AE8E67CE263A7CC6002EA1AA /* ValidatorInfoStakingAmountCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoStakingAmountCell.swift; sourceTree = "<group>"; };
 		AE8E67D0263A7D35002EA1AA /* ValidatorInfoBaseTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValidatorInfoBaseTableCell.swift; sourceTree = "<group>"; };
@@ -2461,6 +2462,7 @@
 		AE9EF27C260B53130026910A /* StoriesViewFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewFactory.swift; sourceTree = "<group>"; };
 		AE9EF281260B58250026910A /* StoriesViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = StoriesViewController.xib; sourceTree = "<group>"; };
 		AE9EF2C4260C85370026910A /* StoriesProgressAnimator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressAnimator.swift; sourceTree = "<group>"; };
+		AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatusViewModel.swift; sourceTree = "<group>"; };
 		AEB9978F26119E4C005C60A5 /* StoriesViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesViewModelFactory.swift; sourceTree = "<group>"; };
 		AEB99797261310D5005C60A5 /* StoriesProgressBar.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoriesProgressBar.swift; sourceTree = "<group>"; };
 		AEBE16E5262EA7C100DF257C /* StakingErrors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingErrors.swift; sourceTree = "<group>"; };
@@ -4409,8 +4411,8 @@
 				849013E324A92915008F705E /* Configs */,
 				849013D124A92686008F705E /* Common */,
 				849013D224A9268D008F705E /* Modules */,
-				AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */,
-				AE8D028D2638074D00780D18 /* MoonPayCIKeys.generated.swift */,
+				AE2060AF2637068700357578 /* CIKeys.stencil */,
+				AE8D028D2638074D00780D18 /* CIKeys.generated.swift */,
 				849013AB24A80984008F705E /* AppDelegate.swift */,
 				849013CF24A9267F008F705E /* R.generated.swift */,
 				841937862544772F00CFA50C /* animatedBg.gif */,
@@ -5067,6 +5069,7 @@
 				8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */,
 				842898CB265A8EC3002D5D65 /* RemoteImageViewModel.swift */,
 				842898D0265A955A002D5D65 /* ImageViewModel.swift */,
+				AEACD5F8265E94AB00A09892 /* StatusViewModel.swift */,
 				84DBEA41265E80DD00FDF73C /* LearnMoreViewModel.swift */,
 			);
 			path = ViewModel;
@@ -6835,7 +6838,7 @@
 				4F932A5E6F990DC5EDF56215 /* AccountManagementViewController.xib in Resources */,
 				8460E12725422A6D00826F55 /* WalletCompoundDetailsView.xib in Resources */,
 				AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */,
-				AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */,
+				AE2060B02637068700357578 /* CIKeys.stencil in Resources */,
 				E3761D989C37ED1AAC9BEDA3 /* NetworkManagementViewController.xib in Resources */,
 				9D5F6A48E7A9166B9341F417 /* NetworkInfoViewController.xib in Resources */,
 				84FFE50D261290BC0054EA63 /* NetworkInfoView.xib in Resources */,
@@ -7054,12 +7057,12 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/MoonPayCIKeys.generated.swift",
-				$PROJECT_DIR/MoonPayCIKeys.generated.swift,
+				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/MoonPayCIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args secretKey=$MOONPAY_PRODUCTION_SECRET,testSecretKey=$MOONPAY_TEST_SECRET\n";
+			shellScript = "#check if env-vars.sh exists\nif [ -f $PROJECT_DIR/$PROJECT_NAME/env-vars.sh ]\nthen\nsource $PROJECT_DIR/$PROJECT_NAME/env-vars.sh\nfi\n#no `else` case needed if the CI works as expected\n\nWORK_DIR=\"$PROJECT_DIR/$PROJECT_NAME\"\necho \"Sourcery Work Directory = $WORK_DIR\"\n\nOUT_FILE=\"$PROJECT_DIR/CIKeys.generated.swift\"\necho \"Sourcery Output File = $OUT_FILE\"\n\n\"$PODS_ROOT/Sourcery/bin/sourcery\" --templates \"$WORK_DIR\" --sources \"$WORK_DIR\" --output \"$OUT_FILE\" --args moonPaySecretKey=$MOONPAY_PRODUCTION_SECRET,moonPayTestSecretKey=$MOONPAY_TEST_SECRET,subscanAPIKey=$SUBSCAN_API_KEY\n";
 		};
 		BB864FD3004FEB055054B4A1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -7142,7 +7145,7 @@
 				F458D3C12642B7D80055CB75 /* LearnMoreView.swift in Sources */,
 				8428769024AE046300D91AD8 /* AboutTitleCell.swift in Sources */,
 				8460E11F25420A2C00826F55 /* DetailsTriangularedView+Inspectable.swift in Sources */,
-				AE8D028E2638074D00780D18 /* MoonPayCIKeys.generated.swift in Sources */,
+				AE8D028E2638074D00780D18 /* CIKeys.generated.swift in Sources */,
 				84FD3DC02541B10B00A234E3 /* TransactionDetailsViewModelFactory.swift in Sources */,
 				8490145224A93FD1008F705E /* FearlessLoadingViewPresenter.swift in Sources */,
 				8490141A24A92F6D008F705E /* OnboardingMainProtocol.swift in Sources */,
@@ -7511,6 +7514,7 @@
 				84FACCD425F8B07B00F32ED4 /* ReceiveAccountViewModel.swift in Sources */,
 				8430AAD42602285B005B1066 /* StakingStateCommonData.swift in Sources */,
 				F4F2296C260DBDCE00ACFDB8 /* StakingPayoutLabelTableCell.swift in Sources */,
+				AEACD5F9265E94AB00A09892 /* StatusViewModel.swift in Sources */,
 				84CCBFBC2509709500180F4F /* UIBarButtonItem+Style.swift in Sources */,
 				8449660A25E15ECA00F2E9F5 /* RewardDestinationViewModel.swift in Sources */,
 				8460E1192541FD1800826F55 /* TransactionDetailsAccessoryView.swift in Sources */,

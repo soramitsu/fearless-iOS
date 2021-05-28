@@ -12,11 +12,11 @@ extension WalletAssetId {
     var subscanUrl: URL? {
         switch self {
         case .dot:
-            return URL(string: "https://polkadot.subscan.io/")
+            return URL(string: "https://polkadot.api.subscan.io/")
         case .kusama:
-            return URL(string: "https://kusama.subscan.io/")
+            return URL(string: "https://kusama.api.subscan.io/")
         case .westend:
-            return URL(string: "https://westend.subscan.io/")
+            return URL(string: "https://westend.api.subscan.io/")
         default:
             return nil
         }
