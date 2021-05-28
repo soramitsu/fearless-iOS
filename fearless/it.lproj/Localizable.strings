@@ -436,3 +436,4 @@ Derivation path: %@";
 "crowdloan.leasing.period" = "";
 "common.till.date" = "";
 "crowdloan.reward" = "";
+"staking.bonded.inactive" = "You are neither nominating nor validating";

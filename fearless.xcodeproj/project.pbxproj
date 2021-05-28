@@ -402,6 +402,7 @@
 		844DB61F262D9C070025A8F0 /* ChainHistoryRange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DB61E262D9C070025A8F0 /* ChainHistoryRange.swift */; };
 		844DB624262D9C710025A8F0 /* ErasRewardDistribution.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DB623262D9C710025A8F0 /* ErasRewardDistribution.swift */; };
 		844DD65525EAF32D00B1DA97 /* RecommendedViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844DD65425EAF32D00B1DA97 /* RecommendedViewModel.swift */; };
+		844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844E1E18266142080076AC59 /* BondedState+Status.swift */; };
 		844EFB5A265FCD9F0090ACB1 /* CrowdloanContributionProtocols.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844EFB59265FCD9F0090ACB1 /* CrowdloanContributionProtocols.swift */; };
 		844EFB5F265FCE180090ACB1 /* CrowdloanContributionInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844EFB5E265FCE180090ACB1 /* CrowdloanContributionInteractor.swift */; };
 		844EFB65265FD61D0090ACB1 /* CrowdloanContributeConfirmViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 844EFB64265FD61D0090ACB1 /* CrowdloanContributeConfirmViewModel.swift */; };
@@ -1736,6 +1737,7 @@
 		844DB61E262D9C070025A8F0 /* ChainHistoryRange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChainHistoryRange.swift; sourceTree = "<group>"; };
 		844DB623262D9C710025A8F0 /* ErasRewardDistribution.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErasRewardDistribution.swift; sourceTree = "<group>"; };
 		844DD65425EAF32D00B1DA97 /* RecommendedViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecommendedViewModel.swift; sourceTree = "<group>"; };
+		844E1E18266142080076AC59 /* BondedState+Status.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BondedState+Status.swift"; sourceTree = "<group>"; };
 		844EFB59265FCD9F0090ACB1 /* CrowdloanContributionProtocols.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionProtocols.swift; sourceTree = "<group>"; };
 		844EFB5E265FCE180090ACB1 /* CrowdloanContributionInteractor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanContributionInteractor.swift; sourceTree = "<group>"; };
 		844EFB64265FD61D0090ACB1 /* CrowdloanContributeConfirmViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloanContributeConfirmViewModel.swift; sourceTree = "<group>"; };
@@ -3599,6 +3601,7 @@
 				8430AB042602339B005B1066 /* PendingValidatorState.swift */,
 				8430AB1126023C9F005B1066 /* PendingBondedState.swift */,
 				AEF507F62625A3280098574D /* ValidatorState+Status.swift */,
+				844E1E18266142080076AC59 /* BondedState+Status.swift */,
 			);
 			path = States;
 			sourceTree = "<group>";
@@ -7199,6 +7202,7 @@
 				8409C27425227DC60049B5C8 /* WalletSingleActionAccessoryFactory.swift in Sources */,
 				F477CD26262EAD30004DF739 /* StakingPayoutViewModelFactory.swift in Sources */,
 				84C07EE824AF2E4D008FC35B /* WalletHistoryStyle.swift in Sources */,
+				844E1E19266142080076AC59 /* BondedState+Status.swift in Sources */,
 				8428766724ADF22000D91AD8 /* TransformAnimator+Common.swift in Sources */,
 				AEFC6D6F2600D7CD000BD310 /* NetworkInfoViewModelFactory.swift in Sources */,
 				84D97EB9251FD6B500F07405 /* TransferSeparatorDistribution.swift in Sources */,
