@@ -27,6 +27,8 @@ protocol SubstrateCallFactoryProtocol {
     func withdrawUnbonded(for numberOfSlashingSpans: UInt32) -> RuntimeCall<WithdrawUnbondedCall>
 
     func setController(_ controller: AccountAddress) throws -> RuntimeCall<SetControllerCall>
+
+    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -112,5 +114,38 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         let controllerId = try addressFactory.accountId(from: controller)
         let args = SetControllerCall(controller: .accoundId(controllerId))
         return RuntimeCall(moduleName: "Staking", callName: "set_controller", args: args)
+    }
+
+    func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall> {
+        let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
+        return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
+    }
+}
+
+extension SubstrateCallFactory {
+    func setRewardDestination(
+        _ rewardDestination: RewardDestination<AccountAddress>,
+        stashItem: StashItem
+    ) throws -> RuntimeCall<SetPayeeCall> {
+        let arg: RewardDestinationArg = try {
+            switch rewardDestination {
+            case .restake:
+                return .staked
+            case let .payout(accountAddress):
+                if accountAddress == stashItem.stash {
+                    return .stash
+                }
+
+                if accountAddress == stashItem.controller {
+                    return .controller
+                }
+
+                let accountId = try SS58AddressFactory().accountId(from: accountAddress)
+
+                return .account(accountId)
+            }
+        }()
+
+        return setPayee(for: arg)
     }
 }

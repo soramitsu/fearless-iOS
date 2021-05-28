@@ -3,7 +3,9 @@ import UIKit.UIImage
 enum StakingManageOption {
     case stakingBalance
     case rewardPayouts
-    case validators(count: Int?)
+    case rewardDestination
+    case setupValidators
+    case changeValidators(count: Int?)
     case controllerAccount
 
     func titleForLocale(_ locale: Locale) -> String {
@@ -12,7 +14,9 @@ enum StakingManageOption {
             return R.string.localizable.stakingBalanceTitle(preferredLanguages: locale.rLanguages)
         case .rewardPayouts:
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
-        case .validators:
+        case .rewardDestination:
+            return R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
+        case .changeValidators, .setupValidators:
             return R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: locale.rLanguages)
         case .controllerAccount:
             return R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
@@ -20,17 +24,16 @@ enum StakingManageOption {
     }
 
     func detailsForLocale(_ locale: Locale) -> String? {
-        switch self {
-        case let .validators(count):
+        if case let .changeValidators(count) = self {
             guard let count = count else {
                 return nil
             }
 
             let formatter = NumberFormatter.quantity.localizableResource().value(for: locale)
             return formatter.string(from: NSNumber(value: count))
-        default:
-            return nil
         }
+
+        return nil
     }
 
     var icon: UIImage? {
@@ -39,7 +42,9 @@ enum StakingManageOption {
             return R.image.iconStakingBalance()
         case .rewardPayouts:
             return R.image.iconLightning()
-        case .validators:
+        case .rewardDestination:
+            return R.image.iconWallet()
+        case .changeValidators, .setupValidators:
             return R.image.iconValidators()
         case .controllerAccount:
             return R.image.iconAccount()

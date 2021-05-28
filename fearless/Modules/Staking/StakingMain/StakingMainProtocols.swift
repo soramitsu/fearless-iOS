@@ -18,6 +18,9 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performNominationStatusAction()
     func performValidationStatusAction()
     func performRewardInfoAction()
+    func performChangeValidatorsAction()
+    func performBondMoreAction()
+    func performRedeemAction()
     func updateAmount(_ newValue: Decimal)
     func selectAmountPercentage(_ percentage: Float)
     func selectStory(at index: Int)
@@ -56,6 +59,8 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
 
+    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
+
     func didFetchController(_ controller: AccountItem?, for address: AccountAddress)
     func didReceive(fetchControllerError: Error)
 }
@@ -86,9 +91,12 @@ protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, Staki
     func showRewardPayoutsForValidator(from view: ControllerBackedProtocol?, stashAddress: AccountAddress)
     func showStakingBalance(from view: ControllerBackedProtocol?)
     func showNominatorValidators(from view: ControllerBackedProtocol?)
+    func showRewardDestination(from view: ControllerBackedProtocol?)
     func showControllerAccount(from view: ControllerBackedProtocol?)
 
     func showAccountsSelection(from view: StakingMainViewProtocol?)
+    func showBondMore(from view: ControllerBackedProtocol?)
+    func showRedeem(from view: ControllerBackedProtocol?)
 }
 
 protocol StakingMainViewFactoryProtocol: AnyObject {

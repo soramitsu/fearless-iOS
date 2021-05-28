@@ -73,7 +73,10 @@ final class ValidatorInfoViewModelFactory {
 
     // MARK: Stake Rows
 
-    private func createTotalStakeRow(with totalStake: Decimal, priceData: PriceData?) -> LocalizableResource<StakingAmountViewModel> {
+    private func createTotalStakeRow(
+        with totalStake: Decimal,
+        priceData: PriceData?
+    ) -> LocalizableResource<StakingAmountViewModel> {
         let title = LocalizableResource { locale in
             R.string.localizable
                 .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
@@ -177,17 +180,16 @@ final class ValidatorInfoViewModelFactory {
             let title = R.string.localizable
                 .stakingRewardDetailsStatus(preferredLanguages: locale.rLanguages)
 
-            var subtitle = ""
-            switch state {
-            case .active: subtitle = R.string.localizable
-                .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages)
-            case .inactive: subtitle = R.string.localizable
-                .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages)
-            case .slashed: subtitle = R.string.localizable
-                .stakingValidatorStatusSlashed(preferredLanguages: locale.rLanguages)
-            case .waiting: subtitle = R.string.localizable
-                .stakingValidatorStatusWaiting(preferredLanguages: locale.rLanguages)
-            }
+            let subtitle: String = {
+                switch state {
+                case .active: return R.string.localizable
+                    .stakingNominatorStatusActive(preferredLanguages: locale.rLanguages)
+                case .elected: return R.string.localizable
+                    .stakingNominatorStatusInactive(preferredLanguages: locale.rLanguages)
+                case .unelected: return R.string.localizable
+                    .stakingValidatorStatusWaiting(preferredLanguages: locale.rLanguages)
+                }
+            }()
 
             return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
         }
@@ -261,6 +263,16 @@ final class ValidatorInfoViewModelFactory {
         return .identity(identityRows)
     }
 
+    private func createStatusViewModel(
+        from validatorInfo: ValidatorInfoProtocol) -> StatusViewModel {
+        switch validatorInfo.myNomination {
+        case .active:
+            return .good
+        default:
+            return .none
+        }
+    }
+
     private func createMyNominationViewModel(
         from validatorInfo: ValidatorInfoProtocol,
         priceData: PriceData?
@@ -268,7 +280,7 @@ final class ValidatorInfoViewModelFactory {
         guard let nomination = validatorInfo.myNomination else { return nil }
 
         var nominationRows: [ValidatorInfoViewModel.NominationRow] = [
-            .status(createNominationStateRow(with: nomination), nomination)
+            .status(createNominationStateRow(with: nomination), createStatusViewModel(from: validatorInfo))
         ]
 
         if case let .active(amount) = nomination {

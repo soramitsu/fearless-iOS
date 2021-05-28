@@ -16,3 +16,11 @@ final class WalletStaticImageViewModel: WalletImageViewModelProtocol {
 
     func cancel() {}
 }
+
+extension WalletStaticImageViewModel: ImageViewModelProtocol {
+    func loadImage(on imageView: UIImageView, targetSize _: CGSize, animated _: Bool) {
+        imageView.image = staticImage
+    }
+
+    func cancel(on _: UIImageView) {}
+}

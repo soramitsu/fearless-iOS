@@ -33,6 +33,7 @@ final class StakingMainPresenter {
 
     private var balance: Decimal?
     private var networkStakingInfo: NetworkStakingInfo?
+    private var controllerAccount: AccountItem?
 
     init(
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
@@ -83,6 +84,43 @@ final class StakingMainPresenter {
 
         view?.didReceiveChainName(chainName: chainModel)
     }
+
+    func setupValidators(for bondedState: BondedState) {
+        guard let controllerAccount = controllerAccount else {
+            if let view = view {
+                let locale = view.localizationManager?.selectedLocale
+                let controllerAddress = bondedState.stashItem.controller
+                wireframe.presentMissingController(from: view, address: controllerAddress, locale: locale)
+            }
+
+            return
+        }
+
+        guard
+            let chain = bondedState.commonData.chain,
+            let amount = Decimal.fromSubstrateAmount(
+                bondedState.ledgerInfo.active,
+                precision: chain.addressType.precision
+            ),
+            let payee = bondedState.payee,
+            let rewardDestination = try? RewardDestination(
+                payee: payee,
+                stashItem: bondedState.stashItem,
+                chain: chain
+            ),
+            controllerAccount.address == bondedState.stashItem.controller
+        else {
+            return
+        }
+
+        let existingBonding = ExistingBonding(
+            stashAddress: bondedState.stashItem.stash,
+            controllerAccount: controllerAccount,
+            amount: amount,
+            rewardDestination: rewardDestination
+        )
+        wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
+    }
 }
 
 extension StakingMainPresenter: StakingMainPresenterProtocol {
@@ -95,27 +133,26 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        let bonded = stateMachine.viewState { (_: BondedState) in true } ?? false
-
-        if bonded {
-            if let stashItem = stateMachine.viewState(using: { (state: BondedState) in state.stashItem }) {
-                interactor.fetchController(for: stashItem.controller)
-            } else {
-                logger?.warning("Unexpected state on main action")
-            }
-        } else {
-            wireframe.showSetupAmount(from: view, amount: amount)
-        }
+        wireframe.showSetupAmount(from: view, amount: amount)
     }
 
     func performNominationStatusAction() {
-        let optViewModel: AlertPresentableViewModel? = stateMachine.viewState { (state: NominatorState) in
+        let optViewModel: AlertPresentableViewModel? = {
             let locale = view?.localizationManager?.selectedLocale
-            return state.createStatusPresentableViewModel(
-                for: networkStakingInfo?.minimalStake,
-                locale: locale
-            )
-        }
+
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                return nominatorState.createStatusPresentableViewModel(
+                    for: networkStakingInfo?.minimalStake,
+                    locale: locale
+                )
+            }
+
+            if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
+                return bondedState.createStatusPresentableViewModel(locale: locale)
+            }
+
+            return nil
+        }()
 
         if let viewModel = optViewModel {
             wireframe.present(
@@ -151,16 +188,27 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 return [
                     .stakingBalance,
                     .rewardPayouts,
-                    .validators(count: nominatorState.nomination.targets.count),
-                    .controllerAccount
-                ]
-            } else {
-                return [
-                    .stakingBalance,
-                    .rewardPayouts,
+                    .rewardDestination,
+                    .changeValidators(count: nominatorState.nomination.targets.count),
                     .controllerAccount
                 ]
             }
+
+            if stateMachine.viewState(using: { (state: BondedState) in state }) != nil {
+                return [
+                    .stakingBalance,
+                    .setupValidators,
+                    .rewardDestination,
+                    .controllerAccount
+                ]
+            }
+
+            return [
+                .stakingBalance,
+                .rewardPayouts,
+                .rewardDestination,
+                .controllerAccount
+            ]
         }()
 
         wireframe.showManageStaking(
@@ -196,6 +244,29 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
 
     func selectStory(at index: Int) {
         wireframe.showStories(from: view, startingFrom: index)
+    }
+
+    func performChangeValidatorsAction() {
+        wireframe.showNominatorValidators(from: view)
+    }
+
+    func performBondMoreAction() {
+        wireframe.showBondMore(from: view)
+    }
+
+    func performRedeemAction() {
+        guard let view = view else { return }
+        let selectedLocale = view.localizationManager?.selectedLocale
+        guard controllerAccount != nil else {
+            let baseState = stateMachine.viewState(using: { (state: BaseStashNextState) in state })
+            wireframe.presentMissingController(
+                from: view,
+                address: baseState?.stashItem.controller ?? "",
+                locale: selectedLocale
+            )
+            return
+        }
+        wireframe.showRedeem(from: view)
     }
 }
 
@@ -358,6 +429,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(networkStakingInfo: NetworkStakingInfo) {
         self.networkStakingInfo = networkStakingInfo
+        stateMachine.state.process(minimalStake: networkStakingInfo.minimalStake)
         provideStakingInfo()
     }
 
@@ -373,49 +445,22 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didFetchController(_ controller: AccountItem?, for address: AccountAddress) {
-        guard let controller = controller else {
-            if let view = view {
-                let locale = view.localizationManager?.selectedLocale
-                wireframe.presentMissingController(from: view, address: address, locale: locale)
-            }
-
-            return
-        }
-
-        let optExistingBonding: ExistingBonding? = stateMachine.viewState { (state: BondedState) in
-            guard
-                let chain = state.commonData.chain,
-                let amount = Decimal.fromSubstrateAmount(
-                    state.ledgerInfo.active,
-                    precision: chain.addressType.precision
-                ),
-                let payee = state.payee,
-                let rewardDestination = try? RewardDestination(
-                    payee: payee,
-                    stashItem: state.stashItem,
-                    chain: chain
-                ),
-                controller.address == state.stashItem.controller
-            else {
-                return nil
-            }
-
-            return ExistingBonding(
-                stashAddress: state.stashItem.stash,
-                controllerAccount: controller,
-                amount: amount,
-                rewardDestination: rewardDestination
-            )
-        }
-
-        if let existingBonding = optExistingBonding {
-            wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
-        }
+    func didFetchController(_ controller: AccountItem?, for _: AccountAddress) {
+        controllerAccount = controller
     }
 
     func didReceive(fetchControllerError: Error) {
+        controllerAccount = nil
         handle(error: fetchControllerError)
+    }
+
+    func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>) {
+        switch result {
+        case let .success(maxNominatorsPerValidator):
+            stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
     }
 }
 
@@ -442,11 +487,15 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
                 wireframe.showRewardPayoutsForNominator(from: view, stashAddress: stashAddress)
                 return
             }
+        case .rewardDestination:
+            wireframe.showRewardDestination(from: view)
         case .stakingBalance:
             wireframe.showStakingBalance(from: view)
-        case .validators:
-            if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
-                wireframe.showNominatorValidators(from: view)
+        case .changeValidators:
+            wireframe.showNominatorValidators(from: view)
+        case .setupValidators:
+            if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
+                setupValidators(for: bondedState)
             }
         case .controllerAccount:
             wireframe.showControllerAccount(from: view)

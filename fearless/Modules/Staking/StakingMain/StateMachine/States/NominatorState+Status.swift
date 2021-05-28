@@ -4,23 +4,24 @@ import BigInt
 
 extension NominatorState {
     var status: NominationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
+        guard let eraStakers = commonData.eraStakersInfo else {
             return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
         }
 
         do {
             let accountId = try SS58AddressFactory().accountId(from: stashItem.stash)
 
-            if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil
-            {
+            let allNominators = eraStakers.validators.map(\.exposure.others)
+                .flatMap { (nominators) -> [IndividualExposure] in
+                    if let maxNominatorsPerValidator = commonData.maxNominatorsPerValidator {
+                        return Array(nominators.prefix(Int(maxNominatorsPerValidator)))
+                    } else {
+                        return nominators
+                    }
+                }
+                .reduce(into: Set<Data>()) { $0.insert($1.who) }
+
+            if allNominators.contains(accountId) {
                 return .active(era: eraStakers.era)
             }
 
@@ -46,8 +47,6 @@ extension NominatorState {
             return createInactiveStatus(for: minimumStake, locale: locale)
         case .waiting:
             return createWaitingStatus(for: minimumStake, locale: locale)
-        case .election:
-            return createElectionStatus(for: minimumStake, locale: locale)
         case .undefined:
             return createUndefinedStatus(for: minimumStake, locale: locale)
         }

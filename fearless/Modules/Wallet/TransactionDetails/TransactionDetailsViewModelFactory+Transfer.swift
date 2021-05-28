@@ -47,7 +47,9 @@ extension TransactionDetailsViewModelFactory {
         populateStatus(into: &viewModels, data: data, locale: locale)
         populateTime(into: &viewModels, data: data, locale: locale)
         populateTransferAmount(into: &viewModels, data: data, locale: locale)
-        populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        if type != .incoming {
+            populateFeeAmount(in: &viewModels, data: data, locale: locale)
+        }
 
         return viewModels
     }
@@ -55,6 +57,7 @@ extension TransactionDetailsViewModelFactory {
     func createTransferAccessoryViewModel(
         data: AssetTransactionData,
         commandFactory: WalletCommandFactoryProtocol,
+        isIncoming: Bool,
         locale: Locale
     ) -> AccessoryViewModelProtocol? {
         guard let asset = assets.first(where: { $0.identifier == data.assetId }) else {
@@ -63,7 +66,8 @@ extension TransactionDetailsViewModelFactory {
 
         let title = R.string.localizable.walletTransferTotalTitle(preferredLanguages: locale.rLanguages)
 
-        let totalAmount = data.fees.reduce(data.amount.decimalValue) { $0 + $1.amount.decimalValue }
+        let totalAmount = isIncoming ? data.amount.decimalValue :
+            data.fees.reduce(data.amount.decimalValue) { $0 + $1.amount.decimalValue }
 
         let formatter = amountFormatterFactory.createTokenFormatter(for: asset)
 

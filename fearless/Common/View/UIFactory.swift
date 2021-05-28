@@ -20,6 +20,11 @@ struct UIConstants {
     static let separatorHeight: CGFloat = 1 / UIScreen.main.scale
 }
 
+enum AccountViewMode {
+    case options
+    case selection
+}
+
 protocol UIFactoryProtocol {
     func createMainActionButton() -> TriangularedButton
     func createAccessoryButton() -> TriangularedButton
@@ -45,7 +50,7 @@ protocol UIFactoryProtocol {
         locale: Locale
     ) -> UIToolbar
 
-    func createAccountView() -> DetailsTriangularedView
+    func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView
 
     func createNetworkFeeView() -> NetworkFeeView
 
@@ -54,7 +59,22 @@ protocol UIFactoryProtocol {
     func createTitleValueView() -> TitleValueView
 
     func createHintView() -> HintView
+
     func createLearnMoreView() -> LearnMoreView
+
+    func createRewardSelectionView() -> RewardSelectionView
+}
+
+extension UIFactoryProtocol {
+    func createAccountView() -> DetailsTriangularedView {
+        createAccountView(for: .options, filled: false)
+    }
+
+    func createFearlessLearnMoreView() -> LearnMoreView {
+        let view = createLearnMoreView()
+        view.iconView.image = R.image.iconFearlessSmall()
+        return view
+    }
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -82,8 +102,8 @@ final class UIFactory: UIFactoryProtocol {
         if !filled {
             view.fillColor = .clear
             view.highlightedFillColor = .clear
-            view.strokeColor = R.color.colorGray()!
-            view.highlightedStrokeColor = R.color.colorGray()!
+            view.strokeColor = R.color.colorStrokeGray()!
+            view.highlightedStrokeColor = R.color.colorStrokeGray()!
             view.borderWidth = 1.0
         } else {
             view.fillColor = R.color.colorDarkGray()!
@@ -345,12 +365,18 @@ final class UIFactory: UIFactoryProtocol {
         return toolBar
     }
 
-    func createAccountView() -> DetailsTriangularedView {
-        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: false)
+    func createAccountView(for mode: AccountViewMode, filled: Bool) -> DetailsTriangularedView {
+        let view = createDetailsView(with: .smallIconTitleSubtitle, filled: filled)
         view.subtitleLabel?.lineBreakMode = .byTruncatingMiddle
-        view.actionImage = R.image.iconMore()
+
+        switch mode {
+        case .options:
+            view.actionImage = R.image.iconMore()
+        case .selection:
+            view.actionImage = R.image.iconSmallArrowDown()
+        }
+
         view.highlightedFillColor = R.color.colorHighlightedPink()!
-        view.strokeColor = R.color.colorStrokeGray()!
         view.borderWidth = 1
         return view
     }
@@ -372,6 +398,37 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createLearnMoreView() -> LearnMoreView {
-        LearnMoreView()
+        let view = LearnMoreView()
+        view.contentInsets = UIEdgeInsets(
+            top: 0.0,
+            left: UIConstants.horizontalInset,
+            bottom: 0.0,
+            right: UIConstants.horizontalInset
+        )
+        return view
+    }
+
+    func createRewardSelectionView() -> RewardSelectionView {
+        let view = RewardSelectionView()
+
+        view.borderWidth = 1.0
+        view.fillColor = .clear
+        view.highlightedFillColor = .clear
+        view.strokeColor = R.color.colorGray()!
+        view.highlightedStrokeColor = R.color.colorAccent()!
+        view.titleColor = R.color.colorWhite()!
+        view.amountTitleColor = R.color.colorWhite()!
+        view.priceColor = R.color.colorLightGray()!
+        view.incomeColor = R.color.colorGreen()!
+
+        view.titleLabel.font = .h5Title
+        view.amountLabel.font = .h6Title
+        view.priceLabel.font = .p2Paragraph
+        view.incomeLabel.font = .p2Paragraph
+
+        view.iconView.image = R.image.listCheckmarkIcon()!
+        view.isSelected = false
+
+        return view
     }
 }

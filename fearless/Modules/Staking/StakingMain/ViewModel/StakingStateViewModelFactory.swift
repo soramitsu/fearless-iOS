@@ -14,7 +14,7 @@ final class StakingStateViewModelFactory {
 
     private var lastViewModel: StakingViewState = .undefined
 
-    private var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
+    var balanceViewModelFactory: BalanceViewModelFactoryProtocol?
     private var rewardViewModelFactory: RewardViewModelFactoryProtocol?
     private var cachedChain: Chain?
 
@@ -79,51 +79,16 @@ final class StakingStateViewModelFactory {
         return factory
     }
 
-    private func createNominationStatus(
-        for _: Chain,
-        commonData: StakingStateCommonData,
-        stashItem: StashItem,
-        nomination: Nomination
-    ) -> NominationViewStatus {
-        guard
-            let eraStakers = commonData.eraStakersInfo,
-            let electionStatus = commonData.electionStatus
-        else {
-            return .undefined
-        }
-
-        if case .open = electionStatus {
-            return .election
-        }
-
-        do {
-            let accountId = try addressFactory.accountId(from: stashItem.stash)
-
-            if eraStakers.validators
-                .first(where: { $0.exposure.others.contains(where: { $0.who == accountId }) }) != nil {
-                return .active(era: eraStakers.era)
-            }
-
-            if nomination.submittedIn >= eraStakers.era {
-                return .waiting
-            }
-
-            return .inactive(era: eraStakers.era)
-
-        } catch {
-            return .undefined
-        }
-    }
-
     private func createNominationViewModel(
         for chain: Chain,
         commonData: StakingStateCommonData,
-        state: NominatorState,
+        state: BaseStashNextState,
+        ledgerInfo: StakingLedger,
         viewStatus: NominationViewStatus
     ) -> LocalizableResource<NominationViewModelProtocol> {
         let balanceViewModelFactory = getBalanceViewModelFactory(for: chain)
 
-        let stakedAmount = convertAmount(state.ledgerInfo.active, for: chain, defaultValue: 0.0)
+        let stakedAmount = convertAmount(ledgerInfo.active, for: chain, defaultValue: 0.0)
         let staked = balanceViewModelFactory.balanceFromPrice(
             stakedAmount,
             priceData: commonData.price
@@ -296,7 +261,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
                 amount: state.rewardEstimationAmount
             )
 
-            lastViewModel = .noStash(viewModel: viewModel)
+            let alerts = stakingAlertsNoStashState(state)
+            lastViewModel = .noStash(viewModel: viewModel, alerts: alerts)
         } catch {
             lastViewModel = .undefined
         }
@@ -338,17 +304,24 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
 
         updateCacheForChain(chain)
 
-        do {
-            let viewModel = try createEstimationViewModel(
-                for: chain,
-                commonData: state.commonData,
-                amount: state.rewardEstimationAmount ?? 0.0
-            )
+        let status: NominationViewStatus = {
+            if let era = state.commonData.eraStakersInfo?.era {
+                return .inactive(era: era)
+            } else {
+                return .undefined
+            }
+        }()
 
-            lastViewModel = .noStash(viewModel: viewModel)
-        } catch {
-            lastViewModel = .undefined
-        }
+        let viewModel = createNominationViewModel(
+            for: chain,
+            commonData: state.commonData,
+            state: state,
+            ledgerInfo: state.ledgerInfo,
+            viewStatus: status
+        )
+
+        let alerts = stakingAlertsForBondedState(state)
+        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
     func visit(state: PendingNominatorState) {
@@ -378,10 +351,12 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             for: chain,
             commonData: state.commonData,
             state: state,
+            ledgerInfo: state.ledgerInfo,
             viewStatus: state.status
         )
 
-        lastViewModel = .nominator(viewModel: viewModel)
+        let alerts = stakingAlertsForNominatorState(state)
+        lastViewModel = .nominator(viewModel: viewModel, alerts: alerts)
     }
 
     func visit(state: PendingValidatorState) {
@@ -414,7 +389,8 @@ extension StakingStateViewModelFactory: StakingStateVisitorProtocol {
             viewStatus: state.status
         )
 
-        lastViewModel = .validator(viewModel: viewModel)
+        let alerts = stakingAlertsForValidatorState(state)
+        lastViewModel = .validator(viewModel: viewModel, alerts: alerts)
     }
 }
 

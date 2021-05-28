@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 class BaseStakingState: StakingStateProtocol {
     weak var stateMachine: StakingStateMachineProtocol?
@@ -77,6 +78,18 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(electionStatus: ElectionStatus?) {
         commonData = commonData.byReplacing(electionStatus: electionStatus)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(minimalStake: BigUInt?) {
+        commonData = commonData.byReplacing(minimalStake: minimalStake)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(maxNominatorsPerValidator: UInt32?) {
+        commonData = commonData.byReplacing(maxNominatorsPerValidator: maxNominatorsPerValidator)
 
         stateMachine?.transit(to: self)
     }
