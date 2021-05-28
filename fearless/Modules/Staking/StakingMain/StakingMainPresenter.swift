@@ -197,7 +197,6 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
             if stateMachine.viewState(using: { (state: BondedState) in state }) != nil {
                 return [
                     .stakingBalance,
-                    .rewardPayouts,
                     .setupValidators,
                     .rewardDestination,
                     .controllerAccount
