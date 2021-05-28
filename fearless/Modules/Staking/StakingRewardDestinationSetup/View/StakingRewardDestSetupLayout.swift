@@ -15,7 +15,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
     let networkFeeView = UIFactory.default.createNetworkFeeView()
     let actionButton: TriangularedButton = UIFactory.default.createMainActionButton()
-    let learnMoreView = UIFactory.default.createLearnMoreView()
+    let learnMoreView = UIFactory.default.createFearlessLearnMoreView()
 
     var locale = Locale.current {
         didSet {
@@ -92,7 +92,7 @@ final class StakingRewardDestSetupLayout: UIView {
 
         contentView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(self)
         }
 
         contentView.stackView.addArrangedSubview(networkFeeView)

@@ -69,6 +69,12 @@ extension UIFactoryProtocol {
     func createAccountView() -> DetailsTriangularedView {
         createAccountView(for: .options, filled: false)
     }
+
+    func createFearlessLearnMoreView() -> LearnMoreView {
+        let view = createLearnMoreView()
+        view.iconView.image = R.image.iconFearlessSmall()
+        return view
+    }
 }
 
 final class UIFactory: UIFactoryProtocol {
@@ -392,7 +398,14 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createLearnMoreView() -> LearnMoreView {
-        LearnMoreView()
+        let view = LearnMoreView()
+        view.contentInsets = UIEdgeInsets(
+            top: 0.0,
+            left: UIConstants.horizontalInset,
+            bottom: 0.0,
+            right: UIConstants.horizontalInset
+        )
+        return view
     }
 
     func createRewardSelectionView() -> RewardSelectionView {

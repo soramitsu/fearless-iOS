@@ -16,6 +16,7 @@ protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func selectAmountPercentage(_ percentage: Float)
     func updateAmount(_ newValue: Decimal)
     func proceed()
+    func presentLearnMore()
 }
 
 protocol CrowdloanContributionSetupInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol {}
@@ -23,6 +24,6 @@ protocol CrowdloanContributionSetupInteractorInputProtocol: CrowdloanContributio
 protocol CrowdloanContributionSetupInteractorOutputProtocol: CrowdloanContributionInteractorOutputProtocol {}
 
 protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
-    CrowdloanErrorPresentable {
+    CrowdloanErrorPresentable, WebPresentable {
     func showConfirmation(from view: CrowdloanContributionSetupViewProtocol?, paraId: ParaId, inputAmount: Decimal)
 }
