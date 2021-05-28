@@ -227,6 +227,14 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             strongSelf.wireframe.showConfirmation(from: strongSelf.view, paraId: paraId, inputAmount: contribution)
         }
     }
+
+    func presentLearnMore() {
+        guard let displayInfo = displayInfo, let url = URL(string: displayInfo.website), let view = view else {
+            return
+        }
+
+        wireframe.showWeb(url: url, from: view, style: .automatic)
+    }
 }
 
 extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInteractorOutputProtocol {

@@ -3,8 +3,13 @@ import SoraUI
 import SnapKit
 
 final class LearnMoreView: BackgroundedContentControl {
+    private enum Constants {
+        static let iconSize: CGFloat = 24.0
+        static let horizontalSpacing: CGFloat = 12.0
+    }
+
     let iconView: UIImageView = {
-        let view = UIImageView(frame: CGRect(origin: .zero, size: CGSize(width: 24.0, height: 24.0)))
+        let view = UIImageView()
         view.contentMode = .scaleAspectFit
         return view
     }()
@@ -24,6 +29,10 @@ final class LearnMoreView: BackgroundedContentControl {
     }()
 
     private var viewModel: LearnMoreViewModel?
+
+    deinit {
+        viewModel?.iconViewModel?.cancel(on: iconView)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -48,7 +57,8 @@ final class LearnMoreView: BackgroundedContentControl {
 
         self.viewModel = viewModel
 
-        viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconView.frame.size, animated: true)
+        let iconSize = CGSize(width: Constants.iconSize, height: Constants.iconSize)
+        viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconSize, animated: true)
         titleLabel.text = viewModel?.title
     }
 
@@ -71,10 +81,28 @@ final class LearnMoreView: BackgroundedContentControl {
     }
 
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [iconView, titleLabel, UIView(), arrowIconView])
-        stackView.spacing = 12
-        stackView.isUserInteractionEnabled = false
+        let baseView = UIView()
+        baseView.isUserInteractionEnabled = false
 
-        contentView = stackView
+        baseView.addSubview(iconView)
+        iconView.snp.makeConstraints { make in
+            make.leading.centerY.equalToSuperview()
+            make.size.equalTo(Constants.iconSize)
+        }
+
+        baseView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(iconView.snp.trailing).offset(Constants.horizontalSpacing)
+            make.centerY.equalToSuperview()
+        }
+
+        baseView.addSubview(arrowIconView)
+        arrowIconView.snp.makeConstraints { make in
+            make.trailing.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(Constants.horizontalSpacing)
+            make.size.equalTo(16.0)
+        }
+
+        contentView = baseView
     }
 }

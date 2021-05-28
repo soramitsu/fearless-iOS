@@ -64,6 +64,10 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     @objc func actionProceed() {
         presenter.proceed()
     }
+
+    @objc func actionLearMore() {
+        presenter.presentLearnMore()
+    }
 }
 
 extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupViewProtocol {
@@ -89,6 +93,10 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
     func didReceiveCrowdloan(viewModel: CrowdloanContributionSetupViewModel) {
         title = viewModel.title
         rootView.bind(crowdloanViewModel: viewModel)
+
+        if let learnMoreView = rootView.learnMoreView {
+            learnMoreView.addTarget(self, action: #selector(actionLearMore), for: .touchUpInside)
+        }
     }
 
     func didReceiveEstimatedReward(viewModel: String?) {

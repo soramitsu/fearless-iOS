@@ -35,7 +35,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
     let raisedView = TitleMultiValueView()
     let timeLeftVew = TitleValueView()
 
-    private(set) var learnMore: LearnMoreView?
+    private(set) var learnMoreView: LearnMoreView?
 
     let actionButton: TriangularedButton = {
         let button = TriangularedButton()
@@ -100,6 +100,13 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         raisedView.valueBottom.text = crowdloanViewModel.raisedPercentage
 
         timeLeftVew.valueLabel.text = crowdloanViewModel.remainedTime
+
+        if let learnMore = crowdloanViewModel.learnMore {
+            createLearnMoreViewIfNeeded()
+            learnMoreView?.bind(viewModel: learnMore)
+        } else {
+            removeLearnMoreViewIfNeeded()
+        }
     }
 
     func bind(estimatedReward: String?) {
@@ -213,20 +220,23 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
 
         guard
-            let networkFeeIndex = contentView.stackView.arrangedSubviews.firstIndex(of: networkFeeView) else {
+            let leasingPeriodIndex = contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView) else {
             return
         }
 
         let view = TitleValueView()
         view.titleLabel.text = R.string.localizable.crowdloanReward(preferredLanguages: locale.rLanguages)
 
-        contentView.stackView.insertArrangedSubview(view, at: networkFeeIndex + 1)
+        contentView.stackView.insertArrangedSubview(view, at: leasingPeriodIndex + 1)
         view.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }
 
         estimatedRewardView = view
+
+        contentView.stackView.setCustomSpacing(0.0, after: leasingPeriodView)
+        contentView.stackView.setCustomSpacing(24.0, after: view)
     }
 
     private func removeEstimatedRewardViewIfNeeded() {
@@ -236,5 +246,37 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         contentView.stackView.removeArrangedSubview(estimatedRewardView)
         estimatedRewardView.removeFromSuperview()
+
+        contentView.stackView.setCustomSpacing(24.0, after: leasingPeriodView)
+    }
+
+    private func createLearnMoreViewIfNeeded() {
+        guard learnMoreView == nil else {
+            return
+        }
+
+        guard
+            let timeLeftIndex = contentView.stackView.arrangedSubviews.firstIndex(of: timeLeftVew) else {
+            return
+        }
+
+        let view = UIFactory.default.createLearnMoreView()
+
+        contentView.stackView.insertArrangedSubview(view, at: timeLeftIndex + 1)
+        view.snp.makeConstraints { make in
+            make.width.equalTo(self)
+            make.height.equalTo(48.0)
+        }
+
+        learnMoreView = view
+    }
+
+    private func removeLearnMoreViewIfNeeded() {
+        guard let learnMoreView = learnMoreView else {
+            return
+        }
+
+        contentView.stackView.removeArrangedSubview(learnMoreView)
+        learnMoreView.removeFromSuperview()
     }
 }

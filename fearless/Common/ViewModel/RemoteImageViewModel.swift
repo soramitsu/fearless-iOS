@@ -19,6 +19,7 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
         var options: KingfisherOptionsInfo = [
             .processor(processor),
             .scaleFactor(UIScreen.main.scale),
+            .cacheSerializer(RemoteSerializer.shared),
             .cacheOriginalImage,
             .diskCacheExpiration(.days(1))
         ]
@@ -38,20 +39,32 @@ extension RemoteImageViewModel: ImageViewModelProtocol {
     }
 }
 
+private final class RemoteSerializer: CacheSerializer {
+    static let shared = RemoteSerializer()
+
+    func data(with _: KFCrossPlatformImage, original: Data?) -> Data? {
+        original
+    }
+
+    func image(with data: Data, options _: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {
+        if let uiImage = UIImage(data: data) {
+            return uiImage
+        } else {
+            let imsvg = SVGKImage(data: data)
+            return imsvg?.uiImage ?? UIImage()
+        }
+    }
+}
+
 private final class SVGProcessor: ImageProcessor {
     let identifier: String = "jp.co.soramitsu.fearless.kf.svg.processor"
 
-    func process(item: ImageProcessItem, options _: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {
+    func process(item: ImageProcessItem, options: KingfisherParsedOptionsInfo) -> KFCrossPlatformImage? {
         switch item {
         case let .image(image):
             return image
         case let .data(data):
-            if let uiImage = UIImage(data: data) {
-                return uiImage
-            } else {
-                let imsvg = SVGKImage(data: data)
-                return imsvg?.uiImage
-            }
+            return RemoteSerializer.shared.image(with: data, options: options)
         }
     }
 }
