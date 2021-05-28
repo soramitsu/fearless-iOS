@@ -134,6 +134,15 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         applyConstraints(for: analyticsContainerView, innerView: analyticsView)
 
         stackView.addArrangedSubview(analyticsContainerView)
+
+        analyticsView.addGestureRecognizer(
+            UITapGestureRecognizer(target: self, action: #selector(handleAnalyticsWidgetTap))
+        )
+    }
+
+    @objc
+    private func handleAnalyticsWidgetTap() {
+        presenter.performAnalyticsAction()
     }
 
     private func configureStoriesView() {

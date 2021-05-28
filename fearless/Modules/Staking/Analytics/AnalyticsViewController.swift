@@ -47,6 +47,7 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
             )
         )
         rootView.rewardsView.payoutButton.imageWithTitleView?.title = "Payout rewards"
+        title = "Analytics"
     }
 }
 

@@ -40,6 +40,8 @@ final class AnalyticsRewardsView: UIView {
         return label
     }()
 
+    let chartView = ChartView()
+
     let periodView = AnalyticsPeriodView()
 
     let receivedSummaryView = AnalyticsSummaryRewardView()
@@ -67,8 +69,11 @@ final class AnalyticsRewardsView: UIView {
                 selectedPeriodLabel,
                 .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel]),
                 .hStack(spacing: 4, [percentageLabel, copmaredPeriodLabel]),
+                chartView
             ]
         )
+
+        chartView.snp.makeConstraints { $0.height.equalTo(168) }
 
         addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
