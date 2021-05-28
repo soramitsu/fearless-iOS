@@ -92,7 +92,7 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         networkFeeView.bind(viewModel: feeViewModel)
     }
 
-    func bind(crowdloanViewModel: CrowdloanContributionViewModel) {
+    func bind(crowdloanViewModel: CrowdloanContributionSetupViewModel) {
         leasingPeriodView.valueTop.text = crowdloanViewModel.leasingPeriod
         leasingPeriodView.valueBottom.text = crowdloanViewModel.leasingCompletionDate
 
@@ -203,6 +203,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
             make.height.equalTo(UIConstants.actionHeight)
         }
+
+        contentView.scrollBottomOffset = 2 * UIConstants.horizontalInset + UIConstants.actionHeight
     }
 
     private func createEstimatedRewardViewIfNeeded() {

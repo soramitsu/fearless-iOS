@@ -28,31 +28,16 @@ enum YourValidatorsViewState {
 
 struct YourValidatorsSection {
     let status: YourValidatorsSectionStatus
-    let title: LocalizableResource<String>
+    let title: LocalizableResource<String>?
+    let description: LocalizableResource<String>?
     let validators: [YourValidatorViewModel]
 }
 
 enum YourValidatorsSectionStatus {
-    case active
+    case stakeAllocated
+    case stakeNotAllocated
     case inactive
-    case waiting
-    case slashed
     case pending
-}
-
-extension YourValidatorsSectionStatus {
-    init(modelStatus: ValidatorMyNominationStatus) {
-        switch modelStatus {
-        case .active:
-            self = .active
-        case .inactive:
-            self = .inactive
-        case .waiting:
-            self = .waiting
-        case .slashed:
-            self = .slashed
-        }
-    }
 }
 
 struct YourValidatorViewModel {
@@ -61,4 +46,5 @@ struct YourValidatorViewModel {
     let name: String?
     let amount: LocalizableResource<String>?
     let shouldHaveWarning: Bool
+    let shouldHaveError: Bool
 }

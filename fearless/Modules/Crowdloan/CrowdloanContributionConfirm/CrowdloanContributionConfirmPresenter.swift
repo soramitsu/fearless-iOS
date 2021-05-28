@@ -2,16 +2,18 @@ import Foundation
 import BigInt
 import SoraFoundation
 
-final class CrowdloanContributionSetupPresenter {
-    weak var view: CrowdloanContributionSetupViewProtocol?
-    let wireframe: CrowdloanContributionSetupWireframeProtocol
-    let interactor: CrowdloanContributionSetupInteractorInputProtocol
+final class CrowdloanContributionConfirmPresenter {
+    weak var view: CrowdloanContributionConfirmViewProtocol?
+    let wireframe: CrowdloanContributionConfirmWireframeProtocol
+    let interactor: CrowdloanContributionConfirmInteractorInputProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
+    let inputAmount: Decimal
     let chain: Chain
     let logger: LoggerProtocol?
 
+    private var displayAddress: DisplayAddress?
     private var crowdloan: Crowdloan?
     private var displayInfo: CrowdloanDisplayInfo?
     private var totalBalanceValue: BigUInt?
@@ -22,8 +24,6 @@ final class CrowdloanContributionSetupPresenter {
     private var blockDuration: BlockTime?
     private var leasingPeriod: LeasingPeriod?
     private var minimumBalance: BigUInt?
-
-    private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
 
     private var crowdloanMetadata: CrowdloanMetadata? {
         if
@@ -40,14 +40,24 @@ final class CrowdloanContributionSetupPresenter {
         }
     }
 
-    private var inputResult: AmountInputResult?
+    private var confirmationData: CrowdloanContributionConfirmData? {
+        guard let displayAddress = displayAddress else {
+            return nil
+        }
+
+        return CrowdloanContributionConfirmData(
+            contribution: inputAmount,
+            displayAddress: displayAddress
+        )
+    }
 
     init(
-        interactor: CrowdloanContributionSetupInteractorInputProtocol,
-        wireframe: CrowdloanContributionSetupWireframeProtocol,
+        interactor: CrowdloanContributionConfirmInteractorInputProtocol,
+        wireframe: CrowdloanContributionConfirmWireframeProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
+        inputAmount: Decimal,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -57,6 +67,7 @@ final class CrowdloanContributionSetupPresenter {
         self.balanceViewModelFactory = balanceViewModelFactory
         self.contributionViewModelFactory = contributionViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
+        self.inputAmount = inputAmount
         self.chain = chain
         self.logger = logger
         self.localizationManager = localizationManager
@@ -66,8 +77,6 @@ final class CrowdloanContributionSetupPresenter {
         guard minimumBalance != nil else {
             return
         }
-
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0.0
 
         let assetViewModel = balanceViewModelFactory.createAssetBalanceViewModel(
             inputAmount,
@@ -86,39 +95,25 @@ final class CrowdloanContributionSetupPresenter {
         view?.didReceiveFee(viewModel: feeViewModel)
     }
 
-    private func provideInputViewModel() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee)
-
-        let inputViewModel = balanceViewModelFactory.createBalanceInputViewModel(inputAmount)
-            .value(for: selectedLocale)
-        view?.didReceiveInput(viewModel: inputViewModel)
-    }
-
-    private func provideInputViewModelIfRate() {
-        guard case .rate = inputResult else {
+    private func provideConfirmationViewModel() {
+        guard
+            let crowdloan = crowdloan,
+            let metadata = crowdloanMetadata,
+            let confirmationData = confirmationData else {
             return
         }
 
-        provideInputViewModel()
-    }
-
-    private func provideCrowdloanContributionViewModel() {
-        guard let crowdloan = crowdloan, let metadata = crowdloanMetadata else {
-            return
-        }
-
-        let viewModel = contributionViewModelFactory.createContributionSetupViewModel(
+        let maybeViewModel = try? contributionViewModelFactory.createContributionConfirmViewModel(
             from: crowdloan,
-            displayInfo: displayInfo,
             metadata: metadata,
+            confirmationData: confirmationData,
             locale: selectedLocale
         )
 
-        view?.didReceiveCrowdloan(viewModel: viewModel)
+        maybeViewModel.map { view?.didReceiveCrowdloan(viewModel: $0) }
     }
 
     private func provideEstimatedRewardViewModel() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         let viewModel = displayInfo.map {
             contributionViewModelFactory.createEstimatedRewardViewModel(
                 inputAmount: inputAmount,
@@ -133,13 +128,10 @@ final class CrowdloanContributionSetupPresenter {
     private func provideViewModels() {
         provideAssetVewModel()
         provideFeeViewModel()
-        provideInputViewModel()
-        provideCrowdloanContributionViewModel()
         provideEstimatedRewardViewModel()
     }
 
     private func refreshFee() {
-        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
         guard let amount = inputAmount.toSubstrateAmount(precision: chain.addressType.precision) else {
             return
         }
@@ -148,7 +140,7 @@ final class CrowdloanContributionSetupPresenter {
     }
 }
 
-extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresenterProtocol {
+extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPresenterProtocol {
     func setup() {
         provideViewModels()
 
@@ -157,27 +149,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         refreshFee()
     }
 
-    func selectAmountPercentage(_ percentage: Float) {
-        inputResult = .rate(Decimal(Double(percentage)))
-
-        provideInputViewModel()
-
-        refreshFee()
-        provideAssetVewModel()
-        provideEstimatedRewardViewModel()
-    }
-
-    func updateAmount(_ newValue: Decimal) {
-        inputResult = .absolute(newValue)
-
-        refreshFee()
-        provideAssetVewModel()
-        provideEstimatedRewardViewModel()
-    }
-
-    func proceed() {
-        let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee)
-        let controbutionValue = contributionDecimal?.toSubstrateAmount(precision: chain.addressType.precision)
+    func confirm() {
+        let controbutionValue = inputAmount.toSubstrateAmount(precision: chain.addressType.precision)
         let spendingValue = (controbutionValue ?? 0) +
             (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
 
@@ -189,7 +162,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             dataValidatingFactory.canPayFeeAndAmount(
                 balance: balance,
                 fee: fee,
-                spendingAmount: contributionDecimal,
+                spendingAmount: inputAmount,
                 locale: selectedLocale
             ),
 
@@ -222,20 +195,52 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         ]).runValidation { [weak self] in
             guard
                 let strongSelf = self,
-                let contribution = contributionDecimal,
-                let paraId = strongSelf.crowdloan?.paraId else { return }
-            strongSelf.wireframe.showConfirmation(from: strongSelf.view, paraId: paraId, inputAmount: contribution)
+                let contribution = controbutionValue else { return }
+            strongSelf.view?.didStartLoading()
+            strongSelf.interactor.submit(contribution: contribution)
         }
+    }
+
+    func presentAccountOptions() {
+        guard let address = displayAddress?.address, let view = view else {
+            return
+        }
+
+        wireframe.presentAccountOptions(from: view, address: address, chain: chain, locale: selectedLocale)
     }
 }
 
-extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInteractorOutputProtocol {
+extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInteractorOutputProtocol {
+    func didSubmitContribution(result: Result<String, Error>) {
+        view?.didStopLoading()
+
+        switch result {
+        case .success:
+            wireframe.complete(on: view)
+        case .failure:
+            if let view = view {
+                wireframe.presentExtrinsicFailed(from: view, locale: selectedLocale)
+            }
+        }
+    }
+
+    func didReceiveDisplayAddress(result: Result<DisplayAddress, Error>) {
+        switch result {
+        case let .success(displayAddress):
+            self.displayAddress = displayAddress
+
+            provideConfirmationViewModel()
+        case let .failure(error):
+            logger?.error("Did receive account item error: \(error)")
+        }
+    }
+
     func didReceiveCrowdloan(result: Result<Crowdloan, Error>) {
         switch result {
         case let .success(crowdloan):
             self.crowdloan = crowdloan
 
-            provideCrowdloanContributionViewModel()
+            provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive crowdloan error: \(error)")
         }
@@ -246,7 +251,6 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(displayInfo):
             self.displayInfo = displayInfo
 
-            provideCrowdloanContributionViewModel()
             provideEstimatedRewardViewModel()
         case let .failure(error):
             logger?.error("Did receive display info error: \(error)")
@@ -263,7 +267,6 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             } ?? 0.0
 
             provideAssetVewModel()
-            provideCrowdloanContributionViewModel()
         case let .failure(error):
             logger?.error("Did receive account info error: \(error)")
         }
@@ -274,7 +277,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(blockNumber):
             self.blockNumber = blockNumber
 
-            provideCrowdloanContributionViewModel()
+            provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive block number error: \(error)")
         }
@@ -285,7 +288,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(blockDuration):
             self.blockDuration = blockDuration
 
-            provideCrowdloanContributionViewModel()
+            provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive block duration error: \(error)")
         }
@@ -296,7 +299,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .success(leasingPeriod):
             self.leasingPeriod = leasingPeriod
 
-            provideCrowdloanContributionViewModel()
+            provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive leasing period error: \(error)")
         }
@@ -322,7 +325,6 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             } ?? nil
 
             provideFeeViewModel()
-            provideInputViewModelIfRate()
         case let .failure(error):
             logger?.error("Did receive fee error: \(error)")
         }
@@ -340,7 +342,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
     }
 }
 
-extension CrowdloanContributionSetupPresenter: Localizable {
+extension CrowdloanContributionConfirmPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             provideViewModels()
