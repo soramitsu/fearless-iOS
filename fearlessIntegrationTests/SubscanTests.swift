@@ -13,7 +13,6 @@ class SubscanTests: XCTestCase {
             }
 
             let subscan = SubscanOperationFactory()
-
             let currentTime = Int64(Date().timeIntervalSince1970)
             let prevTime = currentTime - 24 * 3600
             let currentPriceOperation = subscan.fetchPriceOperation(url, time: currentTime)
@@ -66,6 +65,14 @@ class SubscanTests: XCTestCase {
         } catch {
             XCTFail("Did receive error \(error)")
         }
+    }
+
+    func testSingleRequest() throws {
+        try fetchPrice(requests: 1)
+    }
+
+    func testMultipleRequests() throws {
+        try fetchPrice(requests: 10)
     }
 
     func testPolkadotRewardFetch() {
@@ -156,5 +163,34 @@ class SubscanTests: XCTestCase {
         } catch {
             XCTFail("Unexpected error: \(error)")
         }
+    }
+
+    private func fetchPrice(requests: Int) throws {
+        guard let url = WalletAssetId.kusama.subscanUrl?
+                .appendingPathComponent(SubscanApi.price) else {
+            XCTFail("unexpected empty url")
+            return
+        }
+
+        let subscan = SubscanOperationFactory()
+
+        var operations: [BaseOperation<PriceData>] = []
+
+        for _ in 0..<requests {
+            let currentTime = Int64(Date().timeIntervalSince1970)
+            let priceOperation = subscan.fetchPriceOperation(url, time: currentTime)
+            priceOperation.completionBlock = {
+                do {
+                    let result = try priceOperation
+                        .extractResultData(throwing: BaseOperationError.parentOperationCancelled)
+                    Logger.shared.debug("Did receive result: \(result)")
+                } catch {
+                    XCTFail("Did receive error \(error)")
+                }
+            }
+            operations.append(priceOperation)
+        }
+
+        OperationQueue().addOperations(operations, waitUntilFinished: true)
     }
 }
