@@ -19,6 +19,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
+    let analyticsService: AnalyticsService?
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -47,6 +48,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
+        analyticsService: AnalyticsService?,
         logger: Logger
     ) {
         self.providerFactory = providerFactory
@@ -61,6 +63,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
+        self.analyticsService = analyticsService
         self.logger = logger
     }
 
@@ -145,5 +148,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
+    }
+
+    func fetchAnalyticsRewards() {
+        analyticsService?.start { [weak presenter] result in
+            DispatchQueue.main.async {
+                presenter?.didReceieve(rewardItemData: result)
+            }
+        }
     }
 }

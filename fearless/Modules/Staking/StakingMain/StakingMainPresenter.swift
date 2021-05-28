@@ -447,6 +447,28 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
             handle(error: error)
         }
     }
+
+    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>) {
+        switch rewardItemData {
+        case let .success(data):
+            let chartData: ChartData = {
+                let amounts = data.map { rewardItem -> Double in
+                    guard
+                        let chain = chain,
+                        let change = RewardChange(rawValue: rewardItem.eventId),
+                        change == .reward,
+                        let amountValue = BigUInt(rewardItem.amount),
+                        let decimal = Decimal.fromSubstrateAmount(amountValue, precision: chain.addressType.precision)
+                    else { return 0.0 }
+                    return Double(truncating: decimal as NSNumber)
+                }
+                return ChartData(amounts: amounts)
+            }()
+            view?.didReceiveChartData(chartData)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
 }
 
 extension StakingMainPresenter: ModalPickerViewControllerDelegate {

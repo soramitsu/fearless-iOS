@@ -8,6 +8,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
 
     func didReceiveStakingState(viewModel: StakingViewState)
+    func didReceiveChartData(_ data: ChartData)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {
@@ -58,6 +59,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
+    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>)
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 

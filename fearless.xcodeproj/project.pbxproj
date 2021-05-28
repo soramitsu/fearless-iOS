@@ -1238,6 +1238,7 @@
 		F47BBD852631888C0087DA11 /* StakingBalanceActionsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */; };
 		F47BBD8B263189DB0087DA11 /* StakingBalanceAction.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */; };
 		F47BBD93263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */; };
+		F47CAF032660CC3C00C2E44D /* ChartData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47CAF022660CC3C00C2E44D /* ChartData.swift */; };
 		F47F5A7A2626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */; };
 		F47F5A822626FDB9009BCFF4 /* StakingPayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */; };
 		F47F6403263BD90000FF67E9 /* StubBalanceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F47F6402263BD90000FF67E9 /* StubBalanceViewModelFactory.swift */; };
@@ -2575,6 +2576,7 @@
 		F47BBD842631888C0087DA11 /* StakingBalanceActionsWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceActionsWidgetView.swift; sourceTree = "<group>"; };
 		F47BBD8A263189DB0087DA11 /* StakingBalanceAction.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceAction.swift; sourceTree = "<group>"; };
 		F47BBD92263199830087DA11 /* StakingBalanceUnbondingWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceUnbondingWidgetView.swift; sourceTree = "<group>"; };
+		F47CAF022660CC3C00C2E44D /* ChartData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChartData.swift; sourceTree = "<group>"; };
 		F47F5A792626E91A009BCFF4 /* StakingRewardHistoryViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardHistoryViewModel.swift; sourceTree = "<group>"; };
 		F47F5A812626FDB9009BCFF4 /* StakingPayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutViewModel.swift; sourceTree = "<group>"; };
 		F47F6402263BD90000FF67E9 /* StubBalanceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubBalanceViewModelFactory.swift; sourceTree = "<group>"; };
@@ -4721,6 +4723,7 @@
 		8490149D24AA7F9A008F705E /* View */ = {
 			isa = PBXGroup;
 			children = (
+				F47CAF012660CC2D00C2E44D /* Chart */,
 				F406B0E426299E25004FDCCC /* ErrorView */,
 				8401620F25E144DA0087A5F3 /* AmountInputView */,
 				843910DC253F912500E3C217 /* ApplicationStatusView */,
@@ -6378,6 +6381,15 @@
 			path = Model;
 			sourceTree = "<group>";
 		};
+		F47CAF012660CC2D00C2E44D /* Chart */ = {
+			isa = PBXGroup;
+			children = (
+				F47CAF022660CC3C00C2E44D /* ChartData.swift */,
+				F4FB8559265E3960002D381A /* ChartView.swift */,
+			);
+			path = Chart;
+			sourceTree = "<group>";
+		};
 		F47F5A782626E90B009BCFF4 /* ViewModel */ = {
 			isa = PBXGroup;
 			children = (
@@ -6507,7 +6519,6 @@
 			children = (
 				F4FB8557265E3960002D381A /* AnalyticsViewLayout.swift */,
 				F4FB8558265E3960002D381A /* AnalyticsSummaryRewardView.swift */,
-				F4FB8559265E3960002D381A /* ChartView.swift */,
 				F4FB855A265E3960002D381A /* AnalyticsRewardsView.swift */,
 				F4FB855B265E3960002D381A /* AnalyticsPeriodView.swift */,
 			);
@@ -7747,6 +7758,7 @@
 				C35C22F7517623AEDCF28BA5 /* AccountCreateViewController.swift in Sources */,
 				84DF21A92535AA8F005454AE /* ExistentialDepositInfoCommand.swift in Sources */,
 				84E6D57C262E2CE8000EA3F5 /* OperationCombiningService.swift in Sources */,
+				F47CAF032660CC3C00C2E44D /* ChartData.swift in Sources */,
 				8460E1252542293A00826F55 /* WalletCompoundDetailsView.swift in Sources */,
 				8475AE39258B958300B058F3 /* ErrorContent+Wallet.swift in Sources */,
 				9B4F0484B81BBF8DFA618599 /* AccountCreateViewFactory.swift in Sources */,

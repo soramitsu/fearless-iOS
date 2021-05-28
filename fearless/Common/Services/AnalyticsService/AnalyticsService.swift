@@ -25,7 +25,7 @@ final class AnalyticsService: Longrunable {
     let subscanOperationFactory: SubscanOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
     let address: AccountAddress
-    let url: URL
+    let baseUrl: URL
     let pageSize: Int
 
     private var result: ResultType = []
@@ -38,13 +38,13 @@ final class AnalyticsService: Longrunable {
     private var completionClosure: ((Result<ResultType, Error>) -> Void)?
 
     init(
-        url: URL,
+        baseUrl: URL,
         address: AccountAddress,
         subscanOperationFactory: SubscanOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         pageSize: Int = 100
     ) {
-        self.url = url
+        self.baseUrl = baseUrl
         self.address = address
         self.subscanOperationFactory = subscanOperationFactory
         self.operationManager = operationManager
@@ -86,7 +86,8 @@ final class AnalyticsService: Longrunable {
     private func loadNext(page: Int) {
         let info = HistoryInfo(address: address, row: pageSize, page: page)
 
-        let fetchOperation = subscanOperationFactory.fetchRewardsAndSlashesOperation(url, info: info)
+        let rewardsUrl = baseUrl.appendingPathComponent(SubscanApi.rewardsAndSlashes)
+        let fetchOperation = subscanOperationFactory.fetchRewardsAndSlashesOperation(rewardsUrl, info: info)
 
         fetchOperation.completionBlock = { [weak self] in
             DispatchQueue.global().async {

@@ -274,30 +274,6 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
     private func applyAlerts(_ alerts: [StakingAlert]) {
         alertsView.isHidden = false
         alertsView.bind(alerts: alerts)
-        setChartData(count: 7)
-    }
-
-    // TODO: delete
-    private func setChartData(count: Int) {
-        let yVals = (0 ..< count).map { index -> BarChartDataEntry in
-            let mult = Double(index + 1)
-            let val1 = mult
-            let val2 = val1 - val1 * 0.8
-            return BarChartDataEntry(x: Double(index), yValues: [val1, val2])
-        }
-
-        let set = BarChartDataSet(entries: yVals)
-        set.drawIconsEnabled = false
-        set.drawValuesEnabled = false
-        set.colors = [
-            UIColor(red: 0.36, green: 0.31, blue: 0.41, alpha: 1.0),
-            R.color.colorAccent()!
-        ]
-
-        let data = BarChartData(dataSet: set)
-        data.barWidth = 0.4
-
-        analyticsView.chartView.data = data
     }
 }
 
@@ -347,6 +323,10 @@ extension StakingMainViewController: StakingMainViewProtocol {
 
     func didReceiveChainName(chainName newChainName: LocalizableResource<String>) {
         networkInfoView.bind(chainName: newChainName)
+    }
+
+    func didReceiveChartData(_ data: ChartData) {
+        analyticsView.chartView.setChartData(data)
     }
 
     func didReceive(viewModel: StakingMainViewModelProtocol) {

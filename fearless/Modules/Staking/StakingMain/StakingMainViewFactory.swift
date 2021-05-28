@@ -58,10 +58,12 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         settings: SettingsManagerProtocol,
         primitiveFactory: WalletPrimitiveFactoryProtocol
     ) -> StakingMainInteractor {
+        let operationManager = OperationManagerFacade.sharedManager
+
         let substrateProviderFactory =
             SubstrateDataProviderFactory(
                 facade: SubstrateDataStorageFacade.shared,
-                operationManager: OperationManagerFacade.sharedManager
+                operationManager: operationManager
             )
 
         let operationFactory = NetworkStakingInfoOperationFactory(
@@ -71,6 +73,25 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
 
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
+
+        let analyticsService: AnalyticsService? = {
+            let networkType = settings.selectedConnection.type
+            let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+            let asset = primitiveFactory.createAssetForAddressType(networkType)
+            guard
+                let accountAddress = settings.selectedAccount?.address,
+                let assetId = WalletAssetId(rawValue: asset.identifier),
+                let subscanUrl = assetId.subscanUrl
+            else {
+                return nil
+            }
+            return AnalyticsService(
+                baseUrl: subscanUrl,
+                address: accountAddress,
+                subscanOperationFactory: SubscanOperationFactory(),
+                operationManager: operationManager
+            )
+        }()
 
         return StakingMainInteractor(
             providerFactory: SingleValueProviderFactory.shared,
@@ -82,9 +103,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             calculatorService: RewardCalculatorFacade.sharedService,
             runtimeService: RuntimeRegistryFacade.sharedService,
             accountRepository: AnyDataProviderRepository(repository),
-            operationManager: OperationManagerFacade.sharedManager,
+            operationManager: operationManager,
             eraInfoOperationFactory: operationFactory,
             applicationHandler: ApplicationHandler(),
+            analyticsService: analyticsService,
             logger: Logger.shared
         )
     }
