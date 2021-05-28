@@ -9254,6 +9254,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func presentLearnMore()  {
+        
+    return cuckoo_manager.call("presentLearnMore()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.presentLearnMore())
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanContributionSetupPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -9281,6 +9296,11 @@ import SoraFoundation
 	    func proceed() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupPresenterProtocol.self, method: "proceed()", parameterMatchers: matchers))
+	    }
+	    
+	    func presentLearnMore() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupPresenterProtocol.self, method: "presentLearnMore()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -9323,6 +9343,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("proceed()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func presentLearnMore() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("presentLearnMore()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -9345,6 +9371,10 @@ import SoraFoundation
     }
     
      func proceed()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func presentLearnMore()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -9872,6 +9902,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)  {
+        
+    return cuckoo_manager.call("showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)",
+            parameters: (url, view, style),
+            escapingParameters: (url, view, style),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.showWeb(url: url, from: view, style: style))
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanContributionSetupWireframeProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -9894,6 +9939,11 @@ import SoraFoundation
 	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	    }
+	    
+	    func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(URL, ControllerBackedProtocol, WebPresentableStyle)> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanContributionSetupWireframeProtocol.self, method: "showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -9930,6 +9980,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.__DoNotUse<(URL, ControllerBackedProtocol, WebPresentableStyle), Void> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
+	        let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
+	        return cuckoo_manager.verify("showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -9948,6 +10004,10 @@ import SoraFoundation
     }
     
      func present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from view: ControllerBackedProtocol?)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func showWeb(url: URL, from view: ControllerBackedProtocol, style: WebPresentableStyle)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -40315,6 +40375,20 @@ import SoraFoundation
         
     }
     
+    
+    
+     var slashed: Bool {
+        get {
+            return cuckoo_manager.getter("slashed",
+                superclassCall:
+                    
+                    Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                    ,
+                defaultCall: __defaultImplStub!.slashed)
+        }
+        
+    }
+    
 
     
 
@@ -40345,6 +40419,11 @@ import SoraFoundation
 	    
 	    var myNomination: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorInfoProtocol, ValidatorMyNominationStatus?> {
 	        return .init(manager: cuckoo_manager, name: "myNomination")
+	    }
+	    
+	    
+	    var slashed: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockValidatorInfoProtocol, Bool> {
+	        return .init(manager: cuckoo_manager, name: "slashed")
 	    }
 	    
 	    
@@ -40382,6 +40461,11 @@ import SoraFoundation
 	        return .init(manager: cuckoo_manager, name: "myNomination", callMatcher: callMatcher, sourceLocation: sourceLocation)
 	    }
 	    
+	    
+	    var slashed: Cuckoo.VerifyReadOnlyProperty<Bool> {
+	        return .init(manager: cuckoo_manager, name: "slashed", callMatcher: callMatcher, sourceLocation: sourceLocation)
+	    }
+	    
 	
 	    
 	}
@@ -40417,6 +40501,14 @@ import SoraFoundation
      var myNomination: ValidatorMyNominationStatus? {
         get {
             return DefaultValueRegistry.defaultValue(for: (ValidatorMyNominationStatus?).self)
+        }
+        
+    }
+    
+    
+     var slashed: Bool {
+        get {
+            return DefaultValueRegistry.defaultValue(for: (Bool).self)
         }
         
     }
@@ -40955,16 +41047,16 @@ import SoraFoundation
     
     
     
-     func presentStateDescription(for state: ValidatorMyNominationStatus)  {
+     func presentStateDescription()  {
         
-    return cuckoo_manager.call("presentStateDescription(for: ValidatorMyNominationStatus)",
-            parameters: (state),
-            escapingParameters: (state),
+    return cuckoo_manager.call("presentStateDescription()",
+            parameters: (),
+            escapingParameters: (),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.presentStateDescription(for: state))
+            defaultCall: __defaultImplStub!.presentStateDescription())
         
     }
     
@@ -41062,9 +41154,9 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentAccountOptions()", parameterMatchers: matchers))
 	    }
 	    
-	    func presentStateDescription<M1: Cuckoo.Matchable>(for state: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ValidatorMyNominationStatus)> where M1.MatchedType == ValidatorMyNominationStatus {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorMyNominationStatus)>] = [wrap(matchable: state) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentStateDescription(for: ValidatorMyNominationStatus)", parameterMatchers: matchers))
+	    func presentStateDescription() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockValidatorInfoPresenterProtocol.self, method: "presentStateDescription()", parameterMatchers: matchers))
 	    }
 	    
 	    func presentTotalStake() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -41121,9 +41213,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func presentStateDescription<M1: Cuckoo.Matchable>(for state: M1) -> Cuckoo.__DoNotUse<(ValidatorMyNominationStatus), Void> where M1.MatchedType == ValidatorMyNominationStatus {
-	        let matchers: [Cuckoo.ParameterMatcher<(ValidatorMyNominationStatus)>] = [wrap(matchable: state) { $0 }]
-	        return cuckoo_manager.verify("presentStateDescription(for: ValidatorMyNominationStatus)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func presentStateDescription() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("presentStateDescription()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -41173,7 +41265,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func presentStateDescription(for state: ValidatorMyNominationStatus)   {
+     func presentStateDescription()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

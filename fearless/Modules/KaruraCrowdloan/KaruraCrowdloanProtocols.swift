@@ -1,0 +1,11 @@
+protocol KaruraCrowdloanViewProtocol: AnyObject {}
+
+protocol KaruraCrowdloanPresenterProtocol: AnyObject {
+    func setup()
+}
+
+protocol KaruraCrowdloanInteractorInputProtocol: AnyObject {}
+
+protocol KaruraCrowdloanInteractorOutputProtocol: AnyObject {}
+
+protocol KaruraCrowdloanWireframeProtocol: AnyObject {}
