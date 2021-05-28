@@ -84,23 +84,8 @@ final class StakingMainPresenter {
 
         view?.didReceiveChainName(chainName: chainModel)
     }
-}
 
-extension StakingMainPresenter: StakingMainPresenterProtocol {
-    func setup() {
-        provideState()
-        provideChain()
-        provideStakingInfo()
-
-        interactor.setup()
-    }
-
-    func performMainAction() {
-        guard let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) else {
-            wireframe.showSetupAmount(from: view, amount: amount)
-            return
-        }
-
+    func setupValidators(for bondedState: BondedState) {
         guard let controllerAccount = controllerAccount else {
             if let view = view {
                 let locale = view.localizationManager?.selectedLocale
@@ -136,15 +121,38 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         )
         wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
     }
+}
+
+extension StakingMainPresenter: StakingMainPresenterProtocol {
+    func setup() {
+        provideState()
+        provideChain()
+        provideStakingInfo()
+
+        interactor.setup()
+    }
+
+    func performMainAction() {
+        wireframe.showSetupAmount(from: view, amount: amount)
+    }
 
     func performNominationStatusAction() {
-        let optViewModel: AlertPresentableViewModel? = stateMachine.viewState { (state: NominatorState) in
+        let optViewModel: AlertPresentableViewModel? = {
             let locale = view?.localizationManager?.selectedLocale
-            return state.createStatusPresentableViewModel(
-                for: networkStakingInfo?.minimalStake,
-                locale: locale
-            )
-        }
+
+            if let nominatorState = stateMachine.viewState(using: { (state: NominatorState) in state }) {
+                return nominatorState.createStatusPresentableViewModel(
+                    for: networkStakingInfo?.minimalStake,
+                    locale: locale
+                )
+            }
+
+            if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
+                return bondedState.createStatusPresentableViewModel(locale: locale)
+            }
+
+            return nil
+        }()
 
         if let viewModel = optViewModel {
             wireframe.present(
@@ -181,17 +189,26 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                     .stakingBalance,
                     .rewardPayouts,
                     .rewardDestination,
-                    .validators(count: nominatorState.nomination.targets.count),
+                    .changeValidators(count: nominatorState.nomination.targets.count),
                     .controllerAccount
                 ]
-            } else {
+            }
+
+            if stateMachine.viewState(using: { (state: BondedState) in state }) != nil {
                 return [
                     .stakingBalance,
-                    .rewardPayouts,
+                    .setupValidators,
                     .rewardDestination,
                     .controllerAccount
                 ]
             }
+
+            return [
+                .stakingBalance,
+                .rewardPayouts,
+                .rewardDestination,
+                .controllerAccount
+            ]
         }()
 
         wireframe.showManageStaking(
@@ -230,9 +247,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performChangeValidatorsAction() {
-        if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
-            wireframe.showNominatorValidators(from: view)
-        }
+        wireframe.showNominatorValidators(from: view)
     }
 
     func performBondMoreAction() {
@@ -476,9 +491,11 @@ extension StakingMainPresenter: ModalPickerViewControllerDelegate {
             wireframe.showRewardDestination(from: view)
         case .stakingBalance:
             wireframe.showStakingBalance(from: view)
-        case .validators:
-            if stateMachine.viewState(using: { (state: NominatorState) in state }) != nil {
-                wireframe.showNominatorValidators(from: view)
+        case .changeValidators:
+            wireframe.showNominatorValidators(from: view)
+        case .setupValidators:
+            if let bondedState = stateMachine.viewState(using: { (state: BondedState) in state }) {
+                setupValidators(for: bondedState)
             }
         case .controllerAccount:
             wireframe.showControllerAccount(from: view)

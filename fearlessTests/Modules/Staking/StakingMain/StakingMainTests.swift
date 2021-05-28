@@ -142,7 +142,7 @@ class StakingMainTests: XCTestCase {
         let options: [StakingManageOption] = [
             .stakingBalance,
             .rewardPayouts,
-            .validators(count: 16)
+            .changeValidators(count: 16)
         ]
 
         let wireframe = MockStakingMainWireframeProtocol()
@@ -170,7 +170,7 @@ class StakingMainTests: XCTestCase {
         let options: [StakingManageOption] = [
             .stakingBalance,
             .rewardPayouts,
-            .validators(count: 16)
+            .changeValidators(count: 16)
         ]
 
         let wireframe = MockStakingMainWireframeProtocol()

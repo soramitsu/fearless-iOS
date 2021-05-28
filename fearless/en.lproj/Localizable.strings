@@ -438,3 +438,4 @@ Derivation path: %@";
 "crowdloan.leasing.period" = "Leasing period";
 "common.till.date" = "till %@";
 "crowdloan.reward" = "Estimated reward";
+"staking.bonded.inactive" = "You are neither nominating nor validating";

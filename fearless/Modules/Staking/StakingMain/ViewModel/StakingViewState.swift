@@ -8,6 +8,5 @@ enum StakingViewState {
         alerts: [StakingAlert]
     )
     case validator(viewModel: LocalizableResource<ValidationViewModelProtocol>, alerts: [StakingAlert])
-    case bonded(viewModel: StakingEstimationViewModel, alerts: [StakingAlert])
     case noStash(viewModel: StakingEstimationViewModel, alerts: [StakingAlert])
 }
