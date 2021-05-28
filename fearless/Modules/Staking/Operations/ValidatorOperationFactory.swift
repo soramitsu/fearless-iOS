@@ -88,12 +88,10 @@ final class ValidatorOperationFactory {
         return operation
     }
 
-    private func createStatusesOperation(
+    private func createSlashesOperation(
         for validatorIds: [AccountId],
-        electedValidatorsOperation: BaseOperation<EraStakersInfo>,
-        nominatorAddress: AccountAddress,
         nomination: Nomination
-    ) -> CompoundOperationWrapper<[ValidatorMyNominationStatus]> {
+    ) -> CompoundOperationWrapper<[Bool]> {
         let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
 
         let slashingSpansWrapper: CompoundOperationWrapper<[StorageResponse<SlashingSpans>]> =
@@ -104,6 +102,37 @@ final class ValidatorOperationFactory {
                 storagePath: .slashingSpans
             )
 
+        slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
+
+        let operation = ClosureOperation<[Bool]> {
+            let slashingSpans = try slashingSpansWrapper.targetOperation.extractNoCancellableResultData()
+
+            return validatorIds.enumerated().map { index, _ in
+                let slashingSpan = slashingSpans[index]
+
+                if let lastSlashEra = slashingSpan.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
+                    return true
+                }
+
+                return false
+            }
+        }
+
+        operation.addDependency(slashingSpansWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: operation,
+            dependencies: [runtimeOperation] + slashingSpansWrapper.allOperations
+        )
+    }
+
+    private func createStatusesOperation(
+        for validatorIds: [AccountId],
+        electedValidatorsOperation: BaseOperation<EraStakersInfo>,
+        nominatorAddress: AccountAddress
+    ) -> CompoundOperationWrapper<[ValidatorMyNominationStatus]> {
+        let runtimeOperation = runtimeService.fetchCoderFactoryOperation()
+
         let maxNominatorsOperation: BaseOperation<UInt32> =
             createConstOperation(
                 dependingOn: runtimeOperation,
@@ -111,23 +140,15 @@ final class ValidatorOperationFactory {
             )
 
         maxNominatorsOperation.addDependency(runtimeOperation)
-        slashingSpansWrapper.allOperations.forEach { $0.addDependency(runtimeOperation) }
 
         let addressType = chain.addressType
 
         let statusesOperation = ClosureOperation<[ValidatorMyNominationStatus]> {
-            let slashingSpans = try slashingSpansWrapper.targetOperation.extractNoCancellableResultData()
             let allElectedValidators = try electedValidatorsOperation.extractNoCancellableResultData()
             let nominatorId = try SS58AddressFactory().accountId(from: nominatorAddress)
             let maxNominators = try maxNominatorsOperation.extractNoCancellableResultData()
 
-            return validatorIds.enumerated().map { index, accountId in
-                let slashingSpan = slashingSpans[index]
-
-                if let lastSlashEra = slashingSpan.value?.lastNonzeroSlash, lastSlashEra > nomination.submittedIn {
-                    return .slashed
-                }
-
+            return validatorIds.enumerated().map { _, accountId in
                 if let electedValidator = allElectedValidators.validators
                     .first(where: { $0.accountId == accountId }) {
                     let exposuresClipped = electedValidator.exposure.others.prefix(Int(maxNominators))
@@ -135,20 +156,19 @@ final class ValidatorOperationFactory {
                        let amountDecimal = Decimal.fromSubstrateAmount(amount, precision: addressType.precision) {
                         return .active(amount: amountDecimal)
                     } else {
-                        return .inactive
+                        return .elected
                     }
                 } else {
-                    return .waiting
+                    return .unelected
                 }
             }
         }
 
-        statusesOperation.addDependency(slashingSpansWrapper.targetOperation)
         statusesOperation.addDependency(maxNominatorsOperation)
 
         return CompoundOperationWrapper(
             targetOperation: statusesOperation,
-            dependencies: [runtimeOperation, maxNominatorsOperation] + slashingSpansWrapper.allOperations
+            dependencies: [runtimeOperation, maxNominatorsOperation]
         )
     }
 
@@ -447,11 +467,14 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
         let statusesWrapper = createStatusesOperation(
             for: nomination.targets,
             electedValidatorsOperation: electedValidatorsOperation,
-            nominatorAddress: nominatorAddress,
-            nomination: nomination
+            nominatorAddress: nominatorAddress
         )
 
         statusesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
+
+        let slashesWrapper = createSlashesOperation(for: nomination.targets, nomination: nomination)
+
+        slashesWrapper.allOperations.forEach { $0.addDependency(electedValidatorsOperation) }
 
         let validatorsStakingInfoWrapper = createValidatorsStakeInfoWrapper(
             for: nomination.targets,
@@ -464,6 +487,7 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
 
         let mergeOperation = ClosureOperation<[SelectedValidatorInfo]> {
             let statuses = try statusesWrapper.targetOperation.extractNoCancellableResultData()
+            let slashes = try slashesWrapper.targetOperation.extractNoCancellableResultData()
             let identities = try identityWrapper.targetOperation.extractNoCancellableResultData()
             let validatorsStakingInfo = try validatorsStakingInfoWrapper.targetOperation
                 .extractNoCancellableResultData()
@@ -477,17 +501,20 @@ extension ValidatorOperationFactory: ValidatorOperationFactoryProtocol {
                     address: address,
                     identity: identities[address],
                     stakeInfo: validatorsStakingInfo[index],
-                    myNomination: statuses[index]
+                    myNomination: statuses[index],
+                    slashed: slashes[index]
                 )
             }
         }
 
         mergeOperation.addDependency(identityWrapper.targetOperation)
         mergeOperation.addDependency(statusesWrapper.targetOperation)
+        mergeOperation.addDependency(slashesWrapper.targetOperation)
         mergeOperation.addDependency(validatorsStakingInfoWrapper.targetOperation)
 
         let dependecies = [electedValidatorsOperation] + identityWrapper.allOperations +
-            statusesWrapper.allOperations + validatorsStakingInfoWrapper.allOperations
+            statusesWrapper.allOperations + slashesWrapper.allOperations +
+            validatorsStakingInfoWrapper.allOperations
 
         return CompoundOperationWrapper(targetOperation: mergeOperation, dependencies: dependecies)
     }

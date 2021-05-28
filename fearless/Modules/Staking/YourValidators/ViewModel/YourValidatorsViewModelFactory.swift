@@ -33,47 +33,71 @@ final class YourValidatorsViewModelFactory {
             icon: icon,
             name: model.identity?.displayName,
             amount: amountTitle,
-            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false
+            shouldHaveWarning: model.stakeInfo?.oversubscribed ?? false,
+            shouldHaveError: model.slashed
         )
     }
 
     private func createTitle(
         for sectionStatus: YourValidatorsSectionStatus,
         count: Int
-    ) -> LocalizableResource<String> {
-        let formatter = NumberFormatter.quantity.localizableResource()
+    ) -> LocalizableResource<String>? {
+        guard sectionStatus != .stakeNotAllocated else {
+            return nil
+        }
 
         return LocalizableResource { locale in
+            let formatter = NumberFormatter.quantity.localizableResource()
             let localizedFormatter = formatter.value(for: locale)
             let countString = localizedFormatter.string(from: NSNumber(value: count)) ?? "0"
 
             switch sectionStatus {
-            case .active:
+            case .stakeAllocated:
                 return R.string.localizable.stakingYourActiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
+
             case .inactive:
                 return R.string.localizable.stakingYourInactiveFormat(
                     countString,
                     preferredLanguages: locale.rLanguages
                 )
-            case .waiting:
-                return R.string.localizable.stakingYourWaitingFormat(
-                    countString,
-                    preferredLanguages: locale.rLanguages
-                )
-            case .slashed:
-                return R.string.localizable.stakingYourSlashedFormat(
-                    countString,
-                    preferredLanguages: locale.rLanguages
-                )
+
             case .pending:
                 let maxCountString = localizedFormatter
                     .string(from: NSNumber(value: StakingConstants.maxTargets)) ?? "0"
                 return R.string.localizable.stakingYourPendingFormat(
                     countString,
                     maxCountString,
+                    preferredLanguages: locale.rLanguages
+                )
+
+            default:
+                return ""
+            }
+        }
+    }
+
+    private func createDescription(
+        for sectionStatus: YourValidatorsSectionStatus
+    ) -> LocalizableResource<String>? {
+        LocalizableResource { locale in
+            switch sectionStatus {
+            case .stakeAllocated:
+                return R.string.localizable.stakingYourAllocatedDescription(
+                    preferredLanguages: locale.rLanguages
+                )
+            case .stakeNotAllocated:
+                return R.string.localizable.stakingYourNotAllocatedDescription(
+                    preferredLanguages: locale.rLanguages
+                )
+            case .inactive:
+                return R.string.localizable.stakingYourInactiveDescription(
+                    preferredLanguages: locale.rLanguages
+                )
+            case .pending:
+                return R.string.localizable.stakingYourValidatorsChangingTitle(
                     preferredLanguages: locale.rLanguages
                 )
             }
@@ -86,10 +110,22 @@ final class YourValidatorsViewModelFactory {
     ) -> [YourValidatorsSection] {
         order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
-                let title = createTitle(for: status, count: validators.count)
+                let title: LocalizableResource<String>? = {
+                    let validatorsCount: Int = {
+                        if status == .stakeAllocated {
+                            return validators.count + (mapping[.stakeNotAllocated]?.count ?? 0)
+                        }
+                        return mapping[status]?.count ?? 0
+                    }()
+
+                    return createTitle(for: status, count: validatorsCount)
+                }()
+                let description = createDescription(for: status)
                 return YourValidatorsSection(
                     status: status,
-                    title: title, validators: validators
+                    title: title,
+                    description: description,
+                    validators: validators
                 )
             } else {
                 return nil
@@ -100,14 +136,20 @@ final class YourValidatorsViewModelFactory {
 
 extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol {
     func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorsSection] {
-        let allValidatos = model.currentValidators + model.pendingValidators
-        let validatorsMapping = allValidatos.reduce(
+        let validatorsMapping = model.allValidators.reduce(
             into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
             let sectionStatus: YourValidatorsSectionStatus = {
-                if let modelStatus = item.myNomination {
-                    return YourValidatorsSectionStatus(modelStatus: modelStatus)
-                } else {
+                guard let modelStatus = item.myNomination else {
                     return .pending
+                }
+
+                switch modelStatus {
+                case .active:
+                    return .stakeAllocated
+                case .elected:
+                    return .stakeNotAllocated
+                case .unelected:
+                    return .inactive
                 }
             }()
 
@@ -119,7 +161,7 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
         }
 
         let sectionsOrder: [YourValidatorsSectionStatus] = [
-            .active, .slashed, .pending, .inactive, .waiting
+            .stakeAllocated, .pending, .stakeNotAllocated, .inactive
         ]
 
         return createSectionsFromOrder(sectionsOrder, mapping: validatorsMapping)

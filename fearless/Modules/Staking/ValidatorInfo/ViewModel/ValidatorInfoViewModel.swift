@@ -45,7 +45,7 @@ enum ValidatorInfoViewModel {
     }
 
     enum NominationRow {
-        case status(LocalizableResource<TitleWithSubtitleViewModel>, ValidatorMyNominationStatus)
+        case status(LocalizableResource<TitleWithSubtitleViewModel>, StatusViewModel)
         case nominatedAmount(LocalizableResource<StakingAmountViewModel>)
     }
 
