@@ -23,3 +23,29 @@ extension AnalyticsPeriod {
         }
     }
 }
+
+extension AnalyticsPeriod {
+    var timestampInterval: (Int64, Int64) {
+        switch self {
+        case .thisWeek:
+            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+
+            var dayComponent = DateComponents()
+            dayComponent.day = -7
+            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
+            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
+            return (weekAgoTimestamp, currentTimestamp)
+        default:
+            return (0, 0)
+        }
+    }
+
+    var xLegendSymbols: [String] {
+        switch self {
+        case .thisWeek:
+            return ["M", "T", "W", "T", "F", "S", "S"]
+        default:
+            return []
+        }
+    }
+}

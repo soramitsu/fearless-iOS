@@ -13,6 +13,8 @@ final class ChartView: BarChartView {
         return formatter
     }()
 
+    let xAxisFormmater = ChartAxisFormmatter()
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -31,6 +33,8 @@ final class ChartView: BarChartView {
         xAxis.gridLineDashPhase = 0
         xAxis.gridColor = UIColor.white.withAlphaComponent(0.64)
         xAxis.labelFont = .p3Paragraph
+        xAxis.labelPosition = .bottom
+        xAxis.valueFormatter = xAxisFormmater
 
         leftAxis.labelCount = 2
         leftAxis.valueFormatter = DefaultAxisValueFormatter(formatter: formatter)
@@ -39,10 +43,7 @@ final class ChartView: BarChartView {
         leftAxis.axisMinimum = 0
 
         rightAxis.enabled = false
-
-        xAxis.labelPosition = .bottom
         drawBordersEnabled = false
-
         legend.enabled = false
     }
 
@@ -71,5 +72,11 @@ extension ChartView: ChartViewProtocol {
         data.barWidth = 0.4
 
         self.data = data
+    }
+}
+
+class ChartAxisFormmatter: IAxisValueFormatter {
+    func stringForValue(_: Double, axis _: AxisBase?) -> String {
+        "M"
     }
 }

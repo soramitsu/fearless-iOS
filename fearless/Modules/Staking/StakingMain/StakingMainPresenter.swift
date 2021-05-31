@@ -455,19 +455,8 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
     func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>) {
         switch rewardItemData {
         case let .success(data):
-            let chartData: ChartData = {
-                let amounts = data.map { rewardItem -> Double in
-                    guard
-                        let chain = chain,
-                        let change = RewardChange(rawValue: rewardItem.eventId),
-                        change == .reward,
-                        let amountValue = BigUInt(rewardItem.amount),
-                        let decimal = Decimal.fromSubstrateAmount(amountValue, precision: chain.addressType.precision)
-                    else { return 0.0 }
-                    return Double(truncating: decimal as NSNumber)
-                }
-                return ChartData(amounts: amounts)
-            }()
+            guard let chain = chain else { return }
+            let chartData = viewModelFacade.createViewModel(from: data, period: .thisWeek, chain: chain)
             view?.didReceiveChartData(chartData)
         case let .failure(error):
             handle(error: error)
