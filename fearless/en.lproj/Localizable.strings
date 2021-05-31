@@ -439,3 +439,5 @@ Derivation path: %@";
 "common.till.date" = "till %@";
 "crowdloan.reward" = "Estimated reward";
 "staking.bonded.inactive" = "You are neither nominating nor validating";
+"crowdloan.terms.format" = "I have read and agree to %@";
+"crowdloan.terms.value" = "Terms and Conditions";

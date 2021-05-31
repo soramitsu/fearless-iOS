@@ -996,6 +996,7 @@
 		84F81318265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F81317265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift */; };
 		84F98D8A25E3DD3F0040418E /* StorageCodingPath.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F98D8925E3DD3F0040418E /* StorageCodingPath.swift */; };
 		84F98D9625E3E2B10040418E /* InMemoryDataProviderRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F98D9525E3E2B10040418E /* InMemoryDataProviderRepository.swift */; };
+		84F9D4CF2664CCA500F7AAD2 /* CommonInputView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84F9D4CE2664CCA500F7AAD2 /* CommonInputView.swift */; };
 		84FA835A265CE5BE00FDF727 /* TitleMultiValueView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FA8359265CE5BE00FDF727 /* TitleMultiValueView.swift */; };
 		84FAB0632542C8D600319F74 /* ContactItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0622542C8D600319F74 /* ContactItem.swift */; };
 		84FAB0652542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */; };
@@ -2348,6 +2349,7 @@
 		84F81317265B9E990043FA1D /* CrowdloansOperationFactoryStub.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CrowdloansOperationFactoryStub.swift; sourceTree = "<group>"; };
 		84F98D8925E3DD3F0040418E /* StorageCodingPath.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageCodingPath.swift; sourceTree = "<group>"; };
 		84F98D9525E3E2B10040418E /* InMemoryDataProviderRepository.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InMemoryDataProviderRepository.swift; sourceTree = "<group>"; };
+		84F9D4CE2664CCA500F7AAD2 /* CommonInputView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommonInputView.swift; sourceTree = "<group>"; };
 		84FA8359265CE5BE00FDF727 /* TitleMultiValueView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TitleMultiValueView.swift; sourceTree = "<group>"; };
 		84FAB0622542C8D600319F74 /* ContactItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactItem.swift; sourceTree = "<group>"; };
 		84FAB0642542CA4200319F74 /* CDContactItem+CoreDataDecodable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "CDContactItem+CoreDataDecodable.swift"; sourceTree = "<group>"; };
@@ -2749,7 +2751,6 @@
 				594BC61689EC942ED0A64A4A /* KaruraCrowdloanViewLayout.swift */,
 				71285CF636B32ACD8EB5519E /* KaruraCrowdloanViewFactory.swift */,
 			);
-			name = KaruraCrowdloan;
 			path = KaruraCrowdloan;
 			sourceTree = "<group>";
 		};
@@ -3102,7 +3103,6 @@
 				FDE858484C32A17DA1E55997 /* WalletHistoryFilter */,
 				09D0A9E4C804935F93FC1153 /* ControllerAccount */,
 				73611D9134FBD799C605BA03 /* ControllerAccountConfirmation */,
-				D85C1EFA2B3E24D5D38BFA95 /* KaruraCrowdloan */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -3672,6 +3672,7 @@
 				844EFB58265FCD740090ACB1 /* CrowdloanContribution */,
 				E01524612035A176DA0793E7 /* CrowdloanContributionSetup */,
 				5AA9DD83BBA839623389411E /* CrowdloanContributionConfirm */,
+				04F3A39DC84AA3CC794EC7B9 /* KaruraCrowdloan */,
 			);
 			path = Crowdloan;
 			sourceTree = "<group>";
@@ -4400,6 +4401,7 @@
 				F685BF5EBC18637F5237B929 /* CrowdloanList */,
 				EFC2669335EE7F7297DF423E /* CrowdloanContributionSetup */,
 				A17E1D8ADC21C651CE346F73 /* CrowdloanContributionConfirm */,
+				D85C1EFA2B3E24D5D38BFA95 /* KaruraCrowdloan */,
 			);
 			path = Crowdloan;
 			sourceTree = "<group>";
@@ -4537,7 +4539,6 @@
 				84E1CCF3260DC973001E81B5 /* SwitchAccount */,
 				C7AEDB8341B78EC46F6F98DC /* UsernameSetup */,
 				849014FD24AB698B008F705E /* Wallet */,
-				04F3A39DC84AA3CC794EC7B9 /* KaruraCrowdloan */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -4877,6 +4878,7 @@
 				F458D3C02642B7D80055CB75 /* LearnMoreView.swift */,
 				849842E526587573006BBB9F /* MultilineTableViewCell.swift */,
 				849842FD26592C2B006BBB9F /* StatusSectionView.swift */,
+				84F9D4CE2664CCA500F7AAD2 /* CommonInputView.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -6342,7 +6344,6 @@
 			children = (
 				9272FED2C00908028F223E5C /* KaruraCrowdloanTests.swift */,
 			);
-			name = KaruraCrowdloan;
 			path = KaruraCrowdloan;
 			sourceTree = "<group>";
 		};
@@ -7082,7 +7083,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$PROJECT_DIR/R.generated.swift",
+				$PROJECT_DIR/R.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -7103,7 +7104,7 @@
 			);
 			outputPaths = (
 				"$(DERIVED_FILE_DIR)/CIKeys.generated.swift",
-				"$PROJECT_DIR/CIKeys.generated.swift",
+				$PROJECT_DIR/CIKeys.generated.swift,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -8023,6 +8024,7 @@
 				847C965425536199002D288F /* ExportRestoreJsonProtocols.swift in Sources */,
 				8409C26A2522192B0049B5C8 /* WalletFearlessDefinition.swift in Sources */,
 				2BAD49EF1B2C52059A5E7E9A /* AccountInfoViewFactory.swift in Sources */,
+				84F9D4CF2664CCA500F7AAD2 /* CommonInputView.swift in Sources */,
 				84786E1025FA20D30089DFF7 /* StakingAccountResolver.swift in Sources */,
 				9AD4EDD0646748124DC51559 /* NetworkManagementProtocols.swift in Sources */,
 				84A2CD5325685A4100A9FB0D /* WalletHistoryViewFactoryOverriding.swift in Sources */,

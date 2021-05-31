@@ -26,8 +26,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li残り日</string>
         <key>other</key>
-        <string></string>
+        <string>%li残り日数</string>
       </dict>
     </dict>
     <key>common.days.format</key>
@@ -40,8 +42,10 @@
         <string>NSStringPluralRuleType</string>
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
+        <key>one</key>
+        <string>%li日</string>
         <key>other</key>
-        <string></string>
+        <string>%li日</string>
       </dict>
     </dict>
   </dict>
