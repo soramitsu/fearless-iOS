@@ -271,7 +271,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             from: view,
             for: displayInfo,
             inputAmount: contributionDecimal,
-            delegate: self
+            delegate: self,
+            existingService: bonusService
         )
     }
 }

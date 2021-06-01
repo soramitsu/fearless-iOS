@@ -37,6 +37,7 @@ protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPre
         from view: CrowdloanContributionSetupViewProtocol?,
         for displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        delegate: CustomCrowdloanDelegate
+        delegate: CustomCrowdloanDelegate,
+        existingService: CrowdloanBonusServiceProtocol?
     )
 }

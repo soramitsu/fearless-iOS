@@ -5,6 +5,6 @@ protocol CrowdloanBonusServiceProtocol: AnyObject {
     var termsURL: URL { get }
     var referralCode: String? { get }
 
-    func save(referrallCode: String, completion closure: (Result<Void, Error>) -> Void)
-    func applyBonusForReward(_ reward: Decimal, with closure: (Result<Void, Error>) -> Void)
+    func save(referralCode: String, completion closure: @escaping (Result<Void, Error>) -> Void)
+    func applyBonusForReward(_ reward: Decimal, with closure: @escaping (Result<Void, Error>) -> Void)
 }

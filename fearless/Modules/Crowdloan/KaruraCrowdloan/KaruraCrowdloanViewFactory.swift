@@ -5,11 +5,13 @@ struct KaruraCrowdloanViewFactory {
     static func createView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
-        inputAmount: Decimal
+        inputAmount: Decimal,
+        existingService: CrowdloanBonusServiceProtocol?
     ) -> KaruraCrowdloanViewProtocol? {
         let wireframe = KaruraCrowdloanWireframe()
 
-        let bonusService = KaruraBonusService()
+        let bonusService = existingService ??
+            KaruraBonusService(operationManager: OperationManagerFacade.sharedManager)
 
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type

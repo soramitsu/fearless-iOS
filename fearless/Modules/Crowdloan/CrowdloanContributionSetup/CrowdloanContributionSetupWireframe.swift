@@ -16,7 +16,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         from view: CrowdloanContributionSetupViewProtocol?,
         for displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        delegate: CustomCrowdloanDelegate
+        delegate: CustomCrowdloanDelegate,
+        existingService: CrowdloanBonusServiceProtocol?
     ) {
         guard let customFlow = displayInfo.customFlow else {
             return
@@ -28,7 +29,8 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 from: view,
                 for: displayInfo,
                 inputAmount: inputAmount,
-                delegate: delegate
+                delegate: delegate,
+                existingService: existingService
             )
         }
     }
@@ -37,12 +39,14 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         from view: CrowdloanContributionSetupViewProtocol?,
         for displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        delegate: CustomCrowdloanDelegate
+        delegate: CustomCrowdloanDelegate,
+        existingService: CrowdloanBonusServiceProtocol?
     ) {
         guard let karuraView = KaruraCrowdloanViewFactory.createView(
             for: delegate,
             displayInfo: displayInfo,
-            inputAmount: inputAmount
+            inputAmount: inputAmount,
+            existingService: existingService
         ) else {
             return
         }

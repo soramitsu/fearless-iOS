@@ -32,9 +32,19 @@ final class KaruraCrowdloanPresenter {
         self.crowdloanDelegate = crowdloanDelegate
         self.crowdloanViewModelFactory = crowdloanViewModelFactory
         self.defaultReferralCode = defaultReferralCode
+        currentReferralCode = bonusService.referralCode ?? ""
+        isTermsAgreed = !currentReferralCode.isEmpty
     }
 
-    private func handleSave(result _: Result<Void, Error>) {}
+    private func handleSave(result: Result<Void, Error>) {
+        switch result {
+        case .success:
+            crowdloanDelegate?.didReceive(bonusService: bonusService)
+            wireframe.complete(on: view)
+        case let .failure(error):
+            _ = wireframe.present(error: error, from: view, locale: selectedLocale)
+        }
+    }
 
     private func provideReferralViewModel() {
         let bonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
@@ -104,7 +114,7 @@ extension KaruraCrowdloanPresenter: KaruraCrowdloanPresenterProtocol {
 
         view?.didStartLoading()
 
-        bonusService.save(referrallCode: currentReferralCode) { [weak self] result in
+        bonusService.save(referralCode: currentReferralCode) { [weak self] result in
             self?.view?.didStopLoading()
             self?.handleSave(result: result)
         }

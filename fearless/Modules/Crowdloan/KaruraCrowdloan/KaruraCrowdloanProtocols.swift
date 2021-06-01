@@ -18,4 +18,6 @@ protocol KaruraCrowdloanPresenterProtocol: AnyObject {
     func presentLearnMore()
 }
 
-protocol KaruraCrowdloanWireframeProtocol: WebPresentable {}
+protocol KaruraCrowdloanWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable {
+    func complete(on view: KaruraCrowdloanViewProtocol?)
+}
