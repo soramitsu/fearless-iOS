@@ -1,5 +1,5 @@
 import Foundation
 
-struct KaruraReferralData: Decodable {
+struct KaruraResultData: Decodable {
     let result: Bool
 }

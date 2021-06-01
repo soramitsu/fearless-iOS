@@ -8,12 +8,29 @@ struct KaruraCrowdloanViewFactory {
         inputAmount: Decimal,
         existingService: CrowdloanBonusServiceProtocol?
     ) -> KaruraCrowdloanViewProtocol? {
+        let settings = SettingsManager.shared
+
+        guard let selectedAddress = settings.selectedAccount?.address else {
+            return nil
+        }
+
         let wireframe = KaruraCrowdloanWireframe()
 
-        let bonusService = existingService ??
-            KaruraBonusService(operationManager: OperationManagerFacade.sharedManager)
+        let signingWrapper = SigningWrapper(keystore: Keychain(), settings: settings)
 
-        let settings = SettingsManager.shared
+        let bonusService: CrowdloanBonusServiceProtocol = {
+            if let service = existingService {
+                return service
+            } else {
+                return KaruraBonusService(
+                    address: selectedAddress,
+                    chain: settings.selectedConnection.type.chain,
+                    signingWrapper: signingWrapper,
+                    operationManager: OperationManagerFacade.sharedManager
+                )
+            }
+        }()
+
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
