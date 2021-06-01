@@ -32,27 +32,21 @@ final class KaruraCrowdloanViewLayout: UIView {
 
     let applyAppBonusButton: GradientButton = {
         let button = GradientButton()
-        button.gradientBackgroundView?.startColor = R.color.colorAccentGradientEnd()!
-        button.gradientBackgroundView?.startPoint = CGPoint(x: 0.0, y: 0.5)
-        button.gradientBackgroundView?.endPoint = CGPoint(x: 1.0, y: 0.5)
-        button.gradientBackgroundView?.endColor = R.color.colorAccentGradientStart()!
+        button.applyDefaultStyle()
         button.gradientBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
-        button.imageWithTitleView?.titleColor = R.color.colorWhite()
-        button.imageWithTitleView?.titleFont = .h6Title
-        button.changesContentOpacityWhenHighlighted = true
         button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
         return button
     }()
 
     let bonusView: TitleValueView = UIFactory.default.createTitleValueView()
 
-    let signView: UISwitch = {
+    let termsSwitchView: UISwitch = {
         let switchView = UISwitch()
         switchView.onTintColor = R.color.colorAccent()
         return switchView
     }()
 
-    let privacyLabel: UILabel = {
+    let termsLabel: UILabel = {
         let label = UILabel()
         label.isUserInteractionEnabled = true
         label.font = .p1Paragraph
@@ -88,7 +82,7 @@ final class KaruraCrowdloanViewLayout: UIView {
     }
 
     private func applyLocalization() {
-        privacyLabel.attributedText = NSAttributedString.crowdloanTerms(for: locale)
+        termsLabel.attributedText = NSAttributedString.crowdloanTerms(for: locale)
 
         applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(
             preferredLanguages: locale.rLanguages
@@ -149,14 +143,14 @@ final class KaruraCrowdloanViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        privacyView.addSubview(signView)
-        signView.snp.makeConstraints { make in
+        privacyView.addSubview(termsSwitchView)
+        termsSwitchView.snp.makeConstraints { make in
             make.leading.centerY.equalToSuperview()
         }
 
-        privacyView.addSubview(privacyLabel)
-        privacyLabel.snp.makeConstraints { make in
-            make.leading.equalTo(signView.snp.trailing).offset(16.0)
+        privacyView.addSubview(termsLabel)
+        termsLabel.snp.makeConstraints { make in
+            make.leading.equalTo(termsSwitchView.snp.trailing).offset(16.0)
             make.trailing.centerY.equalToSuperview()
         }
 

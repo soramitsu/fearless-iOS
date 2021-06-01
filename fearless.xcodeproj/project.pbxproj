@@ -734,6 +734,7 @@
 		84969732251CE71500C39524 /* WalletAssetId.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969731251CE71500C39524 /* WalletAssetId.swift */; };
 		84969734251CE9CD00C39524 /* ContactsConfigurator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84969733251CE9CD00C39524 /* ContactsConfigurator.swift */; };
 		8497FC6026317783002FEAA7 /* AccountInfoViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */; };
+		84981CC32666D95F00C4C691 /* GradientButton+Style.swift in Sources */ = {isa = PBXBuildFile; fileRef = 84981CC22666D95F00C4C691 /* GradientButton+Style.swift */; };
 		849842E626587573006BBB9F /* MultilineTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849842E526587573006BBB9F /* MultilineTableViewCell.swift */; };
 		849842EC26587B20006BBB9F /* YourCrowdloansTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849842EB26587B20006BBB9F /* YourCrowdloansTableViewCell.swift */; };
 		849842F426592408006BBB9F /* ActiveCrowdloanTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 849842F326592408006BBB9F /* ActiveCrowdloanTableViewCell.swift */; };
@@ -2086,6 +2087,7 @@
 		84969731251CE71500C39524 /* WalletAssetId.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WalletAssetId.swift; sourceTree = "<group>"; };
 		84969733251CE9CD00C39524 /* ContactsConfigurator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContactsConfigurator.swift; sourceTree = "<group>"; };
 		8497FC5F26317783002FEAA7 /* AccountInfoViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoViewModel.swift; sourceTree = "<group>"; };
+		84981CC22666D95F00C4C691 /* GradientButton+Style.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GradientButton+Style.swift"; sourceTree = "<group>"; };
 		849842E526587573006BBB9F /* MultilineTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultilineTableViewCell.swift; sourceTree = "<group>"; };
 		849842EB26587B20006BBB9F /* YourCrowdloansTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = YourCrowdloansTableViewCell.swift; sourceTree = "<group>"; };
 		849842F326592408006BBB9F /* ActiveCrowdloanTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActiveCrowdloanTableViewCell.swift; sourceTree = "<group>"; };
@@ -4763,6 +4765,7 @@
 				F462B363260C88050005AB01 /* UITableView+Reuse.swift */,
 				AEF505A82620249F0098574D /* UIColor+HEX.swift */,
 				F4D96B662637E89300B23D3D /* UIView+Separator.swift */,
+				84981CC22666D95F00C4C691 /* GradientButton+Style.swift */,
 			);
 			path = UIKit;
 			sourceTree = "<group>";
@@ -8096,6 +8099,7 @@
 				B893A2515909AB6915196317 /* NetworkInfoViewController.swift in Sources */,
 				607699C7CEEDA3598613DCA0 /* NetworkInfoViewFactory.swift in Sources */,
 				8401AEC62642A71D000B03E3 /* StakingRebondConfirmationLayout.swift in Sources */,
+				84981CC32666D95F00C4C691 /* GradientButton+Style.swift in Sources */,
 				845CB6FA26276326005F798B /* LongrunOperation.swift in Sources */,
 				84FB1F6D2526987D00E0242B /* TransactionHistoryContext.swift in Sources */,
 				68FC03E9D94736F7B87EA008 /* AddConnectionProtocols.swift in Sources */,

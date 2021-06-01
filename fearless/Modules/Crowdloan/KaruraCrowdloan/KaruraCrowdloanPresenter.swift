@@ -34,6 +34,8 @@ final class KaruraCrowdloanPresenter {
         self.defaultReferralCode = defaultReferralCode
     }
 
+    private func handleSave(result _: Result<Void, Error>) {}
+
     private func provideReferralViewModel() {
         let bonusValue = crowdloanViewModelFactory.createAdditionalBonusViewModel(
             inputAmount: inputAmount,
@@ -89,7 +91,24 @@ extension KaruraCrowdloanPresenter: KaruraCrowdloanPresenterProtocol {
         provideInputViewModel()
     }
 
-    func applyInputCode() {}
+    func applyInputCode() {
+        if currentReferralCode.isEmpty {
+            view?.didReceiveShouldInputCode()
+            return
+        }
+
+        if !isTermsAgreed {
+            view?.didReceiveShouldAgreeTerms()
+            return
+        }
+
+        view?.didStartLoading()
+
+        bonusService.save(referrallCode: currentReferralCode) { [weak self] result in
+            self?.view?.didStopLoading()
+            self?.handleSave(result: result)
+        }
+    }
 
     func setTermsAgreed(value: Bool) {
         isTermsAgreed = value

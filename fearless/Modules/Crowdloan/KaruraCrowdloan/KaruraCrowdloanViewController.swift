@@ -46,9 +46,9 @@ final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
         )
 
         let tapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(actionTapTerms(_:)))
-        rootView.privacyLabel.addGestureRecognizer(tapGestureRecognizer)
+        rootView.termsLabel.addGestureRecognizer(tapGestureRecognizer)
 
-        rootView.signView.addTarget(self, action: #selector(actionSwitchTerms), for: .valueChanged)
+        rootView.termsSwitchView.addTarget(self, action: #selector(actionSwitchTerms), for: .valueChanged)
 
         rootView.actionButton.addTarget(self, action: #selector(actionApplyInputCode), for: .touchUpInside)
         rootView.applyAppBonusButton.addTarget(self, action: #selector(actionApplyDefaultCode), for: .touchUpInside)
@@ -80,15 +80,21 @@ final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
             rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(
                 preferredLanguages: selectedLocale.rLanguages
             ).uppercased()
+
+            rootView.applyAppBonusButton.isEnabled = true
+            rootView.applyAppBonusButton.applyDefaultStyle()
         } else {
             rootView.applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApplied(
                 preferredLanguages: selectedLocale.rLanguages
             ).uppercased()
+
+            rootView.applyAppBonusButton.isEnabled = false
+            rootView.applyAppBonusButton.applyDisabledStyle()
         }
 
         rootView.applyAppBonusButton.invalidateLayout()
 
-        rootView.signView.isOn = referralViewModel.isTermsAgreed
+        rootView.termsSwitchView.isOn = referralViewModel.isTermsAgreed
 
         if !referralViewModel.isCodeReceived {
             rootView.actionButton.imageWithTitleView?.title = R.string.localizable.karuraReferralCodeAction(
@@ -110,7 +116,7 @@ final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
     }
 
     @objc private func actionSwitchTerms() {
-        presenter.setTermsAgreed(value: rootView.signView.isOn)
+        presenter.setTermsAgreed(value: rootView.termsSwitchView.isOn)
     }
 
     @objc private func actionApplyDefaultCode() {
@@ -183,6 +189,21 @@ extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {
         codeInputViewModel = viewModel
 
         rootView.codeInputView.animatedInputField.text = viewModel.inputHandler.value
+    }
+
+    func didReceiveShouldInputCode() {
+        rootView.codeInputView.animatedInputField.becomeFirstResponder()
+    }
+
+    func didReceiveShouldAgreeTerms() {
+        ShakeAnimator(
+            duration: 0.5,
+            options: [.curveEaseInOut]
+        ).animate(view: rootView.termsSwitchView, completionBlock: nil)
+
+        let generator = UINotificationFeedbackGenerator()
+        generator.prepare()
+        generator.notificationOccurred(.error)
     }
 }
 

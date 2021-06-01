@@ -1,9 +1,11 @@
 import SoraFoundation
 
-protocol KaruraCrowdloanViewProtocol: ControllerBackedProtocol {
+protocol KaruraCrowdloanViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceiveLearnMore(viewModel: LearnMoreViewModel)
     func didReceiveReferral(viewModel: KaruraReferralViewModel)
     func didReceiveInput(viewModel: InputViewModelProtocol)
+    func didReceiveShouldInputCode()
+    func didReceiveShouldAgreeTerms()
 }
 
 protocol KaruraCrowdloanPresenterProtocol: AnyObject {
