@@ -17,6 +17,7 @@ protocol CrowdloanContributionSetupPresenterProtocol: AnyObject {
     func updateAmount(_ newValue: Decimal)
     func proceed()
     func presentLearnMore()
+    func presentAdditionalBonuses()
 }
 
 protocol CrowdloanContributionSetupInteractorInputProtocol: CrowdloanContributionInteractorInputProtocol {}
@@ -25,5 +26,14 @@ protocol CrowdloanContributionSetupInteractorOutputProtocol: CrowdloanContributi
 
 protocol CrowdloanContributionSetupWireframeProtocol: AlertPresentable, ErrorPresentable,
     CrowdloanErrorPresentable, WebPresentable {
-    func showConfirmation(from view: CrowdloanContributionSetupViewProtocol?, paraId: ParaId, inputAmount: Decimal)
+    func showConfirmation(
+        from view: CrowdloanContributionSetupViewProtocol?,
+        paraId: ParaId,
+        inputAmount: Decimal
+    )
+
+    func showCustomFlow(
+        from view: CrowdloanContributionSetupViewProtocol?,
+        for displayInfo: CrowdloanDisplayInfo
+    )
 }

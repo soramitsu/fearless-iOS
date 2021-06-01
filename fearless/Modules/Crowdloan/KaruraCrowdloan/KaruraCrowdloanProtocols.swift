@@ -1,4 +1,7 @@
-protocol KaruraCrowdloanViewProtocol: AnyObject {}
+protocol KaruraCrowdloanViewProtocol: ControllerBackedProtocol {
+    func didReceiveLearnMore(viewModel: LearnMoreViewModel)
+    func didReceiveBonus(viewModel: String)
+}
 
 protocol KaruraCrowdloanPresenterProtocol: AnyObject {
     func setup()

@@ -15,14 +15,31 @@ final class KaruraCrowdloanViewLayout: UIView {
 
     let codeInputView = UIFactory.default.createCommonInputView()
 
-    let applyAppBonusButton: RoundedButton = {
-        let button = RoundedButton()
-        button.roundedBackgroundView?.fillColor = R.color.colorBonusBackground()!
-        button.roundedBackgroundView?.highlightedFillColor = R.color.colorBonusBackground()!
+    let applyAppBonusView: BorderedContainerView = {
+        let view = BorderedContainerView()
+        view.strokeColor = R.color.colorDarkGray()!
+        view.borderType = .bottom
+        view.strokeWidth = 1.0
+        return view
+    }()
+
+    let applyAppBonusLabel: UILabel = {
+        let label = UILabel()
+        label.font = .p1Paragraph
+        label.textColor = R.color.colorWhite()
+        return label
+    }()
+
+    let applyAppBonusButton: GradientButton = {
+        let button = GradientButton()
+        button.gradientBackgroundView?.startColor = R.color.colorAccentGradientStart()!
+        button.gradientBackgroundView?.startPoint = CGPoint(x: 0.0, y: 0.5)
+        button.gradientBackgroundView?.endPoint = CGPoint(x: 1.0, y: 0.5)
+        button.gradientBackgroundView?.endColor = R.color.colorAccentGradientEnd()!
+        button.gradientBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
         button.imageWithTitleView?.titleColor = R.color.colorWhite()
         button.changesContentOpacityWhenHighlighted = true
         button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
-        button.roundedBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
         return button
     }()
 
@@ -43,6 +60,20 @@ final class KaruraCrowdloanViewLayout: UIView {
 
     let learnMoreView = UIFactory.default.createLearnMoreView()
 
+    let actionButton: TriangularedButton = {
+        let button = TriangularedButton()
+        button.applyDefaultStyle()
+        return button
+    }()
+
+    var locale = Locale.current {
+        didSet {
+            if locale != oldValue {
+                applyLocalization()
+            }
+        }
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -54,7 +85,40 @@ final class KaruraCrowdloanViewLayout: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    private func applyLocalization() {
+        privacyLabel.attributedText = NSAttributedString.crowdloanTerms(for: locale)
+
+        applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(
+            preferredLanguages: locale.rLanguages
+        )
+
+        // TODO: Fix localization
+        applyAppBonusLabel.text = "Fearless Wallet bonus (5%)"
+        codeInputView.textField.title = "Referral code"
+        bonusView.titleLabel.text = "Bonus"
+        actionButton.imageWithTitleView?.title = "Enter your referral code"
+    }
+
     private func setupLayout() {
+        contentView.stackView.addArrangedSubview(applyAppBonusView)
+        applyAppBonusView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
+
+        contentView.stackView.setCustomSpacing(16.0, after: applyAppBonusView)
+
+        applyAppBonusView.addSubview(applyAppBonusLabel)
+        applyAppBonusLabel.snp.makeConstraints { make in
+            make.leading.centerY.equalToSuperview()
+        }
+
+        applyAppBonusView.addSubview(applyAppBonusButton)
+        applyAppBonusButton.snp.makeConstraints { make in
+            make.trailing.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(applyAppBonusLabel.snp.trailing).offset(8.0)
+        }
+
         contentView.stackView.addArrangedSubview(codeInputView)
         codeInputView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)

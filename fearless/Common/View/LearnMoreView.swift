@@ -68,8 +68,8 @@ final class LearnMoreView: BackgroundedContentControl {
         contentView?.frame = CGRect(
             x: bounds.minX + contentInsets.left,
             y: bounds.minY + contentInsets.top,
-            width: bounds.width - contentInsets.left - contentInsets.right,
-            height: bounds.height - contentInsets.top - contentInsets.bottom
+            width: max(bounds.width - contentInsets.left - contentInsets.right, 0),
+            height: max(bounds.height - contentInsets.top - contentInsets.bottom, 0)
         )
     }
 
@@ -104,5 +104,7 @@ final class LearnMoreView: BackgroundedContentControl {
         }
 
         contentView = baseView
+
+        baseView.autoresizingMask = [.flexibleWidth]
     }
 }

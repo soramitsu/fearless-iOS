@@ -235,6 +235,14 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
 
         wireframe.showWeb(url: url, from: view, style: .automatic)
     }
+
+    func presentAdditionalBonuses() {
+        guard let displayInfo = displayInfo else {
+            return
+        }
+
+        wireframe.showCustomFlow(from: view, for: displayInfo)
+    }
 }
 
 extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInteractorOutputProtocol {

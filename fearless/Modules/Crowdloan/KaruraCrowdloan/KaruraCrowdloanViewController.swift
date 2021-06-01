@@ -26,4 +26,8 @@ final class KaruraCrowdloanViewController: UIViewController {
     }
 }
 
-extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {}
+extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {
+    func didReceiveLearnMore(viewModel _: LearnMoreViewModel) {}
+
+    func didReceiveBonus(viewModel _: String) {}
+}
