@@ -47,7 +47,7 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
         locale: Locale?
     ) {
         let message = R.string.localizable
-            .stakingControllerMissingMessage(address, preferredLanguages: locale?.rLanguages)
+            .stakingAddController(address, preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 

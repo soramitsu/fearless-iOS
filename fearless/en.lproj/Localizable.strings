@@ -439,3 +439,4 @@ Derivation path: %@";
 "common.till.date" = "till %@";
 "crowdloan.reward" = "Estimated reward";
 "staking.bonded.inactive" = "You are neither nominating nor validating";
+"staking.add.controller" = "Add controller account %@ to the application to perform this action.";

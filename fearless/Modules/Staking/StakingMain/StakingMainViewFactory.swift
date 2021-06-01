@@ -72,9 +72,16 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
+        let accountRepositoryFactory = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
         return StakingMainInteractor(
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,
+            accountRepositoryFactory: accountRepositoryFactory,
             settings: settings,
             eventCenter: EventCenter.shared,
             primitiveFactory: primitiveFactory,
