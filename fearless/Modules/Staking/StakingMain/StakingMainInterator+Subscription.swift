@@ -138,7 +138,7 @@ extension StakingMainInteractor {
             subscribeToValidator(address: stashItem.stash)
             subscribeToTotalReward(address: stashItem.stash)
             subscribeToPayee(address: stashItem.stash)
-            subscribeToControllerAccountItem(address: stashItem.controller)
+            subscribeToControllerAccount(address: stashItem.controller)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -412,7 +412,7 @@ extension StakingMainInteractor {
         )
     }
 
-    func subscribeToControllerAccountItem(address: AccountAddress) {
+    func subscribeToControllerAccount(address: AccountAddress) {
         guard controllerAccountProvider == nil else {
             return
         }
