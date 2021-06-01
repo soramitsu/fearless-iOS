@@ -68,6 +68,10 @@ final class CrowdloanContributionSetupViewController: UIViewController, ViewHold
     @objc func actionLearMore() {
         presenter.presentLearnMore()
     }
+
+    @objc func actionBonuses() {
+        presenter.presentAdditionalBonuses()
+    }
 }
 
 extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupViewProtocol {
@@ -101,6 +105,14 @@ extension CrowdloanContributionSetupViewController: CrowdloanContributionSetupVi
 
     func didReceiveEstimatedReward(viewModel: String?) {
         rootView.bind(estimatedReward: viewModel)
+    }
+
+    func didReceiveBonus(viewModel: String?) {
+        rootView.bind(bonus: viewModel)
+
+        if let bonusView = rootView.bonusView {
+            bonusView.addTarget(self, action: #selector(actionBonuses), for: .touchUpInside)
+        }
     }
 }
 

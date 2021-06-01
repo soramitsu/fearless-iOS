@@ -23,6 +23,13 @@ protocol CrowdloanContributionViewModelFactoryProtocol {
         displayInfo: CrowdloanDisplayInfo,
         locale: Locale
     ) -> String?
+
+    func createAdditionalBonusViewModel(
+        inputAmount: Decimal,
+        displayInfo: CrowdloanDisplayInfo,
+        bonusRate: Decimal?,
+        locale: Locale
+    ) -> String?
 }
 
 final class CrowdloanContributionViewModelFactory {
@@ -232,6 +239,25 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
 
         return displayInfo.rewardRate
             .map { formatter.stringFromDecimal(inputAmount * $0) }?
+            .map { "\($0) \(displayInfo.token)" }
+    }
+
+    func createAdditionalBonusViewModel(
+        inputAmount: Decimal,
+        displayInfo: CrowdloanDisplayInfo,
+        bonusRate: Decimal?,
+        locale: Locale
+    ) -> String? {
+        guard let bonusRate = bonusRate else {
+            return R.string.localizable.crowdloanEmptyBonusTitle(
+                preferredLanguages: locale.rLanguages
+            )
+        }
+
+        let formatter = amountFormatterFactory.createDisplayFormatter(for: nil).value(for: locale)
+
+        return displayInfo.rewardRate
+            .map { formatter.stringFromDecimal(inputAmount * $0 * bonusRate) }?
             .map { "\($0) \(displayInfo.token)" }
     }
 }

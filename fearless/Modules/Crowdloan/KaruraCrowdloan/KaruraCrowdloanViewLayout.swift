@@ -32,12 +32,13 @@ final class KaruraCrowdloanViewLayout: UIView {
 
     let applyAppBonusButton: GradientButton = {
         let button = GradientButton()
-        button.gradientBackgroundView?.startColor = R.color.colorAccentGradientStart()!
+        button.gradientBackgroundView?.startColor = R.color.colorAccentGradientEnd()!
         button.gradientBackgroundView?.startPoint = CGPoint(x: 0.0, y: 0.5)
         button.gradientBackgroundView?.endPoint = CGPoint(x: 1.0, y: 0.5)
-        button.gradientBackgroundView?.endColor = R.color.colorAccentGradientEnd()!
+        button.gradientBackgroundView?.endColor = R.color.colorAccentGradientStart()!
         button.gradientBackgroundView?.cornerRadius = Constants.applyAppButtonHeight / 2.0
         button.imageWithTitleView?.titleColor = R.color.colorWhite()
+        button.imageWithTitleView?.titleFont = .h6Title
         button.changesContentOpacityWhenHighlighted = true
         button.contentInsets = UIEdgeInsets(top: 6.0, left: 12.0, bottom: 6.0, right: 12.0)
         return button
@@ -47,7 +48,7 @@ final class KaruraCrowdloanViewLayout: UIView {
 
     let signView: UISwitch = {
         let switchView = UISwitch()
-        switchView.tintColor = R.color.colorAccent()
+        switchView.onTintColor = R.color.colorAccent()
         return switchView
     }()
 
@@ -78,6 +79,7 @@ final class KaruraCrowdloanViewLayout: UIView {
         super.init(frame: frame)
 
         setupLayout()
+        applyLocalization()
     }
 
     @available(*, unavailable)
@@ -90,7 +92,7 @@ final class KaruraCrowdloanViewLayout: UIView {
 
         applyAppBonusButton.imageWithTitleView?.title = R.string.localizable.commonApply(
             preferredLanguages: locale.rLanguages
-        )
+        ).uppercased()
 
         // TODO: Fix localization
         applyAppBonusLabel.text = "Fearless Wallet bonus (5%)"
@@ -100,6 +102,12 @@ final class KaruraCrowdloanViewLayout: UIView {
     }
 
     private func setupLayout() {
+        addSubview(contentView)
+        contentView.snp.makeConstraints { make in
+            make.top.equalTo(safeAreaLayoutGuide)
+            make.bottom.leading.trailing.equalToSuperview()
+        }
+
         contentView.stackView.addArrangedSubview(applyAppBonusView)
         applyAppBonusView.snp.makeConstraints { make in
             make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
@@ -126,12 +134,6 @@ final class KaruraCrowdloanViewLayout: UIView {
 
         contentView.stackView.setCustomSpacing(16.0, after: codeInputView)
 
-        contentView.stackView.addArrangedSubview(applyAppBonusButton)
-        applyAppBonusButton.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
-            make.height.equalTo(Constants.applyAppButtonHeight)
-        }
-
         let privacyView = UIView()
         contentView.stackView.addArrangedSubview(privacyView)
         privacyView.snp.makeConstraints { make in
@@ -155,5 +157,14 @@ final class KaruraCrowdloanViewLayout: UIView {
             make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
             make.height.equalTo(48.0)
         }
+
+        addSubview(actionButton)
+        actionButton.snp.makeConstraints { make in
+            make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
+            make.height.equalTo(UIConstants.actionHeight)
+        }
+
+        contentView.scrollBottomOffset = 2 * UIConstants.horizontalInset + UIConstants.actionHeight
     }
 }

@@ -59,6 +59,8 @@ protocol UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView
 
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl
+
     func createHintView() -> HintView
 
     func createLearnMoreView() -> LearnMoreView
@@ -411,6 +413,10 @@ final class UIFactory: UIFactoryProtocol {
             right: UIConstants.horizontalInset
         )
         return view
+    }
+
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl {
+        TitleValueSelectionControl()
     }
 
     func createRewardSelectionView() -> RewardSelectionView {

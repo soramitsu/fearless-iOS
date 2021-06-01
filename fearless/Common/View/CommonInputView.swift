@@ -8,6 +8,7 @@ class CommonInputView: UIView {
         view.highlightedFillColor = .clear
         view.strokeColor = R.color.colorDarkGray()!
         view.highlightedStrokeColor = R.color.colorDarkGray()!
+        view.strokeWidth = 1.0
         return view
     }()
 
@@ -17,6 +18,7 @@ class CommonInputView: UIView {
         field.placeholderColor = R.color.colorGray()!
         field.textColor = R.color.colorWhite()!
         field.textFont = .p1Paragraph
+        field.cursorColor = R.color.colorWhite()!
         return field
     }()
 
@@ -41,7 +43,7 @@ class CommonInputView: UIView {
         addSubview(textField)
         textField.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(8.0)
+            make.top.bottom.equalToSuperview().inset(6.0)
         }
     }
 }

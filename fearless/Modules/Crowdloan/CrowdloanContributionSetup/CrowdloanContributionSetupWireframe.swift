@@ -12,9 +12,11 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         view?.controller.navigationController?.pushViewController(confirmationView.controller, animated: true)
     }
 
-    func showCustomFlow(
+    func showAdditionalBonus(
         from view: CrowdloanContributionSetupViewProtocol?,
-        for displayInfo: CrowdloanDisplayInfo
+        for displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        delegate: CustomCrowdloanDelegate
     ) {
         guard let customFlow = displayInfo.customFlow else {
             return
@@ -22,18 +24,33 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
 
         switch customFlow {
         case .karura:
-            showKaruraCustomFlow(from: view, for: displayInfo)
+            showKaruraCustomFlow(
+                from: view,
+                for: displayInfo,
+                inputAmount: inputAmount,
+                delegate: delegate
+            )
         }
     }
 
     private func showKaruraCustomFlow(
         from view: CrowdloanContributionSetupViewProtocol?,
-        for _: CrowdloanDisplayInfo
+        for displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        delegate: CustomCrowdloanDelegate
     ) {
-        guard let karuraView = KaruraCrowdloanViewFactory.createView() else {
+        guard let karuraView = KaruraCrowdloanViewFactory.createView(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount
+        ) else {
             return
         }
 
-        view?.controller.navigationController?.pushViewController(karuraView.controller, animated: true)
+        let navigationController = FearlessNavigationController(
+            rootViewController: karuraView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
     }
 }
