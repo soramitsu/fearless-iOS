@@ -1,10 +1,16 @@
 import Foundation
 
 final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWireframeProtocol {
-    func showConfirmation(from view: CrowdloanContributionSetupViewProtocol?, paraId: ParaId, inputAmount: Decimal) {
+    func showConfirmation(
+        from view: CrowdloanContributionSetupViewProtocol?,
+        paraId: ParaId,
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol?
+    ) {
         guard let confirmationView = CrowdloanContributionConfirmViewFactory.createView(
             with: paraId,
-            inputAmount: inputAmount
+            inputAmount: inputAmount,
+            bonusService: bonusService
         ) else {
             return
         }

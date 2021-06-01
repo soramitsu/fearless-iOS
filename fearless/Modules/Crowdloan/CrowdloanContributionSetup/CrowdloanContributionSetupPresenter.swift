@@ -247,7 +247,12 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 let strongSelf = self,
                 let contribution = contributionDecimal,
                 let paraId = strongSelf.crowdloan?.paraId else { return }
-            strongSelf.wireframe.showConfirmation(from: strongSelf.view, paraId: paraId, inputAmount: contribution)
+            strongSelf.wireframe.showConfirmation(
+                from: strongSelf.view,
+                paraId: paraId,
+                inputAmount: contribution,
+                bonusService: strongSelf.bonusService
+            )
         }
     }
 

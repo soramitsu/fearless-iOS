@@ -1,5 +1,7 @@
 import Foundation
 import RobinHood
+import BigInt
+import IrohaCrypto
 
 enum KaruraBonusServiceError: Error, ErrorContentConvertible {
     case invalidReferral
@@ -161,12 +163,8 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func applyBonusForReward(_ reward: Decimal, with closure: @escaping (Result<Void, Error>) -> Void) {
-        let bonus = reward * bonusRate
-
-        guard
-            let amountValue = bonus.toSubstrateAmount(precision: chain.addressType.precision),
-            let referralCode = referralCode else {
+    func applyBonusForContribution(amount: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void) {
+        guard let referralCode = referralCode else {
             DispatchQueue.main.async {
                 closure(.failure(KaruraBonusServiceError.veficationFailed))
             }
@@ -184,9 +182,14 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
 
             let signedData = try self.signingWrapper.sign(statement)
 
+            let addressFactory = SS58AddressFactory()
+            let accountId = try addressFactory.accountId(from: self.address)
+            let addressType = self.chain == .rococo ? SNAddressType.genericSubstrate : self.chain.addressType
+            let finalAddress = try addressFactory.addressFromAccountId(data: accountId, type: addressType)
+
             return KaruraVerifyInfo(
-                address: self.address,
-                amount: String(amountValue),
+                address: finalAddress,
+                amount: String(amount),
                 signature: signedData.rawData().toHex(includePrefix: true),
                 referral: referralCode
             )
@@ -203,7 +206,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     _ = try verifyOperation.extractNoCancellableResultData()
                     closure(.success(()))
                 } catch {
-                    closure(.failure(KaruraBonusServiceError.veficationFailed))
+                    closure(.failure(error))
                 }
             }
         }

@@ -6,7 +6,8 @@ import RobinHood
 struct CrowdloanContributionConfirmViewFactory {
     static func createView(
         with paraId: ParaId,
-        inputAmount: Decimal
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol?
     ) -> CrowdloanContributionConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let addressType = settings.selectedConnection.type
@@ -17,7 +18,7 @@ struct CrowdloanContributionConfirmViewFactory {
             return nil
         }
 
-        guard let interactor = createInteractor(for: paraId, assetId: assetId) else {
+        guard let interactor = createInteractor(for: paraId, assetId: assetId, bonusService: bonusService) else {
             return nil
         }
 
@@ -71,7 +72,8 @@ struct CrowdloanContributionConfirmViewFactory {
 
     private static func createInteractor(
         for paraId: ParaId,
-        assetId: WalletAssetId
+        assetId: WalletAssetId,
+        bonusService: CrowdloanBonusServiceProtocol?
     ) -> CrowdloanContributionConfirmInteractor? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
@@ -126,6 +128,7 @@ struct CrowdloanContributionConfirmViewFactory {
             accountRepository: AnyDataProviderRepository(accountRepository),
             crowdloanFundsProvider: crowdloanFundsProvider,
             singleValueProviderFactory: singleValueProviderFactory,
+            bonusService: bonusService,
             operationManager: operationManager
         )
     }
