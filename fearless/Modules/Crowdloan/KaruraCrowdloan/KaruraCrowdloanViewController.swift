@@ -200,10 +200,6 @@ extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {
             duration: 0.5,
             options: [.curveEaseInOut]
         ).animate(view: rootView.termsSwitchView, completionBlock: nil)
-
-        let generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(.error)
     }
 }
 
