@@ -94,11 +94,11 @@ final class KaruraCrowdloanViewLayout: UIView {
             preferredLanguages: locale.rLanguages
         ).uppercased()
 
-        // TODO: Fix localization
-        applyAppBonusLabel.text = "Fearless Wallet bonus (5%)"
-        codeInputView.textField.title = "Referral code"
-        bonusView.titleLabel.text = "Bonus"
-        actionButton.imageWithTitleView?.title = "Enter your referral code"
+        codeInputView.animatedInputField.title = R.string.localizable.commonReferralCodeTitle(
+            preferredLanguages: locale.rLanguages
+        )
+
+        bonusView.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -134,6 +134,14 @@ final class KaruraCrowdloanViewLayout: UIView {
 
         contentView.stackView.setCustomSpacing(16.0, after: codeInputView)
 
+        contentView.stackView.addArrangedSubview(bonusView)
+        bonusView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
+
+        contentView.stackView.setCustomSpacing(16.0, after: bonusView)
+
         let privacyView = UIView()
         contentView.stackView.addArrangedSubview(privacyView)
         privacyView.snp.makeConstraints { make in
@@ -152,9 +160,11 @@ final class KaruraCrowdloanViewLayout: UIView {
             make.trailing.centerY.equalToSuperview()
         }
 
+        contentView.stackView.setCustomSpacing(16.0, after: privacyView)
+
         contentView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2 * UIConstants.horizontalInset)
+            make.width.equalTo(self)
             make.height.equalTo(48.0)
         }
 

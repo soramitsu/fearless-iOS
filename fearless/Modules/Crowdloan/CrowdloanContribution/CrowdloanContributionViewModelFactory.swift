@@ -30,6 +30,11 @@ protocol CrowdloanContributionViewModelFactoryProtocol {
         bonusRate: Decimal?,
         locale: Locale
     ) -> String?
+
+    func createLearnMoreViewModel(
+        from displayInfo: CrowdloanDisplayInfo,
+        locale: Locale
+    ) -> LearnMoreViewModel
 }
 
 final class CrowdloanContributionViewModelFactory {
@@ -259,5 +264,12 @@ extension CrowdloanContributionViewModelFactory: CrowdloanContributionViewModelF
         return displayInfo.rewardRate
             .map { formatter.stringFromDecimal(inputAmount * $0 * bonusRate) }?
             .map { "\($0) \(displayInfo.token)" }
+    }
+
+    func createLearnMoreViewModel(
+        from displayInfo: CrowdloanDisplayInfo,
+        locale: Locale
+    ) -> LearnMoreViewModel {
+        createLearnMore(from: displayInfo, locale: locale)
     }
 }

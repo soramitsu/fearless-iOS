@@ -12,7 +12,7 @@ class CommonInputView: UIView {
         return view
     }()
 
-    let textField: AnimatedTextField = {
+    let animatedInputField: AnimatedTextField = {
         let field = AnimatedTextField()
         field.placeholderFont = .p1Paragraph
         field.placeholderColor = R.color.colorGray()!
@@ -40,10 +40,10 @@ class CommonInputView: UIView {
             make.height.equalTo(52.0)
         }
 
-        addSubview(textField)
-        textField.snp.makeConstraints { make in
+        addSubview(animatedInputField)
+        animatedInputField.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(16)
-            make.top.bottom.equalToSuperview().inset(6.0)
+            make.top.bottom.equalToSuperview().inset(4.0)
         }
     }
 }
