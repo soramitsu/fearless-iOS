@@ -826,6 +826,21 @@ import RobinHood
         
     }
     
+    
+    
+     func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem> {
+        
+    return cuckoo_manager.call("createStreambleProvider(for: AccountAddress) -> StreamableProvider<AccountItem>",
+            parameters: (accountAddress),
+            escapingParameters: (accountAddress),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.createStreambleProvider(for: accountAddress))
+        
+    }
+    
 
 	 struct __StubbingProxy_AccountRepositoryFactoryProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -843,6 +858,11 @@ import RobinHood
 	    func createAccountRepository<M1: Cuckoo.Matchable>(for networkType: M1) -> Cuckoo.ProtocolStubFunction<(SNAddressType), AnyDataProviderRepository<AccountItem>> where M1.MatchedType == SNAddressType {
 	        let matchers: [Cuckoo.ParameterMatcher<(SNAddressType)>] = [wrap(matchable: networkType) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method: "createAccountRepository(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", parameterMatchers: matchers))
+	    }
+	    
+	    func createStreambleProvider<M1: Cuckoo.Matchable>(for accountAddress: M1) -> Cuckoo.ProtocolStubFunction<(AccountAddress), StreamableProvider<AccountItem>> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: accountAddress) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockAccountRepositoryFactoryProtocol.self, method: "createStreambleProvider(for: AccountAddress) -> StreamableProvider<AccountItem>", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -872,6 +892,12 @@ import RobinHood
 	        return cuckoo_manager.verify("createAccountRepository(for: SNAddressType) -> AnyDataProviderRepository<AccountItem>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func createStreambleProvider<M1: Cuckoo.Matchable>(for accountAddress: M1) -> Cuckoo.__DoNotUse<(AccountAddress), StreamableProvider<AccountItem>> where M1.MatchedType == AccountAddress {
+	        let matchers: [Cuckoo.ParameterMatcher<(AccountAddress)>] = [wrap(matchable: accountAddress) { $0 }]
+	        return cuckoo_manager.verify("createStreambleProvider(for: AccountAddress) -> StreamableProvider<AccountItem>", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -891,6 +917,10 @@ import RobinHood
     
      func createAccountRepository(for networkType: SNAddressType) -> AnyDataProviderRepository<AccountItem>  {
         return DefaultValueRegistry.defaultValue(for: (AnyDataProviderRepository<AccountItem>).self)
+    }
+    
+     func createStreambleProvider(for accountAddress: AccountAddress) -> StreamableProvider<AccountItem>  {
+        return DefaultValueRegistry.defaultValue(for: (StreamableProvider<AccountItem>).self)
     }
     
 }

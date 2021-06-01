@@ -52,8 +52,15 @@ class StakingMainTests: XCTestCase {
             UserDataStorageTestFacade().createRepository()
         let anyAccountRepository = AnyDataProviderRepository(accountRepository)
 
+        let accountRepositoryFactory = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
+                                               accountRepositoryFactory: accountRepositoryFactory,
                                                settings: settings,
                                                eventCenter: eventCenter,
                                                primitiveFactory: primitiveFactory,
