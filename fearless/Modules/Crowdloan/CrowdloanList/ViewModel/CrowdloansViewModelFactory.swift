@@ -132,11 +132,8 @@ final class CrowdloansViewModelFactory {
                 blockDuration: metadata.blockDuration
             )
 
-            let dayDuration: TimeInterval = 24 * 3600
-
-            if remainedTime >= dayDuration {
-                let daysLeft = Int(remainedTime / dayDuration)
-                return R.string.localizable.stakingPayoutsDaysLeft(format: daysLeft)
+            if remainedTime.daysFromSeconds > 0 {
+                return R.string.localizable.stakingPayoutsDaysLeft(format: remainedTime.daysFromSeconds)
             } else {
                 let time = try? formatters.time.string(from: remainedTime)
                 return R.string.localizable.commonTimeLeftFormat(time ?? "")

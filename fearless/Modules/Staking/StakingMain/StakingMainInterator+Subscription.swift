@@ -130,6 +130,7 @@ extension StakingMainInteractor {
         clearValidatorProvider()
         clearTotalRewardProvider()
         clearPayeeProvider()
+        clearControllerAccountProvider()
 
         if let stashItem = stashItem {
             subscribeToLedger(address: stashItem.controller)
@@ -137,7 +138,7 @@ extension StakingMainInteractor {
             subscribeToValidator(address: stashItem.stash)
             subscribeToTotalReward(address: stashItem.stash)
             subscribeToPayee(address: stashItem.stash)
-            fetchController(for: stashItem.controller)
+            subscribeToControllerAccount(address: stashItem.controller)
         }
 
         presenter?.didReceive(stashItem: stashItem)
@@ -368,6 +369,11 @@ extension StakingMainInteractor {
         payeeProvider = nil
     }
 
+    func clearControllerAccountProvider() {
+        controllerAccountProvider?.removeObserver(self)
+        controllerAccountProvider = nil
+    }
+
     func subscribeToPayee(address: String) {
         guard payeeProvider == nil else {
             return
@@ -398,6 +404,35 @@ extension StakingMainInteractor {
             waitsInProgressSyncOnAdd: false
         )
         payeeProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+    }
+
+    func subscribeToControllerAccount(address: AccountAddress) {
+        guard controllerAccountProvider == nil else {
+            return
+        }
+
+        let controllerAccountItemProvider = accountRepositoryFactory.createStreambleProvider(for: address)
+
+        controllerAccountProvider = controllerAccountItemProvider
+
+        let updateClosure = { [weak presenter] (changes: [DataProviderChange<AccountItem>]) in
+            let controller = changes.reduceToLastChange()
+            presenter?.didReceiveControllerAccount(result: .success(controller))
+        }
+
+        let failureClosure = { [weak presenter] (error: Error) in
+            presenter?.didReceiveControllerAccount(result: .failure(error))
+            return
+        }
+
+        let options = StreamableProviderObserverOptions()
+        controllerAccountItemProvider.addObserver(
             self,
             deliverOn: .main,
             executing: updateClosure,

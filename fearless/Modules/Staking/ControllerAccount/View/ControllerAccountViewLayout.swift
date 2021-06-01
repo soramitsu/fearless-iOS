@@ -24,7 +24,7 @@ final class ControllerAccountViewLayout: UIView {
 
     let controllerHintView = UIFactory.default.createHintView()
 
-    let learnMoreView = UIFactory.default.createLearnMoreView()
+    let learnMoreView = UIFactory.default.createFearlessLearnMoreView()
 
     let currentAccountIsControllerHint: HintView = {
         let hintView = HintView()
@@ -104,7 +104,7 @@ final class ControllerAccountViewLayout: UIView {
 
         containerView.stackView.addArrangedSubview(learnMoreView)
         learnMoreView.snp.makeConstraints { make in
-            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.width.equalTo(self)
         }
 
         let bottomSeparator = UIView.createSeparator(color: R.color.colorDarkGray())

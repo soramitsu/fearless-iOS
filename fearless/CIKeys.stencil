@@ -1,0 +1,8 @@
+enum MoonPayCIKeys {
+    static var secretKey: String = "{{ argument.moonPaySecretKey }}"
+    static var testSecretKey: String = "{{ argument.moonPayTestSecretKey }}"
+}
+
+enum SubscanCIKeys {
+    static var apiKey: String = "{{ argument.subscanAPIKey }}"
+}

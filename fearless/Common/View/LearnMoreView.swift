@@ -1,9 +1,15 @@
 import UIKit
 import SoraUI
+import SnapKit
 
 final class LearnMoreView: BackgroundedContentControl {
-    let fearlessIconView: UIView = {
-        let view = UIImageView(image: R.image.iconFearlessSmall())
+    private enum Constants {
+        static let iconSize: CGFloat = 24.0
+        static let horizontalSpacing: CGFloat = 12.0
+    }
+
+    let iconView: UIImageView = {
+        let view = UIImageView()
         view.contentMode = .scaleAspectFit
         return view
     }()
@@ -22,6 +28,12 @@ final class LearnMoreView: BackgroundedContentControl {
         return imageView
     }()
 
+    private var viewModel: LearnMoreViewModel?
+
+    deinit {
+        viewModel?.iconViewModel?.cancel(on: iconView)
+    }
+
     override init(frame: CGRect) {
         super.init(frame: frame)
 
@@ -39,10 +51,26 @@ final class LearnMoreView: BackgroundedContentControl {
         fatalError("init(coder:) has not been implemented")
     }
 
+    func bind(viewModel: LearnMoreViewModel?) {
+        self.viewModel?.iconViewModel?.cancel(on: iconView)
+        iconView.image = nil
+
+        self.viewModel = viewModel
+
+        let iconSize = CGSize(width: Constants.iconSize, height: Constants.iconSize)
+        viewModel?.iconViewModel?.loadImage(on: iconView, targetSize: iconSize, animated: true)
+        titleLabel.text = viewModel?.title
+    }
+
     override func layoutSubviews() {
         super.layoutSubviews()
 
-        contentView?.frame = bounds
+        contentView?.frame = CGRect(
+            x: bounds.minX + contentInsets.left,
+            y: bounds.minY + contentInsets.top,
+            width: bounds.width - contentInsets.left - contentInsets.right,
+            height: bounds.height - contentInsets.top - contentInsets.bottom
+        )
     }
 
     override var intrinsicContentSize: CGSize {
@@ -53,10 +81,28 @@ final class LearnMoreView: BackgroundedContentControl {
     }
 
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [fearlessIconView, titleLabel, UIView(), arrowIconView])
-        stackView.spacing = 12
-        stackView.isUserInteractionEnabled = false
+        let baseView = UIView()
+        baseView.isUserInteractionEnabled = false
 
-        contentView = stackView
+        baseView.addSubview(iconView)
+        iconView.snp.makeConstraints { make in
+            make.leading.centerY.equalToSuperview()
+            make.size.equalTo(Constants.iconSize)
+        }
+
+        baseView.addSubview(titleLabel)
+        titleLabel.snp.makeConstraints { make in
+            make.leading.equalTo(iconView.snp.trailing).offset(Constants.horizontalSpacing)
+            make.centerY.equalToSuperview()
+        }
+
+        baseView.addSubview(arrowIconView)
+        arrowIconView.snp.makeConstraints { make in
+            make.trailing.centerY.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(Constants.horizontalSpacing)
+            make.size.equalTo(16.0)
+        }
+
+        contentView = baseView
     }
 }

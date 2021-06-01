@@ -1,4 +1,0 @@
-enum MoonPayCIKeys {
-    static var secretKey: String = "{{ argument.secretKey }}"
-    static var testSecretKey: String = "{{ argument.testSecretKey }}"
-}

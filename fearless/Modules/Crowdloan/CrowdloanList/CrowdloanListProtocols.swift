@@ -7,6 +7,7 @@ protocol CrowdloanListViewProtocol: ControllerBackedProtocol {
 protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()
     func refresh(shouldReset: Bool)
+    func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
@@ -22,4 +23,6 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)
 }
 
-protocol CrowdloanListWireframeProtocol: AnyObject {}
+protocol CrowdloanListWireframeProtocol: AnyObject {
+    func presentContributionSetup(from view: CrowdloanListViewProtocol?, paraId: ParaId)
+}

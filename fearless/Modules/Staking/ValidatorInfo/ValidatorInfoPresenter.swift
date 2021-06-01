@@ -63,7 +63,7 @@ extension ValidatorInfoPresenter: ValidatorInfoPresenterProtocol {
         )
     }
 
-    func presentStateDescription(for _: ValidatorMyNominationStatus) {
+    func presentStateDescription() {
         #warning("Not implemented")
     }
 

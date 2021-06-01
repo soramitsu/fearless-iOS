@@ -9,6 +9,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
     let providerFactory: SingleValueProviderFactoryProtocol
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
+    let accountRepositoryFactory: AccountRepositoryFactoryProtocol
     let settings: SettingsManagerProtocol
     let eventCenter: EventCenterProtocol
     let runtimeService: RuntimeCodingServiceProtocol
@@ -31,6 +32,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     var totalRewardProvider: AnySingleValueProvider<TotalRewardItem>?
     var payeeProvider: AnyDataProvider<DecodedPayee>?
+    var controllerAccountProvider: StreamableProvider<AccountItem>?
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?
@@ -38,6 +40,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     init(
         providerFactory: SingleValueProviderFactoryProtocol,
         substrateProviderFactory: SubstrateDataProviderFactoryProtocol,
+        accountRepositoryFactory: AccountRepositoryFactoryProtocol,
         settings: SettingsManagerProtocol,
         eventCenter: EventCenterProtocol,
         primitiveFactory: WalletPrimitiveFactoryProtocol,
@@ -53,6 +56,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     ) {
         self.providerFactory = providerFactory
         self.substrateProviderFactory = substrateProviderFactory
+        self.accountRepositoryFactory = accountRepositoryFactory
         self.settings = settings
         self.eventCenter = eventCenter
         self.primitiveFactory = primitiveFactory

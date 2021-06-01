@@ -77,9 +77,7 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
 
     private func configure() {
         backgroundColor = .clear
-
-        selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
+        selectionStyle = .none
 
         separatorInset = UIEdgeInsets(
             top: 0.0,
