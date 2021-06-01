@@ -6,6 +6,8 @@ final class RecommendedValidatorsViewController: UIViewController {
 
     @IBOutlet private var sectionTitleLabel: UILabel!
     @IBOutlet private var algoDetailsLabel: UILabel!
+    @IBOutlet private var customValidatorsTitleLabel: UILabel!
+    @IBOutlet private var customValidatorsDetailsLabel: UILabel!
 
     @IBOutlet private var hint1: ImageWithTitleView!
     @IBOutlet private var hint2: ImageWithTitleView!
@@ -20,7 +22,6 @@ final class RecommendedValidatorsViewController: UIViewController {
     @IBOutlet private var customValidatorsContainer: UIView!
     @IBOutlet private var customValidatorsCell: DetailsTriangularedView!
 
-    @IBOutlet private var warningLabel: UILabel!
     @IBOutlet private var continueButton: TriangularedButton!
 
     @IBOutlet private var activityView: UIActivityIndicatorView!
@@ -42,9 +43,9 @@ final class RecommendedValidatorsViewController: UIViewController {
 
         title = R.string.localizable.stakingRecommendedTitle(preferredLanguages: languages)
         sectionTitleLabel.text = R.string.localizable
-            .stakingRecommendedSectionTitle(preferredLanguages: languages)
+            .stakingSelectValidatorsRecommendedTitle(preferredLanguages: languages)
         algoDetailsLabel.text = R.string.localizable
-            .stakingRecommendedSectionDesc(preferredLanguages: languages)
+            .stakingSelectValidatorsRecommendedDesc(preferredLanguages: languages)
         hint1.title = R.string.localizable.stakingRecommendedHint1(preferredLanguages: languages)
         hint2.title = R.string.localizable.stakingRecommendedHint2(preferredLanguages: languages)
         hint3.title = R.string.localizable.stakingRecommendedHint3(preferredLanguages: languages)
@@ -52,13 +53,16 @@ final class RecommendedValidatorsViewController: UIViewController {
         hint5.title = R.string.localizable.stakingRecommendedHint5(preferredLanguages: languages)
 
         validatorsCell.title = R.string.localizable
-            .stakingRecommendedValidatorsTitle(preferredLanguages: languages)
+            .stakingSelectValidatorsRecommendedButtonTitle(preferredLanguages: languages)
+
+        customValidatorsTitleLabel.text = R.string.localizable
+            .stakingSelectValidatorsCustomTitle(preferredLanguages: languages)
+
+        customValidatorsDetailsLabel.text = R.string.localizable
+            .stakingSelectValidatorsCustomDesc(preferredLanguages: languages)
 
         customValidatorsCell.title = R.string.localizable
-            .stakingRecommendedCustomTitle(preferredLanguages: languages)
-
-        warningLabel.text = R.string.localizable
-            .stakingRecommendedWarning(preferredLanguages: languages)
+            .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: languages)
 
         continueButton.imageWithTitleView?.title = R.string.localizable
             .commonContinue(preferredLanguages: languages)

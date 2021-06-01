@@ -9,7 +9,7 @@ final class SelectValidatorsViewModelFactory: SelectValidatorsViewModelFactoryPr
         return validators.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
             let restakePercentage = percentageAPYFormatter
-                .value(for: .current) // TODO return LocalizebleRes<[SelectValidatorsCellViewModel]>
+                .value(for: .current) // TODO: return LocalizebleRes<[SelectValidatorsCellViewModel]>
                 .string(from: validator.stakeReturn as NSNumber)
             return SelectValidatorsCellViewModel(
                 icon: icon,
