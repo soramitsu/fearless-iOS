@@ -419,15 +419,15 @@ extension StakingMainInteractor {
 
         let controllerAccountItemProvider = accountRepositoryFactory.createStreambleProvider(for: address)
 
-        self.controllerAccountProvider = controllerAccountItemProvider
+        controllerAccountProvider = controllerAccountItemProvider
 
         let updateClosure = { [weak presenter] (changes: [DataProviderChange<AccountItem>]) in
             let controller = changes.reduceToLastChange()
-            presenter?.didFetchController(controller, for: address)
+            presenter?.didReceiveControllerAccount(result: .success(controller))
         }
 
         let failureClosure = { [weak presenter] (error: Error) in
-            presenter?.didReceive(fetchControllerError: error)
+            presenter?.didReceiveControllerAccount(result: .failure(error))
             return
         }
 
