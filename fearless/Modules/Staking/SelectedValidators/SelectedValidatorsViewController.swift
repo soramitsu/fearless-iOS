@@ -59,7 +59,7 @@ final class SelectedValidatorsViewController: UIViewController {
     private func setupLocalization() {
         let languages = selectedLocale.rLanguages
         title = R.string.localizable
-            .stakingSelectedValidatorsTitle(preferredLanguages: languages)
+            .stakingRecommendedSectionTitle(preferredLanguages: languages)
 
         updateHeaderView()
     }
