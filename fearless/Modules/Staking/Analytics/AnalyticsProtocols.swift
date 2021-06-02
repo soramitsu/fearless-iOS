@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol AnalyticsViewProtocol: ControllerBackedProtocol {
-    func didReceiveChartData(_ data: ChartData)
+    func configure(with viewModel: AnalyticsViewModel)
 }
 
 protocol AnalyticsPresenterProtocol: AnyObject {

@@ -9,7 +9,8 @@ struct AnalyticsViewFactory {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(networkType)
-        let chain = settings.selectedConnection.type.chain
+        let addressType = settings.selectedConnection.type
+        let chain = addressType.chain
         guard
             let accountAddress = settings.selectedAccount?.address,
             let assetId = WalletAssetId(rawValue: asset.identifier),
@@ -32,7 +33,18 @@ struct AnalyticsViewFactory {
         )
         let wireframe = AnalyticsWireframe()
 
-        let presenter = AnalyticsPresenter(interactor: interactor, wireframe: wireframe, chain: chain)
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let viewModelFactory = AnalyticsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
+        let presenter = AnalyticsPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory
+        )
 
         let view = AnalyticsViewController(presenter: presenter)
 

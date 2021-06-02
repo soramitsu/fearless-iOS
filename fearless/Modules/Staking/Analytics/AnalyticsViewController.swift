@@ -22,6 +22,7 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
     override func viewDidLoad() {
         super.viewDidLoad()
 
+        title = "Analytics"
         presenter.setup()
         rootView.segmentedControl.configure()
         rootView.segmentedControl.titles = ["Rewards", "Stake", "Validators"]
@@ -29,31 +30,15 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
         rootView.rewardsView.periodView.configure(periods: AnalyticsPeriod.allCases)
         rootView.rewardsView.periodView.delegate = self
 
-        rootView.rewardsView.receivedSummaryView.configure(
-            with: .init(
-                title: "Received",
-                tokenAmount: "0.02931 KSM",
-                usdAmount: "$11.72",
-                indicatorColor: R.color.colorGray()
-            )
-        )
-
-        rootView.rewardsView.payableSummaryView.configure(
-            with: .init(
-                title: "Payable",
-                tokenAmount: "0.00875 KSM",
-                usdAmount: "$3.5",
-                indicatorColor: R.color.colorAccent()
-            )
-        )
         rootView.rewardsView.payoutButton.imageWithTitleView?.title = "Payout rewards"
-        title = "Analytics"
     }
 }
 
 extension AnalyticsViewController: AnalyticsViewProtocol {
-    func didReceiveChartData(_ data: ChartData) {
-        rootView.rewardsView.chartView.setChartData(data)
+    func configure(with viewModel: AnalyticsViewModel) {
+        rootView.rewardsView.chartView.setChartData(viewModel.chartData)
+        rootView.rewardsView.receivedSummaryView.configure(with: viewModel.receivedViewModel)
+        rootView.rewardsView.payableSummaryView.configure(with: viewModel.payableViewModel)
     }
 }
 

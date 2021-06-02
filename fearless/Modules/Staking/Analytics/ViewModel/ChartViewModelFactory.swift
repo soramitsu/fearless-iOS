@@ -1,19 +1,19 @@
 import BigInt
 
-protocol ChartViewModelProtocol {
+protocol AnalyticsViewModelFactoryProtocol {
     func createViewModel(
         from data: [SubscanRewardItemData],
         period: AnalyticsPeriod,
         precision: Int16
-    ) -> ChartData
+    ) -> AnalyticsViewModel
 }
 
-final class ChartViewModel: ChartViewModelProtocol {
+final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
     func createViewModel(
         from data: [SubscanRewardItemData],
         period: AnalyticsPeriod,
         precision: Int16
-    ) -> ChartData {
+    ) -> AnalyticsViewModel {
         let onlyRewards = data.filter { itemData in
             let change = RewardChange(rawValue: itemData.eventId)
             return change == .reward
@@ -32,6 +32,26 @@ final class ChartViewModel: ChartViewModelProtocol {
             else { return 0.0 }
             return Double(truncating: decimal as NSNumber)
         }
-        return ChartData(amounts: amounts)
+        let chartData = ChartData(amounts: amounts)
+
+        let receivedViewModel = AnalyticsSummaryRewardViewModel(
+            title: "Received",
+            tokenAmount: "0.02931 KSM",
+            usdAmount: "$11.72",
+            indicatorColor: R.color.colorGray()
+        )
+
+        let payableViewModel = AnalyticsSummaryRewardViewModel(
+            title: "Payable",
+            tokenAmount: "0.00875 KSM",
+            usdAmount: "$3.5",
+            indicatorColor: R.color.colorAccent()
+        )
+
+        return AnalyticsViewModel(
+            chartData: chartData,
+            receivedViewModel: receivedViewModel,
+            payableViewModel: payableViewModel
+        )
     }
 }
