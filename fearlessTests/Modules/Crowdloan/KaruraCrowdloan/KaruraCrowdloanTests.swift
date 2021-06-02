@@ -11,6 +11,6 @@ class KaruraCrowdloanTests: XCTestCase {
     }
 
     func testExample() {
-        XCTFail("Did you forget to add tests?")   
+        // TODO: Add Tests
     }
 }
