@@ -72,6 +72,10 @@ extension CrowdloanContributionConfirmVC: CrowdloanContributionConfirmViewProtoc
     func didReceiveEstimatedReward(viewModel: String?) {
         rootView.bind(estimatedReward: viewModel)
     }
+
+    func didReceiveBonus(viewModel: String?) {
+        rootView.bind(bonus: viewModel)
+    }
 }
 
 extension CrowdloanContributionConfirmVC: Localizable {

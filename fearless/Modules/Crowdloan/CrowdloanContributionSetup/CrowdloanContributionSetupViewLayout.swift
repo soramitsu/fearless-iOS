@@ -23,6 +23,8 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
     private(set) var estimatedRewardView: TitleValueView?
 
+    private(set) var bonusView: TitleValueSelectionControl?
+
     let leasingPeriodView = TitleMultiValueView()
 
     let crowdloanInfoTitleLabel: UILabel = {
@@ -118,6 +120,15 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
     }
 
+    func bind(bonus: String?) {
+        if let bonus = bonus {
+            createBonusViewIfNeeded()
+            bonusView?.detailsLabel.text = bonus
+        } else {
+            removeBonusViewIfNeeded()
+        }
+    }
+
     private func applyLocalization() {
         contributionTitleLabel.text = R.string.localizable.crowdloanContributeTitle(
             preferredLanguages: locale.rLanguages
@@ -140,6 +151,10 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             .commonContinue(preferredLanguages: locale.rLanguages)
 
         estimatedRewardView?.titleLabel.text = R.string.localizable.crowdloanReward(
+            preferredLanguages: locale.rLanguages
+        )
+
+        bonusView?.titleLabel.text = R.string.localizable.commonBonus(
             preferredLanguages: locale.rLanguages
         )
     }
@@ -185,7 +200,12 @@ final class CrowdloanContributionSetupViewLayout: UIView {
             make.height.equalTo(48.0)
         }
 
-        contentView.stackView.setCustomSpacing(24.0, after: leasingPeriodView)
+        let spacingView = UIView()
+        contentView.stackView.addArrangedSubview(spacingView)
+        spacingView.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(24)
+        }
 
         contentView.stackView.addArrangedSubview(crowdloanInfoTitleLabel)
         crowdloanInfoTitleLabel.snp.makeConstraints { make in
@@ -234,9 +254,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         }
 
         estimatedRewardView = view
-
-        contentView.stackView.setCustomSpacing(0.0, after: leasingPeriodView)
-        contentView.stackView.setCustomSpacing(24.0, after: view)
     }
 
     private func removeEstimatedRewardViewIfNeeded() {
@@ -247,7 +264,62 @@ final class CrowdloanContributionSetupViewLayout: UIView {
         contentView.stackView.removeArrangedSubview(estimatedRewardView)
         estimatedRewardView.removeFromSuperview()
 
-        contentView.stackView.setCustomSpacing(24.0, after: leasingPeriodView)
+        self.estimatedRewardView = nil
+    }
+
+    private func createBonusViewIfNeeded() {
+        guard bonusView == nil else {
+            return
+        }
+
+        let maybeLastViewIndex: Int? = {
+            if let estimatedRewardView = estimatedRewardView {
+                return contentView.stackView.arrangedSubviews.firstIndex(
+                    of: estimatedRewardView
+                )
+            }
+
+            return contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView)
+        }()
+
+        guard
+            let lastIndex = maybeLastViewIndex else {
+            return
+        }
+
+        let view = TitleValueSelectionControl()
+
+        view.titleLabel.text = R.string.localizable.commonBonus(
+            preferredLanguages: locale.rLanguages
+        )
+
+        view.iconView.image = R.image.iconBonus()
+
+        contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
+        view.snp.makeConstraints { make in
+            make.width.equalTo(self)
+            make.height.equalTo(48.0)
+        }
+
+        view.contentInsets = UIEdgeInsets(
+            top: 0.0,
+            left: UIConstants.horizontalInset,
+            bottom: 0.0,
+            right: UIConstants.horizontalInset
+        )
+
+        bonusView = view
+    }
+
+    private func removeBonusViewIfNeeded() {
+        guard let bonusView = bonusView else {
+            return
+        }
+
+        contentView.stackView.removeArrangedSubview(bonusView)
+        bonusView.removeFromSuperview()
+
+        self.bonusView = nil
     }
 
     private func createLearnMoreViewIfNeeded() {
@@ -278,5 +350,6 @@ final class CrowdloanContributionSetupViewLayout: UIView {
 
         contentView.stackView.removeArrangedSubview(learnMoreView)
         learnMoreView.removeFromSuperview()
+        self.learnMoreView = nil
     }
 }

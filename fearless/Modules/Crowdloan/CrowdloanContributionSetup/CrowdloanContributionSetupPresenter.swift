@@ -23,6 +23,8 @@ final class CrowdloanContributionSetupPresenter {
     private var leasingPeriod: LeasingPeriod?
     private var minimumBalance: BigUInt?
 
+    private var bonusService: CrowdloanBonusServiceProtocol?
+
     private var balanceMinusFee: Decimal { (balance ?? 0) - (fee ?? 0) }
 
     private var crowdloanMetadata: CrowdloanMetadata? {
@@ -130,12 +132,31 @@ final class CrowdloanContributionSetupPresenter {
         view?.didReceiveEstimatedReward(viewModel: viewModel)
     }
 
+    private func provideBonusViewModel() {
+        let inputAmount = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
+        let viewModel: String? = {
+            if let displayInfo = displayInfo, displayInfo.customFlow != nil {
+                return contributionViewModelFactory.createAdditionalBonusViewModel(
+                    inputAmount: inputAmount,
+                    displayInfo: displayInfo,
+                    bonusRate: bonusService?.bonusRate,
+                    locale: selectedLocale
+                )
+            } else {
+                return nil
+            }
+        }()
+
+        view?.didReceiveBonus(viewModel: viewModel)
+    }
+
     private func provideViewModels() {
         provideAssetVewModel()
         provideFeeViewModel()
         provideInputViewModel()
         provideCrowdloanContributionViewModel()
         provideEstimatedRewardViewModel()
+        provideBonusViewModel()
     }
 
     private func refreshFee() {
@@ -165,6 +186,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         refreshFee()
         provideAssetVewModel()
         provideEstimatedRewardViewModel()
+        provideBonusViewModel()
     }
 
     func updateAmount(_ newValue: Decimal) {
@@ -173,6 +195,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         refreshFee()
         provideAssetVewModel()
         provideEstimatedRewardViewModel()
+        provideBonusViewModel()
     }
 
     func proceed() {
@@ -224,7 +247,12 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 let strongSelf = self,
                 let contribution = contributionDecimal,
                 let paraId = strongSelf.crowdloan?.paraId else { return }
-            strongSelf.wireframe.showConfirmation(from: strongSelf.view, paraId: paraId, inputAmount: contribution)
+            strongSelf.wireframe.showConfirmation(
+                from: strongSelf.view,
+                paraId: paraId,
+                inputAmount: contribution,
+                bonusService: strongSelf.bonusService
+            )
         }
     }
 
@@ -234,6 +262,23 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
         }
 
         wireframe.showWeb(url: url, from: view, style: .automatic)
+    }
+
+    func presentAdditionalBonuses() {
+        guard
+            let displayInfo = displayInfo else {
+            return
+        }
+
+        let contributionDecimal = inputResult?.absoluteValue(from: balanceMinusFee) ?? 0
+
+        wireframe.showAdditionalBonus(
+            from: view,
+            for: displayInfo,
+            inputAmount: contributionDecimal,
+            delegate: self,
+            existingService: bonusService
+        )
     }
 }
 
@@ -256,6 +301,7 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
 
             provideCrowdloanContributionViewModel()
             provideEstimatedRewardViewModel()
+            provideBonusViewModel()
         case let .failure(error):
             logger?.error("Did receive display info error: \(error)")
         }
@@ -345,6 +391,13 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
         }
+    }
+}
+
+extension CrowdloanContributionSetupPresenter: CustomCrowdloanDelegate {
+    func didReceive(bonusService: CrowdloanBonusServiceProtocol) {
+        self.bonusService = bonusService
+        provideBonusViewModel()
     }
 }
 

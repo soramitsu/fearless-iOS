@@ -33,13 +33,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
-        <key>few</key>
-        <string></string>
-        <key>many</key>
-        <string></string>
+        <string>%li день</string>
         <key>other</key>
-        <string></string>
+        <string>%li дней</string>
       </dict>
     </dict>
     <key>common.days.format</key>
@@ -53,13 +49,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
-        <key>few</key>
-        <string></string>
-        <key>many</key>
-        <string></string>
+        <string>%li день</string>
         <key>other</key>
-        <string></string>
+        <string>%li дн.</string>
       </dict>
     </dict>
   </dict>
