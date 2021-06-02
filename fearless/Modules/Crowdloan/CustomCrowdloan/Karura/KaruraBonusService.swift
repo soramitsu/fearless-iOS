@@ -23,7 +23,7 @@ enum KaruraBonusServiceError: Error, ErrorContentConvertible {
         case .veficationFailed:
             return ErrorContent(
                 title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
-                message: "Signature verification failed."
+                message: R.string.localizable.crowdloanBonusVerificationError(preferredLanguages: locale?.rLanguages)
             )
         }
     }
@@ -206,7 +206,11 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     _ = try verifyOperation.extractNoCancellableResultData()
                     closure(.success(()))
                 } catch {
-                    closure(.failure(error))
+                    if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
+                        closure(.failure(KaruraBonusServiceError.veficationFailed))
+                    } else {
+                        closure(.failure(error))
+                    }
                 }
             }
         }

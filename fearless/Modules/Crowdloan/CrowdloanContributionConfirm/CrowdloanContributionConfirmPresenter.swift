@@ -238,8 +238,12 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
         switch result {
         case .success:
             wireframe.complete(on: view)
-        case .failure:
-            if let view = view {
+        case let .failure(error):
+            guard let view = view else {
+                return
+            }
+
+            if !wireframe.present(error: error, from: view, locale: selectedLocale) {
                 wireframe.presentExtrinsicFailed(from: view, locale: selectedLocale)
             }
         }

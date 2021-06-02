@@ -455,3 +455,4 @@ Derivation path: %@";
 "karura.terms.action" = "";
 "crowdloan.referral.code.invalid" = "";
 "crowdloan.referral.code.internal" = "";
+"crowdloan.bonus.verification.error" = "";

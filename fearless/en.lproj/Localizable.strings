@@ -456,3 +456,4 @@ Derivation path: %@";
 "karura.terms.action" = "Agree with Terms and Conditions";
 "crowdloan.referral.code.invalid" = "Referral code is invalid. Please, try another one";
 "crowdloan.referral.code.internal" = "Referral code verification failed. Please, try again later.";
+"crowdloan.bonus.verification.error" = "Bonus signature verification failed. Please, try again later.";
