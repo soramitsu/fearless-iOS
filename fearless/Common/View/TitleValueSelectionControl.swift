@@ -29,12 +29,6 @@ final class TitleValueSelectionControl: BackgroundedContentControl {
         return imageView
     }()
 
-    private var viewModel: LearnMoreViewModel?
-
-    deinit {
-        viewModel?.iconViewModel?.cancel(on: iconView)
-    }
-
     override init(frame: CGRect) {
         super.init(frame: frame)
 

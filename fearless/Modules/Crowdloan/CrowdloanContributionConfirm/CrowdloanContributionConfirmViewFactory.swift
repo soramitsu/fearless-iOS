@@ -53,6 +53,7 @@ struct CrowdloanContributionConfirmViewFactory {
             contributionViewModelFactory: contributionViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             inputAmount: inputAmount,
+            bonusRate: bonusService?.bonusRate,
             chain: addressType.chain,
             localizationManager: localizationManager,
             logger: Logger.shared

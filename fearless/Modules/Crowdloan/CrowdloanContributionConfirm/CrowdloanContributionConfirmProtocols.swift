@@ -6,6 +6,7 @@ protocol CrowdloanContributionConfirmViewProtocol: ControllerBackedProtocol, Loc
     func didReceiveFee(viewModel: BalanceViewModelProtocol?)
     func didReceiveCrowdloan(viewModel: CrowdloanContributeConfirmViewModel)
     func didReceiveEstimatedReward(viewModel: String?)
+    func didReceiveBonus(viewModel: String?)
 }
 
 protocol CrowdloanContributionConfirmPresenterProtocol: AnyObject {

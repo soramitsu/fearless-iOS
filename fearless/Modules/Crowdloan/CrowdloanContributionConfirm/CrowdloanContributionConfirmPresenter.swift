@@ -10,6 +10,7 @@ final class CrowdloanContributionConfirmPresenter {
     let contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol
     let dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol
     let inputAmount: Decimal
+    let bonusRate: Decimal?
     let chain: Chain
     let logger: LoggerProtocol?
 
@@ -58,6 +59,7 @@ final class CrowdloanContributionConfirmPresenter {
         contributionViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
         dataValidatingFactory: CrowdloanDataValidatorFactoryProtocol,
         inputAmount: Decimal,
+        bonusRate: Decimal?,
         chain: Chain,
         localizationManager: LocalizationManagerProtocol,
         logger: LoggerProtocol? = nil
@@ -68,6 +70,7 @@ final class CrowdloanContributionConfirmPresenter {
         self.contributionViewModelFactory = contributionViewModelFactory
         self.dataValidatingFactory = dataValidatingFactory
         self.inputAmount = inputAmount
+        self.bonusRate = bonusRate
         self.chain = chain
         self.logger = logger
         self.localizationManager = localizationManager
@@ -125,10 +128,28 @@ final class CrowdloanContributionConfirmPresenter {
         view?.didReceiveEstimatedReward(viewModel: viewModel)
     }
 
+    private func provideBonusViewModel() {
+        let viewModel: String? = {
+            if let displayInfo = displayInfo, let bonusRate = bonusRate {
+                return contributionViewModelFactory.createAdditionalBonusViewModel(
+                    inputAmount: inputAmount,
+                    displayInfo: displayInfo,
+                    bonusRate: bonusRate,
+                    locale: selectedLocale
+                )
+            } else {
+                return nil
+            }
+        }()
+
+        view?.didReceiveBonus(viewModel: viewModel)
+    }
+
     private func provideViewModels() {
         provideAssetVewModel()
         provideFeeViewModel()
         provideEstimatedRewardViewModel()
+        provideBonusViewModel()
     }
 
     private func refreshFee() {
@@ -252,6 +273,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             self.displayInfo = displayInfo
 
             provideEstimatedRewardViewModel()
+            provideBonusViewModel()
         case let .failure(error):
             logger?.error("Did receive display info error: \(error)")
         }
