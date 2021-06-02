@@ -9,6 +9,10 @@ final class SelectedValidatorsViewController: UIViewController {
     private var viewModel: SelectedValidatorsViewModelProtocol?
     private weak var headerView: SelectedValidatorsHeaderView?
 
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
 
@@ -35,7 +39,7 @@ final class SelectedValidatorsViewController: UIViewController {
 
     private func updateHeaderView() {
         if let viewModel = viewModel {
-            let languages = localizationManager?.selectedLocale.rLanguages
+            let languages = selectedLocale.rLanguages
             let title = R.string.localizable
                 .stakingSelectedValidatorsCount(
                     "\(viewModel.itemViewModels.count)",
@@ -47,7 +51,7 @@ final class SelectedValidatorsViewController: UIViewController {
     }
 
     private func setupLocalization() {
-        let languages = localizationManager?.selectedLocale.rLanguages
+        let languages = selectedLocale.rLanguages
         title = R.string.localizable
             .stakingSelectedValidatorsTitle(preferredLanguages: languages)
 
@@ -68,7 +72,7 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
             )!
 
         let items = viewModel?.itemViewModels ?? []
-        cell.bind(viewModel: items[indexPath.row])
+        cell.bind(viewModel: items[indexPath.row].value(for: selectedLocale))
 
         return cell
     }

@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import FearlessUtils
 
 final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol {
     static func createView(
@@ -7,11 +8,18 @@ final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol
         maxTargets: Int
     ) -> SelectedValidatorsViewProtocol? {
         let view = SelectedValidatorsViewController(nib: R.nib.selectedValidatorsViewController)
+
+        let viewModelFactory = SelectedValidatorsViewModelFactory(
+            iconGenerator: PolkadotIconGenerator()
+        )
+
         let presenter = SelectedValidatorsPresenter(
+            viewModelFactory: viewModelFactory,
             validators: validators,
             maxTargets: maxTargets,
             logger: Logger.shared
         )
+
         let wireframe = SelectedValidatorsWireframe()
 
         view.presenter = presenter

@@ -45,7 +45,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Fearless algorithm has selected a list of recommended validators based on the criteria:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="55y-Iv-EdM">
-                    <rect key="frame" x="16" y="48.5" width="343" height="35.5"/>
+                    <rect key="frame" x="16" y="47" width="343" height="33"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                     <color key="textColor" name="colorLightGray"/>
                     <nil key="highlightedColor"/>
@@ -164,7 +164,7 @@
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stake with recommended validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xLN-Qv-Daq">
-                    <rect key="frame" x="16" y="14" width="343" height="20.5"/>
+                    <rect key="frame" x="16" y="14" width="343" height="19"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="16"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
@@ -238,7 +238,7 @@
                             </connections>
                         </view>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 of 16" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
-                            <rect key="frame" x="187.5" y="15" width="147.5" height="18"/>
+                            <rect key="frame" x="187.5" y="16" width="147.5" height="16.5"/>
                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                             <color key="textColor" name="colorWhite"/>
                             <nil key="highlightedColor"/>
