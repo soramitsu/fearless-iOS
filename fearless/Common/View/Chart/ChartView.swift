@@ -67,6 +67,7 @@ extension ChartView: ChartViewProtocol {
             UIColor(red: 0.36, green: 0.31, blue: 0.41, alpha: 1.0)
         ]
 
+        xAxisFormmater.xAxisValues = data.xAxisValues
         let data = BarChartData(dataSet: set)
         data.barWidth = 0.4
 
@@ -75,7 +76,9 @@ extension ChartView: ChartViewProtocol {
 }
 
 class ChartAxisFormmatter: IAxisValueFormatter {
-    func stringForValue(_: Double, axis _: AxisBase?) -> String {
-        "M"
+    var xAxisValues = [String]()
+
+    func stringForValue(_ value: Double, axis _: AxisBase?) -> String {
+        xAxisValues[Int(value)]
     }
 }

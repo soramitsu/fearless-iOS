@@ -17,6 +17,21 @@ extension AnalyticsPeriod {
             return "yearly".uppercased()
         }
     }
+
+    var chartBarsCount: Int {
+        xAxisValues.count
+    }
+
+    var xAxisValues: [String] {
+        switch self {
+        case .weekly:
+            return ["M", "T", "W", "T", "F", "S", "S"]
+        case .monthly:
+            return (0 ... 31).map { String($0) }
+        case .yearly:
+            return (0 ... 12).map { String($0) }
+        }
+    }
 }
 
 extension AnalyticsPeriod {
