@@ -61,10 +61,8 @@ final class AnalyticsRewardsView: UIView {
 
     private func setupLayout() {
         let statsStack: UIView = .vStack(
-            alignment: .leading,
-            distribution: .fill,
+            // alignment: .leading,
             spacing: 4,
-            margins: nil,
             [
                 selectedPeriodLabel,
                 .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel]),

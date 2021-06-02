@@ -51,10 +51,14 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension AnalyticsViewController: AnalyticsViewProtocol {}
+extension AnalyticsViewController: AnalyticsViewProtocol {
+    func didReceiveChartData(_ data: ChartData) {
+        rootView.rewardsView.chartView.setChartData(data)
+    }
+}
 
 extension AnalyticsViewController: AnalyticsPeriodViewDelegate {
     func didSelect(period: AnalyticsPeriod) {
-        print(period)
+        presenter.didSelectPeriod(period)
     }
 }

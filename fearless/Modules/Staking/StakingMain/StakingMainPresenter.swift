@@ -472,7 +472,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch rewardItemData {
         case let .success(data):
             guard let chain = chain else { return }
-            let chartData = viewModelFacade.createViewModel(from: data, period: .thisWeek, chain: chain)
+            let chartData = viewModelFacade.createViewModel(from: data, period: .weekly, chain: chain)
             view?.didReceiveChartData(chartData)
         case let .failure(error):
             handle(error: error)

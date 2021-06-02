@@ -1,25 +1,20 @@
 import Foundation
 
 enum AnalyticsPeriod: CaseIterable {
-    case custom
-    case today
-    case yesterday
-    case thisWeek
-    case lastMonth
-    case thisYear
+    case weekly
+    case monthly
+    case yearly
 }
 
 extension AnalyticsPeriod {
     func title(for _: Locale) -> String {
         switch self {
-        case .custom:
-            return "Custom"
-        case .today:
-            return "Today"
-        case .yesterday:
-            return "Yesterday"
-        default:
-            return "Other"
+        case .weekly:
+            return "weekly".uppercased()
+        case .monthly:
+            return "monthly".uppercased()
+        case .yearly:
+            return "yearly".uppercased()
         }
     }
 }
@@ -27,7 +22,7 @@ extension AnalyticsPeriod {
 extension AnalyticsPeriod {
     var timestampInterval: (Int64, Int64) {
         switch self {
-        case .thisWeek:
+        case .weekly:
             let currentTimestamp = Int64(Date().timeIntervalSince1970)
 
             var dayComponent = DateComponents()
@@ -35,14 +30,28 @@ extension AnalyticsPeriod {
             let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
             let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
             return (weekAgoTimestamp, currentTimestamp)
-        default:
-            return (0, 0)
+        case .monthly:
+            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+
+            var dayComponent = DateComponents()
+            dayComponent.month = -1
+            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
+            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
+            return (weekAgoTimestamp, currentTimestamp)
+        case .yearly:
+            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+
+            var dayComponent = DateComponents()
+            dayComponent.year = -1
+            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
+            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
+            return (weekAgoTimestamp, currentTimestamp)
         }
     }
 
     var xLegendSymbols: [String] {
         switch self {
-        case .thisWeek:
+        case .weekly:
             return ["M", "T", "W", "T", "F", "S", "S"]
         default:
             return []
