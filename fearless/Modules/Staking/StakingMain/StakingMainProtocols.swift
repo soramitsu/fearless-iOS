@@ -28,7 +28,6 @@ protocol StakingMainPresenterProtocol: AnyObject {
 
 protocol StakingMainInteractorInputProtocol: AnyObject {
     func setup()
-    func fetchController(for address: AccountAddress)
 }
 
 protocol StakingMainInteractorOutputProtocol: AnyObject {
@@ -61,8 +60,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 
-    func didFetchController(_ controller: AccountItem?, for address: AccountAddress)
-    func didReceive(fetchControllerError: Error)
+    func didReceiveControllerAccount(result: Result<AccountItem?, Error>)
 }
 
 protocol StakingMainWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {

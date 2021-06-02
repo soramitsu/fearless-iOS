@@ -457,3 +457,4 @@ Derivation path: %@";
 "crowdloan.referral.code.invalid" = "Referral code is invalid. Please, try another one";
 "crowdloan.referral.code.internal" = "Referral code verification failed. Please, try again later.";
 "crowdloan.bonus.verification.error" = "Bonus signature verification failed. Please, try again later.";
+"staking.add.controller" = "Add controller account %@ to the application to perform this action.";

@@ -240,7 +240,7 @@ extension WebSocketEngine {
     func send(request: JSONRPCRequest) {
         inProgressRequests[request.requestId] = request
 
-        connection.write(data: request.data, completion: nil)
+        connection.write(stringData: request.data, completion: nil)
     }
 
     func sendAllPendingRequests() {
