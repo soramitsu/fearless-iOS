@@ -8,6 +8,7 @@ final class AnalyticsPresenter {
     let chain: Chain
     private var rewardsData = [SubscanRewardItemData]()
     private var selectedPeriod = AnalyticsPeriod.weekly
+    private var priceData: PriceData?
 
     init(
         interactor: AnalyticsInteractorInputProtocol,
@@ -39,12 +40,17 @@ final class AnalyticsPresenter {
             }
             .sorted(by: { $0.timestamp > $1.timestamp })
 
+        let rate: Decimal = {
+            guard let priceData = priceData else { return Decimal(1) }
+            return Decimal(string: priceData.price) ?? Decimal(1)
+        }()
+
         let amounts = filteredByPeriod.map { rewardItem -> Double in
             guard
                 let amountValue = BigUInt(rewardItem.amount),
                 let decimal = Decimal.fromSubstrateAmount(amountValue, precision: chain.addressType.precision)
             else { return 0.0 }
-            return Double(truncating: decimal as NSNumber)
+            return Double(truncating: (decimal * rate) as NSNumber)
         }
         return ChartData(amounts: amounts)
     }
@@ -69,6 +75,16 @@ extension AnalyticsPresenter: AnalyticsInteractorOutputProtocol {
             updateView()
         case let .failure(error):
             // handle(error: error)
+            print(error)
+        }
+    }
+
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+            updateView()
+        case let .failure(error):
             print(error)
         }
     }

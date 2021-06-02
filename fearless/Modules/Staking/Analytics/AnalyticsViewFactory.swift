@@ -25,7 +25,11 @@ struct AnalyticsViewFactory {
             operationManager: operationManager
         )
 
-        let interactor = AnalyticsInteractor(analyticsService: analyticsService)
+        let interactor = AnalyticsInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            analyticsService: analyticsService,
+            assetId: assetId
+        )
         let wireframe = AnalyticsWireframe()
 
         let presenter = AnalyticsPresenter(interactor: interactor, wireframe: wireframe, chain: chain)
