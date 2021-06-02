@@ -120,8 +120,7 @@ extension Chain {
     }
 
     func crowdloanDisplayInfoURL() -> URL {
-        // TODO: Revert this on release
-        let base = URL(string: "https://raw.githubusercontent.com/ERussel/fearless-utils/master/crowdloan")!
+        let base = URL(string: "https://raw.githubusercontent.com/soramitsu/fearless-utils/master/crowdloan")!
 
         switch self {
         case .westend:
