@@ -28,7 +28,6 @@ final class SelectedValidatorsViewController: UIViewController {
         tableView.rowHeight = UIConstants.cellHeight
 
         if let headerView = R.nib.selectedValidatorsHeaderView.firstView(owner: nil) {
-            headerView.translatesAutoresizingMaskIntoConstraints = false
             headerView.heightAnchor.constraint(equalToConstant: UIConstants.tableHeaderHeight)
                 .isActive = true
             tableView.tableHeaderView = headerView
@@ -41,12 +40,19 @@ final class SelectedValidatorsViewController: UIViewController {
         if let viewModel = viewModel {
             let languages = selectedLocale.rLanguages
             let title = R.string.localizable
-                .stakingSelectedValidatorsCount(
+                .stakingSelectedValidatorsCount_v191(
                     "\(viewModel.itemViewModels.count)",
                     "\(viewModel.maxTargets)",
                     preferredLanguages: languages
                 )
-            headerView?.bind(title: title.uppercased())
+
+            let details = R.string.localizable
+                .stakingFilterTitleRewards(preferredLanguages: languages)
+
+            headerView?.bind(
+                title: title.uppercased(),
+                details: details.uppercased()
+            )
         }
     }
 

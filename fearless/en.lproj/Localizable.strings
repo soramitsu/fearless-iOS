@@ -425,3 +425,5 @@ Derivation path: %@";
 "staking.select.validators.custom.desc" = "You should trust your nominations to act competently and honest; basing your decision purely on their current profitability could lead to reduced profits or even loss of funds.";
 "staking.select.validators.recommended.button.title" = "Select recommended";
 "staking.select.validators.custom.button.title" = "Select by yourself";
+"staking.filter.title.rewards" = "Rewards (APY)";
+"staking.selected.validators.count_v1.9.1" = "selected %@ (max %@)";
