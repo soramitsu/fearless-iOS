@@ -8,7 +8,7 @@ protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didRecieveNetworkStakingInfo(viewModel: LocalizableResource<NetworkStakingInfoViewModelProtocol>?)
 
     func didReceiveStakingState(viewModel: StakingViewState)
-    func didReceiveChartData(_ data: ChartData)
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>)
 }
 
 protocol StakingMainPresenterProtocol: AnyObject {

@@ -1,15 +1,17 @@
 import Foundation
 import SoraKeystore
 import BigInt
+import SoraFoundation
 
 protocol StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol
-    func createViewModel(
+    func createAnalyticsViewModel(
         from data: [SubscanRewardItemData],
         period: AnalyticsPeriod,
+        priceData: PriceData?,
         chain: Chain
-    ) -> ChartData
+    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel>
 }
 
 final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
@@ -34,29 +36,20 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
         )
     }
 
-    func createViewModel(
+    func createAnalyticsViewModel(
         from data: [SubscanRewardItemData],
         period: AnalyticsPeriod,
+        priceData: PriceData?,
         chain: Chain
-    ) -> ChartData {
-        let onlyRewards = data.filter { itemData in
-            let change = RewardChange(rawValue: itemData.eventId)
-            return change == .reward
+    ) -> LocalizableResource<RewardAnalyticsWidgetViewModel> {
+        let balanceViewModelFactory = createBalanceViewModelFactory(for: chain)
+        let viewModelFactory = AnalyticsViewModelFactory(chain: chain, balanceViewModelFactory: balanceViewModelFactory)
+        let fullViewModel = viewModelFactory.createViewModel(from: data, priceData: priceData, period: period)
+        return LocalizableResource { locale in
+            RewardAnalyticsWidgetViewModel(
+                summary: fullViewModel.value(for: locale).summaryViewModel,
+                chartData: fullViewModel.value(for: locale).chartData
+            )
         }
-        let filteredByPeriod = onlyRewards
-            .filter { itemData in
-                itemData.timestamp >= period.timestampInterval.0 &&
-                    itemData.timestamp <= period.timestampInterval.1
-            }
-            .sorted(by: { $0.timestamp > $1.timestamp })
-
-        let amounts = filteredByPeriod.map { rewardItem -> Double in
-            guard
-                let amountValue = BigUInt(rewardItem.amount),
-                let decimal = Decimal.fromSubstrateAmount(amountValue, precision: chain.addressType.precision)
-            else { return 0.0 }
-            return Double(truncating: decimal as NSNumber)
-        }
-        return ChartData(amounts: amounts)
     }
 }

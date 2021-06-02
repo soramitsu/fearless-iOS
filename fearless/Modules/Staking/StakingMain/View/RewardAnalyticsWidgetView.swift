@@ -1,5 +1,6 @@
 import UIKit
 import SoraUI
+import SoraFoundation
 
 final class RewardAnalyticsWidgetView: UIView {
     private let backgroundView: UIView = TriangularedBlurView()
@@ -62,6 +63,8 @@ final class RewardAnalyticsWidgetView: UIView {
         return label
     }()
 
+    private var localizableViewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>?
+
     var locale = Locale.current {
         didSet {
             if locale != oldValue {
@@ -84,11 +87,9 @@ final class RewardAnalyticsWidgetView: UIView {
 
     private func applyLocalization() {
         titleLabel.text = "Reward analytics"
-        usdAmountLabel.text = "$15.22"
-        tokenAmountLabel.text = "0.03805 KSM"
-        periodLabel.text = "May 12—19"
         payableTitleLabel.text = "Payable"
         receivedTitleLabel.text = "Received"
+        applyViewModel()
     }
 
     private func setupLayout() {
@@ -134,5 +135,23 @@ final class RewardAnalyticsWidgetView: UIView {
         chartView.snp.makeConstraints { $0.height.equalTo(100) }
         payableIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
         receivedIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
+    }
+
+    func bind(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
+        localizableViewModel = viewModel
+        applyViewModel()
+    }
+
+    private func applyViewModel() {
+        guard let viewModel = localizableViewModel else {
+            return
+        }
+
+        let localizedViewModel = viewModel.value(for: locale)
+
+        chartView.setChartData(localizedViewModel.chartData)
+        usdAmountLabel.text = localizedViewModel.summary.usdAmount
+        tokenAmountLabel.text = localizedViewModel.summary.tokenAmount
+        periodLabel.text = localizedViewModel.summary.title
     }
 }

@@ -334,8 +334,8 @@ extension StakingMainViewController: StakingMainViewProtocol {
         networkInfoView.bind(chainName: newChainName)
     }
 
-    func didReceiveChartData(_ data: ChartData) {
-        analyticsView.chartView.setChartData(data)
+    func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
+        analyticsView.bind(viewModel: viewModel)
     }
 
     func didReceive(viewModel: StakingMainViewModelProtocol) {
