@@ -50,7 +50,7 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                             precision: self.chain.addressType.precision
                         )
                     else { return array }
-                    resultArray[index] = decimal
+                    resultArray[index] += decimal
                     return resultArray
                 }
 
