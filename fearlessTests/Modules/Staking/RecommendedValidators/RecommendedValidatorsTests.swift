@@ -48,18 +48,27 @@ class RecommendedValidatorsTests: XCTestCase {
         let all = WestendStub.allValidators
 
         stub(wireframe) { stub in
-            when(stub).proceed(from: any(), targets: any(), maxTargets: any()).then { (_, targets, _) in
+            when(stub).proceedToCustomList(from: any(), validators: any()).then { (_, validators) in
+                XCTAssertEqual(all, validators)
+            }
+
+            when(stub).proceedToRecommendedList(from: any(), validators: any(), maxTargets: any()).then { (_, targets, _) in
                 XCTAssertEqual(Set(recommended.map({ $0.address })),
                                Set(targets.map({ $0.address })))
             }
 
-            when(stub).showCustom(from: any(), validators: any()).then { (_ , validators) in
-                XCTAssertEqual(all, validators)
-            }
-
-            when(stub).showRecommended(from: any(), validators: any(), maxTargets: any()).then { (_, validators, _) in
-                XCTAssertEqual(recommended, validators)
-            }
+//            when(stub).proceed(from: any(), targets: any(), maxTargets: any()).then { (_, targets, _) in
+//                XCTAssertEqual(Set(recommended.map({ $0.address })),
+//                               Set(targets.map({ $0.address })))
+//            }
+//
+//            when(stub).showCustom(from: any(), validators: any()).then { (_ , validators) in
+//                XCTAssertEqual(all, validators)
+//            }
+//
+//            when(stub).showRecommended(from: any(), validators: any(), maxTargets: any()).then { (_, validators, _) in
+//                XCTAssertEqual(recommended, validators)
+//            }
         }
 
         presenter.setup()
@@ -70,10 +79,8 @@ class RecommendedValidatorsTests: XCTestCase {
 
         presenter.selectRecommendedValidators()
         presenter.selectCustomValidators()
-        presenter.proceed()
 
-        verify(wireframe, times(1)).showCustom(from: any(), validators: any())
-        verify(wireframe, times(1)).showRecommended(from: any(), validators: any(), maxTargets: any())
-        verify(wireframe, times(1)).proceed(from: any(), targets: any(), maxTargets: any())
+        verify(wireframe, times(1)).proceedToCustomList(from: any(), validators: any())
+        verify(wireframe, times(1)).proceedToRecommendedList(from: any(), validators: any(), maxTargets: any())
     }
 }

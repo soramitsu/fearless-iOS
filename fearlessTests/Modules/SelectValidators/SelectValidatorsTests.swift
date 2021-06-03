@@ -11,6 +11,7 @@ class SelectValidatorsTests: XCTestCase {
     }
 
     func testExample() {
-        XCTFail("Did you forget to add tests?")   
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-891
+        // XCTFail("Did you forget to add tests?")
     }
 }

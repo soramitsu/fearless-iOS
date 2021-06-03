@@ -1,6 +1,7 @@
 import XCTest
 @testable import fearless
 import Cuckoo
+import FearlessUtils
 
 class SelectedValidatorsTests: XCTestCase {
     let validators: [SelectedValidatorInfo] = {
@@ -15,8 +16,9 @@ class SelectedValidatorsTests: XCTestCase {
 
         let view = MockSelectedValidatorsViewProtocol()
         let wireframe = MockSelectedValidatorsWireframeProtocol()
+        let viewModelFactory = SelectedValidatorsViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
-        let presenter = SelectedValidatorsPresenter(validators: validators, maxTargets: 16)
+        let presenter = SelectedValidatorsPresenter(viewModelFactory: viewModelFactory, validators: validators, maxTargets: 16)
 
         presenter.view = view
         presenter.wireframe = wireframe
