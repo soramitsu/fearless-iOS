@@ -68,6 +68,8 @@ extension ChartView: ChartViewProtocol {
         ]
 
         xAxisFormmater.xAxisValues = data.xAxisValues
+        xAxis.labelCount = data.xAxisValues.count
+
         let data = BarChartData(dataSet: set)
         data.barWidth = 0.4
 
