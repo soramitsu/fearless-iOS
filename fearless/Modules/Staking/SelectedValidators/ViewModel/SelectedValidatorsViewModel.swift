@@ -3,7 +3,7 @@ import FearlessUtils
 import SoraFoundation
 
 protocol SelectedValidatorsViewModelProtocol {
-    var maxTargets: Int { get }
+    var itemsCountString: LocalizableResource<String> { get }
     var itemViewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>] { get }
 }
 
@@ -14,8 +14,8 @@ protocol SelectedValidatorViewModelProtocol {
 }
 
 struct SelectedValidatorsViewModel: SelectedValidatorsViewModelProtocol {
-    var maxTargets: Int
-    var itemViewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>]
+    let itemsCountString: LocalizableResource<String>
+    let itemViewModels: [LocalizableResource<SelectedValidatorViewModelProtocol>]
 }
 
 struct SelectedValidatorViewModel: SelectedValidatorViewModelProtocol {

@@ -40,12 +40,8 @@ final class SelectedValidatorsViewController: UIViewController {
     private func updateHeaderView() {
         if let viewModel = viewModel {
             let languages = selectedLocale.rLanguages
-            let title = R.string.localizable
-                .stakingSelectedValidatorsCount_v191(
-                    "\(viewModel.itemViewModels.count)",
-                    "\(viewModel.maxTargets)",
-                    preferredLanguages: languages
-                )
+            let title = viewModel
+                .itemsCountString.value(for: selectedLocale)
 
             let details = R.string.localizable
                 .stakingFilterTitleRewards(preferredLanguages: languages)

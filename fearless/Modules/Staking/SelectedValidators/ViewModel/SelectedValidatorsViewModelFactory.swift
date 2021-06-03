@@ -27,6 +27,16 @@ final class SelectedValidatorsViewModelFactory {
             return percentageFormatter.string(from: stakeReturn as NSNumber) ?? ""
         }
     }
+
+    private func createItemsCountString(for currentCount: Int, outOf maxCount: Int) -> LocalizableResource<String> {
+        LocalizableResource { locale in
+            R.string.localizable.stakingSelectedValidatorsCount_v191(
+                currentCount,
+                maxCount,
+                preferredLanguages: locale.rLanguages
+            )
+        }
+    }
 }
 
 extension SelectedValidatorsViewModelFactory: SelectedValidatorsViewModelFactoryProtocol {
@@ -50,8 +60,10 @@ extension SelectedValidatorsViewModelFactory: SelectedValidatorsViewModelFactory
                 }
             }
 
+        let itemsCountString = createItemsCountString(for: items.count, outOf: maxTargets)
+
         return SelectedValidatorsViewModel(
-            maxTargets: maxTargets,
+            itemsCountString: itemsCountString,
             itemViewModels: items
         )
     }
