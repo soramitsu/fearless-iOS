@@ -38,6 +38,8 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                     itemData.timestamp >= period.timestampInterval.0 &&
                         itemData.timestamp <= period.timestampInterval.1
                 }
+
+            let groupedByPeriod = filteredByPeriod
                 .reduce(resultArray) { array, value in
                     let distance = period.timestampInterval.1 - period.timestampInterval.0
                     let index = Int(Double(value.timestamp - period.timestampInterval.0) / Double(distance) * Double(period.chartBarsCount))
@@ -52,31 +54,18 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                     return resultArray
                 }
 
-//            let amountsDecimal = filteredByPeriod
-//                .map { rewardItem -> Decimal in
-//                    guard
-//                        let amountValue = BigUInt(rewardItem.amount),
-//                        let decimal = Decimal.fromSubstrateAmount(
-//                            amountValue,
-//                            precision: self.chain.addressType.precision
-//                        )
-//                    else { return 0.0 }
-//                    return decimal
-//                }
-            let chartDoubles = filteredByPeriod.map { Double(truncating: $0 as NSNumber) }
+            let chartDoubles = groupedByPeriod.map { Double(truncating: $0 as NSNumber) }
             let chartData = ChartData(amounts: chartDoubles, xAxisValues: period.xAxisValues)
 
-            let totalReceived = filteredByPeriod.reduce(Decimal(0), +)
+            let totalReceived = groupedByPeriod.reduce(Decimal(0), +)
             let totalReceivedToken = self.balanceViewModelFactory.balanceFromPrice(
                 totalReceived,
                 priceData: priceData
             ).value(for: locale)
 
             let dateFormatter = self.weekDateFormatter(for: locale)
-            let startDate = Date() // filteredByPeriod.first
-            // .map { Date(timeIntervalSince1970: TimeInterval($0.timestamp)) } ?? Date()
-            let endDate = Date() // filteredByPeriod.last
-            // .map { Date(timeIntervalSince1970: TimeInterval($0.timestamp)) } ?? Date()
+            let startDate = Date(timeIntervalSince1970: TimeInterval(period.timestampInterval.0))
+            let endDate = Date(timeIntervalSince1970: TimeInterval(period.timestampInterval.1))
 
             let periodText = dateFormatter.string(from: startDate, to: endDate)
             let summaryViewModel = AnalyticsSummaryRewardViewModel(
