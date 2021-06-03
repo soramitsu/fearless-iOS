@@ -29,9 +29,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>%li día restante</string>
         <key>other</key>
-        <string></string>
+        <string>%li días restantes</string>
       </dict>
     </dict>
     <key>common.days.format</key>
@@ -45,9 +45,9 @@
         <key>NSStringFormatValueTypeKey</key>
         <string>li</string>
         <key>one</key>
-        <string></string>
+        <string>%li día</string>
         <key>other</key>
-        <string></string>
+        <string>%li días</string>
       </dict>
     </dict>
   </dict>

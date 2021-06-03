@@ -58,6 +58,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
         let feeReceived = XCTestExpectation()
         let estimatedRewardReceived = XCTestExpectation()
         let crowdloanReceived = XCTestExpectation()
+        let bonusReceived = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceiveInput(viewModel: any()).then { viewModel in
@@ -84,6 +85,10 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 crowdloanReceived.fulfill()
             }
 
+            when(stub).didReceiveBonus(viewModel: any()).then { _ in
+                bonusReceived.fulfill()
+            }
+
             when(stub).isSetup.get.thenReturn(false, true)
         }
 
@@ -95,7 +100,8 @@ class CrowdloanContributionSetupTests: XCTestCase {
                 assetReceived,
                 feeReceived,
                 estimatedRewardReceived,
-                crowdloanReceived
+                crowdloanReceived,
+                bonusReceived
             ],
             timeout: 10
         )
@@ -110,8 +116,9 @@ class CrowdloanContributionSetupTests: XCTestCase {
             when(stub).showConfirmation(
                 from: any(),
                 paraId: any(),
-                inputAmount: any()
-            ).then { (_, _, amount) in
+                inputAmount: any(),
+                bonusService: any()
+            ).then { (_, _, amount, _) in
                 XCTAssertEqual(expectedAmount, amount)
                 completionExpectation.fulfill()
             }

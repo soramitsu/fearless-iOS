@@ -9,6 +9,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
 
     let signingWrapper: SigningWrapperProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
+    let bonusService: CrowdloanBonusServiceProtocol?
 
     init(
         paraId: ParaId,
@@ -22,10 +23,12 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
         accountRepository: AnyDataProviderRepository<AccountItem>,
         crowdloanFundsProvider: AnyDataProvider<DecodedCrowdloanFunds>,
         singleValueProviderFactory: SingleValueProviderFactoryProtocol,
+        bonusService: CrowdloanBonusServiceProtocol?,
         operationManager: OperationManagerProtocol
     ) {
         self.signingWrapper = signingWrapper
         self.accountRepository = accountRepository
+        self.bonusService = bonusService
 
         super.init(
             paraId: paraId,
@@ -65,10 +68,8 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
             }
         }
     }
-}
 
-extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
-    func submit(contribution: BigUInt) {
+    private func submitExtrinsic(for contribution: BigUInt) {
         let call = callFactory.contribute(to: paraId, amount: contribution)
 
         extrinsicService.submit(
@@ -81,5 +82,24 @@ extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmIn
                 self?.confirmPresenter?.didSubmitContribution(result: result)
             }
         )
+    }
+}
+
+extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
+    func submit(contribution: BigUInt) {
+        if let bonusService = bonusService {
+            bonusService.applyBonusForContribution(amount: contribution) { [weak self] result in
+                DispatchQueue.main.async {
+                    switch result {
+                    case .success:
+                        self?.submitExtrinsic(for: contribution)
+                    case let .failure(error):
+                        self?.confirmPresenter?.didSubmitContribution(result: .failure(error))
+                    }
+                }
+            }
+        } else {
+            submitExtrinsic(for: contribution)
+        }
     }
 }

@@ -43,6 +43,7 @@ protocol UIFactoryProtocol {
         spacing: CGFloat
     ) -> UIToolbar
 
+    func createCommonInputView() -> CommonInputView
     func createAmountInputView(filled: Bool) -> AmountInputView
 
     func createAmountAccessoryView(
@@ -57,6 +58,8 @@ protocol UIFactoryProtocol {
     func createNetworkFeeConfirmView() -> NetworkFeeConfirmView
 
     func createTitleValueView() -> TitleValueView
+
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl
 
     func createHintView() -> HintView
 
@@ -246,6 +249,10 @@ final class UIFactory: UIFactoryProtocol {
         )
     }
 
+    func createCommonInputView() -> CommonInputView {
+        CommonInputView()
+    }
+
     func createAmountInputView(filled: Bool) -> AmountInputView {
         let amountInputView = AmountInputView()
 
@@ -406,6 +413,10 @@ final class UIFactory: UIFactoryProtocol {
             right: UIConstants.horizontalInset
         )
         return view
+    }
+
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl {
+        TitleValueSelectionControl()
     }
 
     func createRewardSelectionView() -> RewardSelectionView {
