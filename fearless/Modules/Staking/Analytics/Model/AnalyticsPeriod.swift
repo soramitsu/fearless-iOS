@@ -27,49 +27,45 @@ extension AnalyticsPeriod {
         case .weekly:
             return ["M", "T", "W", "T", "F", "S", "S"]
         case .monthly:
-            return (0 ... 31).map { String($0) }
+            return (1 ... 31).map { String($0) }
         case .yearly:
-            return (0 ... 12).map { String($0) }
+            return (1 ... 12).map { String($0) }
         }
     }
 }
 
 extension AnalyticsPeriod {
     var timestampInterval: (Int64, Int64) {
+        let now = Date()
+        let calendar = Calendar.current
         switch self {
         case .weekly:
-            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+            var startOfWeekComponent = calendar.dateComponents([.year, .month, .day], from: now)
+            startOfWeekComponent.day = 0
+            let startOfWeekDate = calendar.date(from: startOfWeekComponent) ?? now
+            let endOfWeekDate = calendar.date(byAdding: .day, value: 6, to: startOfWeekDate) ?? now
 
-            var dayComponent = DateComponents()
-            dayComponent.day = -7
-            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
-            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
-            return (weekAgoTimestamp, currentTimestamp)
+            let startOfWeekTimestamp = Int64(startOfWeekDate.timeIntervalSince1970)
+            let endOfWeekTimestamp = Int64(endOfWeekDate.timeIntervalSince1970)
+            return (startOfWeekTimestamp, endOfWeekTimestamp)
         case .monthly:
-            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+            var startOfMonthComponent = calendar.dateComponents([.year, .month], from: now)
+            startOfMonthComponent.day = 1
+            let startOfMonthDate = calendar.date(from: startOfMonthComponent) ?? now
+            let endOfMonthDate = calendar.date(byAdding: .month, value: 1, to: startOfMonthDate) ?? now
 
-            var dayComponent = DateComponents()
-            dayComponent.month = -1
-            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
-            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
-            return (weekAgoTimestamp, currentTimestamp)
+            let startOfMonthTimestamp = Int64(startOfMonthDate.timeIntervalSince1970)
+            let endOfMonthTimestamp = Int64(endOfMonthDate.timeIntervalSince1970)
+            return (startOfMonthTimestamp, endOfMonthTimestamp)
         case .yearly:
-            let currentTimestamp = Int64(Date().timeIntervalSince1970)
+            var startOfYearComponent = calendar.dateComponents([.year], from: now)
+            startOfYearComponent.day = 1
+            let startOfYearDate = calendar.date(from: startOfYearComponent) ?? now
+            let endOfYearDate = calendar.date(byAdding: .year, value: 1, to: startOfYearDate) ?? now
 
-            var dayComponent = DateComponents()
-            dayComponent.year = -1
-            let weekAgoDate = Calendar.current.date(byAdding: dayComponent, to: Date())!
-            let weekAgoTimestamp = Int64(weekAgoDate.timeIntervalSince1970)
-            return (weekAgoTimestamp, currentTimestamp)
-        }
-    }
-
-    var xLegendSymbols: [String] {
-        switch self {
-        case .weekly:
-            return ["M", "T", "W", "T", "F", "S", "S"]
-        default:
-            return []
+            let startOfYearTimestamp = Int64(startOfYearDate.timeIntervalSince1970)
+            let endOfYearTimestamp = Int64(endOfYearDate.timeIntervalSince1970)
+            return (startOfYearTimestamp, endOfYearTimestamp)
         }
     }
 }
