@@ -5,6 +5,7 @@ final class SelectedValidatorsViewController: UIViewController {
     var presenter: SelectedValidatorsPresenterProtocol!
 
     @IBOutlet private var tableView: UITableView!
+    @IBOutlet var continueButton: TriangularedButton!
 
     private var viewModel: SelectedValidatorsViewModelProtocol?
     private weak var headerView: SelectedValidatorsHeaderView?
@@ -61,7 +62,15 @@ final class SelectedValidatorsViewController: UIViewController {
         title = R.string.localizable
             .stakingRecommendedSectionTitle(preferredLanguages: languages)
 
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: languages)
+        continueButton.invalidateLayout()
+
         updateHeaderView()
+    }
+
+    @IBAction private func actionContinue() {
+        presenter.proceed()
     }
 }
 

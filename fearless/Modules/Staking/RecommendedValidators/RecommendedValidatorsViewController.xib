@@ -22,7 +22,6 @@
             <connections>
                 <outlet property="activityView" destination="Tck-WI-Kkf" id="b9R-42-Gdv"/>
                 <outlet property="algoDetailsLabel" destination="55y-Iv-EdM" id="XQr-La-q6C"/>
-                <outlet property="continueButton" destination="drj-qf-bUn" id="3tk-TF-wyY"/>
                 <outlet property="customValidatorsCell" destination="ENT-cZ-dY0" id="44w-HN-17i"/>
                 <outlet property="customValidatorsContainer" destination="UV7-1T-hlO" id="Tjl-IX-TIq"/>
                 <outlet property="customValidatorsDetailsLabel" destination="jol-v5-CUa" id="jI1-CZ-u2x"/>
@@ -160,7 +159,7 @@
                     </constraints>
                 </view>
                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" ambiguous="YES" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Tck-WI-Kkf">
-                    <rect key="frame" x="177.5" y="237" width="20" height="20"/>
+                    <rect key="frame" x="177.5" y="232" width="20" height="20"/>
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stake with recommended validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xLN-Qv-Daq">
@@ -170,7 +169,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="cst-IG-Zd7">
-                    <rect key="frame" x="0.0" y="237" width="375" height="48"/>
+                    <rect key="frame" x="0.0" y="232" width="375" height="48"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sny-7g-S5M" customClass="BorderedContainerView" customModule="SoraUI">
                             <rect key="frame" x="16" y="0.0" width="343" height="48"/>
@@ -266,55 +265,21 @@
                         <constraint firstItem="qo1-Km-IOb" firstAttribute="leading" secondItem="mUW-mr-dOJ" secondAttribute="trailing" id="vw8-vE-NTR"/>
                     </constraints>
                 </view>
-                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="drj-qf-bUn" customClass="TriangularedButton" customModule="fearless" customModuleProvider="target">
-                    <rect key="frame" x="16" y="591" width="343" height="52"/>
-                    <color key="backgroundColor" systemColor="systemBackgroundColor"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="52" id="Arx-MM-zDO"/>
-                    </constraints>
-                    <userDefinedRuntimeAttributes>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_fillColor">
-                            <color key="value" name="colorPink"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedFillColor">
-                            <color key="value" name="colorHighlightedPink"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_shadowOpacity">
-                            <real key="value" value="0.0"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_title" value="Continue"/>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_titleColor">
-                            <color key="value" name="colorWhite"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="string" keyPath="_titleFontName" value="sora-rc004-0417-Bold"/>
-                        <userDefinedRuntimeAttribute type="number" keyPath="_titleFontSize">
-                            <real key="value" value="14"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_changesContentOpacityWhenHighlighted" value="NO"/>
-                        <userDefinedRuntimeAttribute type="color" keyPath="_highlightedTitleColor">
-                            <color key="value" name="colorWhite"/>
-                        </userDefinedRuntimeAttribute>
-                        <userDefinedRuntimeAttribute type="boolean" keyPath="_highlighted" value="NO"/>
-                    </userDefinedRuntimeAttributes>
-                    <connections>
-                        <action selector="actionContinue" destination="-1" eventType="touchUpInside" id="jti-dU-qUA"/>
-                    </connections>
-                </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" text="Stake with your validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8N2-er-RfY">
-                    <rect key="frame" x="16" y="309" width="343" height="20.5"/>
+                    <rect key="frame" x="16" y="304" width="343" height="20.5"/>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="16"/>
                     <color key="textColor" name="colorWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" ambiguous="YES" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jol-v5-CUa">
-                    <rect key="frame" x="16" y="343.5" width="343" height="71"/>
+                    <rect key="frame" x="16" y="338.5" width="343" height="71"/>
                     <string key="text">You should trust your nominations to act competently and honest; basing your decision purely on their current profitability could lead to reduced profits or even loss of funds.</string>
                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                     <color key="textColor" name="colorLightGray"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" ambiguous="YES" translatesAutoresizingMaskIntoConstraints="NO" id="UV7-1T-hlO">
-                    <rect key="frame" x="0.0" y="435" width="375" height="48"/>
+                    <rect key="frame" x="0.0" y="429.5" width="375" height="48"/>
                     <subviews>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gpJ-Ri-cah" customClass="BorderedContainerView" customModule="SoraUI">
                             <rect key="frame" x="16" y="0.0" width="343" height="48"/>
@@ -406,7 +371,6 @@
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
                 <constraint firstItem="8N2-er-RfY" firstAttribute="top" secondItem="cst-IG-Zd7" secondAttribute="bottom" constant="24" id="0bu-fc-6XI"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="drj-qf-bUn" secondAttribute="bottom" constant="24" id="1AQ-Ll-PvW"/>
                 <constraint firstItem="xLN-Qv-Daq" firstAttribute="top" secondItem="vUN-kp-3ea" secondAttribute="top" constant="14" id="3RC-AE-3am"/>
                 <constraint firstItem="cst-IG-Zd7" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="4pj-x1-JcY"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="UV7-1T-hlO" secondAttribute="trailing" id="5lS-Hm-VpX"/>
@@ -422,12 +386,10 @@
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="jol-v5-CUa" secondAttribute="trailing" constant="16" id="HiT-Fe-asR"/>
                 <constraint firstItem="55y-Iv-EdM" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="MNg-na-A2b"/>
                 <constraint firstItem="xLN-Qv-Daq" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="MnA-1V-zi7"/>
-                <constraint firstItem="drj-qf-bUn" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" constant="16" id="URT-ot-ZL2"/>
                 <constraint firstItem="v0U-sH-wHU" firstAttribute="top" secondItem="55y-Iv-EdM" secondAttribute="bottom" constant="14" id="V6b-qd-rAv"/>
                 <constraint firstItem="Tck-WI-Kkf" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="VTC-lC-wFc"/>
                 <constraint firstItem="UV7-1T-hlO" firstAttribute="leading" secondItem="vUN-kp-3ea" secondAttribute="leading" id="VdZ-nc-9cd"/>
                 <constraint firstItem="cst-IG-Zd7" firstAttribute="top" secondItem="v0U-sH-wHU" secondAttribute="bottom" constant="20" id="X5f-jQ-vvh"/>
-                <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="drj-qf-bUn" secondAttribute="trailing" constant="16" id="jLa-Ps-1cM"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="cst-IG-Zd7" secondAttribute="trailing" id="kFL-Pv-Pyi"/>
                 <constraint firstItem="Tck-WI-Kkf" firstAttribute="top" secondItem="cst-IG-Zd7" secondAttribute="top" id="ldX-Na-BMv"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="trailing" secondItem="xLN-Qv-Daq" secondAttribute="trailing" constant="16" id="vrp-Sa-ijL"/>
@@ -435,6 +397,14 @@
             <point key="canvasLocation" x="111" y="108"/>
         </view>
     </objects>
+    <designables>
+        <designable name="ENT-cZ-dY0">
+            <size key="intrinsicContentSize" width="55" height="15"/>
+        </designable>
+        <designable name="g6a-OX-WP3">
+            <size key="intrinsicContentSize" width="55" height="15"/>
+        </designable>
+    </designables>
     <resources>
         <image name="iconAlgoItem" width="16" height="16"/>
         <image name="iconList" width="24" height="24"/>
@@ -448,9 +418,6 @@
         </namedColor>
         <namedColor name="colorLightGray">
             <color red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-        </namedColor>
-        <namedColor name="colorPink">
-            <color red="1" green="0.0" blue="0.60392156862745094" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

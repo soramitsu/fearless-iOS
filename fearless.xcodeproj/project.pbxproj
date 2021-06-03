@@ -1048,6 +1048,8 @@
 		AB5E2A2B4CC823E6F6515ADD /* StakingRewardPayoutsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2ECD8589BD30A8BE9492AD87 /* StakingRewardPayoutsPresenter.swift */; };
 		ABA3D873BBECB7F4BD670872 /* ExportSeedPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = EFB278373745C20822442686 /* ExportSeedPresenter.swift */; };
 		AD26EDFF3045DD12606EFBF2 /* AccountInfoViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = E0757644E24D9DC8AA44704B /* AccountInfoViewController.xib */; };
+		AE1000F226679886004753B7 /* ChangeTargetsSelectionWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1000F126679886004753B7 /* ChangeTargetsSelectionWireframe.swift */; };
+		AE1000F426679946004753B7 /* InitiatedBondingSelectionWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE1000F326679946004753B7 /* InitiatedBondingSelectionWireframe.swift */; };
 		AE20602C2636EA5800357578 /* MoonPayKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE20602B2636EA5800357578 /* MoonPayKeys.swift */; };
 		AE2060B02637068700357578 /* MoonPayCIKeys.stencil in Resources */ = {isa = PBXBuildFile; fileRef = AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */; };
 		AE2C845D25EE833A00986716 /* RewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = AE2C845C25EE833A00986716 /* RewardViewModel.swift */; };
@@ -2365,6 +2367,8 @@
 		AC404A4071AF571FAC4C1994 /* AccountExportPasswordProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountExportPasswordProtocols.swift; sourceTree = "<group>"; };
 		ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = AccountCreateWireframe.swift; sourceTree = "<group>"; };
 		ADD348E749EC6A7E3BB069DE /* StakingUnbondConfirmProtocols.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = StakingUnbondConfirmProtocols.swift; sourceTree = "<group>"; };
+		AE1000F126679886004753B7 /* ChangeTargetsSelectionWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeTargetsSelectionWireframe.swift; sourceTree = "<group>"; };
+		AE1000F326679946004753B7 /* InitiatedBondingSelectionWireframe.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InitiatedBondingSelectionWireframe.swift; sourceTree = "<group>"; };
 		AE20602B2636EA5800357578 /* MoonPayKeys.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MoonPayKeys.swift; sourceTree = "<group>"; };
 		AE2060AF2637068700357578 /* MoonPayCIKeys.stencil */ = {isa = PBXFileReference; lastKnownFileType = text; path = MoonPayCIKeys.stencil; sourceTree = "<group>"; };
 		AE2C845C25EE833A00986716 /* RewardViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardViewModel.swift; sourceTree = "<group>"; };
@@ -2707,6 +2711,8 @@
 		0A656E369FA382390634A30F /* SelectedValidators */ = {
 			isa = PBXGroup;
 			children = (
+				AE1000F026679824004753B7 /* InitiatedBonding */,
+				AE1000EF2667981A004753B7 /* ChangeTargets */,
 				84D2F45825EF053F008B914D /* Views */,
 				84D2F45225EF043C008B914D /* ViewModel */,
 				D6C6573C52692E4A56E35FF9 /* SelectedValidatorsProtocols.swift */,
@@ -3067,17 +3073,17 @@
 		77D9A8552D1961A00A3683BE /* StakingConfirm */ = {
 			isa = PBXGroup;
 			children = (
+				84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */,
+				9B5626189788682A84D4E9D7 /* StakingConfirmPresenter.swift */,
+				D7FE5F01FC9364788A91EFA5 /* StakingConfirmProtocols.swift */,
+				5B8B0940B2CB25AD9C36206E /* StakingConfirmViewController.swift */,
+				975DECE71DE70DFD866B8E23 /* StakingConfirmViewFactory.swift */,
+				5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */,
+				DD6322902E35C76E689A28AE /* StakingConfirmViewController.xib */,
 				847297CD260B400C009B86D0 /* ChangeTargets */,
 				84729764260B1C11009B86D0 /* InitiatedBonding */,
 				8472974B260A9CAD009B86D0 /* Model */,
 				849DEBD225ED014000C64C19 /* ViewModel */,
-				D7FE5F01FC9364788A91EFA5 /* StakingConfirmProtocols.swift */,
-				5D0E02AA5D3EBA9B94950241 /* StakingConfirmWireframe.swift */,
-				9B5626189788682A84D4E9D7 /* StakingConfirmPresenter.swift */,
-				5B8B0940B2CB25AD9C36206E /* StakingConfirmViewController.swift */,
-				DD6322902E35C76E689A28AE /* StakingConfirmViewController.xib */,
-				975DECE71DE70DFD866B8E23 /* StakingConfirmViewFactory.swift */,
-				84729757260AA519009B86D0 /* StakingBaseConfirmInteractor.swift */,
 			);
 			path = StakingConfirm;
 			sourceTree = "<group>";
@@ -5584,6 +5590,12 @@
 		84F43B8725DE9F8500AEDA56 /* Staking */ = {
 			isa = PBXGroup;
 			children = (
+				7F32EC2D6AEE8391CDDDBFA8 /* RecommendedValidators */,
+				0A656E369FA382390634A30F /* SelectedValidators */,
+				4E765C43A5296629DDD375B2 /* SelectValidators */,
+				77D9A8552D1961A00A3683BE /* StakingConfirm */,
+				AE2C84C825EF984700986716 /* ValidatorInfo */,
+				06CBDC344F7A8651326BC118 /* YourValidators */,
 				F4F2297A260DC03400ACFDB8 /* ViewModel */,
 				8497FC4C26316EE9002FEAA7 /* View */,
 				84C7DA5225EE2DD900F8C318 /* Protocols */,
@@ -5593,11 +5605,7 @@
 				84CFF1D726526FBC00DB7CF7 /* StakingBondMoreConfirmation */,
 				AEE5FB0D26443859002B8FDC /* StakingRewardDestinationSetup */,
 				8472C5A2265CF9C400E2481B /* StakingRewardDestConfirm */,
-				7F32EC2D6AEE8391CDDDBFA8 /* RecommendedValidators */,
-				4E765C43A5296629DDD375B2 /* SelectValidators */,
-				0A656E369FA382390634A30F /* SelectedValidators */,
 				68DEED3BF634220D4BF7A9C8 /* StakingAmount */,
-				77D9A8552D1961A00A3683BE /* StakingConfirm */,
 				B7B0681CCE8F8F0127E8676C /* StakingMain */,
 				F453C1B1260B50450095E23F /* StakingManage */,
 				C9F3889FC7620D7F436E38ED /* StakingPayoutConfirmation */,
@@ -5612,8 +5620,6 @@
 				153CB18ECB38553596D7C2F9 /* ControllerAccountConfirmation */,
 				02D14D8E22EE8B8422C929CD /* StakingUnbondSetup */,
 				AE9EF251260A81FE0026910A /* Stories */,
-				AE2C84C825EF984700986716 /* ValidatorInfo */,
-				06CBDC344F7A8651326BC118 /* YourValidators */,
 			);
 			path = Staking;
 			sourceTree = "<group>";
@@ -5826,6 +5832,22 @@
 				30F3EC1C2DAE60DD6BB99B42 /* StakingUnbondConfirmViewFactory.swift */,
 			);
 			path = StakingUnbondConfirm;
+			sourceTree = "<group>";
+		};
+		AE1000EF2667981A004753B7 /* ChangeTargets */ = {
+			isa = PBXGroup;
+			children = (
+				AE1000F126679886004753B7 /* ChangeTargetsSelectionWireframe.swift */,
+			);
+			path = ChangeTargets;
+			sourceTree = "<group>";
+		};
+		AE1000F026679824004753B7 /* InitiatedBonding */ = {
+			isa = PBXGroup;
+			children = (
+				AE1000F326679946004753B7 /* InitiatedBondingSelectionWireframe.swift */,
+			);
+			path = InitiatedBonding;
 			sourceTree = "<group>";
 		};
 		AE2C845B25EE829E00986716 /* ViewModel */ = {
@@ -7539,6 +7561,7 @@
 				84FACCD925F8C22A00F32ED4 /* BigInt+Hex.swift in Sources */,
 				846A2C4525271F0100731018 /* DateFormatter.swift in Sources */,
 				8418E7202617602000DCF6C8 /* WalletRemoteHistoryItemProtocol.swift in Sources */,
+				AE1000F426679946004753B7 /* InitiatedBondingSelectionWireframe.swift in Sources */,
 				84113B6C255B2835009BD21A /* AccountCreateError.swift in Sources */,
 				849014C024AA87E4008F705E /* ScreenAuthorizationPresenter.swift in Sources */,
 				84F5105B263AB9F2005D15AE /* NetworkFeeView.swift in Sources */,
@@ -8063,6 +8086,7 @@
 				83A98B972B3EA69B357E5002 /* ControllerAccountViewController.swift in Sources */,
 				EB5F587A71CCE1F0F86154CF /* ControllerAccountViewFactory.swift in Sources */,
 				9A940CBA3F309D438945A90C /* ControllerAccountConfirmationProtocols.swift in Sources */,
+				AE1000F226679886004753B7 /* ChangeTargetsSelectionWireframe.swift in Sources */,
 				D886425A55425810AD070AB5 /* ControllerAccountConfirmationWireframe.swift in Sources */,
 				0AAFEFA17F249F4BEF051F6B /* ControllerAccountConfirmationPresenter.swift in Sources */,
 				135CEEC5363BE34130958578 /* ControllerAccountConfirmationInteractor.swift in Sources */,

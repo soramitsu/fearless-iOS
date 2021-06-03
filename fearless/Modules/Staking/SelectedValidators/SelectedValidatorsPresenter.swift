@@ -47,4 +47,8 @@ extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
             from: view
         )
     }
+
+    func proceed() {
+        wireframe.proceed(from: view, targets: validators, maxTargets: maxTargets)
+    }
 }

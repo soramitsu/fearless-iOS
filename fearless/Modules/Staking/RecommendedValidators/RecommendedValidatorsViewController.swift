@@ -22,8 +22,6 @@ final class RecommendedValidatorsViewController: UIViewController {
     @IBOutlet private var customValidatorsContainer: UIView!
     @IBOutlet private var customValidatorsCell: DetailsTriangularedView!
 
-    @IBOutlet private var continueButton: TriangularedButton!
-
     @IBOutlet private var activityView: UIActivityIndicatorView!
 
     private var viewModel: RecommendedViewModelProtocol?
@@ -64,10 +62,6 @@ final class RecommendedValidatorsViewController: UIViewController {
         customValidatorsCell.title = R.string.localizable
             .stakingSelectValidatorsCustomButtonTitle(preferredLanguages: languages)
 
-        continueButton.imageWithTitleView?.title = R.string.localizable
-            .commonContinue(preferredLanguages: languages)
-        continueButton.invalidateLayout()
-
         updateRecommended()
     }
 
@@ -76,7 +70,6 @@ final class RecommendedValidatorsViewController: UIViewController {
 
         validatorsContainer.isHidden = !isViewModelSet
         customValidatorsContainer.isHidden = !isViewModelSet
-        continueButton.isEnabled = isViewModelSet
 
         if isViewModelSet {
             activityView.stopAnimating()
@@ -106,10 +99,6 @@ final class RecommendedValidatorsViewController: UIViewController {
 
     @IBAction private func actionCustomValidators() {
         presenter.selectCustomValidators()
-    }
-
-    @IBAction private func actionContinue() {
-        presenter.proceed()
     }
 }
 
