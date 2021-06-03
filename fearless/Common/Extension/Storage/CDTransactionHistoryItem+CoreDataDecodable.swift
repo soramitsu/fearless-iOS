@@ -8,7 +8,7 @@ extension CDTransactionHistoryItem: CoreDataCodable {
 
         identifier = try container.decode(String.self, forKey: .txHash)
         sender = try container.decode(String.self, forKey: .sender)
-        receiver = try container.decode(String.self, forKey: .receiver)
+        receiver = try container.decodeIfPresent(String.self, forKey: .receiver)
         status = try container.decode(Int16.self, forKey: .status)
         timestamp = try container.decode(Int64.self, forKey: .timestamp)
         fee = try container.decode(String.self, forKey: .fee)

@@ -23,23 +23,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
 
         applicationHandler.delegate = self
     }
-
-    func fetchController(for address: AccountAddress) {
-        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        operation.completionBlock = { [weak presenter] in
-            DispatchQueue.main.async {
-                do {
-                    let accountItem = try operation.extractNoCancellableResultData()
-                    presenter?.didFetchController(accountItem, for: address)
-                } catch {
-                    presenter?.didReceive(fetchControllerError: error)
-                }
-            }
-        }
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-    }
 }
 
 extension StakingMainInteractor: EventVisitorProtocol {

@@ -4,7 +4,8 @@ enum StakingManageOption {
     case stakingBalance
     case rewardPayouts
     case rewardDestination
-    case validators(count: Int?)
+    case setupValidators
+    case changeValidators(count: Int?)
     case controllerAccount
 
     func titleForLocale(_ locale: Locale) -> String {
@@ -15,7 +16,7 @@ enum StakingManageOption {
             return R.string.localizable.stakingManagePayoutsTitle(preferredLanguages: locale.rLanguages)
         case .rewardDestination:
             return R.string.localizable.stakingRewardDestinationTitle(preferredLanguages: locale.rLanguages)
-        case .validators:
+        case .changeValidators, .setupValidators:
             return R.string.localizable.stakingYourValidatorsTitle(preferredLanguages: locale.rLanguages)
         case .controllerAccount:
             return R.string.localizable.stakingControllerAccountTitle(preferredLanguages: locale.rLanguages)
@@ -23,7 +24,7 @@ enum StakingManageOption {
     }
 
     func detailsForLocale(_ locale: Locale) -> String? {
-        if case let .validators(count) = self {
+        if case let .changeValidators(count) = self {
             guard let count = count else {
                 return nil
             }
@@ -43,7 +44,7 @@ enum StakingManageOption {
             return R.image.iconLightning()
         case .rewardDestination:
             return R.image.iconWallet()
-        case .validators:
+        case .changeValidators, .setupValidators:
             return R.image.iconValidators()
         case .controllerAccount:
             return R.image.iconAccount()

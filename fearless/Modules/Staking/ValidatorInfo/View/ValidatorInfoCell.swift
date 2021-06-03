@@ -49,13 +49,14 @@ final class ValidatorInfoCell: UITableViewCell {
         subtitleLabel.textColor = R.color.colorLightGray()!
     }
 
-    func bind(model: TitleWithSubtitleViewModel, state: ValidatorMyNominationStatus) {
+    func bind(model: TitleWithSubtitleViewModel, status: StatusViewModel) {
         titleLabel.text = model.title
         subtitleLabel.text = model.subtitle
 
-        switch state {
-        case .active: subtitleLabel.textColor = R.color.colorGreen()!
-        case .slashed: subtitleLabel.textColor = R.color.colorRed()!
+        switch status {
+        case .good: subtitleLabel.textColor = R.color.colorGreen()!
+        case .error: subtitleLabel.textColor = R.color.colorRed()!
+        case .warning: subtitleLabel.textColor = R.color.colorYellow()!
         default: subtitleLabel.textColor = R.color.colorLightGray()!
         }
     }

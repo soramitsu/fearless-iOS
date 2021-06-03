@@ -97,6 +97,10 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
 
         interactor.refresh()
     }
+
+    func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
+        wireframe.presentContributionSetup(from: view, paraId: viewModel.paraId)
+    }
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {

@@ -43,6 +43,7 @@ protocol UIFactoryProtocol {
         spacing: CGFloat
     ) -> UIToolbar
 
+    func createCommonInputView() -> CommonInputView
     func createAmountInputView(filled: Bool) -> AmountInputView
 
     func createAmountAccessoryView(
@@ -58,6 +59,8 @@ protocol UIFactoryProtocol {
 
     func createTitleValueView() -> TitleValueView
 
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl
+
     func createHintView() -> HintView
 
     func createLearnMoreView() -> LearnMoreView
@@ -68,6 +71,12 @@ protocol UIFactoryProtocol {
 extension UIFactoryProtocol {
     func createAccountView() -> DetailsTriangularedView {
         createAccountView(for: .options, filled: false)
+    }
+
+    func createFearlessLearnMoreView() -> LearnMoreView {
+        let view = createLearnMoreView()
+        view.iconView.image = R.image.iconFearlessSmall()
+        return view
     }
 }
 
@@ -240,6 +249,10 @@ final class UIFactory: UIFactoryProtocol {
         )
     }
 
+    func createCommonInputView() -> CommonInputView {
+        CommonInputView()
+    }
+
     func createAmountInputView(filled: Bool) -> AmountInputView {
         let amountInputView = AmountInputView()
 
@@ -392,7 +405,18 @@ final class UIFactory: UIFactoryProtocol {
     }
 
     func createLearnMoreView() -> LearnMoreView {
-        LearnMoreView()
+        let view = LearnMoreView()
+        view.contentInsets = UIEdgeInsets(
+            top: 0.0,
+            left: UIConstants.horizontalInset,
+            bottom: 0.0,
+            right: UIConstants.horizontalInset
+        )
+        return view
+    }
+
+    func createTitleValueSelectionControl() -> TitleValueSelectionControl {
+        TitleValueSelectionControl()
     }
 
     func createRewardSelectionView() -> RewardSelectionView {

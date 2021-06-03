@@ -144,15 +144,12 @@ extension YourValidatorsViewController: UITableViewDelegate {
 
         let headerView: YourValidatorStatusSectionView = tableView.dequeueReusableHeaderFooterView()
 
-        let title = section.title.value(for: selectedLocale)
+        let title = section.title?.value(for: selectedLocale)
+        let description = section.description?.value(for: selectedLocale)
 
-        headerView.bind(title: title, for: section.status)
+        headerView.bind(title: title, description: description, for: section.status)
 
         return headerView
-    }
-
-    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        40.0
     }
 }
 

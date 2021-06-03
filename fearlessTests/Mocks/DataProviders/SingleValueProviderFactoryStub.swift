@@ -16,6 +16,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let activeEra: AnyDataProvider<DecodedActiveEra>
     let payee: AnyDataProvider<DecodedPayee>
     let blockNumber: AnyDataProvider<DecodedBlockNumber>
+    let crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>
     let jsonProviders: [URL: Any]
 
     init(price: AnySingleValueProvider<PriceData>,
@@ -28,7 +29,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          activeEra: AnyDataProvider<DecodedActiveEra>,
          payee: AnyDataProvider<DecodedPayee>,
          blockNumber: AnyDataProvider<DecodedBlockNumber>,
-         jsonProviders: [URL: Any] = [:]) {
+         jsonProviders: [URL: Any] = [:],
+         crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>) {
         self.price = price
         self.totalReward = totalReward
         self.balance = balance
@@ -40,6 +42,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         self.payee = payee
         self.blockNumber = blockNumber
         self.jsonProviders = jsonProviders
+        self.crowdloanFunds = crowdloanFunds
     }
 
     func getPriceProvider(for assetId: WalletAssetId) -> AnySingleValueProvider<PriceData> {
@@ -100,6 +103,15 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
 
         return provider
     }
+
+    func getCrowdloanFunds(
+        for paraId: ParaId,
+        connection: ConnectionItem,
+        engine: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedCrowdloanFunds> {
+        crowdloanFunds
+    }
 }
 
 extension SingleValueProviderFactoryStub {
@@ -117,6 +129,7 @@ extension SingleValueProviderFactoryStub {
         let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
         let payee = DataProviderStub(models: [decodedPayee])
         let blockNumber = DataProviderStub<DecodedBlockNumber>(models: [])
+        let crowdloanFunds = DataProviderStub<DecodedCrowdloanFunds>(models: [])
 
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                               totalReward: AnySingleValueProvider(totalRewardProvider),
@@ -127,7 +140,8 @@ extension SingleValueProviderFactoryStub {
                                               ledgerInfo: AnyDataProvider(ledgerProvider),
                                               activeEra: AnyDataProvider(activeEra),
                                               payee: AnyDataProvider(payee),
-                                              blockNumber: AnyDataProvider(blockNumber))
+                                              blockNumber: AnyDataProvider(blockNumber),
+                                              crowdloanFunds: AnyDataProvider(crowdloanFunds))
     }
 
     static func nonEmptyRedeemingStub(for address: AccountAddress) -> SingleValueProviderFactoryStub {
@@ -156,6 +170,7 @@ extension SingleValueProviderFactoryStub {
         let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
         let payee = DataProviderStub(models: [decodedPayee])
         let blockNumber = DataProviderStub<DecodedBlockNumber>(models: [])
+        let crowdloanFunds = DataProviderStub<DecodedCrowdloanFunds>(models: [])
 
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                               totalReward: AnySingleValueProvider(totalRewardProvider),
@@ -166,7 +181,8 @@ extension SingleValueProviderFactoryStub {
                                               ledgerInfo: AnyDataProvider(ledgerProvider),
                                               activeEra: AnyDataProvider(activeEra),
                                               payee: AnyDataProvider(payee),
-                                              blockNumber: AnyDataProvider(blockNumber))
+                                              blockNumber: AnyDataProvider(blockNumber),
+                                              crowdloanFunds: AnyDataProvider(crowdloanFunds))
     }
 
     static func nonEmptyUnbondingStub(for address: AccountAddress) -> SingleValueProviderFactoryStub {
@@ -195,6 +211,7 @@ extension SingleValueProviderFactoryStub {
         let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
         let payee = DataProviderStub(models: [decodedPayee])
         let blockNumber = DataProviderStub<DecodedBlockNumber>(models: [])
+        let crowdloanFunds = DataProviderStub<DecodedCrowdloanFunds>(models: [])
 
         return SingleValueProviderFactoryStub(price: AnySingleValueProvider(priceProvider),
                                               totalReward: AnySingleValueProvider(totalRewardProvider),
@@ -205,7 +222,8 @@ extension SingleValueProviderFactoryStub {
                                               ledgerInfo: AnyDataProvider(ledgerProvider),
                                               activeEra: AnyDataProvider(activeEra),
                                               payee: AnyDataProvider(payee),
-                                              blockNumber: AnyDataProvider(blockNumber))
+                                              blockNumber: AnyDataProvider(blockNumber),
+                                              crowdloanFunds: AnyDataProvider(crowdloanFunds))
     }
 
     func with(
@@ -227,7 +245,8 @@ extension SingleValueProviderFactoryStub {
                                               activeEra: activeEra,
                                               payee: payee,
                                               blockNumber: blockNumber,
-                                              jsonProviders: jsonProviders)
+                                              jsonProviders: jsonProviders,
+                                              crowdloanFunds: crowdloanFunds)
     }
 
     func withBlockNumber(
@@ -249,7 +268,8 @@ extension SingleValueProviderFactoryStub {
                                               activeEra: activeEra,
                                               payee: payee,
                                               blockNumber: AnyDataProvider(blockProvider),
-                                              jsonProviders: jsonProviders)
+                                              jsonProviders: jsonProviders,
+                                              crowdloanFunds: crowdloanFunds)
     }
 
     func withJSON<T>(
@@ -273,7 +293,33 @@ extension SingleValueProviderFactoryStub {
             activeEra: activeEra,
             payee: payee,
             blockNumber: blockNumber,
-            jsonProviders: currentProviders
+            jsonProviders: currentProviders,
+            crowdloanFunds: crowdloanFunds
+        )
+    }
+
+    func withCrowdloanFunds(
+        _ funds: CrowdloanFunds
+    ) -> SingleValueProviderFactoryStub {
+        let decodedCrowdloan = DecodedCrowdloanFunds(
+            identifier: funds.depositor.toHex(),
+            item: funds
+        )
+        let dataProvider = DataProviderStub(models: [decodedCrowdloan])
+
+        return SingleValueProviderFactoryStub(
+            price: price,
+            totalReward: totalReward,
+            balance: balance,
+            electionStatus: electionStatus,
+            nomination: nomination,
+            validatorPrefs: validatorPrefs,
+            ledgerInfo: ledgerInfo,
+            activeEra: activeEra,
+            payee: payee,
+            blockNumber: blockNumber,
+            jsonProviders: jsonProviders,
+            crowdloanFunds: AnyDataProvider(dataProvider)
         )
     }
 }

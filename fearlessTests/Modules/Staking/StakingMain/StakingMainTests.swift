@@ -52,8 +52,15 @@ class StakingMainTests: XCTestCase {
             UserDataStorageTestFacade().createRepository()
         let anyAccountRepository = AnyDataProviderRepository(accountRepository)
 
+        let accountRepositoryFactory = AccountRepositoryFactory(
+            storageFacade: UserDataStorageFacade.shared,
+            operationManager: OperationManagerFacade.sharedManager,
+            logger: Logger.shared
+        )
+
         let interactor = StakingMainInteractor(providerFactory: providerFactory,
                                                substrateProviderFactory: substrateProviderFactory,
+                                               accountRepositoryFactory: accountRepositoryFactory,
                                                settings: settings,
                                                eventCenter: eventCenter,
                                                primitiveFactory: primitiveFactory,
@@ -142,7 +149,7 @@ class StakingMainTests: XCTestCase {
         let options: [StakingManageOption] = [
             .stakingBalance,
             .rewardPayouts,
-            .validators(count: 16)
+            .changeValidators(count: 16)
         ]
 
         let wireframe = MockStakingMainWireframeProtocol()
@@ -170,7 +177,7 @@ class StakingMainTests: XCTestCase {
         let options: [StakingManageOption] = [
             .stakingBalance,
             .rewardPayouts,
-            .validators(count: 16)
+            .changeValidators(count: 16)
         ]
 
         let wireframe = MockStakingMainWireframeProtocol()
