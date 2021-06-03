@@ -22,7 +22,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         eventCenter.add(observer: self, dispatchIn: .main)
 
         applicationHandler.delegate = self
-        fetchAnalyticsRewards()
     }
 }
 

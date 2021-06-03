@@ -167,6 +167,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
         stateContainerView = nil
         stateView = nil
         alertsView.isHidden = true
+        analyticsView.isHidden = true
     }
 
     private func applyConstraints(for containerView: UIView, innerView: UIView) {
@@ -335,6 +336,7 @@ extension StakingMainViewController: StakingMainViewProtocol {
     }
 
     func didReceiveAnalytics(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
+        analyticsView.isHidden = false
         analyticsView.bind(viewModel: viewModel)
     }
 

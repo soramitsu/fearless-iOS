@@ -74,25 +74,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
         let repository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
-        let analyticsService: AnalyticsService? = {
-            let networkType = settings.selectedConnection.type
-            let primitiveFactory = WalletPrimitiveFactory(settings: settings)
-            let asset = primitiveFactory.createAssetForAddressType(networkType)
-            guard
-                let accountAddress = settings.selectedAccount?.address,
-                let assetId = WalletAssetId(rawValue: asset.identifier),
-                let subscanUrl = assetId.subscanUrl
-            else {
-                return nil
-            }
-            return AnalyticsService(
-                baseUrl: subscanUrl,
-                address: accountAddress,
-                subscanOperationFactory: SubscanOperationFactory(),
-                operationManager: operationManager
-            )
-        }()
-
         let accountRepositoryFactory = AccountRepositoryFactory(
             storageFacade: UserDataStorageFacade.shared,
             operationManager: OperationManagerFacade.sharedManager,
@@ -113,7 +94,6 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             operationManager: operationManager,
             eraInfoOperationFactory: operationFactory,
             applicationHandler: ApplicationHandler(),
-            analyticsService: analyticsService,
             logger: Logger.shared
         )
     }

@@ -20,7 +20,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     let eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol
     let applicationHandler: ApplicationHandlerProtocol
     let accountRepository: AnyDataProviderRepository<AccountItem>
-    let analyticsService: AnalyticsService?
+    private var analyticsService: AnalyticsService?
     let logger: LoggerProtocol
 
     var priceProvider: AnySingleValueProvider<PriceData>?
@@ -51,7 +51,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         eraInfoOperationFactory: NetworkStakingInfoOperationFactoryProtocol,
         applicationHandler: ApplicationHandlerProtocol,
-        analyticsService: AnalyticsService?,
         logger: Logger
     ) {
         self.providerFactory = providerFactory
@@ -67,7 +66,6 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         self.operationManager = operationManager
         self.eraInfoOperationFactory = eraInfoOperationFactory
         self.applicationHandler = applicationHandler
-        self.analyticsService = analyticsService
         self.logger = logger
     }
 
@@ -77,6 +75,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(selectedAddress: address)
+        fetchAnalyticsRewards(accountAddress: address, currentConnection: currentConnection)
     }
 
     func provideMaxNominatorsPerValidator() {
@@ -95,6 +94,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         }
 
         presenter.didReceive(newChain: chain)
+        fetchAnalyticsRewards(accountAddress: currentAccount?.address, currentConnection: currentConnection)
     }
 
     func provideRewardCalculator() {
@@ -154,7 +154,29 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         operationManager.enqueue(operations: wrapper.allOperations, in: .transient)
     }
 
-    func fetchAnalyticsRewards() {
+    private func fetchAnalyticsRewards(accountAddress: AccountAddress?, currentConnection: ConnectionItem?) {
+        guard analyticsService?.address != accountAddress else { return }
+
+        guard
+            let connection = currentConnection,
+            let address = accountAddress
+        else { return }
+
+        let networkType = connection.type
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let subscanUrl = assetId.subscanUrl
+        else { return }
+
+        analyticsService?.cancel()
+        analyticsService = AnalyticsService(
+            baseUrl: subscanUrl,
+            address: address,
+            subscanOperationFactory: SubscanOperationFactory(),
+            operationManager: operationManager
+        )
         analyticsService?.start { [weak presenter] result in
             DispatchQueue.main.async {
                 presenter?.didReceieve(rewardItemData: result)
