@@ -1,4 +1,4 @@
-struct AnalyticsViewModel {
+struct AnalyticsRewardsViewModel {
     let chartData: ChartData
     let summaryViewModel: AnalyticsSummaryRewardViewModel
     let receivedViewModel: AnalyticsSummaryRewardViewModel

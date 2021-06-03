@@ -36,11 +36,9 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
 }
 
 extension AnalyticsViewController: AnalyticsViewProtocol {
-    func configure(with viewModel: LocalizableResource<AnalyticsViewModel>) {
+    func configureRewards(viewModel: LocalizableResource<AnalyticsRewardsViewModel>) {
         let viewModel = viewModel.value(for: selectedLocale)
-        rootView.rewardsView.chartView.setChartData(viewModel.chartData)
-        rootView.rewardsView.receivedSummaryView.configure(with: viewModel.receivedViewModel)
-        rootView.rewardsView.payableSummaryView.configure(with: viewModel.payableViewModel)
+        rootView.rewardsView.bind(viewModel: viewModel)
     }
 }
 

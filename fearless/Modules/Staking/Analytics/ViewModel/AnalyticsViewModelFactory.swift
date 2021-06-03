@@ -2,11 +2,11 @@ import BigInt
 import SoraFoundation
 
 protocol AnalyticsViewModelFactoryProtocol {
-    func createViewModel(
+    func createRewardsViewModel(
         from data: [SubscanRewardItemData],
         priceData: PriceData?,
         period: AnalyticsPeriod
-    ) -> LocalizableResource<AnalyticsViewModel>
+    ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }
 
 final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
@@ -21,11 +21,11 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
         self.balanceViewModelFactory = balanceViewModelFactory
     }
 
-    func createViewModel(
+    func createRewardsViewModel(
         from data: [SubscanRewardItemData],
         priceData: PriceData?,
         period: AnalyticsPeriod
-    ) -> LocalizableResource<AnalyticsViewModel> {
+    ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
             var resultArray = [Decimal](repeating: 0.0, count: period.chartBarsCount)
 
@@ -98,7 +98,7 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 usdAmount: nil,
                 indicatorColor: R.color.colorAccent()
             )
-            return AnalyticsViewModel(
+            return AnalyticsRewardsViewModel(
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
                 receivedViewModel: receivedViewModel,

@@ -5,7 +5,6 @@ final class AnalyticsRewardsView: UIView {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
-        label.text = "May 12—19"
         return label
     }()
 
@@ -13,7 +12,6 @@ final class AnalyticsRewardsView: UIView {
         let label = UILabel()
         label.font = .h2Title
         label.textColor = R.color.colorWhite()
-        label.text = "0.03805 KSM"
         return label
     }()
 
@@ -21,31 +19,15 @@ final class AnalyticsRewardsView: UIView {
         let label = UILabel()
         label.font = .h2Title
         label.textColor = R.color.colorGray()
-        label.text = "$15.22"
         return label
     }()
 
-    private let percentageLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.text = "+1.03%  ($0.001)"
-        return label
-    }()
-
-    private let copmaredPeriodLabel: UILabel = {
-        let label = UILabel()
-        label.font = .p1Paragraph
-        label.textColor = R.color.colorWhite()
-        label.text = "vs May 4—11"
-        return label
-    }()
-
-    let chartView = ChartView()
+    private let chartView = ChartView()
 
     let periodView = AnalyticsPeriodView()
 
-    let receivedSummaryView = AnalyticsSummaryRewardView()
-    let payableSummaryView = AnalyticsSummaryRewardView()
+    private let receivedSummaryView = AnalyticsSummaryRewardView()
+    private let payableSummaryView = AnalyticsSummaryRewardView()
 
     let payoutButton: TriangularedButton = UIFactory.default.createMainActionButton()
 
@@ -61,12 +43,10 @@ final class AnalyticsRewardsView: UIView {
 
     private func setupLayout() {
         let statsStack: UIView = .vStack(
-            // alignment: .leading,
             spacing: 4,
             [
                 selectedPeriodLabel,
-                .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel]),
-                .hStack(spacing: 4, [percentageLabel, copmaredPeriodLabel]),
+                .hStack(spacing: 8, [tokenAmountLabel, usdAmountLabel, UIView()]),
                 chartView
             ]
         )
@@ -101,5 +81,15 @@ final class AnalyticsRewardsView: UIView {
             make.height.equalTo(50)
             make.bottom.equalToSuperview()
         }
+    }
+
+    func bind(viewModel: AnalyticsRewardsViewModel) {
+        selectedPeriodLabel.text = viewModel.summaryViewModel.title
+        tokenAmountLabel.text = viewModel.summaryViewModel.tokenAmount
+        usdAmountLabel.text = viewModel.summaryViewModel.usdAmount
+
+        chartView.setChartData(viewModel.chartData)
+        payableSummaryView.configure(with: viewModel.payableViewModel)
+        receivedSummaryView.configure(with: viewModel.receivedViewModel)
     }
 }

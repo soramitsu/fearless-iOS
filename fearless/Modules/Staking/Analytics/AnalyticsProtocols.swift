@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol AnalyticsViewProtocol: ControllerBackedProtocol {
-    func configure(with viewModel: LocalizableResource<AnalyticsViewModel>)
+    func configureRewards(viewModel: LocalizableResource<AnalyticsRewardsViewModel>)
 }
 
 protocol AnalyticsPresenterProtocol: AnyObject {
