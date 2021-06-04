@@ -56,19 +56,6 @@ class RecommendedValidatorsTests: XCTestCase {
                 XCTAssertEqual(Set(recommended.map({ $0.address })),
                                Set(targets.map({ $0.address })))
             }
-
-//            when(stub).proceed(from: any(), targets: any(), maxTargets: any()).then { (_, targets, _) in
-//                XCTAssertEqual(Set(recommended.map({ $0.address })),
-//                               Set(targets.map({ $0.address })))
-//            }
-//
-//            when(stub).showCustom(from: any(), validators: any()).then { (_ , validators) in
-//                XCTAssertEqual(all, validators)
-//            }
-//
-//            when(stub).showRecommended(from: any(), validators: any(), maxTargets: any()).then { (_, validators, _) in
-//                XCTAssertEqual(recommended, validators)
-//            }
         }
 
         presenter.setup()
