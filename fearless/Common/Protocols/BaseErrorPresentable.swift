@@ -2,7 +2,6 @@ import Foundation
 
 protocol BaseErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
-    func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeNotReceived(from view: ControllerBackedProtocol, locale: Locale?)
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?)
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?)
@@ -17,15 +16,7 @@ protocol BaseErrorPresentable {
 extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
     func presentAmountTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
-            .stakingAmountTooBigError(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
-    }
-
-    func presentAmountTooLow(value: String, from view: ControllerBackedProtocol, locale: Locale?) {
-        let message = R.string.localizable.stakingSetupAmountTooLow(value)
+            .commonNotEnoughBalanceMessage(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
@@ -41,7 +32,7 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
     }
 
     func presentExtrinsicFailed(from view: ControllerBackedProtocol, locale: Locale?) {
-        let message = R.string.localizable.stakingSetupFailedMessage(preferredLanguages: locale?.rLanguages)
+        let message = R.string.localizable.commonTransactionFailed(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 
@@ -50,7 +41,7 @@ extension BaseErrorPresentable where Self: AlertPresentable & ErrorPresentable {
 
     func presentFeeTooHigh(from view: ControllerBackedProtocol, locale: Locale?) {
         let message = R.string.localizable
-            .stakingErrorInsufficientBalanceBody(preferredLanguages: locale?.rLanguages)
+            .commonNotEnoughFeeMessage(preferredLanguages: locale?.rLanguages)
         let title = R.string.localizable.stakingErrorInsufficientBalanceTitle(preferredLanguages: locale?.rLanguages)
         let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
 

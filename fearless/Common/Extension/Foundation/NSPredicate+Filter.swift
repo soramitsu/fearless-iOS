@@ -49,4 +49,8 @@ extension NSPredicate {
 
         return NSCompoundPredicate(orPredicateWithSubpredicates: [stash, controller])
     }
+
+    static func filterAccountItemByAddress(_ address: String) -> NSPredicate {
+        NSPredicate(format: "%K == %@", #keyPath(CDAccountItem.identifier), address)
+    }
 }

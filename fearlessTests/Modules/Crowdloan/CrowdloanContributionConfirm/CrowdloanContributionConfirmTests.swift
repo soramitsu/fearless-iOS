@@ -61,6 +61,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
         let feeReceived = XCTestExpectation()
         let estimatedRewardReceived = XCTestExpectation()
         let crowdloanReceived = XCTestExpectation()
+        let bonusReceived = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReceiveAsset(viewModel: any()).then { viewModel in
@@ -83,6 +84,10 @@ class CrowdloanContributionConfirmTests: XCTestCase {
                 crowdloanReceived.fulfill()
             }
 
+            when(stub).didReceiveBonus(viewModel: any()).then { _ in
+                bonusReceived.fulfill()
+            }
+
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
 
@@ -96,7 +101,8 @@ class CrowdloanContributionConfirmTests: XCTestCase {
                 assetReceived,
                 feeReceived,
                 estimatedRewardReceived,
-                crowdloanReceived
+                crowdloanReceived,
+                bonusReceived
             ],
             timeout: 10
         )
@@ -157,6 +163,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             contributionViewModelFactory: crowdloanViewModelFactory,
             dataValidatingFactory: dataValidatingFactory,
             inputAmount: inputAmount,
+            bonusRate: nil,
             chain: addressType.chain,
             localizationManager: LocalizationManager.shared
         )
@@ -199,6 +206,7 @@ class CrowdloanContributionConfirmTests: XCTestCase {
             accountRepository: AnyDataProviderRepository(accountRepository),
             crowdloanFundsProvider: providerFactory.crowdloanFunds,
             singleValueProviderFactory: providerFactory,
+            bonusService: nil,
             operationManager: OperationManager()
         )
     }

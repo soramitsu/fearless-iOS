@@ -445,13 +445,14 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: payeeError)
     }
 
-    func didFetchController(_ controller: AccountItem?, for _: AccountAddress) {
-        controllerAccount = controller
-    }
-
-    func didReceive(fetchControllerError: Error) {
-        controllerAccount = nil
-        handle(error: fetchControllerError)
+    func didReceiveControllerAccount(result: Result<AccountItem?, Error>) {
+        switch result {
+        case let .success(accountItem):
+            controllerAccount = accountItem
+        case let .failure(error):
+            controllerAccount = nil
+            handle(error: error)
+        }
     }
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>) {

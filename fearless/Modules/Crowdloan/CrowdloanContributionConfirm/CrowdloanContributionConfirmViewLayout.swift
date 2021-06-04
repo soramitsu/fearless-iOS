@@ -18,6 +18,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
     private(set) var estimatedRewardView: TitleValueView?
 
+    private(set) var bonusView: TitleValueView?
+
     let leasingPeriodView = TitleMultiValueView()
 
     let networkFeeConfirmView: NetworkFeeConfirmView = UIFactory().createNetworkFeeConfirmView()
@@ -75,6 +77,15 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         }
     }
 
+    func bind(bonus: String?) {
+        if let bonus = bonus {
+            createBonusViewIfNeeded()
+            bonusView?.valueLabel.text = bonus
+        } else {
+            removeBonusViewIfNeeded()
+        }
+    }
+
     func bind(confirmationViewModel: CrowdloanContributeConfirmViewModel) {
         let icon = confirmationViewModel.senderIcon.imageWithFillColor(
             R.color.colorWhite()!,
@@ -106,6 +117,8 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
         estimatedRewardView?.titleLabel.text = R.string.localizable.crowdloanReward(
             preferredLanguages: locale.rLanguages
         )
+
+        bonusView?.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
     }
 
     private func setupLayout() {
@@ -174,5 +187,51 @@ final class CrowdloanContributionConfirmViewLayout: UIView {
 
         contentView.stackView.removeArrangedSubview(estimatedRewardView)
         estimatedRewardView.removeFromSuperview()
+
+        self.estimatedRewardView = nil
+    }
+
+    private func createBonusViewIfNeeded() {
+        guard bonusView == nil else {
+            return
+        }
+
+        let maybeLastViewIndex: Int? = {
+            if let estimatedRewardView = estimatedRewardView {
+                return contentView.stackView.arrangedSubviews.firstIndex(
+                    of: estimatedRewardView
+                )
+            }
+
+            return contentView.stackView.arrangedSubviews.firstIndex(of: leasingPeriodView)
+        }()
+
+        guard
+            let lastIndex = maybeLastViewIndex else {
+            return
+        }
+
+        let view = TitleValueView()
+        view.titleLabel.text = R.string.localizable.commonBonus(preferredLanguages: locale.rLanguages)
+        view.valueLabel.textColor = R.color.colorAccent()
+
+        contentView.stackView.insertArrangedSubview(view, at: lastIndex + 1)
+        view.snp.makeConstraints { make in
+            make.width.equalTo(self).offset(-2.0 * UIConstants.horizontalInset)
+            make.height.equalTo(48.0)
+        }
+
+        bonusView = view
+    }
+
+    private func removeBonusViewIfNeeded() {
+        guard let bonusView = bonusView else {
+            return
+        }
+
+        contentView.stackView.removeArrangedSubview(bonusView)
+        bonusView.removeFromSuperview()
+
+        self.bonusView = nil
     }
 }
