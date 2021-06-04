@@ -22,6 +22,7 @@ final class CrowdloanContributionSetupPresenter {
     private var blockDuration: BlockTime?
     private var leasingPeriod: LeasingPeriod?
     private var minimumBalance: BigUInt?
+    private var minimumContribution: BigUInt?
 
     private var bonusService: CrowdloanBonusServiceProtocol?
 
@@ -65,7 +66,7 @@ final class CrowdloanContributionSetupPresenter {
     }
 
     private func provideAssetVewModel() {
-        guard minimumBalance != nil else {
+        guard minimumBalance != nil, minimumContribution != nil else {
             return
         }
 
@@ -216,9 +217,9 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
                 locale: selectedLocale
             ),
 
-            dataValidatingFactory.contributesAtLeastMinimumBalance(
+            dataValidatingFactory.contributesAtLeastMinContribution(
                 contribution: controbutionValue,
-                minimumBalance: minimumBalance,
+                minimumBalance: minimumContribution,
                 locale: selectedLocale
             ),
 
@@ -390,6 +391,17 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupInterac
             provideAssetVewModel()
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
+        }
+    }
+
+    func didReceiveMinimumContribution(result: Result<BigUInt, Error>) {
+        switch result {
+        case let .success(minimumContribution):
+            self.minimumContribution = minimumContribution
+
+            provideAssetVewModel()
+        case let .failure(error):
+            logger?.error("Did receive minimum contribution error: \(error)")
         }
     }
 }
