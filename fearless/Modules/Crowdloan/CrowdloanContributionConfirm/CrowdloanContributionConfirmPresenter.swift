@@ -25,6 +25,7 @@ final class CrowdloanContributionConfirmPresenter {
     private var blockDuration: BlockTime?
     private var leasingPeriod: LeasingPeriod?
     private var minimumBalance: BigUInt?
+    private var minimumContribution: BigUInt?
 
     private var crowdloanMetadata: CrowdloanMetadata? {
         if
@@ -171,8 +172,8 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
     }
 
     func confirm() {
-        let controbutionValue = inputAmount.toSubstrateAmount(precision: chain.addressType.precision)
-        let spendingValue = (controbutionValue ?? 0) +
+        let contributionValue = inputAmount.toSubstrateAmount(precision: chain.addressType.precision)
+        let spendingValue = (contributionValue ?? 0) +
             (fee?.toSubstrateAmount(precision: chain.addressType.precision) ?? 0)
 
         DataValidationRunner(validators: [
@@ -187,14 +188,14 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
                 locale: selectedLocale
             ),
 
-            dataValidatingFactory.contributesAtLeastMinimumBalance(
-                contribution: controbutionValue,
+            dataValidatingFactory.contributesAtLeastMinContribution(
+                contribution: contributionValue,
                 minimumBalance: minimumBalance,
                 locale: selectedLocale
             ),
 
             dataValidatingFactory.capNotExceeding(
-                contribution: controbutionValue,
+                contribution: contributionValue,
                 raised: crowdloan?.fundInfo.raised,
                 cap: crowdloan?.fundInfo.cap,
                 locale: selectedLocale
@@ -216,7 +217,7 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmPre
         ]).runValidation { [weak self] in
             guard
                 let strongSelf = self,
-                let contribution = controbutionValue else { return }
+                let contribution = contributionValue else { return }
             strongSelf.view?.didStartLoading()
             strongSelf.interactor.submit(contribution: contribution)
         }
@@ -364,6 +365,17 @@ extension CrowdloanContributionConfirmPresenter: CrowdloanContributionConfirmInt
             provideAssetVewModel()
         case let .failure(error):
             logger?.error("Did receive minimum balance error: \(error)")
+        }
+    }
+
+    func didReceiveMinimumContribution(result: Result<BigUInt, Error>) {
+        switch result {
+        case let .success(minimumContribution):
+            self.minimumContribution = minimumContribution
+
+            provideAssetVewModel()
+        case let .failure(error):
+            logger?.error("Did receive minimum contribution error: \(error)")
         }
     }
 }
