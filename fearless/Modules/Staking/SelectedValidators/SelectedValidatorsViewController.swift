@@ -92,6 +92,14 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.selectedValidatorAt(index: indexPath.row)
     }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        100.0
+    }
+
+    func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
+        UIView()
+    }
 }
 
 extension SelectedValidatorsViewController: SelectedValidatorsViewProtocol {
