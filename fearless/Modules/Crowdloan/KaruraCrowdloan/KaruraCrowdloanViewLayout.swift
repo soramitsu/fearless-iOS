@@ -50,6 +50,7 @@ final class KaruraCrowdloanViewLayout: UIView {
         let label = UILabel()
         label.isUserInteractionEnabled = true
         label.font = .p1Paragraph
+        label.numberOfLines = 2
         return label
     }()
 
