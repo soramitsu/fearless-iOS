@@ -4,7 +4,7 @@ import BigInt
 import CommonWallet
 
 protocol CrowdloanDataValidatorFactoryProtocol: BaseDataValidatingFactoryProtocol {
-    func contributesAtLeastMinimumBalance(
+    func contributesAtLeastMinContribution(
         contribution: BigUInt?,
         minimumBalance: BigUInt?,
         locale: Locale
@@ -46,7 +46,7 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
         self.asset = asset
     }
 
-    func contributesAtLeastMinimumBalance(
+    func contributesAtLeastMinContribution(
         contribution: BigUInt?,
         minimumBalance: BigUInt?,
         locale: Locale
