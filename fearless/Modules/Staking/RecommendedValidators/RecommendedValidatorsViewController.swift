@@ -15,16 +15,19 @@ final class RecommendedValidatorsViewController: UIViewController {
     @IBOutlet private var hint4: ImageWithTitleView!
     @IBOutlet private var hint5: ImageWithTitleView!
 
-    @IBOutlet private var validatorsContainer: UIView!
     @IBOutlet private var validatorsCell: DetailsTriangularedView!
     @IBOutlet private var validatorsCountLabel: UILabel!
 
-    @IBOutlet private var customValidatorsContainer: UIView!
     @IBOutlet private var customValidatorsCell: DetailsTriangularedView!
 
-    @IBOutlet private var activityView: UIActivityIndicatorView!
+    @IBOutlet private var activityViews: [UIActivityIndicatorView]!
+    @IBOutlet private var nextStepIndicators: [UIImageView]!
 
     private var viewModel: RecommendedViewModelProtocol?
+
+    private var viewModelIsSet: Bool {
+        viewModel != nil
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -65,17 +68,25 @@ final class RecommendedValidatorsViewController: UIViewController {
         updateRecommended()
     }
 
-    private func updateLoadingState() {
-        let isViewModelSet = (viewModel != nil)
-
-        validatorsContainer.isHidden = !isViewModelSet
-        customValidatorsContainer.isHidden = !isViewModelSet
-
-        if isViewModelSet {
-            activityView.stopAnimating()
-        } else {
-            activityView.startAnimating()
+    private func toggleActivityViews() {
+        activityViews.forEach { view in
+            if viewModelIsSet {
+                view.stopAnimating()
+            } else {
+                view.startAnimating()
+            }
         }
+    }
+
+    private func toggleNextStepIndicators() {
+        nextStepIndicators.forEach { view in
+            view.isHidden = !viewModelIsSet
+        }
+    }
+
+    func updateLoadingState() {
+        toggleActivityViews()
+        toggleNextStepIndicators()
     }
 
     private func updateRecommended() {

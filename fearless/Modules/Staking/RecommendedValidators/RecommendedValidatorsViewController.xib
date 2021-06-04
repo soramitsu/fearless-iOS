@@ -20,10 +20,8 @@
     <objects>
         <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RecommendedValidatorsViewController" customModule="fearless" customModuleProvider="target">
             <connections>
-                <outlet property="activityView" destination="Tck-WI-Kkf" id="b9R-42-Gdv"/>
                 <outlet property="algoDetailsLabel" destination="55y-Iv-EdM" id="XQr-La-q6C"/>
                 <outlet property="customValidatorsCell" destination="ENT-cZ-dY0" id="44w-HN-17i"/>
-                <outlet property="customValidatorsContainer" destination="UV7-1T-hlO" id="Tjl-IX-TIq"/>
                 <outlet property="customValidatorsDetailsLabel" destination="jol-v5-CUa" id="jI1-CZ-u2x"/>
                 <outlet property="customValidatorsTitleLabel" destination="8N2-er-RfY" id="m5h-h7-oNG"/>
                 <outlet property="hint1" destination="JGu-sj-Eoi" id="a3t-US-xf8"/>
@@ -33,9 +31,12 @@
                 <outlet property="hint5" destination="v2q-2V-CbM" id="EuT-xr-PO8"/>
                 <outlet property="sectionTitleLabel" destination="xLN-Qv-Daq" id="2Df-XC-RhT"/>
                 <outlet property="validatorsCell" destination="g6a-OX-WP3" id="WUQ-Kc-sxO"/>
-                <outlet property="validatorsContainer" destination="cst-IG-Zd7" id="Bkb-lI-xtx"/>
                 <outlet property="validatorsCountLabel" destination="mUW-mr-dOJ" id="paE-V2-kCH"/>
                 <outlet property="view" destination="iN0-l3-epB" id="e6v-3L-hpM"/>
+                <outletCollection property="activityViews" destination="Tck-WI-Kkf" collectionClass="NSMutableArray" id="k9P-RC-m8D"/>
+                <outletCollection property="activityViews" destination="Qsc-iQ-Swd" collectionClass="NSMutableArray" id="7tc-mx-hVy"/>
+                <outletCollection property="nextStepIndicators" destination="qo1-Km-IOb" collectionClass="NSMutableArray" id="BzU-dr-ygB"/>
+                <outletCollection property="nextStepIndicators" destination="tnB-6r-c6l" collectionClass="NSMutableArray" id="KtY-tC-2dR"/>
             </connections>
         </placeholder>
         <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
@@ -47,22 +48,22 @@
                     <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                     <subviews>
                         <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="14" translatesAutoresizingMaskIntoConstraints="NO" id="4uj-ym-C39">
-                            <rect key="frame" x="16" y="20" width="343" height="472"/>
+                            <rect key="frame" x="16" y="20" width="343" height="481.5"/>
                             <subviews>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stake with recommended validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="xLN-Qv-Daq">
-                                    <rect key="frame" x="0.0" y="0.0" width="343" height="19"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="343" height="20.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Bold" family="sora-rc004-0417" pointSize="16"/>
                                     <color key="textColor" name="colorWhite"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Fearless algorithm has selected a list of recommended validators based on the criteria:" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="55y-Iv-EdM">
-                                    <rect key="frame" x="0.0" y="33" width="343" height="33"/>
+                                    <rect key="frame" x="0.0" y="34.5" width="343" height="35.5"/>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorLightGray"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="v0U-sH-wHU">
-                                    <rect key="frame" x="0.0" y="80" width="343" height="114"/>
+                                    <rect key="frame" x="0.0" y="84" width="343" height="114"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="JGu-sj-Eoi" customClass="ImageWithTitleView" customModule="SoraUI">
                                             <rect key="frame" x="0.0" y="0.0" width="133.5" height="18"/>
@@ -171,7 +172,7 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="cst-IG-Zd7">
-                                    <rect key="frame" x="0.0" y="208" width="343" height="48"/>
+                                    <rect key="frame" x="0.0" y="212" width="343" height="48"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="sny-7g-S5M" customClass="BorderedContainerView" customModule="SoraUI">
                                             <rect key="frame" x="0.0" y="0.0" width="343" height="48"/>
@@ -239,7 +240,7 @@
                                             </connections>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="16 of 16" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mUW-mr-dOJ">
-                                            <rect key="frame" x="171.5" y="16" width="147.5" height="16.5"/>
+                                            <rect key="frame" x="171.5" y="15" width="147.5" height="18"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
@@ -268,7 +269,7 @@
                                     </constraints>
                                 </view>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="RHh-LA-GWs">
-                                    <rect key="frame" x="0.0" y="270" width="343" height="60.5"/>
+                                    <rect key="frame" x="0.0" y="274" width="343" height="60.5"/>
                                     <subviews>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Stake with your validators" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="8N2-er-RfY">
                                             <rect key="frame" x="0.0" y="24" width="343" height="36.5"/>
@@ -286,14 +287,14 @@
                                     </constraints>
                                 </view>
                                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" textAlignment="natural" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="jol-v5-CUa">
-                                    <rect key="frame" x="0.0" y="344.5" width="343" height="65.5"/>
+                                    <rect key="frame" x="0.0" y="348.5" width="343" height="71"/>
                                     <string key="text">You should trust your nominations to act competently and honest; basing your decision purely on their current profitability could lead to reduced profits or even loss of funds.</string>
                                     <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                     <color key="textColor" name="colorLightGray"/>
                                     <nil key="highlightedColor"/>
                                 </label>
                                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="UV7-1T-hlO">
-                                    <rect key="frame" x="0.0" y="424" width="343" height="48"/>
+                                    <rect key="frame" x="0.0" y="433.5" width="343" height="48"/>
                                     <subviews>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="gpJ-Ri-cah" customClass="BorderedContainerView" customModule="SoraUI">
                                             <rect key="frame" x="0.0" y="0.0" width="343" height="48"/>
@@ -392,19 +393,25 @@
                     </constraints>
                 </scrollView>
                 <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Tck-WI-Kkf">
-                    <rect key="frame" x="177.5" y="323.5" width="20" height="20"/>
+                    <rect key="frame" x="337" y="246" width="20" height="20"/>
+                    <color key="color" name="colorWhite"/>
+                </activityIndicatorView>
+                <activityIndicatorView hidden="YES" opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" style="white" translatesAutoresizingMaskIntoConstraints="NO" id="Qsc-iQ-Swd">
+                    <rect key="frame" x="337" y="467.5" width="20" height="20"/>
                     <color key="color" name="colorWhite"/>
                 </activityIndicatorView>
             </subviews>
             <viewLayoutGuide key="safeArea" id="vUN-kp-3ea"/>
             <color key="backgroundColor" white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
             <constraints>
+                <constraint firstItem="Qsc-iQ-Swd" firstAttribute="centerX" secondItem="tnB-6r-c6l" secondAttribute="centerX" id="JhQ-gS-haX"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="leading" secondItem="8Qm-3j-u97" secondAttribute="leading" id="Np8-uA-TKp"/>
+                <constraint firstItem="Tck-WI-Kkf" firstAttribute="centerX" secondItem="qo1-Km-IOb" secondAttribute="centerX" id="OiV-Kx-K3t"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="top" secondItem="8Qm-3j-u97" secondAttribute="top" id="QUa-dz-9TW"/>
-                <constraint firstItem="Tck-WI-Kkf" firstAttribute="centerX" secondItem="vUN-kp-3ea" secondAttribute="centerX" id="VTC-lC-wFc"/>
                 <constraint firstItem="8Qm-3j-u97" firstAttribute="trailing" secondItem="vUN-kp-3ea" secondAttribute="trailing" id="YW7-Qs-WPX"/>
-                <constraint firstItem="Tck-WI-Kkf" firstAttribute="centerY" secondItem="vUN-kp-3ea" secondAttribute="centerY" id="csr-5B-2rT"/>
+                <constraint firstItem="Qsc-iQ-Swd" firstAttribute="centerY" secondItem="tnB-6r-c6l" secondAttribute="centerY" id="jR0-YI-QY6"/>
                 <constraint firstItem="vUN-kp-3ea" firstAttribute="bottom" secondItem="8Qm-3j-u97" secondAttribute="bottom" id="m4k-Q0-qDK"/>
+                <constraint firstItem="Tck-WI-Kkf" firstAttribute="centerY" secondItem="qo1-Km-IOb" secondAttribute="centerY" id="yP3-0F-SpI"/>
             </constraints>
             <point key="canvasLocation" x="109.59999999999999" y="107.49625187406298"/>
         </view>
