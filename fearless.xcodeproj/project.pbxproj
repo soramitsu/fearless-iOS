@@ -1306,6 +1306,7 @@
 		F4A8A329260DD0300059F2F1 /* AccountInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */; };
 		F4B06BFA264509E8003214D5 /* SetControllerCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B06BF9264509E8003214D5 /* SetControllerCall.swift */; };
 		F4BDDCBE2657A57F005336BA /* TransferValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */; };
+		F4CD99502668F297003A91D3 /* SubqueryTransferSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD994F2668F297003A91D3 /* SubqueryTransferSource.swift */; };
 		F4D551A12643DD240002363F /* AccountSelectionPresentable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D551A02643DD240002363F /* AccountSelectionPresentable.swift */; };
 		F4D96B672637E89300B23D3D /* UIView+Separator.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D96B662637E89300B23D3D /* UIView+Separator.swift */; };
 		F4D96B6C2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4D96B6B2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift */; };
@@ -2685,6 +2686,7 @@
 		F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoTableViewCell.swift; sourceTree = "<group>"; };
 		F4B06BF9264509E8003214D5 /* SetControllerCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetControllerCall.swift; sourceTree = "<group>"; };
 		F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferValidatorTests.swift; sourceTree = "<group>"; };
+		F4CD994F2668F297003A91D3 /* SubqueryTransferSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryTransferSource.swift; sourceTree = "<group>"; };
 		F4D551A02643DD240002363F /* AccountSelectionPresentable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountSelectionPresentable.swift; sourceTree = "<group>"; };
 		F4D96B662637E89300B23D3D /* UIView+Separator.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UIView+Separator.swift"; sourceTree = "<group>"; };
 		F4D96B6B2637EB1300B23D3D /* StakingBalanceActionsWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceActionsWidgetViewModel.swift; sourceTree = "<group>"; };
@@ -3704,6 +3706,7 @@
 		8438E1D024BFAAD2001BDB13 /* fearlessIntegrationTests */ = {
 			isa = PBXGroup;
 			children = (
+				F4CD994F2668F297003A91D3 /* SubqueryTransferSource.swift */,
 				F441BE12263986BE0096B67B /* ExtrinsicServiceTests.swift */,
 				8438E1D124BFAAD2001BDB13 /* JSONRPCTests.swift */,
 				8438E1D324BFAAD2001BDB13 /* Info.plist */,
@@ -7228,6 +7231,7 @@
 				F441BE13263986BE0096B67B /* ExtrinsicServiceTests.swift in Sources */,
 				84FACB7125F57E4400F32ED4 /* SubstrateStorageTestFacade.swift in Sources */,
 				84FACB6A25F5759C00F32ED4 /* AccountCreationHelper.swift in Sources */,
+				F4CD99502668F297003A91D3 /* SubqueryTransferSource.swift in Sources */,
 				84FACB6625F56D5000F32ED4 /* CalculatorServiceTests.swift in Sources */,
 				846AF83C2525AEE200868F37 /* SubscanTests.swift in Sources */,
 			);
