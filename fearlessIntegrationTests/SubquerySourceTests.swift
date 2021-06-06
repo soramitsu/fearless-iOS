@@ -2,9 +2,9 @@ import Foundation
 import XCTest
 @testable import fearless
 
-class SubqueryTransferSourceTests: XCTestCase {
+class SubquerySourceTests: XCTestCase {
 
-    func testConnection() {
+    func testTransfers() {
         let source = SubqueryTransfersSource(
             address: "15cfSaBcTxNr8rV59cbhdMNCRagFr3GE6B3zZRsCp4QHHKPu",
             url: URL(string: "http://localhost:3000/")!,
