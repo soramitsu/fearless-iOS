@@ -106,7 +106,7 @@ class CrowdloanContributionSetupTests: XCTestCase {
             timeout: 10
         )
 
-        let expectedAmount: Decimal = 0.1
+        let expectedAmount: Decimal = 1.0
 
         presenter.updateAmount(expectedAmount)
 
