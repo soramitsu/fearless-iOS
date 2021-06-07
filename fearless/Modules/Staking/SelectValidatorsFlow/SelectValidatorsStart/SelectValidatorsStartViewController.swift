@@ -1,8 +1,8 @@
 import UIKit
 import SoraUI
 
-final class RecommendedValidatorsViewController: UIViewController {
-    var presenter: RecommendedValidatorsPresenterProtocol!
+final class SelectValidatorsStartViewController: UIViewController {
+    var presenter: SelectValidatorsStartPresenterProtocol!
 
     @IBOutlet private var sectionTitleLabel: UILabel!
     @IBOutlet private var algoDetailsLabel: UILabel!
@@ -23,7 +23,7 @@ final class RecommendedValidatorsViewController: UIViewController {
     @IBOutlet private var activityViews: [UIActivityIndicatorView]!
     @IBOutlet private var nextStepIndicators: [UIImageView]!
 
-    private var viewModel: RecommendedViewModelProtocol?
+    private var viewModel: SelectValidatorsStartViewModelProtocol?
 
     private var viewModelIsSet: Bool {
         viewModel != nil
@@ -113,8 +113,8 @@ final class RecommendedValidatorsViewController: UIViewController {
     }
 }
 
-extension RecommendedValidatorsViewController: RecommendedValidatorsViewProtocol {
-    func didReceive(viewModel: RecommendedViewModelProtocol) {
+extension SelectValidatorsStartViewController: SelectValidatorsStartViewProtocol {
+    func didReceive(viewModel: SelectValidatorsStartViewModelProtocol) {
         self.viewModel = viewModel
 
         updateLoadingState()
@@ -122,7 +122,7 @@ extension RecommendedValidatorsViewController: RecommendedValidatorsViewProtocol
     }
 }
 
-extension RecommendedValidatorsViewController {
+extension SelectValidatorsStartViewController {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

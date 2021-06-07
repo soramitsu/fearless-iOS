@@ -1,27 +1,21 @@
 import Foundation
 
-final class InitiatedBondingRecommendationsWireframe: RecommendedValidatorsWireframe {
-    private let state: InitiatedBonding
+final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWireframe {
+    private let state: ExistingBonding
 
-    init(state: InitiatedBonding) {
+    init(state: ExistingBonding) {
         self.state = state
     }
 
     override func proceedToCustomList(
-        from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo]
+        from _: ControllerBackedProtocol?,
+        validators _: [ElectedValidatorInfo]
     ) {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-        let optSelectValidators = SelectValidatorsViewFactory.createView(selectedValidators: validators)
-        guard let selectValidators = optSelectValidators else { return }
-        view?.controller.navigationController?.pushViewController(
-            selectValidators.controller,
-            animated: true
-        )
     }
 
     override func proceedToRecommendedList(
-        from view: RecommendedValidatorsViewProtocol?,
+        from view: SelectValidatorsStartViewProtocol?,
         validators: [ElectedValidatorInfo],
         maxTargets: Int
     ) {
@@ -38,7 +32,7 @@ final class InitiatedBondingRecommendationsWireframe: RecommendedValidatorsWiref
             )
         }
 
-        guard let nextView = SelectedValidatorsViewFactory.createInitiatedBondingView(
+        guard let nextView = SelectedValidatorsViewFactory.createChangeTargetsView(
             for: selectedValidators,
             maxTargets: maxTargets,
             with: state

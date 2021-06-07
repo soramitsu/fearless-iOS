@@ -1,11 +1,11 @@
 import Foundation
 
-protocol RecommendedViewModelProtocol {
+protocol SelectValidatorsStartViewModelProtocol {
     var selectedCount: Int { get }
     var totalCount: Int { get }
 }
 
-struct RecommendedViewModel: RecommendedViewModelProtocol {
+struct SelectValidatorsStartViewModel: SelectValidatorsStartViewModelProtocol {
     let selectedCount: Int
     let totalCount: Int
 }

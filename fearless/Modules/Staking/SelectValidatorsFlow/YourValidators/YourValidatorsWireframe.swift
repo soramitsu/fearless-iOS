@@ -17,17 +17,17 @@ final class YourValidatorsWireframe: YourValidatorsWireframeProtocol {
         )
     }
 
-    func showRecommendedValidators(
+    func proceedToSelectValidatorsStart(
         from view: YourValidatorsViewProtocol?,
         existingBonding: ExistingBonding
     ) {
-        guard let recommendedValidatorsView = RecommendedValidatorsViewFactory
+        guard let nextView = SelectValidatorsStartViewFactory
             .createChangeYourValidatorsView(with: existingBonding) else {
             return
         }
 
         view?.controller.navigationController?.pushViewController(
-            recommendedValidatorsView.controller,
+            nextView.controller,
             animated: true
         )
     }

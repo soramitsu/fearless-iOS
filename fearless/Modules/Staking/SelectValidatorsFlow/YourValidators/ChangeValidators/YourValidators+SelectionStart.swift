@@ -1,7 +1,7 @@
 import Foundation
 
 extension YourValidators {
-    final class RecommendationsWireframe: RecommendedValidatorsWireframe {
+    final class SelectionStartWireframe: SelectValidatorsStartWireframe {
         private let state: ExistingBonding
 
         init(state: ExistingBonding) {
@@ -16,7 +16,7 @@ extension YourValidators {
         }
 
         override func proceedToRecommendedList(
-            from view: RecommendedValidatorsViewProtocol?,
+            from view: SelectValidatorsStartViewProtocol?,
             validators: [ElectedValidatorInfo],
             maxTargets: Int
         ) {

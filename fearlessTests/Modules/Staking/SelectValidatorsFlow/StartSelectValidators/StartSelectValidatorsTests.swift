@@ -3,12 +3,12 @@ import XCTest
 import Cuckoo
 import RobinHood
 
-class RecommendedValidatorsTests: XCTestCase {
+class SelectValidatorsStartTests: XCTestCase {
     func testSetupAndOptionSelect() {
         // given
 
-        let view = MockRecommendedValidatorsViewProtocol()
-        let wireframe = MockRecommendedValidatorsWireframeProtocol()
+        let view = MockSelectValidatorsStartViewProtocol()
+        let wireframe = MockSelectValidatorsStartWireframeProtocol()
         let operationFactory = MockValidatorOperationFactoryProtocol()
 
         let recommendationsComposer = RecommendationsComposer(
@@ -16,11 +16,11 @@ class RecommendedValidatorsTests: XCTestCase {
             clusterSizeLimit: StakingConstants.targetsClusterLimit
         )
 
-        let presenter = RecommendedValidatorsPresenter(
+        let presenter = SelectValidatorsStartPresenter(
             recommendationsComposer: recommendationsComposer
         )
 
-        let interactor = RecommendedValidatorsInteractor(operationFactory: operationFactory,
+        let interactor = SelectValidatorsStartInteractor(operationFactory: operationFactory,
                                                          operationManager: OperationManager())
 
         presenter.view = view

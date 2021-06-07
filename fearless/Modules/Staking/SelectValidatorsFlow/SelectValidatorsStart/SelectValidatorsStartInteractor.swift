@@ -3,8 +3,8 @@ import RobinHood
 import FearlessUtils
 import IrohaCrypto
 
-final class RecommendedValidatorsInteractor {
-    weak var presenter: RecommendedValidatorsInteractorOutputProtocol!
+final class SelectValidatorsStartInteractor {
+    weak var presenter: SelectValidatorsStartInteractorOutputProtocol!
 
     let operationFactory: ValidatorOperationFactoryProtocol
     let operationManager: OperationManagerProtocol
@@ -35,7 +35,7 @@ final class RecommendedValidatorsInteractor {
     }
 }
 
-extension RecommendedValidatorsInteractor: RecommendedValidatorsInteractorInputProtocol {
+extension SelectValidatorsStartInteractor: SelectValidatorsStartInteractorInputProtocol {
     func setup() {
         prepareRecommendedValidatorList()
     }

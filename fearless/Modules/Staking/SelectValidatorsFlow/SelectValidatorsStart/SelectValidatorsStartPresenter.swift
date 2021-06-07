@@ -1,10 +1,10 @@
 import Foundation
 import RobinHood
 
-final class RecommendedValidatorsPresenter {
-    weak var view: RecommendedValidatorsViewProtocol?
-    var wireframe: RecommendedValidatorsWireframeProtocol!
-    var interactor: RecommendedValidatorsInteractorInputProtocol!
+final class SelectValidatorsStartPresenter {
+    weak var view: SelectValidatorsStartViewProtocol?
+    var wireframe: SelectValidatorsStartWireframeProtocol!
+    var interactor: SelectValidatorsStartInteractorInputProtocol!
 
     let logger: LoggerProtocol?
 
@@ -24,7 +24,7 @@ final class RecommendedValidatorsPresenter {
         }
 
         let totalCount = min(all.count, StakingConstants.maxTargets)
-        let viewModel = RecommendedViewModel(
+        let viewModel = SelectValidatorsStartViewModel(
             selectedCount: recommended.count,
             totalCount: totalCount
         )
@@ -33,7 +33,7 @@ final class RecommendedValidatorsPresenter {
     }
 }
 
-extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol {
+extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol {
     func setup() {
         interactor.setup()
     }
@@ -64,7 +64,7 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
     }
 }
 
-extension RecommendedValidatorsPresenter: RecommendedValidatorsInteractorOutputProtocol {
+extension SelectValidatorsStartPresenter: SelectValidatorsStartInteractorOutputProtocol {
     func didReceive(validators: [ElectedValidatorInfo]) {
         allValidators = validators
 

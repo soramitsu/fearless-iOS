@@ -3,31 +3,31 @@ import FearlessUtils
 import SoraKeystore
 import SoraFoundation
 
-final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryProtocol {
+final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryProtocol {
     static func createInitiatedBondingView(
         with state: InitiatedBonding
-    ) -> RecommendedValidatorsViewProtocol? {
-        let wireframe = InitiatedBondingRecommendationsWireframe(state: state)
+    ) -> SelectValidatorsStartViewProtocol? {
+        let wireframe = InitiatedBondingSelectValidatorsStartWireframe(state: state)
         return createView(with: wireframe)
     }
 
     static func createChangeTargetsView(
         with state: ExistingBonding
-    ) -> RecommendedValidatorsViewProtocol? {
-        let wireframe = ChangeTargetsRecommendationsWireframe(state: state)
+    ) -> SelectValidatorsStartViewProtocol? {
+        let wireframe = ChangeTargetsSelectValidatorsStartWireframe(state: state)
         return createView(with: wireframe)
     }
 
     static func createChangeYourValidatorsView(
         with state: ExistingBonding
-    ) -> RecommendedValidatorsViewProtocol? {
-        let wireframe = YourValidators.RecommendationsWireframe(state: state)
+    ) -> SelectValidatorsStartViewProtocol? {
+        let wireframe = YourValidators.SelectionStartWireframe(state: state)
         return createView(with: wireframe)
     }
 
     private static func createView(
-        with wireframe: RecommendedValidatorsWireframeProtocol
-    ) -> RecommendedValidatorsViewProtocol? {
+        with wireframe: SelectValidatorsStartWireframeProtocol
+    ) -> SelectValidatorsStartViewProtocol? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
         }
@@ -37,9 +37,9 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
             clusterSizeLimit: StakingConstants.targetsClusterLimit
         )
 
-        let view = RecommendedValidatorsViewController(nib: R.nib.recommendedValidatorsViewController)
+        let view = SelectValidatorsStartViewController(nib: R.nib.selectValidatorsStartViewController)
 
-        let presenter = RecommendedValidatorsPresenter(
+        let presenter = SelectValidatorsStartPresenter(
             recommendationsComposer: recomendationsComposer,
             logger: Logger.shared
         )
@@ -66,7 +66,7 @@ final class RecommendedValidatorsViewFactory: RecommendedValidatorsViewFactoryPr
             identityOperationFactory: identityOperationFactory
         )
 
-        let interactor = RecommendedValidatorsInteractor(
+        let interactor = SelectValidatorsStartInteractor(
             operationFactory: operationFactory,
             operationManager: operationManager
         )

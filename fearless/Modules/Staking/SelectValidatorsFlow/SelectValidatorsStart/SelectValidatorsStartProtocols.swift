@@ -1,46 +1,46 @@
 import Foundation
 import SoraFoundation
 
-protocol RecommendedValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
-    func didReceive(viewModel: RecommendedViewModelProtocol)
+protocol SelectValidatorsStartViewProtocol: ControllerBackedProtocol, Localizable {
+    func didReceive(viewModel: SelectValidatorsStartViewModelProtocol)
 }
 
-protocol RecommendedValidatorsPresenterProtocol: AnyObject {
+protocol SelectValidatorsStartPresenterProtocol: AnyObject {
     func setup()
 
     func selectRecommendedValidators()
     func selectCustomValidators()
 }
 
-protocol RecommendedValidatorsInteractorInputProtocol: AnyObject {
+protocol SelectValidatorsStartInteractorInputProtocol: AnyObject {
     func setup()
 }
 
-protocol RecommendedValidatorsInteractorOutputProtocol: AnyObject {
+protocol SelectValidatorsStartInteractorOutputProtocol: AnyObject {
     func didReceive(validators: [ElectedValidatorInfo])
     func didReceive(error: Error)
 }
 
-protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
+protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresentable {
     func proceedToCustomList(
         from view: ControllerBackedProtocol?,
         validators: [ElectedValidatorInfo]
     )
 
     func proceedToRecommendedList(
-        from view: RecommendedValidatorsViewProtocol?,
+        from view: SelectValidatorsStartViewProtocol?,
         validators: [ElectedValidatorInfo],
         maxTargets: Int
     )
 }
 
-protocol RecommendedValidatorsViewFactoryProtocol: AnyObject {
+protocol SelectValidatorsStartViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(with state: InitiatedBonding)
-        -> RecommendedValidatorsViewProtocol?
+        -> SelectValidatorsStartViewProtocol?
 
     static func createChangeTargetsView(with state: ExistingBonding)
-        -> RecommendedValidatorsViewProtocol?
+        -> SelectValidatorsStartViewProtocol?
 
     static func createChangeYourValidatorsView(with state: ExistingBonding)
-        -> RecommendedValidatorsViewProtocol?
+        -> SelectValidatorsStartViewProtocol?
 }

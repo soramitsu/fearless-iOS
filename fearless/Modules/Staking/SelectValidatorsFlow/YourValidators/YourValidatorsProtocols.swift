@@ -32,7 +32,7 @@ protocol YourValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable,
         validatorInfo: ValidatorInfoProtocol
     )
 
-    func showRecommendedValidators(
+    func proceedToSelectValidatorsStart(
         from view: YourValidatorsViewProtocol?,
         existingBonding: ExistingBonding
     )
