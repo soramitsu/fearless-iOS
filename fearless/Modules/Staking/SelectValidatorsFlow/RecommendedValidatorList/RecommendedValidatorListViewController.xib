@@ -10,7 +10,7 @@
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SelectedValidatorsViewController" customModule="fearless" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="RecommendedValidatorListViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="continueButton" destination="4oi-7B-XKE" id="JiY-Gc-FeA"/>
                 <outlet property="tableView" destination="dvE-No-BQJ" id="2eT-1T-vcS"/>
@@ -82,11 +82,6 @@
             <point key="canvasLocation" x="138" y="53"/>
         </view>
     </objects>
-    <designables>
-        <designable name="4oi-7B-XKE">
-            <size key="intrinsicContentSize" width="83.5" height="34"/>
-        </designable>
-    </designables>
     <resources>
         <namedColor name="colorBlack">
             <color red="0.0" green="0.0" blue="0.0" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

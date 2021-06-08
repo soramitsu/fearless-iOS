@@ -32,7 +32,7 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
             )
         }
 
-        guard let nextView = SelectedValidatorsViewFactory.createChangeTargetsView(
+        guard let nextView = RecommendedValidatorListViewFactory.createChangeTargetsView(
             for: selectedValidators,
             maxTargets: maxTargets,
             with: state

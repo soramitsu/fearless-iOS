@@ -38,7 +38,7 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
             )
         }
 
-        guard let nextView = SelectedValidatorsViewFactory.createInitiatedBondingView(
+        guard let nextView = RecommendedValidatorListViewFactory.createInitiatedBondingView(
             for: selectedValidators,
             maxTargets: maxTargets,
             with: state

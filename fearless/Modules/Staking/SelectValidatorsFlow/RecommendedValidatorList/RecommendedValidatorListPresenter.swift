@@ -1,16 +1,16 @@
 import Foundation
 
-final class SelectedValidatorsPresenter {
-    weak var view: SelectedValidatorsViewProtocol?
-    var wireframe: SelectedValidatorsWireframeProtocol!
+final class RecommendedValidatorListPresenter {
+    weak var view: RecommendedValidatorListViewProtocol?
+    var wireframe: RecommendedValidatorListWireframeProtocol!
 
-    let viewModelFactory: SelectedValidatorsViewModelFactoryProtocol
+    let viewModelFactory: RecommendedValidatorListViewModelFactoryProtocol
     let validators: [SelectedValidatorInfo]
     let maxTargets: Int
     let logger: LoggerProtocol?
 
     init(
-        viewModelFactory: SelectedValidatorsViewModelFactoryProtocol,
+        viewModelFactory: RecommendedValidatorListViewModelFactoryProtocol,
         validators: [SelectedValidatorInfo],
         maxTargets: Int,
         logger: LoggerProtocol? = nil
@@ -35,15 +35,15 @@ final class SelectedValidatorsPresenter {
     }
 }
 
-extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
+extension RecommendedValidatorListPresenter: RecommendedValidatorListPresenterProtocol {
     func setup() {
         provideViewModel()
     }
 
     func selectedValidatorAt(index: Int) {
         let selectedValidator = validators[index]
-        wireframe.showInformation(
-            about: selectedValidator,
+        wireframe.present(
+            selectedValidator,
             from: view
         )
     }

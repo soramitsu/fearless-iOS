@@ -1,6 +1,6 @@
 import UIKit
 
-final class SelectedValidatorsHeaderView: UIView {
+final class RecommendedValidatorListHeaderView: UIView {
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var detailsLabel: UILabel!
 

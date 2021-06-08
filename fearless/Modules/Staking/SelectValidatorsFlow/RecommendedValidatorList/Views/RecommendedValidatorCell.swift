@@ -1,7 +1,7 @@
 import UIKit
 import FearlessUtils
 
-final class SelectedValidatorCell: UITableViewCell {
+final class RecommendedValidatorCell: UITableViewCell {
     @IBOutlet private var iconView: PolkadotIconView!
     @IBOutlet private var titleLabel: UILabel!
     @IBOutlet private var detailsLabel: UILabel!
@@ -14,7 +14,7 @@ final class SelectedValidatorCell: UITableViewCell {
         self.selectedBackgroundView = selectedBackgroundView
     }
 
-    func bind(viewModel: SelectedValidatorViewModelProtocol) {
+    func bind(viewModel: RecommendedValidatorViewModelProtocol) {
         iconView.bind(icon: viewModel.icon)
         titleLabel.text = viewModel.title
         detailsLabel.text = viewModel.details

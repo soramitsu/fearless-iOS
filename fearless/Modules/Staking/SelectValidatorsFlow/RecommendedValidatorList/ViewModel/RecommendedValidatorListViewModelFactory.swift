@@ -2,14 +2,14 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 
-protocol SelectedValidatorsViewModelFactoryProtocol {
+protocol RecommendedValidatorListViewModelFactoryProtocol {
     func createViewModel(
         from validators: [SelectedValidatorInfo],
         maxTargets: Int
-    ) throws -> SelectedValidatorsViewModelProtocol
+    ) throws -> RecommendedValidatorListViewModelProtocol
 }
 
-final class SelectedValidatorsViewModelFactory {
+final class RecommendedValidatorListViewModelFactory {
     private let iconGenerator: IconGenerating
 
     init(
@@ -39,12 +39,12 @@ final class SelectedValidatorsViewModelFactory {
     }
 }
 
-extension SelectedValidatorsViewModelFactory: SelectedValidatorsViewModelFactoryProtocol {
+extension RecommendedValidatorListViewModelFactory: RecommendedValidatorListViewModelFactoryProtocol {
     func createViewModel(
         from validators: [SelectedValidatorInfo],
         maxTargets: Int
-    ) throws -> SelectedValidatorsViewModelProtocol {
-        let items: [LocalizableResource<SelectedValidatorViewModelProtocol>] =
+    ) throws -> RecommendedValidatorListViewModelProtocol {
+        let items: [LocalizableResource<RecommendedValidatorViewModelProtocol>] =
             try validators.map { validator in
                 let icon = try iconGenerator.generateFromAddress(validator.address)
                 let title = validator.identity?.displayName ?? validator.address
@@ -52,7 +52,7 @@ extension SelectedValidatorsViewModelFactory: SelectedValidatorsViewModelFactory
                 let details = createStakeReturnString(from: validator.stakeInfo?.stakeReturn)
 
                 return LocalizableResource { locale in
-                    SelectedValidatorViewModel(
+                    RecommendedValidatorViewModel(
                         icon: icon,
                         title: title,
                         details: details.value(for: locale)
@@ -62,7 +62,7 @@ extension SelectedValidatorsViewModelFactory: SelectedValidatorsViewModelFactory
 
         let itemsCountString = createItemsCountString(for: items.count, outOf: maxTargets)
 
-        return SelectedValidatorsViewModel(
+        return RecommendedValidatorListViewModel(
             itemsCountString: itemsCountString,
             itemViewModels: items
         )

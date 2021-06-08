@@ -33,7 +33,7 @@ extension YourValidators {
                 )
             }
 
-            guard let nextView = SelectedValidatorsViewFactory.createChangeYourValidatorsView(
+            guard let nextView = RecommendedValidatorListViewFactory.createChangeYourValidatorsView(
                 for: selectedValidators,
                 maxTargets: maxTargets,
                 with: state
@@ -48,7 +48,7 @@ extension YourValidators {
         }
     }
 
-    final class SelectionWireframe: SelectedValidatorsWireframe {
+    final class SelectionWireframe: RecommendedValidatorListWireframe {
         private let state: ExistingBonding
 
         init(state: ExistingBonding) {
@@ -56,7 +56,7 @@ extension YourValidators {
         }
 
         override func proceed(
-            from view: SelectedValidatorsViewProtocol?,
+            from view: RecommendedValidatorListViewProtocol?,
             targets: [SelectedValidatorInfo],
             maxTargets: Int
         ) {

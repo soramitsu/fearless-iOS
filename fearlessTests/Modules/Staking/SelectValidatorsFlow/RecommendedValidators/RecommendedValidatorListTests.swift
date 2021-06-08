@@ -3,7 +3,7 @@ import XCTest
 import Cuckoo
 import FearlessUtils
 
-class SelectedValidatorsTests: XCTestCase {
+class RecommendedValidatorListTests: XCTestCase {
     let validators: [SelectedValidatorInfo] = {
         [
             SelectedValidatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6"),
@@ -14,11 +14,11 @@ class SelectedValidatorsTests: XCTestCase {
     func testSetup() {
         // given
 
-        let view = MockSelectedValidatorsViewProtocol()
-        let wireframe = MockSelectedValidatorsWireframeProtocol()
-        let viewModelFactory = SelectedValidatorsViewModelFactory(iconGenerator: PolkadotIconGenerator())
+        let view = MockRecommendedValidatorListViewProtocol()
+        let wireframe = MockRecommendedValidatorListWireframeProtocol()
+        let viewModelFactory = RecommendedValidatorListViewModelFactory(iconGenerator: PolkadotIconGenerator())
 
-        let presenter = SelectedValidatorsPresenter(viewModelFactory: viewModelFactory, validators: validators, maxTargets: 16)
+        let presenter = RecommendedValidatorListPresenter(viewModelFactory: viewModelFactory, validators: validators, maxTargets: 16)
 
         presenter.view = view
         presenter.wireframe = wireframe

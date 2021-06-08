@@ -1,14 +1,15 @@
 import Foundation
 
-final class ChangeTargetsSelectionWireframe: SelectedValidatorsWireframe {
-    let state: ExistingBonding
+// TODO: Implement nesting (InitiatedBonding.RecommendedValidatorListWireframe)
+final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWireframe {
+    let state: InitiatedBonding
 
-    init(state: ExistingBonding) {
+    init(state: InitiatedBonding) {
         self.state = state
     }
 
     override func proceed(
-        from view: SelectedValidatorsViewProtocol?,
+        from view: RecommendedValidatorListViewProtocol?,
         targets: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
@@ -18,7 +19,7 @@ final class ChangeTargetsSelectionWireframe: SelectedValidatorsWireframe {
             maxTargets: maxTargets
         )
 
-        guard let confirmView = SelectValidatorsConfirmViewFactory.createChangeTargetsView(for: nomination) else {
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
             return
         }
 

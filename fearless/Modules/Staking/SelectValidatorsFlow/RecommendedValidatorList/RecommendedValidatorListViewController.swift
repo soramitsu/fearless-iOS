@@ -1,14 +1,14 @@
 import UIKit
 import SoraFoundation
 
-final class SelectedValidatorsViewController: UIViewController {
-    var presenter: SelectedValidatorsPresenterProtocol!
+final class RecommendedValidatorListViewController: UIViewController {
+    var presenter: RecommendedValidatorListPresenterProtocol!
 
     @IBOutlet private var tableView: UITableView!
     @IBOutlet var continueButton: TriangularedButton!
 
-    private var viewModel: SelectedValidatorsViewModelProtocol?
-    private weak var headerView: SelectedValidatorsHeaderView?
+    private var viewModel: RecommendedValidatorListViewModelProtocol?
+    private weak var headerView: RecommendedValidatorListHeaderView?
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? .autoupdatingCurrent
@@ -25,10 +25,10 @@ final class SelectedValidatorsViewController: UIViewController {
     private func setupTableView() {
         tableView.tableFooterView = UIView()
 
-        tableView.register(R.nib.selectedValidatorCell)
+        tableView.register(R.nib.recommendedValidatorCell)
         tableView.rowHeight = UIConstants.cellHeight
 
-        if let headerView = R.nib.selectedValidatorsHeaderView.firstView(owner: nil) {
+        if let headerView = R.nib.recommendedValidatorListHeaderView.firstView(owner: nil) {
             headerView.heightAnchor.constraint(equalToConstant: UIConstants.tableHeaderHeight)
                 .isActive = true
             tableView.tableHeaderView = headerView
@@ -70,7 +70,7 @@ final class SelectedValidatorsViewController: UIViewController {
     }
 }
 
-extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewDataSource {
+extension RecommendedValidatorListViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         viewModel?.itemViewModels.count ?? 0
     }
@@ -102,8 +102,8 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
     }
 }
 
-extension SelectedValidatorsViewController: SelectedValidatorsViewProtocol {
-    func didReceive(viewModel: SelectedValidatorsViewModelProtocol) {
+extension RecommendedValidatorListViewController: RecommendedValidatorListViewProtocol {
+    func didReceive(viewModel: RecommendedValidatorListViewModelProtocol) {
         self.viewModel = viewModel
         updateHeaderView()
 
@@ -111,7 +111,7 @@ extension SelectedValidatorsViewController: SelectedValidatorsViewProtocol {
     }
 }
 
-extension SelectedValidatorsViewController {
+extension RecommendedValidatorListViewController {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

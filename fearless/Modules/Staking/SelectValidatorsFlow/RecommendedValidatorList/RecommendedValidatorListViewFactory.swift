@@ -2,13 +2,13 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 
-final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol {
+final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFactoryProtocol {
     static func createInitiatedBondingView(
         for validators: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: InitiatedBonding
-    ) -> SelectedValidatorsViewProtocol? {
-        let wireframe = InitiatedBondingSelectionWireframe(state: state)
+    ) -> RecommendedValidatorListViewProtocol? {
+        let wireframe = InitiatedBondingRecommendationWireframe(state: state)
         return createView(for: validators, maxTargets: maxTargets, with: wireframe)
     }
 
@@ -16,8 +16,8 @@ final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol
         for validators: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: ExistingBonding
-    ) -> SelectedValidatorsViewProtocol? {
-        let wireframe = ChangeTargetsSelectionWireframe(state: state)
+    ) -> RecommendedValidatorListViewProtocol? {
+        let wireframe = ChangeTargetsRecommendationWireframe(state: state)
         return createView(for: validators, maxTargets: maxTargets, with: wireframe)
     }
 
@@ -25,7 +25,7 @@ final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol
         for validators: [SelectedValidatorInfo],
         maxTargets: Int,
         with state: ExistingBonding
-    ) -> SelectedValidatorsViewProtocol? {
+    ) -> RecommendedValidatorListViewProtocol? {
         let wireframe = YourValidators.SelectionWireframe(state: state)
         return createView(for: validators, maxTargets: maxTargets, with: wireframe)
     }
@@ -33,15 +33,15 @@ final class SelectedValidatorsViewFactory: SelectedValidatorsViewFactoryProtocol
     static func createView(
         for validators: [SelectedValidatorInfo],
         maxTargets: Int,
-        with wireframe: SelectedValidatorsWireframeProtocol
-    ) -> SelectedValidatorsViewProtocol? {
-        let view = SelectedValidatorsViewController(nib: R.nib.selectedValidatorsViewController)
+        with wireframe: RecommendedValidatorListWireframeProtocol
+    ) -> RecommendedValidatorListViewProtocol? {
+        let view = RecommendedValidatorListViewController(nib: R.nib.recommendedValidatorListViewController)
 
-        let viewModelFactory = SelectedValidatorsViewModelFactory(
+        let viewModelFactory = RecommendedValidatorListViewModelFactory(
             iconGenerator: PolkadotIconGenerator()
         )
 
-        let presenter = SelectedValidatorsPresenter(
+        let presenter = RecommendedValidatorListPresenter(
             viewModelFactory: viewModelFactory,
             validators: validators,
             maxTargets: maxTargets,

@@ -1,15 +1,15 @@
 import Foundation
 
-class SelectedValidatorsWireframe: SelectedValidatorsWireframeProtocol {
+class RecommendedValidatorListWireframe: RecommendedValidatorListWireframeProtocol {
     func proceed(
-        from _: SelectedValidatorsViewProtocol?,
+        from _: RecommendedValidatorListViewProtocol?,
         targets _: [SelectedValidatorInfo],
         maxTargets _: Int
     ) {}
 
-    func showInformation(
-        about validatorInfo: SelectedValidatorInfo,
-        from view: SelectedValidatorsViewProtocol?
+    func present(
+        _ validatorInfo: SelectedValidatorInfo,
+        from view: RecommendedValidatorListViewProtocol?
     ) {
         guard let validatorInfoView = ValidatorInfoViewFactory.createView(with: validatorInfo) else {
             return
