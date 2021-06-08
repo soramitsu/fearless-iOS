@@ -1,17 +1,17 @@
 import Foundation
 
-final class SelectValidatorsPresenter {
-    weak var view: SelectValidatorsViewProtocol?
-    let wireframe: SelectValidatorsWireframeProtocol
-    let interactor: SelectValidatorsInteractorInputProtocol
-    let viewModelFactory: SelectValidatorsViewModelFactory
+final class CustomValidatorListPresenter {
+    weak var view: CustomValidatorListViewProtocol?
+    let wireframe: CustomValidatorListWireframeProtocol
+    let interactor: CustomValidatorListInteractorInputProtocol
+    let viewModelFactory: CustomValidatorListViewModelFactory
     private let selectedValidators: [ElectedValidatorInfo]
-    private var viewModel: [SelectValidatorsCellViewModel] = []
+    private var viewModel: [CustomValidatorCellViewModel] = []
 
     init(
-        interactor: SelectValidatorsInteractorInputProtocol,
-        wireframe: SelectValidatorsWireframeProtocol,
-        viewModelFactory: SelectValidatorsViewModelFactory,
+        interactor: CustomValidatorListInteractorInputProtocol,
+        wireframe: CustomValidatorListWireframeProtocol,
+        viewModelFactory: CustomValidatorListViewModelFactory,
         validators: [ElectedValidatorInfo]
     ) {
         self.interactor = interactor
@@ -21,7 +21,7 @@ final class SelectValidatorsPresenter {
     }
 }
 
-extension SelectValidatorsPresenter: SelectValidatorsPresenterProtocol {
+extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func setup() {
         let viewModel = viewModelFactory.createViewModel(validators: selectedValidators)
         view?.reload(with: viewModel)
@@ -39,8 +39,8 @@ extension SelectValidatorsPresenter: SelectValidatorsPresenterProtocol {
                 maxNominatorsRewarded: validator.maxNominatorsRewarded
             )
         )
-        wireframe.showValidatorInfo(from: view, validatorInfo: selectedValidator)
+        wireframe.present(selectedValidator, from: view)
     }
 }
 
-extension SelectValidatorsPresenter: SelectValidatorsInteractorOutputProtocol {}
+extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {}

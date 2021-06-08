@@ -1,9 +1,9 @@
 import Foundation
 
-final class SelectValidatorsWireframe: SelectValidatorsWireframeProtocol {
-    func showValidatorInfo(
-        from view: ControllerBackedProtocol?,
-        validatorInfo: ValidatorInfoProtocol
+final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
+    func present(
+        _ validatorInfo: ValidatorInfoProtocol,
+        from view: ControllerBackedProtocol?
     ) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory

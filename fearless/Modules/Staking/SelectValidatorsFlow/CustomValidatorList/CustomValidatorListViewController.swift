@@ -1,15 +1,15 @@
 import UIKit
 import SoraFoundation
 
-final class SelectValidatorsViewController: UIViewController, ViewHolder {
-    typealias RootViewType = SelectValidatorsViewLayout
+final class CustomValidatorListViewController: UIViewController, ViewHolder {
+    typealias RootViewType = CustomValidatorListViewLayout
 
-    let presenter: SelectValidatorsPresenterProtocol
+    let presenter: CustomValidatorListPresenterProtocol
 
-    private var cellViewModels: [SelectValidatorsCellViewModel] = []
+    private var cellViewModels: [CustomValidatorCellViewModel] = []
 
     init(
-        presenter: SelectValidatorsPresenterProtocol,
+        presenter: CustomValidatorListPresenterProtocol,
         localizationManager: LocalizationManagerProtocol? = nil
     ) {
         self.presenter = presenter
@@ -23,7 +23,7 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = SelectValidatorsViewLayout()
+        view = CustomValidatorListViewLayout()
     }
 
     override func viewDidLoad() {
@@ -37,7 +37,7 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
     private func setupTable() {
         rootView.tableView.dataSource = self
         // rootView.tableView.delegate = self
-        rootView.tableView.registerClassForCell(SelectValidatorsCell.self)
+        rootView.tableView.registerClassForCell(CustomValidatorCell.self)
     }
 
     @objc
@@ -46,7 +46,7 @@ final class SelectValidatorsViewController: UIViewController, ViewHolder {
     }
 }
 
-extension SelectValidatorsViewController: Localizable {
+extension CustomValidatorListViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             title = "Select validators"
@@ -54,20 +54,20 @@ extension SelectValidatorsViewController: Localizable {
     }
 }
 
-extension SelectValidatorsViewController: SelectValidatorsViewProtocol {
-    func reload(with viewModel: [SelectValidatorsCellViewModel]) {
+extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
+    func reload(with viewModel: [CustomValidatorCellViewModel]) {
         cellViewModels = viewModel
         rootView.tableView.reloadData()
     }
 }
 
-extension SelectValidatorsViewController: UITableViewDataSource {
+extension CustomValidatorListViewController: UITableViewDataSource {
     func tableView(_: UITableView, numberOfRowsInSection _: Int) -> Int {
         cellViewModels.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = tableView.dequeueReusableCellWithType(SelectValidatorsCell.self)!
+        let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
         let viewModel = cellViewModels[indexPath.row]
         cell.bind(viewModel: viewModel)
         cell.infoButton.addTarget(self, action: #selector(handleValidatorInfo), for: .touchUpInside)

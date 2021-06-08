@@ -1,7 +1,7 @@
 import UIKit
 import FearlessUtils
 
-final class SelectValidatorsCell: UITableViewCell {
+final class CustomValidatorCell: UITableViewCell {
     let addressImageView: PolkadotIconView = {
         let view = PolkadotIconView()
         view.backgroundColor = .clear
@@ -64,7 +64,7 @@ final class SelectValidatorsCell: UITableViewCell {
         addressImageView.snp.makeConstraints { $0.size.equalTo(24) }
     }
 
-    func bind(viewModel: SelectValidatorsCellViewModel) {
+    func bind(viewModel: CustomValidatorCellViewModel) {
         if let icon = viewModel.icon {
             addressImageView.bind(icon: icon)
         }
