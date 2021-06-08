@@ -15,7 +15,7 @@
         </array>
     </customFonts>
     <objects>
-        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="StakingConfirmViewController" customModule="fearless" customModuleProvider="target">
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="SelectValidatorsConfirmViewController" customModule="fearless" customModuleProvider="target">
             <connections>
                 <outlet property="accountView" destination="Chg-52-s1u" id="F08-71-PLX"/>
                 <outlet property="actionButton" destination="V3J-ds-KHJ" id="eOc-DY-zx3"/>

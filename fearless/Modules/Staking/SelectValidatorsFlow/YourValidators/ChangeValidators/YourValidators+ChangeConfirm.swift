@@ -1,8 +1,8 @@
 import Foundation
 
 extension YourValidators {
-    final class StakingConfirmWireframe: StakingConfirmWireframeProtocol, ModalAlertPresenting {
-        func complete(from view: StakingConfirmViewProtocol?) {
+    final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting {
+        func complete(from view: SelectValidatorsConfirmViewProtocol?) {
             let languages = view?.localizationManager?.selectedLocale.rLanguages
             let title = R.string.localizable
                 .commonTransactionSubmitted(preferredLanguages: languages)

@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SoraKeystore
 
-final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
+final class ChangeTargetsConfirmInteractor: SelectValidatorsConfirmInteractorBase {
     let nomination: PreparedNomination<ExistingBonding>
     let repository: AnyDataProviderRepository<AccountItem>
 
@@ -72,7 +72,7 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
 
         let currentNomination = nomination
 
-        let mapOperation: BaseOperation<StakingConfirmationModel> = ClosureOperation {
+        let mapOperation: BaseOperation<SelectValidatorsConfirmationModel> = ClosureOperation {
             let controller = currentNomination.bonding.controllerAccount
             let rewardDestination = try rewardDestWrapper.targetOperation.extractNoCancellableResultData()
 
@@ -81,7 +81,7 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
                 username: controller.username
             )
 
-            return StakingConfirmationModel(
+            return SelectValidatorsConfirmationModel(
                 wallet: controllerDisplayAddress,
                 amount: currentNomination.bonding.amount,
                 rewardDestination: rewardDestination,
@@ -146,7 +146,7 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
 
     override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
         guard lastBalance >= lastFee else {
-            presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
+            presenter.didFailNomination(error: SelectValidatorsConfirmError.notEnoughFunds)
             return
         }
 

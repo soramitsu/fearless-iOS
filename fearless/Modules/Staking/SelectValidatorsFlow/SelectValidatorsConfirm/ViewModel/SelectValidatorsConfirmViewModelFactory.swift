@@ -3,17 +3,17 @@ import FearlessUtils
 import CommonWallet
 import SoraFoundation
 
-protocol StakingConfirmViewModelFactoryProtocol {
-    func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
-        -> LocalizableResource<StakingConfirmViewModelProtocol>
+protocol SelectValidatorsConfirmViewModelFactoryProtocol {
+    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: WalletAsset) throws
+        -> LocalizableResource<SelectValidatorsConfirmViewModelProtocol>
 }
 
-final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtocol {
+final class SelectValidatorsConfirmViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
     private lazy var amountFactory = AmountFormatterFactory()
 
-    func createViewModel(from state: StakingConfirmationModel, asset: WalletAsset) throws
-        -> LocalizableResource<StakingConfirmViewModelProtocol> {
+    func createViewModel(from state: SelectValidatorsConfirmationModel, asset: WalletAsset) throws
+        -> LocalizableResource<SelectValidatorsConfirmViewModelProtocol> {
         let icon = try iconGenerator.generateFromAddress(state.wallet.address)
 
         let amountFormatter = amountFactory.createInputFormatter(for: asset)
@@ -32,7 +32,7 @@ final class StakingConfirmViewModelFactory: StakingConfirmViewModelFactoryProtoc
         return LocalizableResource { locale in
             let amount = amountFormatter.value(for: locale).string(from: state.amount as NSNumber)
 
-            return StakingConfirmViewModel(
+            return SelectValidatorsConfirmViewModel(
                 senderIcon: icon,
                 senderName: state.wallet.username,
                 amount: amount ?? "",

@@ -2,8 +2,8 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class StakingConfirmViewController: UIViewController {
-    var presenter: StakingConfirmPresenterProtocol!
+final class SelectValidatorsConfirmViewController: UIViewController {
+    var presenter: SelectValidatorsConfirmPresenterProtocol!
 
     @IBOutlet private var stackView: UIStackView!
     @IBOutlet private var accountView: DetailsTriangularedView!
@@ -23,7 +23,7 @@ final class StakingConfirmViewController: UIViewController {
     private var payoutContainerView: UIView?
     private var payoutView: DetailsTriangularedView?
 
-    private var confirmationViewModel: LocalizableResource<StakingConfirmViewModelProtocol>?
+    private var confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>?
     private var assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>?
     private var feeViewModel: LocalizableResource<BalanceViewModelProtocol>?
 
@@ -241,8 +241,8 @@ final class StakingConfirmViewController: UIViewController {
     }
 }
 
-extension StakingConfirmViewController: StakingConfirmViewProtocol {
-    func didReceive(confirmationViewModel: LocalizableResource<StakingConfirmViewModelProtocol>) {
+extension SelectValidatorsConfirmViewController: SelectValidatorsConfirmViewProtocol {
+    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>) {
         self.confirmationViewModel = confirmationViewModel
         applyConfirmationViewModel()
     }
@@ -259,7 +259,7 @@ extension StakingConfirmViewController: StakingConfirmViewProtocol {
     }
 }
 
-extension StakingConfirmViewController {
+extension SelectValidatorsConfirmViewController {
     func applyLocalization() {
         if isViewLoaded {
             applyLocalization()

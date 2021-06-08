@@ -18,7 +18,7 @@ final class InitiatedBondingSelectionWireframe: SelectedValidatorsWireframe {
             maxTargets: maxTargets
         )
 
-        guard let confirmView = StakingConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
             return
         }
 

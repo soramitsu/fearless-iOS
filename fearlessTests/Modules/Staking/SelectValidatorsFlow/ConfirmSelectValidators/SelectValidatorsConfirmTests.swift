@@ -6,7 +6,7 @@ import RobinHood
 import BigInt
 import Cuckoo
 
-class StakingConfirmTests: XCTestCase {
+class SelectValidatorsConfirmTests: XCTestCase {
     let initiatedBoding: PreparedNomination<InitiatedBonding> = {
         let validator1 = SelectedValidatorInfo(address: "5EJQtTE1ZS9cBdqiuUdjQtieNLRVjk7Pyo6Bfv8Ff6e7pnr6",
                                                identity: nil)
@@ -33,14 +33,14 @@ class StakingConfirmTests: XCTestCase {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
 
-        let view = MockStakingConfirmViewProtocol()
-        let wireframe = MockStakingConfirmWireframeProtocol()
+        let view = MockSelectValidatorsConfirmViewProtocol()
+        let wireframe = MockSelectValidatorsConfirmWireframeProtocol()
 
-        let confirmViewModelFactory = StakingConfirmViewModelFactory()
+        let confirmViewModelFactory = SelectValidatorsConfirmViewModelFactory()
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: addressType,
                                                               limit: StakingConstants.maxAmount)
-        let presenter = StakingConfirmPresenter(confirmationViewModelFactory: confirmViewModelFactory,
+        let presenter = SelectValidatorsConfirmPresenter(confirmationViewModelFactory: confirmViewModelFactory,
                                                 balanceViewModelFactory: balanceViewModelFactory,
                                                 asset:asset)
 

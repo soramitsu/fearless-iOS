@@ -66,7 +66,7 @@ extension YourValidators {
                 maxTargets: maxTargets
             )
 
-            guard let confirmView = StakingConfirmViewFactory
+            guard let confirmView = SelectValidatorsConfirmViewFactory
                 .createChangeYourValidatorsView(for: nomination) else {
                 return
             }

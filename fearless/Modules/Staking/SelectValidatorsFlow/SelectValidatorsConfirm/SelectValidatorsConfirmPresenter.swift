@@ -2,23 +2,23 @@ import Foundation
 import CommonWallet
 import BigInt
 
-final class StakingConfirmPresenter {
-    weak var view: StakingConfirmViewProtocol?
-    var wireframe: StakingConfirmWireframeProtocol!
-    var interactor: StakingConfirmInteractorInputProtocol!
+final class SelectValidatorsConfirmPresenter {
+    weak var view: SelectValidatorsConfirmViewProtocol?
+    var wireframe: SelectValidatorsConfirmWireframeProtocol!
+    var interactor: SelectValidatorsConfirmInteractorInputProtocol!
 
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
 
-    var state: StakingConfirmationModel?
+    var state: SelectValidatorsConfirmationModel?
     let logger: LoggerProtocol?
-    let confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol
+    let confirmationViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
     let asset: WalletAsset
 
     init(
-        confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol,
+        confirmationViewModelFactory: SelectValidatorsConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
@@ -67,7 +67,7 @@ final class StakingConfirmPresenter {
     private func handle(error: Error) {
         let locale = view?.localizationManager?.selectedLocale
 
-        if let confirmError = error as? StakingConfirmError {
+        if let confirmError = error as? SelectValidatorsConfirmError {
             guard let view = view else {
                 return
             }
@@ -90,7 +90,7 @@ final class StakingConfirmPresenter {
     }
 }
 
-extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
+extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmPresenterProtocol {
     func setup() {
         provideFee()
 
@@ -150,8 +150,8 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 }
 
-extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
-    func didReceive(model: StakingConfirmationModel) {
+extension SelectValidatorsConfirmPresenter: SelectValidatorsConfirmInteractorOutputProtocol {
+    func didReceive(model: SelectValidatorsConfirmationModel) {
         state = model
 
         provideAsset()

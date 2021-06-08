@@ -1,8 +1,8 @@
 import Foundation
 import RobinHood
 
-class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
-    weak var presenter: StakingConfirmInteractorOutputProtocol!
+class SelectValidatorsConfirmInteractorBase: SelectValidatorsConfirmInteractorInputProtocol {
+    weak var presenter: SelectValidatorsConfirmInteractorOutputProtocol!
 
     let priceProvider: AnySingleValueProvider<PriceData>
     let balanceProvider: AnyDataProvider<DecodedAccountInfo>
@@ -82,7 +82,7 @@ class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
         )
     }
 
-    // MARK: StakingConfirmInteractorInputProtocol
+    // MARK: - SelectValidatorsConfirmInteractorInputProtocol
 
     func setup() {
         subscribeToAccountChanges()

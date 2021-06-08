@@ -1,7 +1,7 @@
 import Foundation
 import FearlessUtils
 
-protocol StakingConfirmViewModelProtocol {
+protocol SelectValidatorsConfirmViewModelProtocol {
     var senderIcon: DrawableIcon { get }
     var senderName: String { get }
     var amount: String { get }
@@ -9,7 +9,7 @@ protocol StakingConfirmViewModelProtocol {
     var validatorsCount: Int { get }
 }
 
-struct StakingConfirmViewModel: StakingConfirmViewModelProtocol {
+struct SelectValidatorsConfirmViewModel: SelectValidatorsConfirmViewModelProtocol {
     let senderIcon: DrawableIcon
     let senderName: String
     let amount: String

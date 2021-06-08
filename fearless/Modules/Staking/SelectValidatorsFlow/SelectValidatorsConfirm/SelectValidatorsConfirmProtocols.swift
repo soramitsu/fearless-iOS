@@ -2,27 +2,27 @@ import Foundation
 import SoraFoundation
 import BigInt
 
-protocol StakingConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
-    func didReceive(confirmationViewModel: LocalizableResource<StakingConfirmViewModelProtocol>)
+protocol SelectValidatorsConfirmViewProtocol: ControllerBackedProtocol, Localizable, LoadableViewProtocol {
+    func didReceive(confirmationViewModel: LocalizableResource<SelectValidatorsConfirmViewModelProtocol>)
     func didReceive(assetViewModel: LocalizableResource<AssetBalanceViewModelProtocol>)
     func didReceive(feeViewModel: LocalizableResource<BalanceViewModelProtocol>?)
 }
 
-protocol StakingConfirmPresenterProtocol: AnyObject {
+protocol SelectValidatorsConfirmPresenterProtocol: AnyObject {
     func setup()
     func selectWalletAccount()
     func selectPayoutAccount()
     func proceed()
 }
 
-protocol StakingConfirmInteractorInputProtocol: AnyObject {
+protocol SelectValidatorsConfirmInteractorInputProtocol: AnyObject {
     func setup()
     func submitNomination(for lastBalance: Decimal, lastFee: Decimal)
     func estimateFee()
 }
 
-protocol StakingConfirmInteractorOutputProtocol: AnyObject {
-    func didReceive(model: StakingConfirmationModel)
+protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
+    func didReceive(model: SelectValidatorsConfirmationModel)
     func didReceive(modelError: Error)
 
     func didReceive(price: PriceData?)
@@ -39,21 +39,18 @@ protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(feeError: Error)
 }
 
-protocol StakingConfirmWireframeProtocol:
-    AlertPresentable,
-    ErrorPresentable,
-    AddressOptionsPresentable,
-    StakingErrorPresentable {
-    func complete(from view: StakingConfirmViewProtocol?)
+protocol SelectValidatorsConfirmWireframeProtocol: AlertPresentable, ErrorPresentable,
+    AddressOptionsPresentable, StakingErrorPresentable {
+    func complete(from view: SelectValidatorsConfirmViewProtocol?)
 }
 
-protocol StakingConfirmViewFactoryProtocol: AnyObject {
+protocol SelectValidatorsConfirmViewFactoryProtocol: AnyObject {
     static func createInitiatedBondingView(for state: PreparedNomination<InitiatedBonding>)
-        -> StakingConfirmViewProtocol?
+        -> SelectValidatorsConfirmViewProtocol?
 
     static func createChangeTargetsView(for state: PreparedNomination<ExistingBonding>)
-        -> StakingConfirmViewProtocol?
+        -> SelectValidatorsConfirmViewProtocol?
 
     static func createChangeYourValidatorsView(for state: PreparedNomination<ExistingBonding>)
-        -> StakingConfirmViewProtocol?
+        -> SelectValidatorsConfirmViewProtocol?
 }

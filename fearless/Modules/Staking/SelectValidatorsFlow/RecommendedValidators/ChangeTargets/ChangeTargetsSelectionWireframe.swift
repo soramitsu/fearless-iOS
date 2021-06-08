@@ -18,7 +18,7 @@ final class ChangeTargetsSelectionWireframe: SelectedValidatorsWireframe {
             maxTargets: maxTargets
         )
 
-        guard let confirmView = StakingConfirmViewFactory.createChangeTargetsView(for: nomination) else {
+        guard let confirmView = SelectValidatorsConfirmViewFactory.createChangeTargetsView(for: nomination) else {
             return
         }
 

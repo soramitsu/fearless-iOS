@@ -2,7 +2,7 @@ import Foundation
 import RobinHood
 import SoraKeystore
 
-final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
+final class InitiatedBondingConfirmInteractor: SelectValidatorsConfirmInteractorBase {
     let nomination: PreparedNomination<InitiatedBonding>
     let settings: SettingsManagerProtocol
 
@@ -50,7 +50,7 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
             username: selectedAccount.username
         )
 
-        let confirmation = StakingConfirmationModel(
+        let confirmation = SelectValidatorsConfirmationModel(
             wallet: stash,
             amount: nomination.bonding.amount,
             rewardDestination: rewardDestination,
@@ -120,7 +120,7 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
 
     override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
         guard lastBalance >= nomination.bonding.amount + lastFee else {
-            presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
+            presenter.didFailNomination(error: SelectValidatorsConfirmError.notEnoughFunds)
             return
         }
 

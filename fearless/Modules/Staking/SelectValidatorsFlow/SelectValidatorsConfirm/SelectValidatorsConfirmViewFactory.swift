@@ -3,10 +3,10 @@ import SoraKeystore
 import SoraFoundation
 import RobinHood
 
-final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
+final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFactoryProtocol {
     static func createInitiatedBondingView(
         for state: PreparedNomination<InitiatedBonding>
-    ) -> StakingConfirmViewProtocol? {
+    ) -> SelectValidatorsConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -23,7 +23,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        let wireframe = StakingConfirmWireframe()
+        let wireframe = SelectValidatorsConfirmWireframe()
 
         return createView(
             for: interactor,
@@ -35,22 +35,22 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
     static func createChangeTargetsView(
         for state: PreparedNomination<ExistingBonding>
-    ) -> StakingConfirmViewProtocol? {
-        let wireframe = StakingConfirmWireframe()
+    ) -> SelectValidatorsConfirmViewProtocol? {
+        let wireframe = SelectValidatorsConfirmWireframe()
         return createExistingBondingView(for: state, wireframe: wireframe)
     }
 
     static func createChangeYourValidatorsView(
         for state: PreparedNomination<ExistingBonding>
-    ) -> StakingConfirmViewProtocol? {
-        let wireframe = YourValidators.StakingConfirmWireframe()
+    ) -> SelectValidatorsConfirmViewProtocol? {
+        let wireframe = YourValidators.SelectValidatorsConfirmWireframe()
         return createExistingBondingView(for: state, wireframe: wireframe)
     }
 
     private static func createExistingBondingView(
         for state: PreparedNomination<ExistingBonding>,
-        wireframe: StakingConfirmWireframeProtocol
-    ) -> StakingConfirmViewProtocol? {
+        wireframe: SelectValidatorsConfirmWireframeProtocol
+    ) -> SelectValidatorsConfirmViewProtocol? {
         let settings = SettingsManager.shared
         let keystore = Keychain()
 
@@ -86,11 +86,11 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
     }
 
     private static func createView(
-        for interactor: StakingBaseConfirmInteractor,
-        wireframe: StakingConfirmWireframeProtocol,
+        for interactor: SelectValidatorsConfirmInteractorBase,
+        wireframe: SelectValidatorsConfirmWireframeProtocol,
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol
-    ) -> StakingConfirmViewProtocol? {
+    ) -> SelectValidatorsConfirmViewProtocol? {
         guard let presenter = createPresenter(
             settings: settings,
             keystore: keystore
@@ -98,7 +98,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        let view = StakingConfirmViewController(nib: R.nib.stakingConfirmViewController)
+        let view = SelectValidatorsConfirmViewController(nib: R.nib.selectValidatorsConfirmViewController)
         view.uiFactory = UIFactory()
 
         view.presenter = presenter
@@ -115,12 +115,12 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
     private static func createPresenter(
         settings: SettingsManagerProtocol,
         keystore _: KeystoreProtocol
-    ) -> StakingConfirmPresenter? {
+    ) -> SelectValidatorsConfirmPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
-        let confirmViewModelFactory = StakingConfirmViewModelFactory()
+        let confirmViewModelFactory = SelectValidatorsConfirmViewModelFactory()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -128,7 +128,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
-        return StakingConfirmPresenter(
+        return SelectValidatorsConfirmPresenter(
             confirmationViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
             asset: asset,
@@ -141,7 +141,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         connection: JSONRPCEngine,
         settings: SettingsManagerProtocol,
         keystore: KeystoreProtocol
-    ) -> StakingBaseConfirmInteractor? {
+    ) -> SelectValidatorsConfirmInteractorBase? {
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(settings.selectedConnection.type)
 
@@ -195,7 +195,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         keystore: KeystoreProtocol,
         assetId: WalletAssetId,
         networkSettings: ConnectionItem
-    ) -> StakingBaseConfirmInteractor? {
+    ) -> SelectValidatorsConfirmInteractorBase? {
         let providerFactory = SingleValueProviderFactory.shared
         guard let balanceProvider = try? providerFactory
             .getAccountProvider(

@@ -1,7 +1,7 @@
 import Foundation
 import CommonWallet
 
-struct StakingConfirmationModel {
+struct SelectValidatorsConfirmationModel {
     let wallet: DisplayAddress
     let amount: Decimal
     let rewardDestination: RewardDestination<DisplayAddress>
