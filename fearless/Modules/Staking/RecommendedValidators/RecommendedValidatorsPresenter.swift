@@ -38,29 +38,6 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
         interactor.setup()
     }
 
-    func proceed() {
-        guard let all = allValidators, let recommended = recommended else {
-            return
-        }
-
-        let totalCount = min(all.count, StakingConstants.maxTargets)
-
-        let targets = recommended.map {
-            SelectedValidatorInfo(
-                address: $0.address,
-                identity: $0.identity,
-                stakeInfo: ValidatorStakeInfo(
-                    nominators: $0.nominators,
-                    totalStake: $0.totalStake,
-                    stakeReturn: $0.stakeReturn,
-                    maxNominatorsRewarded: $0.maxNominatorsRewarded
-                )
-            )
-        }
-
-        wireframe.proceed(from: view, targets: targets, maxTargets: totalCount)
-    }
-
     func selectRecommendedValidators() {
         guard let all = allValidators, let recommended = recommended else {
             return
@@ -68,7 +45,11 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
 
         let totalCount = min(all.count, StakingConstants.maxTargets)
 
-        wireframe.showRecommended(from: view, validators: recommended, maxTargets: totalCount)
+        wireframe.proceedToRecommendedList(
+            from: view,
+            validators: recommended,
+            maxTargets: totalCount
+        )
     }
 
     func selectCustomValidators() {
@@ -76,7 +57,10 @@ extension RecommendedValidatorsPresenter: RecommendedValidatorsPresenterProtocol
             return
         }
 
-        wireframe.showCustom(from: view, validators: all)
+        wireframe.proceedToCustomList(
+            from: view,
+            validators: all
+        )
     }
 }
 

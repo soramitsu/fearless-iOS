@@ -1,44 +1,31 @@
 import Foundation
-import SoraFoundation
-import FearlessUtils
 
 final class SelectedValidatorsPresenter {
     weak var view: SelectedValidatorsViewProtocol?
     var wireframe: SelectedValidatorsWireframeProtocol!
 
+    let viewModelFactory: SelectedValidatorsViewModelFactoryProtocol
     let validators: [SelectedValidatorInfo]
     let maxTargets: Int
     let logger: LoggerProtocol?
 
     init(
+        viewModelFactory: SelectedValidatorsViewModelFactoryProtocol,
         validators: [SelectedValidatorInfo],
         maxTargets: Int,
         logger: LoggerProtocol? = nil
     ) {
+        self.viewModelFactory = viewModelFactory
         self.validators = validators
         self.maxTargets = maxTargets
         self.logger = logger
     }
 
-    private func providerViewModel() {
-        let iconGenerator = PolkadotIconGenerator()
-
+    private func provideViewModel() {
         do {
-            let items: [SelectedValidatorViewModelProtocol] =
-                try validators.map { validator in
-                    let icon = try iconGenerator.generateFromAddress(validator.address)
-                    let title = validator.identity?.displayName ?? validator.address
-
-                    return SelectedValidatorViewModel(
-                        icon: icon,
-                        title: title,
-                        details: ""
-                    )
-                }
-
-            let viewModel = SelectedValidatorsViewModel(
-                maxTargets: maxTargets,
-                itemViewModels: items
+            let viewModel = try viewModelFactory.createViewModel(
+                from: validators,
+                maxTargets: maxTargets
             )
 
             view?.didReceive(viewModel: viewModel)
@@ -50,15 +37,18 @@ final class SelectedValidatorsPresenter {
 
 extension SelectedValidatorsPresenter: SelectedValidatorsPresenterProtocol {
     func setup() {
-        providerViewModel()
+        provideViewModel()
     }
 
     func selectedValidatorAt(index: Int) {
-        // TODO: FLW-593
         let selectedValidator = validators[index]
         wireframe.showInformation(
             about: selectedValidator,
             from: view
         )
+    }
+
+    func proceed() {
+        wireframe.proceed(from: view, targets: validators, maxTargets: maxTargets)
     }
 }

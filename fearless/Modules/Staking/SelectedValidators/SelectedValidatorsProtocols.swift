@@ -6,8 +6,8 @@ protocol SelectedValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
 
 protocol SelectedValidatorsPresenterProtocol: AnyObject {
     func setup()
-
     func selectedValidatorAt(index: Int)
+    func proceed()
 }
 
 protocol SelectedValidatorsWireframeProtocol: AnyObject {
@@ -15,11 +15,30 @@ protocol SelectedValidatorsWireframeProtocol: AnyObject {
         about validatorInfo: SelectedValidatorInfo,
         from view: SelectedValidatorsViewProtocol?
     )
+
+    func proceed(
+        from view: SelectedValidatorsViewProtocol?,
+        targets: [SelectedValidatorInfo],
+        maxTargets: Int
+    )
 }
 
 protocol SelectedValidatorsViewFactoryProtocol: AnyObject {
-    static func createView(
+    static func createInitiatedBondingView(
         for validators: [SelectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        with state: InitiatedBonding
+    ) -> SelectedValidatorsViewProtocol?
+
+    static func createChangeTargetsView(
+        for validators: [SelectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> SelectedValidatorsViewProtocol?
+
+    static func createChangeYourValidatorsView(
+        for validators: [SelectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
     ) -> SelectedValidatorsViewProtocol?
 }

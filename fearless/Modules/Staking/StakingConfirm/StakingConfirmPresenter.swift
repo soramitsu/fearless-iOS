@@ -134,18 +134,6 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
         }
     }
 
-    func selectValidators() {
-        guard let state = state else {
-            return
-        }
-
-        wireframe.showSelectedValidator(
-            from: view,
-            validators: state.targets,
-            maxTargets: state.maxTargets
-        )
-    }
-
     func proceed() {
         guard let fee = fee else {
             if let view = view {
