@@ -85,7 +85,7 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
     }
 
     func showNominatorValidators(from view: ControllerBackedProtocol?) {
-        guard let validatorsView = YourValidatorsViewFactory.createView() else {
+        guard let validatorsView = YourValidatorListViewFactory.createView() else {
             return
         }
 

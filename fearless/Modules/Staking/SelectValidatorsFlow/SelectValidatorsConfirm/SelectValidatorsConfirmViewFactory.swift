@@ -43,7 +43,7 @@ final class SelectValidatorsConfirmViewFactory: SelectValidatorsConfirmViewFacto
     static func createChangeYourValidatorsView(
         for state: PreparedNomination<ExistingBonding>
     ) -> SelectValidatorsConfirmViewProtocol? {
-        let wireframe = YourValidators.SelectValidatorsConfirmWireframe()
+        let wireframe = YourValidatorList.SelectValidatorsConfirmWireframe()
         return createExistingBondingView(for: state, wireframe: wireframe)
     }
 

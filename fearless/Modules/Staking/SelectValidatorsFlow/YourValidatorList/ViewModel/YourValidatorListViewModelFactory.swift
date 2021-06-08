@@ -2,11 +2,11 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 
-protocol YourValidatorsViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorsSection]
+protocol YourValidatorListViewModelFactoryProtocol {
+    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorListSection]
 }
 
-final class YourValidatorsViewModelFactory {
+final class YourValidatorListViewModelFactory {
     let balanceViewModeFactory: BalanceViewModelFactoryProtocol
 
     private lazy var iconGenerator = PolkadotIconGenerator()
@@ -39,7 +39,7 @@ final class YourValidatorsViewModelFactory {
     }
 
     private func createTitle(
-        for sectionStatus: YourValidatorsSectionStatus,
+        for sectionStatus: YourValidatorListSectionStatus,
         count: Int
     ) -> LocalizableResource<String>? {
         guard sectionStatus != .stakeNotAllocated else {
@@ -80,7 +80,7 @@ final class YourValidatorsViewModelFactory {
     }
 
     private func createDescription(
-        for sectionStatus: YourValidatorsSectionStatus
+        for sectionStatus: YourValidatorListSectionStatus
     ) -> LocalizableResource<String>? {
         LocalizableResource { locale in
             switch sectionStatus {
@@ -105,9 +105,9 @@ final class YourValidatorsViewModelFactory {
     }
 
     private func createSectionsFromOrder(
-        _ order: [YourValidatorsSectionStatus],
-        mapping: [YourValidatorsSectionStatus: [YourValidatorViewModel]]
-    ) -> [YourValidatorsSection] {
+        _ order: [YourValidatorListSectionStatus],
+        mapping: [YourValidatorListSectionStatus: [YourValidatorViewModel]]
+    ) -> [YourValidatorListSection] {
         order.compactMap { status in
             if let validators = mapping[status], !validators.isEmpty {
                 let title: LocalizableResource<String>? = {
@@ -121,7 +121,7 @@ final class YourValidatorsViewModelFactory {
                     return createTitle(for: status, count: validatorsCount)
                 }()
                 let description = createDescription(for: status)
-                return YourValidatorsSection(
+                return YourValidatorListSection(
                     status: status,
                     title: title,
                     description: description,
@@ -134,11 +134,11 @@ final class YourValidatorsViewModelFactory {
     }
 }
 
-extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol {
-    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorsSection] {
+extension YourValidatorListViewModelFactory: YourValidatorListViewModelFactoryProtocol {
+    func createViewModel(for model: YourValidatorsModel) throws -> [YourValidatorListSection] {
         let validatorsMapping = model.allValidators.reduce(
-            into: [YourValidatorsSectionStatus: [YourValidatorViewModel]]()) { result, item in
-            let sectionStatus: YourValidatorsSectionStatus = {
+            into: [YourValidatorListSectionStatus: [YourValidatorViewModel]]()) { result, item in
+            let sectionStatus: YourValidatorListSectionStatus = {
                 guard let modelStatus = item.myNomination else {
                     return .pending
                 }
@@ -160,7 +160,7 @@ extension YourValidatorsViewModelFactory: YourValidatorsViewModelFactoryProtocol
             result[sectionStatus] = (result[sectionStatus] ?? []) + [viewModel]
         }
 
-        let sectionsOrder: [YourValidatorsSectionStatus] = [
+        let sectionsOrder: [YourValidatorListSectionStatus] = [
             .stakeAllocated, .pending, .stakeNotAllocated, .inactive
         ]
 

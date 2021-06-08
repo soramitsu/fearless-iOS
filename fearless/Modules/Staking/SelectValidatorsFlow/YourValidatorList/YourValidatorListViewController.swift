@@ -2,18 +2,18 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-final class YourValidatorsViewController: UIViewController, ViewHolder {
-    typealias RootViewType = YourValidatorsViewLayout
+final class YourValidatorListViewController: UIViewController, ViewHolder {
+    typealias RootViewType = YourValidatorListViewLayout
 
-    var presenter: YourValidatorsPresenterProtocol
+    var presenter: YourValidatorListPresenterProtocol
 
     var selectedLocale: Locale {
         localizationManager?.selectedLocale ?? Locale.current
     }
 
-    private var viewState: YourValidatorsViewState?
+    private var viewState: YourValidatorListViewState?
 
-    init(presenter: YourValidatorsPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
+    init(presenter: YourValidatorListPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
 
         super.init(nibName: nil, bundle: nil)
@@ -29,7 +29,7 @@ final class YourValidatorsViewController: UIViewController, ViewHolder {
     // MARK: Lifecycle -
 
     override func loadView() {
-        view = YourValidatorsViewLayout()
+        view = YourValidatorListViewLayout()
     }
 
     override func viewDidLoad() {
@@ -79,7 +79,7 @@ final class YourValidatorsViewController: UIViewController, ViewHolder {
         ])
 
         rootView.tableView.registerHeaderFooterView(
-            withClass: YourValidatorStatusSectionView.self
+            withClass: YourValidatorListStatusSectionView.self
         )
 
         rootView.tableView.rowHeight = 48
@@ -95,7 +95,7 @@ final class YourValidatorsViewController: UIViewController, ViewHolder {
 
 // MARK: - UITableViewDataSource
 
-extension YourValidatorsViewController: UITableViewDataSource {
+extension YourValidatorListViewController: UITableViewDataSource {
     func numberOfSections(in _: UITableView) -> Int {
         guard let sections = viewState?.validatorSections else {
             return 0
@@ -126,7 +126,7 @@ extension YourValidatorsViewController: UITableViewDataSource {
 
 // MARK: UITableViewDelegate
 
-extension YourValidatorsViewController: UITableViewDelegate {
+extension YourValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
 
@@ -142,7 +142,7 @@ extension YourValidatorsViewController: UITableViewDelegate {
             return nil
         }
 
-        let headerView: YourValidatorStatusSectionView = tableView.dequeueReusableHeaderFooterView()
+        let headerView: YourValidatorListStatusSectionView = tableView.dequeueReusableHeaderFooterView()
 
         let title = section.title?.value(for: selectedLocale)
         let description = section.description?.value(for: selectedLocale)
@@ -153,18 +153,18 @@ extension YourValidatorsViewController: UITableViewDelegate {
     }
 }
 
-extension YourValidatorsViewController: ErrorStateViewDelegate {
+extension YourValidatorListViewController: ErrorStateViewDelegate {
     func didRetry(errorView _: ErrorStateView) {
         presenter.retry()
     }
 }
 
-extension YourValidatorsViewController: EmptyStateViewOwnerProtocol {
+extension YourValidatorListViewController: EmptyStateViewOwnerProtocol {
     var emptyStateDelegate: EmptyStateDelegate { self }
     var emptyStateDataSource: EmptyStateDataSource { self }
 }
 
-extension YourValidatorsViewController: EmptyStateDataSource {
+extension YourValidatorListViewController: EmptyStateDataSource {
     var viewForEmptyState: UIView? {
         guard let state = viewState else { return nil }
 
@@ -180,7 +180,7 @@ extension YourValidatorsViewController: EmptyStateDataSource {
     }
 }
 
-extension YourValidatorsViewController: EmptyStateDelegate {
+extension YourValidatorListViewController: EmptyStateDelegate {
     var shouldDisplayEmptyState: Bool {
         guard let state = viewState else { return false }
         switch state {
@@ -192,8 +192,8 @@ extension YourValidatorsViewController: EmptyStateDelegate {
     }
 }
 
-extension YourValidatorsViewController: YourValidatorsViewProtocol {
-    func reload(state: YourValidatorsViewState) {
+extension YourValidatorListViewController: YourValidatorListViewProtocol {
+    func reload(state: YourValidatorListViewState) {
         viewState = state
 
         rootView.tableView.reloadData()
@@ -201,7 +201,7 @@ extension YourValidatorsViewController: YourValidatorsViewProtocol {
     }
 }
 
-extension YourValidatorsViewController {
+extension YourValidatorListViewController {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

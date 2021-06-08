@@ -4,13 +4,13 @@ import RobinHood
 import SoraKeystore
 import FearlessUtils
 
-struct YourValidatorsViewFactory {
-    static func createView() -> YourValidatorsViewProtocol? {
+struct YourValidatorListViewFactory {
+    static func createView() -> YourValidatorListViewProtocol? {
         guard let interactor = createInteractor(settings: SettingsManager.shared) else {
             return nil
         }
 
-        let wireframe = YourValidatorsWireframe()
+        let wireframe = YourValidatorListWireframe()
 
         let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
@@ -22,11 +22,11 @@ struct YourValidatorsViewFactory {
             limit: StakingConstants.maxAmount
         )
 
-        let viewModelFactory = YourValidatorsViewModelFactory(
+        let viewModelFactory = YourValidatorListViewModelFactory(
             balanceViewModeFactory: balanceViewModelFactory
         )
 
-        let presenter = YourValidatorsPresenter(
+        let presenter = YourValidatorListPresenter(
             interactor: interactor,
             wireframe: wireframe,
             viewModelFactory: viewModelFactory,
@@ -34,7 +34,7 @@ struct YourValidatorsViewFactory {
             logger: Logger.shared
         )
 
-        let view = YourValidatorsViewController(
+        let view = YourValidatorListViewController(
             presenter: presenter,
             localizationManager: LocalizationManager.shared
         )
@@ -47,7 +47,7 @@ struct YourValidatorsViewFactory {
 
     private static func createInteractor(
         settings: SettingsManagerProtocol
-    ) -> YourValidatorsInteractor? {
+    ) -> YourValidatorListInteractor? {
         guard let engine = WebSocketService.shared.connection else {
             return nil
         }
@@ -77,7 +77,7 @@ struct YourValidatorsViewFactory {
             identityOperationFactory: IdentityOperationFactory(requestFactory: storageRequestFactory)
         )
 
-        return YourValidatorsInteractor(
+        return YourValidatorListInteractor(
             chain: chain,
             providerFactory: SingleValueProviderFactory.shared,
             substrateProviderFactory: substrateProviderFactory,

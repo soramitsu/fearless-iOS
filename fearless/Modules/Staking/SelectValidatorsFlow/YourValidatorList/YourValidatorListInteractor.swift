@@ -2,8 +2,8 @@ import UIKit
 import SoraKeystore
 import RobinHood
 
-final class YourValidatorsInteractor {
-    weak var presenter: YourValidatorsInteractorOutputProtocol!
+final class YourValidatorListInteractor {
+    weak var presenter: YourValidatorListInteractorOutputProtocol!
 
     let chain: Chain
     let providerFactory: SingleValueProviderFactoryProtocol
@@ -177,7 +177,7 @@ final class YourValidatorsInteractor {
     }
 }
 
-extension YourValidatorsInteractor: YourValidatorsInteractorInputProtocol {
+extension YourValidatorListInteractor: YourValidatorListInteractorInputProtocol {
     func setup() {
         subscribeToActiveEraProvider()
         subscribeToElectionStatusProvider()

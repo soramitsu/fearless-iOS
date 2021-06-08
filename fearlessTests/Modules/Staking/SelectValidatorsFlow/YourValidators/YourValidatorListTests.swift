@@ -5,7 +5,7 @@ import RobinHood
 import Cuckoo
 import IrohaCrypto
 
-class YourValidatorsTests: XCTestCase {
+class YourValidatorListTests: XCTestCase {
 
     func testSetupCompletesAndActiveValidatorReceived() throws {
         // given
@@ -23,8 +23,8 @@ class YourValidatorsTests: XCTestCase {
         let storageFacade = SubstrateStorageTestFacade()
         let operationManager = OperationManager()
 
-        let view = MockYourValidatorsViewProtocol()
-        let wireframe = MockYourValidatorsWireframeProtocol()
+        let view = MockYourValidatorListViewProtocol()
+        let wireframe = MockYourValidatorListWireframeProtocol()
 
         // prepare nomination and corresponding validators
 
@@ -83,7 +83,7 @@ class YourValidatorsTests: XCTestCase {
             }
         }
 
-        let interactor = YourValidatorsInteractor(
+        let interactor = YourValidatorListInteractor(
             chain: chain,
             providerFactory: singleValueProviderFactory,
             substrateProviderFactory: substrateProviderFactory,
@@ -103,11 +103,11 @@ class YourValidatorsTests: XCTestCase {
             limit: StakingConstants.maxAmount
         )
 
-        let viewModelFactory = YourValidatorsViewModelFactory(
+        let viewModelFactory = YourValidatorListViewModelFactory(
             balanceViewModeFactory: balanceViewModelFactory
         )
 
-        let presenter = YourValidatorsPresenter(interactor: interactor,
+        let presenter = YourValidatorListPresenter(interactor: interactor,
                                                 wireframe: wireframe,
                                                 viewModelFactory: viewModelFactory,
                                                 chain: chain

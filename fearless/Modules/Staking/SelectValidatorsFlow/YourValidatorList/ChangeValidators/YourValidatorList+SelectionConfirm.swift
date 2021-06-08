@@ -1,6 +1,6 @@
 import Foundation
 
-extension YourValidators {
+extension YourValidatorList {
     final class SelectValidatorsConfirmWireframe: SelectValidatorsConfirmWireframeProtocol, ModalAlertPresenting {
         func complete(from view: SelectValidatorsConfirmViewProtocol?) {
             let languages = view?.localizationManager?.selectedLocale.rLanguages

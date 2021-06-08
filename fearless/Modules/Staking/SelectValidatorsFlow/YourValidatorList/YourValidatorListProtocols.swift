@@ -1,22 +1,22 @@
 import SoraFoundation
 
-protocol YourValidatorsViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(state: YourValidatorsViewState)
+protocol YourValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
+    func reload(state: YourValidatorListViewState)
 }
 
-protocol YourValidatorsPresenterProtocol: AnyObject {
+protocol YourValidatorListPresenterProtocol: AnyObject {
     func setup()
     func retry()
     func didSelectValidator(viewModel: YourValidatorViewModel)
     func changeValidators()
 }
 
-protocol YourValidatorsInteractorInputProtocol: AnyObject {
+protocol YourValidatorListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
 }
 
-protocol YourValidatorsInteractorOutputProtocol: AnyObject {
+protocol YourValidatorListInteractorOutputProtocol: AnyObject {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
@@ -25,15 +25,15 @@ protocol YourValidatorsInteractorOutputProtocol: AnyObject {
     func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>)
 }
 
-protocol YourValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable,
+protocol YourValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable,
     StakingErrorPresentable {
-    func showValidatorInfo(
-        from view: YourValidatorsViewProtocol?,
-        validatorInfo: ValidatorInfoProtocol
+    func present(
+        _ validatorInfo: ValidatorInfoProtocol,
+        from view: YourValidatorListViewProtocol?
     )
 
     func proceedToSelectValidatorsStart(
-        from view: YourValidatorsViewProtocol?,
+        from view: YourValidatorListViewProtocol?,
         existingBonding: ExistingBonding
     )
 }

@@ -1,7 +1,7 @@
 import Foundation
 import RobinHood
 
-extension YourValidatorsInteractor {
+extension YourValidatorListInteractor {
     func clearAllSubscriptions() {
         clearActiveEraSubscription()
         clearElectionStatusProvider()

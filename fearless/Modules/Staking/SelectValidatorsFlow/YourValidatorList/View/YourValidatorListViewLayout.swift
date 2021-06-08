@@ -1,6 +1,6 @@
 import UIKit
 
-final class YourValidatorsViewLayout: UIView {
+final class YourValidatorListViewLayout: UIView {
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()

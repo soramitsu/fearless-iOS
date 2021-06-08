@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-class YourValidatorStatusSectionView: UITableViewHeaderFooterView {
+class YourValidatorListStatusSectionView: UITableViewHeaderFooterView {
     let indicatorView: RoundedView = {
         let view = RoundedView()
         view.cornerRadius = 4.0
@@ -60,7 +60,7 @@ class YourValidatorStatusSectionView: UITableViewHeaderFooterView {
         }
     }
 
-    func bind(title: String?, description: String?, for status: YourValidatorsSectionStatus) {
+    func bind(title: String?, description: String?, for status: YourValidatorListSectionStatus) {
         if let title = title {
             titleLabel.text = title.uppercased()
             titleLabel.isHidden = false

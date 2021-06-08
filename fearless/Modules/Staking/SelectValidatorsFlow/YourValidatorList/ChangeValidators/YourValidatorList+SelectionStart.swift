@@ -1,6 +1,6 @@
 import Foundation
 
-extension YourValidators {
+extension YourValidatorList {
     final class SelectionStartWireframe: SelectValidatorsStartWireframe {
         private let state: ExistingBonding
 
@@ -48,7 +48,7 @@ extension YourValidators {
         }
     }
 
-    final class SelectionWireframe: RecommendedValidatorListWireframe {
+    final class RecommendationWireframe: RecommendedValidatorListWireframe {
         private let state: ExistingBonding
 
         init(state: ExistingBonding) {

@@ -1,24 +1,24 @@
 import Foundation
 
-final class YourValidatorsWireframe: YourValidatorsWireframeProtocol {
-    func showValidatorInfo(
-        from view: YourValidatorsViewProtocol?,
-        validatorInfo: ValidatorInfoProtocol
+final class YourValidatorListWireframe: YourValidatorListWireframeProtocol {
+    func present(
+        _ validatorInfo: ValidatorInfoProtocol,
+        from view: YourValidatorListViewProtocol?
     ) {
         guard
-            let validatorInfoView = ValidatorInfoViewFactory
+            let nextView = ValidatorInfoViewFactory
             .createView(with: validatorInfo) else {
             return
         }
 
         view?.controller.navigationController?.pushViewController(
-            validatorInfoView.controller,
+            nextView.controller,
             animated: true
         )
     }
 
     func proceedToSelectValidatorsStart(
-        from view: YourValidatorsViewProtocol?,
+        from view: YourValidatorListViewProtocol?,
         existingBonding: ExistingBonding
     ) {
         guard let nextView = SelectValidatorsStartViewFactory

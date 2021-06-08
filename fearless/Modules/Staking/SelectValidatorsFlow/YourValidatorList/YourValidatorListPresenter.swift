@@ -1,12 +1,12 @@
 import Foundation
 import SoraFoundation
 
-final class YourValidatorsPresenter {
-    weak var view: YourValidatorsViewProtocol?
-    let wireframe: YourValidatorsWireframeProtocol
-    let interactor: YourValidatorsInteractorInputProtocol
+final class YourValidatorListPresenter {
+    weak var view: YourValidatorListViewProtocol?
+    let wireframe: YourValidatorListWireframeProtocol
+    let interactor: YourValidatorListInteractorInputProtocol
 
-    let viewModelFactory: YourValidatorsViewModelFactoryProtocol
+    let viewModelFactory: YourValidatorListViewModelFactoryProtocol
     let chain: Chain
     let logger: LoggerProtocol?
 
@@ -19,9 +19,9 @@ final class YourValidatorsPresenter {
     private var lastError: Error?
 
     init(
-        interactor: YourValidatorsInteractorInputProtocol,
-        wireframe: YourValidatorsWireframeProtocol,
-        viewModelFactory: YourValidatorsViewModelFactoryProtocol,
+        interactor: YourValidatorListInteractorInputProtocol,
+        wireframe: YourValidatorListWireframeProtocol,
+        viewModelFactory: YourValidatorListViewModelFactoryProtocol,
         chain: Chain,
         logger: LoggerProtocol? = nil
     ) {
@@ -70,7 +70,7 @@ final class YourValidatorsPresenter {
     }
 }
 
-extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
+extension YourValidatorListPresenter: YourValidatorListPresenterProtocol {
     func setup() {
         interactor.setup()
     }
@@ -85,7 +85,7 @@ extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
     func didSelectValidator(viewModel: YourValidatorViewModel) {
         if let validatorInfo = validatorsModel?.allValidators
             .first(where: { $0.address == viewModel.address }) {
-            wireframe.showValidatorInfo(from: view, validatorInfo: validatorInfo)
+            wireframe.present(validatorInfo, from: view)
         }
     }
 
@@ -139,7 +139,7 @@ extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
     }
 }
 
-extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
+extension YourValidatorListPresenter: YourValidatorListInteractorOutputProtocol {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>) {
         switch result {
         case let .success(item):

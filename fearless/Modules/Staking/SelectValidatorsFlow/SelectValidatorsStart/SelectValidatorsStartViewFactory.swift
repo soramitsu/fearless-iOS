@@ -21,7 +21,7 @@ final class SelectValidatorsStartViewFactory: SelectValidatorsStartViewFactoryPr
     static func createChangeYourValidatorsView(
         with state: ExistingBonding
     ) -> SelectValidatorsStartViewProtocol? {
-        let wireframe = YourValidators.SelectionStartWireframe(state: state)
+        let wireframe = YourValidatorList.SelectionStartWireframe(state: state)
         return createView(with: wireframe)
     }
 

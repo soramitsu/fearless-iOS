@@ -26,7 +26,7 @@ final class RecommendedValidatorListViewFactory: RecommendedValidatorListViewFac
         maxTargets: Int,
         with state: ExistingBonding
     ) -> RecommendedValidatorListViewProtocol? {
-        let wireframe = YourValidators.SelectionWireframe(state: state)
+        let wireframe = YourValidatorList.RecommendationWireframe(state: state)
         return createView(for: validators, maxTargets: maxTargets, with: wireframe)
     }
 

@@ -2,12 +2,12 @@ import Foundation
 import SoraFoundation
 import FearlessUtils
 
-enum YourValidatorsViewState {
+enum YourValidatorListViewState {
     case loading
-    case validatorList([YourValidatorsSection])
+    case validatorList([YourValidatorListSection])
     case error(LocalizableResource<String>)
 
-    var validatorSections: [YourValidatorsSection]? {
+    var validatorSections: [YourValidatorListSection]? {
         switch self {
         case let .validatorList(sections):
             return sections
@@ -26,14 +26,14 @@ enum YourValidatorsViewState {
     }
 }
 
-struct YourValidatorsSection {
-    let status: YourValidatorsSectionStatus
+struct YourValidatorListSection {
+    let status: YourValidatorListSectionStatus
     let title: LocalizableResource<String>?
     let description: LocalizableResource<String>?
     let validators: [YourValidatorViewModel]
 }
 
-enum YourValidatorsSectionStatus {
+enum YourValidatorListSectionStatus {
     case stakeAllocated
     case stakeNotAllocated
     case inactive
