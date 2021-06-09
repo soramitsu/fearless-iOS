@@ -12,10 +12,9 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
         validators: [ElectedValidatorInfo]
     ) {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-        let optSelectValidators = CustomValidatorListViewFactory.createView(selectedValidators: validators)
-        guard let selectValidators = optSelectValidators else { return }
+        guard let nextView = CustomValidatorListViewFactory.createView(selectedValidators: validators) else { return }
         view?.controller.navigationController?.pushViewController(
-            selectValidators.controller,
+            nextView.controller,
             animated: true
         )
     }

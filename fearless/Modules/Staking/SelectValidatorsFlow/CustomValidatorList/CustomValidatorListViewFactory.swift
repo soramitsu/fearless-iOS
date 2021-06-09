@@ -2,6 +2,7 @@ import Foundation
 
 struct CustomValidatorListViewFactory {
     static func createView(selectedValidators: [ElectedValidatorInfo]) -> CustomValidatorListViewProtocol? {
+        // TODO: FLW-891 add missing parameters: maxTargets, recommendedValidators etc.
         let interactor = CustomValidatorListInteractor()
         let wireframe = CustomValidatorListWireframe()
         let viewModelFactory = CustomValidatorListViewModelFactory()
