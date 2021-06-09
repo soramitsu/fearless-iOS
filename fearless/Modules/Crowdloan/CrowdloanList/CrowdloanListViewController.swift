@@ -62,6 +62,8 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(CompletedCrowdloanTableViewCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CrowdloanStatusSectionView.self)
 
+        rootView.tableView.tableFooterView = UIView()
+
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self
 
