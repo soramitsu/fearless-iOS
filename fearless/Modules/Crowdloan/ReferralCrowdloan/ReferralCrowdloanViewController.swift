@@ -2,15 +2,15 @@ import UIKit
 import SoraFoundation
 import SoraUI
 
-final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
-    typealias RootViewType = KaruraCrowdloanViewLayout
+final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
+    typealias RootViewType = ReferralCrowdloanViewLayout
 
-    let presenter: KaruraCrowdloanPresenterProtocol
+    let presenter: ReferralCrowdloanPresenterProtocol
 
-    private var referralViewModel: KaruraReferralViewModel?
+    private var referralViewModel: ReferralCrowdloanViewModel?
     private var codeInputViewModel: InputViewModelProtocol?
 
-    init(presenter: KaruraCrowdloanPresenterProtocol) {
+    init(presenter: ReferralCrowdloanPresenterProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
     }
@@ -21,7 +21,7 @@ final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
     }
 
     override func loadView() {
-        view = KaruraCrowdloanViewLayout()
+        view = ReferralCrowdloanViewLayout()
     }
 
     override func viewDidLoad() {
@@ -148,7 +148,7 @@ final class KaruraCrowdloanViewController: UIViewController, ViewHolder {
     }
 }
 
-extension KaruraCrowdloanViewController: AnimatedTextFieldDelegate {
+extension ReferralCrowdloanViewController: AnimatedTextFieldDelegate {
     func animatedTextField(
         _ textField: AnimatedTextField,
         shouldChangeCharactersIn range: NSRange,
@@ -174,12 +174,12 @@ extension KaruraCrowdloanViewController: AnimatedTextFieldDelegate {
     }
 }
 
-extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {
+extension ReferralCrowdloanViewController: ReferralCrowdloanViewProtocol {
     func didReceiveLearnMore(viewModel: LearnMoreViewModel) {
         rootView.learnMoreView.bind(viewModel: viewModel)
     }
 
-    func didReceiveReferral(viewModel: KaruraReferralViewModel) {
+    func didReceiveReferral(viewModel: ReferralCrowdloanViewModel) {
         referralViewModel = viewModel
 
         applyReferralViewModel()
@@ -203,7 +203,7 @@ extension KaruraCrowdloanViewController: KaruraCrowdloanViewProtocol {
     }
 }
 
-extension KaruraCrowdloanViewController: Localizable {
+extension ReferralCrowdloanViewController: Localizable {
     func applyLocalization() {
         if isViewLoaded {
             setupLocalization()

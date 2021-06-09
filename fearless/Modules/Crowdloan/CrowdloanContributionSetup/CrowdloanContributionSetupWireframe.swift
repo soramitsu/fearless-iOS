@@ -38,6 +38,14 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
                 delegate: delegate,
                 existingService: existingService
             )
+        case .bifrost:
+            showBifrostCustomFlow(
+                from: view,
+                for: displayInfo,
+                inputAmount: inputAmount,
+                delegate: delegate,
+                existingService: existingService
+            )
         }
     }
 
@@ -48,7 +56,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let karuraView = KaruraCrowdloanViewFactory.createView(
+        guard let karuraView = ReferralCrowdloanViewFactory.createKaruraView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
@@ -59,6 +67,29 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
 
         let navigationController = FearlessNavigationController(
             rootViewController: karuraView.controller
+        )
+
+        view?.controller.present(navigationController, animated: true, completion: nil)
+    }
+
+    private func showBifrostCustomFlow(
+        from view: CrowdloanContributionSetupViewProtocol?,
+        for displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        delegate: CustomCrowdloanDelegate,
+        existingService: CrowdloanBonusServiceProtocol?
+    ) {
+        guard let bifrostView = ReferralCrowdloanViewFactory.createBifrostView(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            existingService: existingService
+        ) else {
+            return
+        }
+
+        let navigationController = FearlessNavigationController(
+            rootViewController: bifrostView.controller
         )
 
         view?.controller.present(navigationController, animated: true, completion: nil)

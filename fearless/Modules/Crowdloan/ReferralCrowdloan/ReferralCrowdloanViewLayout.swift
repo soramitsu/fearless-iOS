@@ -1,7 +1,7 @@
 import UIKit
 import SoraUI
 
-final class KaruraCrowdloanViewLayout: UIView {
+final class ReferralCrowdloanViewLayout: UIView {
     private enum Constants {
         static let applyAppButtonHeight: CGFloat = 24.0
     }

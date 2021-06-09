@@ -3,7 +3,7 @@ import XCTest
 import SoraKeystore
 import Cuckoo
 
-class KaruraCrowdloanTests: XCTestCase {
+class ReferralCrowdloanTests: XCTestCase {
 
     let displayInfo = CrowdloanDisplayInfo(
         paraid: "2000",
@@ -43,13 +43,13 @@ class KaruraCrowdloanTests: XCTestCase {
             asset: asset
         )
 
-        let view = MockKaruraCrowdloanViewProtocol()
-        let wireframe = MockKaruraCrowdloanWireframeProtocol()
+        let view = MockReferralCrowdloanViewProtocol()
+        let wireframe = MockReferralCrowdloanWireframeProtocol()
 
         let delegate = MockCustomCrowdloanDelegate()
         let bonusService = CrowdloanBonusServiceStub()
 
-        let presenter = KaruraCrowdloanPresenter(
+        let presenter = ReferralCrowdloanPresenter(
             wireframe: wireframe,
             bonusService: bonusService,
             displayInfo: displayInfo,
