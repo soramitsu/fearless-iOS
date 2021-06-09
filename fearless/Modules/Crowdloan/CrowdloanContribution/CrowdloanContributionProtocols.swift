@@ -3,7 +3,7 @@ import BigInt
 
 protocol CrowdloanContributionInteractorInputProtocol: AnyObject {
     func setup()
-    func estimateFee(for amount: BigUInt)
+    func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?)
 }
 
 protocol CrowdloanContributionInteractorOutputProtocol: AnyObject {

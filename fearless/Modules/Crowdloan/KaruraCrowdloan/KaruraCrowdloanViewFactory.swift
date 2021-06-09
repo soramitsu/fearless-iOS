@@ -2,7 +2,7 @@ import Foundation
 import SoraKeystore
 
 struct KaruraCrowdloanViewFactory {
-    static func createView(
+    static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
@@ -14,22 +14,62 @@ struct KaruraCrowdloanViewFactory {
             return nil
         }
 
-        let wireframe = KaruraCrowdloanWireframe()
-
-        let signingWrapper = SigningWrapper(keystore: Keychain(), settings: settings)
-
         let bonusService: CrowdloanBonusServiceProtocol = {
-            if let service = existingService {
+            if let service = existingService as? KaruraBonusService {
                 return service
             } else {
                 return KaruraBonusService(
                     address: selectedAddress,
                     chain: settings.selectedConnection.type.chain,
-                    signingWrapper: signingWrapper,
+                    signingWrapper: SigningWrapper(keystore: Keychain(), settings: settings),
                     operationManager: OperationManagerFacade.sharedManager
                 )
             }
         }()
+
+        return createView(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService
+        )
+    }
+
+    static func createBifrostView(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        existingService: CrowdloanBonusServiceProtocol?
+    ) -> KaruraCrowdloanViewProtocol? {
+        guard let paraId = ParaId(displayInfo.paraid) else {
+            return nil
+        }
+
+        let bonusService: CrowdloanBonusServiceProtocol = {
+            if let service = existingService as? BifrostBonusService {
+                return service
+            } else {
+                return BifrostBonusService(paraId: paraId)
+            }
+        }()
+
+        return createView(
+            for: delegate,
+            displayInfo: displayInfo,
+            inputAmount: inputAmount,
+            bonusService: bonusService
+        )
+    }
+
+    private static func createView(
+        for delegate: CustomCrowdloanDelegate,
+        displayInfo: CrowdloanDisplayInfo,
+        inputAmount: Decimal,
+        bonusService: CrowdloanBonusServiceProtocol
+    ) -> KaruraCrowdloanViewProtocol? {
+        let settings = SettingsManager.shared
+
+        let wireframe = KaruraCrowdloanWireframe()
 
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
