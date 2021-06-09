@@ -8,6 +8,13 @@ protocol CrowdloanBonusServiceProtocol: AnyObject {
     var referralCode: String? { get }
 
     func save(referralCode: String, completion closure: @escaping (Result<Void, Error>) -> Void)
-    func applyBonusForContribution(amount: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void)
-    func applyOnChain(for builder: ExtrinsicBuilderProtocol) throws -> ExtrinsicBuilderProtocol
+    func applyOffchainBonusForContribution(
+        amount: BigUInt,
+        with closure: @escaping (Result<Void, Error>) -> Void
+    )
+
+    func applyOnchainBonusForContribution(
+        amount: BigUInt,
+        using builder: ExtrinsicBuilderProtocol
+    ) throws -> ExtrinsicBuilderProtocol
 }
