@@ -166,7 +166,7 @@ final class CrowdloanContributionSetupPresenter {
             return
         }
 
-        interactor.estimateFee(for: amount)
+        interactor.estimateFee(for: amount, bonusService: bonusService)
     }
 }
 
@@ -246,10 +246,8 @@ extension CrowdloanContributionSetupPresenter: CrowdloanContributionSetupPresent
             )
 
         ]).runValidation { [weak self] in
-            guard
-                let strongSelf = self,
-                let contribution = contributionDecimal,
-                let paraId = strongSelf.crowdloan?.paraId else { return }
+            guard let strongSelf = self, let contribution = contributionDecimal,
+                  let paraId = strongSelf.crowdloan?.paraId else { return }
             strongSelf.wireframe.showConfirmation(
                 from: strongSelf.view,
                 paraId: paraId,
@@ -412,6 +410,7 @@ extension CrowdloanContributionSetupPresenter: CustomCrowdloanDelegate {
     func didReceive(bonusService: CrowdloanBonusServiceProtocol) {
         self.bonusService = bonusService
         provideBonusViewModel()
+        refreshFee()
     }
 }
 
