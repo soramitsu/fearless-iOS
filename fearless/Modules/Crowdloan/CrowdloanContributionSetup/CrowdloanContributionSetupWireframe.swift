@@ -56,7 +56,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let karuraView = KaruraCrowdloanViewFactory.createKaruraView(
+        guard let karuraView = ReferralCrowdloanViewFactory.createKaruraView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
@@ -79,7 +79,7 @@ final class CrowdloanContributionSetupWireframe: CrowdloanContributionSetupWiref
         delegate: CustomCrowdloanDelegate,
         existingService: CrowdloanBonusServiceProtocol?
     ) {
-        guard let karuraView = KaruraCrowdloanViewFactory.createBifrostView(
+        guard let karuraView = ReferralCrowdloanViewFactory.createBifrostView(
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,

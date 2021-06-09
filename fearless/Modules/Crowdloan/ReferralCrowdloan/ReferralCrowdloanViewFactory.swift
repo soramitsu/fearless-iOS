@@ -1,13 +1,13 @@
 import Foundation
 import SoraKeystore
 
-struct KaruraCrowdloanViewFactory {
+struct ReferralCrowdloanViewFactory {
     static func createKaruraView(
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         existingService: CrowdloanBonusServiceProtocol?
-    ) -> KaruraCrowdloanViewProtocol? {
+    ) -> ReferralCrowdloanViewProtocol? {
         let settings = SettingsManager.shared
 
         guard let selectedAddress = settings.selectedAccount?.address else {
@@ -40,7 +40,7 @@ struct KaruraCrowdloanViewFactory {
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         existingService: CrowdloanBonusServiceProtocol?
-    ) -> KaruraCrowdloanViewProtocol? {
+    ) -> ReferralCrowdloanViewProtocol? {
         guard let paraId = ParaId(displayInfo.paraid) else {
             return nil
         }
@@ -66,10 +66,10 @@ struct KaruraCrowdloanViewFactory {
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
         bonusService: CrowdloanBonusServiceProtocol
-    ) -> KaruraCrowdloanViewProtocol? {
+    ) -> ReferralCrowdloanViewProtocol? {
         let settings = SettingsManager.shared
 
-        let wireframe = KaruraCrowdloanWireframe()
+        let wireframe = ReferralCrowdloanWireframe()
 
         let addressType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -81,7 +81,7 @@ struct KaruraCrowdloanViewFactory {
             asset: asset
         )
 
-        let presenter = KaruraCrowdloanPresenter(
+        let presenter = ReferralCrowdloanPresenter(
             wireframe: wireframe,
             bonusService: bonusService,
             displayInfo: displayInfo,
@@ -91,7 +91,7 @@ struct KaruraCrowdloanViewFactory {
             defaultReferralCode: KaruraBonusService.defaultReferralCode
         )
 
-        let view = KaruraCrowdloanViewController(presenter: presenter)
+        let view = ReferralCrowdloanViewController(presenter: presenter)
 
         presenter.view = view
 

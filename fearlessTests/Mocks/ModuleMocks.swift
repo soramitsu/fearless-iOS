@@ -11090,19 +11090,19 @@ import Cuckoo
 import SoraFoundation
 
 
- class MockKaruraCrowdloanViewProtocol: KaruraCrowdloanViewProtocol, Cuckoo.ProtocolMock {
+ class MockReferralCrowdloanViewProtocol: ReferralCrowdloanViewProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = KaruraCrowdloanViewProtocol
+     typealias MocksType = ReferralCrowdloanViewProtocol
     
-     typealias Stubbing = __StubbingProxy_KaruraCrowdloanViewProtocol
-     typealias Verification = __VerificationProxy_KaruraCrowdloanViewProtocol
+     typealias Stubbing = __StubbingProxy_ReferralCrowdloanViewProtocol
+     typealias Verification = __VerificationProxy_ReferralCrowdloanViewProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: KaruraCrowdloanViewProtocol?
+    private var __defaultImplStub: ReferralCrowdloanViewProtocol?
 
-     func enableDefaultImplementation(_ stub: KaruraCrowdloanViewProtocol) {
+     func enableDefaultImplementation(_ stub: ReferralCrowdloanViewProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -11186,9 +11186,9 @@ import SoraFoundation
     
     
     
-     func didReceiveReferral(viewModel: KaruraReferralViewModel)  {
+     func didReceiveReferral(viewModel: ReferralCrowdloanViewModel)  {
         
-    return cuckoo_manager.call("didReceiveReferral(viewModel: KaruraReferralViewModel)",
+    return cuckoo_manager.call("didReceiveReferral(viewModel: ReferralCrowdloanViewModel)",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
@@ -11275,7 +11275,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_KaruraCrowdloanViewProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_ReferralCrowdloanViewProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -11283,64 +11283,64 @@ import SoraFoundation
 	    }
 	    
 	    
-	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKaruraCrowdloanViewProtocol, Bool> {
+	    var isSetup: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockReferralCrowdloanViewProtocol, Bool> {
 	        return .init(manager: cuckoo_manager, name: "isSetup")
 	    }
 	    
 	    
-	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKaruraCrowdloanViewProtocol, UIViewController> {
+	    var controller: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockReferralCrowdloanViewProtocol, UIViewController> {
 	        return .init(manager: cuckoo_manager, name: "controller")
 	    }
 	    
 	    
-	    var loadableContentView: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKaruraCrowdloanViewProtocol, UIView?> {
+	    var loadableContentView: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockReferralCrowdloanViewProtocol, UIView?> {
 	        return .init(manager: cuckoo_manager, name: "loadableContentView")
 	    }
 	    
 	    
-	    var shouldDisableInteractionWhenLoading: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockKaruraCrowdloanViewProtocol, Bool> {
+	    var shouldDisableInteractionWhenLoading: Cuckoo.ProtocolToBeStubbedReadOnlyProperty<MockReferralCrowdloanViewProtocol, Bool> {
 	        return .init(manager: cuckoo_manager, name: "shouldDisableInteractionWhenLoading")
 	    }
 	    
 	    
 	    func didReceiveLearnMore<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(LearnMoreViewModel)> where M1.MatchedType == LearnMoreViewModel {
 	        let matchers: [Cuckoo.ParameterMatcher<(LearnMoreViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didReceiveLearnMore(viewModel: LearnMoreViewModel)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveLearnMore(viewModel: LearnMoreViewModel)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(KaruraReferralViewModel)> where M1.MatchedType == KaruraReferralViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(KaruraReferralViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didReceiveReferral(viewModel: KaruraReferralViewModel)", parameterMatchers: matchers))
+	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ReferralCrowdloanViewModel)> where M1.MatchedType == ReferralCrowdloanViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveReferral(viewModel: ReferralCrowdloanViewModel)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveInput<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(InputViewModelProtocol)> where M1.MatchedType == InputViewModelProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(InputViewModelProtocol)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didReceiveInput(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveInput(viewModel: InputViewModelProtocol)", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveShouldInputCode() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didReceiveShouldInputCode()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveShouldInputCode()", parameterMatchers: matchers))
 	    }
 	    
 	    func didReceiveShouldAgreeTerms() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didReceiveShouldAgreeTerms()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didReceiveShouldAgreeTerms()", parameterMatchers: matchers))
 	    }
 	    
 	    func didStartLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didStartLoading()", parameterMatchers: matchers))
 	    }
 	    
 	    func didStopLoading() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanViewProtocol.self, method: "didStopLoading()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanViewProtocol.self, method: "didStopLoading()", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_KaruraCrowdloanViewProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_ReferralCrowdloanViewProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -11381,9 +11381,9 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(KaruraReferralViewModel), Void> where M1.MatchedType == KaruraReferralViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(KaruraReferralViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("didReceiveReferral(viewModel: KaruraReferralViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didReceiveReferral<M1: Cuckoo.Matchable>(viewModel: M1) -> Cuckoo.__DoNotUse<(ReferralCrowdloanViewModel), Void> where M1.MatchedType == ReferralCrowdloanViewModel {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewModel)>] = [wrap(matchable: viewModel) { $0 }]
+	        return cuckoo_manager.verify("didReceiveReferral(viewModel: ReferralCrowdloanViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -11419,7 +11419,7 @@ import SoraFoundation
 	}
 }
 
- class KaruraCrowdloanViewProtocolStub: KaruraCrowdloanViewProtocol {
+ class ReferralCrowdloanViewProtocolStub: ReferralCrowdloanViewProtocol {
     
     
      var isSetup: Bool {
@@ -11461,7 +11461,7 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func didReceiveReferral(viewModel: KaruraReferralViewModel)   {
+     func didReceiveReferral(viewModel: ReferralCrowdloanViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -11489,19 +11489,19 @@ import SoraFoundation
 
 
 
- class MockKaruraCrowdloanPresenterProtocol: KaruraCrowdloanPresenterProtocol, Cuckoo.ProtocolMock {
+ class MockReferralCrowdloanPresenterProtocol: ReferralCrowdloanPresenterProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = KaruraCrowdloanPresenterProtocol
+     typealias MocksType = ReferralCrowdloanPresenterProtocol
     
-     typealias Stubbing = __StubbingProxy_KaruraCrowdloanPresenterProtocol
-     typealias Verification = __VerificationProxy_KaruraCrowdloanPresenterProtocol
+     typealias Stubbing = __StubbingProxy_ReferralCrowdloanPresenterProtocol
+     typealias Verification = __VerificationProxy_ReferralCrowdloanPresenterProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: KaruraCrowdloanPresenterProtocol?
+    private var __defaultImplStub: ReferralCrowdloanPresenterProtocol?
 
-     func enableDefaultImplementation(_ stub: KaruraCrowdloanPresenterProtocol) {
+     func enableDefaultImplementation(_ stub: ReferralCrowdloanPresenterProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -11618,7 +11618,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_KaruraCrowdloanPresenterProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_ReferralCrowdloanPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -11628,42 +11628,42 @@ import SoraFoundation
 	    
 	    func setup() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
 	    func update<M1: Cuckoo.Matchable>(referralCode: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(String)> where M1.MatchedType == String {
 	        let matchers: [Cuckoo.ParameterMatcher<(String)>] = [wrap(matchable: referralCode) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "update(referralCode: String)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "update(referralCode: String)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyDefaultCode() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "applyDefaultCode()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "applyDefaultCode()", parameterMatchers: matchers))
 	    }
 	    
 	    func applyInputCode() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "applyInputCode()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "applyInputCode()", parameterMatchers: matchers))
 	    }
 	    
 	    func setTermsAgreed<M1: Cuckoo.Matchable>(value: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Bool)> where M1.MatchedType == Bool {
 	        let matchers: [Cuckoo.ParameterMatcher<(Bool)>] = [wrap(matchable: value) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "setTermsAgreed(value: Bool)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "setTermsAgreed(value: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	    func presentTerms() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "presentTerms()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "presentTerms()", parameterMatchers: matchers))
 	    }
 	    
 	    func presentLearnMore() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanPresenterProtocol.self, method: "presentLearnMore()", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanPresenterProtocol.self, method: "presentLearnMore()", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_KaruraCrowdloanPresenterProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_ReferralCrowdloanPresenterProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -11722,7 +11722,7 @@ import SoraFoundation
 	}
 }
 
- class KaruraCrowdloanPresenterProtocolStub: KaruraCrowdloanPresenterProtocol {
+ class ReferralCrowdloanPresenterProtocolStub: ReferralCrowdloanPresenterProtocol {
     
 
     
@@ -11760,19 +11760,19 @@ import SoraFoundation
 
 
 
- class MockKaruraCrowdloanWireframeProtocol: KaruraCrowdloanWireframeProtocol, Cuckoo.ProtocolMock {
+ class MockReferralCrowdloanWireframeProtocol: ReferralCrowdloanWireframeProtocol, Cuckoo.ProtocolMock {
     
-     typealias MocksType = KaruraCrowdloanWireframeProtocol
+     typealias MocksType = ReferralCrowdloanWireframeProtocol
     
-     typealias Stubbing = __StubbingProxy_KaruraCrowdloanWireframeProtocol
-     typealias Verification = __VerificationProxy_KaruraCrowdloanWireframeProtocol
+     typealias Stubbing = __StubbingProxy_ReferralCrowdloanWireframeProtocol
+     typealias Verification = __VerificationProxy_ReferralCrowdloanWireframeProtocol
 
      let cuckoo_manager = Cuckoo.MockManager.preconfiguredManager ?? Cuckoo.MockManager(hasParent: false)
 
     
-    private var __defaultImplStub: KaruraCrowdloanWireframeProtocol?
+    private var __defaultImplStub: ReferralCrowdloanWireframeProtocol?
 
-     func enableDefaultImplementation(_ stub: KaruraCrowdloanWireframeProtocol) {
+     func enableDefaultImplementation(_ stub: ReferralCrowdloanWireframeProtocol) {
         __defaultImplStub = stub
         cuckoo_manager.enableDefaultStubImplementation()
     }
@@ -11785,9 +11785,9 @@ import SoraFoundation
     
     
     
-     func complete(on view: KaruraCrowdloanViewProtocol?)  {
+     func complete(on view: ReferralCrowdloanViewProtocol?)  {
         
-    return cuckoo_manager.call("complete(on: KaruraCrowdloanViewProtocol?)",
+    return cuckoo_manager.call("complete(on: ReferralCrowdloanViewProtocol?)",
             parameters: (view),
             escapingParameters: (view),
             superclassCall:
@@ -11844,7 +11844,7 @@ import SoraFoundation
     }
     
 
-	 struct __StubbingProxy_KaruraCrowdloanWireframeProtocol: Cuckoo.StubbingProxy {
+	 struct __StubbingProxy_ReferralCrowdloanWireframeProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	
 	     init(manager: Cuckoo.MockManager) {
@@ -11852,29 +11852,29 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func complete<M1: Cuckoo.OptionalMatchable>(on view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(KaruraCrowdloanViewProtocol?)> where M1.OptionalMatchedType == KaruraCrowdloanViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(KaruraCrowdloanViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanWireframeProtocol.self, method: "complete(on: KaruraCrowdloanViewProtocol?)", parameterMatchers: matchers))
+	    func complete<M1: Cuckoo.OptionalMatchable>(on view: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(ReferralCrowdloanViewProtocol?)> where M1.OptionalMatchedType == ReferralCrowdloanViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method: "complete(on: ReferralCrowdloanViewProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func showWeb<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(url: M1, from view: M2, style: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(URL, ControllerBackedProtocol, WebPresentableStyle)> where M1.MatchedType == URL, M2.MatchedType == ControllerBackedProtocol, M3.MatchedType == WebPresentableStyle {
 	        let matchers: [Cuckoo.ParameterMatcher<(URL, ControllerBackedProtocol, WebPresentableStyle)>] = [wrap(matchable: url) { $0.0 }, wrap(matchable: view) { $0.1 }, wrap(matchable: style) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanWireframeProtocol.self, method: "showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method: "showWeb(url: URL, from: ControllerBackedProtocol, style: WebPresentableStyle)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.OptionalMatchable, M2: Cuckoo.OptionalMatchable, M3: Cuckoo.OptionalMatchable, M4: Cuckoo.OptionalMatchable>(message: M1, title: M2, closeAction: M3, from view: M4) -> Cuckoo.ProtocolStubNoReturnFunction<(String?, String?, String?, ControllerBackedProtocol?)> where M1.OptionalMatchedType == String, M2.OptionalMatchedType == String, M3.OptionalMatchedType == String, M4.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(String?, String?, String?, ControllerBackedProtocol?)>] = [wrap(matchable: message) { $0.0 }, wrap(matchable: title) { $0.1 }, wrap(matchable: closeAction) { $0.2 }, wrap(matchable: view) { $0.3 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method: "present(message: String?, title: String?, closeAction: String?, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	    func present<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.OptionalMatchable>(viewModel: M1, style: M2, from view: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)> where M1.MatchedType == AlertPresentableViewModel, M2.MatchedType == UIAlertController.Style, M3.OptionalMatchedType == ControllerBackedProtocol {
 	        let matchers: [Cuckoo.ParameterMatcher<(AlertPresentableViewModel, UIAlertController.Style, ControllerBackedProtocol?)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: style) { $0.1 }, wrap(matchable: view) { $0.2 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockKaruraCrowdloanWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockReferralCrowdloanWireframeProtocol.self, method: "present(viewModel: AlertPresentableViewModel, style: UIAlertController.Style, from: ControllerBackedProtocol?)", parameterMatchers: matchers))
 	    }
 	    
 	}
 
-	 struct __VerificationProxy_KaruraCrowdloanWireframeProtocol: Cuckoo.VerificationProxy {
+	 struct __VerificationProxy_ReferralCrowdloanWireframeProtocol: Cuckoo.VerificationProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
 	    private let callMatcher: Cuckoo.CallMatcher
 	    private let sourceLocation: Cuckoo.SourceLocation
@@ -11889,9 +11889,9 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func complete<M1: Cuckoo.OptionalMatchable>(on view: M1) -> Cuckoo.__DoNotUse<(KaruraCrowdloanViewProtocol?), Void> where M1.OptionalMatchedType == KaruraCrowdloanViewProtocol {
-	        let matchers: [Cuckoo.ParameterMatcher<(KaruraCrowdloanViewProtocol?)>] = [wrap(matchable: view) { $0 }]
-	        return cuckoo_manager.verify("complete(on: KaruraCrowdloanViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func complete<M1: Cuckoo.OptionalMatchable>(on view: M1) -> Cuckoo.__DoNotUse<(ReferralCrowdloanViewProtocol?), Void> where M1.OptionalMatchedType == ReferralCrowdloanViewProtocol {
+	        let matchers: [Cuckoo.ParameterMatcher<(ReferralCrowdloanViewProtocol?)>] = [wrap(matchable: view) { $0 }]
+	        return cuckoo_manager.verify("complete(on: ReferralCrowdloanViewProtocol?)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -11915,13 +11915,13 @@ import SoraFoundation
 	}
 }
 
- class KaruraCrowdloanWireframeProtocolStub: KaruraCrowdloanWireframeProtocol {
+ class ReferralCrowdloanWireframeProtocolStub: ReferralCrowdloanWireframeProtocol {
     
 
     
 
     
-     func complete(on view: KaruraCrowdloanViewProtocol?)   {
+     func complete(on view: ReferralCrowdloanViewProtocol?)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
