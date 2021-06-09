@@ -1,14 +1,14 @@
 import SoraFoundation
 
-protocol KaruraCrowdloanViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
+protocol ReferralCrowdloanViewProtocol: ControllerBackedProtocol, LoadableViewProtocol {
     func didReceiveLearnMore(viewModel: LearnMoreViewModel)
-    func didReceiveReferral(viewModel: KaruraReferralViewModel)
+    func didReceiveReferral(viewModel: ReferralCrowdloanViewModel)
     func didReceiveInput(viewModel: InputViewModelProtocol)
     func didReceiveShouldInputCode()
     func didReceiveShouldAgreeTerms()
 }
 
-protocol KaruraCrowdloanPresenterProtocol: AnyObject {
+protocol ReferralCrowdloanPresenterProtocol: AnyObject {
     func setup()
     func update(referralCode: String)
     func applyDefaultCode()
@@ -18,6 +18,6 @@ protocol KaruraCrowdloanPresenterProtocol: AnyObject {
     func presentLearnMore()
 }
 
-protocol KaruraCrowdloanWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable {
-    func complete(on view: KaruraCrowdloanViewProtocol?)
+protocol ReferralCrowdloanWireframeProtocol: WebPresentable, AlertPresentable, ErrorPresentable {
+    func complete(on view: ReferralCrowdloanViewProtocol?)
 }

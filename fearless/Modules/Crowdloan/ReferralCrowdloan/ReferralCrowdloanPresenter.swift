@@ -1,9 +1,9 @@
 import Foundation
 import SoraFoundation
 
-final class KaruraCrowdloanPresenter {
-    weak var view: KaruraCrowdloanViewProtocol?
-    let wireframe: KaruraCrowdloanWireframeProtocol
+final class ReferralCrowdloanPresenter {
+    weak var view: ReferralCrowdloanViewProtocol?
+    let wireframe: ReferralCrowdloanWireframeProtocol
 
     let bonusService: CrowdloanBonusServiceProtocol
     let displayInfo: CrowdloanDisplayInfo
@@ -17,7 +17,7 @@ final class KaruraCrowdloanPresenter {
     weak var crowdloanDelegate: CustomCrowdloanDelegate?
 
     init(
-        wireframe: KaruraCrowdloanWireframeProtocol,
+        wireframe: ReferralCrowdloanWireframeProtocol,
         bonusService: CrowdloanBonusServiceProtocol,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
@@ -56,7 +56,7 @@ final class KaruraCrowdloanPresenter {
 
         let bonusPercentage = NumberFormatter.percentSingle.string(from: bonusService.bonusRate as NSNumber)
 
-        let viewModel = KaruraReferralViewModel(
+        let viewModel = ReferralCrowdloanViewModel(
             bonusPercentage: bonusPercentage ?? "",
             bonusValue: bonusValue ?? "",
             canApplyDefaultCode: currentReferralCode != defaultReferralCode,
@@ -83,7 +83,7 @@ final class KaruraCrowdloanPresenter {
     }
 }
 
-extension KaruraCrowdloanPresenter: KaruraCrowdloanPresenterProtocol {
+extension ReferralCrowdloanPresenter: ReferralCrowdloanPresenterProtocol {
     func setup() {
         provideInputViewModel()
         provideReferralViewModel()
@@ -142,7 +142,7 @@ extension KaruraCrowdloanPresenter: KaruraCrowdloanPresenterProtocol {
     }
 }
 
-extension KaruraCrowdloanPresenter: Localizable {
+extension ReferralCrowdloanPresenter: Localizable {
     func applyLocalization() {
         if let view = view, view.isSetup {
             provideReferralViewModel()
