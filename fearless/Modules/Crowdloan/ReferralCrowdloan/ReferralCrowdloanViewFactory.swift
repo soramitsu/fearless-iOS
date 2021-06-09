@@ -31,7 +31,8 @@ struct ReferralCrowdloanViewFactory {
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            bonusService: bonusService
+            bonusService: bonusService,
+            defaultReferralCode: KaruraBonusService.defaultReferralCode
         )
     }
 
@@ -57,7 +58,8 @@ struct ReferralCrowdloanViewFactory {
             for: delegate,
             displayInfo: displayInfo,
             inputAmount: inputAmount,
-            bonusService: bonusService
+            bonusService: bonusService,
+            defaultReferralCode: BifrostBonusService.defaultReferralCode
         )
     }
 
@@ -65,7 +67,8 @@ struct ReferralCrowdloanViewFactory {
         for delegate: CustomCrowdloanDelegate,
         displayInfo: CrowdloanDisplayInfo,
         inputAmount: Decimal,
-        bonusService: CrowdloanBonusServiceProtocol
+        bonusService: CrowdloanBonusServiceProtocol,
+        defaultReferralCode: String
     ) -> ReferralCrowdloanViewProtocol? {
         let settings = SettingsManager.shared
 
@@ -88,7 +91,7 @@ struct ReferralCrowdloanViewFactory {
             inputAmount: inputAmount,
             crowdloanDelegate: delegate,
             crowdloanViewModelFactory: viewModelFactory,
-            defaultReferralCode: KaruraBonusService.defaultReferralCode
+            defaultReferralCode: defaultReferralCode
         )
 
         let view = ReferralCrowdloanViewController(presenter: presenter)
