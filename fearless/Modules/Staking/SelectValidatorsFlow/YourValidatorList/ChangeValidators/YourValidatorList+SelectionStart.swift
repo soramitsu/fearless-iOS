@@ -10,17 +10,10 @@ extension YourValidatorList {
 
         override func proceedToCustomList(
             from view: ControllerBackedProtocol?,
-            validators: [ElectedValidatorInfo],
-            recommended: [ElectedValidatorInfo],
-            maxTargets: Int
+            validators: [ElectedValidatorInfo]
         ) {
             // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-            guard let nextView = CustomValidatorListViewFactory.createView(
-                electedValidators: validators,
-                recommendedValidators: recommended,
-                maxTargets: maxTargets
-            ) else { return }
-
+            guard let nextView = CustomValidatorListViewFactory.createView(selectedValidators: validators) else { return }
             view?.controller.navigationController?.pushViewController(
                 nextView.controller,
                 animated: true
