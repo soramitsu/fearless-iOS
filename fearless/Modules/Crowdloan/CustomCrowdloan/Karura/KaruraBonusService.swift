@@ -138,7 +138,10 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func applyBonusForContribution(amount: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void) {
+    func applyOffchainBonusForContribution(
+        amount: BigUInt,
+        with closure: @escaping (Result<Void, Error>) -> Void
+    ) {
         guard let referralCode = referralCode else {
             DispatchQueue.main.async {
                 closure(.failure(CrowdloanBonusServiceError.veficationFailed))
@@ -193,7 +196,10 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         operationManager.enqueue(operations: [statementOperation, infoOperation, verifyOperation], in: .transient)
     }
 
-    func applyOnChain(for builder: ExtrinsicBuilderProtocol) throws -> ExtrinsicBuilderProtocol {
+    func applyOnchainBonusForContribution(
+        amount _: BigUInt,
+        using builder: ExtrinsicBuilderProtocol
+    ) throws -> ExtrinsicBuilderProtocol {
         builder
     }
 }

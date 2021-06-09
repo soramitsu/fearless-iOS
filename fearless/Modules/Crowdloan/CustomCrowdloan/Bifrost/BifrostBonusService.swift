@@ -32,11 +32,17 @@ extension BifrostBonusService: CrowdloanBonusServiceProtocol {
         closure(.success(()))
     }
 
-    func applyBonusForContribution(amount _: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void) {
+    func applyOffchainBonusForContribution(
+        amount _: BigUInt,
+        with closure: @escaping (Result<Void, Error>) -> Void
+    ) {
         closure(.success(()))
     }
 
-    func applyOnChain(for builder: ExtrinsicBuilderProtocol) throws -> ExtrinsicBuilderProtocol {
+    func applyOnchainBonusForContribution(
+        amount _: BigUInt,
+        using builder: ExtrinsicBuilderProtocol
+    ) throws -> ExtrinsicBuilderProtocol {
         guard let memo = referralCode?.data(using: .utf8) else {
             return builder
         }

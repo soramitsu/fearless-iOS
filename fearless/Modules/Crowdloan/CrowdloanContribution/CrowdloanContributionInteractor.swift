@@ -162,7 +162,10 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
             let nextBuilder = try builder.adding(call: call)
-            return try bonusService?.applyOnChain(for: nextBuilder) ?? nextBuilder
+            return try bonusService?.applyOnchainBonusForContribution(
+                amount: amount,
+                using: nextBuilder
+            ) ?? nextBuilder
         }
     }
 }

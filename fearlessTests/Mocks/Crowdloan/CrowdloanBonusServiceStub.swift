@@ -16,11 +16,17 @@ final class CrowdloanBonusServiceStub: CrowdloanBonusServiceProtocol {
         closure(.success(()))
     }
 
-    func applyBonusForContribution(amount: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void) {
+    func applyOffchainBonusForContribution(
+        amount: BigUInt,
+        with closure: @escaping (Result<Void, Error>) -> Void
+    ) {
         closure(.success(()))
     }
 
-    func applyOnChain(for builder: ExtrinsicBuilderProtocol) throws -> ExtrinsicBuilderProtocol {
+    func applyOnchainBonusForContribution(
+        amount: BigUInt,
+        using builder: ExtrinsicBuilderProtocol
+    ) throws -> ExtrinsicBuilderProtocol {
         return builder
     }
 }
