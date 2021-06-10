@@ -465,3 +465,4 @@ Derivation path: %@";
 "common.not.enough.fee.message" = "Sorry, you don’t have enough funds to pay the network fee.";
 "common.not.enough.balance.message" = "Sorry, you don't have enough funds to spend specified amount";
 "common.transaction.failed" = "Transaction failed. Please, try again later.";
+"staking.custom.validators.list.title" = "Select validators";
