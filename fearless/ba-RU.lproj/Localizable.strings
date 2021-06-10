@@ -237,7 +237,6 @@
 "staking.payouts.learn.more" = "Узнать больше про выплаты";
 "staking.reward.payout.account" = "Награда аккаунты";
 "staking.selected.accounts.mask" = "Аккаунттар(%d)";
-"staking.recommended.validators.title" = "Кәңәшләнгән валидаторҙар";
 "staking.recommended.validators.description" = "Эти валидаторы принесут вам максимальную прибыль с наименьшим шансом мошенничества или провала.";
 "common.learn.more" = "Узнать больше";
 "staking.custom.validators.title" = "Валидаторҙарҙы һайлағыҙ";
@@ -448,9 +447,17 @@
 "crowdloan.empty.bonus.title" = "";
 "staking.select.validators.recommended.title" = "";
 "staking.select.validators.custom.title" = "";
-"staking.recommended.section.desc.v1-8-1" = "";
 "common.applied" = "";
 "karura.terms.action" = "";
 "crowdloan.referral.code.invalid" = "";
 "crowdloan.referral.code.internal" = "";
 "crowdloan.bonus.verification.error" = "";
+"staking.select.validators.custom.desc" = "";
+"staking.select.validators.recommended.button.title" = "";
+"staking.select.validators.custom.button.title" = "";
+"staking.filter.title.rewards" = "";
+"staking.selected.validators.count_v1.9.1" = "";
+"staking.select.validators.recommended.desc" = "";
+"common.not.enough.fee.message" = "";
+"common.not.enough.balance.message" = "";
+"common.transaction.failed" = "";

@@ -5,9 +5,14 @@ final class SelectedValidatorsViewController: UIViewController {
     var presenter: SelectedValidatorsPresenterProtocol!
 
     @IBOutlet private var tableView: UITableView!
+    @IBOutlet var continueButton: TriangularedButton!
 
     private var viewModel: SelectedValidatorsViewModelProtocol?
     private weak var headerView: SelectedValidatorsHeaderView?
+
+    var selectedLocale: Locale {
+        localizationManager?.selectedLocale ?? .autoupdatingCurrent
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -24,7 +29,6 @@ final class SelectedValidatorsViewController: UIViewController {
         tableView.rowHeight = UIConstants.cellHeight
 
         if let headerView = R.nib.selectedValidatorsHeaderView.firstView(owner: nil) {
-            headerView.translatesAutoresizingMaskIntoConstraints = false
             headerView.heightAnchor.constraint(equalToConstant: UIConstants.tableHeaderHeight)
                 .isActive = true
             tableView.tableHeaderView = headerView
@@ -35,23 +39,34 @@ final class SelectedValidatorsViewController: UIViewController {
 
     private func updateHeaderView() {
         if let viewModel = viewModel {
-            let languages = localizationManager?.selectedLocale.rLanguages
-            let title = R.string.localizable
-                .stakingSelectedValidatorsCount(
-                    "\(viewModel.itemViewModels.count)",
-                    "\(viewModel.maxTargets)",
-                    preferredLanguages: languages
-                )
-            headerView?.bind(title: title.uppercased())
+            let languages = selectedLocale.rLanguages
+            let title = viewModel
+                .itemsCountString.value(for: selectedLocale)
+
+            let details = R.string.localizable
+                .stakingFilterTitleRewards(preferredLanguages: languages)
+
+            headerView?.bind(
+                title: title.uppercased(),
+                details: details.uppercased()
+            )
         }
     }
 
     private func setupLocalization() {
-        let languages = localizationManager?.selectedLocale.rLanguages
+        let languages = selectedLocale.rLanguages
         title = R.string.localizable
-            .stakingSelectedValidatorsTitle(preferredLanguages: languages)
+            .stakingRecommendedSectionTitle(preferredLanguages: languages)
+
+        continueButton.imageWithTitleView?.title = R.string.localizable
+            .commonContinue(preferredLanguages: languages)
+        continueButton.invalidateLayout()
 
         updateHeaderView()
+    }
+
+    @IBAction private func actionContinue() {
+        presenter.proceed()
     }
 }
 
@@ -68,7 +83,7 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
             )!
 
         let items = viewModel?.itemViewModels ?? []
-        cell.bind(viewModel: items[indexPath.row])
+        cell.bind(viewModel: items[indexPath.row].value(for: selectedLocale))
 
         return cell
     }
@@ -76,6 +91,14 @@ extension SelectedValidatorsViewController: UITableViewDelegate, UITableViewData
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.selectedValidatorAt(index: indexPath.row)
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        100.0
+    }
+
+    func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
+        UIView()
     }
 }
 

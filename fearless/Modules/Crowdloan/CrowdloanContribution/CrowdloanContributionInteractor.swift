@@ -77,6 +77,14 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         ) { [weak self] (result: Result<BigUInt, Error>) in
             self?.presenter.didReceiveMinimumBalance(result: result)
         }
+
+        fetchConstant(
+            for: .minimumContribution,
+            runtimeCodingService: runtimeService,
+            operationManager: operationManager
+        ) { [weak self] (result: Result<BigUInt, Error>) in
+            self?.presenter.didReceiveMinimumContribution(result: result)
+        }
     }
 
     private func subscribeToDisplayInfo() {

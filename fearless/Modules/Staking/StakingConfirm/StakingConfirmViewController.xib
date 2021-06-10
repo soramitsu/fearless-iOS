@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="17701" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" useSafeAreas="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait" appearance="light"/>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="17703"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="18093"/>
         <capability name="Named colors" minToolsVersion="9.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
@@ -259,24 +259,17 @@
                                             </userDefinedRuntimeAttributes>
                                         </view>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" verticalHuggingPriority="251" text="5" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="QBG-hJ-fxB">
-                                            <rect key="frame" x="327" y="16" width="8" height="16.5"/>
+                                            <rect key="frame" x="351" y="16" width="8" height="16.5"/>
                                             <fontDescription key="fontDescription" name="sora-rc004-0417-Regular" family="sora-rc004-0417" pointSize="14"/>
                                             <color key="textColor" name="colorWhite"/>
                                             <nil key="highlightedColor"/>
                                         </label>
-                                        <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="iconSmallArrow" translatesAutoresizingMaskIntoConstraints="NO" id="YYB-rj-a4I">
-                                            <rect key="frame" x="335" y="12" width="24" height="24"/>
-                                            <color key="tintColor" name="colorWhite"/>
-                                        </imageView>
                                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hAq-0o-38g" customClass="DetailsTriangularedView" customModule="fearless" customModuleProvider="target">
                                             <rect key="frame" x="0.0" y="0.0" width="375" height="48"/>
                                             <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                                             <userDefinedRuntimeAttributes>
                                                 <userDefinedRuntimeAttribute type="color" keyPath="fillColor">
                                                     <color key="value" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                                </userDefinedRuntimeAttribute>
-                                                <userDefinedRuntimeAttribute type="color" keyPath="highlightedFillColor">
-                                                    <color key="value" name="colorHighlightedPink"/>
                                                 </userDefinedRuntimeAttribute>
                                                 <userDefinedRuntimeAttribute type="number" keyPath="_layout">
                                                     <integer key="value" value="2"/>
@@ -307,18 +300,12 @@
                                                 <userDefinedRuntimeAttribute type="string" keyPath="title" value="Validators"/>
                                                 <userDefinedRuntimeAttribute type="image" keyPath="iconImage" value="iconAccount"/>
                                             </userDefinedRuntimeAttributes>
-                                            <connections>
-                                                <action selector="actionSelectedValidators" destination="-1" eventType="touchUpInside" id="oJ4-3r-rUl"/>
-                                            </connections>
                                         </view>
                                     </subviews>
                                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                     <constraints>
                                         <constraint firstItem="QBG-hJ-fxB" firstAttribute="centerY" secondItem="JwG-e2-dgk" secondAttribute="centerY" id="3xx-zB-bhf"/>
-                                        <constraint firstItem="YYB-rj-a4I" firstAttribute="centerY" secondItem="JwG-e2-dgk" secondAttribute="centerY" id="6Oo-ig-f4w"/>
-                                        <constraint firstItem="QBG-hJ-fxB" firstAttribute="trailing" secondItem="YYB-rj-a4I" secondAttribute="leading" id="6j0-cl-zKh"/>
                                         <constraint firstAttribute="bottom" secondItem="hAq-0o-38g" secondAttribute="bottom" id="Kdj-57-5cP"/>
-                                        <constraint firstAttribute="trailing" secondItem="YYB-rj-a4I" secondAttribute="trailing" constant="16" id="Tpw-VA-IIU"/>
                                         <constraint firstAttribute="bottom" secondItem="SvZ-hm-dWk" secondAttribute="bottom" id="V6U-sf-Kfy"/>
                                         <constraint firstAttribute="trailing" secondItem="SvZ-hm-dWk" secondAttribute="trailing" constant="16" id="a7V-o1-0i2"/>
                                         <constraint firstItem="SvZ-hm-dWk" firstAttribute="leading" secondItem="JwG-e2-dgk" secondAttribute="leading" constant="16" id="cfx-1g-vna"/>
@@ -326,6 +313,7 @@
                                         <constraint firstItem="SvZ-hm-dWk" firstAttribute="top" secondItem="JwG-e2-dgk" secondAttribute="top" id="fzp-aJ-FA6"/>
                                         <constraint firstItem="hAq-0o-38g" firstAttribute="leading" secondItem="JwG-e2-dgk" secondAttribute="leading" id="iuT-7b-XMz"/>
                                         <constraint firstItem="hAq-0o-38g" firstAttribute="top" secondItem="JwG-e2-dgk" secondAttribute="top" id="tmT-qZ-H2R"/>
+                                        <constraint firstAttribute="trailing" secondItem="QBG-hJ-fxB" secondAttribute="trailing" constant="16" id="uzC-Yx-0Tb"/>
                                         <constraint firstAttribute="height" constant="48" id="xwp-ZW-kOT"/>
                                     </constraints>
                                 </view>
@@ -465,10 +453,10 @@
             <size key="intrinsicContentSize" width="23" height="15"/>
         </designable>
         <designable name="V3J-ds-KHJ">
-            <size key="intrinsicContentSize" width="63.5" height="32"/>
+            <size key="intrinsicContentSize" width="75.5" height="34"/>
         </designable>
         <designable name="YcM-pZ-xer">
-            <size key="intrinsicContentSize" width="-1" height="77"/>
+            <size key="intrinsicContentSize" width="-1" height="81"/>
         </designable>
         <designable name="hAq-0o-38g">
             <size key="intrinsicContentSize" width="55" height="15"/>
@@ -478,7 +466,6 @@
         <image name="iconAccount" width="24" height="24"/>
         <image name="iconKsmSmallBg" width="24" height="24"/>
         <image name="iconMore" width="24" height="24"/>
-        <image name="iconSmallArrow" width="24" height="24"/>
         <namedColor name="colorAlmostBlack">
             <color red="0.096000000834465027" green="0.096000000834465027" blue="0.096000000834465027" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
@@ -489,13 +476,13 @@
             <color red="0.26666666666666666" green="0.26666666666666666" blue="0.26666666666666666" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorHighlightedPink">
-            <color red="1" green="0.0" blue="0.60399997234344482" alpha="0.5" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.0" blue="0.60392156862745094" alpha="0.30000001192092896" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorLightGray">
             <color red="0.80000000000000004" green="0.80000000000000004" blue="0.80000000000000004" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorPink">
-            <color red="1" green="0.0" blue="0.60399997234344482" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="1" green="0.0" blue="0.60392156862745094" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
         </namedColor>
         <namedColor name="colorWhite">
             <color red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>

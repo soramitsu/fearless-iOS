@@ -239,10 +239,6 @@ final class StakingConfirmViewController: UIViewController {
     @IBAction private func proceed() {
         presenter.proceed()
     }
-
-    @IBAction private func actionSelectedValidators() {
-        presenter.selectValidators()
-    }
 }
 
 extension StakingConfirmViewController: StakingConfirmViewProtocol {

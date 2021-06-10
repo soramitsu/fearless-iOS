@@ -29,4 +29,8 @@ extension ConstantCodingPath {
     static var babeBlockTime: ConstantCodingPath {
         ConstantCodingPath(moduleName: "Babe", constantName: "ExpectedBlockTime")
     }
+
+    static var minimumContribution: ConstantCodingPath {
+        ConstantCodingPath(moduleName: "Crowdloan", constantName: "MinContribution")
+    }
 }

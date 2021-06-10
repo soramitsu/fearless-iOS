@@ -8,7 +8,6 @@ protocol RecommendedValidatorsViewProtocol: ControllerBackedProtocol, Localizabl
 protocol RecommendedValidatorsPresenterProtocol: AnyObject {
     func setup()
 
-    func proceed()
     func selectRecommendedValidators()
     func selectCustomValidators()
 }
@@ -23,19 +22,16 @@ protocol RecommendedValidatorsInteractorOutputProtocol: AnyObject {
 }
 
 protocol RecommendedValidatorsWireframeProtocol: AlertPresentable, ErrorPresentable {
-    func proceed(
-        from view: RecommendedValidatorsViewProtocol?,
-        targets: [SelectedValidatorInfo],
-        maxTargets: Int
+    func proceedToCustomList(
+        from view: ControllerBackedProtocol?,
+        validators: [ElectedValidatorInfo]
     )
 
-    func showRecommended(
+    func proceedToRecommendedList(
         from view: RecommendedValidatorsViewProtocol?,
         validators: [ElectedValidatorInfo],
         maxTargets: Int
     )
-
-    func showCustom(from view: RecommendedValidatorsViewProtocol?, validators: [ElectedValidatorInfo])
 }
 
 protocol RecommendedValidatorsViewFactoryProtocol: AnyObject {
