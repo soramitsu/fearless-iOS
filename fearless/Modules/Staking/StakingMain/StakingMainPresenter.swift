@@ -468,7 +468,7 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         }
     }
 
-    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>) {
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
         switch rewardItemData {
         case let .success(data):
             guard let chain = chain else { return }

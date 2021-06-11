@@ -1320,6 +1320,9 @@
 		F4A6C9E4265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A6C9E3265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift */; };
 		F4A8A329260DD0300059F2F1 /* AccountInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */; };
 		F4B06BFA264509E8003214D5 /* SetControllerCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B06BF9264509E8003214D5 /* SetControllerCall.swift */; };
+		F4B592B62671FD680063116C /* SubqueryRewardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B592B52671FD680063116C /* SubqueryRewardData.swift */; };
+		F4B592C12671FE900063116C /* SubqueryRewardsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B592C02671FE900063116C /* SubqueryRewardsSource.swift */; };
+		F4B592C62671FFC70063116C /* SubqueryHistoryElementData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B592C52671FFC70063116C /* SubqueryHistoryElementData.swift */; };
 		F4BDDCBE2657A57F005336BA /* TransferValidatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */; };
 		F4CD98F22667CE96003A91D3 /* RewardAnalyticsWidgetViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD98F12667CE96003A91D3 /* RewardAnalyticsWidgetViewModel.swift */; };
 		F4CD99502668F297003A91D3 /* SubquerySourceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4CD994F2668F297003A91D3 /* SubquerySourceTests.swift */; };
@@ -1340,6 +1343,7 @@
 		F4F22976260DBF3F00ACFDB8 /* StakingPayoutRewardTableCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F22975260DBF3F00ACFDB8 /* StakingPayoutRewardTableCell.swift */; };
 		F4F2297C260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F2297B260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift */; };
 		F4F22987260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F22986260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift */; };
+		F4F3C3CB265BB12200C58400 /* SelectValidatorsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F3C3CA265BB12200C58400 /* SelectValidatorsViewModelFactory.swift */; };
 		F4FB8544265E3925002D381A /* Stacks.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB8543265E3925002D381A /* Stacks.swift */; };
 		F4FB855F265E3960002D381A /* AnalyticsPresenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB854F265E3960002D381A /* AnalyticsPresenter.swift */; };
 		F4FB8560265E3960002D381A /* AnalyticsSummaryRewardViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB8551265E3960002D381A /* AnalyticsSummaryRewardViewModel.swift */; };
@@ -1357,7 +1361,6 @@
 		F4FB8577265E3BFD002D381A /* AnalyticsService.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB8576265E3BFD002D381A /* AnalyticsService.swift */; };
 		F4FB857F265E4096002D381A /* AnalyticsServiceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB857E265E4096002D381A /* AnalyticsServiceTests.swift */; };
 		F4FB858A265E67C1002D381A /* RewardAnalyticsWidgetView.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4FB8589265E67C1002D381A /* RewardAnalyticsWidgetView.swift */; };
-		F4F3C3CB265BB12200C58400 /* SelectValidatorsViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4F3C3CA265BB12200C58400 /* SelectValidatorsViewModelFactory.swift */; };
 		F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = ACAEDA02F409FE23749A1551 /* AccountCreateWireframe.swift */; };
 		F7EB8F835CFA7FC949EF4C22 /* YourValidatorsWireframe.swift in Sources */ = {isa = PBXBuildFile; fileRef = 906C55FC079AF6112AF0745B /* YourValidatorsWireframe.swift */; };
 		F83EA1F4ECE14C390C0B287F /* StakingUnbondSetupInteractor.swift in Sources */ = {isa = PBXBuildFile; fileRef = D101339CC1292531CC4DB0AC /* StakingUnbondSetupInteractor.swift */; };
@@ -2734,6 +2737,9 @@
 		F4A6C9E3265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakingStateViewModelFactory+Alerts.swift"; sourceTree = "<group>"; };
 		F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoTableViewCell.swift; sourceTree = "<group>"; };
 		F4B06BF9264509E8003214D5 /* SetControllerCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetControllerCall.swift; sourceTree = "<group>"; };
+		F4B592B52671FD680063116C /* SubqueryRewardData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryRewardData.swift; sourceTree = "<group>"; };
+		F4B592C02671FE900063116C /* SubqueryRewardsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryRewardsSource.swift; sourceTree = "<group>"; };
+		F4B592C52671FFC70063116C /* SubqueryHistoryElementData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryHistoryElementData.swift; sourceTree = "<group>"; };
 		F4BDDCBD2657A57F005336BA /* TransferValidatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferValidatorTests.swift; sourceTree = "<group>"; };
 		F4CD98F12667CE96003A91D3 /* RewardAnalyticsWidgetViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardAnalyticsWidgetViewModel.swift; sourceTree = "<group>"; };
 		F4CD994F2668F297003A91D3 /* SubquerySourceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubquerySourceTests.swift; sourceTree = "<group>"; };
@@ -2761,6 +2767,7 @@
 		F4F22975260DBF3F00ACFDB8 /* StakingPayoutRewardTableCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingPayoutRewardTableCell.swift; sourceTree = "<group>"; };
 		F4F2297B260DC05600ACFDB8 /* StakingRewardTokenUsdViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardTokenUsdViewModel.swift; sourceTree = "<group>"; };
 		F4F22986260DC4F300ACFDB8 /* StakingRewardDetailsSimpleLabelViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingRewardDetailsSimpleLabelViewModel.swift; sourceTree = "<group>"; };
+		F4F3C3CA265BB12200C58400 /* SelectValidatorsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsViewModelFactory.swift; sourceTree = "<group>"; };
 		F4FB8543265E3925002D381A /* Stacks.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Stacks.swift; sourceTree = "<group>"; };
 		F4FB854F265E3960002D381A /* AnalyticsPresenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsPresenter.swift; sourceTree = "<group>"; };
 		F4FB8551265E3960002D381A /* AnalyticsSummaryRewardViewModel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AnalyticsSummaryRewardViewModel.swift; sourceTree = "<group>"; };
@@ -2778,7 +2785,6 @@
 		F4FB8576265E3BFD002D381A /* AnalyticsService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsService.swift; sourceTree = "<group>"; };
 		F4FB857E265E4096002D381A /* AnalyticsServiceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsServiceTests.swift; sourceTree = "<group>"; };
 		F4FB8589265E67C1002D381A /* RewardAnalyticsWidgetView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RewardAnalyticsWidgetView.swift; sourceTree = "<group>"; };
-		F4F3C3CA265BB12200C58400 /* SelectValidatorsViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelectValidatorsViewModelFactory.swift; sourceTree = "<group>"; };
 		F52B8815D6AF5E69B145D245 /* SelectValidatorsViewFactory.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectValidatorsViewFactory.swift; sourceTree = "<group>"; };
 		F5DAE633286997F8D7A5D84E /* Pods-fearlessAll-fearless.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-fearlessAll-fearless.release.xcconfig"; path = "Target Support Files/Pods-fearlessAll-fearless/Pods-fearlessAll-fearless.release.xcconfig"; sourceTree = "<group>"; };
 		F61D8973ADEB461DE2AD3E13 /* SelectedValidatorsViewController.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = SelectedValidatorsViewController.swift; sourceTree = "<group>"; };
@@ -5116,6 +5122,7 @@
 		8490150124AB6BEA008F705E /* Network */ = {
 			isa = PBXGroup;
 			children = (
+				F4B592B42671FD4C0063116C /* Subquery */,
 				8494D86E2525316500614D8F /* Subscan */,
 				84CAF52524BEEF2F00F4C295 /* JSONRPC */,
 				8490150224AB6C01008F705E /* WalletNetworkOperationFactory.swift */,
@@ -5862,6 +5869,7 @@
 				841494442604E7D8000D8D1A /* SubscanRewardSource.swift */,
 				84EE6821264AD1350026E6D3 /* SubqueryRewardSource.swift */,
 				F4E4A0EB266CBF2D00812CA6 /* SubqueryTransfersSource.swift */,
+				F4B592C02671FE900063116C /* SubqueryRewardsSource.swift */,
 			);
 			path = Rewards;
 			sourceTree = "<group>";
@@ -5893,8 +5901,6 @@
 				0A656E369FA382390634A30F /* SelectedValidators */,
 				4E765C43A5296629DDD375B2 /* SelectValidators */,
 				77D9A8552D1961A00A3683BE /* StakingConfirm */,
-				AE2C84C825EF984700986716 /* ValidatorInfo */,
-				06CBDC344F7A8651326BC118 /* YourValidators */,
 				84DBEA4B265ED4F100FDF73C /* Validation */,
 				F4F2297A260DC03400ACFDB8 /* ViewModel */,
 				8497FC4C26316EE9002FEAA7 /* View */,
@@ -6841,6 +6847,15 @@
 			path = View;
 			sourceTree = "<group>";
 		};
+		F4B592B42671FD4C0063116C /* Subquery */ = {
+			isa = PBXGroup;
+			children = (
+				F4B592B52671FD680063116C /* SubqueryRewardData.swift */,
+				F4B592C52671FFC70063116C /* SubqueryHistoryElementData.swift */,
+			);
+			path = Subquery;
+			sourceTree = "<group>";
+		};
 		F4BDDCB12657A551005336BA /* Transfer */ = {
 			isa = PBXGroup;
 			children = (
@@ -6941,14 +6956,6 @@
 				F4FB8576265E3BFD002D381A /* AnalyticsService.swift */,
 			);
 			path = AnalyticsService;
-			sourceTree = "<group>";
-		};
-		F685BF5EBC18637F5237B929 /* CrowdloanList */ = {
-			isa = PBXGroup;
-			children = (
-				539A4922719613FF9CF371E7 /* CrowdloanListTests.swift */,
-			);
-			path = CrowdloanList;
 			sourceTree = "<group>";
 		};
 		FDE858484C32A17DA1E55997 /* WalletHistoryFilter */ = {
@@ -7670,6 +7677,7 @@
 				849244922514EDE800477C1B /* SelectableViewModel.swift in Sources */,
 				84C4C2D1255CA9210045B582 /* Health.swift in Sources */,
 				84CFF1E826526FBC00DB7CF7 /* StakingBondMoreViewFactory.swift in Sources */,
+				F4B592B62671FD680063116C /* SubqueryRewardData.swift in Sources */,
 				8490147524A94A37008F705E /* RootWireframe.swift in Sources */,
 				842876B424AE059700D91AD8 /* SocialMessage.swift in Sources */,
 				849014BC24AA87E4008F705E /* PinSetupInteractor.swift in Sources */,
@@ -7779,6 +7787,7 @@
 				84644A3525672F6D004EAA4B /* ChainStorageIdFactory.swift in Sources */,
 				8470D6D0253E321C009E9A5D /* StorageSubscriptionProtocols.swift in Sources */,
 				84C1B98424F5245700FE5470 /* ManagedAccountViewModel.swift in Sources */,
+				F4B592C62671FFC70063116C /* SubqueryHistoryElementData.swift in Sources */,
 				8460E1132541DEDA00826F55 /* TransactionDetailsFormViewModelBinder.swift in Sources */,
 				8490152E24ABD0F5008F705E /* Logger+Wallet.swift in Sources */,
 				849013DF24A927E2008F705E /* SettingsExtension.swift in Sources */,
@@ -8171,6 +8180,7 @@
 				F78EA110179B6D75DDF53F8B /* AccountCreateWireframe.swift in Sources */,
 				AEF507CD262573970098574D /* ValidationView.swift in Sources */,
 				84C3F76D260164CE00D47501 /* NominationView.swift in Sources */,
+				F4B592C12671FE900063116C /* SubqueryRewardsSource.swift in Sources */,
 				84D97ECC2521C8A300F07405 /* TransferConfirmViewModelFactory.swift in Sources */,
 				84DEAA7B265DB987000DDADE /* CrowdloanContributeCall.swift in Sources */,
 				8467FD5124EFD11E005D486C /* UserDataModel.xcdatamodeld in Sources */,

@@ -59,7 +59,7 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
-    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>)
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 

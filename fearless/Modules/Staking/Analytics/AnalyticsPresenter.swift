@@ -6,7 +6,7 @@ final class AnalyticsPresenter {
     let wireframe: AnalyticsWireframeProtocol
     let interactor: AnalyticsInteractorInputProtocol
     private let viewModelFactory: AnalyticsViewModelFactoryProtocol
-    private var rewardsData = [SubscanRewardItemData]()
+    private var rewardsData = [SubqueryRewardItemData]()
     private var selectedPeriod = AnalyticsPeriod.weekly
     private var priceData: PriceData?
 
@@ -42,7 +42,7 @@ extension AnalyticsPresenter: AnalyticsPresenterProtocol {
 }
 
 extension AnalyticsPresenter: AnalyticsInteractorOutputProtocol {
-    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>) {
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>) {
         switch rewardItemData {
         case let .success(data):
             rewardsData = data

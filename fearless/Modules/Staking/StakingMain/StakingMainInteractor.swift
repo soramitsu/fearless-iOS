@@ -167,14 +167,13 @@ final class StakingMainInteractor: RuntimeConstantFetching {
         let asset = primitiveFactory.createAssetForAddressType(networkType)
         guard
             let assetId = WalletAssetId(rawValue: asset.identifier),
-            let subscanUrl = assetId.subscanUrl
+            let subqueryUrl = assetId.subqueryUrl
         else { return }
 
         analyticsService?.cancel()
         analyticsService = AnalyticsService(
-            baseUrl: subscanUrl,
+            baseUrl: subqueryUrl,
             address: address,
-            subscanOperationFactory: SubscanOperationFactory(),
             operationManager: operationManager
         )
         analyticsService?.start { [weak presenter] result in

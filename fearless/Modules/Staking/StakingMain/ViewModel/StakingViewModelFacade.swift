@@ -7,7 +7,7 @@ protocol StakingViewModelFacadeProtocol {
     func createBalanceViewModelFactory(for chain: Chain) -> BalanceViewModelFactoryProtocol
     func createRewardViewModelFactory(for chain: Chain) -> RewardViewModelFactoryProtocol
     func createAnalyticsViewModel(
-        from data: [SubscanRewardItemData],
+        from data: [SubqueryRewardItemData],
         period: AnalyticsPeriod,
         priceData: PriceData?,
         chain: Chain
@@ -37,7 +37,7 @@ final class StakingViewModelFacade: StakingViewModelFacadeProtocol {
     }
 
     func createAnalyticsViewModel(
-        from data: [SubscanRewardItemData],
+        from data: [SubqueryRewardItemData],
         period: AnalyticsPeriod,
         priceData: PriceData?,
         chain: Chain

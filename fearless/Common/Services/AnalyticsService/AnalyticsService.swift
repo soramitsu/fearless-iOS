@@ -3,7 +3,7 @@ import RobinHood
 import FearlessUtils
 
 final class AnalyticsService: Longrunable {
-    typealias ResultType = [SubscanRewardItemData]
+    typealias ResultType = [SubqueryRewardItemData]
 
     enum InternalError: Error {
         case totalCountMismatch
@@ -22,7 +22,7 @@ final class AnalyticsService: Longrunable {
         case completed
     }
 
-    let subscanOperationFactory: SubscanOperationFactoryProtocol
+    let subqueryRewardsSource: SubqueryRewardsSource
     let operationManager: OperationManagerProtocol
     let address: AccountAddress
     let baseUrl: URL
@@ -40,13 +40,12 @@ final class AnalyticsService: Longrunable {
     init(
         baseUrl: URL,
         address: AccountAddress,
-        subscanOperationFactory: SubscanOperationFactoryProtocol,
         operationManager: OperationManagerProtocol,
         pageSize: Int = 100
     ) {
         self.baseUrl = baseUrl
         self.address = address
-        self.subscanOperationFactory = subscanOperationFactory
+        subqueryRewardsSource = SubqueryRewardsSource(address: address, url: baseUrl)
         self.operationManager = operationManager
         self.pageSize = pageSize
     }
@@ -83,16 +82,14 @@ final class AnalyticsService: Longrunable {
         completeWithError(InternalError.cancelled)
     }
 
-    private func loadNext(page: Int) {
-        let info = HistoryInfo(address: address, row: pageSize, page: page)
+    private func loadNext(page _: Int) {
+        // TODO: Add cursor
+        let fetchOperation = subqueryRewardsSource.fetchOperation()
 
-        let rewardsUrl = baseUrl.appendingPathComponent(SubscanApi.rewardsAndSlashes)
-        let fetchOperation = subscanOperationFactory.fetchRewardsAndSlashesOperation(rewardsUrl, info: info)
-
-        fetchOperation.completionBlock = { [weak self] in
+        fetchOperation.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.global().async {
                 do {
-                    let response = try fetchOperation.extractNoCancellableResultData()
+                    let response = try fetchOperation.targetOperation.extractNoCancellableResultData()
                     self?.handlePage(response: response)
                 } catch {
                     self?.completeWithError(error)
@@ -100,12 +97,12 @@ final class AnalyticsService: Longrunable {
             }
         }
 
-        currentOperation = fetchOperation
+        currentOperation = fetchOperation.targetOperation
 
-        operationManager.enqueue(operations: [fetchOperation], in: .transient)
+        operationManager.enqueue(operations: fetchOperation.allOperations, in: .transient)
     }
 
-    private func handlePage(response: SubscanRewardData) {
+    private func handlePage(response: [SubqueryRewardItemData]?) {
         mutex.lock()
 
         defer {
@@ -116,25 +113,26 @@ final class AnalyticsService: Longrunable {
             return
         }
 
-        if let context = context, context.totalCount != response.count {
-            completeWithError(InternalError.totalCountMismatch)
-            return
-        }
+//        if let context = context, context.totalCount != response.count {
+//            completeWithError(InternalError.totalCountMismatch)
+//            return
+//        }
 
-        let itemData = response.items ?? []
+        let itemData = response ?? []
         result += itemData
 
-        let currentPage = context?.page ?? 0
-        let loadedCount = currentPage * pageSize + itemData.count
-
-        if loadedCount == response.count {
-            completeWithResult()
-        } else {
-            let newContext = Context(page: currentPage + 1, totalCount: response.count)
-            context = newContext
-
-            loadNext(page: newContext.page)
-        }
+        completeWithResult()
+//        let currentPage = context?.page ?? 0
+//        let loadedCount = currentPage * pageSize + itemData.count
+//
+//        if loadedCount == response.count {
+//            completeWithResult()
+//        } else {
+//            let newContext = Context(page: currentPage + 1, totalCount: response.count)
+//            context = newContext
+//
+//            loadNext(page: newContext.page)
+//        }
     }
 
     private func completeWithResult() {

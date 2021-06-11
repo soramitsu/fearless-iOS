@@ -14,15 +14,14 @@ struct AnalyticsViewFactory {
         guard
             let accountAddress = settings.selectedAccount?.address,
             let assetId = WalletAssetId(rawValue: asset.identifier),
-            let subscanUrl = assetId.subscanUrl
+            let subqueryUrl = assetId.subqueryUrl
         else {
             return nil
         }
 
         let analyticsService = AnalyticsService(
-            baseUrl: subscanUrl,
+            baseUrl: subqueryUrl,
             address: accountAddress,
-            subscanOperationFactory: SubscanOperationFactory(),
             operationManager: operationManager
         )
 

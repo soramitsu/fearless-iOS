@@ -37,35 +37,20 @@ extension AnalyticsPeriod {
 extension AnalyticsPeriod {
     var timestampInterval: (Int64, Int64) {
         let now = Date()
-        let calendar = Calendar.current
-        switch self {
-        case .weekly:
-            var startOfWeekComponent = calendar.dateComponents([.year, .month, .day], from: now)
-            startOfWeekComponent.day = 0
-            let startOfWeekDate = calendar.date(from: startOfWeekComponent) ?? now
-            let endOfWeekDate = calendar.date(byAdding: .day, value: 6, to: startOfWeekDate) ?? now
-
-            let startOfWeekTimestamp = Int64(startOfWeekDate.timeIntervalSince1970)
-            let endOfWeekTimestamp = Int64(endOfWeekDate.timeIntervalSince1970)
-            return (startOfWeekTimestamp, endOfWeekTimestamp)
-        case .monthly:
-            var startOfMonthComponent = calendar.dateComponents([.year, .month], from: now)
-            startOfMonthComponent.day = 1
-            let startOfMonthDate = calendar.date(from: startOfMonthComponent) ?? now
-            let endOfMonthDate = calendar.date(byAdding: .month, value: 1, to: startOfMonthDate) ?? now
-
-            let startOfMonthTimestamp = Int64(startOfMonthDate.timeIntervalSince1970)
-            let endOfMonthTimestamp = Int64(endOfMonthDate.timeIntervalSince1970)
-            return (startOfMonthTimestamp, endOfMonthTimestamp)
-        case .yearly:
-            var startOfYearComponent = calendar.dateComponents([.year], from: now)
-            startOfYearComponent.day = 1
-            let startOfYearDate = calendar.date(from: startOfYearComponent) ?? now
-            let endOfYearDate = calendar.date(byAdding: .year, value: 1, to: startOfYearDate) ?? now
-
-            let startOfYearTimestamp = Int64(startOfYearDate.timeIntervalSince1970)
-            let endOfYearTimestamp = Int64(endOfYearDate.timeIntervalSince1970)
-            return (startOfYearTimestamp, endOfYearTimestamp)
-        }
+        let calendar = Calendar(identifier: .iso8601)
+        let dateComponent: Calendar.Component = {
+            switch self {
+            case .weekly:
+                return .weekOfYear
+            case .monthly:
+                return .month
+            case .yearly:
+                return .year
+            }
+        }()
+        guard let interval = calendar.dateInterval(of: dateComponent, for: now) else { return (0, 0) }
+        let startTimestamp = Int64(interval.start.timeIntervalSince1970)
+        let endTimestamp = Int64(interval.end.timeIntervalSince1970)
+        return (startTimestamp, endTimestamp)
     }
 }

@@ -14,7 +14,7 @@ protocol AnalyticsInteractorInputProtocol: AnyObject {
 }
 
 protocol AnalyticsInteractorOutputProtocol: AnyObject {
-    func didReceieve(rewardItemData: Result<[SubscanRewardItemData], Error>)
+    func didReceieve(rewardItemData: Result<[SubqueryRewardItemData], Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
 }
 
