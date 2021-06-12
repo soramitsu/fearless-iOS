@@ -15,7 +15,7 @@ extension CustomValidatorListComposer: RecommendationsComposing {
         var filtered = validators
 
         if !filter.allowsNoIdentity {
-            filtered = filtered.filter {
+            filtered = validators.filter {
                 $0.hasIdentity
             }
         }

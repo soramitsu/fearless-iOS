@@ -30,14 +30,6 @@ final class CustomValidatorListViewLayout: UIView {
         return tableView
     }()
 
-    let searchButton: UIBarButtonItem = {
-        UIBarButtonItem(image: R.image.iconSearch(), style: .plain, target: nil, action: nil)
-    }()
-
-    let filterButton: UIBarButtonItem = {
-        UIBarButtonItem(image: R.image.iconFilter(), style: .plain, target: nil, action: nil)
-    }()
-
     let fillRestButton: GradientButton = {
         createGradientButton()
     }()
@@ -56,7 +48,7 @@ final class CustomValidatorListViewLayout: UIView {
         return button
     }()
 
-    static func createGradientButton() -> GradientButton {
+    private static func createGradientButton() -> GradientButton {
         let button = GradientButton()
         button.applyDefaultStyle()
         button.gradientBackgroundView?.cornerRadius = Constants.auxButtonHeight / 2.0
@@ -81,7 +73,7 @@ final class CustomValidatorListViewLayout: UIView {
 
         stackContainerView.addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview()
+            make.top.bottom.equalToSuperview().inset(16)
             make.leading.equalTo(stackContainerView.snp.leading).inset(UIConstants.horizontalInset)
             make.trailing.equalTo(stackContainerView.snp.trailing).inset(UIConstants.horizontalInset)
         }
@@ -89,6 +81,7 @@ final class CustomValidatorListViewLayout: UIView {
         scrollView.addSubview(stackContainerView)
         stackContainerView.snp.makeConstraints { make in
             make.top.bottom.leading.trailing.equalToSuperview()
+            make.height.equalTo(Constants.auxButtonContainerHeight)
         }
 
         addSubview(scrollView)

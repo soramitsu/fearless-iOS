@@ -35,23 +35,19 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
+            make.top.equalToSuperview()
         }
 
         contentView.addSubview(detailsLabel)
         detailsLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.centerY.equalToSuperview()
-            make.leading.equalTo(titleLabel.snp.trailing).offset(16)
+            make.top.equalToSuperview()
+            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
         }
     }
 
     func bind(title: String, details: String) {
         titleLabel.text = title.uppercased()
         detailsLabel.text = details.uppercased()
-    }
-
-    func bind(viewModel: TitleWithSubtitleViewModel) {
-        bind(title: viewModel.title, details: viewModel.subtitle)
     }
 }

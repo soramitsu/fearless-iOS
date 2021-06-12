@@ -1,55 +1,32 @@
 import SoraFoundation
 
 protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?)
+    func reload(with viewModel: [CustomValidatorCellViewModel])
     func setFilterAppliedState(to state: Bool)
 }
 
 protocol CustomValidatorListPresenterProtocol: AnyObject {
     func setup()
-
-    func fillWithRecommended()
-    func clearFilter()
-    func deselectAll()
-
-    func changeValidatorSelection(at index: Int)
-
-    func didSelectValidator(at index: Int)
     func presentFilter()
     func presentSearch()
-    func proceed()
+    func changeValidatorSelection(at index: Int)
+    func didSelectValidator(at index: Int)
+    func clearFilter()
 }
 
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
-    func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
-        totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> CustomValidatorListViewModel
+    func createViewModel(validators: [ElectedValidatorInfo]) -> [CustomValidatorCellViewModel]
 }
 
-protocol CustomValidatorListInteractorInputProtocol: AnyObject {
-    func setup()
-}
+protocol CustomValidatorListInteractorInputProtocol: AnyObject {}
 
-protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
-    func didReceivePriceData(result: Result<PriceData?, Error>)
-}
+protocol CustomValidatorListInteractorOutputProtocol: AnyObject {}
 
-protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
+protocol CustomValidatorListWireframeProtocol: AnyObject {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
     )
     func presentFilters()
     func presentSearch()
-}
-
-extension CustomValidatorListViewProtocol {
-    func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
-        reload(viewModel, at: indexes)
-    }
 }

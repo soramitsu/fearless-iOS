@@ -2,125 +2,38 @@ import Foundation
 import FearlessUtils
 import SoraFoundation
 
-final class CustomValidatorListViewModelFactory {
-    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-
+final class CustomValidatorListViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    init(
-        balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    ) {
-        self.balanceViewModelFactory = balanceViewModelFactory
-    }
-
-    private func createHeaderViewModel(
-        displayValidatorsCount: Int,
-        totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
-        locale: Locale
-    ) -> TitleWithSubtitleViewModel {
-        let title = R.string.localizable
-            .stakingCustomHeaderValidatorsTitle(
-                displayValidatorsCount,
-                totalValidatorsCount,
-                preferredLanguages: locale.rLanguages
-            )
-
-        let subtitle: String
-        switch filter.sortedBy {
-        case .estimatedReward:
-            subtitle = R.string.localizable
-                .stakingFilterTitleRewards(preferredLanguages: locale.rLanguages)
-        case .ownStake:
-            subtitle = R.string.localizable
-                .stakingFilterTitleOwnStake(preferredLanguages: locale.rLanguages)
-        case .totalStake:
-            subtitle = R.string.localizable
-                .stakingValidatorTotalStake(preferredLanguages: locale.rLanguages)
-        }
-
-        return TitleWithSubtitleViewModel(title: title, subtitle: subtitle)
-    }
-
-    private func createCellsViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
-        filter: CustomValidatorListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> [CustomValidatorCellViewModel] {
-        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
-
+    func createViewModel(validators: [ElectedValidatorInfo]) -> [CustomValidatorCellViewModel] {
+        let percentageAPYFormatter = NumberFormatter.percentBase.localizableResource()
         return validators.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
-
-            let detailsText: String?
-            let auxDetailsText: String?
-
-            switch filter.sortedBy {
-            case .estimatedReward:
-                detailsText =
-                    apyFormatter.string(from: validator.stakeReturn as NSNumber)
-                auxDetailsText = nil
-
-            case .ownStake:
-                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
-                    validator.ownStake,
-                    priceData: priceData
-                ).value(for: locale)
-
-                detailsText = balanceViewModel.amount
-                auxDetailsText = balanceViewModel.price
-
-            case .totalStake:
-                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
-                    validator.totalStake,
-                    priceData: priceData
-                ).value(for: locale)
-
-                detailsText = balanceViewModel.amount
-                auxDetailsText = balanceViewModel.price
-            }
-
+            let restakePercentage = percentageAPYFormatter
+                .value(for: .current) // TODO: return LocalizebleRes<[SelectValidatorsCellViewModel]>
+                .string(from: validator.stakeReturn as NSNumber)
             return CustomValidatorCellViewModel(
                 icon: icon,
-                name: validator.identity?.displayName,
-                address: validator.address,
-                details: detailsText,
-                auxDetails: auxDetailsText,
-                isSelected: selectedValidators.contains(validator)
+                name: validator.identity?.displayName ?? validator.address,
+                apyPercentage: restakePercentage
             )
+        }
+    }
+
+    func createProceedButtonViewModel(for count: Int, maxCount _: Int) ->
+        LocalizableResource<CustomValidatorListProceedButtonState> {
+        LocalizableResource { locale in
+            if count == 0 {
+                return .disabled(title: "")
+            } else {
+                return .enabled(title: R.string.localizable
+                    .commonContinue(preferredLanguages: locale.rLanguages))
+            }
         }
     }
 }
 
-extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
-    func createViewModel(
-        from validators: [ElectedValidatorInfo],
-        selectedValidators: [ElectedValidatorInfo],
-        totalValidatorsCount: Int,
-        filter: CustomValidatorListFilter,
-        priceData: PriceData?,
-        locale: Locale
-    ) -> CustomValidatorListViewModel {
-        let headerViewModel = createHeaderViewModel(
-            displayValidatorsCount: validators.count,
-            totalValidatorsCount: totalValidatorsCount,
-            filter: filter,
-            locale: locale
-        )
-
-        let cellsViewModel = createCellsViewModel(
-            from: validators,
-            selectedValidators: selectedValidators,
-            filter: filter,
-            priceData: priceData,
-            locale: locale
-        )
-
-        return CustomValidatorListViewModel(
-            headerViewModel: headerViewModel,
-            cellViewModels: cellsViewModel
-        )
-    }
+enum CustomValidatorListProceedButtonState {
+    case disabled(title: String)
+    case enabled(title: String)
 }
