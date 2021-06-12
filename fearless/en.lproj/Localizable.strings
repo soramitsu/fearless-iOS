@@ -466,3 +466,7 @@ Derivation path: %@";
 "common.not.enough.balance.message" = "Sorry, you don't have enough funds to spend specified amount";
 "common.transaction.failed" = "Transaction failed. Please, try again later.";
 "staking.custom.validators.list.title" = "Select validators";
+"staking.custom.fill.button.title" = "Fill rest with recommended";
+"staking.custom.clear.button.title" = "Clear filters";
+"staking.custom.deselect.button.title" = "Deselect all";
+"staking.custom.header.validators.title" = "Validators: %d of %d";

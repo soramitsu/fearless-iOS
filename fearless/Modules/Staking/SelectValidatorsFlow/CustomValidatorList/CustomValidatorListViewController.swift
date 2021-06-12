@@ -7,6 +7,19 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     let presenter: CustomValidatorListPresenterProtocol
 
     private var cellViewModels: [CustomValidatorCellViewModel] = []
+    private var selectedValidatorsCount: Int = 0
+
+    let searchButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconSearchWhite(), for: .normal)
+        return button
+    }()
+
+    let filterButton: UIButton = {
+        let button = UIButton(type: .custom)
+        button.setImage(R.image.iconFilterActive(), for: .normal)
+        return button
+    }()
 
     // MARK: - Lifecycle
 
@@ -42,19 +55,25 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
 
     private func setupTable() {
         rootView.tableView.dataSource = self
-        // rootView.tableView.delegate = self
+        rootView.tableView.delegate = self
         rootView.tableView.registerClassForCell(CustomValidatorCell.self)
+        rootView.tableView.registerHeaderFooterView(withClass: CustomValidatorListHeaderView.self)
     }
 
     private func setupNavigationBar() {
-        navigationItem.rightBarButtonItems = [rootView.filterButton,
-                                              rootView.searchButton]
+        let filterBarbutton = UIBarButtonItem(customView: filterButton)
+        let searchBarbutton = UIBarButtonItem(customView: searchButton)
 
-        rootView.filterButton.target = self
-        rootView.searchButton.target = self
+        navigationItem.rightBarButtonItems = [filterBarbutton,
+                                              searchBarbutton]
 
-        rootView.filterButton.action = #selector(tapFilterButton)
-        rootView.searchButton.action = #selector(tapSearchButton)
+        filterButton.addTarget(self, action: #selector(tapFilterButton), for: .touchUpInside)
+        searchButton.addTarget(self, action: #selector(tapSearchButton), for: .touchUpInside)
+    }
+
+    private func applyHeaderViewModel() {
+        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
+        rootView.proceedButton.isEnabled = selectedValidatorsCount > 0
     }
 
     private func setupActionButtons() {
@@ -62,6 +81,8 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         rootView.clearButton.addTarget(self, action: #selector(tapClearButton), for: .touchUpInside)
         rootView.deselectButton.addTarget(self, action: #selector(tapDeselectButton), for: .touchUpInside)
         rootView.proceedButton.addTarget(self, action: #selector(tapProceedButton), for: .touchUpInside)
+
+        applyHeaderViewModel()
     }
 
     // MARK: - Actions
@@ -73,11 +94,11 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     @objc private func tapFilterButton() {
-        #warning("Not implemented")
+        presenter.presentFilter()
     }
 
     @objc private func tapSearchButton() {
-        #warning("Not implemented")
+        presenter.presentSearch()
     }
 
     @objc private func tapFillRestButton() {
@@ -85,7 +106,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     @objc private func tapClearButton() {
-        #warning("Not implemented")
+        presenter.clearFilter()
     }
 
     @objc private func tapDeselectButton() {
@@ -105,9 +126,12 @@ extension CustomValidatorListViewController: Localizable {
             title = R.string.localizable
                 .stakingCustomValidatorsListTitle(preferredLanguages: selectedLocale.rLanguages)
 
-            rootView.fillRestButton.imageWithTitleView?.title = "Fill rest with recommended".uppercased()
-            rootView.clearButton.imageWithTitleView?.title = "Clear filters".uppercased()
-            rootView.deselectButton.imageWithTitleView?.title = "Deselect all".uppercased()
+            rootView.fillRestButton.imageWithTitleView?.title = R.string.localizable
+                .stakingCustomFillButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
+            rootView.clearButton.imageWithTitleView?.title = R.string.localizable
+                .stakingCustomClearButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
+            rootView.deselectButton.imageWithTitleView?.title = R.string.localizable
+                .stakingCustomDeselectButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
 
             rootView.proceedButton.imageWithTitleView?.title = "Select validators (max 16)"
         }
@@ -120,6 +144,12 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
     func reload(with viewModel: [CustomValidatorCellViewModel]) {
         cellViewModels = viewModel
         rootView.tableView.reloadData()
+    }
+
+    func setFilterAppliedState(to applied: Bool) {
+        let image = applied ? R.image.iconFilterActive() : R.image.iconFilter()
+        filterButton.setImage(image, for: .normal)
+        rootView.clearButton.isEnabled = applied
     }
 }
 
@@ -136,5 +166,26 @@ extension CustomValidatorListViewController: UITableViewDataSource {
         cell.bind(viewModel: viewModel)
         cell.infoButton.addTarget(self, action: #selector(handleValidatorInfo), for: .touchUpInside)
         return cell
+    }
+}
+
+extension CustomValidatorListViewController: UITableViewDelegate {
+    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
+        headerView.bind(title: "Validators: 200 of 940", details: "Rewards (APY)")
+        return headerView
+    }
+
+    func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
+        26.0
+    }
+
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+
+        cellViewModels[indexPath.row].isSelected = !cellViewModels[indexPath.row].isSelected
+        tableView.reloadRows(at: [indexPath], with: .automatic)
+
+        presenter.changeValidatorSelection(at: indexPath.row)
     }
 }

@@ -2,11 +2,16 @@ import SoraFoundation
 
 protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
     func reload(with viewModel: [CustomValidatorCellViewModel])
+    func setFilterAppliedState(to state: Bool)
 }
 
 protocol CustomValidatorListPresenterProtocol: AnyObject {
     func setup()
+    func presentFilter()
+    func presentSearch()
+    func changeValidatorSelection(at index: Int)
     func didSelectValidator(at index: Int)
+    func clearFilter()
 }
 
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
@@ -22,4 +27,6 @@ protocol CustomValidatorListWireframeProtocol: AnyObject {
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
     )
+    func presentFilters()
+    func presentSearch()
 }

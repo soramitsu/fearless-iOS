@@ -2,32 +2,51 @@ import UIKit
 import FearlessUtils
 
 final class CustomValidatorCell: UITableViewCell {
-    let addressImageView: PolkadotIconView = {
+    let selectionImageView = UIImageView()
+
+    let iconView: PolkadotIconView = {
         let view = PolkadotIconView()
         view.backgroundColor = .clear
         view.fillColor = R.color.colorWhite()!
         return view
     }()
 
-    let usernameLabel: UILabel = {
+    let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
         label.lineBreakMode = .byTruncatingMiddle
+        label.setContentHuggingPriority(.defaultLow, for: .horizontal)
         return label
     }()
 
-    let apyLabel: UILabel = {
+    let detailsLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
         label.textColor = R.color.colorWhite()
+        label.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return label
     }()
 
     let infoButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconInfo(), for: .normal)
+        button.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         return button
+    }()
+
+    let stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.layoutMargins = UIEdgeInsets(
+            top: 8,
+            left: UIConstants.horizontalInset,
+            bottom: 8,
+            right: UIConstants.horizontalInset
+        )
+        stackView.axis = .horizontal
+        stackView.spacing = 12
+        return stackView
     }()
 
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -53,22 +72,29 @@ final class CustomValidatorCell: UITableViewCell {
     }
 
     private func setupLayout() {
-        let stackView = UIStackView(arrangedSubviews: [addressImageView, usernameLabel, UIView(), apyLabel, infoButton])
-        stackView.spacing = 16
+        stackView.addArrangedSubview(selectionImageView)
+        stackView.addArrangedSubview(iconView)
+        stackView.addArrangedSubview(titleLabel)
+        stackView.addArrangedSubview(detailsLabel)
+        stackView.addArrangedSubview(infoButton)
+
         contentView.addSubview(stackView)
         stackView.snp.makeConstraints { make in
-            make.top.bottom.equalToSuperview().inset(12)
-            make.leading.trailing.equalToSuperview().inset(16)
+            make.top.bottom.leading.trailing.equalToSuperview()
         }
 
-        addressImageView.snp.makeConstraints { $0.size.equalTo(24) }
+        selectionImageView.snp.makeConstraints { $0.size.equalTo(24) }
+        iconView.snp.makeConstraints { $0.size.equalTo(24) }
     }
 
     func bind(viewModel: CustomValidatorCellViewModel) {
         if let icon = viewModel.icon {
-            addressImageView.bind(icon: icon)
+            iconView.bind(icon: icon)
         }
-        usernameLabel.text = viewModel.name
-        apyLabel.text = viewModel.apyPercentage
+
+        titleLabel.text = viewModel.name
+        detailsLabel.text = viewModel.apyPercentage
+
+        selectionImageView.image = viewModel.isSelected ? R.image.listCheckmarkIcon() : nil
     }
 }
