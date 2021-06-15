@@ -10,7 +10,7 @@ final class AnalyticsPeriodSelectorView: UIView {
 
     let previousButton: UIButton = {
         let button = UIButton()
-        button.setImage(R.image.iconSmallArrow(), for: .normal)
+        button.setImage(R.image.iconPreviousArrow(), for: .normal)
         return button
     }()
 
