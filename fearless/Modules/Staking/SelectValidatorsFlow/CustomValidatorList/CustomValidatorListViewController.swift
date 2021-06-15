@@ -214,7 +214,6 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         filterIsApplied = applied
         updateClearFiltersButton()
     }
-    // TODO: Add 100 px footer
 }
 
 // MARK: - UITableViewDataSource
@@ -234,18 +233,26 @@ extension CustomValidatorListViewController: UITableViewDataSource {
 }
 
 extension CustomValidatorListViewController: UITableViewDelegate {
-    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
-        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        headerView.bind(title: "Validators: 200 of 940", details: "Rewards (APY)")
-        return headerView
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        tableView.deselectRow(at: indexPath, animated: true)
+        presenter.changeValidatorSelection(at: indexPath.row)
     }
 
     func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
         26.0
     }
 
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        tableView.deselectRow(at: indexPath, animated: true)
-        presenter.changeValidatorSelection(at: indexPath.row)
+    func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
+        headerView.bind(title: "Validators: 200 of 940", details: "Rewards (APY)") // TODO: Provide strings
+        return headerView
+    }
+
+    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
+        100.0
+    }
+
+    func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
+        UIView()
     }
 }
