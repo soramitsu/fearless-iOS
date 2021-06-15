@@ -470,3 +470,5 @@ Derivation path: %@";
 "staking.custom.clear.button.title" = "Clear filters";
 "staking.custom.deselect.button.title" = "Deselect all";
 "staking.custom.header.validators.title" = "Validators: %d of %d";
+"staking.custom.proceed.button.disabled.title" = "Select validators (max %d)";
+"staking.custom.proceed.button.enabled.title" = "Show selected: %d (max %d)";

@@ -5,7 +5,10 @@ import SoraFoundation
 final class CustomValidatorListViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
     private lazy var iconGenerator = PolkadotIconGenerator()
 
-    func createViewModel(validators: [ElectedValidatorInfo]) -> [CustomValidatorCellViewModel] {
+    func createViewModel(
+        validators: [ElectedValidatorInfo],
+        selectedValidators: Set<ElectedValidatorInfo>
+    ) -> [CustomValidatorCellViewModel] {
         let percentageAPYFormatter = NumberFormatter.percentBase.localizableResource()
         return validators.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
@@ -15,7 +18,8 @@ final class CustomValidatorListViewModelFactory: CustomValidatorListViewModelFac
             return CustomValidatorCellViewModel(
                 icon: icon,
                 name: validator.identity?.displayName ?? validator.address,
-                apyPercentage: restakePercentage
+                apyPercentage: restakePercentage,
+                isSelected: selectedValidators.contains(validator)
             )
         }
     }

@@ -8,6 +8,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
 
     private var cellViewModels: [CustomValidatorCellViewModel] = []
     private var selectedValidatorsCount: Int = 0
+    private var filterIsApplied: Bool = true
 
     let searchButton: UIButton = {
         let button = UIButton(type: .custom)
@@ -71,10 +72,10 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         searchButton.addTarget(self, action: #selector(tapSearchButton), for: .touchUpInside)
     }
 
-    private func applyHeaderViewModel() {
-        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
-        rootView.proceedButton.isEnabled = selectedValidatorsCount > 0
-    }
+//    private func applyHeaderViewModel() {
+//        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
+//        rootView.proceedButton.isEnabled = selectedValidatorsCount > 0
+//    }
 
     private func setupActionButtons() {
         rootView.fillRestButton.addTarget(self, action: #selector(tapFillRestButton), for: .touchUpInside)
@@ -82,7 +83,49 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         rootView.deselectButton.addTarget(self, action: #selector(tapDeselectButton), for: .touchUpInside)
         rootView.proceedButton.addTarget(self, action: #selector(tapProceedButton), for: .touchUpInside)
 
-        applyHeaderViewModel()
+        updateFillRestButton()
+        updateDeselectButton()
+        updateProceedButton()
+    }
+
+    private func updateFillRestButton() {
+        // TODO: Provide max targets value
+        rootView.fillRestButton.isEnabled = selectedValidatorsCount < 16
+    }
+
+    private func updateClearFiltersButton() {
+        let image = filterIsApplied ? R.image.iconFilterActive() : R.image.iconFilter()
+        filterButton.setImage(image, for: .normal)
+        rootView.clearButton.isEnabled = filterIsApplied
+    }
+
+    private func updateDeselectButton() {
+        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
+    }
+
+    private func updateProceedButton() {
+        let buttonTitle: String
+        let enabled: Bool
+
+        if selectedValidatorsCount == 0 {
+            enabled = false
+            buttonTitle = R.string.localizable
+                .stakingCustomProceedButtonDisabledTitle(
+                    16, // TODO: Provide maxTargets
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+        } else {
+            enabled = true
+            buttonTitle = R.string.localizable
+                .stakingCustomProceedButtonEnabledTitle(
+                    selectedValidatorsCount,
+                    16,
+                    preferredLanguages: selectedLocale.rLanguages
+                )
+        }
+
+        rootView.proceedButton.imageWithTitleView?.title = buttonTitle
+        rootView.proceedButton.isEnabled = enabled
     }
 
     // MARK: - Actions
@@ -110,7 +153,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     @objc private func tapDeselectButton() {
-        #warning("Not implemented")
+        presenter.deselectAll()
     }
 
     @objc private func tapProceedButton() {
@@ -141,16 +184,37 @@ extension CustomValidatorListViewController: Localizable {
 // MARK: - CustomValidatorListViewProtocol
 
 extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
-    func reload(with viewModel: [CustomValidatorCellViewModel]) {
+    func reload(_ viewModel: [CustomValidatorCellViewModel], at indexes: [Int]? = nil) {
+        cellViewModels = viewModel
+
+        if let indexes = indexes {
+            let indexPaths = indexes.map {
+                IndexPath(row: $0, section: 0)
+            }
+            rootView.tableView.reloadRows(at: indexPaths, with: .automatic)
+        } else {
+            rootView.tableView.reloadData()
+        }
+
+        selectedValidatorsCount = viewModel.filter {
+            $0.isSelected
+        }.count
+
+        updateFillRestButton()
+        updateDeselectButton()
+        updateProceedButton()
+    }
+
+    func reload(_ viewModel: [CustomValidatorCellViewModel]) {
         cellViewModels = viewModel
         rootView.tableView.reloadData()
     }
 
     func setFilterAppliedState(to applied: Bool) {
-        let image = applied ? R.image.iconFilterActive() : R.image.iconFilter()
-        filterButton.setImage(image, for: .normal)
-        rootView.clearButton.isEnabled = applied
+        filterIsApplied = applied
+        updateClearFiltersButton()
     }
+    // TODO: Add 100 px footer
 }
 
 // MARK: - UITableViewDataSource
@@ -182,10 +246,6 @@ extension CustomValidatorListViewController: UITableViewDelegate {
 
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
-
-        cellViewModels[indexPath.row].isSelected = !cellViewModels[indexPath.row].isSelected
-        tableView.reloadRows(at: [indexPath], with: .automatic)
-
         presenter.changeValidatorSelection(at: indexPath.row)
     }
 }

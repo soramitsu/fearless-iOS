@@ -3,7 +3,8 @@ import Foundation
 class SelectValidatorsStartWireframe: SelectValidatorsStartWireframeProtocol {
     func proceedToCustomList(
         from _: ControllerBackedProtocol?,
-        validators _: [ElectedValidatorInfo]
+        validators _: [ElectedValidatorInfo],
+        maxTargets _: Int
     ) {}
 
     func proceedToRecommendedList(

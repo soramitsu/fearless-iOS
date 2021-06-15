@@ -6,6 +6,7 @@ final class CustomValidatorListPresenter {
     let wireframe: CustomValidatorListWireframeProtocol
     let interactor: CustomValidatorListInteractorInputProtocol
     let viewModelFactory: CustomValidatorListViewModelFactory
+    let maxTargets: Int
 
     private let electedValidators: [ElectedValidatorInfo]
     private var filteredValidators: [ElectedValidatorInfo] = []
@@ -17,12 +18,14 @@ final class CustomValidatorListPresenter {
         interactor: CustomValidatorListInteractorInputProtocol,
         wireframe: CustomValidatorListWireframeProtocol,
         viewModelFactory: CustomValidatorListViewModelFactory,
-        validators: [ElectedValidatorInfo]
+        electedValidators: [ElectedValidatorInfo],
+        maxTargets: Int
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        electedValidators = validators
+        self.electedValidators = electedValidators
+        self.maxTargets = maxTargets
     }
 
     private func composeFilteredValidatorList() {
@@ -32,8 +35,13 @@ final class CustomValidatorListPresenter {
     }
 
     private func createValidatorListViewModel() {
-        let viewModel = viewModelFactory.createViewModel(validators: filteredValidators)
-        view?.reload(with: viewModel)
+        let viewModel = viewModelFactory.createViewModel(
+            validators: filteredValidators,
+            selectedValidators: selectedValidators
+        )
+
+        self.viewModel = viewModel
+        view?.reload(viewModel)
     }
 
     private func createFilterButtonViewModel() {
@@ -59,6 +67,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         } else {
             selectedValidators.insert(changedValidator)
         }
+
+        viewModel[index].isSelected = !viewModel[index].isSelected
+
+        view?.reload(viewModel, at: [index])
     }
 
     func presentFilter() {
@@ -75,6 +87,25 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         composeFilteredValidatorList()
         createValidatorListViewModel()
         createFilterButtonViewModel()
+    }
+
+    func deselectAll() {
+        var indexes: [Int] = []
+
+        viewModel = viewModel.enumerated().map { index, item in
+            var newItem = item
+
+            if newItem.isSelected {
+                newItem.isSelected = false
+                indexes.append(index)
+            }
+
+            return newItem
+        }
+
+        selectedValidators = []
+
+        view?.reload(viewModel, at: indexes)
     }
 
     func didSelectValidator(at index: Int) {
