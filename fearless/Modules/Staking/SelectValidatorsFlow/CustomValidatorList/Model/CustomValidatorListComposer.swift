@@ -12,7 +12,9 @@ class CustomValidatorListComposer {
 
 extension CustomValidatorListComposer: RecommendationsComposing {
     func compose(from validators: [ElectedValidatorInfo]) -> [ElectedValidatorInfo] {
-        var filtered = validators
+        var filtered = validators.filter {
+            !$0.blocked
+        }
 
         if !filter.allowsNoIdentity {
             filtered = validators.filter {

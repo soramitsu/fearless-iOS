@@ -1,7 +1,7 @@
 import SoraFoundation
 
 protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
-    func reload(_ viewModel: [CustomValidatorCellViewModel], at indexes: [Int]?)
+    func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]?)
     func setFilterAppliedState(to state: Bool)
 }
 
@@ -13,13 +13,17 @@ protocol CustomValidatorListPresenterProtocol: AnyObject {
     func didSelectValidator(at index: Int)
     func clearFilter()
     func deselectAll()
+    func fillWithRecommended()
 }
 
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
     func createViewModel(
-        validators: [ElectedValidatorInfo],
-        selectedValidators: Set<ElectedValidatorInfo>
-    ) -> [CustomValidatorCellViewModel]
+        from validators: [ElectedValidatorInfo],
+        selectedValidators: Set<ElectedValidatorInfo>,
+        totalValidatorsCount: Int,
+        filter: CustomValidatorListFilter,
+        locale: Locale
+    ) -> CustomValidatorListViewModel
 }
 
 protocol CustomValidatorListInteractorInputProtocol: AnyObject {}
@@ -36,7 +40,7 @@ protocol CustomValidatorListWireframeProtocol: AnyObject {
 }
 
 extension CustomValidatorListViewProtocol {
-    func reload(_ viewModel: [CustomValidatorCellViewModel], at indexes: [Int]? = nil) {
+    func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
         reload(viewModel, at: indexes)
     }
 }

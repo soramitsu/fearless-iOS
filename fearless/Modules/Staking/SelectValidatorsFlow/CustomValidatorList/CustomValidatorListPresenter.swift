@@ -1,4 +1,5 @@
 import Foundation
+import SoraFoundation
 
 final class CustomValidatorListPresenter {
     weak var view: CustomValidatorListViewProtocol?
@@ -9,66 +10,86 @@ final class CustomValidatorListPresenter {
     let maxTargets: Int
 
     private let electedValidators: [ElectedValidatorInfo]
+    private let recommendedValidatorList: [ElectedValidatorInfo]
+
     private var filteredValidators: [ElectedValidatorInfo] = []
-    private var selectedValidators: Set<ElectedValidatorInfo> = []
-    private var viewModel: [CustomValidatorCellViewModel] = []
+    private var selectedValidatorList: Set<ElectedValidatorInfo> = []
+    private var viewModel: CustomValidatorListViewModel?
     private var filter = CustomValidatorListFilter.recommendedFilter()
 
     init(
         interactor: CustomValidatorListInteractorInputProtocol,
         wireframe: CustomValidatorListWireframeProtocol,
         viewModelFactory: CustomValidatorListViewModelFactory,
+        localizationManager: LocalizationManagerProtocol,
         electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
         maxTargets: Int
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         self.electedValidators = electedValidators
+        recommendedValidatorList = recommendedValidators
         self.maxTargets = maxTargets
+        self.localizationManager = localizationManager
     }
 
-    private func composeFilteredValidatorList() {
+    private func composeFilteredValidatorList() -> [ElectedValidatorInfo] {
         let composer = CustomValidatorListComposer(filter: filter)
-
-        filteredValidators = composer.compose(from: electedValidators)
+        return composer.compose(from: electedValidators)
     }
 
-    private func createValidatorListViewModel() {
+    private func updateFilteredValidatorsList() {
+        filteredValidators = composeFilteredValidatorList()
+    }
+
+    private func provideValidatorListViewModel() {
         let viewModel = viewModelFactory.createViewModel(
-            validators: filteredValidators,
-            selectedValidators: selectedValidators
+            from: filteredValidators,
+            selectedValidators: selectedValidatorList,
+            totalValidatorsCount: electedValidators.count,
+            filter: filter,
+            locale: selectedLocale
         )
 
         self.viewModel = viewModel
         view?.reload(viewModel)
     }
 
-    private func createFilterButtonViewModel() {
+    private func provideFilterButtonViewModel() {
         let emptyFilter = CustomValidatorListFilter.defaultFilter()
         let appliedState = filter != emptyFilter
 
         view?.setFilterAppliedState(to: appliedState)
     }
+
+    private func provideViewModels() {
+        updateFilteredValidatorsList()
+
+        provideValidatorListViewModel()
+        provideFilterButtonViewModel()
+    }
 }
 
 extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     func setup() {
-        composeFilteredValidatorList()
-        createValidatorListViewModel()
-        createFilterButtonViewModel()
+        provideViewModels()
     }
 
     func changeValidatorSelection(at index: Int) {
+        guard var viewModel = viewModel else { return }
+
         let changedValidator = filteredValidators[index]
 
-        if selectedValidators.contains(changedValidator) {
-            selectedValidators.remove(changedValidator)
+        if selectedValidatorList.contains(changedValidator) {
+            selectedValidatorList.remove(changedValidator)
         } else {
-            selectedValidators.insert(changedValidator)
+            selectedValidatorList.insert(changedValidator)
         }
 
-        viewModel[index].isSelected = !viewModel[index].isSelected
+        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        self.viewModel = viewModel
 
         view?.reload(viewModel, at: [index])
     }
@@ -83,29 +104,46 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 
     func clearFilter() {
         filter = CustomValidatorListFilter.defaultFilter()
-
-        composeFilteredValidatorList()
-        createValidatorListViewModel()
-        createFilterButtonViewModel()
+        provideViewModels()
     }
 
     func deselectAll() {
+        guard var viewModel = viewModel else { return }
         var indexes: [Int] = []
 
-        viewModel = viewModel.enumerated().map { index, item in
-            var newItem = item
+        viewModel.cellViewModels =
+            viewModel.cellViewModels.enumerated().map { index, item in
+                var newItem = item
 
-            if newItem.isSelected {
-                newItem.isSelected = false
-                indexes.append(index)
+                if newItem.isSelected {
+                    newItem.isSelected = false
+                    indexes.append(index)
+                }
+
+                return newItem
             }
 
-            return newItem
-        }
+        selectedValidatorList = []
 
-        selectedValidators = []
+        self.viewModel = viewModel
 
         view?.reload(viewModel, at: indexes)
+    }
+
+    func fillWithRecommended() {
+        var index = 0
+        while index < recommendedValidatorList.count,
+              selectedValidatorList.count < maxTargets {
+            let recommendedValidator = recommendedValidatorList[index]
+
+            if !selectedValidatorList.contains(recommendedValidator) {
+                if let index = filteredValidators.firstIndex(of: recommendedValidator) {
+                    changeValidatorSelection(at: index)
+                }
+            }
+
+            index += 1
+        }
     }
 
     func didSelectValidator(at index: Int) {
@@ -125,3 +163,11 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
 }
 
 extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {}
+
+extension CustomValidatorListPresenter: Localizable {
+    func applyLocalization() {
+        if let view = view, view.isSetup {
+            provideViewModels()
+        }
+    }
+}

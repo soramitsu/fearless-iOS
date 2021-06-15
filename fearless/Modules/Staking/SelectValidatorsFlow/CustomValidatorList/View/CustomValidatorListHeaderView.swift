@@ -50,4 +50,8 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         titleLabel.text = title.uppercased()
         detailsLabel.text = details.uppercased()
     }
+
+    func bind(viewModel: TitleWithSubtitleViewModel) {
+        bind(title: viewModel.title, details: viewModel.subtitle)
+    }
 }
