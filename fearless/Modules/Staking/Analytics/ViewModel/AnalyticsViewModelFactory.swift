@@ -31,15 +31,13 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
         LocalizableResource { [self] locale in
             var resultArray = [Decimal](repeating: 0.0, count: period.chartBarsCount)
 
-            let onlyRewards = data.filter { $0.isReward }
-            let filteredByPeriod = onlyRewards
+            let groupedByPeriod = data
+                .filter { $0.isReward }
                 .filter { itemData in
                     let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
                     return itemData.timestamp >= timestampInterval.0 &&
                         itemData.timestamp <= timestampInterval.1
                 }
-
-            let groupedByPeriod = filteredByPeriod
                 .reduce(resultArray) { array, value in
                     let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
                     let distance = timestampInterval.1 - timestampInterval.0
@@ -89,6 +87,10 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 usdAmount: nil,
                 indicatorColor: R.color.colorAccent()
             )
+
+            let canSelectPreviousPeriod = data.contains(where: { $0.timestamp < timestampInterval.0 })
+            let canSelectNextPeriod = data.contains(where: { $0.timestamp > timestampInterval.1 })
+
             return AnalyticsRewardsViewModel(
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
@@ -96,7 +98,9 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 payableViewModel: payableViewModel,
                 periods: AnalyticsPeriod.allCases,
                 selectedPeriod: period,
-                periodTitle: periodText
+                periodTitle: periodText,
+                canSelectPreviousPeriod: canSelectPreviousPeriod,
+                canSelectNextPeriod: canSelectNextPeriod
             )
         }
     }

@@ -8,7 +8,7 @@ protocol AnalyticsPeriodSelectorViewDelegate: AnyObject {
 final class AnalyticsPeriodSelectorView: UIView {
     weak var delegate: AnalyticsPeriodSelectorViewDelegate?
 
-    private let previousButton: UIButton = {
+    let previousButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconPreviousArrow(), for: .normal)
         return button
@@ -21,7 +21,7 @@ final class AnalyticsPeriodSelectorView: UIView {
         return label
     }()
 
-    private let nextButton: UIButton = {
+    let nextButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconSmallArrow(), for: .normal)
         return button
