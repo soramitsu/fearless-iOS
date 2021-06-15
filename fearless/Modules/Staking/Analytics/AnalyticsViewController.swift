@@ -28,8 +28,8 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
         rootView.segmentedControl.configure()
         rootView.segmentedControl.titles = ["Rewards", "Stake", "Validators"]
 
-        rootView.rewardsView.periodView.configure(periods: AnalyticsPeriod.allCases)
-        rootView.rewardsView.periodView.delegate = self
+        rootView.rewardsView.periodSelectorView.periodView.configure(periods: AnalyticsPeriod.allCases)
+        rootView.rewardsView.periodSelectorView.periodView.delegate = self
 
         rootView.rewardsView.payoutButton.imageWithTitleView?.title = "Payout rewards"
     }

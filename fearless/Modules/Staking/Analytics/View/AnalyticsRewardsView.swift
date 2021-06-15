@@ -24,12 +24,12 @@ final class AnalyticsRewardsView: UIView {
 
     private let chartView = ChartView()
 
-    let periodView = AnalyticsPeriodView()
-
     private let receivedSummaryView = AnalyticsSummaryRewardView()
     private let payableSummaryView = AnalyticsSummaryRewardView()
 
     let payoutButton: TriangularedButton = UIFactory.default.createMainActionButton()
+
+    let periodSelectorView = AnalyticsPeriodSelectorView()
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -42,6 +42,17 @@ final class AnalyticsRewardsView: UIView {
     }
 
     private func setupLayout() {
+        let scrollView = UIScrollView()
+        addSubview(scrollView)
+        scrollView.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+        let containerView = UIView()
+        scrollView.addSubview(containerView)
+        containerView.snp.makeConstraints {
+            $0.edges.equalToSuperview()
+            $0.width.equalTo(self)
+        }
+
         let statsStack: UIView = .vStack(
             spacing: 4,
             [
@@ -53,33 +64,30 @@ final class AnalyticsRewardsView: UIView {
 
         chartView.snp.makeConstraints { $0.height.equalTo(168) }
 
-        addSubview(statsStack)
+        containerView.addSubview(statsStack)
         statsStack.snp.makeConstraints { make in
             make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
 
-        addSubview(periodView)
-        periodView.snp.makeConstraints { make in
-            make.top.equalTo(statsStack.snp.bottom)
-            make.height.equalTo(24)
-            make.leading.trailing.equalToSuperview()
-        }
-
         let separator = UIView.createSeparator()
         let summaryStack: UIView = .vStack([receivedSummaryView, separator, payableSummaryView])
-        addSubview(summaryStack)
+        containerView.addSubview(summaryStack)
         summaryStack.snp.makeConstraints { make in
-            make.top.equalTo(periodView.snp.bottom).offset(24)
+            make.top.equalTo(statsStack.snp.bottom).offset(24)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
         }
         separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
 
-        addSubview(payoutButton)
+        containerView.addSubview(payoutButton)
         payoutButton.snp.makeConstraints { make in
             make.top.equalTo(summaryStack.snp.bottom).offset(16)
             make.leading.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.height.equalTo(50)
-            make.bottom.equalToSuperview()
+        }
+
+        addSubview(periodSelectorView)
+        periodSelectorView.snp.makeConstraints { make in
+            make.leading.trailing.bottom.equalToSuperview()
         }
     }
 

@@ -43,6 +43,7 @@ final class AnalyticsService: Longrunable {
         operationManager: OperationManagerProtocol,
         pageSize: Int = 100
     ) {
+        let address = "12dfEn1GycUmHtfEDW3BuQYzsMyUR1PqUPH2pyEikYeUX59o"
         self.baseUrl = baseUrl
         self.address = address
         subqueryRewardsSource = SubqueryRewardsSource(address: address, url: baseUrl)

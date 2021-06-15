@@ -13,8 +13,6 @@ final class AnalyticsViewLayout: UIView {
     }()
 
     let rewardsView = AnalyticsRewardsView()
-    let stakeView = UIView()
-    let validatorsView = UIView()
 
     let horizontalScrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -43,31 +41,10 @@ final class AnalyticsViewLayout: UIView {
             make.height.equalTo(40)
         }
 
-        addSubview(horizontalScrollView)
-        horizontalScrollView.snp.makeConstraints { make in
+        addSubview(rewardsView)
+        rewardsView.snp.makeConstraints { make in
             make.top.equalTo(segmentedControl.snp.bottom)
             make.leading.trailing.bottom.equalToSuperview()
-        }
-
-        let scrollContentView = UIStackView(arrangedSubviews: [rewardsView, stakeView, validatorsView])
-        scrollContentView.alignment = .top
-        horizontalScrollView.addSubview(scrollContentView)
-        scrollContentView.snp.makeConstraints { $0.edges.equalToSuperview() }
-
-        rewardsView.snp.makeConstraints { make in
-            make.width.equalTo(self)
-        }
-
-        stakeView.backgroundColor = .red
-        stakeView.snp.makeConstraints { make in
-            make.width.equalTo(self)
-            make.height.equalTo(150)
-        }
-
-        validatorsView.backgroundColor = .green
-        validatorsView.snp.makeConstraints { make in
-            make.width.equalTo(self)
-            make.height.equalTo(150)
         }
     }
 }

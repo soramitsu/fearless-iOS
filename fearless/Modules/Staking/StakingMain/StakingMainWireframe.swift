@@ -142,6 +142,7 @@ final class StakingMainWireframe: StakingMainWireframeProtocol {
 
     func showAnalytics(from view: ControllerBackedProtocol?) {
         guard let analyticsView = AnalyticsViewFactory.createView() else { return }
+        analyticsView.controller.hidesBottomBarWhenPushed = true
         view?.controller.navigationController?.pushViewController(analyticsView.controller, animated: true)
     }
 }

@@ -16,6 +16,7 @@ final class AnalyticsPeriodView: UIView {
         layout.minimumInteritemSpacing = 8
         let collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.showsHorizontalScrollIndicator = false
+        collectionView.backgroundColor = .clear
         return collectionView
     }()
 
