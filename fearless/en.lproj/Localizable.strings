@@ -472,3 +472,4 @@ Derivation path: %@";
 "staking.custom.header.validators.title" = "Validators: %d of %d";
 "staking.custom.proceed.button.disabled.title" = "Select validators (max %d)";
 "staking.custom.proceed.button.enabled.title" = "Show selected: %d (max %d)";
+"staking.filter.title.own.stake" = "Validator's own stake";

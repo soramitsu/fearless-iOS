@@ -5,9 +5,13 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     typealias RootViewType = CustomValidatorListViewLayout
 
     let presenter: CustomValidatorListPresenterProtocol
+    let selectedValidatorsLimit: Int
 
     private var cellViewModels: [CustomValidatorCellViewModel] = []
+    private var headerViewModel: TitleWithSubtitleViewModel?
     private var selectedValidatorsCount: Int = 0
+    private var electedValidatorsCount: Int = 0
+
     private var filterIsApplied: Bool = true
 
     let searchButton: UIButton = {
@@ -26,10 +30,14 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
 
     init(
         presenter: CustomValidatorListPresenterProtocol,
+        selectedValidatorsLimit: Int,
         localizationManager: LocalizationManagerProtocol? = nil
     ) {
         self.presenter = presenter
+        self.selectedValidatorsLimit = selectedValidatorsLimit
+
         super.init(nibName: nil, bundle: nil)
+
         self.localizationManager = localizationManager
     }
 
@@ -72,11 +80,6 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
         searchButton.addTarget(self, action: #selector(tapSearchButton), for: .touchUpInside)
     }
 
-//    private func applyHeaderViewModel() {
-//        rootView.deselectButton.isEnabled = selectedValidatorsCount > 0
-//        rootView.proceedButton.isEnabled = selectedValidatorsCount > 0
-//    }
-
     private func setupActionButtons() {
         rootView.fillRestButton.addTarget(self, action: #selector(tapFillRestButton), for: .touchUpInside)
         rootView.clearButton.addTarget(self, action: #selector(tapClearButton), for: .touchUpInside)
@@ -89,8 +92,8 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     private func updateFillRestButton() {
-        // TODO: Provide max targets value
-        rootView.fillRestButton.isEnabled = selectedValidatorsCount < 16
+        rootView.fillRestButton.isEnabled =
+            selectedValidatorsCount < selectedValidatorsLimit
     }
 
     private func updateClearFiltersButton() {
@@ -111,7 +114,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
             enabled = false
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
-                    16, // TODO: Provide maxTargets
+                    selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
         } else {
@@ -119,7 +122,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonEnabledTitle(
                     selectedValidatorsCount,
-                    16,
+                    selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
         }
@@ -145,7 +148,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     @objc private func tapFillRestButton() {
-        #warning("Not implemented")
+        presenter.fillWithRecommended()
     }
 
     @objc private func tapClearButton() {
@@ -176,7 +179,7 @@ extension CustomValidatorListViewController: Localizable {
             rootView.deselectButton.imageWithTitleView?.title = R.string.localizable
                 .stakingCustomDeselectButtonTitle(preferredLanguages: selectedLocale.rLanguages).uppercased()
 
-            rootView.proceedButton.imageWithTitleView?.title = "Select validators (max 16)"
+            updateProceedButton()
         }
     }
 }
@@ -184,19 +187,20 @@ extension CustomValidatorListViewController: Localizable {
 // MARK: - CustomValidatorListViewProtocol
 
 extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
-    func reload(_ viewModel: [CustomValidatorCellViewModel], at indexes: [Int]? = nil) {
-        cellViewModels = viewModel
+    func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
+        cellViewModels = viewModel.cellViewModels
+        headerViewModel = viewModel.headerViewModel
 
         if let indexes = indexes {
             let indexPaths = indexes.map {
                 IndexPath(row: $0, section: 0)
             }
-            rootView.tableView.reloadRows(at: indexPaths, with: .automatic)
+            rootView.tableView.reloadRows(at: indexPaths, with: .none)
         } else {
             rootView.tableView.reloadData()
         }
 
-        selectedValidatorsCount = viewModel.filter {
+        selectedValidatorsCount = cellViewModels.filter {
             $0.isSelected
         }.count
 
@@ -205,14 +209,13 @@ extension CustomValidatorListViewController: CustomValidatorListViewProtocol {
         updateProceedButton()
     }
 
-    func reload(_ viewModel: [CustomValidatorCellViewModel]) {
-        cellViewModels = viewModel
-        rootView.tableView.reloadData()
-    }
-
     func setFilterAppliedState(to applied: Bool) {
         filterIsApplied = applied
         updateClearFiltersButton()
+    }
+
+    func updateHeaderViewModel(to viewModel: TitleWithSubtitleViewModel) {
+        headerViewModel = viewModel
     }
 }
 
@@ -239,12 +242,14 @@ extension CustomValidatorListViewController: UITableViewDelegate {
     }
 
     func tableView(_: UITableView, heightForHeaderInSection _: Int) -> CGFloat {
-        26.0
+        guard headerViewModel != nil else { return 0 }
+        return 26.0
     }
 
     func tableView(_ tableView: UITableView, viewForHeaderInSection _: Int) -> UIView? {
+        guard let headerViewModel = headerViewModel else { return nil }
         let headerView: CustomValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        headerView.bind(title: "Validators: 200 of 940", details: "Rewards (APY)") // TODO: Provide strings
+        headerView.bind(viewModel: headerViewModel)
         return headerView
     }
 

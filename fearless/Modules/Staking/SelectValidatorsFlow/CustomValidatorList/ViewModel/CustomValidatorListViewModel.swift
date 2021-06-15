@@ -6,3 +6,8 @@ struct CustomValidatorCellViewModel {
     let apyPercentage: String?
     var isSelected: Bool = false
 }
+
+struct CustomValidatorListViewModel {
+    var headerViewModel: TitleWithSubtitleViewModel
+    var cellViewModels: [CustomValidatorCellViewModel]
+}
