@@ -8,7 +8,7 @@ protocol AnalyticsPeriodSelectorViewDelegate: AnyObject {
 final class AnalyticsPeriodSelectorView: UIView {
     weak var delegate: AnalyticsPeriodSelectorViewDelegate?
 
-    let previousButton: UIButton = {
+    private let previousButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconPreviousArrow(), for: .normal)
         return button
@@ -21,7 +21,7 @@ final class AnalyticsPeriodSelectorView: UIView {
         return label
     }()
 
-    let nextButton: UIButton = {
+    private let nextButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconSmallArrow(), for: .normal)
         return button
@@ -43,25 +43,27 @@ final class AnalyticsPeriodSelectorView: UIView {
     }
 
     private func setupLayout() {
-        let stack: UIView = .hStack(
-            alignment: .center,
-            distribution: .equalSpacing,
-            [previousButton, UIView(), periodLabel, UIView(), nextButton]
+        let separator = UIView.createSeparator(color: R.color.colorDarkGray())
+        let verticalStack = UIView.vStack(
+            spacing: 16,
+            [
+                .hStack(
+                    alignment: .center,
+                    distribution: .equalSpacing,
+                    [previousButton, UIView(), periodLabel, UIView(), nextButton]
+                ),
+                separator,
+                periodView
+            ]
         )
-        addSubview(stack)
-        stack.snp.makeConstraints { make in
-            make.top.equalToSuperview()
-            make.leading.trailing.equalToSuperview().inset(16)
-            make.height.equalTo(48)
-        }
 
-        addSubview(periodView)
-        periodView.snp.makeConstraints { make in
-            make.top.equalTo(stack.snp.bottom)
-            make.height.equalTo(24)
-            make.leading.trailing.equalToSuperview()
-            make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
+        addSubview(verticalStack)
+        verticalStack.snp.makeConstraints { make in
+            make.leading.top.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.bottom.equalTo(safeAreaLayoutGuide).inset(UIConstants.horizontalInset)
         }
+        separator.snp.makeConstraints { $0.height.equalTo(UIConstants.separatorHeight) }
+        periodView.snp.makeConstraints { $0.height.equalTo(24) }
     }
 
     @objc
