@@ -100,5 +100,6 @@ final class AnalyticsRewardsView: UIView {
         payableSummaryView.configure(with: viewModel.payableViewModel)
         receivedSummaryView.configure(with: viewModel.receivedViewModel)
         periodSelectorView.periodLabel.text = viewModel.periodTitle
+        periodSelectorView.periodView.configure(periods: viewModel.periods, selected: viewModel.selectedPeriod)
     }
 }

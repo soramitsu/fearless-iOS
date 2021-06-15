@@ -47,9 +47,14 @@ final class AnalyticsPeriodView: UIView {
         )
     }
 
-    func configure(periods: [AnalyticsPeriod]) {
+    func configure(periods: [AnalyticsPeriod], selected: AnalyticsPeriod) {
         self.periods = periods
         collectionView.reloadData()
+        collectionView.selectItem(
+            at: IndexPath(row: periods.firstIndex(of: selected) ?? 0, section: 0),
+            animated: false,
+            scrollPosition: .centeredHorizontally
+        )
     }
 }
 
@@ -81,6 +86,18 @@ extension AnalyticsPeriodView: UICollectionViewDelegate {
 }
 
 private class AnalyticsPeriodCell: UICollectionViewCell {
+    override var isSelected: Bool {
+        didSet {
+            if isSelected {
+                contentView.backgroundColor = R.color.colorWhiteAlpha16()
+                titleLabel.textColor = R.color.colorWhite()
+            } else {
+                contentView.backgroundColor = .clear
+                titleLabel.textColor = R.color.colorTransparentText()
+            }
+        }
+    }
+
     let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .capsTitle

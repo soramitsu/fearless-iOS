@@ -94,6 +94,8 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 summaryViewModel: summaryViewModel,
                 receivedViewModel: receivedViewModel,
                 payableViewModel: payableViewModel,
+                periods: AnalyticsPeriod.allCases,
+                selectedPeriod: period,
                 periodTitle: periodText
             )
         }
