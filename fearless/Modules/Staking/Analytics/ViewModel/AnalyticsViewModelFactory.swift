@@ -5,7 +5,8 @@ protocol AnalyticsViewModelFactoryProtocol {
     func createRewardsViewModel(
         from data: [SubqueryRewardItemData],
         priceData: PriceData?,
-        period: AnalyticsPeriod
+        period: AnalyticsPeriod,
+        periodDelta: Int
     ) -> LocalizableResource<AnalyticsRewardsViewModel>
 }
 
@@ -24,7 +25,8 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
     func createRewardsViewModel(
         from data: [SubqueryRewardItemData],
         priceData: PriceData?,
-        period: AnalyticsPeriod
+        period: AnalyticsPeriod,
+        periodDelta: Int
     ) -> LocalizableResource<AnalyticsRewardsViewModel> {
         LocalizableResource { [self] locale in
             var resultArray = [Decimal](repeating: 0.0, count: period.chartBarsCount)
@@ -32,14 +34,16 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
             let onlyRewards = data.filter { $0.isReward }
             let filteredByPeriod = onlyRewards
                 .filter { itemData in
-                    itemData.timestamp >= period.timestampInterval.0 &&
-                        itemData.timestamp <= period.timestampInterval.1
+                    let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+                    return itemData.timestamp >= timestampInterval.0 &&
+                        itemData.timestamp <= timestampInterval.1
                 }
 
             let groupedByPeriod = filteredByPeriod
                 .reduce(resultArray) { array, value in
-                    let distance = period.timestampInterval.1 - period.timestampInterval.0
-                    let index = Int(Double(value.timestamp - period.timestampInterval.0) / Double(distance) * Double(period.chartBarsCount))
+                    let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+                    let distance = timestampInterval.1 - timestampInterval.0
+                    let index = Int(Double(value.timestamp - timestampInterval.0) / Double(distance) * Double(period.chartBarsCount))
                     guard
                         let amountValue = BigUInt(value.amount),
                         let decimal = Decimal.fromSubstrateAmount(
@@ -61,8 +65,9 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
             ).value(for: locale)
 
             let dateFormatter = self.weekDateFormatter(for: locale)
-            let startDate = Date(timeIntervalSince1970: TimeInterval(period.timestampInterval.0))
-            let endDate = Date(timeIntervalSince1970: TimeInterval(period.timestampInterval.1))
+            let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
+            let startDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.0))
+            let endDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.1))
 
             let periodText = dateFormatter.string(from: startDate, to: endDate)
             let summaryViewModel = AnalyticsSummaryRewardViewModel(
@@ -88,7 +93,8 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 chartData: chartData,
                 summaryViewModel: summaryViewModel,
                 receivedViewModel: receivedViewModel,
-                payableViewModel: payableViewModel
+                payableViewModel: payableViewModel,
+                periodTitle: periodText
             )
         }
     }

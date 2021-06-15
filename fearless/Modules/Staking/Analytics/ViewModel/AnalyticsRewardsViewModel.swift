@@ -3,4 +3,5 @@ struct AnalyticsRewardsViewModel {
     let summaryViewModel: AnalyticsSummaryRewardViewModel
     let receivedViewModel: AnalyticsSummaryRewardViewModel
     let payableViewModel: AnalyticsSummaryRewardViewModel
+    let periodTitle: String
 }

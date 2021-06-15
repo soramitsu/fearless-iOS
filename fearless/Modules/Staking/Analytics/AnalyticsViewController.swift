@@ -30,6 +30,7 @@ final class AnalyticsViewController: UIViewController, ViewHolder {
 
         rootView.rewardsView.periodSelectorView.periodView.configure(periods: AnalyticsPeriod.allCases)
         rootView.rewardsView.periodSelectorView.periodView.delegate = self
+        rootView.rewardsView.periodSelectorView.delegate = self
 
         rootView.rewardsView.payoutButton.imageWithTitleView?.title = "Payout rewards"
     }
@@ -53,5 +54,15 @@ extension AnalyticsViewController: Localizable {
 extension AnalyticsViewController: AnalyticsPeriodViewDelegate {
     func didSelect(period: AnalyticsPeriod) {
         presenter.didSelectPeriod(period)
+    }
+}
+
+extension AnalyticsViewController: AnalyticsPeriodSelectorViewDelegate {
+    func didSelectNext() {
+        presenter.didSelectNext()
+    }
+
+    func didSelectPrevious() {
+        presenter.didSelectPrevious()
     }
 }

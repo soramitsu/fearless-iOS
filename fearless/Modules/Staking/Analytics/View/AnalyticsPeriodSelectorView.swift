@@ -1,6 +1,13 @@
 import UIKit
 
+protocol AnalyticsPeriodSelectorViewDelegate: AnyObject {
+    func didSelectPrevious()
+    func didSelectNext()
+}
+
 final class AnalyticsPeriodSelectorView: UIView {
+    weak var delegate: AnalyticsPeriodSelectorViewDelegate?
+
     let previousButton: UIButton = {
         let button = UIButton()
         button.setImage(R.image.iconSmallArrow(), for: .normal)
@@ -26,6 +33,8 @@ final class AnalyticsPeriodSelectorView: UIView {
         super.init(frame: frame)
         backgroundColor = R.color.colorAlmostBlack()
         setupLayout()
+        previousButton.addTarget(self, action: #selector(handlePreviousButton), for: .touchUpInside)
+        nextButton.addTarget(self, action: #selector(handleNextButton), for: .touchUpInside)
     }
 
     @available(*, unavailable)
@@ -34,7 +43,11 @@ final class AnalyticsPeriodSelectorView: UIView {
     }
 
     private func setupLayout() {
-        let stack: UIView = .hStack([previousButton, UIView(), periodLabel, UIView(), nextButton])
+        let stack: UIView = .hStack(
+            alignment: .center,
+            distribution: .equalSpacing,
+            [previousButton, UIView(), periodLabel, UIView(), nextButton]
+        )
         addSubview(stack)
         stack.snp.makeConstraints { make in
             make.top.equalToSuperview()
@@ -49,5 +62,15 @@ final class AnalyticsPeriodSelectorView: UIView {
             make.leading.trailing.equalToSuperview()
             make.bottom.equalTo(safeAreaLayoutGuide).inset(16)
         }
+    }
+
+    @objc
+    private func handlePreviousButton() {
+        delegate?.didSelectPrevious()
+    }
+
+    @objc
+    private func handleNextButton() {
+        delegate?.didSelectNext()
     }
 }

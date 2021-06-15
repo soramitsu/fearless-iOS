@@ -7,6 +7,8 @@ protocol AnalyticsViewProtocol: ControllerBackedProtocol {
 protocol AnalyticsPresenterProtocol: AnyObject {
     func setup()
     func didSelectPeriod(_ period: AnalyticsPeriod)
+    func didSelectPrevious()
+    func didSelectNext()
 }
 
 protocol AnalyticsInteractorInputProtocol: AnyObject {

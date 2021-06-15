@@ -99,5 +99,6 @@ final class AnalyticsRewardsView: UIView {
         chartView.setChartData(viewModel.chartData)
         payableSummaryView.configure(with: viewModel.payableViewModel)
         receivedSummaryView.configure(with: viewModel.receivedViewModel)
+        periodSelectorView.periodLabel.text = viewModel.periodTitle
     }
 }

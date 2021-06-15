@@ -7,7 +7,8 @@ final class AnalyticsPresenter {
     let interactor: AnalyticsInteractorInputProtocol
     private let viewModelFactory: AnalyticsViewModelFactoryProtocol
     private var rewardsData = [SubqueryRewardItemData]()
-    private var selectedPeriod = AnalyticsPeriod.weekly
+    private var selectedPeriod = AnalyticsPeriod.default
+    private var selectedPeriodDiff = 0
     private var priceData: PriceData?
 
     init(
@@ -24,7 +25,8 @@ final class AnalyticsPresenter {
         let viewModel = viewModelFactory.createRewardsViewModel(
             from: rewardsData,
             priceData: priceData,
-            period: selectedPeriod
+            period: selectedPeriod,
+            periodDelta: selectedPeriodDiff
         )
         view?.configureRewards(viewModel: viewModel)
     }
@@ -37,6 +39,17 @@ extension AnalyticsPresenter: AnalyticsPresenterProtocol {
 
     func didSelectPeriod(_ period: AnalyticsPeriod) {
         selectedPeriod = period
+        selectedPeriodDiff = 0
+        updateView()
+    }
+
+    func didSelectPrevious() {
+        selectedPeriodDiff -= 1
+        updateView()
+    }
+
+    func didSelectNext() {
+        selectedPeriodDiff += 1
         updateView()
     }
 }

@@ -7,6 +7,8 @@ enum AnalyticsPeriod: CaseIterable {
 }
 
 extension AnalyticsPeriod {
+    static let `default` = AnalyticsPeriod.weekly
+
     func title(for _: Locale) -> String {
         switch self {
         case .weekly:
@@ -35,8 +37,21 @@ extension AnalyticsPeriod {
 }
 
 extension AnalyticsPeriod {
-    var timestampInterval: (Int64, Int64) {
-        let now = Date()
+    func timestampInterval(periodDelta: Int) -> (Int64, Int64) {
+        let tillDate: Date = {
+            let interval: TimeInterval = {
+                switch self {
+                case .weekly:
+                    return 60 * 60 * 24 * 7
+                case .monthly:
+                    return 60 * 60 * 24 * 31
+                case .yearly:
+                    return 60 * 60 * 24 * 31 * 12
+                }
+            }()
+            return Date().addingTimeInterval(interval * Double(periodDelta))
+        }()
+
         let calendar = Calendar(identifier: .iso8601)
         let dateComponent: Calendar.Component = {
             switch self {
@@ -48,7 +63,7 @@ extension AnalyticsPeriod {
                 return .year
             }
         }()
-        guard let interval = calendar.dateInterval(of: dateComponent, for: now) else { return (0, 0) }
+        guard let interval = calendar.dateInterval(of: dateComponent, for: tillDate) else { return (0, 0) }
         let startTimestamp = Int64(interval.start.timeIntervalSince1970)
         let endTimestamp = Int64(interval.end.timeIntervalSince1970)
         return (startTimestamp, endTimestamp)
