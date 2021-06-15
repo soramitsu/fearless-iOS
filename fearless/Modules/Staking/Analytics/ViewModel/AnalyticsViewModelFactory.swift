@@ -101,7 +101,7 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
 
     private func weekDateFormatter(for locale: Locale) -> DateIntervalFormatter {
         let dateFormatter = DateIntervalFormatter()
-        dateFormatter.dateTemplate = "MMM d-d"
+        dateFormatter.dateTemplate = "MMM d-d, yyyy"
         dateFormatter.locale = locale
         return dateFormatter
     }
