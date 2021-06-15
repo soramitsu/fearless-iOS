@@ -4,7 +4,6 @@ class SelectValidatorsStartWireframe: SelectValidatorsStartWireframeProtocol {
     func proceedToCustomList(
         from _: ControllerBackedProtocol?,
         validators _: [ElectedValidatorInfo],
-        recommended _: [ElectedValidatorInfo],
         maxTargets _: Int
     ) {}
 

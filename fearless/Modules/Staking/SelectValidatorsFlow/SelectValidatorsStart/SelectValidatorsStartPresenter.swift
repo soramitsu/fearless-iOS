@@ -62,7 +62,6 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
         wireframe.proceedToCustomList(
             from: view,
             validators: all,
-            recommended: recommended ?? [],
             maxTargets: maxTargets
         )
     }

@@ -25,7 +25,6 @@ protocol SelectValidatorsStartWireframeProtocol: AlertPresentable, ErrorPresenta
     func proceedToCustomList(
         from view: ControllerBackedProtocol?,
         validators: [ElectedValidatorInfo],
-        recommended: [ElectedValidatorInfo],
         maxTargets: Int
     )
 
