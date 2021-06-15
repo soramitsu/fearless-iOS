@@ -89,7 +89,16 @@ private class AnalyticsPeriodCell: UICollectionViewCell {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
+        setupLayout()
+        setupBorder()
+    }
 
+    @available(*, unavailable)
+    required init?(coder _: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+
+    private func setupLayout() {
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.trailing.equalToSuperview().inset(12)
@@ -97,8 +106,10 @@ private class AnalyticsPeriodCell: UICollectionViewCell {
         }
     }
 
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
+    private func setupBorder() {
+        contentView.layer.cornerRadius = 12
+        contentView.clipsToBounds = true
+        contentView.layer.borderWidth = 2
+        contentView.layer.borderColor = R.color.colorWhite()?.withAlphaComponent(0.16).cgColor
     }
 }
