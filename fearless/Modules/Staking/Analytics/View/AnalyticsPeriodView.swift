@@ -85,6 +85,25 @@ extension AnalyticsPeriodView: UICollectionViewDelegate {
     }
 }
 
+extension AnalyticsPeriodView: UICollectionViewDelegateFlowLayout {
+    func collectionView(
+        _ collectionView: UICollectionView,
+        layout _: UICollectionViewLayout,
+        insetForSectionAt _: Int
+    ) -> UIEdgeInsets {
+        let cellCount = periods.count
+        let cellSpacing = 8.0
+        let totalCellWidth = 67.0 * Double(cellCount)
+        let totalSpacingWidth = cellSpacing * Double(cellCount - 1)
+
+        let collectionViewWidth = collectionView.bounds.width
+        let leftInset = (collectionViewWidth - CGFloat(totalCellWidth + totalSpacingWidth)) / 2
+        let rightInset = leftInset
+
+        return UIEdgeInsets(top: 0, left: leftInset, bottom: 0, right: rightInset)
+    }
+}
+
 private class AnalyticsPeriodCell: UICollectionViewCell {
     override var isSelected: Bool {
         didSet {
