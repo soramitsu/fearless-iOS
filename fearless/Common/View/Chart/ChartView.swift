@@ -65,7 +65,7 @@ extension ChartView: ChartViewProtocol {
         set.drawIconsEnabled = false
         set.drawValuesEnabled = false
         set.colors = [
-            UIColor(red: 0.36, green: 0.31, blue: 0.41, alpha: 1.0)
+            R.color.colorAccent()!
         ]
 
         xAxisFormmater.xAxisValues = data.xAxisValues
