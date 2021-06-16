@@ -197,15 +197,15 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentFilter() {
-        #warning("Not implemented")
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-894
     }
 
     func presentSearch() {
-        #warning("Not implemented")
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-893
     }
 
     func proceed() {
-        #warning("Not implemented")
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-892
     }
 }
 

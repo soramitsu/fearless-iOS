@@ -1,0 +1,72 @@
+import XCTest
+@testable import fearless
+import Cuckoo
+import FearlessUtils
+import SoraKeystore
+import SoraFoundation
+
+class CustomValidatorListTests: XCTestCase {
+    func testSetup() {
+        // given
+        let settings = InMemorySettingsManager()
+
+        let chain = Chain.westend
+
+        let view = MockCustomValidatorListViewProtocol()
+        let wireframe = MockCustomValidatorListWireframeProtocol()
+
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let assetId = WalletAssetId(
+            rawValue: primitiveFactory.createAssetForAddressType(chain.addressType).identifier
+        )!
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let viewModelFactory = CustomValidatorListViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
+
+        let interactor = CustomValidatorListInteractor(
+            singleValueProviderFactory: SingleValueProviderFactoryStub.westendNominatorStub(),
+            assetId: assetId
+        )
+
+        let presenter = CustomValidatorListPresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: viewModelFactory,
+            localizationManager: LocalizationManager.shared,
+            electedValidators: WestendStub.recommendedValidators,
+            recommendedValidators: WestendStub.recommendedValidators,
+            maxTargets: 16
+        )
+
+        presenter.view = view
+
+        // when
+
+        let expectation = XCTestExpectation()
+        let filterExpectation = XCTestExpectation()
+
+        stub(view) { stub in
+            when(stub).setFilterAppliedState(to: any()).then { _ in
+                filterExpectation.fulfill()
+            }
+
+            when(stub).reload(any(), at: any()).then { (viewModel, _) in
+                XCTAssertEqual(WestendStub.recommendedValidators.count, viewModel.cellViewModels.count)
+                expectation.fulfill()
+            }
+        }
+
+        presenter.setup()
+
+        // then
+
+        wait(for: [expectation, filterExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+}

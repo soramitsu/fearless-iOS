@@ -35,13 +35,13 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         contentView.addSubview(titleLabel)
         titleLabel.snp.makeConstraints { make in
             make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview()
+            make.centerY.equalToSuperview()
         }
 
         contentView.addSubview(detailsLabel)
         detailsLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.top.equalToSuperview()
+            make.centerY.equalToSuperview()
             make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
         }
     }
