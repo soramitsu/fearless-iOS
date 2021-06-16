@@ -1,5 +1,6 @@
 import Foundation
 import SoraKeystore
+import SoraFoundation
 
 struct ReferralCrowdloanViewFactory {
     static func createKaruraView(
@@ -50,7 +51,10 @@ struct ReferralCrowdloanViewFactory {
             if let service = existingService as? BifrostBonusService {
                 return service
             } else {
-                return BifrostBonusService(paraId: paraId)
+                return BifrostBonusService(
+                    paraId: paraId,
+                    operationManager: OperationManagerFacade.sharedManager
+                )
             }
         }()
 
@@ -84,6 +88,8 @@ struct ReferralCrowdloanViewFactory {
             asset: asset
         )
 
+        let localizationManager = LocalizationManager.shared
+
         let presenter = ReferralCrowdloanPresenter(
             wireframe: wireframe,
             bonusService: bonusService,
@@ -91,10 +97,11 @@ struct ReferralCrowdloanViewFactory {
             inputAmount: inputAmount,
             crowdloanDelegate: delegate,
             crowdloanViewModelFactory: viewModelFactory,
-            defaultReferralCode: defaultReferralCode
+            defaultReferralCode: defaultReferralCode,
+            localizationManager: localizationManager
         )
 
-        let view = ReferralCrowdloanViewController(presenter: presenter)
+        let view = ReferralCrowdloanViewController(presenter: presenter, localizationManager: localizationManager)
 
         presenter.view = view
 
