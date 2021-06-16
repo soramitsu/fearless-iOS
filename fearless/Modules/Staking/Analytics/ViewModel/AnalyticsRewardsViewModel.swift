@@ -6,6 +6,5 @@ struct AnalyticsRewardsViewModel {
     let periods: [AnalyticsPeriod]
     let selectedPeriod: AnalyticsPeriod
     let periodTitle: String
-    let canSelectPreviousPeriod: Bool
     let canSelectNextPeriod: Bool
 }

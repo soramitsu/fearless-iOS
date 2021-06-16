@@ -101,7 +101,6 @@ final class AnalyticsRewardsView: UIView {
         receivedSummaryView.configure(with: viewModel.receivedViewModel)
         periodSelectorView.periodLabel.text = viewModel.periodTitle
         periodSelectorView.periodView.configure(periods: viewModel.periods, selected: viewModel.selectedPeriod)
-        periodSelectorView.previousButton.isEnabled = viewModel.canSelectPreviousPeriod
         periodSelectorView.nextButton.isEnabled = viewModel.canSelectNextPeriod
     }
 }

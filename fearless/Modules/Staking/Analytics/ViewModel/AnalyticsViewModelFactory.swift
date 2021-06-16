@@ -88,7 +88,6 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 indicatorColor: R.color.colorAccent()
             )
 
-            let canSelectPreviousPeriod = data.contains(where: { $0.timestamp < timestampInterval.0 })
             let canSelectNextPeriod = data.contains(where: { $0.timestamp > timestampInterval.1 })
 
             return AnalyticsRewardsViewModel(
@@ -99,7 +98,6 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 periods: AnalyticsPeriod.allCases,
                 selectedPeriod: period,
                 periodTitle: periodText,
-                canSelectPreviousPeriod: canSelectPreviousPeriod,
                 canSelectNextPeriod: canSelectNextPeriod
             )
         }
