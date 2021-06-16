@@ -135,9 +135,7 @@ final class StakingMainViewController: UIViewController, AdaptiveDesignable {
 
         stackView.addArrangedSubview(analyticsContainerView)
 
-        analyticsView.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(handleAnalyticsWidgetTap))
-        )
+        analyticsView.addTarget(self, action: #selector(handleAnalyticsWidgetTap), for: .touchUpInside)
     }
 
     @objc

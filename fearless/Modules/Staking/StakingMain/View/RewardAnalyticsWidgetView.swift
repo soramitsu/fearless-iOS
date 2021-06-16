@@ -2,9 +2,7 @@ import UIKit
 import SoraUI
 import SoraFoundation
 
-final class RewardAnalyticsWidgetView: UIView {
-    private let backgroundView: UIView = TriangularedBlurView()
-
+final class RewardAnalyticsWidgetView: BackgroundedContentControl {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.font = .p1Paragraph
@@ -85,6 +83,19 @@ final class RewardAnalyticsWidgetView: UIView {
         fatalError("init(coder:) has not been implemented")
     }
 
+    override func layoutSubviews() {
+        super.layoutSubviews()
+
+        contentView?.frame = bounds
+    }
+
+    override var intrinsicContentSize: CGSize {
+        CGSize(
+            width: UIView.noIntrinsicMetric,
+            height: 249
+        )
+    }
+
     private func applyLocalization() {
         titleLabel.text = "Reward analytics"
         payableTitleLabel.text = "Payable"
@@ -93,8 +104,15 @@ final class RewardAnalyticsWidgetView: UIView {
     }
 
     private func setupLayout() {
-        addSubview(backgroundView)
-        backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        let shapeView = ShapeView()
+        shapeView.isUserInteractionEnabled = false
+        shapeView.fillColor = .clear
+        shapeView.highlightedFillColor = R.color.colorAccent()!
+
+        backgroundView = shapeView
+
+        let containerView = UIView()
+        containerView.isUserInteractionEnabled = false
 
         let separatorView = UIView.createSeparator(color: R.color.colorWhite()?.withAlphaComponent(0.24))
 
@@ -127,7 +145,12 @@ final class RewardAnalyticsWidgetView: UIView {
             ]
         )
 
-        addSubview(stackView)
+        let blurView = TriangularedBlurView()
+        blurView.isUserInteractionEnabled = false
+        containerView.addSubview(blurView)
+        blurView.snp.makeConstraints { $0.edges.equalToSuperview() }
+
+        containerView.addSubview(stackView)
         stackView.snp.makeConstraints { $0.edges.equalToSuperview().inset(UIConstants.horizontalInset) }
 
         arrowView.snp.makeConstraints { $0.size.equalTo(24) }
@@ -135,6 +158,8 @@ final class RewardAnalyticsWidgetView: UIView {
         chartView.snp.makeConstraints { $0.height.equalTo(100) }
         payableIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
         receivedIndicatorView.snp.makeConstraints { $0.size.equalTo(8) }
+
+        contentView = containerView
     }
 
     func bind(viewModel: LocalizableResource<RewardAnalyticsWidgetViewModel>) {
