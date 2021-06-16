@@ -10,9 +10,11 @@ final class ReferralCrowdloanViewController: UIViewController, ViewHolder {
     private var referralViewModel: ReferralCrowdloanViewModel?
     private var codeInputViewModel: InputViewModelProtocol?
 
-    init(presenter: ReferralCrowdloanPresenterProtocol) {
+    init(presenter: ReferralCrowdloanPresenterProtocol, localizationManager: LocalizationManagerProtocol) {
         self.presenter = presenter
         super.init(nibName: nil, bundle: nil)
+
+        self.localizationManager = localizationManager
     }
 
     @available(*, unavailable)
