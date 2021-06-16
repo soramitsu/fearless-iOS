@@ -2,6 +2,7 @@ import XCTest
 @testable import fearless
 import SoraKeystore
 import Cuckoo
+import SoraFoundation
 
 class ReferralCrowdloanTests: XCTestCase {
 
@@ -56,7 +57,8 @@ class ReferralCrowdloanTests: XCTestCase {
             inputAmount: 10,
             crowdloanDelegate: delegate,
             crowdloanViewModelFactory: crowdloanViewModelFactory,
-            defaultReferralCode: KaruraBonusService.defaultReferralCode
+            defaultReferralCode: KaruraBonusService.defaultReferralCode,
+            localizationManager: LocalizationManager.shared
         )
 
         presenter.view = view

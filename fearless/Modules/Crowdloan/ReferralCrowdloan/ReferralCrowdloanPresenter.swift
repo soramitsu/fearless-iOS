@@ -23,7 +23,8 @@ final class ReferralCrowdloanPresenter {
         inputAmount: Decimal,
         crowdloanDelegate: CustomCrowdloanDelegate,
         crowdloanViewModelFactory: CrowdloanContributionViewModelFactoryProtocol,
-        defaultReferralCode: String
+        defaultReferralCode: String,
+        localizationManager: LocalizationManagerProtocol
     ) {
         self.wireframe = wireframe
         self.bonusService = bonusService
@@ -32,6 +33,7 @@ final class ReferralCrowdloanPresenter {
         self.crowdloanDelegate = crowdloanDelegate
         self.crowdloanViewModelFactory = crowdloanViewModelFactory
         self.defaultReferralCode = defaultReferralCode
+        self.localizationManager = localizationManager
         currentReferralCode = bonusService.referralCode ?? ""
         isTermsAgreed = !currentReferralCode.isEmpty
     }
