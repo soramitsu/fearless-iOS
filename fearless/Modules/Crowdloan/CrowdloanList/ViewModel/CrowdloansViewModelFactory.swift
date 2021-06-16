@@ -133,10 +133,16 @@ final class CrowdloansViewModelFactory {
             )
 
             if remainedTime.daysFromSeconds > 0 {
-                return R.string.localizable.stakingPayoutsDaysLeft(format: remainedTime.daysFromSeconds)
+                return R.string.localizable.stakingPayoutsDaysLeft(
+                    format: remainedTime.daysFromSeconds,
+                    preferredLanguages: locale.rLanguages
+                )
             } else {
                 let time = try? formatters.time.string(from: remainedTime)
-                return R.string.localizable.commonTimeLeftFormat(time ?? "")
+                return R.string.localizable.commonTimeLeftFormat(
+                    time ?? "",
+                    preferredLanguages: locale.rLanguages
+                )
             }
         }()
 
@@ -250,7 +256,9 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             }
 
             let countString = quantityFormatter.string(from: NSNumber(value: active.count)) ?? ""
-            let title = R.string.localizable.crowdloanActiveSectionFormat(countString)
+            let title = R.string.localizable.crowdloanActiveSectionFormat(
+                countString, preferredLanguages: locale.rLanguages
+            )
 
             return CrowdloansSectionViewModel(title: title, crowdloans: active)
         }()
@@ -261,7 +269,10 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             }
 
             let countString = quantityFormatter.string(from: NSNumber(value: completed.count)) ?? ""
-            let title = R.string.localizable.crowdloanCompletedSectionFormat(countString)
+            let title = R.string.localizable.crowdloanCompletedSectionFormat(
+                countString,
+                preferredLanguages: locale.rLanguages
+            )
 
             return CrowdloansSectionViewModel(title: title, crowdloans: completed)
         }()
