@@ -6,16 +6,22 @@ struct LeasingTimeInterval {
 }
 
 protocol ChainDateCalculatorProtocol {
-    func differenceBetweenLeasingPeriods(
+    func differenceBetweenLeasingSlots(
         firstPeriod: LeasingPeriod,
         lastPeriod: LeasingPeriod,
+        metadata: CrowdloanMetadata,
+        calendar: Calendar
+    ) -> LeasingTimeInterval?
+
+    func intervalTillPeriod(
+        _ period: LeasingPeriod,
         metadata: CrowdloanMetadata,
         calendar: Calendar
     ) -> LeasingTimeInterval?
 }
 
 final class ChainDateCalculator: ChainDateCalculatorProtocol {
-    func differenceBetweenLeasingPeriods(
+    func differenceBetweenLeasingSlots(
         firstPeriod: LeasingPeriod,
         lastPeriod: LeasingPeriod,
         metadata: CrowdloanMetadata,
@@ -51,5 +57,24 @@ final class ChainDateCalculator: ChainDateCalculatorProtocol {
         }
 
         return LeasingTimeInterval(duration: max(leasingTimeInterval, 0), tillDate: lastPeriodDate)
+    }
+
+    func intervalTillPeriod(
+        _ period: LeasingPeriod,
+        metadata: CrowdloanMetadata,
+        calendar: Calendar
+    ) -> LeasingTimeInterval? {
+        let blockNumber = period * metadata.leasingPeriod
+        let timeInterval = metadata.blockNumber.secondsTo(block: blockNumber, blockDuration: metadata.blockDuration)
+
+        guard let tillDate = calendar.date(
+            byAdding: .second,
+            value: Int(timeInterval),
+            to: Date()
+        ) else {
+            return nil
+        }
+
+        return LeasingTimeInterval(duration: max(timeInterval, 0), tillDate: tillDate)
     }
 }
