@@ -22,15 +22,6 @@ extension WalletAssetId {
         }
     }
 
-    var subqueryUrl: URL? {
-        switch self {
-        case .dot:
-            return URL(string: "http://localhost:3000/") // TODO:
-        default:
-            return nil
-        }
-    }
-
     var hasPrice: Bool {
         switch self {
         case .dot, .kusama:

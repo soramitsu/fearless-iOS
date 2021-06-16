@@ -1320,6 +1320,7 @@
 		F4A198FB2632A1C000CD6E61 /* StakingBalanceViewModelFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A198FA2632A1C000CD6E61 /* StakingBalanceViewModelFactory.swift */; };
 		F4A6C9E4265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A6C9E3265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift */; };
 		F4A8A329260DD0300059F2F1 /* AccountInfoTableViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */; };
+		F4AB8C892679CC03005B12C8 /* SubqueryDefinitions.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4AB8C882679CC03005B12C8 /* SubqueryDefinitions.swift */; };
 		F4B06BFA264509E8003214D5 /* SetControllerCall.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B06BF9264509E8003214D5 /* SetControllerCall.swift */; };
 		F4B592B62671FD680063116C /* SubqueryRewardData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B592B52671FD680063116C /* SubqueryRewardData.swift */; };
 		F4B592C12671FE900063116C /* SubqueryRewardsSource.swift in Sources */ = {isa = PBXBuildFile; fileRef = F4B592C02671FE900063116C /* SubqueryRewardsSource.swift */; };
@@ -2738,6 +2739,7 @@
 		F4A198FA2632A1C000CD6E61 /* StakingBalanceViewModelFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StakingBalanceViewModelFactory.swift; sourceTree = "<group>"; };
 		F4A6C9E3265283EB00FABF98 /* StakingStateViewModelFactory+Alerts.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StakingStateViewModelFactory+Alerts.swift"; sourceTree = "<group>"; };
 		F4A8A328260DD0300059F2F1 /* AccountInfoTableViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AccountInfoTableViewCell.swift; sourceTree = "<group>"; };
+		F4AB8C882679CC03005B12C8 /* SubqueryDefinitions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryDefinitions.swift; sourceTree = "<group>"; };
 		F4B06BF9264509E8003214D5 /* SetControllerCall.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetControllerCall.swift; sourceTree = "<group>"; };
 		F4B592B52671FD680063116C /* SubqueryRewardData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryRewardData.swift; sourceTree = "<group>"; };
 		F4B592C02671FE900063116C /* SubqueryRewardsSource.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubqueryRewardsSource.swift; sourceTree = "<group>"; };
@@ -6854,6 +6856,7 @@
 			children = (
 				F4B592B52671FD680063116C /* SubqueryRewardData.swift */,
 				F4B592C52671FFC70063116C /* SubqueryHistoryElementData.swift */,
+				F4AB8C882679CC03005B12C8 /* SubqueryDefinitions.swift */,
 			);
 			path = Subquery;
 			sourceTree = "<group>";
@@ -7582,6 +7585,7 @@
 				84C7DA5425EE2DF000F8C318 /* StakingErrorPresentable.swift in Sources */,
 				8490141724A92F6D008F705E /* OnboardingMainWireframe.swift in Sources */,
 				8425EB1B25EADD8600C307C9 /* StakingConstants.swift in Sources */,
+				F4AB8C892679CC03005B12C8 /* SubqueryDefinitions.swift in Sources */,
 				84690783264132AB0030E693 /* WithdrawUnbondedCall.swift in Sources */,
 				8490146D24A9487A008F705E /* ErrorPresentable+AlertText.swift in Sources */,
 				8472979A260B3095009B86D0 /* InitiatedBondingRecommendationsWireframe.swift in Sources */,

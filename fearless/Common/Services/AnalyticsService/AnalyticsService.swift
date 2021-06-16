@@ -25,8 +25,6 @@ final class AnalyticsService: Longrunable {
     let subqueryRewardsSource: SubqueryRewardsSource
     let operationManager: OperationManagerProtocol
     let address: AccountAddress
-    let baseUrl: URL
-    let pageSize: Int
 
     private var result: ResultType = []
     private var context: Context?
@@ -40,15 +38,11 @@ final class AnalyticsService: Longrunable {
     init(
         baseUrl: URL,
         address: AccountAddress,
-        operationManager: OperationManagerProtocol,
-        pageSize: Int = 100
+        operationManager: OperationManagerProtocol
     ) {
-        let address = "12dfEn1GycUmHtfEDW3BuQYzsMyUR1PqUPH2pyEikYeUX59o"
-        self.baseUrl = baseUrl
         self.address = address
         subqueryRewardsSource = SubqueryRewardsSource(address: address, url: baseUrl)
         self.operationManager = operationManager
-        self.pageSize = pageSize
     }
 
     func start(with completionClosure: @escaping (Result<ResultType, Error>) -> Void) {
