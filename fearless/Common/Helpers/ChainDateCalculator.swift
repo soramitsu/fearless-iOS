@@ -7,14 +7,14 @@ struct LeasingTimeInterval {
 
 protocol ChainDateCalculatorProtocol {
     func differenceBetweenLeasingSlots(
-        firstSlot: LeasingPeriod,
-        lastSlot: LeasingPeriod,
+        firstPeriod: LeasingPeriod,
+        lastPeriod: LeasingPeriod,
         metadata: CrowdloanMetadata,
         calendar: Calendar
     ) -> LeasingTimeInterval?
 
-    func intervalTillSlot(
-        _ slot: LeasingPeriod,
+    func intervalTillPeriod(
+        _ period: LeasingPeriod,
         metadata: CrowdloanMetadata,
         calendar: Calendar
     ) -> LeasingTimeInterval?
@@ -22,13 +22,13 @@ protocol ChainDateCalculatorProtocol {
 
 final class ChainDateCalculator: ChainDateCalculatorProtocol {
     func differenceBetweenLeasingSlots(
-        firstSlot: LeasingPeriod,
-        lastSlot: LeasingPeriod,
+        firstPeriod: LeasingPeriod,
+        lastPeriod: LeasingPeriod,
         metadata: CrowdloanMetadata,
         calendar: Calendar
     ) -> LeasingTimeInterval? {
-        let firstBlockNumber = firstSlot * metadata.leasingPeriod
-        let lastBlockNumber = (lastSlot + 1) * metadata.leasingPeriod
+        let firstBlockNumber = firstPeriod * metadata.leasingPeriod
+        let lastBlockNumber = (lastPeriod + 1) * metadata.leasingPeriod
 
         let leasingTimeInterval = firstBlockNumber.secondsTo(
             block: lastBlockNumber,
@@ -59,12 +59,12 @@ final class ChainDateCalculator: ChainDateCalculatorProtocol {
         return LeasingTimeInterval(duration: max(leasingTimeInterval, 0), tillDate: lastPeriodDate)
     }
 
-    func intervalTillSlot(
-        _ slot: LeasingPeriod,
+    func intervalTillPeriod(
+        _ period: LeasingPeriod,
         metadata: CrowdloanMetadata,
         calendar: Calendar
     ) -> LeasingTimeInterval? {
-        let blockNumber = slot * metadata.leasingPeriod
+        let blockNumber = period * metadata.leasingPeriod
         let timeInterval = metadata.blockNumber.secondsTo(block: blockNumber, blockDuration: metadata.blockDuration)
 
         guard let tillDate = calendar.date(

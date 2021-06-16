@@ -75,7 +75,7 @@ final class CrowdloanContributionViewModelFactory {
         var calendar = Calendar.current
         calendar.locale = locale
 
-        let maybeLeasingTimeInterval = chainDateCalculator.intervalTillSlot(
+        let maybeLeasingTimeInterval = chainDateCalculator.intervalTillPeriod(
             crowdloan.fundInfo.lastPeriod + 1,
             metadata: metadata,
             calendar: calendar
