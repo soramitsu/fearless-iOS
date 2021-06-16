@@ -62,7 +62,7 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
                 priceData: priceData
             ).value(for: locale)
 
-            let dateFormatter = self.weekDateFormatter(for: locale)
+            let dateFormatter = self.periodDateFormatter(period: period, for: locale)
             let timestampInterval = period.timestampInterval(periodDelta: periodDelta)
             let startDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.0))
             let endDate = Date(timeIntervalSince1970: TimeInterval(timestampInterval.1))
@@ -103,9 +103,20 @@ final class AnalyticsViewModelFactory: AnalyticsViewModelFactoryProtocol {
         }
     }
 
-    private func weekDateFormatter(for locale: Locale) -> DateIntervalFormatter {
+    private func periodDateFormatter(period: AnalyticsPeriod, for locale: Locale) -> DateIntervalFormatter {
+        let dateTemplate: String = {
+            switch period {
+            case .weekly:
+                return "MMM d-d, yyyy"
+            case .monthly:
+                return "MMM, yyyy"
+            case .yearly:
+                return "yyyy"
+            }
+        }()
+
         let dateFormatter = DateIntervalFormatter()
-        dateFormatter.dateTemplate = "MMM d-d, yyyy"
+        dateFormatter.dateTemplate = dateTemplate
         dateFormatter.locale = locale
         return dateFormatter
     }

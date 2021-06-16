@@ -29,7 +29,7 @@ extension AnalyticsPeriod {
         case .weekly:
             return ["M", "T", "W", "T", "F", "S", "S"]
         case .monthly:
-            return (1 ... 31).map { String($0) }
+            return ["1", "7", "15", "22", "31"]
         case .yearly:
             return (1 ... 12).map { String($0) }
         }
