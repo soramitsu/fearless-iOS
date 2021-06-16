@@ -44,6 +44,7 @@ final class ChartView: BarChartView {
 
         rightAxis.enabled = false
         drawBordersEnabled = false
+        minOffset = 0
         legend.enabled = false
     }
 
