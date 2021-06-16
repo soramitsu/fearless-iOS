@@ -20,7 +20,7 @@ struct AnalyticsViewFactory {
         }
 
         let analyticsService = AnalyticsService(
-            baseUrl: subqueryUrl,
+            url: subqueryUrl,
             address: accountAddress,
             operationManager: operationManager
         )

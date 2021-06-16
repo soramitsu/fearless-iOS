@@ -1,26 +1,29 @@
 import XCTest
 import RobinHood
+import SoraKeystore
 @testable import fearless
 
 class AnalyticsServiceTests: XCTestCase {
 
     func testRewards() {
-        let address = "5CDayXd3cDCWpBkSXVsVfhE5bWKyTZdD3D1XUinR1ezS1sGn"
-        let url = WalletAssetId.westend.subscanUrl!
-            .appendingPathComponent(SubscanApi.rewardsAndSlashes)
-        let subscanOperationFactory = SubscanOperationFactory()
+        let address = "FFnTujhiUdTbhvwcBwQ2V3UtFMdpzg4r8SYT6J7qxhwW1s3"
+        let networkType = Chain.kusama.addressType
+        let settings = SettingsManager.shared
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+        guard
+            let assetId = WalletAssetId(rawValue: asset.identifier),
+            let subqueryUrl = assetId.subqueryUrl
+        else { return }
+
         let operationManager = OperationManagerFacade.sharedManager
         let service = AnalyticsService(
-            url: url,
+            url: subqueryUrl,
             address: address,
-            subscanOperationFactory: subscanOperationFactory,
             operationManager: operationManager
         )
 
         let operation = service.longrunOperation()
-
-        operationManager.enqueue(operations: [operation], in: .transient)
-
         let exp = XCTestExpectation()
 
         operation.longrun.start { result in
@@ -34,6 +37,6 @@ class AnalyticsServiceTests: XCTestCase {
             }
         }
 
-        wait(for: [exp], timeout: 20)
+        wait(for: [exp], timeout: 5)
     }
 }

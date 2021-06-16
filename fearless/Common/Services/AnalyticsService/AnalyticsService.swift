@@ -36,12 +36,12 @@ final class AnalyticsService: Longrunable {
     private var completionClosure: ((Result<ResultType, Error>) -> Void)?
 
     init(
-        baseUrl: URL,
+        url: URL,
         address: AccountAddress,
         operationManager: OperationManagerProtocol
     ) {
         self.address = address
-        subqueryRewardsSource = SubqueryRewardsSource(address: address, url: baseUrl)
+        subqueryRewardsSource = SubqueryRewardsSource(address: address, url: url)
         self.operationManager = operationManager
     }
 

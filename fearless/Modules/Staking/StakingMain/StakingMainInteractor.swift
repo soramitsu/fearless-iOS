@@ -172,7 +172,7 @@ final class StakingMainInteractor: RuntimeConstantFetching {
 
         analyticsService?.cancel()
         analyticsService = AnalyticsService(
-            baseUrl: subqueryUrl,
+            url: subqueryUrl,
             address: address,
             operationManager: operationManager
         )
