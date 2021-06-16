@@ -50,7 +50,10 @@ struct ReferralCrowdloanViewFactory {
             if let service = existingService as? BifrostBonusService {
                 return service
             } else {
-                return BifrostBonusService(paraId: paraId)
+                return BifrostBonusService(
+                    paraId: paraId,
+                    operationManager: OperationManagerFacade.sharedManager
+                )
             }
         }()
 
