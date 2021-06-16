@@ -473,3 +473,5 @@ Derivation path: %@";
 "staking.custom.proceed.button.disabled.title" = "Select validators (max %d)";
 "staking.custom.proceed.button.enabled.title" = "Show selected: %d (max %d)";
 "staking.filter.title.own.stake" = "Validator's own stake";
+"staking.custom.blocked.warning" = "This validator is blocked and cannot be selected at the moment. Please, try again in the next era.";
+"staking.custom.deselect.warning" = "You are about to deselect all the validators you selected earlier.";

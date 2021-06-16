@@ -22,7 +22,7 @@ final class RecommendedValidatorListViewModelFactory {
         LocalizableResource { locale in
             guard let stakeReturn = stakeReturn else { return "" }
 
-            let percentageFormatter = NumberFormatter.percentBase.localizableResource().value(for: locale)
+            let percentageFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
 
             return percentageFormatter.string(from: stakeReturn as NSNumber) ?? ""
         }

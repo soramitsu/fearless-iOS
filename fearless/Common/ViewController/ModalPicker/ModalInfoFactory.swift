@@ -27,7 +27,7 @@ struct ModalInfoFactory {
         viewController.cellNib = UINib(resource: R.nib.detailsDisplayTableViewCell)
         viewController.modalPresentationStyle = .custom
 
-        let formatter = NumberFormatter.percentBase.localizableResource()
+        let formatter = NumberFormatter.percent.localizableResource()
 
         let maxViewModel: LocalizableResource<TitleWithSubtitleViewModel> = LocalizableResource { locale in
             let title = R.string.localizable.stakingRewardInfoMax(preferredLanguages: locale.rLanguages)

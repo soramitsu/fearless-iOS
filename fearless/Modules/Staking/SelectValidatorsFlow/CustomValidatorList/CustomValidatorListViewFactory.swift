@@ -1,5 +1,6 @@
 import Foundation
 import SoraFoundation
+import SoraKeystore
 
 struct CustomValidatorListViewFactory {
     static func createView(
@@ -7,9 +8,34 @@ struct CustomValidatorListViewFactory {
         recommendedValidators: [ElectedValidatorInfo],
         maxTargets: Int
     ) -> CustomValidatorListViewProtocol? {
-        let interactor = CustomValidatorListInteractor()
+        let settings = SettingsManager.shared
+        let chain = settings.selectedConnection.type.chain
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+
+        let asset = primitiveFactory.createAssetForAddressType(
+            chain.addressType
+        )
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            return nil
+        }
+
+        let interactor = CustomValidatorListInteractor(
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
+            assetId: assetId
+        )
+
         let wireframe = CustomValidatorListWireframe()
-        let viewModelFactory = CustomValidatorListViewModelFactory()
+
+        let balanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: chain.addressType,
+            limit: StakingConstants.maxAmount
+        )
+
+        let viewModelFactory = CustomValidatorListViewModelFactory(
+            balanceViewModelFactory: balanceViewModelFactory
+        )
 
         let presenter = CustomValidatorListPresenter(
             interactor: interactor,

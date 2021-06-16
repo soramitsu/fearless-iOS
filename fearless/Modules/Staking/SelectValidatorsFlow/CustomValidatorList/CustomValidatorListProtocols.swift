@@ -7,13 +7,17 @@ protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable 
 
 protocol CustomValidatorListPresenterProtocol: AnyObject {
     func setup()
-    func presentFilter()
-    func presentSearch()
-    func changeValidatorSelection(at index: Int)
-    func didSelectValidator(at index: Int)
+
+    func fillWithRecommended()
     func clearFilter()
     func deselectAll()
-    func fillWithRecommended()
+
+    func changeValidatorSelection(at index: Int)
+
+    func didSelectValidator(at index: Int)
+    func presentFilter()
+    func presentSearch()
+    func proceed()
 }
 
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
@@ -22,15 +26,20 @@ protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
         selectedValidators: Set<ElectedValidatorInfo>,
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
+        priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel
 }
 
-protocol CustomValidatorListInteractorInputProtocol: AnyObject {}
+protocol CustomValidatorListInteractorInputProtocol: AnyObject {
+    func setup()
+}
 
-protocol CustomValidatorListInteractorOutputProtocol: AnyObject {}
+protocol CustomValidatorListInteractorOutputProtocol: AnyObject {
+    func didReceivePriceData(result: Result<PriceData?, Error>)
+}
 
-protocol CustomValidatorListWireframeProtocol: AnyObject {
+protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable, StakingErrorPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?

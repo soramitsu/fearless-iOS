@@ -8,14 +8,16 @@ final class CustomValidatorListPresenter {
     let interactor: CustomValidatorListInteractorInputProtocol
     let viewModelFactory: CustomValidatorListViewModelFactory
     let maxTargets: Int
+    let logger: LoggerProtocol?
 
-    private let electedValidators: [ElectedValidatorInfo]
+    private let electedValidatorList: [ElectedValidatorInfo]
     private let recommendedValidatorList: [ElectedValidatorInfo]
 
-    private var filteredValidators: [ElectedValidatorInfo] = []
-    private var selectedValidatorList: Set<ElectedValidatorInfo> = []
+    private var filteredValidatorList: [ElectedValidatorInfo] = []
+    private var selectedValidatorSet: Set<ElectedValidatorInfo> = []
     private var viewModel: CustomValidatorListViewModel?
     private var filter = CustomValidatorListFilter.recommendedFilter()
+    private var priceData: PriceData?
 
     init(
         interactor: CustomValidatorListInteractorInputProtocol,
@@ -24,32 +26,37 @@ final class CustomValidatorListPresenter {
         localizationManager: LocalizationManagerProtocol,
         electedValidators: [ElectedValidatorInfo],
         recommendedValidators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        logger: LoggerProtocol? = nil
     ) {
         self.interactor = interactor
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
-        self.electedValidators = electedValidators
+        electedValidatorList = electedValidators
         recommendedValidatorList = recommendedValidators
         self.maxTargets = maxTargets
+        self.logger = logger
         self.localizationManager = localizationManager
     }
 
+    // MARK: - Private functions
+
     private func composeFilteredValidatorList() -> [ElectedValidatorInfo] {
         let composer = CustomValidatorListComposer(filter: filter)
-        return composer.compose(from: electedValidators)
+        return composer.compose(from: electedValidatorList)
     }
 
     private func updateFilteredValidatorsList() {
-        filteredValidators = composeFilteredValidatorList()
+        filteredValidatorList = composeFilteredValidatorList()
     }
 
     private func provideValidatorListViewModel() {
         let viewModel = viewModelFactory.createViewModel(
-            from: filteredValidators,
-            selectedValidators: selectedValidatorList,
-            totalValidatorsCount: electedValidators.count,
+            from: filteredValidatorList,
+            selectedValidators: selectedValidatorSet,
+            totalValidatorsCount: electedValidatorList.count,
             filter: filter,
+            priceData: priceData,
             locale: selectedLocale
         )
 
@@ -70,45 +77,10 @@ final class CustomValidatorListPresenter {
         provideValidatorListViewModel()
         provideFilterButtonViewModel()
     }
-}
 
-extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
-    func setup() {
-        provideViewModels()
-    }
-
-    func changeValidatorSelection(at index: Int) {
+    private func performDeselect() {
         guard var viewModel = viewModel else { return }
 
-        let changedValidator = filteredValidators[index]
-
-        if selectedValidatorList.contains(changedValidator) {
-            selectedValidatorList.remove(changedValidator)
-        } else {
-            selectedValidatorList.insert(changedValidator)
-        }
-
-        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
-        self.viewModel = viewModel
-
-        view?.reload(viewModel, at: [index])
-    }
-
-    func presentFilter() {
-        #warning("Not implemented")
-    }
-
-    func presentSearch() {
-        #warning("Not implemented")
-    }
-
-    func clearFilter() {
-        filter = CustomValidatorListFilter.defaultFilter()
-        provideViewModels()
-    }
-
-    func deselectAll() {
-        guard var viewModel = viewModel else { return }
         var indexes: [Int] = []
 
         viewModel.cellViewModels =
@@ -123,21 +95,33 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
                 return newItem
             }
 
-        selectedValidatorList = []
+        selectedValidatorSet = []
 
         self.viewModel = viewModel
 
         view?.reload(viewModel, at: indexes)
     }
+}
+
+// MARK: - CustomValidatorListPresenterProtocol
+
+extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
+    func setup() {
+        provideViewModels()
+        interactor.setup()
+    }
+
+    // MARK: - Header actions
 
     func fillWithRecommended() {
         var index = 0
+
         while index < recommendedValidatorList.count,
-              selectedValidatorList.count < maxTargets {
+              selectedValidatorSet.count < maxTargets {
             let recommendedValidator = recommendedValidatorList[index]
 
-            if !selectedValidatorList.contains(recommendedValidator) {
-                if let index = filteredValidators.firstIndex(of: recommendedValidator) {
+            if !selectedValidatorSet.contains(recommendedValidator) {
+                if let index = filteredValidatorList.firstIndex(of: recommendedValidator) {
                     changeValidatorSelection(at: index)
                 }
             }
@@ -146,23 +130,97 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
         }
     }
 
+    func clearFilter() {
+        filter = CustomValidatorListFilter.defaultFilter()
+        provideViewModels()
+    }
+
+    func deselectAll() {
+        guard let view = view else { return }
+
+        wireframe.presentDeselectValidatorsWarning(
+            from: view,
+            action: performDeselect,
+            locale: selectedLocale
+        )
+    }
+
+    // MARK: - Cell actions
+
+    func changeValidatorSelection(at index: Int) {
+        guard var viewModel = viewModel else { return }
+
+        let changedValidator = filteredValidatorList[index]
+
+        guard !changedValidator.blocked else {
+            wireframe.present(
+                message: R.string.localizable
+                    .stakingCustomBlockedWarning(preferredLanguages: selectedLocale.rLanguages),
+                title: R.string.localizable
+                    .commonWarning(preferredLanguages: selectedLocale.rLanguages),
+                closeAction: R.string.localizable
+                    .commonClose(preferredLanguages: selectedLocale.rLanguages),
+                from: view
+            )
+            return
+        }
+
+        if selectedValidatorSet.contains(changedValidator) {
+            selectedValidatorSet.remove(changedValidator)
+        } else {
+            selectedValidatorSet.insert(changedValidator)
+        }
+
+        viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected
+        self.viewModel = viewModel
+
+        view?.reload(viewModel, at: [index])
+    }
+
+    // MARK: - Presenting actions
+
     func didSelectValidator(at index: Int) {
-        let validator = electedValidators[index]
-        let selectedValidator = SelectedValidatorInfo(
-            address: validator.address,
-            identity: validator.identity,
+        let selectedValidator = filteredValidatorList[index]
+
+        let validatorInfo = SelectedValidatorInfo(
+            address: selectedValidator.address,
+            identity: selectedValidator.identity,
             stakeInfo: ValidatorStakeInfo(
-                nominators: validator.nominators,
-                totalStake: validator.totalStake,
-                stakeReturn: validator.stakeReturn,
-                maxNominatorsRewarded: validator.maxNominatorsRewarded
+                nominators: selectedValidator.nominators,
+                totalStake: selectedValidator.totalStake,
+                stakeReturn: selectedValidator.stakeReturn,
+                maxNominatorsRewarded: selectedValidator.maxNominatorsRewarded
             )
         )
-        wireframe.present(selectedValidator, from: view)
+
+        wireframe.present(validatorInfo, from: view)
+    }
+
+    func presentFilter() {
+        #warning("Not implemented")
+    }
+
+    func presentSearch() {
+        #warning("Not implemented")
+    }
+
+    func proceed() {
+        #warning("Not implemented")
     }
 }
 
-extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {}
+extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {
+    func didReceivePriceData(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+            provideValidatorListViewModel()
+
+        case let .failure(error):
+            logger?.error("Price data subscription error: \(error)")
+        }
+    }
+}
 
 extension CustomValidatorListPresenter: Localizable {
     func applyLocalization() {
