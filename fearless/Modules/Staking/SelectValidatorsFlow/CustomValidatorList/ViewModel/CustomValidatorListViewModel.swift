@@ -3,7 +3,9 @@ import FearlessUtils
 struct CustomValidatorCellViewModel {
     let icon: DrawableIcon?
     let name: String?
-    let apyPercentage: String?
+    let address: String
+    let details: String?
+    let auxDetails: String?
     var isSelected: Bool = false
 }
 

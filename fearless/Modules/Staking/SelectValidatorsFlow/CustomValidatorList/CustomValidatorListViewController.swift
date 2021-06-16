@@ -109,6 +109,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     private func updateProceedButton() {
         let buttonTitle: String
         let enabled: Bool
+        let fillColor: UIColor
 
         if selectedValidatorsCount == 0 {
             enabled = false
@@ -117,6 +118,8 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
                     selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
+            fillColor = R.color.colorDarkGray()!
+
         } else {
             enabled = true
             buttonTitle = R.string.localizable
@@ -125,19 +128,19 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
                     selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
+            fillColor = R.color.colorAccent()!
         }
 
+        rootView.proceedButton.triangularedView?.fillColor = fillColor
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
         rootView.proceedButton.isEnabled = enabled
     }
 
-    // MARK: - Actions
-
-    @objc
-    private func handleValidatorInfo() {
-        // TODO: handle right validator info
-        presenter.didSelectValidator(at: 0)
+    private func presentValidatorInfo(at index: Int) {
+        presenter.didSelectValidator(at: index)
     }
+
+    // MARK: - Actions
 
     @objc private func tapFilterButton() {
         presenter.presentFilter()
@@ -160,7 +163,7 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     }
 
     @objc private func tapProceedButton() {
-        #warning("Not implemented")
+        presenter.proceed()
     }
 }
 
@@ -228,12 +231,16 @@ extension CustomValidatorListViewController: UITableViewDataSource {
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCellWithType(CustomValidatorCell.self)!
+        cell.delegate = self
+
         let viewModel = cellViewModels[indexPath.row]
         cell.bind(viewModel: viewModel)
-        cell.infoButton.addTarget(self, action: #selector(handleValidatorInfo), for: .touchUpInside)
+
         return cell
     }
 }
+
+// MARK: - UITableViewDelegate
 
 extension CustomValidatorListViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
@@ -259,5 +266,15 @@ extension CustomValidatorListViewController: UITableViewDelegate {
 
     func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
         UIView()
+    }
+}
+
+// MARK: - CustomValidatorCellDelegate
+
+extension CustomValidatorListViewController: CustomValidatorCellDelegate {
+    func didTapInfoButton(in cell: CustomValidatorCell) {
+        if let indexPath = rootView.tableView.indexPath(for: cell) {
+            presentValidatorInfo(at: indexPath.row)
+        }
     }
 }

@@ -3,7 +3,15 @@ import FearlessUtils
 import SoraFoundation
 
 final class CustomValidatorListViewModelFactory {
+    let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+
     private lazy var iconGenerator = PolkadotIconGenerator()
+
+    init(
+        balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    ) {
+        self.balanceViewModelFactory = balanceViewModelFactory
+    }
 
     private func createHeaderViewModel(
         displayValidatorsCount: Int,
@@ -37,20 +45,49 @@ final class CustomValidatorListViewModelFactory {
     private func createCellsViewModel(
         from validators: [ElectedValidatorInfo],
         selectedValidators: Set<ElectedValidatorInfo>,
+        filter: CustomValidatorListFilter,
+        priceData: PriceData?,
         locale: Locale
     ) -> [CustomValidatorCellViewModel] {
-        let percentageAPYFormatter = NumberFormatter.percentBase.localizableResource()
+        let apyFormatter = NumberFormatter.percent.localizableResource().value(for: locale)
+
         return validators.map { validator in
             let icon = try? self.iconGenerator.generateFromAddress(validator.address)
 
-            let restakePercentage = percentageAPYFormatter
-                .value(for: locale)
-                .string(from: validator.stakeReturn as NSNumber)
+            let detailsText: String?
+            let auxDetailsText: String?
+
+            switch filter.sortedBy {
+            case .estimatedReward:
+                detailsText =
+                    apyFormatter.string(from: validator.stakeReturn as NSNumber)
+                auxDetailsText = nil
+
+            case .ownStake:
+                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                    validator.ownStake,
+                    priceData: priceData
+                ).value(for: locale)
+
+                detailsText = balanceViewModel.amount
+                auxDetailsText = balanceViewModel.price
+
+            case .totalStake:
+                let balanceViewModel = balanceViewModelFactory.balanceFromPrice(
+                    validator.totalStake,
+                    priceData: priceData
+                ).value(for: locale)
+
+                detailsText = balanceViewModel.amount
+                auxDetailsText = balanceViewModel.price
+            }
 
             return CustomValidatorCellViewModel(
                 icon: icon,
-                name: validator.identity?.displayName ?? validator.address,
-                apyPercentage: restakePercentage,
+                name: validator.identity?.displayName,
+                address: validator.address,
+                details: detailsText,
+                auxDetails: auxDetailsText,
                 isSelected: selectedValidators.contains(validator)
             )
         }
@@ -63,6 +100,7 @@ extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFacto
         selectedValidators: Set<ElectedValidatorInfo>,
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
+        priceData: PriceData?,
         locale: Locale
     ) -> CustomValidatorListViewModel {
         let headerViewModel = createHeaderViewModel(
@@ -75,6 +113,8 @@ extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFacto
         let cellsViewModel = createCellsViewModel(
             from: validators,
             selectedValidators: selectedValidators,
+            filter: filter,
+            priceData: priceData,
             locale: locale
         )
 
