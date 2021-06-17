@@ -29,7 +29,7 @@ extension CrowdloanLastContribution: Codable {
             }
 
             self = .preEnding(value: value)
-        case Self.preEndingField:
+        case Self.endingField:
             let intStr = try container.decode(String.self)
             guard let blockNumber = UInt32(intStr) else {
                 throw DecodingError.dataCorruptedError(
