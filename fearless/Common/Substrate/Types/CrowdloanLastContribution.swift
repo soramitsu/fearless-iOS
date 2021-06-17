@@ -29,7 +29,7 @@ extension CrowdloanLastContribution: Codable {
             }
 
             self = .preEnding(value: value)
-        case Self.preEndingField:
+        case Self.endingField:
             let intStr = try container.decode(String.self)
             guard let blockNumber = UInt32(intStr) else {
                 throw DecodingError.dataCorruptedError(
@@ -58,7 +58,7 @@ extension CrowdloanLastContribution: Codable {
             try container.encode(Self.preEndingField)
             try container.encode(String(value))
         case let .ending(blockNumber):
-            try container.encode(Self.preEndingField)
+            try container.encode(Self.endingField)
             try container.encode(String(blockNumber))
         }
     }
