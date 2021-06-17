@@ -44,7 +44,8 @@ struct CustomValidatorListViewFactory {
             localizationManager: LocalizationManager.shared,
             electedValidators: electedValidators,
             recommendedValidators: recommendedValidators,
-            maxTargets: maxTargets
+            maxTargets: maxTargets,
+            logger: Logger.shared
         )
 
         let view = CustomValidatorListViewController(

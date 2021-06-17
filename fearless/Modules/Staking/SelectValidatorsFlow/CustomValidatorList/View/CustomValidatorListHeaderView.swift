@@ -42,7 +42,7 @@ class CustomValidatorListHeaderView: UITableViewHeaderFooterView {
         detailsLabel.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
             make.centerY.equalToSuperview()
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(16)
+            make.leading.equalTo(titleLabel.snp.trailing).offset(16)
         }
     }
 
