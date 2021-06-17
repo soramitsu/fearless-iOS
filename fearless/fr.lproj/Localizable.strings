@@ -464,3 +464,5 @@ Chemin de dérivation : %@";
 "common.not.enough.fee.message" = "";
 "common.not.enough.balance.message" = "";
 "common.transaction.failed" = "";
+"crowdloan.private.crowdloan.title" = "";
+"crowdloan.private.crowdloan.message" = "";
