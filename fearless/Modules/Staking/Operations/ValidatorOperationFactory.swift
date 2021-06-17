@@ -359,7 +359,7 @@ final class ValidatorOperationFactory {
                 let validatorReturn = try calculator
                     .calculateValidatorReturn(
                         validatorAccountId: validator.accountId,
-                        isCompound: false,
+                        isCompound: true,
                         period: .year
                     )
 
