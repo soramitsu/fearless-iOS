@@ -44,7 +44,7 @@ final class CustomValidatorListViewModelFactory {
 
     private func createCellsViewModel(
         from validators: [ElectedValidatorInfo],
-        selectedValidators: Set<ElectedValidatorInfo>,
+        selectedValidators: [ElectedValidatorInfo],
         filter: CustomValidatorListFilter,
         priceData: PriceData?,
         locale: Locale
@@ -97,7 +97,7 @@ final class CustomValidatorListViewModelFactory {
 extension CustomValidatorListViewModelFactory: CustomValidatorListViewModelFactoryProtocol {
     func createViewModel(
         from validators: [ElectedValidatorInfo],
-        selectedValidators: Set<ElectedValidatorInfo>,
+        selectedValidators: [ElectedValidatorInfo],
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
         priceData: PriceData?,

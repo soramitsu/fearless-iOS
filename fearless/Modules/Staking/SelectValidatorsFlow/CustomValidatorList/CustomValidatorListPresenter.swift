@@ -14,7 +14,7 @@ final class CustomValidatorListPresenter {
     private let recommendedValidatorList: [ElectedValidatorInfo]
 
     private var filteredValidatorList: [ElectedValidatorInfo] = []
-    private var selectedValidatorSet: Set<ElectedValidatorInfo> = []
+    private var selectedValidatorList: [ElectedValidatorInfo] = []
     private var viewModel: CustomValidatorListViewModel?
     private var filter = CustomValidatorListFilter.recommendedFilter()
     private var priceData: PriceData?
@@ -53,7 +53,7 @@ final class CustomValidatorListPresenter {
     private func provideValidatorListViewModel() {
         let viewModel = viewModelFactory.createViewModel(
             from: filteredValidatorList,
-            selectedValidators: selectedValidatorSet,
+            selectedValidators: selectedValidatorList,
             totalValidatorsCount: electedValidatorList.count,
             filter: filter,
             priceData: priceData,
@@ -81,25 +81,26 @@ final class CustomValidatorListPresenter {
     private func performDeselect() {
         guard var viewModel = viewModel else { return }
 
-        var indexes: [Int] = []
+        let changedModels: [CustomValidatorCellViewModel] = viewModel.cellViewModels.map {
+            var newItem = $0
+            newItem.isSelected = false
+            return newItem
+        }
 
-        viewModel.cellViewModels =
-            viewModel.cellViewModels.enumerated().map { index, item in
-                var newItem = item
-
-                if newItem.isSelected {
-                    newItem.isSelected = false
-                    indexes.append(index)
-                }
-
-                return newItem
+        let indices = viewModel.cellViewModels
+            .enumerated()
+            .filter {
+                $1.isSelected
+            }.map { index, _ in
+                index
             }
 
-        selectedValidatorSet = []
+        selectedValidatorList = []
 
+        viewModel.cellViewModels = changedModels
         self.viewModel = viewModel
 
-        view?.reload(viewModel, at: indexes)
+        view?.reload(viewModel, at: indices)
     }
 }
 
@@ -114,20 +115,14 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     // MARK: - Header actions
 
     func fillWithRecommended() {
-        var index = 0
-
-        while index < recommendedValidatorList.count,
-              selectedValidatorSet.count < maxTargets {
-            let recommendedValidator = recommendedValidatorList[index]
-
-            if !selectedValidatorSet.contains(recommendedValidator) {
-                if let index = filteredValidatorList.firstIndex(of: recommendedValidator) {
+        recommendedValidatorList
+            .filter { !selectedValidatorList.contains($0) }
+            .prefix(maxTargets - selectedValidatorList.count)
+            .forEach {
+                if let index = filteredValidatorList.firstIndex(of: $0) {
                     changeValidatorSelection(at: index)
                 }
             }
-
-            index += 1
-        }
     }
 
     func clearFilter() {
@@ -165,10 +160,10 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
             return
         }
 
-        if selectedValidatorSet.contains(changedValidator) {
-            selectedValidatorSet.remove(changedValidator)
+        if let selectedIndex = selectedValidatorList.firstIndex(of: changedValidator) {
+            selectedValidatorList.remove(at: selectedIndex)
         } else {
-            selectedValidatorSet.insert(changedValidator)
+            selectedValidatorList.append(changedValidator)
         }
 
         viewModel.cellViewModels[index].isSelected = !viewModel.cellViewModels[index].isSelected

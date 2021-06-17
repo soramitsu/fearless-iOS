@@ -31,6 +31,7 @@ final class CustomValidatorListViewLayout: UIView {
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = R.color.colorBlack()
         tableView.separatorColor = R.color.colorDarkGray()
+        tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 100.0, right: 0.0)
         return tableView
     }()
 
