@@ -259,14 +259,6 @@ extension CustomValidatorListViewController: UITableViewDelegate {
         headerView.bind(viewModel: headerViewModel)
         return headerView
     }
-
-    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
-        100.0
-    }
-
-    func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
-        UIView()
-    }
 }
 
 // MARK: - CustomValidatorCellDelegate

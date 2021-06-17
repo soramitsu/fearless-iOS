@@ -23,7 +23,7 @@ protocol CustomValidatorListPresenterProtocol: AnyObject {
 protocol CustomValidatorListViewModelFactoryProtocol: AnyObject {
     func createViewModel(
         from validators: [ElectedValidatorInfo],
-        selectedValidators: Set<ElectedValidatorInfo>,
+        selectedValidators: [ElectedValidatorInfo],
         totalValidatorsCount: Int,
         filter: CustomValidatorListFilter,
         priceData: PriceData?,
