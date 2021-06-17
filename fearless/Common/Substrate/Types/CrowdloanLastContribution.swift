@@ -58,7 +58,7 @@ extension CrowdloanLastContribution: Codable {
             try container.encode(Self.preEndingField)
             try container.encode(String(value))
         case let .ending(blockNumber):
-            try container.encode(Self.preEndingField)
+            try container.encode(Self.endingField)
             try container.encode(String(blockNumber))
         }
     }
