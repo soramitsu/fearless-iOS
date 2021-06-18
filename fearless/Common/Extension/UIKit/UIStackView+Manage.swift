@@ -9,7 +9,7 @@ extension UIStackView {
         insertArrangedSubview(view, at: index + 1)
     }
 
-    func insertArranged(view: UIView, befor otherView: UIView) {
+    func insertArranged(view: UIView, before otherView: UIView) {
         guard let index = arrangedSubviews.firstIndex(of: otherView) else {
             return
         }
