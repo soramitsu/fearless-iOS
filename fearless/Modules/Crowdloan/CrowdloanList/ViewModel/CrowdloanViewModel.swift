@@ -39,6 +39,7 @@ struct ActiveCrowdloanViewModel {
     let description: CrowdloanDescViewModel
     let progress: String
     let iconViewModel: ImageViewModelProtocol
+    let contribution: String?
 }
 
 struct CompletedCrowdloanViewModel {
@@ -46,4 +47,5 @@ struct CompletedCrowdloanViewModel {
     let description: CrowdloanDescViewModel
     let progress: String
     let iconViewModel: ImageViewModelProtocol
+    let contribution: String?
 }

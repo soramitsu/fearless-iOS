@@ -466,3 +466,4 @@ Derivation path: %@";
 "common.transaction.failed" = "";
 "crowdloan.private.crowdloan.title" = "";
 "crowdloan.private.crowdloan.message" = "";
+"crowdloan.contribution.format" = "";

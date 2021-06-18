@@ -5,6 +5,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorWhite()
         label.font = .p1Paragraph
+        label.textAlignment = .left
         return label
     }()
 
@@ -18,6 +19,7 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
         label.font = .p3Paragraph
+        label.textAlignment = .right
         return label
     }()
 
@@ -42,6 +44,25 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         label.font = .p2Paragraph
         return label
     }()
+
+    let mainStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .vertical
+        view.distribution = .fill
+        view.alignment = .leading
+        return view
+    }()
+
+    let titleStackView: UIStackView = {
+        let view = UIStackView()
+        view.axis = .horizontal
+        view.distribution = .fill
+        view.alignment = .center
+        view.spacing = 8
+        return view
+    }()
+
+    private(set) var contributionLabel: UILabel?
 
     private var viewModel: ActiveCrowdloanViewModel?
 
@@ -83,6 +104,14 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
         progressLabel.text = viewModel.progress
         timeLabel.text = viewModel.timeleft
 
+        if let contribution = viewModel.contribution {
+            insertContributionIfNeeded()
+
+            contributionLabel?.text = contribution
+        } else {
+            removeContributionIfNeeded()
+        }
+
         viewModel.iconViewModel.loadImage(
             on: iconImageView,
             targetSize: CrowdloanViewConstants.iconSize,
@@ -113,44 +142,60 @@ final class ActiveCrowdloanTableViewCell: UITableViewCell {
             make.top.equalToSuperview().inset(11)
         }
 
-        contentView.addSubview(titleLabel)
+        contentView.addSubview(mainStackView)
 
-        titleLabel.snp.makeConstraints { make in
+        mainStackView.snp.makeConstraints { make in
             make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(12.0)
-        }
-
-        contentView.addSubview(navigationImageView)
-
-        navigationImageView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.size.equalTo(24)
-            make.centerY.equalTo(titleLabel)
-        }
-
-        contentView.addSubview(timeLabel)
-
-        timeLabel.snp.makeConstraints { make in
-            make.trailing.equalTo(navigationImageView.snp.leading).offset(-8.0)
-            make.centerY.equalTo(titleLabel)
-            make.leading.greaterThanOrEqualTo(titleLabel.snp.trailing).offset(8.0)
-        }
-
-        contentView.addSubview(detailsLabel)
-
-        detailsLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(titleLabel.snp.bottom).offset(4.0)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        contentView.addSubview(progressLabel)
-
-        progressLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(detailsLabel.snp.bottom).offset(8.0)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
+            make.top.equalToSuperview().inset(6.0)
             make.bottom.equalToSuperview().inset(12.0)
         }
+
+        mainStackView.addArrangedSubview(titleStackView)
+
+        titleStackView.snp.makeConstraints { make in
+            make.width.equalToSuperview()
+        }
+
+        titleStackView.addArrangedSubview(titleLabel)
+        titleStackView.addArrangedSubview(timeLabel)
+        titleStackView.addArrangedSubview(navigationImageView)
+
+        navigationImageView.snp.makeConstraints { make in
+            make.size.equalTo(24)
+        }
+
+        mainStackView.addArrangedSubview(detailsLabel)
+        mainStackView.setCustomSpacing(8.0, after: detailsLabel)
+
+        mainStackView.addArrangedSubview(progressLabel)
+    }
+
+    private func insertContributionIfNeeded() {
+        guard contributionLabel == nil else {
+            return
+        }
+
+        let label = UILabel()
+        label.textColor = R.color.colorWhite()
+        label.font = .p2Paragraph
+
+        mainStackView.addArrangedSubview(label)
+        mainStackView.setCustomSpacing(8.0, after: progressLabel)
+
+        contributionLabel = label
+    }
+
+    private func removeContributionIfNeeded() {
+        guard let label = contributionLabel else {
+            return
+        }
+
+        mainStackView.removeArrangedSubview(label)
+        mainStackView.setCustomSpacing(0.0, after: progressLabel)
+
+        label.removeFromSuperview()
+
+        contributionLabel = nil
     }
 }

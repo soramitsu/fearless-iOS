@@ -45,11 +45,14 @@ struct CrowdloanListViewFactory {
     }
 
     private static func createInteractor() -> CrowdloanListInteractor? {
-        guard let connection = WebSocketService.shared.connection else {
+        let settings = SettingsManager.shared
+
+        guard
+            let connection = WebSocketService.shared.connection,
+            let selectedAddress = settings.selectedAccount?.address else {
             return nil
         }
 
-        let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
         let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
@@ -67,6 +70,7 @@ struct CrowdloanListViewFactory {
         )
 
         return CrowdloanListInteractor(
+            selectedAddress: selectedAddress,
             runtimeService: runtimeService,
             crowdloanOperationFactory: crowdloanOperationFactory,
             connection: connection,
