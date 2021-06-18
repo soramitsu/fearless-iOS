@@ -23,6 +23,7 @@ final class RecommendedValidatorListViewController: UIViewController {
     }
 
     private func setupTableView() {
+        tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 100.0, right: 0.0)
         tableView.tableFooterView = UIView()
 
         tableView.register(R.nib.recommendedValidatorCell)
@@ -91,14 +92,6 @@ extension RecommendedValidatorListViewController: UITableViewDelegate, UITableVi
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
         presenter.selectedValidatorAt(index: indexPath.row)
-    }
-
-    func tableView(_: UITableView, heightForFooterInSection _: Int) -> CGFloat {
-        100.0
-    }
-
-    func tableView(_: UITableView, viewForFooterInSection _: Int) -> UIView? {
-        UIView()
     }
 }
 

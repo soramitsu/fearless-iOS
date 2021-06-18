@@ -24,6 +24,10 @@ extension NumberFormatter {
     }
 
     static var percent: NumberFormatter {
+        percentBase
+    }
+
+    static var signedPercent: NumberFormatter {
         let numberFormatter = NumberFormatter()
         numberFormatter.numberStyle = .percent
         numberFormatter.minimumIntegerDigits = 1

@@ -48,7 +48,7 @@ class SelectValidatorsStartTests: XCTestCase {
         let all = WestendStub.allValidators
 
         stub(wireframe) { stub in
-            when(stub).proceedToCustomList(from: any(), validators: any()).then { (_, validators) in
+            when(stub).proceedToCustomList(from: any(), validators: any(), recommended: any(), maxTargets: any()).then { (_, validators, _, _) in
                 XCTAssertEqual(all, validators)
             }
 
@@ -67,7 +67,7 @@ class SelectValidatorsStartTests: XCTestCase {
         presenter.selectRecommendedValidators()
         presenter.selectCustomValidators()
 
-        verify(wireframe, times(1)).proceedToCustomList(from: any(), validators: any())
+        verify(wireframe, times(1)).proceedToCustomList(from: any(), validators: any(), recommended: any(), maxTargets: any())
         verify(wireframe, times(1)).proceedToRecommendedList(from: any(), validators: any(), maxTargets: any())
     }
 }

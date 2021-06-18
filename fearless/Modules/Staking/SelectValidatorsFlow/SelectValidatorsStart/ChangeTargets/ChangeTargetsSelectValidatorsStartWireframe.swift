@@ -8,10 +8,21 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
     }
 
     override func proceedToCustomList(
-        from _: ControllerBackedProtocol?,
-        validators _: [ElectedValidatorInfo]
+        from view: ControllerBackedProtocol?,
+        validators: [ElectedValidatorInfo],
+        recommended: [ElectedValidatorInfo],
+        maxTargets: Int
     ) {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-891
+        guard let nextView = CustomValidatorListViewFactory.createView(
+            electedValidators: validators,
+            recommendedValidators: recommended,
+            maxTargets: maxTargets
+        ) else { return }
+
+        view?.controller.navigationController?.pushViewController(
+            nextView.controller,
+            animated: true
+        )
     }
 
     override func proceedToRecommendedList(

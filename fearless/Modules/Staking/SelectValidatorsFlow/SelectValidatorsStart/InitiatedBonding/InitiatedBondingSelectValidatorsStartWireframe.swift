@@ -9,13 +9,19 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
 
     override func proceedToCustomList(
         from view: ControllerBackedProtocol?,
-        validators: [ElectedValidatorInfo]
+        validators: [ElectedValidatorInfo],
+        recommended: [ElectedValidatorInfo],
+        maxTargets: Int
     ) {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-        let optSelectValidators = CustomValidatorListViewFactory.createView(selectedValidators: validators)
-        guard let selectValidators = optSelectValidators else { return }
+        guard let nextView = CustomValidatorListViewFactory.createView(
+            electedValidators: validators,
+            recommendedValidators: recommended,
+            maxTargets: maxTargets
+        ) else { return }
+
         view?.controller.navigationController?.pushViewController(
-            selectValidators.controller,
+            nextView.controller,
             animated: true
         )
     }

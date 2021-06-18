@@ -43,12 +43,12 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             return
         }
 
-        let totalCount = min(all.count, StakingConstants.maxTargets)
+        let maxTargets = min(all.count, StakingConstants.maxTargets)
 
         wireframe.proceedToRecommendedList(
             from: view,
             validators: recommended,
-            maxTargets: totalCount
+            maxTargets: maxTargets
         )
     }
 
@@ -57,9 +57,13 @@ extension SelectValidatorsStartPresenter: SelectValidatorsStartPresenterProtocol
             return
         }
 
+        let maxTargets = min(all.count, StakingConstants.maxTargets)
+
         wireframe.proceedToCustomList(
             from: view,
-            validators: all
+            validators: all,
+            recommended: recommended ?? [],
+            maxTargets: maxTargets
         )
     }
 }

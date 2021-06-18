@@ -16,4 +16,12 @@ final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
             animated: true
         )
     }
+
+    func presentFilters() {
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-894
+    }
+
+    func presentSearch() {
+        // TODO: https://soramitsu.atlassian.net/browse/FLW-893
+    }
 }
