@@ -39,7 +39,6 @@ class BaseCrowdloanTableViewCell: UITableViewCell {
         view.axis = .horizontal
         view.distribution = .fill
         view.alignment = .center
-        view.spacing = 8
         return view
     }()
 

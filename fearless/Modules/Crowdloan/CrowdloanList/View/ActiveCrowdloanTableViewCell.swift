@@ -5,6 +5,7 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
         let label = UILabel()
         label.textColor = R.color.colorLightGray()
         label.font = .p3Paragraph
+        label.textAlignment = .right
         return label
     }()
 
