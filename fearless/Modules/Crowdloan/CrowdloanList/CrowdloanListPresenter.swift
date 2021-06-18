@@ -13,7 +13,7 @@ final class CrowdloanListPresenter {
     private var blockNumber: BlockNumber?
     private var blockDurationResult: Result<BlockTime, Error>?
     private var leasingPeriodResult: Result<LeasingPeriod, Error>?
-    private var contributions: CrowdloanContributionDict?
+    private var contributions: Result<CrowdloanContributionDict, Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -41,7 +41,8 @@ final class CrowdloanListPresenter {
             let displayInfoResult = displayInfoResult,
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
-            let blockNumber = blockNumber else {
+            let blockNumber = blockNumber,
+            let contributionsResult = contributions else {
             return
         }
 
@@ -70,6 +71,8 @@ final class CrowdloanListPresenter {
             blockDuration: blockDuration,
             leasingPeriod: leasingPeriod
         )
+
+        let contributions = try? contributionsResult.get()
 
         let viewModel = viewModelFactory.createViewModel(
             from: crowdloans,
@@ -141,15 +144,11 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
     }
 
     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>) {
-        switch result {
-        case let .success(contributions):
-            self.contributions = contributions
-        case let .failure(error):
-            contributions = nil
-
-            logger?.error("Did receive error: \(error)")
+        if case let .failure(error) = result {
+            logger?.error("Did receive contributions error: \(error)")
         }
 
+        contributions = result
         updateView()
     }
 }
