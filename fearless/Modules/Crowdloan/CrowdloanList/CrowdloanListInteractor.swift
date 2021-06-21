@@ -102,8 +102,10 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                         let encodingError = error as? StorageKeyEncodingOperationError,
                         encodingError == .invalidStoragePath {
                         self?.presenter.didReceiveCrowdloans(result: .success([]))
+                        self?.presenter.didReceiveContributions(result: .success([:]))
                     } else {
                         self?.presenter.didReceiveCrowdloans(result: .failure(error))
+                        self?.presenter.didReceiveContributions(result: .failure(error))
                     }
                 }
             }
