@@ -43,6 +43,9 @@ final class ActiveCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
 
         progressLabel.textColor = R.color.colorWhite()
         progressLabel.font = .p2Paragraph
+
+        selectedBackgroundView = UIView()
+        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
     }
 
     func bind(viewModel: ActiveCrowdloanViewModel) {

@@ -218,7 +218,13 @@ final class CrowdloansViewModelFactory {
             [CrowdloanCompletedSection]()
         )
 
-        return crowdloans.reduce(into: initial) { result, crowdloan in
+        return crowdloans.sorted { crowdloan1, crowdloan2 in
+            if crowdloan1.fundInfo.raised != crowdloan2.fundInfo.raised {
+                return crowdloan1.fundInfo.raised > crowdloan2.fundInfo.raised
+            } else {
+                return crowdloan1.fundInfo.end < crowdloan2.fundInfo.end
+            }
+        }.reduce(into: initial) { result, crowdloan in
             if crowdloan.isCompleted(for: metadata) {
                 if let viewModel = createCompletedCrowdloanViewModel(
                     from: crowdloan,
