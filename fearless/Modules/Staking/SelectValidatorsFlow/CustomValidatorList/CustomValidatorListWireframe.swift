@@ -24,4 +24,22 @@ final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func presentSearch() {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-893
     }
+
+    func proceed(
+        from view: CustomValidatorListViewProtocol?,
+        validators: [ElectedValidatorInfo],
+        maxTargets: Int
+    ) {
+        guard let nextView = SelectedValidatorListViewFactory.createView(
+            selectedValidators: validators,
+            maxTargets: maxTargets
+        ) else {
+            return
+        }
+
+        view?.controller.navigationController?.pushViewController(
+            nextView.controller,
+            animated: true
+        )
+    }
 }

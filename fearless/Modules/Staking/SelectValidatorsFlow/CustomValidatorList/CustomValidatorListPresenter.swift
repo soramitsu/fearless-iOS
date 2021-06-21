@@ -200,7 +200,11 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func proceed() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-892
+        wireframe.proceed(
+            from: view,
+            validators: selectedValidatorList,
+            maxTargets: maxTargets
+        )
     }
 }
 

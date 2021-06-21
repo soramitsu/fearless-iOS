@@ -44,8 +44,15 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
     )
+
     func presentFilters()
     func presentSearch()
+
+    func proceed(
+        from view: CustomValidatorListViewProtocol?,
+        validators: [ElectedValidatorInfo],
+        maxTargets: Int
+    )
 }
 
 extension CustomValidatorListViewProtocol {

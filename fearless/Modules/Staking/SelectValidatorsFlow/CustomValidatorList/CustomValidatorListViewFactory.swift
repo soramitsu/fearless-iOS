@@ -50,7 +50,8 @@ struct CustomValidatorListViewFactory {
 
         let view = CustomValidatorListViewController(
             presenter: presenter,
-            selectedValidatorsLimit: maxTargets
+            selectedValidatorsLimit: maxTargets,
+            localizationManager: LocalizationManager.shared
         )
 
         presenter.view = view
