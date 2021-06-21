@@ -4,7 +4,8 @@ import SoraFoundation
 struct SelectedValidatorListViewFactory {
     static func createView(
         selectedValidators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        delegate: SelectedValidatorListDelegate
     ) -> SelectedValidatorListViewProtocol? {
         let wireframe = SelectedValidatorListWireframe()
         let viewModelFactory = SelectedValidatorListViewModelFactory()
@@ -14,7 +15,8 @@ struct SelectedValidatorListViewFactory {
             viewModelFactory: viewModelFactory,
             localizationManager: LocalizationManager.shared,
             selectedValidators: selectedValidators,
-            maxTargets: maxTargets
+            maxTargets: maxTargets,
+            delegate: delegate
         )
 
         let view = SelectedValidatorListViewController(

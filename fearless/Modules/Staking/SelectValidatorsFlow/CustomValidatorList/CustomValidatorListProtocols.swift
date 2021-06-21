@@ -5,7 +5,7 @@ protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable 
     func setFilterAppliedState(to state: Bool)
 }
 
-protocol CustomValidatorListPresenterProtocol: AnyObject {
+protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func setup()
 
     func fillWithRecommended()
@@ -51,7 +51,8 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
     func proceed(
         from view: CustomValidatorListViewProtocol?,
         validators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        delegate: SelectedValidatorListDelegate
     )
 }
 

@@ -2,6 +2,7 @@ import SoraFoundation
 
 final class SelectedValidatorListPresenter {
     weak var view: SelectedValidatorListViewProtocol?
+    weak var delegate: SelectedValidatorListDelegate?
 
     let wireframe: SelectedValidatorListWireframeProtocol
     let viewModelFactory: SelectedValidatorListViewModelFactory
@@ -15,13 +16,15 @@ final class SelectedValidatorListPresenter {
         viewModelFactory: SelectedValidatorListViewModelFactory,
         localizationManager: LocalizationManagerProtocol,
         selectedValidators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        delegate: SelectedValidatorListDelegate
     ) {
         self.wireframe = wireframe
         self.viewModelFactory = viewModelFactory
         selectedValidatorList = selectedValidators
         self.maxTargets = maxTargets
         self.localizationManager = localizationManager
+        self.delegate = delegate
     }
 
     // MARK: - Private functions
@@ -66,6 +69,9 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
     }
 
     func removeItem(at index: Int) {
+        let validator = selectedValidatorList[index]
+        delegate?.didRemove(validator)
+
         selectedValidatorList.remove(at: index)
         let viewModel = createViewModel()
         self.viewModel = viewModel

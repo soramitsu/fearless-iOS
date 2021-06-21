@@ -6,6 +6,10 @@ protocol SelectedValidatorListViewProtocol: ControllerBackedProtocol, Localizabl
     func didRemoveItem(at index: Int)
 }
 
+protocol SelectedValidatorListDelegate: AnyObject {
+    func didRemove(_ validator: ElectedValidatorInfo)
+}
+
 protocol SelectedValidatorListPresenterProtocol: AnyObject {
     func setup()
     func didSelectValidator(at index: Int)
@@ -22,10 +26,6 @@ protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
     ) -> SelectedValidatorListViewModel
 }
 
-protocol SelectedValidatorListInteractorInputProtocol: AnyObject {}
-
-protocol SelectedValidatorListInteractorOutputProtocol: AnyObject {}
-
 protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresentable {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
@@ -40,5 +40,3 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
 
     func dismiss(_ view: ControllerBackedProtocol?)
 }
-
-extension SelectedValidatorListViewProtocol {}

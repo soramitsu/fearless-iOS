@@ -28,11 +28,13 @@ final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func proceed(
         from view: CustomValidatorListViewProtocol?,
         validators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        delegate: SelectedValidatorListDelegate
     ) {
         guard let nextView = SelectedValidatorListViewFactory.createView(
             selectedValidators: validators,
-            maxTargets: maxTargets
+            maxTargets: maxTargets,
+            delegate: delegate
         ) else {
             return
         }
