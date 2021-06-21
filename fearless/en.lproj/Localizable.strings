@@ -467,3 +467,4 @@ Derivation path: %@";
 "common.transaction.failed" = "Transaction failed. Please, try again later.";
 "crowdloan.private.crowdloan.title" = "Private crowdloan";
 "crowdloan.private.crowdloan.message" = "Private crowdloans are not yet supported.";
+"crowdloan.contribution.format" = "You contributed: %@";

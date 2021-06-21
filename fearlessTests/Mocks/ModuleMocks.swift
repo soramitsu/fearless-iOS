@@ -10785,6 +10785,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveContributions(result: result))
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10817,6 +10832,11 @@ import SoraFoundation
 	    func didReceiveLeasingPeriod<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<LeasingPeriod, Error>)> where M1.MatchedType == Result<LeasingPeriod, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<LeasingPeriod, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorOutputProtocol.self, method: "didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveContributions<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<CrowdloanContributionDict, Error>)> where M1.MatchedType == Result<CrowdloanContributionDict, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<CrowdloanContributionDict, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorOutputProtocol.self, method: "didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10865,6 +10885,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func didReceiveContributions<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<CrowdloanContributionDict, Error>), Void> where M1.MatchedType == Result<CrowdloanContributionDict, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<CrowdloanContributionDict, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10891,6 +10917,10 @@ import SoraFoundation
     }
     
      func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

@@ -16,4 +16,10 @@ final class CrowdloansOperationFactoryStub: CrowdloanOperationFactoryProtocol {
     ) -> CompoundOperationWrapper<[Crowdloan]> {
         CompoundOperationWrapper.createWithResult(crowdloans)
     }
+
+    func fetchContributionOperation(connection: JSONRPCEngine, runtimeService: RuntimeCodingServiceProtocol, address: AccountAddress, trieIndex: UInt32) -> CompoundOperationWrapper<CrowdloanContributionResponse> {
+        CompoundOperationWrapper.createWithResult(
+            CrowdloanContributionResponse(address: address, trieIndex: trieIndex, contribution: nil)
+        )
+    }
 }

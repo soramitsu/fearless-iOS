@@ -1,39 +1,22 @@
 import UIKit
 
-final class CompletedCrowdloanTableViewCell: UITableViewCell {
-    let titleLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorStrokeGray()
-        label.font = .p1Paragraph
-        return label
-    }()
-
-    let iconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.contentMode = .scaleAspectFit
-        return imageView
-    }()
-
-    let detailsLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorStrokeGray()
-        label.font = .p2Paragraph
-        label.lineBreakMode = .byTruncatingMiddle
-        return label
-    }()
-
-    let progressLabel: UILabel = {
-        let label = UILabel()
-        label.textColor = R.color.colorStrokeGray()
-        label.font = .p2Paragraph
-        return label
-    }()
-
+final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
 
-        configure()
-        setupLayout()
+        applyStyle()
+    }
+
+    private func applyStyle() {
+        titleLabel.textColor = R.color.colorStrokeGray()
+        titleLabel.font = .p1Paragraph
+
+        detailsLabel.textColor = R.color.colorStrokeGray()
+        detailsLabel.font = .p2Paragraph
+        detailsLabel.lineBreakMode = .byTruncatingMiddle
+
+        progressLabel.textColor = R.color.colorStrokeGray()
+        progressLabel.font = .p2Paragraph
     }
 
     private var viewModel: CompletedCrowdloanViewModel?
@@ -45,11 +28,6 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
         viewModel = nil
 
         iconImageView.image = nil
-    }
-
-    @available(*, unavailable)
-    required init?(coder _: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 
     func bind(viewModel: CompletedCrowdloanViewModel) {
@@ -66,6 +44,14 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
             detailsLabel.text = text
         }
 
+        if let contribution = viewModel.contribution {
+            showContributionLabel()
+
+            contributionLabel?.text = contribution
+        } else {
+            hideContributionLabel()
+        }
+
         progressLabel.text = viewModel.progress
 
         viewModel.iconViewModel.loadImage(
@@ -75,50 +61,9 @@ final class CompletedCrowdloanTableViewCell: UITableViewCell {
         )
     }
 
-    private func configure() {
-        backgroundColor = .clear
-        selectionStyle = .none
+    override func showContributionLabel() {
+        super.showContributionLabel()
 
-        separatorInset = UIEdgeInsets(
-            top: 0.0,
-            left: UIConstants.horizontalInset,
-            bottom: 0.0,
-            right: UIConstants.horizontalInset
-        )
-    }
-
-    private func setupLayout() {
-        contentView.addSubview(iconImageView)
-
-        iconImageView.snp.makeConstraints { make in
-            make.leading.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.size.equalTo(CrowdloanViewConstants.iconSize)
-            make.top.equalToSuperview().inset(11)
-        }
-
-        contentView.addSubview(titleLabel)
-
-        titleLabel.snp.makeConstraints { make in
-            make.leading.equalTo(iconImageView.snp.trailing).offset(UIConstants.horizontalInset)
-            make.top.equalToSuperview().inset(12.0)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        contentView.addSubview(detailsLabel)
-
-        detailsLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(titleLabel.snp.bottom).offset(4.0)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-        }
-
-        contentView.addSubview(progressLabel)
-
-        progressLabel.snp.makeConstraints { make in
-            make.leading.equalTo(titleLabel)
-            make.top.equalTo(detailsLabel.snp.bottom).offset(8.0)
-            make.trailing.equalToSuperview().inset(UIConstants.horizontalInset)
-            make.bottom.equalToSuperview().inset(12.0)
-        }
+        contributionLabel?.textColor = R.color.colorStrokeGray()
     }
 }
