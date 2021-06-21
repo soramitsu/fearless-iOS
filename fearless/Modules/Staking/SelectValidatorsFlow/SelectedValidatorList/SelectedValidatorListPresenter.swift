@@ -77,6 +77,10 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
     func proceed() {
         #warning("Not implemented")
     }
+
+    func dismiss() {
+        wireframe.dismiss(view)
+    }
 }
 
 // MARK: - Localizable

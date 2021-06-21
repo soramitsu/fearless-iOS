@@ -11,6 +11,7 @@ protocol SelectedValidatorListPresenterProtocol: AnyObject {
     func didSelectValidator(at index: Int)
     func removeItem(at index: Int)
     func proceed()
+    func dismiss()
 }
 
 protocol SelectedValidatorListViewModelFactoryProtocol: AnyObject {
@@ -36,6 +37,8 @@ protocol SelectedValidatorListWireframeProtocol: AlertPresentable, ErrorPresenta
         targets: [SelectedValidatorInfo],
         maxTargets: Int
     )
+
+    func dismiss(_ view: ControllerBackedProtocol?)
 }
 
 extension SelectedValidatorListViewProtocol {}

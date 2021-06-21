@@ -96,27 +96,23 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
         let enabled: Bool
         let fillColor: UIColor
 
-        if cellViewModels.count > selectedValidatorsLimit ||
-            cellViewModels.isEmpty ||
-            rootView.tableView.isEditing {
+        if cellViewModels.count > selectedValidatorsLimit {
             enabled = false
             fillColor = R.color.colorDarkGray()!
+            buttonTitle = R.string.localizable
+                .stakingCustomProceedButtonDisabledTitle(
+                    selectedValidatorsLimit,
+                    preferredLanguages: selectedLocale.rLanguages
+                )
 
         } else {
             enabled = true
             fillColor = R.color.colorAccent()!
+            buttonTitle = R.string.localizable
+                .commonContinue(
+                    preferredLanguages: selectedLocale.rLanguages
+                )
         }
-
-        buttonTitle = cellViewModels.count > selectedValidatorsLimit ?
-            R.string.localizable
-            .stakingCustomProceedButtonDisabledTitle(
-                selectedValidatorsLimit,
-                preferredLanguages: selectedLocale.rLanguages
-            ) :
-            R.string.localizable
-            .commonContinue(
-                preferredLanguages: selectedLocale.rLanguages
-            )
 
         rootView.proceedButton.triangularedView?.fillColor = fillColor
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
@@ -184,6 +180,11 @@ extension SelectedValidatorListViewController: SelectedValidatorListViewProtocol
     func didRemoveItem(at index: Int) {
         let indexPath = IndexPath(row: index, section: 0)
         rootView.tableView.deleteRows(at: [indexPath], with: .left)
+
+        let cellViewModels = viewModel?.cellViewModels ?? []
+        if cellViewModels.isEmpty {
+            presenter.dismiss()
+        }
     }
 }
 
