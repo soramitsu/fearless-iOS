@@ -218,7 +218,7 @@ final class CrowdloansViewModelFactory {
             [CrowdloanCompletedSection]()
         )
 
-        return crowdloans.sorted { (crowdloan1, crowdloan2) in
+        return crowdloans.sorted { crowdloan1, crowdloan2 in
             if crowdloan1.fundInfo.raised != crowdloan2.fundInfo.raised {
                 return crowdloan1.fundInfo.raised > crowdloan2.fundInfo.raised
             } else {
