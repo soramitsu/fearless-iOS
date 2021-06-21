@@ -59,9 +59,6 @@ class BaseCrowdloanTableViewCell: UITableViewCell {
     private func configure() {
         backgroundColor = .clear
 
-        selectedBackgroundView = UIView()
-        selectedBackgroundView?.backgroundColor = R.color.colorCellSelection()
-
         separatorInset = UIEdgeInsets(
             top: 0.0,
             left: UIConstants.horizontalInset,
