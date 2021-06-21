@@ -5,6 +5,7 @@ import RobinHood
 final class CrowdloanListInteractor: RuntimeConstantFetching {
     weak var presenter: CrowdloanListInteractorOutputProtocol!
 
+    let selectedAddress: AccountAddress
     let runtimeService: RuntimeCodingServiceProtocol
     let crowdloanOperationFactory: CrowdloanOperationFactoryProtocol
     let connection: JSONRPCEngine
@@ -17,6 +18,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
 
     init(
+        selectedAddress: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol,
         crowdloanOperationFactory: CrowdloanOperationFactoryProtocol,
         connection: JSONRPCEngine,
@@ -25,6 +27,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         operationManager: OperationManagerProtocol,
         logger: LoggerProtocol? = nil
     ) {
+        self.selectedAddress = selectedAddress
         self.runtimeService = runtimeService
         self.crowdloanOperationFactory = crowdloanOperationFactory
 
@@ -39,6 +42,48 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
         self.logger = logger
     }
 
+    private func provideContributions(for crowdloans: [Crowdloan]) {
+        guard !crowdloans.isEmpty else {
+            presenter.didReceiveContributions(result: .success([:]))
+            return
+        }
+
+        let contributionsOperation: BaseOperation<[CrowdloanContributionResponse]> =
+            OperationCombiningService(operationManager: operationManager) { [weak self] in
+                guard let strongSelf = self else {
+                    return []
+                }
+
+                return crowdloans.map { crowdloan in
+                    strongSelf.crowdloanOperationFactory.fetchContributionOperation(
+                        connection: strongSelf.connection,
+                        runtimeService: strongSelf.runtimeService,
+                        address: strongSelf.selectedAddress,
+                        trieIndex: crowdloan.fundInfo.trieIndex
+                    )
+                }
+            }.longrunOperation()
+
+        contributionsOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let contributions = try contributionsOperation.extractNoCancellableResultData().toDict()
+                    self?.presenter.didReceiveContributions(result: .success(contributions))
+                } catch {
+                    if
+                        let encodingError = error as? StorageKeyEncodingOperationError,
+                        encodingError == .invalidStoragePath {
+                        self?.presenter.didReceiveCrowdloans(result: .success([]))
+                    } else {
+                        self?.presenter.didReceiveCrowdloans(result: .failure(error))
+                    }
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: [contributionsOperation], in: .transient)
+    }
+
     private func provideCrowdloans() {
         let crowdloanWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
             connection: connection,
@@ -50,6 +95,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
             DispatchQueue.main.async {
                 do {
                     let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
+                    self?.provideContributions(for: crowdloans)
                     self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
                     if
