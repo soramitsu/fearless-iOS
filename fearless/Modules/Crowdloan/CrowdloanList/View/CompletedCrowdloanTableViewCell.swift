@@ -17,6 +17,8 @@ final class CompletedCrowdloanTableViewCell: BaseCrowdloanTableViewCell {
 
         progressLabel.textColor = R.color.colorStrokeGray()
         progressLabel.font = .p2Paragraph
+
+        selectionStyle = .none
     }
 
     private var viewModel: CompletedCrowdloanViewModel?
