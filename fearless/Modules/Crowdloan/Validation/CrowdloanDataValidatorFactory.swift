@@ -22,6 +22,11 @@ protocol CrowdloanDataValidatorFactoryProtocol: BaseDataValidatingFactoryProtoco
         metadata: CrowdloanMetadata?,
         locale: Locale
     ) -> DataValidating
+
+    func crowdloanIsNotPrivate(
+        crowdloan: Crowdloan?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtocol {
@@ -143,6 +148,22 @@ final class CrowdloanDataValidatingFactory: CrowdloanDataValidatorFactoryProtoco
             } else {
                 return false
             }
+        })
+    }
+
+    func crowdloanIsNotPrivate(
+        crowdloan: Crowdloan?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentCrowdloanPrivateNotSupported(from: view, locale: locale)
+
+        }, preservesCondition: {
+            crowdloan?.fundInfo.verifier == nil
         })
     }
 }

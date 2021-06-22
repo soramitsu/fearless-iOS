@@ -8,6 +8,13 @@ struct StorageResponse<T: Decodable> {
     let value: T?
 }
 
+struct ChildStorageResponse<T: Decodable> {
+    let storageKey: Data
+    let childKey: Data
+    let data: Data?
+    let value: T?
+}
+
 protocol StorageRequestFactoryProtocol {
     func queryItems<K, T>(
         engine: JSONRPCEngine,
@@ -36,6 +43,15 @@ protocol StorageRequestFactoryProtocol {
         at blockHash: Data?
     )
         -> CompoundOperationWrapper<[StorageResponse<T>]> where T: Decodable
+
+    func queryChildItem<T>(
+        engine: JSONRPCEngine,
+        storageKeyParam: @escaping () throws -> Data,
+        childKeyParam: @escaping () throws -> Data,
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        mapper: DynamicScaleDecodable,
+        at blockHash: Data?
+    ) -> CompoundOperationWrapper<ChildStorageResponse<T>> where T: Decodable
 }
 
 final class StorageRequestFactory: StorageRequestFactoryProtocol {
@@ -247,6 +263,52 @@ final class StorageRequestFactory: StorageRequestFactoryProtocol {
             dependencies: dependencies
         )
     }
+
+    func queryChildItem<T>(
+        engine: JSONRPCEngine,
+        storageKeyParam: @escaping () throws -> Data,
+        childKeyParam: @escaping () throws -> Data,
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        mapper: DynamicScaleDecodable,
+        at _: Data?
+    ) -> CompoundOperationWrapper<ChildStorageResponse<T>> where T: Decodable {
+        let queryOperation = JSONRPCListOperation<String?>(engine: engine, method: RPCMethod.getChildStorageAt)
+        queryOperation.configurationBlock = {
+            do {
+                let childKey = try childKeyParam().toHex(includePrefix: true)
+                let storageKey = try storageKeyParam().toHex(includePrefix: true)
+
+                queryOperation.parameters = [childKey, storageKey]
+            } catch {
+                queryOperation.result = .failure(error)
+            }
+        }
+
+        let decodingOperation = ClosureOperation<ChildStorageResponse<T>> {
+            let maybeResult = try queryOperation.extractNoCancellableResultData()
+
+            let childKey = try childKeyParam()
+            let storageKey = try storageKeyParam()
+
+            if let hexData = maybeResult {
+                let data = try Data(hexString: hexData)
+
+                let decoder = try factory().createDecoder(from: data)
+
+                let json = try mapper.accept(decoder: decoder)
+
+                let value = try json.map(to: T.self)
+
+                return ChildStorageResponse(storageKey: storageKey, childKey: childKey, data: data, value: value)
+            } else {
+                return ChildStorageResponse(storageKey: storageKey, childKey: childKey, data: nil, value: nil)
+            }
+        }
+
+        decodingOperation.addDependency(queryOperation)
+
+        return CompoundOperationWrapper(targetOperation: decodingOperation, dependencies: [queryOperation])
+    }
 }
 
 extension StorageRequestFactoryProtocol {
@@ -293,6 +355,23 @@ extension StorageRequestFactoryProtocol {
             keys: keys,
             factory: factory,
             storagePath: storagePath,
+            at: nil
+        )
+    }
+
+    func queryChildItem<T>(
+        engine: JSONRPCEngine,
+        storageKeyParam: @escaping () throws -> Data,
+        childKeyParam: @escaping () throws -> Data,
+        factory: @escaping () throws -> RuntimeCoderFactoryProtocol,
+        mapper: DynamicScaleDecodable
+    ) -> CompoundOperationWrapper<ChildStorageResponse<T>> where T: Decodable {
+        queryChildItem(
+            engine: engine,
+            storageKeyParam: storageKeyParam,
+            childKeyParam: childKeyParam,
+            factory: factory,
+            mapper: mapper,
             at: nil
         )
     }

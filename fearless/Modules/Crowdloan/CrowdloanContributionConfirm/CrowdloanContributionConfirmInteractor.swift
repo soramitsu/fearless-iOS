@@ -72,10 +72,16 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
     private func submitExtrinsic(for contribution: BigUInt) {
         let call = callFactory.contribute(to: paraId, amount: contribution)
 
+        let builderClosure: ExtrinsicBuilderClosure = { builder in
+            let nextBuilder = try builder.adding(call: call)
+            return try self.bonusService?.applyOnchainBonusForContribution(
+                amount: contribution,
+                using: nextBuilder
+            ) ?? nextBuilder
+        }
+
         extrinsicService.submit(
-            { builder in
-                try builder.adding(call: call)
-            },
+            builderClosure,
             signer: signingWrapper,
             runningIn: .main,
             completion: { [weak self] result in
@@ -88,7 +94,7 @@ final class CrowdloanContributionConfirmInteractor: CrowdloanContributionInterac
 extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmInteractorInputProtocol {
     func submit(contribution: BigUInt) {
         if let bonusService = bonusService {
-            bonusService.applyBonusForContribution(amount: contribution) { [weak self] result in
+            bonusService.applyOffchainBonusForContribution(amount: contribution) { [weak self] result in
                 DispatchQueue.main.async {
                     switch result {
                     case .success:
@@ -101,5 +107,9 @@ extension CrowdloanContributionConfirmInteractor: CrowdloanContributionConfirmIn
         } else {
             submitExtrinsic(for: contribution)
         }
+    }
+
+    func estimateFee(for contribution: BigUInt) {
+        estimateFee(for: contribution, bonusService: bonusService)
     }
 }

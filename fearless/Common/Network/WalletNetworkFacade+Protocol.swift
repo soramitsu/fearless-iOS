@@ -98,7 +98,8 @@ extension WalletNetworkFacade: WalletNetworkOperationFactoryProtocol {
             }
         }
 
-        let dependencies = balanceOperation.allOperations + flatenedPriceOperations + minimalBalanceOperation.allOperations
+        let dependencies = balanceOperation.allOperations + flatenedPriceOperations +
+            minimalBalanceOperation.allOperations
 
         dependencies.forEach { mergeOperation.addDependency($0) }
 

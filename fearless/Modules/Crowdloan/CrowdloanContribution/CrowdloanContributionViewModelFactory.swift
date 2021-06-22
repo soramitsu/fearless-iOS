@@ -75,9 +75,8 @@ final class CrowdloanContributionViewModelFactory {
         var calendar = Calendar.current
         calendar.locale = locale
 
-        let maybeLeasingTimeInterval = chainDateCalculator.differenceBetweenLeasingPeriods(
-            firstPeriod: crowdloan.fundInfo.firstPeriod,
-            lastPeriod: crowdloan.fundInfo.lastPeriod,
+        let maybeLeasingTimeInterval = chainDateCalculator.intervalTillPeriod(
+            crowdloan.fundInfo.lastPeriod + 1,
             metadata: metadata,
             calendar: calendar
         )
@@ -94,7 +93,7 @@ final class CrowdloanContributionViewModelFactory {
 
             let dateFormatter = DateFormatter.shortDate.value(for: locale)
             let dateString = dateFormatter.string(from: leasingTimeInterval.tillDate)
-            leasingEndDateTitle = R.string.localizable.commonTillDate(dateString)
+            leasingEndDateTitle = R.string.localizable.commonTillDate(dateString, preferredLanguages: locale.rLanguages)
 
         } else {
             leasingPeriodTitle = ""
@@ -165,12 +164,12 @@ final class CrowdloanContributionViewModelFactory {
 
     private func createLearnMore(
         from displayInfo: CrowdloanDisplayInfo,
-        locale _: Locale
+        locale: Locale
     ) -> LearnMoreViewModel {
         let iconViewModel: ImageViewModelProtocol? = URL(string: displayInfo.icon).map { RemoteImageViewModel(url: $0)
         }
 
-        let title = R.string.localizable.crowdloanLearn(displayInfo.name)
+        let title = R.string.localizable.crowdloanLearn(displayInfo.name, preferredLanguages: locale.rLanguages)
         return LearnMoreViewModel(iconViewModel: iconViewModel, title: title)
     }
 }

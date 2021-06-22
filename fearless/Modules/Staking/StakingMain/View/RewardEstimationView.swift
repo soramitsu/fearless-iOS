@@ -134,7 +134,6 @@ final class RewardEstimationView: LocalizableView {
             amount: widgetViewModel.amount,
             limit: widgetViewModel.inputLimit,
             formatter: formatter,
-            inputLocale: locale,
             precision: Int16(formatter.maximumFractionDigits)
         )
 

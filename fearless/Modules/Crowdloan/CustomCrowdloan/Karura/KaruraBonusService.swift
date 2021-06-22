@@ -2,32 +2,7 @@ import Foundation
 import RobinHood
 import BigInt
 import IrohaCrypto
-
-enum KaruraBonusServiceError: Error, ErrorContentConvertible {
-    case invalidReferral
-    case internalError
-    case veficationFailed
-
-    func toErrorContent(for locale: Locale?) -> ErrorContent {
-        switch self {
-        case .invalidReferral:
-            return ErrorContent(
-                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
-                message: R.string.localizable.crowdloanReferralCodeInvalid(preferredLanguages: locale?.rLanguages)
-            )
-        case .internalError:
-            return ErrorContent(
-                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
-                message: R.string.localizable.crowdloanReferralCodeInternal(preferredLanguages: locale?.rLanguages)
-            )
-        case .veficationFailed:
-            return ErrorContent(
-                title: R.string.localizable.commonErrorGeneralTitle(preferredLanguages: locale?.rLanguages),
-                message: R.string.localizable.crowdloanBonusVerificationError(preferredLanguages: locale?.rLanguages)
-            )
-        }
-    }
-}
+import FearlessUtils
 
 final class KaruraBonusService {
     static let defaultReferralCode = "0x9642d0db9f3b301b44df74b63b0b930011e3f52154c5ca24b4dc67b3c7322f15"
@@ -107,7 +82,7 @@ final class KaruraBonusService {
             )
 
             guard resultData.result else {
-                throw KaruraBonusServiceError.veficationFailed
+                throw CrowdloanBonusServiceError.veficationFailed
             }
         }
 
@@ -147,14 +122,14 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                         self?.referralCode = referralCode
                         closure(.success(()))
                     } else {
-                        closure(.failure(KaruraBonusServiceError.invalidReferral))
+                        closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     }
 
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        closure(.failure(KaruraBonusServiceError.invalidReferral))
+                        closure(.failure(CrowdloanBonusServiceError.invalidReferral))
                     } else {
-                        closure(.failure(KaruraBonusServiceError.internalError))
+                        closure(.failure(CrowdloanBonusServiceError.internalError))
                     }
                 }
             }
@@ -163,10 +138,13 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         operationManager.enqueue(operations: [operation], in: .transient)
     }
 
-    func applyBonusForContribution(amount: BigUInt, with closure: @escaping (Result<Void, Error>) -> Void) {
+    func applyOffchainBonusForContribution(
+        amount: BigUInt,
+        with closure: @escaping (Result<Void, Error>) -> Void
+    ) {
         guard let referralCode = referralCode else {
             DispatchQueue.main.async {
-                closure(.failure(KaruraBonusServiceError.veficationFailed))
+                closure(.failure(CrowdloanBonusServiceError.veficationFailed))
             }
 
             return
@@ -177,7 +155,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         let infoOperation = ClosureOperation<KaruraVerifyInfo> {
             guard
                 let statement = try statementOperation.extractNoCancellableResultData().data(using: .utf8) else {
-                throw KaruraBonusServiceError.veficationFailed
+                throw CrowdloanBonusServiceError.veficationFailed
             }
 
             let signedData = try self.signingWrapper.sign(statement)
@@ -207,7 +185,7 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
                     closure(.success(()))
                 } catch {
                     if let responseError = error as? NetworkResponseError, responseError == .invalidParameters {
-                        closure(.failure(KaruraBonusServiceError.veficationFailed))
+                        closure(.failure(CrowdloanBonusServiceError.veficationFailed))
                     } else {
                         closure(.failure(error))
                     }
@@ -216,5 +194,12 @@ extension KaruraBonusService: CrowdloanBonusServiceProtocol {
         }
 
         operationManager.enqueue(operations: [statementOperation, infoOperation, verifyOperation], in: .transient)
+    }
+
+    func applyOnchainBonusForContribution(
+        amount _: BigUInt,
+        using builder: ExtrinsicBuilderProtocol
+    ) throws -> ExtrinsicBuilderProtocol {
+        builder
     }
 }

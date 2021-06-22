@@ -39,7 +39,8 @@
         "CancelProxy"
       ]
     },
-    "RefCount": "u32"
+    "RefCount": "u32",
+    "CompactAssignments": "CompactAssignmentsFrom258"
   },
   "versioning": [
     {
@@ -81,9 +82,15 @@
       }
     },
     {
-      "runtime_range": [23, null],
+      "runtime_range": [23, 9009],
       "types": {
         "CompactAssignments": "CompactAssignmentsFrom258"
+      }
+    },
+    {
+      "runtime_range": [9010, null],
+      "types": {
+        "CompactAssignments": "CompactAssignmentsFrom265"
       }
     },
     {
@@ -149,5 +156,12 @@
         "AccountInfo": "AccountInfoWithTripleRefCount"
       }
     }
+  ],
+  "runtime_upgrades": [
+    [0, 0], [29231, 1], [188836, 5], [199405, 6], [214264, 7],
+    [244358, 8], [303079, 9], [314201, 10], [342400, 11], [443963, 12],
+    [528470, 13], [687751, 14], [746085, 15], [787923, 16], [799302, 17],
+    [1205128, 18], [1603423, 23], [1733218, 24], [2005673, 25], [2436698, 26],
+    [3613564, 27], [3899547, 28], [4345767, 29], [4876134, 30]
   ]
 }
