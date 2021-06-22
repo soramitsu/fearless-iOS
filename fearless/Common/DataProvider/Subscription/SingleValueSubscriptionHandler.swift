@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 protocol SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for assetId: WalletAssetId)
@@ -24,6 +25,8 @@ protocol SingleValueSubscriptionHandler {
     func handlePayee(result: Result<RewardDestinationArg?, Error>, address: AccountAddress)
 
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain: Chain)
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain: Chain)
 }
 
 extension SingleValueSubscriptionHandler {
@@ -50,4 +53,6 @@ extension SingleValueSubscriptionHandler {
     func handlePayee(result _: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {}
 
     func handleBlockNumber(result _: Result<BlockNumber?, Error>, chain _: Chain) {}
+
+    func handleMinNominatorBond(result _: Result<BigUInt?, Error>, chain _: Chain) {}
 }

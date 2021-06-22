@@ -77,7 +77,7 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
             networkType: type
         )
 
-        let electionStatusSubscription = try createElectionStatusSubscription(
+        let commonStakingSubscription = try createCommonStakingSubscription(
             childSubscriptionFactory,
             engine: engine
         )
@@ -97,12 +97,14 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
                 networkType: type
             )
 
-        return [globalSubscriptionContainer,
-                accountSubscriptionContainer,
-                runtimeSubscription,
-                electionStatusSubscription,
-                stakingResolver,
-                stakingSubscription]
+        return [
+            globalSubscriptionContainer,
+            accountSubscriptionContainer,
+            runtimeSubscription,
+            commonStakingSubscription,
+            stakingResolver,
+            stakingSubscription
+        ]
     }
 
     private func createGlobalSubscriptions(_ factory: ChildSubscriptionFactoryProtocol)
@@ -172,12 +174,12 @@ final class WebSocketSubscriptionFactory: WebSocketSubscriptionFactoryProtocol {
         return factory.createEmptyHandlingSubscription(remoteKey: remoteStorageKey)
     }
 
-    private func createElectionStatusSubscription(
+    private func createCommonStakingSubscription(
         _ factory: ChildSubscriptionFactoryProtocol,
         engine: JSONRPCEngine
     )
         throws -> WebSocketSubscribing {
-        let subscription = ElectionStatusSubscription(
+        let subscription = CommonStakingSubscription(
             engine: engine,
             runtimeService: runtimeService,
             childSubscriptionFactory: factory,
