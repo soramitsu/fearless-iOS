@@ -6,7 +6,7 @@ import SoraFoundation
 
 class StakingBalanceTests: XCTestCase {
 
-    func testStakingBalanceActions() {
+    func testStakingBalanceActionsOnSuccess() {
         let interactor = MockStakingBalanceInteractorInputProtocol()
         let wireframe = MockStakingBalanceWireframeProtocol()
         let presenter = StakingBalancePresenter(
@@ -22,31 +22,9 @@ class StakingBalanceTests: XCTestCase {
             when(stub).localizationManager.get.then { _ in nil }
         }
 
-        // given
-        let presentErrorAlertExpectation = XCTestExpectation()
-        let emptyController: AccountItem? = nil
-        let emptyElectionStatus: ElectionStatus? = nil
-        presenter.controller = emptyController
-        presenter.electionStatus = emptyElectionStatus
-
-        stub(wireframe) { stub in
-            when(stub)
-                .present(message: any(), title: any(), closeAction: any(), from: any())
-                .then { _ in
-                    presentErrorAlertExpectation.fulfill()
-                }
-        }
-        // when
-        presenter.handleAction(.bondMore)
-
-        // then
-        wait(for: [presentErrorAlertExpectation], timeout: Constants.defaultExpectationDuration)
-
-
-
-        let stubController = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
+        let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
         let closeElectionStatus = ElectionStatus.close
-        presenter.controller = stubController
+        presenter.stashAccount = stubAccount
         presenter.electionStatus = closeElectionStatus
 
         // given
@@ -63,6 +41,8 @@ class StakingBalanceTests: XCTestCase {
         wait(for: [showBondMoreExpectation], timeout: Constants.defaultExpectationDuration)
 
         // given
+        presenter.controllerAccount = stubAccount
+
         let showUnbondExpectation = XCTestExpectation()
         stub(wireframe) { stub in
             when(stub).showUnbond(from: any()).then { _ in
@@ -74,8 +54,6 @@ class StakingBalanceTests: XCTestCase {
 
         // then
         wait(for: [showUnbondExpectation], timeout: Constants.defaultExpectationDuration)
-
-
 
         // given
         let showRedeemExpectation = XCTestExpectation()
@@ -129,5 +107,124 @@ class StakingBalanceTests: XCTestCase {
 
         // then
         wait(for: [cancelExpectation], timeout: Constants.defaultExpectationDuration)
+    }
+
+    func testBondActionOnError() {
+        let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
+
+        performTestStakingBalanceActionsOnError(
+            for: .bondMore,
+            stash: nil,
+            controller: nil,
+            electionStatus: nil
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .bondMore,
+            stash: nil,
+            controller: stubAccount,
+            electionStatus: .close
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .bondMore,
+            stash: stubAccount,
+            controller: stubAccount,
+            electionStatus: nil
+        )
+    }
+
+    func testUnbondActionOnError() {
+        let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
+
+        performTestStakingBalanceActionsOnError(
+            for: .unbond,
+            stash: nil,
+            controller: nil,
+            electionStatus: nil
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .unbond,
+            stash: stubAccount,
+            controller: nil,
+            electionStatus: .close
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .unbond,
+            stash: stubAccount,
+            controller: stubAccount,
+            electionStatus: nil
+        )
+    }
+
+    func testRedeemActionOnError() {
+        let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
+
+        performTestStakingBalanceActionsOnError(
+            for: .redeem,
+            stash: nil,
+            controller: nil,
+            electionStatus: nil
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .redeem,
+            stash: stubAccount,
+            controller: nil,
+            electionStatus: .close
+        )
+
+        performTestStakingBalanceActionsOnError(
+            for: .redeem,
+            stash: stubAccount,
+            controller: stubAccount,
+            electionStatus: nil
+        )
+    }
+
+    private func performTestStakingBalanceActionsOnError(
+        for action: StakingBalanceAction,
+        stash: AccountItem?,
+        controller: AccountItem?,
+        electionStatus: ElectionStatus?
+    ) {
+        let interactor = MockStakingBalanceInteractorInputProtocol()
+        let wireframe = MockStakingBalanceWireframeProtocol()
+        let presenter = StakingBalancePresenter(
+            interactor: interactor,
+            wireframe: wireframe,
+            viewModelFactory: MockStakingBalanceViewModelFactoryProtocol(),
+            accountAddress: ""
+        )
+        let view = MockStakingBalanceViewProtocol()
+        presenter.view = view
+
+        stub(view) { stub in
+            when(stub).localizationManager.get.then { _ in nil }
+        }
+
+        // given
+
+        let presentErrorAlertExpectation = XCTestExpectation()
+        presenter.controllerAccount = controller
+        presenter.stashAccount = stash
+        presenter.electionStatus = electionStatus
+
+        stub(wireframe) { stub in
+            when(stub)
+                .present(message: any(), title: any(), closeAction: any(), from: any())
+                .then { _ in
+                    presentErrorAlertExpectation.fulfill()
+                }
+        }
+
+        // when
+
+        presenter.handleAction(action)
+
+        // then
+        wait(for: [presentErrorAlertExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }
