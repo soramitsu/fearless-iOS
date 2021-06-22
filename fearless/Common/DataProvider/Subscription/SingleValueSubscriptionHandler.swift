@@ -27,6 +27,8 @@ protocol SingleValueSubscriptionHandler {
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain: Chain)
 
     func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain: Chain)
+
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain: Chain)
 }
 
 extension SingleValueSubscriptionHandler {
@@ -55,4 +57,6 @@ extension SingleValueSubscriptionHandler {
     func handleBlockNumber(result _: Result<BlockNumber?, Error>, chain _: Chain) {}
 
     func handleMinNominatorBond(result _: Result<BigUInt?, Error>, chain _: Chain) {}
+
+    func handleMaxNominatorsCount(result _: Result<UInt32?, Error>, chain _: Chain) {}
 }

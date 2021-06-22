@@ -20,7 +20,7 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
-    private var minBondedProvider: AnyDataProvider<DecodedMinNominatorBond>?
+    private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var nominationProvider: AnyDataProvider<DecodedNomination>?

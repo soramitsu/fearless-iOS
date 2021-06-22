@@ -6,7 +6,8 @@ import BigInt
 
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
-typealias DecodedMinNominatorBond = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
+typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
+typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
@@ -24,7 +25,9 @@ protocol SingleValueProviderFactoryProtocol {
     func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedElectionStatus>
     func getMinNominatorBondProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-        -> AnyDataProvider<DecodedMinNominatorBond>
+        -> AnyDataProvider<DecodedBigUInt>
+    func getMaxNominatorsCountProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
     func getNominationProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedNomination>
     func getValidatorProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -380,10 +383,22 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
     func getMinNominatorBondProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
-    ) throws -> AnyDataProvider<DecodedMinNominatorBond> {
+    ) throws -> AnyDataProvider<DecodedBigUInt> {
         try getProviderForChain(
             chain,
             path: .minNominatorBond,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .maxNominatorsCount,
             runtimeService: runtimeService,
             shouldUseFallback: false
         )

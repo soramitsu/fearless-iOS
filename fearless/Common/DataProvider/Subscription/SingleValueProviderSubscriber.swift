@@ -58,5 +58,10 @@ protocol SingleValueProviderSubscriber {
     func subscribeToMinNominatorBondProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedMinNominatorBond>?
+    ) -> AnyDataProvider<DecodedBigUInt>?
+
+    func subscribeToMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>?
 }
