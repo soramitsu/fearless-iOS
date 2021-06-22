@@ -1,6 +1,6 @@
 import UIKit
 
-class SelectedValidatorListHeaderView: CustomValidatorListHeaderView {
+final class SelectedValidatorListHeaderView: CustomValidatorListHeaderView {
     override init(reuseIdentifier: String?) {
         super.init(reuseIdentifier: reuseIdentifier)
     }
@@ -11,7 +11,7 @@ class SelectedValidatorListHeaderView: CustomValidatorListHeaderView {
     }
 
     func bind(viewModel: TitleWithSubtitleViewModel, shouldAlert: Bool) {
-        bind(title: viewModel.title, details: viewModel.subtitle)
+        bind(viewModel: viewModel)
 
         let color: UIColor = shouldAlert ?
             R.color.colorRed()! :
