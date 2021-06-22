@@ -70,6 +70,14 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "EraElectionStatus")
     }
 
+    static var minNominatorBond: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "MinNominatorBond")
+    }
+
+    static var maxNominatorsCount: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "MaxNominatorsCount")
+    }
+
     static var payee: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "Payee")
     }

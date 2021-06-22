@@ -20,8 +20,10 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
 
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
+    private var minBondedProvider: AnyDataProvider<DecodedMinNominatorBond>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var nominationProvider: AnyDataProvider<DecodedNomination>?
     private var payeeProvider: AnyDataProvider<DecodedPayee>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
 
@@ -65,20 +67,26 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     private func setupExtrinsicBuiler(
         _ builder: ExtrinsicBuilderProtocol,
         amount: Decimal,
-        resettingRewardDestination: Bool
+        resettingRewardDestination: Bool,
+        chilling: Bool
     ) throws -> ExtrinsicBuilderProtocol {
         guard let amountValue = amount.toSubstrateAmount(precision: chain.addressType.precision) else {
             throw CommonError.undefined
         }
 
-        if resettingRewardDestination {
-            return try builder
-                .adding(call: callFactory.unbond(amount: amountValue))
-                .adding(call: callFactory.setPayee(for: .stash))
-        } else {
-            return try builder
-                .adding(call: callFactory.unbond(amount: amountValue))
+        var resultBuilder = builder
+
+        if chilling {
+            resultBuilder = try builder.adding(call: callFactory.chill())
         }
+
+        resultBuilder = try resultBuilder.adding(call: callFactory.unbond(amount: amountValue))
+
+        if resettingRewardDestination {
+            resultBuilder = try resultBuilder.adding(call: callFactory.setPayee(for: .stash))
+        }
+
+        return resultBuilder
     }
 }
 
@@ -94,6 +102,8 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
             runtimeService: runtimeService
         )
 
+        minBondedProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
+
         fetchConstant(
             for: .existentialDeposit,
             runtimeCodingService: runtimeService,
@@ -105,7 +115,7 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
         feeProxy.delegate = self
     }
 
-    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool) {
+    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool) {
         guard let extrinsicService = extrinsicService else {
             presenter.didReceiveFee(result: .failure(CommonError.undefined))
             return
@@ -124,12 +134,13 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
             return try strongSelf.setupExtrinsicBuiler(
                 builder,
                 amount: amount,
-                resettingRewardDestination: resettingRewardDestination
+                resettingRewardDestination: resettingRewardDestination,
+                chilling: chilling
             )
         }
     }
 
-    func submit(for amount: Decimal, resettingRewardDestination: Bool) {
+    func submit(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool) {
         guard
             let extrinsicService = extrinsicService,
             let signingWrapper = signingWrapper else {
@@ -137,18 +148,21 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
             return
         }
 
-        extrinsicService.submit(
-            { [weak self] builder in
-                guard let strongSelf = self else {
-                    throw CommonError.undefined
-                }
+        let builderClosure: ExtrinsicBuilderClosure = { [weak self] builder in
+            guard let strongSelf = self else {
+                throw CommonError.undefined
+            }
 
-                return try strongSelf.setupExtrinsicBuiler(
-                    builder,
-                    amount: amount,
-                    resettingRewardDestination: resettingRewardDestination
-                )
-            },
+            return try strongSelf.setupExtrinsicBuiler(
+                builder,
+                amount: amount,
+                resettingRewardDestination: resettingRewardDestination,
+                chilling: chilling
+            )
+        }
+
+        extrinsicService.submit(
+            builderClosure,
             signer: signingWrapper,
             runningIn: .main,
             completion: { [weak self] result in
@@ -168,6 +182,7 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
             clear(dataProvider: &accountInfoProvider)
             clear(dataProvider: &ledgerProvider)
             clear(dataProvider: &payeeProvider)
+            clear(dataProvider: &nominationProvider)
 
             presenter.didReceiveStashItem(result: result)
 
@@ -183,6 +198,11 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
                 )
 
                 payeeProvider = subscribeToPayeeProvider(
+                    for: stashItem.stash,
+                    runtimeService: runtimeService
+                )
+
+                nominationProvider = subscribeToNominationProvider(
                     for: stashItem.stash,
                     runtimeService: runtimeService
                 )
@@ -203,6 +223,7 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
                 presenter.didReceiveStakingLedger(result: .success(nil))
                 presenter.didReceiveAccountInfo(result: .success(nil))
                 presenter.didReceivePayee(result: .success(nil))
+                presenter.didReceiveNomination(result: .success(nil))
             }
 
         } catch {
@@ -210,6 +231,7 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
             presenter.didReceiveAccountInfo(result: .failure(error))
             presenter.didReceiveStakingLedger(result: .failure(error))
             presenter.didReceivePayee(result: .failure(error))
+            presenter.didReceiveNomination(result: .failure(error))
         }
     }
 
@@ -231,6 +253,14 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
 
     func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
         presenter.didReceiveElectionStatus(result: result)
+    }
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+        presenter.didReceiveMinBonded(result: result)
+    }
+
+    func handleNomination(result: Result<Nomination?, Error>, address _: AccountAddress) {
+        presenter.didReceiveNomination(result: result)
     }
 }
 

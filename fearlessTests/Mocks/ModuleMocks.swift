@@ -38572,31 +38572,31 @@ import SoraFoundation
     
     
     
-     func submit(for amount: Decimal, resettingRewardDestination: Bool)  {
+     func submit(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)  {
         
-    return cuckoo_manager.call("submit(for: Decimal, resettingRewardDestination: Bool)",
-            parameters: (amount, resettingRewardDestination),
-            escapingParameters: (amount, resettingRewardDestination),
+    return cuckoo_manager.call("submit(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)",
+            parameters: (amount, resettingRewardDestination, chilling),
+            escapingParameters: (amount, resettingRewardDestination, chilling),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.submit(for: amount, resettingRewardDestination: resettingRewardDestination))
+            defaultCall: __defaultImplStub!.submit(for: amount, resettingRewardDestination: resettingRewardDestination, chilling: chilling))
         
     }
     
     
     
-     func estimateFee(for amount: Decimal, resettingRewardDestination: Bool)  {
+     func estimateFee(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)  {
         
-    return cuckoo_manager.call("estimateFee(for: Decimal, resettingRewardDestination: Bool)",
-            parameters: (amount, resettingRewardDestination),
-            escapingParameters: (amount, resettingRewardDestination),
+    return cuckoo_manager.call("estimateFee(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)",
+            parameters: (amount, resettingRewardDestination, chilling),
+            escapingParameters: (amount, resettingRewardDestination, chilling),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.estimateFee(for: amount, resettingRewardDestination: resettingRewardDestination))
+            defaultCall: __defaultImplStub!.estimateFee(for: amount, resettingRewardDestination: resettingRewardDestination, chilling: chilling))
         
     }
     
@@ -38614,14 +38614,14 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorInputProtocol.self, method: "setup()", parameterMatchers: matchers))
 	    }
 	    
-	    func submit<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal, Bool)> where M1.MatchedType == Decimal, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorInputProtocol.self, method: "submit(for: Decimal, resettingRewardDestination: Bool)", parameterMatchers: matchers))
+	    func submit<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2, chilling: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal, Bool, Bool)> where M1.MatchedType == Decimal, M2.MatchedType == Bool, M3.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }, wrap(matchable: chilling) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorInputProtocol.self, method: "submit(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)", parameterMatchers: matchers))
 	    }
 	    
-	    func estimateFee<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal, Bool)> where M1.MatchedType == Decimal, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorInputProtocol.self, method: "estimateFee(for: Decimal, resettingRewardDestination: Bool)", parameterMatchers: matchers))
+	    func estimateFee<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2, chilling: M3) -> Cuckoo.ProtocolStubNoReturnFunction<(Decimal, Bool, Bool)> where M1.MatchedType == Decimal, M2.MatchedType == Bool, M3.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }, wrap(matchable: chilling) { $0.2 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorInputProtocol.self, method: "estimateFee(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -38647,15 +38647,15 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func submit<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2) -> Cuckoo.__DoNotUse<(Decimal, Bool), Void> where M1.MatchedType == Decimal, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return cuckoo_manager.verify("submit(for: Decimal, resettingRewardDestination: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func submit<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2, chilling: M3) -> Cuckoo.__DoNotUse<(Decimal, Bool, Bool), Void> where M1.MatchedType == Decimal, M2.MatchedType == Bool, M3.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }, wrap(matchable: chilling) { $0.2 }]
+	        return cuckoo_manager.verify("submit(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func estimateFee<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2) -> Cuckoo.__DoNotUse<(Decimal, Bool), Void> where M1.MatchedType == Decimal, M2.MatchedType == Bool {
-	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }]
-	        return cuckoo_manager.verify("estimateFee(for: Decimal, resettingRewardDestination: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func estimateFee<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable, M3: Cuckoo.Matchable>(for amount: M1, resettingRewardDestination: M2, chilling: M3) -> Cuckoo.__DoNotUse<(Decimal, Bool, Bool), Void> where M1.MatchedType == Decimal, M2.MatchedType == Bool, M3.MatchedType == Bool {
+	        let matchers: [Cuckoo.ParameterMatcher<(Decimal, Bool, Bool)>] = [wrap(matchable: amount) { $0.0 }, wrap(matchable: resettingRewardDestination) { $0.1 }, wrap(matchable: chilling) { $0.2 }]
+	        return cuckoo_manager.verify("estimateFee(for: Decimal, resettingRewardDestination: Bool, chilling: Bool)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	}
@@ -38671,11 +38671,11 @@ import SoraFoundation
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func submit(for amount: Decimal, resettingRewardDestination: Bool)   {
+     func submit(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func estimateFee(for amount: Decimal, resettingRewardDestination: Bool)   {
+     func estimateFee(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -38843,6 +38843,36 @@ import SoraFoundation
     
     
     
+     func didReceiveMinBonded(result: Result<BigUInt?, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveMinBonded(result: Result<BigUInt?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveMinBonded(result: result))
+        
+    }
+    
+    
+    
+     func didReceiveNomination(result: Result<Nomination?, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveNomination(result: Result<Nomination?, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveNomination(result: result))
+        
+    }
+    
+    
+    
      func didSubmitUnbonding(result: Result<String, Error>)  {
         
     return cuckoo_manager.call("didSubmitUnbonding(result: Result<String, Error>)",
@@ -38908,6 +38938,16 @@ import SoraFoundation
 	    func didReceivePayee<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<RewardDestinationArg?, Error>)> where M1.MatchedType == Result<RewardDestinationArg?, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<RewardDestinationArg?, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorOutputProtocol.self, method: "didReceivePayee(result: Result<RewardDestinationArg?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveMinBonded<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<BigUInt?, Error>)> where M1.MatchedType == Result<BigUInt?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<BigUInt?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorOutputProtocol.self, method: "didReceiveMinBonded(result: Result<BigUInt?, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveNomination<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<Nomination?, Error>)> where M1.MatchedType == Result<Nomination?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<Nomination?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockStakingUnbondConfirmInteractorOutputProtocol.self, method: "didReceiveNomination(result: Result<Nomination?, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	    func didSubmitUnbonding<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<String, Error>)> where M1.MatchedType == Result<String, Error> {
@@ -38986,6 +39026,18 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
+	    func didReceiveMinBonded<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<BigUInt?, Error>), Void> where M1.MatchedType == Result<BigUInt?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<BigUInt?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveMinBonded(result: Result<BigUInt?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func didReceiveNomination<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<Nomination?, Error>), Void> where M1.MatchedType == Result<Nomination?, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<Nomination?, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveNomination(result: Result<Nomination?, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
 	    func didSubmitUnbonding<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<String, Error>), Void> where M1.MatchedType == Result<String, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<String, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return cuckoo_manager.verify("didSubmitUnbonding(result: Result<String, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -39033,6 +39085,14 @@ import SoraFoundation
     }
     
      func didReceivePayee(result: Result<RewardDestinationArg?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveMinBonded(result: Result<BigUInt?, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveNomination(result: Result<Nomination?, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

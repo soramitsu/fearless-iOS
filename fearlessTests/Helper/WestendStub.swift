@@ -48,6 +48,13 @@ struct WestendStub {
                               item: .close)
     }()
 
+    static let minNominatorBond: DecodedMinNominatorBond = {
+        DecodedMinNominatorBond(
+            identifier: Chain.westend.genesisHash + "_minbond",
+            item: StringScaleMapper(value: BigUInt(1e+12))
+        )
+    }()
+
     static let nomination: DecodedNomination = {
         let nomination = Nomination(targets: [],
                                     submittedIn: 0)

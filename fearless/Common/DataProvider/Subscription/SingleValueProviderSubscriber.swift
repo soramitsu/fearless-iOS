@@ -54,4 +54,9 @@ protocol SingleValueProviderSubscriber {
         for chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedBlockNumber>?
+
+    func subscribeToMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedMinNominatorBond>?
 }

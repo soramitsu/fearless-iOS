@@ -51,6 +51,11 @@ extension ConnectionItem {
                 title: "Rococo, Laminar node",
                 url: URL(string: "wss://rococo-community-rpc.laminar.codes/ws")!,
                 type: SNAddressType.kusamaSecondary
+            ),
+            ConnectionItem(
+                title: "Westend, OnFinality node",
+                url: URL(string: "wss://westend.api.onfinality.io/public-ws")!,
+                type: SNAddressType.genericSubstrate
             )
         ]
     }

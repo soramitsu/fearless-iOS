@@ -386,6 +386,44 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
 
         return blockNumberProvider
     }
+
+    func subscribeToMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedMinNominatorBond>? {
+        guard let minBondProvider = try? singleValueProviderFactory
+            .getMinNominatorBondProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedMinNominatorBond>]) in
+            let minNominatorBond = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleMinNominatorBond(
+                result: .success(minNominatorBond?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleMinNominatorBond(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        minBondProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return minBondProvider
+    }
 }
 
 extension SingleValueProviderSubscriber where Self: SingleValueSubscriptionHandler {

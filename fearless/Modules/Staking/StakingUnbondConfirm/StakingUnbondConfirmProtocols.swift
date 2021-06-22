@@ -16,8 +16,8 @@ protocol StakingUnbondConfirmPresenterProtocol: AnyObject {
 
 protocol StakingUnbondConfirmInteractorInputProtocol: AnyObject {
     func setup()
-    func submit(for amount: Decimal, resettingRewardDestination: Bool)
-    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool)
+    func submit(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)
+    func estimateFee(for amount: Decimal, resettingRewardDestination: Bool, chilling: Bool)
 }
 
 protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
@@ -30,6 +30,8 @@ protocol StakingUnbondConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveController(result: Result<AccountItem?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceivePayee(result: Result<RewardDestinationArg?, Error>)
+    func didReceiveMinBonded(result: Result<BigUInt?, Error>)
+    func didReceiveNomination(result: Result<Nomination?, Error>)
 
     func didSubmitUnbonding(result: Result<String, Error>)
 }
