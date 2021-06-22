@@ -390,13 +390,13 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
     func subscribeToMinNominatorBondProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedMinNominatorBond>? {
+    ) -> AnyDataProvider<DecodedBigUInt>? {
         guard let minBondProvider = try? singleValueProviderFactory
             .getMinNominatorBondProvider(chain: chain, runtimeService: runtimeService) else {
             return nil
         }
 
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedMinNominatorBond>]) in
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedBigUInt>]) in
             let minNominatorBond = changes.reduceToLastChange()
             self?.subscriptionHandler.handleMinNominatorBond(
                 result: .success(minNominatorBond?.item?.value),
@@ -423,6 +423,44 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         )
 
         return minBondProvider
+    }
+
+    func subscribeToMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>? {
+        guard let maxNominatorsCountProvider = try? singleValueProviderFactory
+            .getMaxNominatorsCountProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedU32>]) in
+            let maxNominatorsCount = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleMaxNominatorsCount(
+                result: .success(maxNominatorsCount?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleMaxNominatorsCount(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        maxNominatorsCountProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return maxNominatorsCountProvider
     }
 }
 
