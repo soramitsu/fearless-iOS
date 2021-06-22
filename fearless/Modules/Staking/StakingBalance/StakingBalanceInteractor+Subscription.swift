@@ -139,7 +139,7 @@ extension StakingBalanceInteractor {
     func handle(stashItem: StashItem?) {
         if let stashItem = stashItem {
             subscribeToLedger(address: stashItem.controller)
-            fetchController(for: stashItem.controller)
+            fetchAccounts(for: stashItem)
         }
 
         presenter?.didReceive(stashItemResult: .success(stashItem))
