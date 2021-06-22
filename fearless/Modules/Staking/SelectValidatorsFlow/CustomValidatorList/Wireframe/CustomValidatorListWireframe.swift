@@ -1,6 +1,6 @@
 import Foundation
 
-final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
+class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
@@ -26,22 +26,9 @@ final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     }
 
     func proceed(
-        from view: CustomValidatorListViewProtocol?,
-        validators: [ElectedValidatorInfo],
-        maxTargets: Int,
-        delegate: SelectedValidatorListDelegate
-    ) {
-        guard let nextView = SelectedValidatorListViewFactory.createView(
-            selectedValidators: validators,
-            maxTargets: maxTargets,
-            delegate: delegate
-        ) else {
-            return
-        }
-
-        view?.controller.navigationController?.pushViewController(
-            nextView.controller,
-            animated: true
-        )
-    }
+        from _: CustomValidatorListViewProtocol?,
+        validators _: [ElectedValidatorInfo],
+        maxTargets _: Int,
+        delegate _: SelectedValidatorListDelegate
+    ) {}
 }

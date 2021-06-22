@@ -1,6 +1,4 @@
-import Foundation
-
-final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWireframe {
+final class InitiatedBondingSelectedValidatorListWireframe: SelectedValidatorListWireframe {
     let state: InitiatedBonding
 
     init(state: InitiatedBonding) {
@@ -8,7 +6,7 @@ final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWir
     }
 
     override func proceed(
-        from view: RecommendedValidatorListViewProtocol?,
+        from view: SelectedValidatorListViewProtocol?,
         targets: [SelectedValidatorInfo],
         maxTargets: Int
     ) {
@@ -18,7 +16,8 @@ final class InitiatedBondingRecommendationWireframe: RecommendedValidatorListWir
             maxTargets: maxTargets
         )
 
-        guard let confirmView = SelectValidatorsConfirmViewFactory.createInitiatedBondingView(for: nomination) else {
+        guard let confirmView = SelectValidatorsConfirmViewFactory
+            .createInitiatedBondingView(for: nomination) else {
             return
         }
 

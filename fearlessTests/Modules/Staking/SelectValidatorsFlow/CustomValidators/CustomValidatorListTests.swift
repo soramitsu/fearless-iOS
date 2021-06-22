@@ -49,7 +49,7 @@ class CustomValidatorListTests: XCTestCase {
 
         // when
 
-        let expectation = XCTestExpectation()
+        let reloadExpectation = XCTestExpectation()
         let filterExpectation = XCTestExpectation()
 
         stub(view) { stub in
@@ -59,7 +59,7 @@ class CustomValidatorListTests: XCTestCase {
 
             when(stub).reload(any(), at: any()).then { (viewModel, _) in
                 XCTAssertEqual(WestendStub.recommendedValidators.count, viewModel.cellViewModels.count)
-                expectation.fulfill()
+                reloadExpectation.fulfill()
             }
         }
 
@@ -67,6 +67,6 @@ class CustomValidatorListTests: XCTestCase {
 
         // then
 
-        wait(for: [expectation, filterExpectation], timeout: Constants.defaultExpectationDuration)
+        wait(for: [reloadExpectation, filterExpectation], timeout: Constants.defaultExpectationDuration)
     }
 }

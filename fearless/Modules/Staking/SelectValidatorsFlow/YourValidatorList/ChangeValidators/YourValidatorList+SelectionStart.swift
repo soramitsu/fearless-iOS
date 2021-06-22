@@ -14,11 +14,11 @@ extension YourValidatorList {
             recommended: [ElectedValidatorInfo],
             maxTargets: Int
         ) {
-            // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-            guard let nextView = CustomValidatorListViewFactory.createView(
-                electedValidators: validators,
+            guard let nextView = CustomValidatorListViewFactory.createChangeYourValidatorsView(
+                for: validators,
                 recommendedValidators: recommended,
-                maxTargets: maxTargets
+                maxTargets: maxTargets,
+                with: state
             ) else { return }
 
             view?.controller.navigationController?.pushViewController(
@@ -55,36 +55,6 @@ extension YourValidatorList {
 
             view?.controller.navigationController?.pushViewController(
                 nextView.controller,
-                animated: true
-            )
-        }
-    }
-
-    final class RecommendationWireframe: RecommendedValidatorListWireframe {
-        private let state: ExistingBonding
-
-        init(state: ExistingBonding) {
-            self.state = state
-        }
-
-        override func proceed(
-            from view: RecommendedValidatorListViewProtocol?,
-            targets: [SelectedValidatorInfo],
-            maxTargets: Int
-        ) {
-            let nomination = PreparedNomination(
-                bonding: state,
-                targets: targets,
-                maxTargets: maxTargets
-            )
-
-            guard let confirmView = SelectValidatorsConfirmViewFactory
-                .createChangeYourValidatorsView(for: nomination) else {
-                return
-            }
-
-            view?.controller.navigationController?.pushViewController(
-                confirmView.controller,
                 animated: true
             )
         }

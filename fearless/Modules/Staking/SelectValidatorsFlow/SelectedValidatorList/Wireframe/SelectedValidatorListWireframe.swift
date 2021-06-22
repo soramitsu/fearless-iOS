@@ -1,4 +1,4 @@
-final class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
+class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtocol {
     func present(_ validatorInfo: ValidatorInfoProtocol, from view: ControllerBackedProtocol?) {
         guard
             let validatorInfoView = ValidatorInfoViewFactory
@@ -12,9 +12,11 @@ final class SelectedValidatorListWireframe: SelectedValidatorListWireframeProtoc
         )
     }
 
-    func proceed(from _: SelectedValidatorListViewProtocol?, targets _: [SelectedValidatorInfo], maxTargets _: Int) {
-        #warning("Not implemented")
-    }
+    func proceed(
+        from _: SelectedValidatorListViewProtocol?,
+        targets _: [SelectedValidatorInfo],
+        maxTargets _: Int
+    ) {}
 
     func dismiss(_ view: ControllerBackedProtocol?) {
         view?.controller

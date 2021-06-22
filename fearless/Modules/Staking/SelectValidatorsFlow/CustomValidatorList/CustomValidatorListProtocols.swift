@@ -56,6 +56,29 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
     )
 }
 
+protocol CustomValidatorListViewFactoryProtocol {
+    static func createInitiatedBondingView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: InitiatedBonding
+    ) -> CustomValidatorListViewProtocol?
+
+    static func createChangeTargetsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol?
+
+    static func createChangeYourValidatorsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol?
+}
+
 extension CustomValidatorListViewProtocol {
     func reload(_ viewModel: CustomValidatorListViewModel, at indexes: [Int]? = nil) {
         reload(viewModel, at: indexes)
