@@ -8,11 +8,11 @@ final class StakingAmountPresenter {
     var interactor: StakingAmountInteractorInputProtocol!
 
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
-    let errorBalanceViewModelFactory: BalanceViewModelFactoryProtocol
     let rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol
     let selectedAccount: AccountItem
     let logger: LoggerProtocol
     let applicationConfig: ApplicationConfigProtocol
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
 
     private var calculator: RewardCalculatorEngineProtocol?
     private var priceData: PriceData?
@@ -24,7 +24,11 @@ final class StakingAmountPresenter {
     private var rewardDestination: RewardDestination<AccountItem> = .restake
     private var payoutAccount: AccountItem
     private var loadingPayouts: Bool = false
-    private var minimalAmount: Decimal?
+    private var minimalBalance: Decimal?
+    private var minBondAmount: Decimal?
+    private var counterForNominators: UInt32?
+    private var maxNominatorsCount: UInt32?
+    private var electionStatus: ElectionStatus?
 
     init(
         amount: Decimal?,
@@ -32,7 +36,7 @@ final class StakingAmountPresenter {
         selectedAccount: AccountItem,
         rewardDestViewModelFactory: RewardDestinationViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
-        errorBalanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         applicationConfig: ApplicationConfigProtocol,
         logger: LoggerProtocol
     ) {
@@ -42,7 +46,7 @@ final class StakingAmountPresenter {
         payoutAccount = selectedAccount
         self.rewardDestViewModelFactory = rewardDestViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
-        self.errorBalanceViewModelFactory = errorBalanceViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.applicationConfig = applicationConfig
         self.logger = logger
     }
@@ -126,31 +130,6 @@ final class StakingAmountPresenter {
             )
         }
     }
-
-    private func ensureMinimum(for amount: Decimal) -> Bool {
-        guard let minimum = minimalAmount else {
-            return false
-        }
-
-        return amount >= minimum
-    }
-
-    private func presentMinimumAmountViolation() {
-        guard let view = view else {
-            return
-        }
-
-        let locale = view.localizationManager?.selectedLocale ?? Locale.current
-
-        let value: String = {
-            if let amount = minimalAmount {
-                return errorBalanceViewModelFactory.amountFromValue(amount).value(for: locale)
-            }
-            return ""
-        }()
-
-        wireframe.presentAmountTooLow(value: value, from: view, locale: locale)
-    }
 }
 
 extension StakingAmountPresenter: StakingAmountPresenterProtocol {
@@ -225,45 +204,44 @@ extension StakingAmountPresenter: StakingAmountPresenterProtocol {
     }
 
     func proceed() {
-        guard let amount = amount, let balance = balance else {
-            return
-        }
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
 
-        guard let fee = fee else {
-            if let view = view {
-                wireframe.presentFeeNotReceived(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
+                self?.scheduleFeeEstimation()
+            },
+            dataValidatingFactory.canPayFeeAndAmount(
+                balance: balance,
+                fee: fee,
+                spendingAmount: amount,
+                locale: locale
+            ),
+            dataValidatingFactory.canNominate(
+                amount: amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minBondAmount,
+                locale: locale
+            ),
+            dataValidatingFactory.maxNominatorsCountNotReached(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                locale: locale
+            ),
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+        ]).runValidation { [weak self] in
+            guard
+                let amount = self?.amount,
+                let rewardDestination = self?.rewardDestination else {
+                return
             }
 
-            scheduleFeeEstimation()
+            let stakingState = InitiatedBonding(
+                amount: amount,
+                rewardDestination: rewardDestination
+            )
 
-            return
+            self?.wireframe.proceed(from: self?.view, state: stakingState)
         }
-
-        guard amount + fee <= balance else {
-            if let view = view {
-                wireframe.presentAmountTooHigh(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
-            }
-
-            return
-        }
-
-        guard ensureMinimum(for: amount) else {
-            presentMinimumAmountViolation()
-            return
-        }
-
-        let stakingState = InitiatedBonding(
-            amount: amount,
-            rewardDestination: rewardDestination
-        )
-
-        wireframe.proceed(from: view, state: stakingState)
     }
 
     func close() {
@@ -352,11 +330,27 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         }
     }
 
-    func didReceive(minimalAmount: BigUInt) {
-        if let amount = Decimal.fromSubstrateAmount(minimalAmount, precision: asset.precision) {
+    func didReceive(minimalBalance: BigUInt) {
+        if let amount = Decimal.fromSubstrateAmount(minimalBalance, precision: asset.precision) {
             logger.debug("Did receive minimun bonding amount: \(amount)")
-            self.minimalAmount = amount
+            self.minimalBalance = amount
         }
+    }
+
+    func didReceive(minBondAmount: BigUInt?) {
+        self.minBondAmount = minBondAmount.map { Decimal.fromSubstrateAmount($0, precision: asset.precision) } ?? nil
+    }
+
+    func didReceive(counterForNominators: UInt32?) {
+        self.counterForNominators = counterForNominators
+    }
+
+    func didReceive(maxNominatorCount: UInt32?) {
+        maxNominatorsCount = maxNominatorCount
+    }
+
+    func didReceive(electionStatus: ElectionStatus?) {
+        self.electionStatus = electionStatus
     }
 }
 
