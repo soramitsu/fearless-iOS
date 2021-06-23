@@ -26,7 +26,7 @@ class SelectedValidatorListTests: XCTestCase {
         // when
 
         let reloadExpectation = XCTestExpectation()
-        let removeExpectation = XCTestExpectation()
+        let removeLastExpectation = XCTestExpectation()
 
         stub(view) { stub in
             when(stub).didReload(any()).then { viewModel in
@@ -42,8 +42,8 @@ class SelectedValidatorListTests: XCTestCase {
                 any(),
                 byRemovingItemAt: any()
             ).then { viewModel, index in
-                XCTAssertLessThan(index, viewModel.cellViewModels.count)
-                removeExpectation.fulfill()
+                XCTAssertEqual(index, viewModel.cellViewModels.count)
+                removeLastExpectation.fulfill()
             }
         }
 
@@ -52,7 +52,7 @@ class SelectedValidatorListTests: XCTestCase {
         // then
 
         wait(
-            for: [reloadExpectation, removeExpectation],
+            for: [reloadExpectation, removeLastExpectation],
             timeout: Constants.defaultExpectationDuration
         )
     }
