@@ -155,6 +155,11 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
             return
         }
 
+        guard !nomination.targets.isEmpty else {
+            presenter.didFailNomination(error: StakingConfirmError.extrinsicFailed)
+            return
+        }
+
         guard let closure = createExtrinsicBuilderClosure() else {
             return
         }
