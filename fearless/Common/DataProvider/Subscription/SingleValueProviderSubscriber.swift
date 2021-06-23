@@ -60,6 +60,11 @@ protocol SingleValueProviderSubscriber {
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedBigUInt>?
 
+    func subscribeToCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>?
+
     func subscribeToMaxNominatorsCountProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol

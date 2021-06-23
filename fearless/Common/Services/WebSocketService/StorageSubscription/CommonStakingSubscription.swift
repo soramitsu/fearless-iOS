@@ -66,6 +66,11 @@ final class CommonStakingSubscription: WebSocketSubscribing {
                 keys.append(key)
             }
 
+            if metadata.getStorageMetadata(for: .counterForNominators) != nil {
+                let key = try storageKeyFactory.key(from: .counterForNominators)
+                keys.append(key)
+            }
+
             return keys
         }
 

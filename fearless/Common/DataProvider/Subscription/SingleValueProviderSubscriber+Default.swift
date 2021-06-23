@@ -425,6 +425,44 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         return minBondProvider
     }
 
+    func subscribeToCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>? {
+        guard let counterForNominatorProvider = try? singleValueProviderFactory
+            .getCounterForNominatorsProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedU32>]) in
+            let counterForNominators = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleCounterForNominators(
+                result: .success(counterForNominators?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleCounterForNominators(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        counterForNominatorProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return counterForNominatorProvider
+    }
+
     func subscribeToMaxNominatorsCountProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol

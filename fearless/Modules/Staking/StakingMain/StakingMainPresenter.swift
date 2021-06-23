@@ -11,6 +11,8 @@ final class StakingMainPresenter {
     let viewModelFacade: StakingViewModelFacadeProtocol
     let logger: LoggerProtocol?
 
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
+
     private var stateViewModelFactory: StakingStateViewModelFactoryProtocol
     private var stateMachine: StakingStateMachineProtocol
 
@@ -39,6 +41,7 @@ final class StakingMainPresenter {
         stateViewModelFactory: StakingStateViewModelFactoryProtocol,
         networkInfoViewModelFactory: NetworkInfoViewModelFactoryProtocol,
         viewModelFacade: StakingViewModelFacadeProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         logger: LoggerProtocol?
     ) {
         self.stateViewModelFactory = stateViewModelFactory
@@ -48,6 +51,8 @@ final class StakingMainPresenter {
 
         let stateMachine = StakingStateMachine()
         self.stateMachine = stateMachine
+
+        self.dataValidatingFactory = dataValidatingFactory
 
         stateMachine.delegate = self
     }
@@ -86,40 +91,42 @@ final class StakingMainPresenter {
     }
 
     func setupValidators(for bondedState: BondedState) {
-        guard let controllerAccount = controllerAccount else {
-            if let view = view {
-                let locale = view.localizationManager?.selectedLocale
-                let controllerAddress = bondedState.stashItem.controller
-                wireframe.presentMissingController(from: view, address: controllerAddress, locale: locale)
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(
+                controller: controllerAccount,
+                for: bondedState.stashItem.controller,
+                locale: locale
+            )
+        ]).runValidation { [weak self] in
+            guard
+                let chain = bondedState.commonData.chain,
+                let amount = Decimal.fromSubstrateAmount(
+                    bondedState.ledgerInfo.active,
+                    precision: chain.addressType.precision
+                ),
+                let payee = bondedState.payee,
+                let rewardDestination = try? RewardDestination(
+                    payee: payee,
+                    stashItem: bondedState.stashItem,
+                    chain: chain
+                ),
+                let controllerAccount = self?.controllerAccount,
+                controllerAccount.address == bondedState.stashItem.controller
+            else {
+                return
             }
 
-            return
-        }
+            let existingBonding = ExistingBonding(
+                stashAddress: bondedState.stashItem.stash,
+                controllerAccount: controllerAccount,
+                amount: amount,
+                rewardDestination: rewardDestination
+            )
 
-        guard
-            let chain = bondedState.commonData.chain,
-            let amount = Decimal.fromSubstrateAmount(
-                bondedState.ledgerInfo.active,
-                precision: chain.addressType.precision
-            ),
-            let payee = bondedState.payee,
-            let rewardDestination = try? RewardDestination(
-                payee: payee,
-                stashItem: bondedState.stashItem,
-                chain: chain
-            ),
-            controllerAccount.address == bondedState.stashItem.controller
-        else {
-            return
+            self?.wireframe.showRecommendedValidators(from: self?.view, existingBonding: existingBonding)
         }
-
-        let existingBonding = ExistingBonding(
-            stashAddress: bondedState.stashItem.stash,
-            controllerAccount: controllerAccount,
-            amount: amount,
-            rewardDestination: rewardDestination
-        )
-        wireframe.showRecommendedValidators(from: view, existingBonding: existingBonding)
     }
 }
 
@@ -133,7 +140,23 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
     }
 
     func performMainAction() {
-        wireframe.showSetupAmount(from: view, amount: amount)
+        guard let commonData = stateMachine
+            .viewState(using: { (state: BaseStakingState) in state })?.commonData else {
+            return
+        }
+
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.maxNominatorsCountNotReached(
+                counterForNominators: commonData.counterForNominators,
+                maxNominatorsCount: commonData.maxNominatorsCount,
+                locale: locale
+            ),
+            dataValidatingFactory.electionClosed(commonData.electionStatus, locale: locale)
+        ]).runValidation { [weak self] in
+            self?.wireframe.showSetupAmount(from: self?.view, amount: self?.amount)
+        }
     }
 
     func performNominationStatusAction() {
@@ -459,6 +482,33 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         switch result {
         case let .success(maxNominatorsPerValidator):
             stateMachine.state.process(maxNominatorsPerValidator: maxNominatorsPerValidator)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>) {
+        switch result {
+        case let .success(minNominatorBond):
+            stateMachine.state.process(minNominatorBond: minNominatorBond)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveCounterForNominators(result: Result<UInt32?, Error>) {
+        switch result {
+        case let .success(counterForNominators):
+            stateMachine.state.process(counterForNominators: counterForNominators)
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>) {
+        switch result {
+        case let .success(maxNominatorsCount):
+            stateMachine.state.process(maxNominatorsCount: maxNominatorsCount)
         case let .failure(error):
             handle(error: error)
         }
