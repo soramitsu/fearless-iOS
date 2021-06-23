@@ -5,7 +5,7 @@ protocol CustomValidatorListViewProtocol: ControllerBackedProtocol, Localizable 
     func setFilterAppliedState(to state: Bool)
 }
 
-protocol CustomValidatorListPresenterProtocol: AnyObject {
+protocol CustomValidatorListPresenterProtocol: SelectedValidatorListDelegate {
     func setup()
 
     func fillWithRecommended()
@@ -44,8 +44,39 @@ protocol CustomValidatorListWireframeProtocol: AlertPresentable, ErrorPresentabl
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
     )
+
     func presentFilters()
     func presentSearch()
+
+    func proceed(
+        from view: CustomValidatorListViewProtocol?,
+        validators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        delegate: SelectedValidatorListDelegate
+    )
+}
+
+protocol CustomValidatorListViewFactoryProtocol {
+    static func createInitiatedBondingView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: InitiatedBonding
+    ) -> CustomValidatorListViewProtocol?
+
+    static func createChangeTargetsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol?
+
+    static func createChangeYourValidatorsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol?
 }
 
 extension CustomValidatorListViewProtocol {

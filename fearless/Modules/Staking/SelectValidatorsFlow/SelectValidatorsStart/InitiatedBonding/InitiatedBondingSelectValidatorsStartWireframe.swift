@@ -13,12 +13,13 @@ final class InitiatedBondingSelectValidatorsStartWireframe: SelectValidatorsStar
         recommended: [ElectedValidatorInfo],
         maxTargets: Int
     ) {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-891
-        guard let nextView = CustomValidatorListViewFactory.createView(
-            electedValidators: validators,
-            recommendedValidators: recommended,
-            maxTargets: maxTargets
-        ) else { return }
+        guard let nextView = CustomValidatorListViewFactory
+            .createInitiatedBondingView(
+                for: validators,
+                recommendedValidators: recommended,
+                maxTargets: maxTargets,
+                with: state
+            ) else { return }
 
         view?.controller.navigationController?.pushViewController(
             nextView.controller,

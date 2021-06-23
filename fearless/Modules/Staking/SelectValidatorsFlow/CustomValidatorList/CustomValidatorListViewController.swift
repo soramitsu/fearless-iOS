@@ -109,29 +109,29 @@ final class CustomValidatorListViewController: UIViewController, ViewHolder {
     private func updateProceedButton() {
         let buttonTitle: String
         let enabled: Bool
-        let fillColor: UIColor
 
         if selectedValidatorsCount == 0 {
             enabled = false
+            rootView.proceedButton.applyDisabledStyle()
+
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
-            fillColor = R.color.colorDarkGray()!
 
         } else {
             enabled = true
+            rootView.proceedButton.applyDefaultStyle()
+
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonEnabledTitle(
                     selectedValidatorsCount,
                     selectedValidatorsLimit,
                     preferredLanguages: selectedLocale.rLanguages
                 )
-            fillColor = R.color.colorAccent()!
         }
 
-        rootView.proceedButton.triangularedView?.fillColor = fillColor
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
         rootView.proceedButton.isEnabled = enabled
     }

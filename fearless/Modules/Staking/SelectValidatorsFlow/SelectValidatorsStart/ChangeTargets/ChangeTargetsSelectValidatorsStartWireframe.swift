@@ -13,11 +13,13 @@ final class ChangeTargetsSelectValidatorsStartWireframe: SelectValidatorsStartWi
         recommended: [ElectedValidatorInfo],
         maxTargets: Int
     ) {
-        guard let nextView = CustomValidatorListViewFactory.createView(
-            electedValidators: validators,
-            recommendedValidators: recommended,
-            maxTargets: maxTargets
-        ) else { return }
+        guard let nextView = CustomValidatorListViewFactory
+            .createChangeTargetsView(
+                for: validators,
+                recommendedValidators: recommended,
+                maxTargets: maxTargets,
+                with: state
+            ) else { return }
 
         view?.controller.navigationController?.pushViewController(
             nextView.controller,

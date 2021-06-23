@@ -2,11 +2,57 @@ import Foundation
 import SoraFoundation
 import SoraKeystore
 
-struct CustomValidatorListViewFactory {
+struct CustomValidatorListViewFactory: CustomValidatorListViewFactoryProtocol {
+    static func createInitiatedBondingView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: InitiatedBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = InitiatedBondingCustomValidatorListWireframe(state: state)
+        return createView(
+            electedValidators: electedValidators,
+            recommendedValidators: recommendedValidators,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
+    }
+
+    static func createChangeTargetsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = ChangeTargetsCustomValidatorListWireframe(state: state)
+        return createView(
+            electedValidators: electedValidators,
+            recommendedValidators: recommendedValidators,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
+    }
+
+    static func createChangeYourValidatorsView(
+        for electedValidators: [ElectedValidatorInfo],
+        recommendedValidators: [ElectedValidatorInfo],
+        maxTargets: Int,
+        with state: ExistingBonding
+    ) -> CustomValidatorListViewProtocol? {
+        let wireframe = YourValidatorList.CustomListWireframe(state: state)
+        return createView(
+            electedValidators: electedValidators,
+            recommendedValidators: recommendedValidators,
+            maxTargets: maxTargets,
+            with: wireframe
+        )
+    }
+
     static func createView(
         electedValidators: [ElectedValidatorInfo],
         recommendedValidators: [ElectedValidatorInfo],
-        maxTargets: Int
+        maxTargets: Int,
+        with wireframe: CustomValidatorListWireframeProtocol
     ) -> CustomValidatorListViewProtocol? {
         let settings = SettingsManager.shared
         let chain = settings.selectedConnection.type.chain
@@ -24,8 +70,6 @@ struct CustomValidatorListViewFactory {
             singleValueProviderFactory: SingleValueProviderFactory.shared,
             assetId: assetId
         )
-
-        let wireframe = CustomValidatorListWireframe()
 
         let balanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
@@ -50,7 +94,8 @@ struct CustomValidatorListViewFactory {
 
         let view = CustomValidatorListViewController(
             presenter: presenter,
-            selectedValidatorsLimit: maxTargets
+            selectedValidatorsLimit: maxTargets,
+            localizationManager: LocalizationManager.shared
         )
 
         presenter.view = view

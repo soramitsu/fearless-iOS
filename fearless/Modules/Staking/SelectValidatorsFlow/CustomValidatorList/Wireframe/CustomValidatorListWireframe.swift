@@ -1,6 +1,6 @@
 import Foundation
 
-final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
+class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func present(
         _ validatorInfo: ValidatorInfoProtocol,
         from view: ControllerBackedProtocol?
@@ -24,4 +24,11 @@ final class CustomValidatorListWireframe: CustomValidatorListWireframeProtocol {
     func presentSearch() {
         // TODO: https://soramitsu.atlassian.net/browse/FLW-893
     }
+
+    func proceed(
+        from _: CustomValidatorListViewProtocol?,
+        validators _: [ElectedValidatorInfo],
+        maxTargets _: Int,
+        delegate _: SelectedValidatorListDelegate
+    ) {}
 }

@@ -200,9 +200,16 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func proceed() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-892
+        wireframe.proceed(
+            from: view,
+            validators: selectedValidatorList,
+            maxTargets: maxTargets,
+            delegate: self
+        )
     }
 }
+
+// MARK: - CustomValidatorListInteractorOutputProtocol
 
 extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProtocol {
     func didReceivePriceData(result: Result<PriceData?, Error>) {
@@ -216,6 +223,18 @@ extension CustomValidatorListPresenter: CustomValidatorListInteractorOutputProto
         }
     }
 }
+
+extension CustomValidatorListPresenter: SelectedValidatorListDelegate {
+    func didRemove(_ validator: ElectedValidatorInfo) {
+        if let displayedIndex = filteredValidatorList.firstIndex(of: validator) {
+            changeValidatorSelection(at: displayedIndex)
+        } else if let selectedIndex = selectedValidatorList.firstIndex(of: validator) {
+            selectedValidatorList.remove(at: selectedIndex)
+        }
+    }
+}
+
+// MARK: - Localizable
 
 extension CustomValidatorListPresenter: Localizable {
     func applyLocalization() {
