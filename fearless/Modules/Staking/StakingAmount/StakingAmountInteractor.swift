@@ -9,14 +9,14 @@ final class StakingAmountInteractor {
     weak var presenter: StakingAmountInteractorOutputProtocol!
 
     let singleValueProviderFactory: SingleValueProviderFactoryProtocol
-    private let repository: AnyDataProviderRepository<AccountItem>
-    private let extrinsicService: ExtrinsicServiceProtocol
-    private let runtimeService: RuntimeCodingServiceProtocol
-    private let rewardService: RewardCalculatorServiceProtocol
-    private let operationManager: OperationManagerProtocol
-    private let assetId: WalletAssetId
-    private let chain: Chain
-    private let accountAddress: AccountAddress
+    let repository: AnyDataProviderRepository<AccountItem>
+    let extrinsicService: ExtrinsicServiceProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
+    let rewardService: RewardCalculatorServiceProtocol
+    let operationManager: OperationManagerProtocol
+    let assetId: WalletAssetId
+    let chain: Chain
+    let accountAddress: AccountAddress
 
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?

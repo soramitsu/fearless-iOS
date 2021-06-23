@@ -17,7 +17,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let payee: AnyDataProvider<DecodedPayee>
     let blockNumber: AnyDataProvider<DecodedBlockNumber>
     let crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>
-    let minNominatorBond: AnyDataProvider<DecodedMinNominatorBond>
+    let minNominatorBond: AnyDataProvider<DecodedBigUInt>
     let jsonProviders: [URL: Any]
 
     init(price: AnySingleValueProvider<PriceData>,
@@ -30,7 +30,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          activeEra: AnyDataProvider<DecodedActiveEra>,
          payee: AnyDataProvider<DecodedPayee>,
          blockNumber: AnyDataProvider<DecodedBlockNumber>,
-         minNominatorBond: AnyDataProvider<DecodedMinNominatorBond>,
+         minNominatorBond: AnyDataProvider<DecodedBigUInt>,
          jsonProviders: [URL: Any] = [:],
          crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>) {
         self.price = price
@@ -94,7 +94,7 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     func getMinNominatorBondProvider(
         chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
-    ) throws -> AnyDataProvider<DecodedMinNominatorBond> {
+    ) throws -> AnyDataProvider<DecodedBigUInt> {
         minNominatorBond
     }
 

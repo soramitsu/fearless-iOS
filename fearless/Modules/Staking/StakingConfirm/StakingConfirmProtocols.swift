@@ -22,14 +22,13 @@ protocol StakingConfirmInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingConfirmInteractorOutputProtocol: AnyObject {
-    func didReceive(model: StakingConfirmationModel)
-    func didReceive(modelError: Error)
-
-    func didReceive(price: PriceData?)
-    func didReceive(priceError: Error)
-
-    func didReceive(balance: AccountData?)
-    func didReceive(balanceError: Error)
+    func didReceiveModel(result: Result<StakingConfirmationModel, Error>)
+    func didReceivePrice(result: Result<PriceData?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
+    func didReceiveMinBond(result: Result<BigUInt?, Error>)
+    func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
+    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
 
     func didStartNomination()
     func didCompleteNomination(txHash: String)
@@ -39,10 +38,7 @@ protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceive(feeError: Error)
 }
 
-protocol StakingConfirmWireframeProtocol:
-    AlertPresentable,
-    ErrorPresentable,
-    AddressOptionsPresentable,
+protocol StakingConfirmWireframeProtocol: AlertPresentable, ErrorPresentable, AddressOptionsPresentable,
     StakingErrorPresentable {
     func complete(from view: StakingConfirmViewProtocol?)
 }
