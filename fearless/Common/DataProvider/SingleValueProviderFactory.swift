@@ -26,6 +26,8 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedElectionStatus>
     func getMinNominatorBondProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBigUInt>
+    func getCounterForNominatorsProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
     func getMaxNominatorsCountProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedU32>
     func getNominationProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -387,6 +389,18 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         try getProviderForChain(
             chain,
             path: .minNominatorBond,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .counterForNominators,
             runtimeService: runtimeService,
             shouldUseFallback: false
         )

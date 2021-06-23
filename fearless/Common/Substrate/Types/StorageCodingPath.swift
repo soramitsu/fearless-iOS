@@ -74,6 +74,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "MinNominatorBond")
     }
 
+    static var counterForNominators: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "CounterForNominators")
+    }
+
     static var maxNominatorsCount: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "MaxNominatorsCount")
     }

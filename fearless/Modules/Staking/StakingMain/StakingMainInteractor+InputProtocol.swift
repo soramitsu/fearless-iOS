@@ -15,6 +15,7 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         subscribeToAccountChanges()
         subscribeToStashControllerProvider()
         subscribeToElectionStatus()
+        subscribeToNominatorsLimit()
         provideRewardCalculator()
         provideEraStakersInfo()
         provideNetworkStakingInfo()
@@ -37,6 +38,9 @@ extension StakingMainInteractor: EventVisitorProtocol {
         if updateAccountAndChainIfNeeded() {
             clearElectionStatusProvider()
             subscribeToElectionStatus()
+
+            clearNominatorsLimitProviders()
+            subscribeToNominatorsLimit()
 
             clearStashControllerProvider()
             subscribeToStashControllerProvider()
