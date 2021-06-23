@@ -24462,46 +24462,31 @@ import SoraFoundation
     
     
     
-     func updateViewModel(_ viewModel: SelectedValidatorListViewModel)  {
+     func didReload(_ viewModel: SelectedValidatorListViewModel)  {
         
-    return cuckoo_manager.call("updateViewModel(_: SelectedValidatorListViewModel)",
+    return cuckoo_manager.call("didReload(_: SelectedValidatorListViewModel)",
             parameters: (viewModel),
             escapingParameters: (viewModel),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.updateViewModel(viewModel))
+            defaultCall: __defaultImplStub!.didReload(viewModel))
         
     }
     
     
     
-     func reload(_ viewModel: SelectedValidatorListViewModel)  {
+     func didChangeViewModel(_ viewModel: SelectedValidatorListViewModel, byRemovingItemAt index: Int)  {
         
-    return cuckoo_manager.call("reload(_: SelectedValidatorListViewModel)",
-            parameters: (viewModel),
-            escapingParameters: (viewModel),
+    return cuckoo_manager.call("didChangeViewModel(_: SelectedValidatorListViewModel, byRemovingItemAt: Int)",
+            parameters: (viewModel, index),
+            escapingParameters: (viewModel, index),
             superclassCall:
                 
                 Cuckoo.MockManager.crashOnProtocolSuperclassCall()
                 ,
-            defaultCall: __defaultImplStub!.reload(viewModel))
-        
-    }
-    
-    
-    
-     func didRemoveItem(at index: Int)  {
-        
-    return cuckoo_manager.call("didRemoveItem(at: Int)",
-            parameters: (index),
-            escapingParameters: (index),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didRemoveItem(at: index))
+            defaultCall: __defaultImplStub!.didChangeViewModel(viewModel, byRemovingItemAt: index))
         
     }
     
@@ -24544,19 +24529,14 @@ import SoraFoundation
 	    }
 	    
 	    
-	    func updateViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewModel)> where M1.MatchedType == SelectedValidatorListViewModel {
+	    func didReload<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewModel)> where M1.MatchedType == SelectedValidatorListViewModel {
 	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListViewProtocol.self, method: "updateViewModel(_: SelectedValidatorListViewModel)", parameterMatchers: matchers))
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListViewProtocol.self, method: "didReload(_: SelectedValidatorListViewModel)", parameterMatchers: matchers))
 	    }
 	    
-	    func reload<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewModel)> where M1.MatchedType == SelectedValidatorListViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListViewProtocol.self, method: "reload(_: SelectedValidatorListViewModel)", parameterMatchers: matchers))
-	    }
-	    
-	    func didRemoveItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Int)> where M1.MatchedType == Int {
-	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListViewProtocol.self, method: "didRemoveItem(at: Int)", parameterMatchers: matchers))
+	    func didChangeViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ viewModel: M1, byRemovingItemAt index: M2) -> Cuckoo.ProtocolStubNoReturnFunction<(SelectedValidatorListViewModel, Int)> where M1.MatchedType == SelectedValidatorListViewModel, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel, Int)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: index) { $0.1 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockSelectedValidatorListViewProtocol.self, method: "didChangeViewModel(_: SelectedValidatorListViewModel, byRemovingItemAt: Int)", parameterMatchers: matchers))
 	    }
 	    
 	    func applyLocalization() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
@@ -24596,21 +24576,15 @@ import SoraFoundation
 	
 	    
 	    @discardableResult
-	    func updateViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewModel), Void> where M1.MatchedType == SelectedValidatorListViewModel {
+	    func didReload<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewModel), Void> where M1.MatchedType == SelectedValidatorListViewModel {
 	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("updateViewModel(_: SelectedValidatorListViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	        return cuckoo_manager.verify("didReload(_: SelectedValidatorListViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
-	    func reload<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewModel), Void> where M1.MatchedType == SelectedValidatorListViewModel {
-	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel)>] = [wrap(matchable: viewModel) { $0 }]
-	        return cuckoo_manager.verify("reload(_: SelectedValidatorListViewModel)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
-	    func didRemoveItem<M1: Cuckoo.Matchable>(at index: M1) -> Cuckoo.__DoNotUse<(Int), Void> where M1.MatchedType == Int {
-	        let matchers: [Cuckoo.ParameterMatcher<(Int)>] = [wrap(matchable: index) { $0 }]
-	        return cuckoo_manager.verify("didRemoveItem(at: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    func didChangeViewModel<M1: Cuckoo.Matchable, M2: Cuckoo.Matchable>(_ viewModel: M1, byRemovingItemAt index: M2) -> Cuckoo.__DoNotUse<(SelectedValidatorListViewModel, Int), Void> where M1.MatchedType == SelectedValidatorListViewModel, M2.MatchedType == Int {
+	        let matchers: [Cuckoo.ParameterMatcher<(SelectedValidatorListViewModel, Int)>] = [wrap(matchable: viewModel) { $0.0 }, wrap(matchable: index) { $0.1 }]
+	        return cuckoo_manager.verify("didChangeViewModel(_: SelectedValidatorListViewModel, byRemovingItemAt: Int)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
 	    @discardableResult
@@ -24654,15 +24628,11 @@ import SoraFoundation
     
 
     
-     func updateViewModel(_ viewModel: SelectedValidatorListViewModel)   {
+     func didReload(_ viewModel: SelectedValidatorListViewModel)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
-     func reload(_ viewModel: SelectedValidatorListViewModel)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didRemoveItem(at index: Int)   {
+     func didChangeViewModel(_ viewModel: SelectedValidatorListViewModel, byRemovingItemAt index: Int)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

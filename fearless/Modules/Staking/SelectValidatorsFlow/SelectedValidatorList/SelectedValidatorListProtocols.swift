@@ -1,9 +1,11 @@
 import SoraFoundation
 
 protocol SelectedValidatorListViewProtocol: ControllerBackedProtocol, Localizable {
-    func updateViewModel(_ viewModel: SelectedValidatorListViewModel)
-    func reload(_ viewModel: SelectedValidatorListViewModel)
-    func didRemoveItem(at index: Int)
+    func didReload(_ viewModel: SelectedValidatorListViewModel)
+    func didChangeViewModel(
+        _ viewModel: SelectedValidatorListViewModel,
+        byRemovingItemAt index: Int
+    )
 }
 
 protocol SelectedValidatorListDelegate: AnyObject {

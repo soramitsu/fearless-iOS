@@ -26,11 +26,10 @@ class SelectedValidatorListTests: XCTestCase {
         // when
 
         let reloadExpectation = XCTestExpectation()
+        let removeExpectation = XCTestExpectation()
 
         stub(view) { stub in
-            when(stub).didRemoveItem(at: any()).thenDoNothing()
-
-            when(stub).reload(any()).then { viewModel in
+            when(stub).didReload(any()).then { viewModel in
                 XCTAssertEqual(viewModel.cellViewModels.count, validators.count)
                 reloadExpectation.fulfill()
             }
@@ -38,10 +37,22 @@ class SelectedValidatorListTests: XCTestCase {
 
         presenter.setup()
 
+        stub(view) { stub in
+            when(stub).didChangeViewModel(
+                any(),
+                byRemovingItemAt: any()
+            ).then { viewModel, index in
+                XCTAssertLessThan(index, viewModel.cellViewModels.count)
+                removeExpectation.fulfill()
+            }
+        }
+
+        presenter.removeItem(at: validators.count - 1)
+
         // then
 
         wait(
-            for: [reloadExpectation],
+            for: [reloadExpectation, removeExpectation],
             timeout: Constants.defaultExpectationDuration
         )
     }

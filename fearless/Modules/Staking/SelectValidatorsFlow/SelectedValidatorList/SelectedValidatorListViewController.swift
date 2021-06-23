@@ -7,7 +7,6 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
     let presenter: SelectedValidatorListPresenterProtocol
     let selectedValidatorsLimit: Int
 
-    private var headerView: SelectedValidatorListHeaderView?
     private var viewModel: SelectedValidatorListViewModel?
 
     // MARK: - Lifecycle
@@ -94,11 +93,10 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
 
         let buttonTitle: String
         let enabled: Bool
-        let fillColor: UIColor
 
         if cellViewModels.count > selectedValidatorsLimit {
             enabled = false
-            fillColor = R.color.colorDarkGray()!
+            rootView.proceedButton.applyDisabledStyle()
             buttonTitle = R.string.localizable
                 .stakingCustomProceedButtonDisabledTitle(
                     selectedValidatorsLimit,
@@ -107,21 +105,24 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
 
         } else {
             enabled = true
-            fillColor = R.color.colorAccent()!
+            rootView.proceedButton.applyDefaultStyle()
             buttonTitle = R.string.localizable
                 .commonContinue(
                     preferredLanguages: selectedLocale.rLanguages
                 )
         }
 
-        rootView.proceedButton.triangularedView?.fillColor = fillColor
         rootView.proceedButton.imageWithTitleView?.title = buttonTitle
         rootView.proceedButton.isEnabled = enabled
     }
 
     private func updateHeaderView() {
-        guard let viewModel = viewModel else { return }
-        headerView?.bind(
+        guard let viewModel = viewModel,
+              let headerView = rootView.tableView
+              .headerView(forSection: 0) as? SelectedValidatorListHeaderView
+        else { return }
+
+        headerView.bind(
             viewModel: viewModel.headerViewModel,
             shouldAlert: viewModel.limitIsExceeded
         )
@@ -165,26 +166,28 @@ extension SelectedValidatorListViewController: Localizable {
 // MARK: - SelectedValidatorListViewProtocol
 
 extension SelectedValidatorListViewController: SelectedValidatorListViewProtocol {
-    func updateViewModel(_ viewModel: SelectedValidatorListViewModel) {
-        self.viewModel = viewModel
-        updateHeaderView()
-        updateProceedButton()
-    }
-
-    func reload(_ viewModel: SelectedValidatorListViewModel) {
+    func didReload(_ viewModel: SelectedValidatorListViewModel) {
         self.viewModel = viewModel
         updateProceedButton()
         rootView.tableView.reloadData()
     }
 
-    func didRemoveItem(at index: Int) {
+    func didChangeViewModel(
+        _ viewModel: SelectedValidatorListViewModel,
+        byRemovingItemAt index: Int
+    ) {
+        self.viewModel = viewModel
+
         let indexPath = IndexPath(row: index, section: 0)
         rootView.tableView.deleteRows(at: [indexPath], with: .left)
 
-        let cellViewModels = viewModel?.cellViewModels ?? []
+        let cellViewModels = viewModel.cellViewModels
         if cellViewModels.isEmpty {
             presenter.dismiss()
         }
+
+        updateHeaderView()
+        updateProceedButton()
     }
 }
 
@@ -229,7 +232,6 @@ extension SelectedValidatorListViewController: UITableViewDelegate {
         guard let viewModel = viewModel else { return nil }
 
         let headerView: SelectedValidatorListHeaderView = tableView.dequeueReusableHeaderFooterView()
-        self.headerView = headerView
         headerView.bind(
             viewModel: viewModel.headerViewModel,
             shouldAlert: viewModel.limitIsExceeded

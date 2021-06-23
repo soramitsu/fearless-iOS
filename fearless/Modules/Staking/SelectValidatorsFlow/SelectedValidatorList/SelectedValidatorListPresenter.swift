@@ -9,7 +9,6 @@ final class SelectedValidatorListPresenter {
     let maxTargets: Int
 
     private var selectedValidatorList: [ElectedValidatorInfo]
-    private var viewModel: SelectedValidatorListViewModel?
 
     init(
         wireframe: SelectedValidatorListWireframeProtocol,
@@ -37,8 +36,7 @@ final class SelectedValidatorListPresenter {
 
     private func provideViewModel() {
         let viewModel = createViewModel()
-        self.viewModel = viewModel
-        view?.reload(viewModel)
+        view?.didReload(viewModel)
     }
 
     private func selectedValidatorInfo(from validator: ElectedValidatorInfo) -> SelectedValidatorInfo {
@@ -71,14 +69,13 @@ extension SelectedValidatorListPresenter: SelectedValidatorListPresenterProtocol
 
     func removeItem(at index: Int) {
         let validator = selectedValidatorList[index]
-        delegate?.didRemove(validator)
 
         selectedValidatorList.remove(at: index)
-        let viewModel = createViewModel()
-        self.viewModel = viewModel
 
-        view?.updateViewModel(viewModel)
-        view?.didRemoveItem(at: index)
+        let viewModel = createViewModel()
+        view?.didChangeViewModel(viewModel, byRemovingItemAt: index)
+
+        delegate?.didRemove(validator)
     }
 
     func proceed() {
