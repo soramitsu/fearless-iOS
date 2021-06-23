@@ -20,6 +20,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performValidationStatusAction()
     func performRewardInfoAction()
     func performChangeValidatorsAction()
+    func performSetupValidatorsForBondedAction()
     func performBondMoreAction()
     func performRedeemAction()
     func updateAmount(_ newValue: Decimal)
