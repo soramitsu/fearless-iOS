@@ -10,21 +10,29 @@ final class StakingConfirmPresenter {
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
+    private var minimalBalance: Decimal?
+    private var minNominatorBond: Decimal?
+    private var counterForNominators: UInt32?
+    private var maxNominatorsCount: UInt32?
+    private var electionStatus: ElectionStatus?
 
     var state: StakingConfirmationModel?
     let logger: LoggerProtocol?
     let confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol
     let balanceViewModelFactory: BalanceViewModelFactoryProtocol
+    let dataValidatingFactory: StakingDataValidatingFactoryProtocol
     let asset: WalletAsset
 
     init(
         confirmationViewModelFactory: StakingConfirmViewModelFactoryProtocol,
         balanceViewModelFactory: BalanceViewModelFactoryProtocol,
+        dataValidatingFactory: StakingDataValidatingFactoryProtocol,
         asset: WalletAsset,
         logger: LoggerProtocol? = nil
     ) {
         self.confirmationViewModelFactory = confirmationViewModelFactory
         self.balanceViewModelFactory = balanceViewModelFactory
+        self.dataValidatingFactory = dataValidatingFactory
         self.logger = logger
         self.asset = asset
     }
@@ -135,58 +143,113 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
     }
 
     func proceed() {
-        guard let fee = fee else {
-            if let view = view {
-                wireframe.presentFeeNotReceived(
-                    from: view,
-                    locale: view.localizationManager?.selectedLocale
-                )
+        let locale = view?.localizationManager?.selectedLocale ?? Locale.current
+
+        DataValidationRunner(validators: [
+            dataValidatingFactory.has(fee: fee, locale: locale) { [weak self] in
+                self?.interactor.estimateFee()
+            },
+            dataValidatingFactory.canNominate(
+                amount: state?.amount,
+                minimalBalance: minimalBalance,
+                minNominatorBond: minNominatorBond,
+                locale: locale
+            ),
+            dataValidatingFactory.maxNominatorsCountNotReached(
+                counterForNominators: counterForNominators,
+                maxNominatorsCount: maxNominatorsCount,
+                locale: locale
+            ),
+            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+        ]).runValidation { [weak self] in
+            guard let fee = self?.fee else {
+                return
             }
 
-            return
+            self?.interactor.submitNomination(for: self?.balance ?? 0.0, lastFee: fee)
         }
-
-        interactor.submitNomination(for: balance ?? 0.0, lastFee: fee)
     }
 }
 
 extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
-    func didReceive(model: StakingConfirmationModel) {
-        state = model
+    func didReceiveModel(result: Result<StakingConfirmationModel, Error>) {
+        switch result {
+        case let .success(model):
+            state = model
 
-        provideAsset()
-        provideConfirmationState()
-    }
-
-    func didReceive(modelError: Error) {
-        handle(error: modelError)
-    }
-
-    func didReceive(price: PriceData?) {
-        priceData = price
-        provideAsset()
-        provideFee()
-    }
-
-    func didReceive(priceError: Error) {
-        handle(error: priceError)
-    }
-
-    func didReceive(balance: AccountData?) {
-        if let availableValue = balance?.available {
-            self.balance = Decimal.fromSubstrateAmount(
-                availableValue,
-                precision: asset.precision
-            )
-        } else {
-            self.balance = 0.0
+            provideAsset()
+            provideConfirmationState()
+        case let .failure(error):
+            handle(error: error)
         }
-
-        provideAsset()
     }
 
-    func didReceive(balanceError: Error) {
-        handle(error: balanceError)
+    func didReceivePrice(result: Result<PriceData?, Error>) {
+        switch result {
+        case let .success(priceData):
+            self.priceData = priceData
+
+            provideAsset()
+            provideFee()
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
+        switch result {
+        case let .success(accountInfo):
+            if let availableValue = accountInfo?.data.available {
+                balance = Decimal.fromSubstrateAmount(
+                    availableValue,
+                    precision: asset.precision
+                )
+            } else {
+                balance = 0.0
+            }
+
+            provideAsset()
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
+        switch result {
+        case let .success(status):
+            electionStatus = status
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveMinBond(result: Result<BigUInt?, Error>) {
+        switch result {
+        case let .success(minBond):
+            minNominatorBond = minBond.map {
+                Decimal.fromSubstrateAmount($0, precision: asset.precision)
+            } ?? nil
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>) {
+        switch result {
+        case let .success(maxNominatorsCount):
+            self.maxNominatorsCount = maxNominatorsCount
+        case let .failure(error):
+            handle(error: error)
+        }
+    }
+
+    func didReceiveCounterForNominators(result: Result<UInt32?, Error>) {
+        switch result {
+        case let .success(counterForNominators):
+            self.counterForNominators = counterForNominators
+        case let .failure(error):
+            handle(error: error)
+        }
     }
 
     func didStartNomination() {

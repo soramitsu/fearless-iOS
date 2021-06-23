@@ -4,34 +4,37 @@ import SoraKeystore
 
 final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
     let nomination: PreparedNomination<InitiatedBonding>
-    let settings: SettingsManagerProtocol
+    let selectedAccount: AccountItem
+    let selectedConnection: ConnectionItem
 
     init(
-        priceProvider: AnySingleValueProvider<PriceData>,
-        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        selectedAccount: AccountItem,
+        selectedConnection: ConnectionItem,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
-        settings: SettingsManagerProtocol,
+        assetId: WalletAssetId,
         nomination: PreparedNomination<InitiatedBonding>
     ) {
         self.nomination = nomination
-        self.settings = settings
+        self.selectedAccount = selectedAccount
+        self.selectedConnection = selectedConnection
 
         super.init(
-            priceProvider: priceProvider,
-            balanceProvider: balanceProvider,
+            balanceAccountAddress: selectedAccount.address,
+            singleValueProviderFactory: singleValueProviderFactory,
             extrinsicService: extrinsicService,
+            runtimeService: runtimeService,
             operationManager: operationManager,
-            signer: signer
+            signer: signer,
+            chain: selectedConnection.type.chain,
+            assetId: assetId
         )
     }
 
     private func provideConfirmationModel() {
-        guard let selectedAccount = settings.selectedAccount else {
-            return
-        }
-
         let rewardDestination: RewardDestination<DisplayAddress> = {
             switch nomination.bonding.rewardDestination {
             case .restake:
@@ -58,15 +61,11 @@ final class InitiatedBondingConfirmInteractor: StakingBaseConfirmInteractor {
             maxTargets: nomination.maxTargets
         )
 
-        presenter.didReceive(model: confirmation)
+        presenter.didReceiveModel(result: .success(confirmation))
     }
 
     private func createExtrinsicBuilderClosure() -> ExtrinsicBuilderClosure? {
-        guard let selectedAccount = settings.selectedAccount else {
-            return nil
-        }
-
-        let networkType = settings.selectedConnection.type
+        let networkType = selectedConnection.type
 
         guard let amount = nomination.bonding.amount
             .toSubstrateAmount(precision: networkType.precision)

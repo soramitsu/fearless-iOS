@@ -89,22 +89,21 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         for interactor: StakingBaseConfirmInteractor,
         wireframe: StakingConfirmWireframeProtocol,
         settings: SettingsManagerProtocol,
-        keystore: KeystoreProtocol
+        keystore _: KeystoreProtocol
     ) -> StakingConfirmViewProtocol? {
+        let view = StakingConfirmViewController(nib: R.nib.stakingConfirmViewController)
+        view.uiFactory = UIFactory()
+
         guard let presenter = createPresenter(
-            settings: settings,
-            keystore: keystore
+            view: view,
+            wireframe: wireframe,
+            settings: settings
         ) else {
             return nil
         }
 
-        let view = StakingConfirmViewController(nib: R.nib.stakingConfirmViewController)
-        view.uiFactory = UIFactory()
-
         view.presenter = presenter
-        presenter.view = view
         presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
 
         view.localizationManager = LocalizationManager.shared
@@ -113,8 +112,9 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
     }
 
     private static func createPresenter(
-        settings: SettingsManagerProtocol,
-        keystore _: KeystoreProtocol
+        view: StakingConfirmViewProtocol,
+        wireframe: StakingConfirmWireframeProtocol,
+        settings: SettingsManagerProtocol
     ) -> StakingConfirmPresenter? {
         let networkType = settings.selectedConnection.type
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
@@ -128,12 +128,31 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             limit: StakingConstants.maxAmount
         )
 
-        return StakingConfirmPresenter(
+        let errorBalanceViewModelFactory = BalanceViewModelFactory(
+            walletPrimitiveFactory: primitiveFactory,
+            selectedAddressType: networkType,
+            limit: StakingConstants.maxAmount,
+            formatterFactory: AmountFormatterFactory(assetPrecision: Int(networkType.precision))
+        )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: errorBalanceViewModelFactory
+        )
+
+        let presenter = StakingConfirmPresenter(
             confirmationViewModelFactory: confirmViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             asset: asset,
             logger: Logger.shared
         )
+
+        presenter.view = view
+        presenter.wireframe = wireframe
+        dataValidatingFactory.view = view
+
+        return presenter
     }
 
     private static func createInitiatedBondingInteractor(
@@ -151,17 +170,9 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             return nil
         }
 
-        let providerFactory = SingleValueProviderFactory.shared
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: RuntimeRegistryFacade.sharedService
-            )
-        else {
-            return nil
-        }
-
         let operationManager = OperationManagerFacade.sharedManager
+
+        let runtimeService = RuntimeRegistryFacade.sharedService
 
         let extrinsicService = ExtrinsicService(
             address: selectedAccount.address,
@@ -176,15 +187,15 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
             settings: settings
         )
 
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-
         return InitiatedBondingConfirmInteractor(
-            priceProvider: AnySingleValueProvider(priceProvider),
-            balanceProvider: AnyDataProvider(balanceProvider),
+            selectedAccount: selectedAccount,
+            selectedConnection: settings.selectedConnection,
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
+            runtimeService: runtimeService,
             operationManager: operationManager,
             signer: signer,
-            settings: settings,
+            assetId: assetId,
             nomination: nomination
         )
     }
@@ -196,13 +207,12 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         assetId: WalletAssetId,
         networkSettings: ConnectionItem
     ) -> StakingBaseConfirmInteractor? {
-        let providerFactory = SingleValueProviderFactory.shared
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: nomination.bonding.controllerAccount.address,
-                runtimeService: RuntimeRegistryFacade.sharedService
-            )
-        else {
+        let settings = SettingsManager.shared
+        let primitiveFactory = WalletPrimitiveFactory(settings: settings)
+        let networkType = settings.selectedConnection.type
+        let asset = primitiveFactory.createAssetForAddressType(networkType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
             return nil
         }
 
@@ -210,10 +220,12 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
         let extrinsicSender = nomination.bonding.controllerAccount
 
+        let runtimeService = RuntimeRegistryFacade.sharedService
+
         let extrinsicService = ExtrinsicService(
             address: extrinsicSender.address,
             cryptoType: extrinsicSender.cryptoType,
-            runtimeRegistry: RuntimeRegistryFacade.sharedService,
+            runtimeRegistry: runtimeService,
             engine: connection,
             operationManager: operationManager
         )
@@ -224,17 +236,17 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
 
         let signer = SigningWrapper(keystore: keystore, settings: controllerSettings)
 
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-
         let accountRepository: CoreDataRepository<AccountItem, CDAccountItem> =
             UserDataStorageFacade.shared.createRepository()
 
         return ChangeTargetsConfirmInteractor(
-            priceProvider: priceProvider,
-            balanceProvider: balanceProvider,
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
+            runtimeService: runtimeService,
             operationManager: operationManager,
             signer: signer,
+            chain: networkType.chain,
+            assetId: assetId,
             repository: AnyDataProviderRepository(accountRepository),
             nomination: nomination
         )
