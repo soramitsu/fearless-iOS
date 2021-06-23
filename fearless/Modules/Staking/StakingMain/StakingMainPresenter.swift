@@ -273,6 +273,14 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
         wireframe.showNominatorValidators(from: view)
     }
 
+    func performSetupValidatorsForBondedAction() {
+        guard let bonded = stateMachine.viewState(using: { (state: BondedState) in state }) else {
+            return
+        }
+
+        setupValidators(for: bonded)
+    }
+
     func performBondMoreAction() {
         wireframe.showBondMore(from: view)
     }

@@ -19,6 +19,8 @@ extension StakingStateViewModelFactory {
 
     func stakingAlertsForBondedState(_ state: BondedState) -> [StakingAlert] {
         [
+            findMinNominatorBondAlert(state: state),
+            .bondedSetValidators,
             findElectionAlert(commonData: state.commonData),
             findRedeemUnbondedAlert(commonData: state.commonData, ledgerInfo: state.ledgerInfo)
         ].compactMap { $0 }
@@ -60,6 +62,41 @@ extension StakingStateViewModelFactory {
         return .redeemUnbonded(localizedString)
     }
 
+    private func findMinNominatorBondAlert(state: BondedState) -> StakingAlert? {
+        let commonData = state.commonData
+        let ledgerInfo = state.ledgerInfo
+
+        guard let minimalStake = commonData.minimalStake else {
+            return nil
+        }
+
+        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
+
+        guard ledgerInfo.active < minActive else {
+            return nil
+        }
+
+        guard
+            let chain = commonData.chain,
+            let minActiveDecimal = Decimal.fromSubstrateAmount(
+                minActive,
+                precision: chain.addressType.precision
+            ),
+            let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
+        else {
+            return nil
+        }
+
+        let localizedString = LocalizableResource<String> { locale in
+            R.string.localizable.stakingInactiveCurrentMinimalStake(
+                minActiveAmount.value(for: locale),
+                preferredLanguages: locale.rLanguages
+            )
+        }
+
+        return .nominatorLowStake(localizedString)
+    }
+
     private func findInactiveAlert(state: NominatorState) -> StakingAlert? {
         guard case .inactive = state.status else { return nil }
 
@@ -69,27 +106,30 @@ extension StakingStateViewModelFactory {
         guard let minimalStake = commonData.minimalStake else {
             return nil
         }
-        if ledgerInfo.active < minimalStake {
+
+        let minActive = commonData.minNominatorBond.map { max(minimalStake, $0) } ?? minimalStake
+
+        if ledgerInfo.active < minActive {
             guard
                 let chain = commonData.chain,
-                let minimalStakeDecimal = Decimal.fromSubstrateAmount(
-                    minimalStake,
+                let minActiveDecimal = Decimal.fromSubstrateAmount(
+                    minActive,
                     precision: chain.addressType.precision
                 ),
-                let minimalStakeAmount = balanceViewModelFactory?.amountFromValue(minimalStakeDecimal)
+                let minActiveAmount = balanceViewModelFactory?.amountFromValue(minActiveDecimal)
             else {
                 return nil
             }
 
             let localizedString = LocalizableResource<String> { locale in
                 R.string.localizable.stakingInactiveCurrentMinimalStake(
-                    minimalStakeAmount.value(for: locale),
+                    minActiveAmount.value(for: locale),
                     preferredLanguages: locale.rLanguages
                 )
             }
             return .nominatorLowStake(localizedString)
         } else {
-            return .nominatorNoValidators
+            return .nominatorChangeValidators
         }
     }
 }
