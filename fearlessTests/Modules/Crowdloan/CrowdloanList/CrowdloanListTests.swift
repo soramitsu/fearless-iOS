@@ -114,6 +114,7 @@ class CrowdloanListTests: XCTestCase {
         // when
 
         presenter.setup()
+        presenter.becomeOnline()
 
         // then
 
