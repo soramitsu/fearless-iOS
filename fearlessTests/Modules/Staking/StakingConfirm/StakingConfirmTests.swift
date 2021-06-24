@@ -5,6 +5,7 @@ import IrohaCrypto
 import RobinHood
 import BigInt
 import Cuckoo
+import SoraFoundation
 
 class StakingConfirmTests: XCTestCase {
     let initiatedBoding: PreparedNomination<InitiatedBonding> = {
@@ -25,13 +26,18 @@ class StakingConfirmTests: XCTestCase {
         let settings = InMemorySettingsManager()
         let keychain = InMemoryKeychain()
 
-        let addressType = SNAddressType.kusamaMain
+        let addressType = SNAddressType.genericSubstrate
         try AccountCreationHelper.createAccountFromMnemonic(cryptoType: .sr25519,
                                                             keychain: keychain,
                                                             settings: settings)
 
         let primitiveFactory = WalletPrimitiveFactory(settings: settings)
         let asset = primitiveFactory.createAssetForAddressType(addressType)
+
+        guard let assetId = WalletAssetId(rawValue: asset.identifier) else {
+            XCTFail("Invalid asset id")
+            return
+        }
 
         let view = MockStakingConfirmViewProtocol()
         let wireframe = MockStakingConfirmWireframeProtocol()
@@ -40,29 +46,45 @@ class StakingConfirmTests: XCTestCase {
         let balanceViewModelFactory = BalanceViewModelFactory(walletPrimitiveFactory: primitiveFactory,
                                                               selectedAddressType: addressType,
                                                               limit: StakingConstants.maxAmount)
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: balanceViewModelFactory
+        )
+
         let presenter = StakingConfirmPresenter(confirmationViewModelFactory: confirmViewModelFactory,
                                                 balanceViewModelFactory: balanceViewModelFactory,
+                                                dataValidatingFactory: dataValidatingFactory,
                                                 asset:asset)
 
         let signer = try DummySigner(cryptoType: .sr25519)
 
-        let priceProvider = SingleValueProviderStub(item: WestendStub.price)
-        let balanceProvider = DataProviderStub(models: [WestendStub.accountInfo])
         let extrinsicService = ExtrinsicServiceStub.dummy()
 
+        guard let selectedAccount = settings.selectedAccount else {
+            XCTFail("Invalid account address")
+            return
+        }
+
+        let singleValueProviderFactory = SingleValueProviderFactoryStub.westendNominatorStub()
+        let runtimeCodingService = try RuntimeCodingServiceStub.createWestendService()
+
         let interactor =
-            InitiatedBondingConfirmInteractor(priceProvider: AnySingleValueProvider(priceProvider),
-                                              balanceProvider: AnyDataProvider(balanceProvider),
+            InitiatedBondingConfirmInteractor(selectedAccount: selectedAccount,
+                                              selectedConnection: settings.selectedConnection,
+                                              singleValueProviderFactory: singleValueProviderFactory,
                                               extrinsicService: extrinsicService,
+                                              runtimeService: runtimeCodingService,
                                               operationManager: OperationManager(),
                                               signer: signer,
-                                              settings: settings,
+                                              assetId: assetId,
                                               nomination: initiatedBoding)
 
         presenter.view = view
         presenter.wireframe = wireframe
         presenter.interactor = interactor
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         // when
 
@@ -84,6 +106,8 @@ class StakingConfirmTests: XCTestCase {
             when(stub).didReceive(confirmationViewModel: any()).then { _ in
                 confirmExpectation.fulfill()
             }
+
+            when(stub).localizationManager.get.thenReturn(LocalizationManager.shared)
 
             when(stub).didStartLoading().thenDoNothing()
             when(stub).didStopLoading().thenDoNothing()
