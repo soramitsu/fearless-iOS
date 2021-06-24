@@ -26,6 +26,6 @@ protocol ValidatorSearchPresenterProtocol: Localizable {
 }
 
 protocol ValidatorSearchViewFactoryProtocol {
-    func createView() -> ValidatorSearchViewProtocol
+    static func createView() -> ValidatorSearchViewProtocol?
     #warning("Not implemented")
 }

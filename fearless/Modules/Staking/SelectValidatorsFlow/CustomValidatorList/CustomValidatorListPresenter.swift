@@ -196,7 +196,7 @@ extension CustomValidatorListPresenter: CustomValidatorListPresenterProtocol {
     }
 
     func presentSearch() {
-        // TODO: https://soramitsu.atlassian.net/browse/FLW-893
+        wireframe.presentSearch(from: view)
     }
 
     func proceed() {

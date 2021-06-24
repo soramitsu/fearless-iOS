@@ -1,7 +1,7 @@
 import SoraFoundation
 
 struct ValidatorSearchViewFactory: ValidatorSearchViewFactoryProtocol {
-    func createView() -> ValidatorSearchViewProtocol {
+    static func createView() -> ValidatorSearchViewProtocol? {
         let interactor = ValidatorSearchInteractor()
 
         let wireframe = ValidatorSearchWireframe()

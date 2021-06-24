@@ -6,7 +6,7 @@ final class ChangeTargetsCustomValidatorListWireframe: CustomValidatorListWirefr
     }
 
     override func proceed(
-        from view: CustomValidatorListViewProtocol?,
+        from view: ControllerBackedProtocol?,
         validators: [ElectedValidatorInfo],
         maxTargets: Int,
         delegate: SelectedValidatorListDelegate

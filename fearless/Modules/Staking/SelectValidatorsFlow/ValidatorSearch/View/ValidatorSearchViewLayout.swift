@@ -1,12 +1,42 @@
 import UIKit
+import SoraUI
 
 final class ValidatorSearchViewLayout: UIView {
+    private let searchContainer: BorderedContainerView = {
+        let view = BorderedContainerView()
+        view.backgroundColor = R.color.colorBlack()!
+        view.borderType = .top
+        view.strokeColor = R.color.colorLightGray()!
+        view.strokeWidth = 0.5
+        return view
+    }()
+
+    private let frameView: RoundedView = {
+        let view = RoundedView()
+        view.roundingCorners = .allCorners
+        view.cornerRadius = 8
+        view.fillColor = R.color.colorAlmostBlack()!
+        return view
+    }()
+
+    private let searchImageView: UIImageView = {
+        UIImageView(image: R.image.iconSearch())
+    }()
+
+    let searchField: UITextField = {
+        let view = UITextField()
+        view.font = .p1Paragraph
+        view.textColor = .white
+        view.placeholder = "Search by address or name"
+        view.clearButtonMode = .whileEditing
+        return view
+    }()
+
     let tableView: UITableView = {
         let tableView = UITableView()
         tableView.tableFooterView = UIView()
         tableView.backgroundColor = R.color.colorBlack()
         tableView.separatorColor = R.color.colorDarkGray()
-        tableView.contentInset = UIEdgeInsets(top: 0.0, left: 0.0, bottom: 100.0, right: 0.0)
         return tableView
     }()
 
@@ -21,9 +51,38 @@ final class ValidatorSearchViewLayout: UIView {
     }
 
     private func setupLayout() {
+        searchContainer.addSubview(frameView)
+        searchContainer.addSubview(searchImageView)
+        searchContainer.addSubview(searchField)
+
+        frameView.snp.makeConstraints { make in
+            make.height.equalTo(36)
+            make.centerY.equalToSuperview()
+            make.leading.trailing.equalToSuperview().inset(16)
+        }
+
+        searchImageView.snp.makeConstraints { make in
+            make.size.equalTo(16)
+            make.centerY.equalToSuperview()
+            make.leading.equalTo(frameView.snp.leading).inset(12)
+        }
+
+        searchField.snp.makeConstraints { make in
+            make.centerY.equalToSuperview()
+            make.trailing.equalTo(frameView.snp.trailing).inset(8)
+            make.leading.equalTo(searchImageView.snp.trailing).offset(10)
+        }
+
+        addSubview(searchContainer)
+        searchContainer.snp.makeConstraints { make in
+            make.height.equalTo(52)
+            make.leading.top.trailing.equalTo(safeAreaLayoutGuide)
+        }
+
         addSubview(tableView)
         tableView.snp.makeConstraints { make in
-            make.leading.bottom.trailing.top.equalTo(safeAreaLayoutGuide)
+            make.top.equalTo(searchContainer.snp.bottom)
+            make.leading.bottom.trailing.equalTo(safeAreaLayoutGuide)
         }
     }
 }

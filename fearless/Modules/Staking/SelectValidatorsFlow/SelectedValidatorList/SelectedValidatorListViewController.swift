@@ -64,7 +64,7 @@ final class SelectedValidatorListViewController: UIViewController, ViewHolder {
 
         let attributes: [NSAttributedString.Key: Any] = [
             .foregroundColor: R.color.colorWhite()!,
-            .font: UIFont.h5Title
+            .font: UIFont.p0Paragraph
         ]
 
         rightBarButtonItem.setTitleTextAttributes(attributes, for: .normal)
