@@ -7,7 +7,8 @@ import FearlessUtils
 protocol CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict?,
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         locale: Locale
@@ -130,10 +131,6 @@ final class CrowdloansViewModelFactory {
         formatters: Formatters,
         locale: Locale
     ) -> ActiveCrowdloanViewModel? {
-        guard !model.isCompleted(for: metadata) else {
-            return nil
-        }
-
         guard let commonContent = createCommonContent(
             from: model,
             contributions: contributions,
@@ -178,14 +175,10 @@ final class CrowdloansViewModelFactory {
         from model: Crowdloan,
         contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
-        metadata: CrowdloanMetadata,
+        metadata _: CrowdloanMetadata,
         formatters: Formatters,
         locale: Locale
     ) -> CompletedCrowdloanViewModel? {
-        guard model.isCompleted(for: metadata) else {
-            return nil
-        }
-
         guard let commonContent = createCommonContent(
             from: model,
             contributions: contributions,
@@ -207,7 +200,8 @@ final class CrowdloansViewModelFactory {
 
     func createSections(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict?,
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         formatters: Formatters,
@@ -225,7 +219,8 @@ final class CrowdloansViewModelFactory {
                 return crowdloan1.fundInfo.end < crowdloan2.fundInfo.end
             }
         }.reduce(into: initial) { result, crowdloan in
-            if crowdloan.isCompleted(for: metadata) {
+            let hasWonAuction = leaseInfo[crowdloan.paraId]?.leasedAmount != nil
+            if hasWonAuction || crowdloan.isCompleted(for: metadata) {
                 if let viewModel = createCompletedCrowdloanViewModel(
                     from: crowdloan,
                     contributions: contributions,
@@ -257,7 +252,8 @@ final class CrowdloansViewModelFactory {
 extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
-        contributions: CrowdloanContributionDict?,
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         locale: Locale
@@ -277,6 +273,7 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
         let (active, completed) = createSections(
             from: crowdloans,
             contributions: contributions,
+            leaseInfo: leaseInfo,
             displayInfo: displayInfo,
             metadata: metadata,
             formatters: formatters,
