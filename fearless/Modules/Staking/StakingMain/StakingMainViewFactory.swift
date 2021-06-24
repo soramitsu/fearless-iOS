@@ -26,6 +26,10 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             primitiveFactory: primitiveFactory
         )
 
+        // MARK: - Router
+
+        let wireframe = StakingMainWireframe()
+
         // MARK: - Presenter
 
         let viewModelFacade = StakingViewModelFacade(primitiveFactory: primitiveFactory)
@@ -34,22 +38,24 @@ final class StakingMainViewFactory: StakingMainViewFactoryProtocol {
             logger: logger
         )
         let networkInfoViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingMainPresenter(
             stateViewModelFactory: stateViewModelFactory,
             networkInfoViewModelFactory: networkInfoViewModelFactory,
             viewModelFacade: viewModelFacade,
+            dataValidatingFactory: dataValidatingFactory,
             logger: logger
         )
-
-        // MARK: - Router
-
-        let wireframe = StakingMainWireframe()
 
         view.presenter = presenter
         presenter.view = view
         presenter.interactor = interactor
         presenter.wireframe = wireframe
         interactor.presenter = presenter
+
+        dataValidatingFactory.view = view
 
         return view
     }

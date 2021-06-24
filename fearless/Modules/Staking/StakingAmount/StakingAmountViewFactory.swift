@@ -11,7 +11,12 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
+        let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
+        let wireframe = StakingAmountWireframe()
+
         guard let presenter = createPresenter(
+            view: view,
+            wireframe: wireframe,
             amount: amount,
             settings: settings
         ) else {
@@ -25,22 +30,19 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             return nil
         }
 
-        let view = StakingAmountViewController(nib: R.nib.stakingAmountViewController)
-        let wireframe = StakingAmountWireframe()
-
         view.uiFactory = UIFactory()
         view.localizationManager = LocalizationManager.shared
 
-        view.presenter = presenter
-        presenter.view = view
         presenter.interactor = interactor
-        presenter.wireframe = wireframe
         interactor.presenter = presenter
+        view.presenter = presenter
 
         return view
     }
 
     private static func createPresenter(
+        view: StakingAmountViewProtocol,
+        wireframe: StakingAmountWireframeProtocol,
         amount: Decimal?,
         settings: SettingsManagerProtocol
     ) -> StakingAmountPresenter? {
@@ -59,11 +61,17 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         )
 
         let selectedConnectionType = settings.selectedConnection.type
+
         let errorBalanceViewModelFactory = BalanceViewModelFactory(
             walletPrimitiveFactory: primitiveFactory,
             selectedAddressType: networkType,
             limit: StakingConstants.maxAmount,
             formatterFactory: AmountFormatterFactory(assetPrecision: Int(selectedConnectionType.precision))
+        )
+
+        let dataValidatingFactory = StakingDataValidatingFactory(
+            presentable: wireframe,
+            balanceFactory: errorBalanceViewModelFactory
         )
 
         let rewardDestViewModelFactory = RewardDestinationViewModelFactory(
@@ -76,10 +84,14 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             selectedAccount: selectedAccount,
             rewardDestViewModelFactory: rewardDestViewModelFactory,
             balanceViewModelFactory: balanceViewModelFactory,
-            errorBalanceViewModelFactory: errorBalanceViewModelFactory,
+            dataValidatingFactory: dataValidatingFactory,
             applicationConfig: ApplicationConfig.shared,
             logger: Logger.shared
         )
+
+        presenter.view = view
+        presenter.wireframe = wireframe
+        dataValidatingFactory.view = view
 
         return presenter
     }
@@ -101,16 +113,6 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
         let runtimeService = RuntimeRegistryFacade.sharedService
         let operationManager = OperationManagerFacade.sharedManager
 
-        let providerFactory = SingleValueProviderFactory.shared
-        guard let balanceProvider = try? providerFactory
-            .getAccountProvider(
-                for: selectedAccount.address,
-                runtimeService: runtimeService
-            )
-        else {
-            return nil
-        }
-
         let facade = UserDataStorageFacade.shared
 
         let filter = NSPredicate.filterAccountBy(networkType: networkType)
@@ -128,16 +130,16 @@ final class StakingAmountViewFactory: StakingAmountViewFactoryProtocol {
             operationManager: operationManager
         )
 
-        let priceProvider = providerFactory.getPriceProvider(for: assetId)
-
         let interactor = StakingAmountInteractor(
+            accountAddress: selectedAccount.address,
             repository: AnyDataProviderRepository(accountRepository),
-            priceProvider: AnySingleValueProvider(priceProvider),
-            balanceProvider: AnyDataProvider(balanceProvider),
+            singleValueProviderFactory: SingleValueProviderFactory.shared,
             extrinsicService: extrinsicService,
             rewardService: RewardCalculatorFacade.sharedService,
             runtimeService: runtimeService,
-            operationManager: operationManager
+            operationManager: operationManager,
+            chain: networkType.chain,
+            assetId: assetId
         )
 
         return interactor

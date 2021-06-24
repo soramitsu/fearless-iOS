@@ -12,6 +12,13 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating
     func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating
 
+    func canNominate(
+        amount: Decimal?,
+        minimalBalance: Decimal?,
+        minNominatorBond: Decimal?,
+        locale: Locale
+    ) -> DataValidating
+
     func rewardIsHigherThanFee(
         reward: Decimal?,
         fee: Decimal?,
@@ -30,7 +37,14 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
         addressType: SNAddressType,
         locale: Locale
     ) -> DataValidating
+
     func hasRedeemable(stakingLedger: StakingLedger?, in era: UInt32?, locale: Locale) -> DataValidating
+
+    func maxNominatorsCountNotReached(
+        counterForNominators: UInt32?,
+        maxNominatorsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating
 }
 
 final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
@@ -40,8 +54,11 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
     let presentable: StakingErrorPresentable
 
-    init(presentable: StakingErrorPresentable) {
+    let balanceFactory: BalanceViewModelFactoryProtocol?
+
+    init(presentable: StakingErrorPresentable, balanceFactory: BalanceViewModelFactoryProtocol? = nil) {
         self.presentable = presentable
+        self.balanceFactory = balanceFactory
     }
 
     func canUnbond(amount: Decimal?, bonded: Decimal?, locale: Locale) -> DataValidating {
@@ -222,6 +239,65 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
             self?.presentable.presentControllerIsAlreadyUsed(from: view, locale: locale)
         }, preservesCondition: {
             stakingLedger == nil
+        })
+    }
+
+    func canNominate(
+        amount: Decimal?,
+        minimalBalance: Decimal?,
+        minNominatorBond: Decimal?,
+        locale: Locale
+    ) -> DataValidating {
+        let minAmount: Decimal? = {
+            if let minimalBalance = minimalBalance, let minNominatorBond = minNominatorBond {
+                return max(minimalBalance, minNominatorBond)
+            }
+
+            if let minNominatorBond = minNominatorBond {
+                return minNominatorBond
+            }
+
+            return minimalBalance
+        }()
+
+        return ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            let amountString = minAmount.map {
+                self?.balanceFactory?.amountFromValue($0).value(for: locale) ?? ""
+            } ?? ""
+
+            self?.presentable.presentAmountTooLow(value: amountString, from: view, locale: locale)
+        }, preservesCondition: {
+            guard let amount = amount else {
+                return false
+            }
+
+            return minAmount.map { amount >= $0 } ?? true
+        })
+    }
+
+    func maxNominatorsCountNotReached(
+        counterForNominators: UInt32?,
+        maxNominatorsCount: UInt32?,
+        locale: Locale
+    ) -> DataValidating {
+        ErrorConditionViolation(onError: { [weak self] in
+            guard let view = self?.view else {
+                return
+            }
+
+            self?.presentable.presentMaxNumberOfNominatorsReached(from: view, locale: locale)
+        }, preservesCondition: {
+            if
+                let counterForNominators = counterForNominators,
+                let maxNominatorsCount = maxNominatorsCount {
+                return counterForNominators < maxNominatorsCount
+            } else {
+                return true
+            }
         })
     }
 }

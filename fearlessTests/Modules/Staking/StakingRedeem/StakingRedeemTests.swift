@@ -75,8 +75,9 @@ class StakingRedeemTests: XCTestCase {
         let nominatorAddress = settings.selectedAccount!.address
         let cryptoType = settings.selectedAccount!.cryptoType
 
-        let singleValueProviderFactory = SingleValueProviderFactoryStub.nonEmptyRedeemingStub(
-            for: nominatorAddress
+        let singleValueProviderFactory = try StakingRedeemMock.addNomination(
+            to: SingleValueProviderFactoryStub.westendNominatorStub(),
+            address: nominatorAddress
         )
 
         // save stash item

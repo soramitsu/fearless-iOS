@@ -1,95 +1,95 @@
 import Foundation
 import RobinHood
+import BigInt
 
 class StakingBaseConfirmInteractor: StakingConfirmInteractorInputProtocol {
     weak var presenter: StakingConfirmInteractorOutputProtocol!
 
-    let priceProvider: AnySingleValueProvider<PriceData>
-    let balanceProvider: AnyDataProvider<DecodedAccountInfo>
+    let balanceAccountAddress: AccountAddress
+    let singleValueProviderFactory: SingleValueProviderFactoryProtocol
+    let runtimeService: RuntimeCodingServiceProtocol
     let extrinsicService: ExtrinsicServiceProtocol
     let signer: SigningWrapperProtocol
     let operationManager: OperationManagerProtocol
+    let assetId: WalletAssetId
+    let chain: Chain
+
+    private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
+    private var priceProvider: AnySingleValueProvider<PriceData>?
+    private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
+    private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
+    private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
+    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
 
     init(
-        priceProvider: AnySingleValueProvider<PriceData>,
-        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        balanceAccountAddress: AccountAddress,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
-        signer: SigningWrapperProtocol
+        signer: SigningWrapperProtocol,
+        chain: Chain,
+        assetId: WalletAssetId
     ) {
-        self.priceProvider = priceProvider
-        self.balanceProvider = balanceProvider
+        self.balanceAccountAddress = balanceAccountAddress
+        self.singleValueProviderFactory = singleValueProviderFactory
         self.extrinsicService = extrinsicService
+        self.runtimeService = runtimeService
         self.operationManager = operationManager
         self.signer = signer
-    }
-
-    private func subscribeToPriceChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<PriceData>]) in
-            if changes.isEmpty {
-                self?.presenter.didReceive(price: nil)
-            } else {
-                for change in changes {
-                    switch change {
-                    case let .insert(item), let .update(item):
-                        self?.presenter.didReceive(price: item)
-                    case .delete:
-                        self?.presenter.didReceive(price: nil)
-                    }
-                }
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(priceError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        priceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
-    private func subscribeToAccountChanges() {
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedAccountInfo>]) in
-            let balanceItem = changes.reduceToLastChange()?.item?.data
-            self?.presenter.didReceive(balance: balanceItem)
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(balanceError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        balanceProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
+        self.chain = chain
+        self.assetId = assetId
     }
 
     // MARK: StakingConfirmInteractorInputProtocol
 
     func setup() {
-        subscribeToAccountChanges()
-        subscribeToPriceChanges()
+        priceProvider = subscribeToPriceProvider(for: assetId)
+        balanceProvider = subscribeToAccountInfoProvider(
+            for: balanceAccountAddress,
+            runtimeService: runtimeService
+        )
+        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
+        minBondProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
+
+        counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
+            chain: chain,
+            runtimeService: runtimeService
+        )
+
+        maxNominatorsCountProvider = subscribeToMaxNominatorsCountProvider(
+            chain: chain,
+            runtimeService: runtimeService
+        )
     }
 
     func submitNomination(for _: Decimal, lastFee _: Decimal) {}
 
     func estimateFee() {}
+}
+
+extension StakingBaseConfirmInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+    func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
+        presenter.didReceivePrice(result: result)
+    }
+
+    func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
+        presenter.didReceiveAccountInfo(result: result)
+    }
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+        presenter.didReceiveMinBond(result: result)
+    }
+
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveCounterForNominators(result: result)
+    }
+
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveMaxNominatorsCount(result: result)
+    }
+
+    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
+        presenter.didReceiveElectionStatus(result: result)
+    }
 }

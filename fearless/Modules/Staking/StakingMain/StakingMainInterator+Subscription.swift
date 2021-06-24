@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import BigInt
 
 extension StakingMainInteractor {
     func clearPriceProvider() {
@@ -482,5 +483,50 @@ extension StakingMainInteractor {
             failing: failureClosure,
             options: options
         )
+    }
+
+    func clearNominatorsLimitProviders() {
+        clear(dataProvider: &minNominatorBondProvider)
+        clear(dataProvider: &counterForNominatorsProvider)
+        clear(dataProvider: &maxNominatorsCountProvider)
+    }
+
+    func subscribeToNominatorsLimit() {
+        if let chain = currentConnection?.type.chain {
+            minNominatorBondProvider = subscribeToMinNominatorBondProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
+
+            counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
+
+            maxNominatorsCountProvider = subscribeToMaxNominatorsCountProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
+        }
+    }
+}
+
+extension StakingMainInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
+    AnyProviderAutoCleaning {
+    var singleValueProviderFactory: SingleValueProviderFactoryProtocol {
+        providerFactory
+    }
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+        presenter.didReceiveMinNominatorBond(result: result)
+    }
+
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveCounterForNominators(result: result)
+    }
+
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveMaxNominatorsCount(result: result)
     }
 }

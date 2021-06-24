@@ -44,13 +44,14 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(error: Error)
     func didReceive(calculator: RewardCalculatorEngineProtocol)
     func didReceive(calculatorError: Error)
-    func didReceive(minimalAmount: BigUInt)
+    func didReceive(minimalBalance: BigUInt)
+    func didReceive(minBondAmount: BigUInt?)
+    func didReceive(counterForNominators: UInt32?)
+    func didReceive(maxNominatorsCount: UInt32?)
+    func didReceive(electionStatus: ElectionStatus?)
 }
 
-protocol StakingAmountWireframeProtocol:
-    AlertPresentable,
-    ErrorPresentable,
-    WebPresentable,
+protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,
     StakingErrorPresentable {
     func presentAccountSelection(
         _ accounts: [AccountItem],

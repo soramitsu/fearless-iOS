@@ -96,9 +96,10 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
 
         let unbondCall = callFactory.unbond(amount: amount)
         let setPayeeCall = callFactory.setPayee(for: .stash)
+        let chillCall = callFactory.chill()
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
-            try builder.adding(call: unbondCall).adding(call: setPayeeCall)
+            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
         }
     }
 }
