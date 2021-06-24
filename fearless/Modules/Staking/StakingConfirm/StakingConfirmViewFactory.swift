@@ -28,8 +28,7 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         return createView(
             for: interactor,
             wireframe: wireframe,
-            settings: settings,
-            keystore: keystore
+            settings: settings
         )
     }
 
@@ -80,16 +79,14 @@ final class StakingConfirmViewFactory: StakingConfirmViewFactoryProtocol {
         return createView(
             for: interactor,
             wireframe: wireframe,
-            settings: settings,
-            keystore: keystore
+            settings: settings
         )
     }
 
     private static func createView(
         for interactor: StakingBaseConfirmInteractor,
         wireframe: StakingConfirmWireframeProtocol,
-        settings: SettingsManagerProtocol,
-        keystore _: KeystoreProtocol
+        settings: SettingsManagerProtocol
     ) -> StakingConfirmViewProtocol? {
         let view = StakingConfirmViewController(nib: R.nib.stakingConfirmViewController)
         view.uiFactory = UIFactory()

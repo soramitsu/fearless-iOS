@@ -193,7 +193,7 @@ extension StakingAmountInteractor: SingleValueProviderSubscriber, SingleValueSub
     func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
         switch result {
         case let .success(value):
-            presenter.didReceive(maxNominatorCount: value)
+            presenter.didReceive(maxNominatorsCount: value)
         case let .failure(error):
             presenter.didReceive(error: error)
         }

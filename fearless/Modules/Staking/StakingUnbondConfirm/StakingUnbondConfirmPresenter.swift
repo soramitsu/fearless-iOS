@@ -28,7 +28,7 @@ final class StakingUnbondConfirmPresenter {
     private var shouldResetRewardDestination: Bool {
         switch payee {
         case .staked:
-            if let bonded = bonded, let minimalBalance = minimalBalance, nomination != nil {
+            if let bonded = bonded, let minimalBalance = minimalBalance {
                 return bonded - inputAmount < minimalBalance
             } else {
                 return false
@@ -39,7 +39,7 @@ final class StakingUnbondConfirmPresenter {
     }
 
     private var shouldChill: Bool {
-        if let bonded = bonded, let minNominatorBonded = minNominatorBonded {
+        if let bonded = bonded, let minNominatorBonded = minNominatorBonded, nomination != nil {
             return bonded - inputAmount < minNominatorBonded
         } else {
             return false
