@@ -345,8 +345,8 @@ extension StakingAmountPresenter: StakingAmountInteractorOutputProtocol {
         self.counterForNominators = counterForNominators
     }
 
-    func didReceive(maxNominatorCount: UInt32?) {
-        maxNominatorsCount = maxNominatorCount
+    func didReceive(maxNominatorsCount: UInt32?) {
+        self.maxNominatorsCount = maxNominatorsCount
     }
 
     func didReceive(electionStatus: ElectionStatus?) {

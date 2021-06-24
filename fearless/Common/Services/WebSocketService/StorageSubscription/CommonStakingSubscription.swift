@@ -83,10 +83,10 @@ final class CommonStakingSubscription: WebSocketSubscribing {
                 if !remoteKeys.isEmpty {
                     self?.completeSubscription(for: remoteKeys)
                 } else {
-                    self?.logger?.warning("No remote key found for election status")
+                    self?.logger?.warning("No remote key found for common staking subscription")
                 }
             } catch {
-                self?.logger?.error("Election status key resolution error: \(error)")
+                self?.logger?.error("Staking keys resolution error: \(error)")
             }
         }
 
@@ -125,7 +125,7 @@ final class CommonStakingSubscription: WebSocketSubscribing {
             subscription = Subscription(handlers: childSubscriptions, subscriptionId: subscriptionId)
 
         } catch {
-            logger?.error("Can't complete election status subscription: \(error)")
+            logger?.error("Can't complete staking subscription: \(error)")
         }
     }
 
