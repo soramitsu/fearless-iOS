@@ -10800,6 +10800,21 @@ import SoraFoundation
         
     }
     
+    
+    
+     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)  {
+        
+    return cuckoo_manager.call("didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)",
+            parameters: (result),
+            escapingParameters: (result),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.didReceiveLeaseInfo(result: result))
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListInteractorOutputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10837,6 +10852,11 @@ import SoraFoundation
 	    func didReceiveContributions<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<CrowdloanContributionDict, Error>)> where M1.MatchedType == Result<CrowdloanContributionDict, Error> {
 	        let matchers: [Cuckoo.ParameterMatcher<(Result<CrowdloanContributionDict, Error>)>] = [wrap(matchable: result) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorOutputProtocol.self, method: "didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)", parameterMatchers: matchers))
+	    }
+	    
+	    func didReceiveLeaseInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Result<ParachainLeaseInfoDict, Error>)> where M1.MatchedType == Result<ParachainLeaseInfoDict, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ParachainLeaseInfoDict, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorOutputProtocol.self, method: "didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10891,6 +10911,12 @@ import SoraFoundation
 	        return cuckoo_manager.verify("didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func didReceiveLeaseInfo<M1: Cuckoo.Matchable>(result: M1) -> Cuckoo.__DoNotUse<(Result<ParachainLeaseInfoDict, Error>), Void> where M1.MatchedType == Result<ParachainLeaseInfoDict, Error> {
+	        let matchers: [Cuckoo.ParameterMatcher<(Result<ParachainLeaseInfoDict, Error>)>] = [wrap(matchable: result) { $0 }]
+	        return cuckoo_manager.verify("didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10921,6 +10947,10 @@ import SoraFoundation
     }
     
      func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     

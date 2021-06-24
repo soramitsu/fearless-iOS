@@ -25,7 +25,7 @@ class CrowdloanListTests: XCTestCase {
         )
     ]
 
-    let completedCrowdloans: [Crowdloan] = [
+    let endedCrowdloans: [Crowdloan] = [
         Crowdloan(
             paraId: 2001,
             fundInfo: CrowdloanFunds(
@@ -38,7 +38,39 @@ class CrowdloanListTests: XCTestCase {
                 lastContribution: .never,
                 firstPeriod: 100,
                 lastPeriod: 101,
-                trieIndex: 1)
+                trieIndex: 2)
+        )
+    ]
+
+    let wonCrowdloans: [Crowdloan] = [
+        Crowdloan(
+            paraId: 2002,
+            fundInfo: CrowdloanFunds(
+                depositor: Data(repeating: 2, count: 32),
+                verifier: nil,
+                deposit: 100,
+                raised: 100,
+                end: currentBlockNumber + 100,
+                cap: 1000,
+                lastContribution: .never,
+                firstPeriod: 100,
+                lastPeriod: 101,
+                trieIndex: 3)
+        )
+    ]
+
+    let leaseInfo: ParachainLeaseInfoList = [
+        ParachainLeaseInfo(paraId: 2000,
+                           fundAccountId: Data(repeating: 10, count: 32),
+                           leasedAmount: nil
+        ),
+        ParachainLeaseInfo(paraId: 2001,
+                           fundAccountId: Data(repeating: 11, count: 32),
+                           leasedAmount: nil
+        ),
+        ParachainLeaseInfo(paraId: 2002,
+                           fundAccountId: Data(repeating: 12, count: 32),
+                           leasedAmount: 1000
         )
     ]
 
@@ -53,7 +85,7 @@ class CrowdloanListTests: XCTestCase {
             result.insert(crowdloan.paraId)
         }
 
-        let expectedCompletedParaIds: Set<ParaId> = completedCrowdloans
+        let expectedCompletedParaIds: Set<ParaId> = (endedCrowdloans + wonCrowdloans)
             .reduce(into: Set<ParaId>()) { (result, crowdloan) in
             result.insert(crowdloan.paraId)
         }
@@ -74,7 +106,10 @@ class CrowdloanListTests: XCTestCase {
             }
         }
 
-        let presenter = try createPresenter(for: view, wireframe: wireframe)
+        guard let presenter = try createPresenter(for: view, wireframe: wireframe) else {
+            XCTFail("Initialization failed")
+            return
+        }
 
         // when
 
@@ -101,7 +136,7 @@ class CrowdloanListTests: XCTestCase {
     private func createPresenter(
         for view: MockCrowdloanListViewProtocol,
         wireframe: MockCrowdloanListWireframeProtocol
-    ) throws -> CrowdloanListPresenter {
+    ) throws -> CrowdloanListPresenter? {
         let localizationManager = LocalizationManager.shared
         let chain = Chain.westend
         let settings = InMemorySettingsManager()
@@ -117,7 +152,12 @@ class CrowdloanListTests: XCTestCase {
             txVersion: 5
         )
 
-        let interactor = createInteractor(for: chain, runtimeService: runtimeCodingService)
+        guard let interactor = createInteractor(
+                settings: settings,
+                runtimeService: runtimeCodingService
+        ) else {
+            return nil
+        }
 
         let wireframe = CrowdloanListWireframe()
 
@@ -144,9 +184,15 @@ class CrowdloanListTests: XCTestCase {
     }
 
     private func createInteractor(
-        for chain: Chain,
+        settings: SettingsManagerProtocol,
         runtimeService: RuntimeCodingServiceProtocol
-    ) -> CrowdloanListInteractor {
+    ) -> CrowdloanListInteractor? {
+        guard let selectedAddress = settings.selectedAccount?.address else {
+            return nil
+        }
+
+        let chain = settings.selectedConnection.type.chain
+
         let connection = MockJSONRPCEngine()
         let operationManager = OperationManagerFacade.sharedManager
 
@@ -155,10 +201,14 @@ class CrowdloanListTests: XCTestCase {
             .withBlockNumber(blockNumber: Self.currentBlockNumber)
             .withJSON(value: CrowdloanDisplayInfoList(), for: chain.crowdloanDisplayInfoURL())
 
-        let crowdloans = activeCrowdloans + completedCrowdloans
-        let crowdloanOperationFactory = CrowdloansOperationFactoryStub(crowdloans: crowdloans)
+        let crowdloans = activeCrowdloans + endedCrowdloans + wonCrowdloans
+        let crowdloanOperationFactory = CrowdloansOperationFactoryStub(
+            crowdloans: crowdloans,
+            parachainLeaseInfo: leaseInfo
+        )
 
         return CrowdloanListInteractor(
+            selectedAddress: selectedAddress,
             runtimeService: runtimeService,
             crowdloanOperationFactory: crowdloanOperationFactory,
             connection: connection,

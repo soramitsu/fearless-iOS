@@ -2,6 +2,7 @@ import Foundation
 import RobinHood
 import FearlessUtils
 import IrohaCrypto
+import BigInt
 
 protocol CrowdloanOperationFactoryProtocol {
     func fetchCrowdloansOperation(
@@ -16,6 +17,12 @@ protocol CrowdloanOperationFactoryProtocol {
         address: AccountAddress,
         trieIndex: UInt32
     ) -> CompoundOperationWrapper<CrowdloanContributionResponse>
+
+    func fetchLeaseInfoOperation(
+        connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        paraIds: [ParaId]
+    ) -> CompoundOperationWrapper<[ParachainLeaseInfo]>
 }
 
 final class CrowdloanOperationFactory {
@@ -132,6 +139,75 @@ extension CrowdloanOperationFactory: CrowdloanOperationFactoryProtocol {
 
         return CompoundOperationWrapper(
             targetOperation: mappingOperation,
+            dependencies: [coderFactoryOperation] + queryWrapper.allOperations
+        )
+    }
+
+    func fetchLeaseInfoOperation(
+        connection: JSONRPCEngine,
+        runtimeService: RuntimeCodingServiceProtocol,
+        paraIds: [ParaId]
+    ) -> CompoundOperationWrapper<[ParachainLeaseInfo]> {
+        let coderFactoryOperation = runtimeService.fetchCoderFactoryOperation()
+
+        let keyParams: () throws -> [StringScaleMapper<ParaId>] = {
+            paraIds.map { StringScaleMapper(value: $0) }
+        }
+
+        let queryWrapper: CompoundOperationWrapper<[StorageResponse<[ParachainSlotLease]>]> =
+            requestOperationFactory.queryItems(
+                engine: connection,
+                keyParams: keyParams,
+                factory: { try coderFactoryOperation.extractNoCancellableResultData() },
+                storagePath: .parachainSlotLeases
+            )
+
+        queryWrapper.allOperations.forEach { $0.addDependency(coderFactoryOperation) }
+
+        let mapOperation: BaseOperation<[ParachainLeaseInfo]> = ClosureOperation {
+            let queryResult = try queryWrapper.targetOperation.extractNoCancellableResultData()
+
+            guard let fundAccountPrefix = "modlpy/cfund".data(using: .utf8) else {
+                throw NetworkBaseError.badDeserialization
+            }
+
+            let fundAccountSuffix = Data(repeating: 0, count: SubstrateConstants.accountIdLength)
+
+            return try queryResult.enumerated().map { index, slotLeaseResponse in
+                let paraId = paraIds[index]
+
+                let paraIdEncoder = ScaleEncoder()
+                try paraId.encode(scaleEncoder: paraIdEncoder)
+                let paraIdData = paraIdEncoder.encode()
+
+                let fundAccountId = (fundAccountPrefix + paraIdData + fundAccountSuffix)
+                    .prefix(SubstrateConstants.accountIdLength)
+
+                guard let leasedAmountList = slotLeaseResponse.value else {
+                    return ParachainLeaseInfo(
+                        paraId: paraIds[index],
+                        fundAccountId: fundAccountId,
+                        leasedAmount: nil
+                    )
+                }
+
+                let leasedAmount = leasedAmountList
+                    .filter { $0.accountId == fundAccountId }
+                    .max { $0.amount > $1.amount }?
+                    .amount
+
+                return ParachainLeaseInfo(
+                    paraId: paraIds[index],
+                    fundAccountId: fundAccountId,
+                    leasedAmount: leasedAmount
+                )
+            }
+        }
+
+        mapOperation.addDependency(queryWrapper.targetOperation)
+
+        return CompoundOperationWrapper(
+            targetOperation: mapOperation,
             dependencies: [coderFactoryOperation] + queryWrapper.allOperations
         )
     }
