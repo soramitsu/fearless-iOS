@@ -175,7 +175,6 @@ final class CrowdloansViewModelFactory {
         from model: Crowdloan,
         contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
-        metadata _: CrowdloanMetadata,
         formatters: Formatters,
         locale: Locale
     ) -> CompletedCrowdloanViewModel? {
@@ -225,7 +224,6 @@ final class CrowdloansViewModelFactory {
                     from: crowdloan,
                     contributions: contributions,
                     displayInfo: displayInfo?[crowdloan.paraId],
-                    metadata: metadata,
                     formatters: formatters,
                     locale: locale
                 ) {
