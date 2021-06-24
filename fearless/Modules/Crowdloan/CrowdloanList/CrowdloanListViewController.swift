@@ -53,6 +53,14 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         } else {
             shouldUpdateOnAppearance = true
         }
+
+        presenter.becomeOnline()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        presenter.putOffline()
     }
 
     func configure() {
