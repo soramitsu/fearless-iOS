@@ -479,3 +479,4 @@ Derivation path: %@";
 "crowdloan.private.crowdloan.message" = "Private crowdloans are not yet supported.";
 "crowdloan.contribution.format" = "You contributed: %@";
 "common.search" = "Search";
+"staking.validator.search.placeholder" = "Search by address or name";

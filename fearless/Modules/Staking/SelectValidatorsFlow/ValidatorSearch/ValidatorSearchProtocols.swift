@@ -1,7 +1,10 @@
 import SoraFoundation
 
 protocol ValidatorSearchWireframeProtocol {
-    #warning("Not implemented")
+    func present(
+        _ validatorInfo: ValidatorInfoProtocol,
+        from view: ControllerBackedProtocol?
+    )
 }
 
 protocol ValidatorSearchViewProtocol: ControllerBackedProtocol, Localizable {
@@ -23,6 +26,8 @@ protocol ValidatorSearchInteractorOutputProtocol {
 
 protocol ValidatorSearchPresenterProtocol: Localizable {
     func setup()
+
+    func didSelectValidator(at index: Int)
 }
 
 protocol ValidatorSearchViewFactoryProtocol {

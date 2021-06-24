@@ -6,6 +6,8 @@ final class ValidatorSearchPresenter {
     let interactor: ValidatorSearchInteractorInputProtocol
     let logger: LoggerProtocol?
 
+    private var filteredValidatorList: [ElectedValidatorInfo] = []
+
     init(
         wireframe: ValidatorSearchWireframeProtocol,
         interactor: ValidatorSearchInteractorInputProtocol,
@@ -25,6 +27,25 @@ extension ValidatorSearchPresenter: ValidatorSearchPresenterProtocol {
     func setup() {
         // TODO: provideViewModels()?
         interactor.setup()
+    }
+
+    // MARK: - Presenting actions
+
+    func didSelectValidator(at index: Int) {
+        let selectedValidator = filteredValidatorList[index]
+
+        let validatorInfo = SelectedValidatorInfo(
+            address: selectedValidator.address,
+            identity: selectedValidator.identity,
+            stakeInfo: ValidatorStakeInfo(
+                nominators: selectedValidator.nominators,
+                totalStake: selectedValidator.totalStake,
+                stakeReturn: selectedValidator.stakeReturn,
+                maxNominatorsRewarded: selectedValidator.maxNominatorsRewarded
+            )
+        )
+
+        wireframe.present(validatorInfo, from: view)
     }
 }
 

@@ -27,7 +27,6 @@ final class ValidatorSearchViewLayout: UIView {
         let view = UITextField()
         view.font = .p1Paragraph
         view.textColor = .white
-        view.placeholder = "Search by address or name"
         view.clearButtonMode = .whileEditing
         return view
     }()
