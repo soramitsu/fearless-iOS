@@ -110,6 +110,10 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Paras", itemName: "Parachains")
     }
 
+    static var parachainSlotLeases: StorageCodingPath {
+        StorageCodingPath(moduleName: "Slots", itemName: "Leases")
+    }
+
     static var crowdloanFunds: StorageCodingPath {
         StorageCodingPath(moduleName: "Crowdloan", itemName: "Funds")
     }

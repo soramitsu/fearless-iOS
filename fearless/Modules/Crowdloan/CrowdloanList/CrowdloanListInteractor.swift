@@ -73,15 +73,49 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                     if
                         let encodingError = error as? StorageKeyEncodingOperationError,
                         encodingError == .invalidStoragePath {
-                        self?.presenter.didReceiveCrowdloans(result: .success([]))
+                        self?.presenter.didReceiveContributions(result: .success([:]))
                     } else {
-                        self?.presenter.didReceiveCrowdloans(result: .failure(error))
+                        self?.presenter.didReceiveContributions(result: .failure(error))
                     }
                 }
             }
         }
 
         operationManager.enqueue(operations: [contributionsOperation], in: .transient)
+    }
+
+    private func provideLeaseInfo(for crowdloans: [Crowdloan]) {
+        guard !crowdloans.isEmpty else {
+            presenter.didReceiveLeaseInfo(result: .success([:]))
+            return
+        }
+
+        let paraIds = crowdloans.map(\.paraId)
+
+        let queryWrapper = crowdloanOperationFactory.fetchLeaseInfoOperation(
+            connection: connection,
+            runtimeService: runtimeService,
+            paraIds: paraIds
+        )
+
+        queryWrapper.targetOperation.completionBlock = { [weak self] in
+            DispatchQueue.main.async {
+                do {
+                    let leaseInfo = try queryWrapper.targetOperation.extractNoCancellableResultData().toMap()
+                    self?.presenter.didReceiveLeaseInfo(result: .success(leaseInfo))
+                } catch {
+                    if
+                        let encodingError = error as? StorageKeyEncodingOperationError,
+                        encodingError == .invalidStoragePath {
+                        self?.presenter.didReceiveLeaseInfo(result: .success([:]))
+                    } else {
+                        self?.presenter.didReceiveLeaseInfo(result: .failure(error))
+                    }
+                }
+            }
+        }
+
+        operationManager.enqueue(operations: queryWrapper.allOperations, in: .transient)
     }
 
     private func provideCrowdloans() {
@@ -96,6 +130,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                 do {
                     let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
                     self?.provideContributions(for: crowdloans)
+                    self?.provideLeaseInfo(for: crowdloans)
                     self?.presenter.didReceiveCrowdloans(result: .success(crowdloans))
                 } catch {
                     if
@@ -103,9 +138,11 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
                         encodingError == .invalidStoragePath {
                         self?.presenter.didReceiveCrowdloans(result: .success([]))
                         self?.presenter.didReceiveContributions(result: .success([:]))
+                        self?.presenter.didReceiveLeaseInfo(result: .success([:]))
                     } else {
                         self?.presenter.didReceiveCrowdloans(result: .failure(error))
                         self?.presenter.didReceiveContributions(result: .failure(error))
+                        self?.presenter.didReceiveLeaseInfo(result: .failure(error))
                     }
                 }
             }
