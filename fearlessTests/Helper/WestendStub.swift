@@ -55,6 +55,20 @@ struct WestendStub {
         )
     }()
 
+    static let counterForNominators: DecodedU32 = {
+        DecodedU32(
+            identifier: Chain.westend.genesisHash + "_counterForNominators",
+            item: StringScaleMapper(value: 100)
+        )
+    }()
+
+    static let maxNominatorsCount: DecodedU32 = {
+        DecodedU32(
+            identifier: Chain.westend.genesisHash + "_maxNominatorsCount",
+            item: StringScaleMapper(value: 1000)
+        )
+    }()
+
     static let nomination: DecodedNomination = {
         let nomination = Nomination(targets: [],
                                     submittedIn: 0)

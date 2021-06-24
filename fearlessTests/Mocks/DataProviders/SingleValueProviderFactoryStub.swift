@@ -18,6 +18,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
     let blockNumber: AnyDataProvider<DecodedBlockNumber>
     let crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>
     let minNominatorBond: AnyDataProvider<DecodedBigUInt>
+    let counterForNominators: AnyDataProvider<DecodedU32>
+    let maxNominatorsCount: AnyDataProvider<DecodedU32>
     let jsonProviders: [URL: Any]
 
     init(price: AnySingleValueProvider<PriceData>,
@@ -31,6 +33,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
          payee: AnyDataProvider<DecodedPayee>,
          blockNumber: AnyDataProvider<DecodedBlockNumber>,
          minNominatorBond: AnyDataProvider<DecodedBigUInt>,
+         counterForNominators: AnyDataProvider<DecodedU32>,
+         maxNominatorsCount: AnyDataProvider<DecodedU32>,
          jsonProviders: [URL: Any] = [:],
          crowdloanFunds: AnyDataProvider<DecodedCrowdloanFunds>) {
         self.price = price
@@ -44,6 +48,8 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         self.payee = payee
         self.blockNumber = blockNumber
         self.minNominatorBond = minNominatorBond
+        self.counterForNominators = counterForNominators
+        self.maxNominatorsCount = maxNominatorsCount
         self.jsonProviders = jsonProviders
         self.crowdloanFunds = crowdloanFunds
     }
@@ -98,6 +104,20 @@ final class SingleValueProviderFactoryStub: SingleValueProviderFactoryProtocol {
         minNominatorBond
     }
 
+    func getCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        counterForNominators
+    }
+
+    func getMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        maxNominatorsCount
+    }
+
     func getBlockNumber(
         for chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
@@ -135,6 +155,8 @@ extension SingleValueProviderFactoryStub {
         let ledgerProvider = DataProviderStub(models: [WestendStub.ledgerInfo])
         let activeEra = DataProviderStub(models: [WestendStub.activeEra])
         let minNominatorBond = DataProviderStub(models: [WestendStub.minNominatorBond])
+        let counterForNominators = DataProviderStub(models: [WestendStub.counterForNominators])
+        let maxNominatorsCount = DataProviderStub(models: [WestendStub.maxNominatorsCount])
 
         let payeeId = (WestendStub.ledgerInfo.item?.stash.toHex() ?? "") + "_payee"
         let decodedPayee = DecodedPayee(identifier: payeeId, item: .staked)
@@ -153,6 +175,8 @@ extension SingleValueProviderFactoryStub {
                                               payee: AnyDataProvider(payee),
                                               blockNumber: AnyDataProvider(blockNumber),
                                               minNominatorBond: AnyDataProvider(minNominatorBond),
+                                              counterForNominators: AnyDataProvider(counterForNominators),
+                                              maxNominatorsCount: AnyDataProvider(maxNominatorsCount),
                                               crowdloanFunds: AnyDataProvider(crowdloanFunds))
     }
 
@@ -178,6 +202,8 @@ extension SingleValueProviderFactoryStub {
                                               payee: payee,
                                               blockNumber: blockNumber,
                                               minNominatorBond: minNominatorBond,
+                                              counterForNominators: counterForNominators,
+                                              maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
                                               crowdloanFunds: crowdloanFunds)
     }
@@ -202,6 +228,8 @@ extension SingleValueProviderFactoryStub {
                                               payee: payee,
                                               blockNumber: blockNumber,
                                               minNominatorBond: minNominatorBond,
+                                              counterForNominators: counterForNominators,
+                                              maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
                                               crowdloanFunds: crowdloanFunds)
     }
@@ -226,6 +254,8 @@ extension SingleValueProviderFactoryStub {
                                               payee: payee,
                                               blockNumber: AnyDataProvider(blockProvider),
                                               minNominatorBond: minNominatorBond,
+                                              counterForNominators: counterForNominators,
+                                              maxNominatorsCount: maxNominatorsCount,
                                               jsonProviders: jsonProviders,
                                               crowdloanFunds: crowdloanFunds)
     }
@@ -252,6 +282,8 @@ extension SingleValueProviderFactoryStub {
             payee: payee,
             blockNumber: blockNumber,
             minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount,
             jsonProviders: currentProviders,
             crowdloanFunds: crowdloanFunds
         )
@@ -278,6 +310,8 @@ extension SingleValueProviderFactoryStub {
             payee: payee,
             blockNumber: blockNumber,
             minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount,
             jsonProviders: jsonProviders,
             crowdloanFunds: AnyDataProvider(dataProvider)
         )
