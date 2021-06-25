@@ -38,9 +38,12 @@ class StakingMainTests: XCTestCase {
         let stateViewModelFactory = StakingStateViewModelFactory(primitiveFactory: primitiveFactory,
                                                                  logger: Logger.shared)
         let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
         let presenter = StakingMainPresenter(stateViewModelFactory: stateViewModelFactory,
                                              networkInfoViewModelFactory: networkViewModelFactory,
                                              viewModelFacade: viewModelFacade,
+                                             dataValidatingFactory: dataValidatingFactory,
                                              logger: Logger.shared)
 
         let substrateProviderFactory = SubstrateDataProviderFactory(facade: storageFacade,
@@ -77,6 +80,7 @@ class StakingMainTests: XCTestCase {
         presenter.wireframe = wireframe
         presenter.interactor = interactor
         interactor.presenter = presenter
+        dataValidatingFactory.view = view
 
         // when
 
@@ -212,12 +216,17 @@ class StakingMainTests: XCTestCase {
             logger: nil
         )
         let networkViewModelFactory = NetworkInfoViewModelFactory(primitiveFactory: primitiveFactory)
+
+        let dataValidatingFactory = StakingDataValidatingFactory(presentable: wireframe)
+
         let presenter = StakingMainPresenter(
             stateViewModelFactory: stateViewModelFactory,
             networkInfoViewModelFactory: networkViewModelFactory,
             viewModelFacade: viewModelFacade,
+            dataValidatingFactory: dataValidatingFactory,
             logger: nil
         )
+
         presenter.wireframe = wireframe
         presenter.interactor = interactor
 

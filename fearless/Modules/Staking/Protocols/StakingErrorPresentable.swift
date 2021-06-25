@@ -46,6 +46,8 @@ protocol StakingErrorPresentable: BaseErrorPresentable {
         action: @escaping () -> Void,
         locale: Locale?
     )
+
+    func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?)
 }
 
 extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentable {
@@ -206,5 +208,18 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             view: view,
             locale: locale
         )
+    }
+
+    func presentMaxNumberOfNominatorsReached(from view: ControllerBackedProtocol?, locale: Locale?) {
+        let message = R.string.localizable.stakingMaxNominatorsReachedMessage(
+            preferredLanguages: locale?.rLanguages
+        )
+
+        let title = R.string.localizable.stakingMaxNominatorsReachedTitle(
+            preferredLanguages: locale?.rLanguages
+        )
+        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
+
+        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 }

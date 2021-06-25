@@ -22,14 +22,13 @@ protocol SelectValidatorsConfirmInteractorInputProtocol: AnyObject {
 }
 
 protocol SelectValidatorsConfirmInteractorOutputProtocol: AnyObject {
-    func didReceive(model: SelectValidatorsConfirmationModel)
-    func didReceive(modelError: Error)
-
-    func didReceive(price: PriceData?)
-    func didReceive(priceError: Error)
-
-    func didReceive(balance: AccountData?)
-    func didReceive(balanceError: Error)
+    func didReceiveModel(result: Result<SelectValidatorsConfirmationModel, Error>)
+    func didReceivePrice(result: Result<PriceData?, Error>)
+    func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
+    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
+    func didReceiveMinBond(result: Result<BigUInt?, Error>)
+    func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
+    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
 
     func didStartNomination()
     func didCompleteNomination(txHash: String)

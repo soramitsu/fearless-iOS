@@ -48,6 +48,27 @@ struct WestendStub {
                               item: .close)
     }()
 
+    static let minNominatorBond: DecodedBigUInt = {
+        DecodedBigUInt(
+            identifier: Chain.westend.genesisHash + "_minbond",
+            item: StringScaleMapper(value: BigUInt(1e+12))
+        )
+    }()
+
+    static let counterForNominators: DecodedU32 = {
+        DecodedU32(
+            identifier: Chain.westend.genesisHash + "_counterForNominators",
+            item: StringScaleMapper(value: 100)
+        )
+    }()
+
+    static let maxNominatorsCount: DecodedU32 = {
+        DecodedU32(
+            identifier: Chain.westend.genesisHash + "_maxNominatorsCount",
+            item: StringScaleMapper(value: 1000)
+        )
+    }()
+
     static let nomination: DecodedNomination = {
         let nomination = Nomination(targets: [],
                                     submittedIn: 0)

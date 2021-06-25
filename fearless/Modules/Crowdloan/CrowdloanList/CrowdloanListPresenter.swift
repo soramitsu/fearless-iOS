@@ -13,7 +13,8 @@ final class CrowdloanListPresenter {
     private var blockNumber: BlockNumber?
     private var blockDurationResult: Result<BlockTime, Error>?
     private var leasingPeriodResult: Result<LeasingPeriod, Error>?
-    private var contributions: Result<CrowdloanContributionDict, Error>?
+    private var contributionsResult: Result<CrowdloanContributionDict, Error>?
+    private var leaseInfoResult: Result<ParachainLeaseInfoDict, Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -42,12 +43,15 @@ final class CrowdloanListPresenter {
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
             let blockNumber = blockNumber,
-            let contributionsResult = contributions else {
+            let contributionsResult = contributionsResult,
+            let leaseInfoResult = leaseInfoResult else {
             return
         }
 
         guard
-            case let .success(crowdloans) = crowdloansResult else {
+            case let .success(crowdloans) = crowdloansResult,
+            case let .success(contributions) = contributionsResult,
+            case let .success(leaseInfo) = leaseInfoResult else {
             provideViewErrorState()
             return
         }
@@ -72,11 +76,10 @@ final class CrowdloanListPresenter {
             leasingPeriod: leasingPeriod
         )
 
-        let contributions = try? contributionsResult.get()
-
         let viewModel = viewModelFactory.createViewModel(
             from: crowdloans,
             contributions: contributions,
+            leaseInfo: leaseInfo,
             displayInfo: displayInfo,
             metadata: metadata,
             locale: selectedLocale
@@ -148,7 +151,16 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
             logger?.error("Did receive contributions error: \(error)")
         }
 
-        contributions = result
+        contributionsResult = result
+        updateView()
+    }
+
+    func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>) {
+        if case let .failure(error) = result {
+            logger?.error("Did receive lease info error: \(error)")
+        }
+
+        leaseInfoResult = result
         updateView()
     }
 }

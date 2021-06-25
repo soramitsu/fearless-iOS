@@ -2,9 +2,12 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 import FearlessUtils
+import BigInt
 
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
 typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
+typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
+typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
@@ -21,6 +24,12 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnyDataProvider<DecodedAccountInfo>
     func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedElectionStatus>
+    func getMinNominatorBondProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBigUInt>
+    func getCounterForNominatorsProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
+    func getMaxNominatorsCountProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
     func getNominationProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedNomination>
     func getValidatorProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -167,7 +176,7 @@ final class SingleValueProviderFactory {
         _ chain: Chain,
         path: StorageCodingPath,
         runtimeService: RuntimeCodingServiceProtocol,
-        shouldUseFallback _: Bool
+        shouldUseFallback: Bool
     ) throws -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         let storageIdFactory = try ChainStorageIdFactory(chain: chain)
         let remoteKey = try StorageKeyFactory().createStorageKey(
@@ -180,7 +189,7 @@ final class SingleValueProviderFactory {
             path: path,
             runtimeService: runtimeService,
             localKeyFactory: storageIdFactory,
-            shouldUseFallback: true
+            shouldUseFallback: shouldUseFallback
         )
     }
 }
@@ -370,6 +379,42 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             path: .activeEra,
             runtimeService: runtimeService,
             shouldUseFallback: true
+        )
+    }
+
+    func getMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBigUInt> {
+        try getProviderForChain(
+            chain,
+            path: .minNominatorBond,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .counterForNominators,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .maxNominatorsCount,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
         )
     }
 

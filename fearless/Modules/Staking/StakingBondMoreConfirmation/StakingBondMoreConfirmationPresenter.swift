@@ -110,7 +110,7 @@ extension StakingBondMoreConfirmationPresenter: StakingBondMoreConfirmationPrese
 
             dataValidatingFactory.has(
                 stash: stashAccount,
-                for: stashItem?.controller ?? "",
+                for: stashItem?.stash ?? "",
                 locale: locale
             ),
 

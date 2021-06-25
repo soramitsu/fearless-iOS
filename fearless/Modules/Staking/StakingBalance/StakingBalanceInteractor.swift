@@ -1,7 +1,7 @@
 import RobinHood
 import IrohaCrypto
 
-final class StakingBalanceInteractor {
+final class StakingBalanceInteractor: AccountFetching {
     weak var presenter: StakingBalanceInteractorOutputProtocol!
 
     let chain: Chain
@@ -44,21 +44,22 @@ final class StakingBalanceInteractor {
         self.operationManager = operationManager
     }
 
-    func fetchController(for address: AccountAddress) {
-        let operation = accountRepository.fetchOperation(by: address, options: RepositoryFetchOptions())
-
-        operation.completionBlock = {
-            DispatchQueue.main.async {
-                do {
-                    let accountItem = try operation.extractNoCancellableResultData()
-                    self.presenter.didReceive(fetchControllerResult: .success((accountItem, address)))
-                } catch {
-                    self.presenter.didReceive(fetchControllerResult: .failure(error))
-                }
-            }
+    func fetchAccounts(for stashItem: StashItem) {
+        fetchAccount(
+            for: stashItem.controller,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceive(controllerResult: result)
         }
 
-        operationManager.enqueue(operations: [operation], in: .transient)
+        fetchAccount(
+            for: stashItem.stash,
+            from: accountRepository,
+            operationManager: operationManager
+        ) { [weak self] result in
+            self?.presenter.didReceive(stashResult: result)
+        }
     }
 }
 

@@ -18,4 +18,11 @@ final class ValidatorSearchWireframe: ValidatorSearchWireframeProtocol {
     func close(_ view: ControllerBackedProtocol?) {
         view?.controller.navigationController?.popViewController(animated: true)
     }
+
+    func proceed(
+        from _: CustomValidatorListViewProtocol?,
+        validators _: [ElectedValidatorInfo],
+        maxTargets _: Int,
+        delegate _: SelectedValidatorListDelegate
+    ) {}
 }
