@@ -16,6 +16,7 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     let logger: LoggerProtocol?
 
     private var blockNumberProvider: AnyDataProvider<DecodedBlockNumber>?
+    private var crowdloansRequest: CompoundOperationWrapper<[Crowdloan]>?
 
     init(
         selectedAddress: AccountAddress,
@@ -119,14 +120,22 @@ final class CrowdloanListInteractor: RuntimeConstantFetching {
     }
 
     private func provideCrowdloans() {
+        guard crowdloansRequest == nil else {
+            return
+        }
+
         let crowdloanWrapper = crowdloanOperationFactory.fetchCrowdloansOperation(
             connection: connection,
             runtimeService: runtimeService,
             chain: chain
         )
 
+        crowdloansRequest = crowdloanWrapper
+
         crowdloanWrapper.targetOperation.completionBlock = { [weak self] in
             DispatchQueue.main.async {
+                self?.crowdloansRequest = nil
+
                 do {
                     let crowdloans = try crowdloanWrapper.targetOperation.extractNoCancellableResultData()
                     self?.provideContributions(for: crowdloans)
@@ -198,8 +207,6 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
 
         subscribeToDisplayInfo()
 
-        blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
-
         provideConstants()
     }
 
@@ -210,10 +217,24 @@ extension CrowdloanListInteractor: CrowdloanListInteractorInputProtocol {
 
         provideConstants()
     }
+
+    func becomeOnline() {
+        guard blockNumberProvider == nil else {
+            return
+        }
+
+        blockNumberProvider = subscribeToBlockNumber(for: chain, runtimeService: runtimeService)
+    }
+
+    func putOffline() {
+        clear(dataProvider: &blockNumberProvider)
+    }
 }
 
-extension CrowdloanListInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler {
+extension CrowdloanListInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+    AnyProviderAutoCleaning {
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain _: Chain) {
+        provideCrowdloans()
         presenter.didReceiveBlockNumber(result: result)
     }
 }

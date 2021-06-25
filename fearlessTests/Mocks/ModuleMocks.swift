@@ -10483,6 +10483,36 @@ import SoraFoundation
         
     }
     
+    
+    
+     func becomeOnline()  {
+        
+    return cuckoo_manager.call("becomeOnline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.becomeOnline())
+        
+    }
+    
+    
+    
+     func putOffline()  {
+        
+    return cuckoo_manager.call("putOffline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.putOffline())
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListPresenterProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10505,6 +10535,16 @@ import SoraFoundation
 	    func selectViewModel<M1: Cuckoo.Matchable>(_ viewModel: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(CrowdloanSectionItem<ActiveCrowdloanViewModel>)> where M1.MatchedType == CrowdloanSectionItem<ActiveCrowdloanViewModel> {
 	        let matchers: [Cuckoo.ParameterMatcher<(CrowdloanSectionItem<ActiveCrowdloanViewModel>)>] = [wrap(matchable: viewModel) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "selectViewModel(_: CrowdloanSectionItem<ActiveCrowdloanViewModel>)", parameterMatchers: matchers))
+	    }
+	    
+	    func becomeOnline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "becomeOnline()", parameterMatchers: matchers))
+	    }
+	    
+	    func putOffline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListPresenterProtocol.self, method: "putOffline()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10541,6 +10581,18 @@ import SoraFoundation
 	        return cuckoo_manager.verify("selectViewModel(_: CrowdloanSectionItem<ActiveCrowdloanViewModel>)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func becomeOnline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("becomeOnline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func putOffline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("putOffline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10559,6 +10611,14 @@ import SoraFoundation
     }
     
      func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func becomeOnline()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func putOffline()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
@@ -10619,6 +10679,36 @@ import SoraFoundation
         
     }
     
+    
+    
+     func becomeOnline()  {
+        
+    return cuckoo_manager.call("becomeOnline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.becomeOnline())
+        
+    }
+    
+    
+    
+     func putOffline()  {
+        
+    return cuckoo_manager.call("putOffline()",
+            parameters: (),
+            escapingParameters: (),
+            superclassCall:
+                
+                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
+                ,
+            defaultCall: __defaultImplStub!.putOffline())
+        
+    }
+    
 
 	 struct __StubbingProxy_CrowdloanListInteractorInputProtocol: Cuckoo.StubbingProxy {
 	    private let cuckoo_manager: Cuckoo.MockManager
@@ -10636,6 +10726,16 @@ import SoraFoundation
 	    func refresh() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
 	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
 	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "refresh()", parameterMatchers: matchers))
+	    }
+	    
+	    func becomeOnline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "becomeOnline()", parameterMatchers: matchers))
+	    }
+	    
+	    func putOffline() -> Cuckoo.ProtocolStubNoReturnFunction<()> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return .init(stub: cuckoo_manager.createStub(for: MockCrowdloanListInteractorInputProtocol.self, method: "putOffline()", parameterMatchers: matchers))
 	    }
 	    
 	}
@@ -10666,6 +10766,18 @@ import SoraFoundation
 	        return cuckoo_manager.verify("refresh()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
 	    }
 	    
+	    @discardableResult
+	    func becomeOnline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("becomeOnline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
+	    @discardableResult
+	    func putOffline() -> Cuckoo.__DoNotUse<(), Void> {
+	        let matchers: [Cuckoo.ParameterMatcher<Void>] = []
+	        return cuckoo_manager.verify("putOffline()", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
+	    }
+	    
 	}
 }
 
@@ -10680,6 +10792,14 @@ import SoraFoundation
     }
     
      func refresh()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func becomeOnline()   {
+        return DefaultValueRegistry.defaultValue(for: (Void).self)
+    }
+    
+     func putOffline()   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
