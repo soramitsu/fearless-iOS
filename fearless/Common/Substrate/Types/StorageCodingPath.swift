@@ -66,10 +66,6 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
     }
 
-    static var electionStatus: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "EraElectionStatus")
-    }
-
     static var minNominatorBond: StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "MinNominatorBond")
     }

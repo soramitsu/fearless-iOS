@@ -421,10 +421,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
         handle(error: validatorError)
     }
 
-    func didReceive(electionStatusError: Error) {
-        handle(error: electionStatusError)
-    }
-
     func didReceive(eraStakersInfo: EraStakersInfo) {
         stateMachine.state.process(eraStakersInfo: eraStakersInfo)
 
