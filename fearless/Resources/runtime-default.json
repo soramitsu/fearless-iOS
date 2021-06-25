@@ -630,6 +630,7 @@
         ]
       ]
     },
+    "BeefyId": "[u8; 33]",
     "BeefySignedCommitment": {
       "type": "struct",
       "type_mapping": [
@@ -4501,6 +4502,15 @@
         [
           "message",
           "Xcm"
+        ]
+      ]
+    },
+    "XcmOrigin": {
+      "type": "enum",
+      "type_mapping": [
+        [
+          "Xcm",
+          "MultiLocation"
         ]
       ]
     },

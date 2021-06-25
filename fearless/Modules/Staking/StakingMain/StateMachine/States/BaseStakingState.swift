@@ -94,6 +94,24 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
+    func process(minNominatorBond: BigUInt?) {
+        commonData = commonData.byReplacing(minNominatorBond: minNominatorBond)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(counterForNominators: UInt32?) {
+        commonData = commonData.byReplacing(counterForNominators: counterForNominators)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(maxNominatorsCount: UInt32?) {
+        commonData = commonData.byReplacing(maxNominatorsCount: maxNominatorsCount)
+
+        stateMachine?.transit(to: self)
+    }
+
     func process(rewardEstimationAmount _: Decimal?) {}
     func process(stashItem _: StashItem?) {}
     func process(ledgerInfo _: StakingLedger?) {}

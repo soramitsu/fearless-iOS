@@ -1,6 +1,7 @@
 import Foundation
 import SoraFoundation
 import CommonWallet
+import BigInt
 
 protocol StakingMainViewProtocol: ControllerBackedProtocol, Localizable {
     func didReceive(viewModel: StakingMainViewModelProtocol)
@@ -19,6 +20,7 @@ protocol StakingMainPresenterProtocol: AnyObject {
     func performValidationStatusAction()
     func performRewardInfoAction()
     func performChangeValidatorsAction()
+    func performSetupValidatorsForBondedAction()
     func performBondMoreAction()
     func performRedeemAction()
     func updateAmount(_ newValue: Decimal)
@@ -57,6 +59,9 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(payee: RewardDestinationArg?)
     func didReceive(payeeError: Error)
     func didReceive(newChain: Chain)
+    func didReceiveMinNominatorBond(result: Result<BigUInt?, Error>)
+    func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
+    func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)
 
     func didReceiveMaxNominatorsPerValidator(result: Result<UInt32, Error>)
 

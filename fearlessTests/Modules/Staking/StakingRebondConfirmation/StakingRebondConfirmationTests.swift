@@ -75,8 +75,9 @@ class StakingRebondConfirmationTests: XCTestCase {
         let nominatorAddress = settings.selectedAccount!.address
         let cryptoType = settings.selectedAccount!.cryptoType
 
-        let singleValueProviderFactory = SingleValueProviderFactoryStub.nonEmptyUnbondingStub(
-            for: nominatorAddress
+        let singleValueProviderFactory = try StakingRebondMock.addNomination(
+            to: SingleValueProviderFactoryStub.westendNominatorStub(),
+            address: nominatorAddress
         )
 
         // save stash item
@@ -176,5 +177,4 @@ class StakingRebondConfirmationTests: XCTestCase {
 
         return presenter
     }
-
 }

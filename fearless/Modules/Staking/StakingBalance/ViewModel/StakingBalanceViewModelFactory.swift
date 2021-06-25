@@ -136,7 +136,7 @@ struct StakingBalanceViewModelFactory: StakingBalanceViewModelFactoryProtocol {
     ) -> [UnbondingItemViewModel] {
         balanceData.stakingLedger
             .unbondings(inEra: balanceData.activeEra)
-            .sorted(by: { $0.era > $1.era })
+            .sorted(by: { $0.era < $1.era })
             .map { unbondingItem -> UnbondingItemViewModel in
                 let unbondingAmountDecimal = Decimal
                     .fromSubstrateAmount(
