@@ -66,8 +66,16 @@ extension StorageCodingPath {
         StorageCodingPath(moduleName: "Staking", itemName: "UnappliedSlashes")
     }
 
-    static var electionStatus: StorageCodingPath {
-        StorageCodingPath(moduleName: "Staking", itemName: "EraElectionStatus")
+    static var minNominatorBond: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "MinNominatorBond")
+    }
+
+    static var counterForNominators: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "CounterForNominators")
+    }
+
+    static var maxNominatorsCount: StorageCodingPath {
+        StorageCodingPath(moduleName: "Staking", itemName: "MaxNominatorsCount")
     }
 
     static var payee: StorageCodingPath {
@@ -96,6 +104,10 @@ extension StorageCodingPath {
 
     static var parachains: StorageCodingPath {
         StorageCodingPath(moduleName: "Paras", itemName: "Parachains")
+    }
+
+    static var parachainSlotLeases: StorageCodingPath {
+        StorageCodingPath(moduleName: "Slots", itemName: "Leases")
     }
 
     static var crowdloanFunds: StorageCodingPath {

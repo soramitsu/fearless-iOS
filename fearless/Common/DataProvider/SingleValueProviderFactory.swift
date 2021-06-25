@@ -2,9 +2,11 @@ import Foundation
 import RobinHood
 import IrohaCrypto
 import FearlessUtils
+import BigInt
 
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
-typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
+typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
+typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
 typealias DecodedValidator = ChainStorageDecodedItem<ValidatorPrefs>
 typealias DecodedLedgerInfo = ChainStorageDecodedItem<StakingLedger>
@@ -19,8 +21,12 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnySingleValueProvider<TotalRewardItem>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedAccountInfo>
-    func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-        -> AnyDataProvider<DecodedElectionStatus>
+    func getMinNominatorBondProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedBigUInt>
+    func getCounterForNominatorsProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
+    func getMaxNominatorsCountProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
+        -> AnyDataProvider<DecodedU32>
     func getNominationProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedNomination>
     func getValidatorProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -81,10 +87,6 @@ final class SingleValueProviderFactory {
         let methodName = supportsSubquery ? "subquery" : "subscan"
 
         return assetId.rawValue + address + "Reward" + methodName
-    }
-
-    private func electionStatusId(for chain: Chain) -> String {
-        chain.genesisHash + "ElectionStatus"
     }
 
     private func clearIfNeeded() {
@@ -167,7 +169,7 @@ final class SingleValueProviderFactory {
         _ chain: Chain,
         path: StorageCodingPath,
         runtimeService: RuntimeCodingServiceProtocol,
-        shouldUseFallback _: Bool
+        shouldUseFallback: Bool
     ) throws -> AnyDataProvider<ChainStorageDecodedItem<T>> where T: Equatable & Decodable {
         let storageIdFactory = try ChainStorageIdFactory(chain: chain)
         let remoteKey = try StorageKeyFactory().createStorageKey(
@@ -180,7 +182,7 @@ final class SingleValueProviderFactory {
             path: path,
             runtimeService: runtimeService,
             localKeyFactory: storageIdFactory,
-            shouldUseFallback: true
+            shouldUseFallback: shouldUseFallback
         )
     }
 }
@@ -284,46 +286,6 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
         )
     }
 
-    func getElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) throws
-        -> AnyDataProvider<DecodedElectionStatus> {
-        clearIfNeeded()
-
-        let localKey = electionStatusId(for: chain)
-
-        if let existingProvider = providers[localKey]?.target as? DataProvider<DecodedElectionStatus> {
-            return AnyDataProvider(existingProvider)
-        }
-
-        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
-
-        let repository = InMemoryDataProviderRepository<DecodedElectionStatus>()
-
-        let trigger = DataProviderProxyTrigger()
-
-        let source = ElectionStatusSource(
-            itemIdentifier: localKey,
-            localKeyFactory: storageIdFactory,
-            runtimeService: runtimeService,
-            providerFactory: stremableProviderFactory,
-            operationManager: operationManager,
-            trigger: trigger,
-            logger: logger
-        )
-
-        let dataProvider = DataProvider(
-            source: AnyDataProviderSource(source),
-            repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger
-        )
-
-        providers[localKey] = WeakWrapper(target: dataProvider)
-
-        return AnyDataProvider(dataProvider)
-    }
-
     func getNominationProvider(
         for address: String,
         runtimeService: RuntimeCodingServiceProtocol
@@ -370,6 +332,42 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             path: .activeEra,
             runtimeService: runtimeService,
             shouldUseFallback: true
+        )
+    }
+
+    func getMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedBigUInt> {
+        try getProviderForChain(
+            chain,
+            path: .minNominatorBond,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .counterForNominators,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
+        )
+    }
+
+    func getMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) throws -> AnyDataProvider<DecodedU32> {
+        try getProviderForChain(
+            chain,
+            path: .maxNominatorsCount,
+            runtimeService: runtimeService,
+            shouldUseFallback: false
         )
     }
 

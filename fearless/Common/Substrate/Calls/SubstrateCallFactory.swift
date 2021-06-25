@@ -28,7 +28,10 @@ protocol SubstrateCallFactoryProtocol {
 
     func setController(_ controller: AccountAddress) throws -> RuntimeCall<SetControllerCall>
 
+    func chill() -> RuntimeCall<NoRuntimeArgs>
+
     func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall>
+    func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo>
 }
 
 final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
@@ -116,9 +119,18 @@ final class SubstrateCallFactory: SubstrateCallFactoryProtocol {
         return RuntimeCall(moduleName: "Staking", callName: "set_controller", args: args)
     }
 
+    func chill() -> RuntimeCall<NoRuntimeArgs> {
+        RuntimeCall(moduleName: "Staking", callName: "chill")
+    }
+
     func contribute(to paraId: ParaId, amount: BigUInt) -> RuntimeCall<CrowdloanContributeCall> {
         let args = CrowdloanContributeCall(index: paraId, value: amount, signature: nil)
         return RuntimeCall(moduleName: "Crowdloan", callName: "contribute", args: args)
+    }
+
+    func addMemo(to paraId: ParaId, memo: Data) -> RuntimeCall<CrowdloanAddMemo> {
+        let args = CrowdloanAddMemo(index: paraId, memo: memo)
+        return RuntimeCall(moduleName: "Crowdloan", callName: "add_memo", args: args)
     }
 }
 

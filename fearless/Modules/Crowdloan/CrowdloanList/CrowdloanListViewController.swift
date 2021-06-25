@@ -53,6 +53,14 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         } else {
             shouldUpdateOnAppearance = true
         }
+
+        presenter.becomeOnline()
+    }
+
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+
+        presenter.putOffline()
     }
 
     func configure() {
@@ -61,6 +69,8 @@ final class CrowdloanListViewController: UIViewController, ViewHolder {
         rootView.tableView.registerClassForCell(ActiveCrowdloanTableViewCell.self)
         rootView.tableView.registerClassForCell(CompletedCrowdloanTableViewCell.self)
         rootView.tableView.registerHeaderFooterView(withClass: CrowdloanStatusSectionView.self)
+
+        rootView.tableView.tableFooterView = UIView()
 
         rootView.tableView.dataSource = self
         rootView.tableView.delegate = self

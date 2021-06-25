@@ -20,11 +20,6 @@ protocol SingleValueProviderSubscriber {
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedAccountInfo>?
 
-    func subscribeToElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedElectionStatus>?
-
     func subscribeToNominationProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol
@@ -54,4 +49,19 @@ protocol SingleValueProviderSubscriber {
         for chain: Chain,
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedBlockNumber>?
+
+    func subscribeToMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedBigUInt>?
+
+    func subscribeToCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>?
+
+    func subscribeToMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>?
 }

@@ -16,6 +16,7 @@ final class OperationCombiningService<T>: Longrunable {
 
     let operationsClosure: () throws -> [CompoundOperationWrapper<T>]
     let operationManager: OperationManagerProtocol
+    let operationsPerBatch: Int
 
     private(set) var state: State = .waiting
 
@@ -23,10 +24,12 @@ final class OperationCombiningService<T>: Longrunable {
 
     init(
         operationManager: OperationManagerProtocol,
+        operationsPerBatch: Int = 0,
         operationsClosure: @escaping () throws -> [CompoundOperationWrapper<T>]
     ) {
         self.operationManager = operationManager
         self.operationsClosure = operationsClosure
+        self.operationsPerBatch = operationsPerBatch
     }
 
     func start(with completionClosure: @escaping (Result<ResultType, Error>) -> Void) {
@@ -39,6 +42,19 @@ final class OperationCombiningService<T>: Longrunable {
 
         do {
             let wrappers = try operationsClosure()
+
+            if operationsPerBatch > 0, wrappers.count > operationsPerBatch {
+                for index in operationsPerBatch ..< wrappers.count {
+                    let prevBatchIndex = index / operationsPerBatch - 1
+
+                    let prevStart = prevBatchIndex * operationsPerBatch
+                    let prevEnd = (prevBatchIndex + 1) * operationsPerBatch
+
+                    for prevIndex in prevStart ..< prevEnd {
+                        wrappers[index].addDependency(wrapper: wrappers[prevIndex])
+                    }
+                }
+            }
 
             let mapOperation = ClosureOperation<ResultType> {
                 try wrappers.map { try $0.targetOperation.extractNoCancellableResultData() }

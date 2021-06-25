@@ -18,7 +18,6 @@ final class StakingUnbondSetupInteractor: RuntimeConstantFetching, AccountFetchi
     let assetId: WalletAssetId
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
@@ -65,7 +64,6 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
         fetchConstant(
             for: .lockUpPeriod,
@@ -96,9 +94,10 @@ extension StakingUnbondSetupInteractor: StakingUnbondSetupInteractorInputProtoco
 
         let unbondCall = callFactory.unbond(amount: amount)
         let setPayeeCall = callFactory.setPayee(for: .stash)
+        let chillCall = callFactory.chill()
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: unbondCall.callName) { builder in
-            try builder.adding(call: unbondCall).adding(call: setPayeeCall)
+            try builder.adding(call: chillCall).adding(call: unbondCall).adding(call: setPayeeCall)
         }
     }
 }
@@ -160,10 +159,6 @@ extension StakingUnbondSetupInteractor: SingleValueProviderSubscriber, SingleVal
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 }
 

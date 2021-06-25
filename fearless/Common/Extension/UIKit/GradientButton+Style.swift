@@ -20,5 +20,7 @@ extension GradientButton {
 
         imageWithTitleView?.titleColor = R.color.colorDarkGray()
         imageWithTitleView?.titleFont = .h6Title
+
+        contentOpacityWhenDisabled = 1.0
     }
 }

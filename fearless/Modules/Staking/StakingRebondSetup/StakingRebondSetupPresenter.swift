@@ -18,7 +18,6 @@ final class StakingRebondSetupPresenter {
     private var stashItem: StashItem?
     private var controller: AccountItem?
     private var stakingLedger: StakingLedger?
-    private var electionStatus: ElectionStatus?
     private var activeEraInfo: ActiveEraInfo?
 
     var unbonding: Decimal? {
@@ -105,9 +104,7 @@ extension StakingRebondSetupPresenter: StakingRebondSetupPresenterProtocol {
                 controller: controller,
                 for: stashItem?.controller ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             if let amount = self?.inputAmount {
                 self?.wireframe.proceed(view: self?.view, amount: amount)
@@ -164,15 +161,6 @@ extension StakingRebondSetupPresenter: StakingRebondSetupInteractorOutputProtoco
             provideFeeViewModel()
         case let .failure(error):
             logger?.error("Price data subscription error: \(error)")
-        }
-    }
-
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(status):
-            electionStatus = status
-        case let .failure(error):
-            logger?.error("Election status subscription error: \(error)")
         }
     }
 

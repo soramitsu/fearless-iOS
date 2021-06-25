@@ -76,12 +76,6 @@ class BaseStakingState: StakingStateProtocol {
         stateMachine?.transit(to: self)
     }
 
-    func process(electionStatus: ElectionStatus?) {
-        commonData = commonData.byReplacing(electionStatus: electionStatus)
-
-        stateMachine?.transit(to: self)
-    }
-
     func process(minimalStake: BigUInt?) {
         commonData = commonData.byReplacing(minimalStake: minimalStake)
 
@@ -90,6 +84,24 @@ class BaseStakingState: StakingStateProtocol {
 
     func process(maxNominatorsPerValidator: UInt32?) {
         commonData = commonData.byReplacing(maxNominatorsPerValidator: maxNominatorsPerValidator)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(minNominatorBond: BigUInt?) {
+        commonData = commonData.byReplacing(minNominatorBond: minNominatorBond)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(counterForNominators: UInt32?) {
+        commonData = commonData.byReplacing(counterForNominators: counterForNominators)
+
+        stateMachine?.transit(to: self)
+    }
+
+    func process(maxNominatorsCount: UInt32?) {
+        commonData = commonData.byReplacing(maxNominatorsCount: maxNominatorsCount)
 
         stateMachine?.transit(to: self)
     }

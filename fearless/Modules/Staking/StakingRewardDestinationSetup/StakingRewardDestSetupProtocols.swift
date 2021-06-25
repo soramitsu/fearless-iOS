@@ -32,7 +32,6 @@ protocol StakingRewardDestSetupInteractorOutputProtocol: AnyObject {
     func didReceiveRewardDestinationAddress(result: Result<RewardDestination<AccountAddress>?, Error>)
     func didReceiveCalculator(result: Result<RewardCalculatorEngineProtocol?, Error>)
     func didReceiveAccounts(result: Result<[AccountItem], Error>)
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveNomination(result: Result<Nomination?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
 }

@@ -43,6 +43,11 @@ extension ConnectionItem {
                 type: SNAddressType.polkadotMain
             ),
             ConnectionItem(
+                title: "Westend, OnFinality node",
+                url: URL(string: "wss://westend.api.onfinality.io/public-ws")!,
+                type: SNAddressType.genericSubstrate
+            ),
+            ConnectionItem(
                 title: "Westend, Parity node",
                 url: URL(string: "wss://westend-rpc.polkadot.io")!,
                 type: SNAddressType.genericSubstrate

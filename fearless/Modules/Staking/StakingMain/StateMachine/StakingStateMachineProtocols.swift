@@ -26,12 +26,14 @@ protocol StakingStateProtocol {
     func process(ledgerInfo: StakingLedger?)
     func process(nomination: Nomination?)
     func process(validatorPrefs: ValidatorPrefs?)
-    func process(electionStatus: ElectionStatus?)
     func process(eraStakersInfo: EraStakersInfo?)
     func process(totalReward: TotalRewardItem?)
     func process(payee: RewardDestinationArg?)
     func process(minimalStake: BigUInt?)
     func process(maxNominatorsPerValidator: UInt32?)
+    func process(minNominatorBond: BigUInt?)
+    func process(counterForNominators: UInt32?)
+    func process(maxNominatorsCount: UInt32?)
 }
 
 protocol StakingStateMachineProtocol: AnyObject {

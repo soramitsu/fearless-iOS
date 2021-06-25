@@ -7,11 +7,13 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
     let repository: AnyDataProviderRepository<AccountItem>
 
     init(
-        priceProvider: AnySingleValueProvider<PriceData>,
-        balanceProvider: AnyDataProvider<DecodedAccountInfo>,
+        singleValueProviderFactory: SingleValueProviderFactoryProtocol,
         extrinsicService: ExtrinsicServiceProtocol,
+        runtimeService: RuntimeCodingServiceProtocol,
         operationManager: OperationManagerProtocol,
         signer: SigningWrapperProtocol,
+        chain: Chain,
+        assetId: WalletAssetId,
         repository: AnyDataProviderRepository<AccountItem>,
         nomination: PreparedNomination<ExistingBonding>
     ) {
@@ -19,11 +21,14 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
         self.repository = repository
 
         super.init(
-            priceProvider: priceProvider,
-            balanceProvider: balanceProvider,
+            balanceAccountAddress: nomination.bonding.controllerAccount.address,
+            singleValueProviderFactory: singleValueProviderFactory,
             extrinsicService: extrinsicService,
+            runtimeService: runtimeService,
             operationManager: operationManager,
-            signer: signer
+            signer: signer,
+            chain: chain,
+            assetId: assetId
         )
     }
 
@@ -98,9 +103,9 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
             DispatchQueue.main.async {
                 do {
                     let confirmationModel = try mapOperation.extractNoCancellableResultData()
-                    self.presenter.didReceive(model: confirmationModel)
+                    self.presenter.didReceiveModel(result: .success(confirmationModel))
                 } catch {
-                    self.presenter.didReceive(modelError: error)
+                    self.presenter.didReceiveModel(result: .failure(error))
                 }
             }
         }
@@ -147,6 +152,11 @@ final class ChangeTargetsConfirmInteractor: StakingBaseConfirmInteractor {
     override func submitNomination(for lastBalance: Decimal, lastFee: Decimal) {
         guard lastBalance >= lastFee else {
             presenter.didFailNomination(error: StakingConfirmError.notEnoughFunds)
+            return
+        }
+
+        guard !nomination.targets.isEmpty else {
+            presenter.didFailNomination(error: StakingConfirmError.extrinsicFailed)
             return
         }
 

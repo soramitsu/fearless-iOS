@@ -7,6 +7,8 @@ import FearlessUtils
 protocol CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         locale: Locale
@@ -19,6 +21,7 @@ final class CrowdloansViewModelFactory {
         let details: CrowdloanDescViewModel
         let progress: String
         let imageViewModel: ImageViewModelProtocol
+        let contribution: String?
     }
 
     struct Formatters {
@@ -47,6 +50,7 @@ final class CrowdloansViewModelFactory {
 
     private func createCommonContent(
         from model: Crowdloan,
+        contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
         formatters: Formatters,
         locale: Locale
@@ -98,27 +102,38 @@ final class CrowdloansViewModelFactory {
 
         }()
 
+        let contributionString: String? = {
+            if
+                let contributionInPlank = contributions?[model.fundInfo.trieIndex]?.balance,
+                let contributionDecimal = Decimal.fromSubstrateAmount(contributionInPlank, precision: asset.precision) {
+                return formatters.token.stringFromDecimal(contributionDecimal).map { value in
+                    R.string.localizable.crowdloanContributionFormat(value, preferredLanguages: locale.rLanguages)
+                }
+            } else {
+                return nil
+            }
+        }()
+
         return CommonContent(
             title: title ?? "",
             details: details,
             progress: progress,
-            imageViewModel: iconViewModel
+            imageViewModel: iconViewModel,
+            contribution: contributionString
         )
     }
 
     private func createActiveCrowdloanViewModel(
         from model: Crowdloan,
+        contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
         metadata: CrowdloanMetadata,
         formatters: Formatters,
         locale: Locale
     ) -> ActiveCrowdloanViewModel? {
-        guard !model.isCompleted(for: metadata) else {
-            return nil
-        }
-
         guard let commonContent = createCommonContent(
             from: model,
+            contributions: contributions,
             displayInfo: displayInfo,
             formatters: formatters,
             locale: locale
@@ -133,10 +148,16 @@ final class CrowdloansViewModelFactory {
             )
 
             if remainedTime.daysFromSeconds > 0 {
-                return R.string.localizable.stakingPayoutsDaysLeft(format: remainedTime.daysFromSeconds)
+                return R.string.localizable.stakingPayoutsDaysLeft(
+                    format: remainedTime.daysFromSeconds,
+                    preferredLanguages: locale.rLanguages
+                )
             } else {
                 let time = try? formatters.time.string(from: remainedTime)
-                return R.string.localizable.commonTimeLeftFormat(time ?? "")
+                return R.string.localizable.commonTimeLeftFormat(
+                    time ?? "",
+                    preferredLanguages: locale.rLanguages
+                )
             }
         }()
 
@@ -145,23 +166,21 @@ final class CrowdloansViewModelFactory {
             timeleft: timeLeft,
             description: commonContent.details,
             progress: commonContent.progress,
-            iconViewModel: commonContent.imageViewModel
+            iconViewModel: commonContent.imageViewModel,
+            contribution: commonContent.contribution
         )
     }
 
     private func createCompletedCrowdloanViewModel(
         from model: Crowdloan,
+        contributions: CrowdloanContributionDict?,
         displayInfo: CrowdloanDisplayInfo?,
-        metadata: CrowdloanMetadata,
         formatters: Formatters,
         locale: Locale
     ) -> CompletedCrowdloanViewModel? {
-        guard model.isCompleted(for: metadata) else {
-            return nil
-        }
-
         guard let commonContent = createCommonContent(
             from: model,
+            contributions: contributions,
             displayInfo: displayInfo,
             formatters: formatters,
             locale: locale
@@ -173,12 +192,15 @@ final class CrowdloansViewModelFactory {
             title: commonContent.title,
             description: commonContent.details,
             progress: commonContent.progress,
-            iconViewModel: commonContent.imageViewModel
+            iconViewModel: commonContent.imageViewModel,
+            contribution: commonContent.contribution
         )
     }
 
     func createSections(
         from crowdloans: [Crowdloan],
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         formatters: Formatters,
@@ -189,12 +211,19 @@ final class CrowdloansViewModelFactory {
             [CrowdloanCompletedSection]()
         )
 
-        return crowdloans.reduce(into: initial) { result, crowdloan in
-            if crowdloan.isCompleted(for: metadata) {
+        return crowdloans.sorted { crowdloan1, crowdloan2 in
+            if crowdloan1.fundInfo.raised != crowdloan2.fundInfo.raised {
+                return crowdloan1.fundInfo.raised > crowdloan2.fundInfo.raised
+            } else {
+                return crowdloan1.fundInfo.end < crowdloan2.fundInfo.end
+            }
+        }.reduce(into: initial) { result, crowdloan in
+            let hasWonAuction = leaseInfo[crowdloan.paraId]?.leasedAmount != nil
+            if hasWonAuction || crowdloan.isCompleted(for: metadata) {
                 if let viewModel = createCompletedCrowdloanViewModel(
                     from: crowdloan,
+                    contributions: contributions,
                     displayInfo: displayInfo?[crowdloan.paraId],
-                    metadata: metadata,
                     formatters: formatters,
                     locale: locale
                 ) {
@@ -204,6 +233,7 @@ final class CrowdloansViewModelFactory {
             } else {
                 if let viewModel = createActiveCrowdloanViewModel(
                     from: crowdloan,
+                    contributions: contributions,
                     displayInfo: displayInfo?[crowdloan.paraId],
                     metadata: metadata,
                     formatters: formatters,
@@ -220,6 +250,8 @@ final class CrowdloansViewModelFactory {
 extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
     func createViewModel(
         from crowdloans: [Crowdloan],
+        contributions: CrowdloanContributionDict,
+        leaseInfo: ParachainLeaseInfoDict,
         displayInfo: CrowdloanDisplayInfoDict?,
         metadata: CrowdloanMetadata,
         locale: Locale
@@ -238,6 +270,8 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
 
         let (active, completed) = createSections(
             from: crowdloans,
+            contributions: contributions,
+            leaseInfo: leaseInfo,
             displayInfo: displayInfo,
             metadata: metadata,
             formatters: formatters,
@@ -250,7 +284,9 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             }
 
             let countString = quantityFormatter.string(from: NSNumber(value: active.count)) ?? ""
-            let title = R.string.localizable.crowdloanActiveSectionFormat(countString)
+            let title = R.string.localizable.crowdloanActiveSectionFormat(
+                countString, preferredLanguages: locale.rLanguages
+            )
 
             return CrowdloansSectionViewModel(title: title, crowdloans: active)
         }()
@@ -261,7 +297,10 @@ extension CrowdloansViewModelFactory: CrowdloansViewModelFactoryProtocol {
             }
 
             let countString = quantityFormatter.string(from: NSNumber(value: completed.count)) ?? ""
-            let title = R.string.localizable.crowdloanCompletedSectionFormat(countString)
+            let title = R.string.localizable.crowdloanCompletedSectionFormat(
+                countString,
+                preferredLanguages: locale.rLanguages
+            )
 
             return CrowdloansSectionViewModel(title: title, crowdloans: completed)
         }()

@@ -25,13 +25,15 @@ final class StakingMainInteractor: RuntimeConstantFetching {
     var priceProvider: AnySingleValueProvider<PriceData>?
     var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     var stashControllerProvider: StreamableProvider<StashItem>?
-    var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     var validatorProvider: AnyDataProvider<DecodedValidator>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     var totalRewardProvider: AnySingleValueProvider<TotalRewardItem>?
     var payeeProvider: AnyDataProvider<DecodedPayee>?
     var controllerAccountProvider: StreamableProvider<AccountItem>?
+    var minNominatorBondProvider: AnyDataProvider<DecodedBigUInt>?
+    var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
+    var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
 
     var currentAccount: AccountItem?
     var currentConnection: ConnectionItem?

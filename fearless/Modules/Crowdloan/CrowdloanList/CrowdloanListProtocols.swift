@@ -8,11 +8,15 @@ protocol CrowdloanListPresenterProtocol: AnyObject {
     func setup()
     func refresh(shouldReset: Bool)
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>)
+    func becomeOnline()
+    func putOffline()
 }
 
 protocol CrowdloanListInteractorInputProtocol: AnyObject {
     func setup()
     func refresh()
+    func becomeOnline()
+    func putOffline()
 }
 
 protocol CrowdloanListInteractorOutputProtocol: AnyObject {
@@ -21,6 +25,8 @@ protocol CrowdloanListInteractorOutputProtocol: AnyObject {
     func didReceiveBlockNumber(result: Result<BlockNumber?, Error>)
     func didReceiveBlockDuration(result: Result<BlockTime, Error>)
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>)
+    func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>)
+    func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>)
 }
 
 protocol CrowdloanListWireframeProtocol: AnyObject {

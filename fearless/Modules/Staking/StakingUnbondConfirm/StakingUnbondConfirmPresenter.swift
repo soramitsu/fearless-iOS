@@ -16,9 +16,10 @@ final class StakingUnbondConfirmPresenter {
     private var bonded: Decimal?
     private var balance: Decimal?
     private var minimalBalance: Decimal?
+    private var minNominatorBonded: Decimal?
+    private var nomination: Nomination?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
     private var stashItem: StashItem?
     private var payee: RewardDestinationArg?
@@ -32,6 +33,14 @@ final class StakingUnbondConfirmPresenter {
                 return false
             }
         default:
+            return false
+        }
+    }
+
+    private var shouldChill: Bool {
+        if let bonded = bonded, let minNominatorBonded = minNominatorBonded, nomination != nil {
+            return bonded - inputAmount < minNominatorBonded
+        } else {
             return false
         }
     }
@@ -78,7 +87,11 @@ final class StakingUnbondConfirmPresenter {
             return
         }
 
-        interactor.estimateFee(for: inputAmount, resettingRewardDestination: shouldResetRewardDestination)
+        interactor.estimateFee(
+            for: inputAmount,
+            resettingRewardDestination: shouldResetRewardDestination,
+            chilling: shouldChill
+        )
     }
 
     init(
@@ -126,9 +139,7 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
                 controller: controller,
                 for: stashItem?.controller ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self else {
                 return
@@ -138,7 +149,8 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
 
             strongSelf.interactor.submit(
                 for: strongSelf.inputAmount,
-                resettingRewardDestination: strongSelf.shouldResetRewardDestination
+                resettingRewardDestination: strongSelf.shouldResetRewardDestination,
+                chilling: strongSelf.shouldChill
             )
         }
     }
@@ -152,15 +164,6 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmPresenterProtocol {
 }
 
 extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):
@@ -270,6 +273,34 @@ extension StakingUnbondConfirmPresenter: StakingUnbondConfirmInteractorOutputPro
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive payee item error: \(error)")
+        }
+    }
+
+    func didReceiveMinBonded(result: Result<BigUInt?, Error>) {
+        switch result {
+        case let .success(minNominatorBonded):
+            if let minNominatorBonded = minNominatorBonded {
+                self.minNominatorBonded = Decimal.fromSubstrateAmount(
+                    minNominatorBonded,
+                    precision: chain.addressType.precision
+                )
+            } else {
+                self.minNominatorBonded = nil
+            }
+
+            refreshFeeIfNeeded()
+        case let .failure(error):
+            logger?.error("Did receive min bonded error: \(error)")
+        }
+    }
+
+    func didReceiveNomination(result: Result<Nomination?, Error>) {
+        switch result {
+        case let .success(nomination):
+            self.nomination = nomination
+            refreshFeeIfNeeded()
+        case let .failure(error):
+            logger?.error("Did receive nomination error: \(error)")
         }
     }
 

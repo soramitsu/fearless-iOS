@@ -16,7 +16,6 @@ final class StakingRewardDestConfirmPresenter {
     private var stashItem: StashItem?
     private var fee: Decimal?
     private var balance: Decimal?
-    private var electionStatus: ElectionStatus?
     private var priceData: PriceData?
 
     init(
@@ -92,9 +91,7 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmPresenterPr
                 self?.refreshFeeIfNeeded()
             }),
 
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
 
         ]).runValidation { [weak self] in
             guard let rewardDestination = self?.rewardDestination, let stashItem = self?.stashItem else { return }
@@ -174,15 +171,6 @@ extension StakingRewardDestConfirmPresenter: StakingRewardDestConfirmInteractorO
             provideConfirmationViewModel()
         case let .failure(error):
             logger?.error("Did receive controller error: \(error)")
-        }
-    }
-
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Did receive election status error: \(error)")
         }
     }
 

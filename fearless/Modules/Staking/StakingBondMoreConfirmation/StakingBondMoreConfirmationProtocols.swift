@@ -21,7 +21,6 @@ protocol StakingBondMoreConfirmationInteractorInputProtocol: AnyObject {
 }
 
 protocol StakingBondMoreConfirmationOutputProtocol: AnyObject {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
     func didReceivePriceData(result: Result<PriceData?, Error>)
     func didReceiveFee(result: Result<RuntimeDispatchInfo, Error>)

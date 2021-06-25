@@ -492,6 +492,40 @@
     },
     "LockIdentifier": "[u8; 8]",
     "TransactionPriority": "u64",
+    "TransactionInfo": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "chunkRoot",
+          "H256"
+        ],
+        [
+          "contentHash",
+          "H256"
+        ],
+        [
+          "dataSize",
+          "u32"
+        ],
+        [
+          "blockChunks",
+          "u32"
+        ]
+      ]
+    },
+    "TransactionStorageProof": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "chunk",
+          "Vec<u8>"
+        ],
+        [
+          "proof",
+          "Vec<Vec<u8>>"
+        ]
+      ]
+    },
     "BalanceLock": {
       "type": "struct",
       "type_mapping": [
@@ -549,6 +583,20 @@
         "All"
       ]
     },
+    "ReserveData": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "id",
+          "ReserveIdentifier"
+        ],
+        [
+          "amount",
+          "Balance"
+        ]
+      ]
+    },
+    "ReserveIdentifier": "[u8; 8]",
     "RoundNumber": "U64",
     "SessionIndex": "u32",
     "AuctionIndex": "u32",
@@ -582,6 +630,7 @@
         ]
       ]
     },
+    "BeefyId": "[u8; 33]",
     "BeefySignedCommitment": {
       "type": "struct",
       "type_mapping": [
@@ -1643,6 +1692,7 @@
       ]
     },
     "xcm::v0::Outcome": "XcmOutcome",
+    "Outcome": "XcmOutcome",
     "DoubleEncoded": {
       "type": "struct",
       "type_mapping": [
@@ -3768,6 +3818,7 @@
       ]
     },
     "ValidationCode": "Bytes",
+    "ValidationCodeHash": "Hash",
     "ValidationData": {
       "type": "struct",
       "type_mapping": [
@@ -4451,6 +4502,15 @@
         [
           "message",
           "Xcm"
+        ]
+      ]
+    },
+    "XcmOrigin": {
+      "type": "enum",
+      "type_mapping": [
+        [
+          "Xcm",
+          "MultiLocation"
         ]
       ]
     },
@@ -6847,7 +6907,7 @@
           "AccountId"
         ],
         [
-          "totalTeposit",
+          "totalDeposit",
           "DepositBalance"
         ],
         [
@@ -6860,6 +6920,10 @@
         ],
         [
           "instanceMetadatas",
+          "u32"
+        ],
+        [
+          "attributes",
           "u32"
         ],
         [
@@ -7843,11 +7907,24 @@
         ],
         [
           "validationCodeHash",
-          "Hash"
+          "ValidationCodeHash"
         ]
       ]
     },
     "CandidateHash": "Hash",
+    "CandidateInfo": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "who",
+          "AccountId"
+        ],
+        [
+          "deposit",
+          "Balance"
+        ]
+      ]
+    },
     "CandidatePendingAvailability": {
       "type": "struct",
       "type_mapping": [
@@ -8764,6 +8841,47 @@
           "(bool, BlockNumber)"
         ]
       ]
-    }
+    },
+    "ProxyDefinition": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "delegate",
+          "AccountId"
+        ],
+        [
+          "proxyType",
+          "ProxyType"
+        ],
+        [
+          "delay",
+          "BlockNumber"
+        ]
+      ]
+    },
+    "ProxyAnnouncement": {
+      "type": "struct",
+      "type_mapping": [
+        [
+          "real",
+          "AccountId"
+        ],
+        [
+          "callHash",
+          "Hash"
+        ],
+        [
+          "height",
+          "BlockNumber"
+        ]
+      ]
+    },
+    "WeakBoundedVec": "BoundedVec",
+    "MaxProxies": "u32",
+    "MaxPending": "u32",
+    "(BoundedVec<ProxyDefinition<AccountId, ProxyType,  BlockNumber>, MaxProxies,>, BalanceOf)": "(BoundedVec<ProxyDefinition, MaxProxies>, BalanceOf)",
+    "(BoundedVec<Announcement<AccountId, CallHashOf,  BlockNumber>, MaxPending,>, BalanceOf,)": "(BoundedVec<ProxyAnnouncement, MaxPending>, BalanceOf)",
+    "Approval<Balance, DepositBalanceOf<T, I>>": "AssetApproval",
+    "Asset.Balance": "TAssetBalance"
   }
 }

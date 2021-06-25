@@ -123,45 +123,6 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         return accountInfoProvider
     }
 
-    func subscribeToElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedElectionStatus>? {
-        guard let electionStatusProvider = try? singleValueProviderFactory
-            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
-        else {
-            return nil
-        }
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
-            let electionStatus = changes.reduceToLastChange()
-            self?.subscriptionHandler.handleElectionStatus(
-                result: .success(electionStatus?.item),
-                chain: chain
-            )
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.subscriptionHandler.handleElectionStatus(result: .failure(error), chain: chain)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-
-        electionStatusProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-
-        return electionStatusProvider
-    }
-
     func subscribeToNominationProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol
@@ -385,6 +346,120 @@ extension SingleValueProviderSubscriber where Self: AnyObject {
         )
 
         return blockNumberProvider
+    }
+
+    func subscribeToMinNominatorBondProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedBigUInt>? {
+        guard let minBondProvider = try? singleValueProviderFactory
+            .getMinNominatorBondProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedBigUInt>]) in
+            let minNominatorBond = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleMinNominatorBond(
+                result: .success(minNominatorBond?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleMinNominatorBond(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        minBondProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return minBondProvider
+    }
+
+    func subscribeToCounterForNominatorsProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>? {
+        guard let counterForNominatorProvider = try? singleValueProviderFactory
+            .getCounterForNominatorsProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedU32>]) in
+            let counterForNominators = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleCounterForNominators(
+                result: .success(counterForNominators?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleCounterForNominators(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        counterForNominatorProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return counterForNominatorProvider
+    }
+
+    func subscribeToMaxNominatorsCountProvider(
+        chain: Chain,
+        runtimeService: RuntimeCodingServiceProtocol
+    ) -> AnyDataProvider<DecodedU32>? {
+        guard let maxNominatorsCountProvider = try? singleValueProviderFactory
+            .getMaxNominatorsCountProvider(chain: chain, runtimeService: runtimeService) else {
+            return nil
+        }
+
+        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedU32>]) in
+            let maxNominatorsCount = changes.reduceToLastChange()
+            self?.subscriptionHandler.handleMaxNominatorsCount(
+                result: .success(maxNominatorsCount?.item?.value),
+                chain: chain
+            )
+        }
+
+        let failureClosure = { [weak self] (error: Error) in
+            self?.subscriptionHandler.handleMaxNominatorsCount(result: .failure(error), chain: chain)
+            return
+        }
+
+        let options = DataProviderObserverOptions(
+            alwaysNotifyOnRefresh: false,
+            waitsInProgressSyncOnAdd: false
+        )
+
+        maxNominatorsCountProvider.addObserver(
+            self,
+            deliverOn: .main,
+            executing: updateClosure,
+            failing: failureClosure,
+            options: options
+        )
+
+        return maxNominatorsCountProvider
     }
 }
 

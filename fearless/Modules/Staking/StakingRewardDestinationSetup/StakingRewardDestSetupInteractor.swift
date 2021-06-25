@@ -17,7 +17,6 @@ final class StakingRewardDestSetupInteractor: AccountFetching {
     let assetId: WalletAssetId
     let chain: Chain
 
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var stashItemProvider: StreamableProvider<StashItem>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -94,7 +93,6 @@ extension StakingRewardDestSetupInteractor: StakingRewardDestSetupInteractorInpu
         stashItemProvider = subscribeToStashItemProvider(for: selectedAccountAddress)
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
         provideRewardCalculator()
 
@@ -260,10 +258,6 @@ extension StakingRewardDestSetupInteractor: SubstrateProviderSubscriber,
         } catch {
             presenter.didReceiveRewardDestinationAccount(result: .failure(error))
         }
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 }
 

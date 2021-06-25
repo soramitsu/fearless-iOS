@@ -1,5 +1,6 @@
 import Foundation
 import RobinHood
+import BigInt
 
 extension StakingMainInteractor {
     func clearPriceProvider() {
@@ -441,46 +442,48 @@ extension StakingMainInteractor {
         )
     }
 
-    func clearElectionStatusProvider() {
-        electionStatusProvider?.removeObserver(self)
-        electionStatusProvider = nil
+    func clearNominatorsLimitProviders() {
+        clear(dataProvider: &minNominatorBondProvider)
+        clear(dataProvider: &counterForNominatorsProvider)
+        clear(dataProvider: &maxNominatorsCountProvider)
     }
 
-    func subscribeToElectionStatus() {
-        guard electionStatusProvider == nil, let chain = currentConnection?.type.chain else {
-            return
+    func subscribeToNominatorsLimit() {
+        if let chain = currentConnection?.type.chain {
+            minNominatorBondProvider = subscribeToMinNominatorBondProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
+
+            counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
+
+            maxNominatorsCountProvider = subscribeToMaxNominatorsCountProvider(
+                chain: chain,
+                runtimeService: runtimeService
+            )
         }
+    }
+}
 
-        guard let electionStatusProvider = try? providerFactory
-            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
-        else {
-            logger.error("Can't create election status provider")
-            return
-        }
+extension StakingMainInteractor: SingleValueProviderSubscriber, SingleValueSubscriptionHandler,
+    SubstrateProviderSubscriber, SubstrateProviderSubscriptionHandler,
+    AnyProviderAutoCleaning {
+    var singleValueProviderFactory: SingleValueProviderFactoryProtocol {
+        providerFactory
+    }
 
-        self.electionStatusProvider = electionStatusProvider
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {
+        presenter.didReceiveMinNominatorBond(result: result)
+    }
 
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
-            if let electionStatus = changes.reduceToLastChange() {
-                self?.presenter.didReceive(electionStatus: electionStatus.item)
-            }
-        }
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveCounterForNominators(result: result)
+    }
 
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(electionStatusError: error)
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        electionStatusProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain _: Chain) {
+        presenter.didReceiveMaxNominatorsCount(result: result)
     }
 }

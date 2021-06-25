@@ -13,6 +13,8 @@ final class CrowdloanListPresenter {
     private var blockNumber: BlockNumber?
     private var blockDurationResult: Result<BlockTime, Error>?
     private var leasingPeriodResult: Result<LeasingPeriod, Error>?
+    private var contributionsResult: Result<CrowdloanContributionDict, Error>?
+    private var leaseInfoResult: Result<ParachainLeaseInfoDict, Error>?
 
     init(
         interactor: CrowdloanListInteractorInputProtocol,
@@ -40,12 +42,16 @@ final class CrowdloanListPresenter {
             let displayInfoResult = displayInfoResult,
             let blockDurationResult = blockDurationResult,
             let leasingPeriodResult = leasingPeriodResult,
-            let blockNumber = blockNumber else {
+            let blockNumber = blockNumber,
+            let contributionsResult = contributionsResult,
+            let leaseInfoResult = leaseInfoResult else {
             return
         }
 
         guard
-            case let .success(crowdloans) = crowdloansResult else {
+            case let .success(crowdloans) = crowdloansResult,
+            case let .success(contributions) = contributionsResult,
+            case let .success(leaseInfo) = leaseInfoResult else {
             provideViewErrorState()
             return
         }
@@ -72,6 +78,8 @@ final class CrowdloanListPresenter {
 
         let viewModel = viewModelFactory.createViewModel(
             from: crowdloans,
+            contributions: contributions,
+            leaseInfo: leaseInfo,
             displayInfo: displayInfo,
             metadata: metadata,
             locale: selectedLocale
@@ -101,6 +109,14 @@ extension CrowdloanListPresenter: CrowdloanListPresenterProtocol {
     func selectViewModel(_ viewModel: CrowdloanSectionItem<ActiveCrowdloanViewModel>) {
         wireframe.presentContributionSetup(from: view, paraId: viewModel.paraId)
     }
+
+    func becomeOnline() {
+        interactor.becomeOnline()
+    }
+
+    func putOffline() {
+        interactor.putOffline()
+    }
 }
 
 extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
@@ -122,6 +138,7 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
         switch result {
         case let .success(blockNumber):
             self.blockNumber = blockNumber
+
             updateView()
         case let .failure(error):
             logger?.error("Did receivee block number error: \(error)")
@@ -135,6 +152,24 @@ extension CrowdloanListPresenter: CrowdloanListInteractorOutputProtocol {
 
     func didReceiveLeasingPeriod(result: Result<LeasingPeriod, Error>) {
         leasingPeriodResult = result
+        updateView()
+    }
+
+    func didReceiveContributions(result: Result<CrowdloanContributionDict, Error>) {
+        if case let .failure(error) = result {
+            logger?.error("Did receive contributions error: \(error)")
+        }
+
+        contributionsResult = result
+        updateView()
+    }
+
+    func didReceiveLeaseInfo(result: Result<ParachainLeaseInfoDict, Error>) {
+        if case let .failure(error) = result {
+            logger?.error("Did receive lease info error: \(error)")
+        }
+
+        leaseInfoResult = result
         updateView()
     }
 }

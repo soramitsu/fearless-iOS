@@ -6,6 +6,7 @@ enum RPCMethod {
     static let getStorage = "state_getStorage"
     static let getStorageKeysPaged = "state_getKeysPaged"
     static let queryStorageAt = "state_queryStorageAt"
+    static let getChildStorageAt = "childstate_getStorage"
     static let getBlockHash = "chain_getBlockHash"
     static let submitExtrinsic = "author_submitExtrinsic"
     static let paymentInfo = "payment_queryInfo"

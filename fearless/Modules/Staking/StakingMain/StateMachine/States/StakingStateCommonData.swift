@@ -7,10 +7,12 @@ struct StakingStateCommonData {
     let accountInfo: AccountInfo?
     let price: PriceData?
     let calculatorEngine: RewardCalculatorEngineProtocol?
-    let electionStatus: ElectionStatus?
     let eraStakersInfo: EraStakersInfo?
     let minimalStake: BigUInt?
     let maxNominatorsPerValidator: UInt32?
+    let minNominatorBond: BigUInt?
+    let counterForNominators: UInt32?
+    let maxNominatorsCount: UInt32?
 }
 
 extension StakingStateCommonData {
@@ -21,10 +23,12 @@ extension StakingStateCommonData {
             accountInfo: nil,
             price: nil,
             calculatorEngine: nil,
-            electionStatus: nil,
             eraStakersInfo: nil,
             minimalStake: nil,
-            maxNominatorsPerValidator: nil
+            maxNominatorsPerValidator: nil,
+            minNominatorBond: nil,
+            counterForNominators: nil,
+            maxNominatorsCount: nil
         )
     }
 
@@ -35,10 +39,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -49,10 +55,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -63,10 +71,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -77,10 +87,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -91,24 +103,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
-        )
-    }
-
-    func byReplacing(electionStatus: ElectionStatus?) -> StakingStateCommonData {
-        StakingStateCommonData(
-            address: address,
-            chain: chain,
-            accountInfo: accountInfo,
-            price: price,
-            calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
-            eraStakersInfo: eraStakersInfo,
-            minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -119,10 +119,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -133,10 +135,12 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 
@@ -147,10 +151,60 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
+        )
+    }
+
+    func byReplacing(minNominatorBond: BigUInt?) -> StakingStateCommonData {
+        StakingStateCommonData(
+            address: address,
+            chain: chain,
+            accountInfo: accountInfo,
+            price: price,
+            calculatorEngine: calculatorEngine,
+            eraStakersInfo: eraStakersInfo,
+            minimalStake: minimalStake,
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
+        )
+    }
+
+    func byReplacing(counterForNominators: UInt32?) -> StakingStateCommonData {
+        StakingStateCommonData(
+            address: address,
+            chain: chain,
+            accountInfo: accountInfo,
+            price: price,
+            calculatorEngine: calculatorEngine,
+            eraStakersInfo: eraStakersInfo,
+            minimalStake: minimalStake,
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
+        )
+    }
+
+    func byReplacing(maxNominatorsCount: UInt32?) -> StakingStateCommonData {
+        StakingStateCommonData(
+            address: address,
+            chain: chain,
+            accountInfo: accountInfo,
+            price: price,
+            calculatorEngine: calculatorEngine,
+            eraStakersInfo: eraStakersInfo,
+            minimalStake: minimalStake,
+            maxNominatorsPerValidator: maxNominatorsPerValidator,
+            minNominatorBond: minNominatorBond,
+            counterForNominators: counterForNominators,
+            maxNominatorsCount: maxNominatorsCount
         )
     }
 }

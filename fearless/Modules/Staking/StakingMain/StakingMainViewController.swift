@@ -426,12 +426,12 @@ extension StakingMainViewController: HiddableBarWhenPushed {}
 extension StakingMainViewController: AlertsViewDelegate {
     func didSelectStakingAlert(_ alert: StakingAlert) {
         switch alert {
-        case .nominatorNoValidators:
+        case .nominatorChangeValidators:
             presenter.performChangeValidatorsAction()
+        case .bondedSetValidators:
+            presenter.performSetupValidatorsForBondedAction()
         case .nominatorLowStake:
             presenter.performBondMoreAction()
-        case .electionPeriod:
-            break
         case .redeemUnbonded:
             presenter.performRedeemAction()
         }

@@ -18,7 +18,6 @@ final class StakingRedeemPresenter {
     private var minimalBalance: BigUInt?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
     private var stashItem: StashItem?
     private var payee: RewardDestinationArg?
@@ -153,9 +152,7 @@ extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
                 controller: controller,
                 for: stashItem?.controller ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self, let stashItem = self?.stashItem else {
                 return
@@ -179,15 +176,6 @@ extension StakingRedeemPresenter: StakingRedeemPresenterProtocol {
 }
 
 extension StakingRedeemPresenter: StakingRedeemInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

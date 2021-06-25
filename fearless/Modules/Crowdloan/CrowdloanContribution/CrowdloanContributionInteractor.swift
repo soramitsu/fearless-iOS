@@ -155,13 +155,17 @@ class CrowdloanContributionInteractor: CrowdloanContributionInteractorInputProto
         provideConstants()
     }
 
-    func estimateFee(for amount: BigUInt) {
+    func estimateFee(for amount: BigUInt, bonusService: CrowdloanBonusServiceProtocol?) {
         let call = callFactory.contribute(to: paraId, amount: amount)
 
         let identifier = String(amount)
 
         feeProxy.estimateFee(using: extrinsicService, reuseIdentifier: identifier) { builder in
-            try builder.adding(call: call)
+            let nextBuilder = try builder.adding(call: call)
+            return try bonusService?.applyOnchainBonusForContribution(
+                amount: amount,
+                using: nextBuilder
+            ) ?? nextBuilder
         }
     }
 }

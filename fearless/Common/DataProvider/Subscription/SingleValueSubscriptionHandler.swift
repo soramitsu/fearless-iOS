@@ -1,4 +1,5 @@
 import Foundation
+import BigInt
 
 protocol SingleValueSubscriptionHandler {
     func handlePrice(result: Result<PriceData?, Error>, for assetId: WalletAssetId)
@@ -11,8 +12,6 @@ protocol SingleValueSubscriptionHandler {
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress)
 
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain: Chain)
-
     func handleNomination(result: Result<Nomination?, Error>, address: AccountAddress)
 
     func handleValidator(result: Result<ValidatorPrefs?, Error>, address: AccountAddress)
@@ -24,6 +23,12 @@ protocol SingleValueSubscriptionHandler {
     func handlePayee(result: Result<RewardDestinationArg?, Error>, address: AccountAddress)
 
     func handleBlockNumber(result: Result<BlockNumber?, Error>, chain: Chain)
+
+    func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain: Chain)
+
+    func handleCounterForNominators(result: Result<UInt32?, Error>, chain: Chain)
+
+    func handleMaxNominatorsCount(result: Result<UInt32?, Error>, chain: Chain)
 }
 
 extension SingleValueSubscriptionHandler {
@@ -37,8 +42,6 @@ extension SingleValueSubscriptionHandler {
 
     func handleAccountInfo(result _: Result<AccountInfo?, Error>, address _: AccountAddress) {}
 
-    func handleElectionStatus(result _: Result<ElectionStatus?, Error>, chain _: Chain) {}
-
     func handleNomination(result _: Result<Nomination?, Error>, address _: AccountAddress) {}
 
     func handleValidator(result _: Result<ValidatorPrefs?, Error>, address _: AccountAddress) {}
@@ -50,4 +53,10 @@ extension SingleValueSubscriptionHandler {
     func handlePayee(result _: Result<RewardDestinationArg?, Error>, address _: AccountAddress) {}
 
     func handleBlockNumber(result _: Result<BlockNumber?, Error>, chain _: Chain) {}
+
+    func handleMinNominatorBond(result _: Result<BigUInt?, Error>, chain _: Chain) {}
+
+    func handleCounterForNominators(result _: Result<UInt32?, Error>, chain _: Chain) {}
+
+    func handleMaxNominatorsCount(result _: Result<UInt32?, Error>, chain _: Chain) {}
 }

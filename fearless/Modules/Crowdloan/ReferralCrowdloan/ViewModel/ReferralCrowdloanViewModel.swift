@@ -1,6 +1,6 @@
 import Foundation
 
-struct KaruraReferralViewModel {
+struct ReferralCrowdloanViewModel {
     let bonusPercentage: String
     let bonusValue: String
     let canApplyDefaultCode: Bool
