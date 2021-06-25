@@ -19,7 +19,6 @@ final class StakingUnbondConfirmInteractor: RuntimeConstantFetching, AccountFetc
     let assetId: WalletAssetId
 
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var minBondedProvider: AnyDataProvider<DecodedBigUInt>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
@@ -97,10 +96,6 @@ extension StakingUnbondConfirmInteractor: StakingUnbondConfirmInteractorInputPro
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(
-            chain: chain,
-            runtimeService: runtimeService
-        )
 
         minBondedProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
 
@@ -249,10 +244,6 @@ extension StakingUnbondConfirmInteractor: SingleValueProviderSubscriber, SingleV
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 
     func handleMinNominatorBond(result: Result<BigUInt?, Error>, chain _: Chain) {

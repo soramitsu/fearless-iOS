@@ -48,7 +48,6 @@ protocol StakingAmountInteractorOutputProtocol: AnyObject {
     func didReceive(minBondAmount: BigUInt?)
     func didReceive(counterForNominators: UInt32?)
     func didReceive(maxNominatorsCount: UInt32?)
-    func didReceive(electionStatus: ElectionStatus?)
 }
 
 protocol StakingAmountWireframeProtocol: AlertPresentable, ErrorPresentable, WebPresentable,

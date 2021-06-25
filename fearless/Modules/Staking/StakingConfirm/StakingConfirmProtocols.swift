@@ -25,7 +25,6 @@ protocol StakingConfirmInteractorOutputProtocol: AnyObject {
     func didReceiveModel(result: Result<StakingConfirmationModel, Error>)
     func didReceivePrice(result: Result<PriceData?, Error>)
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>)
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveMinBond(result: Result<BigUInt?, Error>)
     func didReceiveCounterForNominators(result: Result<UInt32?, Error>)
     func didReceiveMaxNominatorsCount(result: Result<UInt32?, Error>)

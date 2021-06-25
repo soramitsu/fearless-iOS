@@ -36,7 +36,6 @@ protocol StakingErrorPresentable: BaseErrorPresentable {
         locale: Locale?
     )
 
-    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentNoRedeemables(from view: ControllerBackedProtocol?, locale: Locale?)
     func presentControllerIsAlreadyUsed(from view: ControllerBackedProtocol?, locale: Locale?)
@@ -147,16 +146,6 @@ extension StakingErrorPresentable where Self: AlertPresentable & ErrorPresentabl
             .stakingUnbondingAllMessage(preferredLanguages: locale?.rLanguages)
 
         presentWarning(for: title, message: message, action: action, view: view, locale: locale)
-    }
-
-    func presentElectionPeriodIsNotClosed(from view: ControllerBackedProtocol?, locale: Locale?) {
-        let message = R.string.localizable
-            .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable
-            .stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-
-        present(message: message, title: title, closeAction: closeAction, from: view)
     }
 
     func presentUnbondingLimitReached(from view: ControllerBackedProtocol?, locale: Locale?) {

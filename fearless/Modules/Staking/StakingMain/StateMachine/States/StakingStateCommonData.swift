@@ -7,7 +7,6 @@ struct StakingStateCommonData {
     let accountInfo: AccountInfo?
     let price: PriceData?
     let calculatorEngine: RewardCalculatorEngineProtocol?
-    let electionStatus: ElectionStatus?
     let eraStakersInfo: EraStakersInfo?
     let minimalStake: BigUInt?
     let maxNominatorsPerValidator: UInt32?
@@ -24,7 +23,6 @@ extension StakingStateCommonData {
             accountInfo: nil,
             price: nil,
             calculatorEngine: nil,
-            electionStatus: nil,
             eraStakersInfo: nil,
             minimalStake: nil,
             maxNominatorsPerValidator: nil,
@@ -41,7 +39,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -58,7 +55,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -75,7 +71,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -92,7 +87,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -109,24 +103,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
-            eraStakersInfo: eraStakersInfo,
-            minimalStake: minimalStake,
-            maxNominatorsPerValidator: maxNominatorsPerValidator,
-            minNominatorBond: minNominatorBond,
-            counterForNominators: counterForNominators,
-            maxNominatorsCount: maxNominatorsCount
-        )
-    }
-
-    func byReplacing(electionStatus: ElectionStatus?) -> StakingStateCommonData {
-        StakingStateCommonData(
-            address: address,
-            chain: chain,
-            accountInfo: accountInfo,
-            price: price,
-            calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -143,7 +119,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -160,7 +135,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -177,7 +151,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -194,7 +167,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -211,7 +183,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,
@@ -228,7 +199,6 @@ extension StakingStateCommonData {
             accountInfo: accountInfo,
             price: price,
             calculatorEngine: calculatorEngine,
-            electionStatus: electionStatus,
             eraStakersInfo: eraStakersInfo,
             minimalStake: minimalStake,
             maxNominatorsPerValidator: maxNominatorsPerValidator,

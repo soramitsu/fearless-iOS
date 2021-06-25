@@ -8,7 +8,6 @@ protocol StakingDataValidatingFactoryProtocol: BaseDataValidatingFactoryProtocol
 
     func has(controller: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
     func has(stash: AccountItem?, for address: AccountAddress, locale: Locale) -> DataValidating
-    func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating
     func controllerBalanceIsNotZero(_ balance: Decimal?, locale: Locale) -> DataValidating
 
@@ -115,16 +114,6 @@ final class StakingDataValidatingFactory: StakingDataValidatingFactoryProtocol {
 
             self?.presentable.presentMissingStash(from: view, address: address, locale: locale)
         }, preservesCondition: { stash != nil })
-    }
-
-    func electionClosed(_ electionStatus: ElectionStatus?, locale: Locale) -> DataValidating {
-        ErrorConditionViolation(onError: { [weak self] in
-            guard let view = self?.view else {
-                return
-            }
-
-            self?.presentable.presentElectionPeriodIsNotClosed(from: view, locale: locale)
-        }, preservesCondition: { electionStatus == .some(.close) })
     }
 
     func unbondingsLimitNotReached(_ count: Int?, locale: Locale) -> DataValidating {

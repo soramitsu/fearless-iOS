@@ -48,14 +48,6 @@ final class CommonStakingSubscription: WebSocketSubscribing {
 
             var keys: [Data] = []
 
-            if metadata.getStorageMetadata(for: .electionStatus) != nil {
-                let key = try storageKeyFactory.key(from: .electionStatus)
-                keys.append(key)
-            } else if metadata.getStorageMetadata(for: .electionPhase) != nil {
-                let key = try storageKeyFactory.key(from: .electionPhase)
-                keys.append(key)
-            }
-
             if metadata.getStorageMetadata(for: .minNominatorBond) != nil {
                 let key = try storageKeyFactory.key(from: .minNominatorBond)
                 keys.append(key)

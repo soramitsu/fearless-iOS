@@ -17,7 +17,6 @@ final class StakingRebondSetupInteractor: RuntimeConstantFetching, AccountFetchi
 
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var accountInfoProvider: AnyDataProvider<DecodedAccountInfo>?
     private var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     private var extrinisicService: ExtrinsicServiceProtocol?
@@ -63,11 +62,6 @@ extension StakingRebondSetupInteractor: StakingRebondSetupInteractorInputProtoco
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-
-        electionStatusProvider = subscribeToElectionStatusProvider(
-            chain: chain,
-            runtimeService: runtimeService
-        )
 
         activeEraProvider = subscribeToActiveEraProvider(for: chain, runtimeService: runtimeService)
 
@@ -150,10 +144,6 @@ extension StakingRebondSetupInteractor: SubstrateProviderSubscriber,
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address _: AccountAddress) {
         presenter.didReceiveAccountInfo(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 
     func handleLedgerInfo(result: Result<StakingLedger?, Error>, address _: AccountAddress) {

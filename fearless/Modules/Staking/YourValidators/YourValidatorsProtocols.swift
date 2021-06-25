@@ -19,7 +19,6 @@ protocol YourValidatorsInteractorInputProtocol: AnyObject {
 protocol YourValidatorsInteractorOutputProtocol: AnyObject {
     func didReceiveValidators(result: Result<YourValidatorsModel?, Error>)
     func didReceiveController(result: Result<AccountItem?, Error>)
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>)
     func didReceiveStashItem(result: Result<StashItem?, Error>)
     func didReceiveLedger(result: Result<StakingLedger?, Error>)
     func didReceiveRewardDestination(result: Result<RewardDestinationArg?, Error>)

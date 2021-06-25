@@ -17,7 +17,6 @@ final class YourValidatorsInteractor {
     let accountRepository: AnyDataProviderRepository<AccountItem>
 
     var stashControllerProvider: StreamableProvider<StashItem>?
-    var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     var nominatorProvider: AnyDataProvider<DecodedNomination>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
     var rewardDestinationProvider: AnyDataProvider<DecodedPayee>?
@@ -180,12 +179,10 @@ final class YourValidatorsInteractor {
 extension YourValidatorsInteractor: YourValidatorsInteractorInputProtocol {
     func setup() {
         subscribeToActiveEraProvider()
-        subscribeToElectionStatusProvider()
     }
 
     func refresh() {
         clearAllSubscriptions()
         subscribeToActiveEraProvider()
-        subscribeToElectionStatusProvider()
     }
 }

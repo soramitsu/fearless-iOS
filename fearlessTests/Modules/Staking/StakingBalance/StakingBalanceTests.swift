@@ -23,9 +23,7 @@ class StakingBalanceTests: XCTestCase {
         }
 
         let stubAccount = AccountItem(address: "", cryptoType: .ecdsa, username: "", publicKeyData: Data())
-        let closeElectionStatus = ElectionStatus.close
         presenter.stashAccount = stubAccount
-        presenter.electionStatus = closeElectionStatus
 
         // given
         let showBondMoreExpectation = XCTestExpectation()
@@ -115,22 +113,13 @@ class StakingBalanceTests: XCTestCase {
         performTestStakingBalanceActionsOnError(
             for: .bondMore,
             stash: nil,
-            controller: nil,
-            electionStatus: nil
+            controller: nil
         )
 
         performTestStakingBalanceActionsOnError(
             for: .bondMore,
             stash: nil,
-            controller: stubAccount,
-            electionStatus: .close
-        )
-
-        performTestStakingBalanceActionsOnError(
-            for: .bondMore,
-            stash: stubAccount,
-            controller: stubAccount,
-            electionStatus: nil
+            controller: stubAccount
         )
     }
 
@@ -140,22 +129,13 @@ class StakingBalanceTests: XCTestCase {
         performTestStakingBalanceActionsOnError(
             for: .unbond,
             stash: nil,
-            controller: nil,
-            electionStatus: nil
+            controller: nil
         )
 
         performTestStakingBalanceActionsOnError(
             for: .unbond,
             stash: stubAccount,
-            controller: nil,
-            electionStatus: .close
-        )
-
-        performTestStakingBalanceActionsOnError(
-            for: .unbond,
-            stash: stubAccount,
-            controller: stubAccount,
-            electionStatus: nil
+            controller: nil
         )
     }
 
@@ -165,30 +145,20 @@ class StakingBalanceTests: XCTestCase {
         performTestStakingBalanceActionsOnError(
             for: .redeem,
             stash: nil,
-            controller: nil,
-            electionStatus: nil
+            controller: nil
         )
 
         performTestStakingBalanceActionsOnError(
             for: .redeem,
             stash: stubAccount,
-            controller: nil,
-            electionStatus: .close
-        )
-
-        performTestStakingBalanceActionsOnError(
-            for: .redeem,
-            stash: stubAccount,
-            controller: stubAccount,
-            electionStatus: nil
+            controller: nil
         )
     }
 
     private func performTestStakingBalanceActionsOnError(
         for action: StakingBalanceAction,
         stash: AccountItem?,
-        controller: AccountItem?,
-        electionStatus: ElectionStatus?
+        controller: AccountItem?
     ) {
         let interactor = MockStakingBalanceInteractorInputProtocol()
         let wireframe = MockStakingBalanceWireframeProtocol()
@@ -210,7 +180,6 @@ class StakingBalanceTests: XCTestCase {
         let presentErrorAlertExpectation = XCTestExpectation()
         presenter.controllerAccount = controller
         presenter.stashAccount = stash
-        presenter.electionStatus = electionStatus
 
         stub(wireframe) { stub in
             when(stub)

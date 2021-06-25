@@ -43,11 +43,6 @@ struct WestendStub {
                                   item: info)
     }()
 
-    static let electionStatus: DecodedElectionStatus = {
-        DecodedElectionStatus(identifier: Chain.westend.genesisHash + "_election",
-                              item: .close)
-    }()
-
     static let minNominatorBond: DecodedBigUInt = {
         DecodedBigUInt(
             identifier: Chain.westend.genesisHash + "_minbond",
