@@ -36,43 +36,6 @@ extension StakingBalanceInteractor {
         )
     }
 
-    func subscribeToElectionStatus() {
-        guard electionStatusProvider == nil else {
-            return
-        }
-
-        guard let electionStatusProvider = try? providerFactory
-            .getElectionStatusProvider(chain: chain, runtimeService: runtimeCodingService)
-        else {
-            return
-        }
-
-        self.electionStatusProvider = electionStatusProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
-            if let electionStatus = changes.reduceToLastChange() {
-                self?.presenter.didReceive(electionStatusResult: .success(electionStatus.item))
-            }
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(electionStatusResult: .failure(error))
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-        electionStatusProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
-    }
-
     func subsribeToActiveEra() {
         guard activeEraProvider == nil else { return }
 
@@ -91,7 +54,7 @@ extension StakingBalanceInteractor {
         }
 
         let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceive(electionStatusResult: .failure(error))
+            self?.presenter.didReceive(activeEraResult: .failure(error))
             return
         }
 

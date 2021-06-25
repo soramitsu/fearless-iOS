@@ -26,7 +26,6 @@ protocol StakingStateProtocol {
     func process(ledgerInfo: StakingLedger?)
     func process(nomination: Nomination?)
     func process(validatorPrefs: ValidatorPrefs?)
-    func process(electionStatus: ElectionStatus?)
     func process(eraStakersInfo: EraStakersInfo?)
     func process(totalReward: TotalRewardItem?)
     func process(payee: RewardDestinationArg?)

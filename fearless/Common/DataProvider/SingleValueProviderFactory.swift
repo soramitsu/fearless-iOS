@@ -5,7 +5,6 @@ import FearlessUtils
 import BigInt
 
 typealias DecodedAccountInfo = ChainStorageDecodedItem<AccountInfo>
-typealias DecodedElectionStatus = ChainStorageDecodedItem<ElectionStatus>
 typealias DecodedBigUInt = ChainStorageDecodedItem<StringScaleMapper<BigUInt>>
 typealias DecodedU32 = ChainStorageDecodedItem<StringScaleMapper<UInt32>>
 typealias DecodedNomination = ChainStorageDecodedItem<Nomination>
@@ -22,8 +21,6 @@ protocol SingleValueProviderFactoryProtocol {
         -> AnySingleValueProvider<TotalRewardItem>
     func getAccountProvider(for address: String, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedAccountInfo>
-    func getElectionStatusProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
-        -> AnyDataProvider<DecodedElectionStatus>
     func getMinNominatorBondProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
         -> AnyDataProvider<DecodedBigUInt>
     func getCounterForNominatorsProvider(chain: Chain, runtimeService: RuntimeCodingServiceProtocol) throws
@@ -90,10 +87,6 @@ final class SingleValueProviderFactory {
         let methodName = supportsSubquery ? "subquery" : "subscan"
 
         return assetId.rawValue + address + "Reward" + methodName
-    }
-
-    private func electionStatusId(for chain: Chain) -> String {
-        chain.genesisHash + "ElectionStatus"
     }
 
     private func clearIfNeeded() {
@@ -291,46 +284,6 @@ extension SingleValueProviderFactory: SingleValueProviderFactoryProtocol {
             runtimeService: runtimeService,
             shouldUseFallback: false
         )
-    }
-
-    func getElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) throws
-        -> AnyDataProvider<DecodedElectionStatus> {
-        clearIfNeeded()
-
-        let localKey = electionStatusId(for: chain)
-
-        if let existingProvider = providers[localKey]?.target as? DataProvider<DecodedElectionStatus> {
-            return AnyDataProvider(existingProvider)
-        }
-
-        let storageIdFactory = try ChainStorageIdFactory(chain: chain)
-
-        let repository = InMemoryDataProviderRepository<DecodedElectionStatus>()
-
-        let trigger = DataProviderProxyTrigger()
-
-        let source = ElectionStatusSource(
-            itemIdentifier: localKey,
-            localKeyFactory: storageIdFactory,
-            runtimeService: runtimeService,
-            providerFactory: stremableProviderFactory,
-            operationManager: operationManager,
-            trigger: trigger,
-            logger: logger
-        )
-
-        let dataProvider = DataProvider(
-            source: AnyDataProviderSource(source),
-            repository: AnyDataProviderRepository(repository),
-            updateTrigger: trigger
-        )
-
-        providers[localKey] = WeakWrapper(target: dataProvider)
-
-        return AnyDataProvider(dataProvider)
     }
 
     func getNominationProvider(

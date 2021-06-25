@@ -51,7 +51,6 @@ final class StakingRebondConfirmationPresenter {
     private var balance: Decimal?
     private var priceData: PriceData?
     private var fee: Decimal?
-    private var electionStatus: ElectionStatus?
     private var controller: AccountItem?
     private var stashItem: StashItem?
 
@@ -151,9 +150,7 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
                 controller: controller,
                 for: stashItem?.controller ?? "",
                 locale: locale
-            ),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard let strongSelf = self, let inputAmount = self?.inputAmount else {
                 return
@@ -174,15 +171,6 @@ extension StakingRebondConfirmationPresenter: StakingRebondConfirmationPresenter
 }
 
 extension StakingRebondConfirmationPresenter: StakingRebondConfirmationInteractorOutputProtocol {
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
-        }
-    }
-
     func didReceiveAccountInfo(result: Result<AccountInfo?, Error>) {
         switch result {
         case let .success(accountInfo):

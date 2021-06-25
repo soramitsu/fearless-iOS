@@ -14,7 +14,6 @@ extension StakingMainInteractor: StakingMainInteractorInputProtocol {
         subscribeToPriceChanges()
         subscribeToAccountChanges()
         subscribeToStashControllerProvider()
-        subscribeToElectionStatus()
         subscribeToNominatorsLimit()
         provideRewardCalculator()
         provideEraStakersInfo()
@@ -36,9 +35,6 @@ extension StakingMainInteractor: EventVisitorProtocol {
 
     func processSelectedConnectionChanged(event _: SelectedConnectionChanged) {
         if updateAccountAndChainIfNeeded() {
-            clearElectionStatusProvider()
-            subscribeToElectionStatus()
-
             clearNominatorsLimitProviders()
             subscribeToNominatorsLimit()
 

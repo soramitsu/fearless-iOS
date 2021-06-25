@@ -12,8 +12,6 @@ protocol SingleValueSubscriptionHandler {
 
     func handleAccountInfo(result: Result<AccountInfo?, Error>, address: AccountAddress)
 
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain: Chain)
-
     func handleNomination(result: Result<Nomination?, Error>, address: AccountAddress)
 
     func handleValidator(result: Result<ValidatorPrefs?, Error>, address: AccountAddress)
@@ -43,8 +41,6 @@ extension SingleValueSubscriptionHandler {
     ) {}
 
     func handleAccountInfo(result _: Result<AccountInfo?, Error>, address _: AccountAddress) {}
-
-    func handleElectionStatus(result _: Result<ElectionStatus?, Error>, chain _: Chain) {}
 
     func handleNomination(result _: Result<Nomination?, Error>, address _: AccountAddress) {}
 

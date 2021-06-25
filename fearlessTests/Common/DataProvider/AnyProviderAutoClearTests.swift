@@ -12,8 +12,8 @@ class AnyProviderAutoClearTests: XCTestCase {
 
         let runtimeService = try RuntimeCodingServiceStub.createWestendService()
 
-        var provider: AnyDataProvider<DecodedElectionStatus>? =
-            try singleValueProvider.getElectionStatusProvider(
+        var provider: AnyDataProvider<DecodedBigUInt>? =
+            try singleValueProvider.getMinNominatorBondProvider(
             chain: .westend,
             runtimeService: runtimeService
         )

@@ -23,7 +23,6 @@ final class StakingAmountInteractor {
     private var minBondProvider: AnyDataProvider<DecodedBigUInt>?
     private var counterForNominatorsProvider: AnyDataProvider<DecodedU32>?
     private var maxNominatorsCountProvider: AnyDataProvider<DecodedU32>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
 
     init(
         accountAddress: AccountAddress,
@@ -73,7 +72,6 @@ extension StakingAmountInteractor: StakingAmountInteractorInputProtocol, Runtime
     func setup() {
         priceProvider = subscribeToPriceProvider(for: assetId)
         balanceProvider = subscribeToAccountInfoProvider(for: accountAddress, runtimeService: runtimeService)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
         minBondProvider = subscribeToMinNominatorBondProvider(chain: chain, runtimeService: runtimeService)
 
         counterForNominatorsProvider = subscribeToCounterForNominatorsProvider(
@@ -194,15 +192,6 @@ extension StakingAmountInteractor: SingleValueProviderSubscriber, SingleValueSub
         switch result {
         case let .success(value):
             presenter.didReceive(maxNominatorsCount: value)
-        case let .failure(error):
-            presenter.didReceive(error: error)
-        }
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        switch result {
-        case let .success(status):
-            presenter.didReceive(electionStatus: status)
         case let .failure(error):
             presenter.didReceive(error: error)
         }

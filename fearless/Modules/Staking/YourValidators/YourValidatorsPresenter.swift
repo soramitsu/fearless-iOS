@@ -13,7 +13,6 @@ final class YourValidatorsPresenter {
     private var validatorsModel: YourValidatorsModel?
     private var controllerAccount: AccountItem?
     private var stashItem: StashItem?
-    private var electionStatus: ElectionStatus?
     private var ledger: StakingLedger?
     private var rewardDestinationArg: RewardDestinationArg?
     private var lastError: Error?
@@ -111,12 +110,6 @@ extension YourValidatorsPresenter: YourValidatorsPresenterProtocol {
             return
         }
 
-        guard case .close = electionStatus else {
-            let locale = view.localizationManager?.selectedLocale
-            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: locale)
-            return
-        }
-
         if
             let amount = Decimal.fromSubstrateAmount(
                 bondedAmount,
@@ -153,15 +146,6 @@ extension YourValidatorsPresenter: YourValidatorsInteractorOutputProtocol {
         switch result {
         case let .success(item):
             controllerAccount = item
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(item):
-            electionStatus = item
         case let .failure(error):
             handle(error: error)
         }

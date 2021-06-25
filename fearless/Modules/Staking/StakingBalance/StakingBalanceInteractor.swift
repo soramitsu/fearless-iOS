@@ -16,7 +16,6 @@ final class StakingBalanceInteractor: AccountFetching {
     let substrateProviderFactory: SubstrateDataProviderFactoryProtocol
 
     var activeEraProvider: AnyDataProvider<DecodedActiveEra>?
-    var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     var stashControllerProvider: StreamableProvider<StashItem>?
     var ledgerProvider: AnyDataProvider<DecodedLedgerInfo>?
 
@@ -66,7 +65,6 @@ final class StakingBalanceInteractor: AccountFetching {
 extension StakingBalanceInteractor: StakingBalanceInteractorInputProtocol {
     func setup() {
         subscribeToPriceChanges()
-        subscribeToElectionStatus()
         subsribeToActiveEra()
         subscribeToStashControllerProvider()
     }

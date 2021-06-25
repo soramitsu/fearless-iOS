@@ -14,7 +14,6 @@ final class StakingConfirmPresenter {
     private var minNominatorBond: Decimal?
     private var counterForNominators: UInt32?
     private var maxNominatorsCount: UInt32?
-    private var electionStatus: ElectionStatus?
 
     var state: StakingConfirmationModel?
     let logger: LoggerProtocol?
@@ -159,8 +158,7 @@ extension StakingConfirmPresenter: StakingConfirmPresenterProtocol {
                 counterForNominators: counterForNominators,
                 maxNominatorsCount: maxNominatorsCount,
                 locale: locale
-            ),
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             guard let fee = self?.fee else {
                 return
@@ -209,15 +207,6 @@ extension StakingConfirmPresenter: StakingConfirmInteractorOutputProtocol {
             }
 
             provideAsset()
-        case let .failure(error):
-            handle(error: error)
-        }
-    }
-
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(status):
-            electionStatus = status
         case let .failure(error):
             handle(error: error)
         }
