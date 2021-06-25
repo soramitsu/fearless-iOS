@@ -21,7 +21,6 @@ final class StakingBondMoreConfirmationInteractor: AccountFetching {
     private var balanceProvider: AnyDataProvider<DecodedAccountInfo>?
     private var priceProvider: AnySingleValueProvider<PriceData>?
     private var stashItemProvider: StreamableProvider<StashItem>?
-    private var electionStatusProvider: AnyDataProvider<DecodedElectionStatus>?
     private var extrinsicService: ExtrinsicServiceProtocol?
     private var signingWrapper: SigningWrapperProtocol?
 
@@ -67,7 +66,6 @@ extension StakingBondMoreConfirmationInteractor: StakingBondMoreConfirmationInte
         }
 
         priceProvider = subscribeToPriceProvider(for: assetId)
-        electionStatusProvider = subscribeToElectionStatusProvider(chain: chain, runtimeService: runtimeService)
 
         feeProxy.delegate = self
     }
@@ -159,10 +157,6 @@ extension StakingBondMoreConfirmationInteractor: SingleValueProviderSubscriber, 
 
     func handlePrice(result: Result<PriceData?, Error>, for _: WalletAssetId) {
         presenter.didReceivePriceData(result: result)
-    }
-
-    func handleElectionStatus(result: Result<ElectionStatus?, Error>, chain _: Chain) {
-        presenter.didReceiveElectionStatus(result: result)
     }
 }
 

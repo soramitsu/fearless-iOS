@@ -20,11 +20,6 @@ protocol SingleValueProviderSubscriber {
         runtimeService: RuntimeCodingServiceProtocol
     ) -> AnyDataProvider<DecodedAccountInfo>?
 
-    func subscribeToElectionStatusProvider(
-        chain: Chain,
-        runtimeService: RuntimeCodingServiceProtocol
-    ) -> AnyDataProvider<DecodedElectionStatus>?
-
     func subscribeToNominationProvider(
         for address: AccountAddress,
         runtimeService: RuntimeCodingServiceProtocol

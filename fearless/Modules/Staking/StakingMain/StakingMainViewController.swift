@@ -432,8 +432,6 @@ extension StakingMainViewController: AlertsViewDelegate {
             presenter.performSetupValidatorsForBondedAction()
         case .nominatorLowStake:
             presenter.performBondMoreAction()
-        case .electionPeriod:
-            break
         case .redeemUnbonded:
             presenter.performRedeemAction()
         }

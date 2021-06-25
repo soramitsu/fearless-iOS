@@ -4,7 +4,6 @@ import RobinHood
 extension YourValidatorsInteractor {
     func clearAllSubscriptions() {
         clearActiveEraSubscription()
-        clearElectionStatusProvider()
         clearStashControllerProvider()
         clearNominatorProvider()
         clearLedgerProvider()
@@ -52,50 +51,6 @@ extension YourValidatorsInteractor {
             presenter.didReceiveController(result: .failure(error))
             presenter.didReceiveValidators(result: .failure(error))
         }
-    }
-
-    func clearElectionStatusProvider() {
-        electionStatusProvider?.removeObserver(self)
-        electionStatusProvider = nil
-    }
-
-    func subscribeToElectionStatusProvider() {
-        guard electionStatusProvider == nil else {
-            return
-        }
-
-        guard let electionStatusProvider = try? providerFactory
-            .getElectionStatusProvider(chain: chain, runtimeService: runtimeService)
-        else {
-            return
-        }
-
-        self.electionStatusProvider = electionStatusProvider
-
-        let updateClosure = { [weak self] (changes: [DataProviderChange<DecodedElectionStatus>]) in
-
-            let electionStatus = changes.reduceToLastChange()
-
-            self?.presenter.didReceiveElectionStatus(result: .success(electionStatus?.item))
-        }
-
-        let failureClosure = { [weak self] (error: Error) in
-            self?.presenter.didReceiveElectionStatus(result: .failure(error))
-            return
-        }
-
-        let options = DataProviderObserverOptions(
-            alwaysNotifyOnRefresh: false,
-            waitsInProgressSyncOnAdd: false
-        )
-
-        electionStatusProvider.addObserver(
-            self,
-            deliverOn: .main,
-            executing: updateClosure,
-            failing: failureClosure,
-            options: options
-        )
     }
 
     func clearStashControllerProvider() {

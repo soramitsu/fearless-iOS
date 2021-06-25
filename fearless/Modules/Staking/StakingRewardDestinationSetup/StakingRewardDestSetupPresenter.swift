@@ -17,7 +17,6 @@ final class StakingRewardDestSetupPresenter {
 
     private var rewardDestination: RewardDestination<AccountItem>?
     private var calculator: RewardCalculatorEngineProtocol?
-    private var electionStatus: ElectionStatus?
     private var originalDestination: RewardDestination<AccountAddress>?
     private var stashAccount: AccountItem?
     private var controllerAccount: AccountItem?
@@ -139,9 +138,7 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupPresenterProtoc
                 self?.refreshFeeIfNeeded()
             }),
 
-            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale),
-
-            dataValidatingFactory.electionClosed(electionStatus, locale: locale)
+            dataValidatingFactory.canPayFee(balance: balance, fee: fee, locale: locale)
 
         ]).runValidation { [weak self] in
             guard let rewardDestination = self?.rewardDestination else { return }
@@ -292,15 +289,6 @@ extension StakingRewardDestSetupPresenter: StakingRewardDestSetupInteractorOutpu
 
         case let .failure(error):
             logger?.error("Did receive accounts retrieval error: \(error)")
-        }
-    }
-
-    func didReceiveElectionStatus(result: Result<ElectionStatus?, Error>) {
-        switch result {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case let .failure(error):
-            logger?.error("Election status error: \(error)")
         }
     }
 

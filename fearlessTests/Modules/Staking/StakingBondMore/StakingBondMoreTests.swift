@@ -74,8 +74,6 @@ class StakingBondMoreTests: XCTestCase {
 
         presenter.didReceiveStash(result: .success(stashAccount))
 
-        presenter.didReceiveElectionStatus(result: .success(.close))
-
         // when
 
         presenter.updateAmount(0.1)

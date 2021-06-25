@@ -13,7 +13,6 @@ final class StakingBalancePresenter {
     private var activeEra: EraIndex?
     private var stakingLedger: StakingLedger?
     private var priceData: PriceData?
-    var electionStatus: ElectionStatus?
 
     init(
         interactor: StakingBalanceInteractorInputProtocol,
@@ -35,17 +34,6 @@ final class StakingBalancePresenter {
         let balanceData = StakingBalanceData(stakingLedger: stakingLedger, activeEra: activeEra, priceData: priceData)
         let viewModel = viewModelFactory.createViewModel(from: balanceData)
         view?.reload(with: viewModel)
-    }
-
-    var electionPeriodIsClosed: Bool {
-        switch electionStatus {
-        case .close:
-            return true
-        case .open:
-            return false
-        case .none:
-            return false
-        }
     }
 
     var controllerAccountIsAvailable: Bool {
@@ -115,11 +103,6 @@ extension StakingBalancePresenter: StakingBalancePresenterProtocol {
         guard let view = view else { return }
         let selectedLocale = view.localizationManager?.selectedLocale
 
-        guard electionPeriodIsClosed else {
-            wireframe.presentElectionPeriodIsNotClosed(from: view, locale: selectedLocale)
-            return
-        }
-
         switch action {
         case .bondMore:
             handleBondExtraAction(for: view, locale: selectedLocale)
@@ -184,15 +167,6 @@ extension StakingBalancePresenter: StakingBalanceInteractorOutputProtocol {
         case .failure:
             priceData = nil
             updateView()
-        }
-    }
-
-    func didReceive(electionStatusResult: Result<ElectionStatus?, Error>) {
-        switch electionStatusResult {
-        case let .success(electionStatus):
-            self.electionStatus = electionStatus
-        case .failure:
-            electionStatus = nil
         }
     }
 

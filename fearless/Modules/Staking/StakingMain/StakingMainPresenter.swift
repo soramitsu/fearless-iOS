@@ -152,8 +152,7 @@ extension StakingMainPresenter: StakingMainPresenterProtocol {
                 counterForNominators: commonData.counterForNominators,
                 maxNominatorsCount: commonData.maxNominatorsCount,
                 locale: locale
-            ),
-            dataValidatingFactory.electionClosed(commonData.electionStatus, locale: locale)
+            )
         ]).runValidation { [weak self] in
             self?.wireframe.showSetupAmount(from: self?.view, amount: self?.amount)
         }
@@ -420,23 +419,6 @@ extension StakingMainPresenter: StakingMainInteractorOutputProtocol {
 
     func didReceive(validatorError: Error) {
         handle(error: validatorError)
-    }
-
-    func didReceive(electionStatus: ElectionStatus?) {
-        stateMachine.state.process(electionStatus: electionStatus)
-
-        switch electionStatus {
-        case .close:
-            logger?.debug("Election status: close")
-        case let .open(blockNumber):
-            logger?.debug("Election status: open from \(blockNumber)")
-        case .none:
-            logger?.debug("No election status set")
-        }
-    }
-
-    func didReceive(electionStatusError: Error) {
-        handle(error: electionStatusError)
     }
 
     func didReceive(eraStakersInfo: EraStakersInfo) {
