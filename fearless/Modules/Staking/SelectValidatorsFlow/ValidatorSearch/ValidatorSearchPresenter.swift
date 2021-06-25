@@ -74,7 +74,7 @@ final class ValidatorSearchPresenter {
             return
         }
 
-        let searchString = searchString.lowercased()
+        let searchString = self.searchString.lowercased()
 
         filteredValidatorList = allValidatorList.filter {
             $0.identity?.displayName.lowercased()
