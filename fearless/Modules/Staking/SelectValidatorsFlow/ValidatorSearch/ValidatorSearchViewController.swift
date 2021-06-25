@@ -219,6 +219,10 @@ extension ValidatorSearchViewController: EmptyStateDataSource {
     var contentViewForEmptyState: UIView {
         rootView.emptyStateContainer
     }
+
+    var verticalSpacingForEmptyState: CGFloat? {
+        26.0
+    }
 }
 
 // MARK: - EmptyStateDelegate
