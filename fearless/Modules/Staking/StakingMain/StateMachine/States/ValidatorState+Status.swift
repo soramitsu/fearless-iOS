@@ -69,23 +69,6 @@ extension ValidatorState {
         )
     }
 
-    private func createElectionStatus(
-        for locale: Locale?
-    ) -> AlertPresentableViewModel? {
-        let closeAction = R.string.localizable.commonClose(preferredLanguages: locale?.rLanguages)
-        let title = R.string.localizable
-            .stakingNominatorStatusElection(preferredLanguages: locale?.rLanguages)
-        let message = R.string.localizable
-            .stakingNominatorStatusAlertElectionMessage(preferredLanguages: locale?.rLanguages)
-
-        return AlertPresentableViewModel(
-            title: title,
-            message: message,
-            actions: [],
-            closeAction: closeAction
-        )
-    }
-
     private func createUndefinedStatus(
         for _: Locale?
     ) -> AlertPresentableViewModel? {
