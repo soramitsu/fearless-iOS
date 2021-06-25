@@ -50,7 +50,6 @@ protocol StakingMainInteractorOutputProtocol: AnyObject {
     func didReceive(nominationError: Error)
     func didReceive(validatorPrefs: ValidatorPrefs?)
     func didReceive(validatorError: Error)
-    func didReceive(electionStatusError: Error)
     func didReceive(eraStakersInfo: EraStakersInfo)
     func didReceive(eraStakersInfoError: Error)
     func didReceive(networkStakingInfo: NetworkStakingInfo)

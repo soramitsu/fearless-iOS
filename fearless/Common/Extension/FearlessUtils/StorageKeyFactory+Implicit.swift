@@ -57,13 +57,6 @@ extension StorageKeyFactoryProtocol {
         )
     }
 
-    func electionStatus() throws -> Data {
-        try createStorageKey(
-            moduleName: "Staking",
-            storageName: "ElectionStatus"
-        )
-    }
-
     func historyDepth() throws -> Data {
         try createStorageKey(
             moduleName: "Staking",

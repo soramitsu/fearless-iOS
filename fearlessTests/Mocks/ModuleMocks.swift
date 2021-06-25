@@ -27877,21 +27877,6 @@ import SoraFoundation
     
     
     
-     func didReceive(electionStatusError: Error)  {
-        
-    return cuckoo_manager.call("didReceive(electionStatusError: Error)",
-            parameters: (electionStatusError),
-            escapingParameters: (electionStatusError),
-            superclassCall:
-                
-                Cuckoo.MockManager.crashOnProtocolSuperclassCall()
-                ,
-            defaultCall: __defaultImplStub!.didReceive(electionStatusError: electionStatusError))
-        
-    }
-    
-    
-    
      func didReceive(eraStakersInfo: EraStakersInfo)  {
         
     return cuckoo_manager.call("didReceive(eraStakersInfo: EraStakersInfo)",
@@ -28164,11 +28149,6 @@ import SoraFoundation
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(validatorError: Error)", parameterMatchers: matchers))
 	    }
 	    
-	    func didReceive<M1: Cuckoo.Matchable>(electionStatusError: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(Error)> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: electionStatusError) { $0 }]
-	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(electionStatusError: Error)", parameterMatchers: matchers))
-	    }
-	    
 	    func didReceive<M1: Cuckoo.Matchable>(eraStakersInfo: M1) -> Cuckoo.ProtocolStubNoReturnFunction<(EraStakersInfo)> where M1.MatchedType == EraStakersInfo {
 	        let matchers: [Cuckoo.ParameterMatcher<(EraStakersInfo)>] = [wrap(matchable: eraStakersInfo) { $0 }]
 	        return .init(stub: cuckoo_manager.createStub(for: MockStakingMainInteractorOutputProtocol.self, method: "didReceive(eraStakersInfo: EraStakersInfo)", parameterMatchers: matchers))
@@ -28348,12 +28328,6 @@ import SoraFoundation
 	    }
 	    
 	    @discardableResult
-	    func didReceive<M1: Cuckoo.Matchable>(electionStatusError: M1) -> Cuckoo.__DoNotUse<(Error), Void> where M1.MatchedType == Error {
-	        let matchers: [Cuckoo.ParameterMatcher<(Error)>] = [wrap(matchable: electionStatusError) { $0 }]
-	        return cuckoo_manager.verify("didReceive(electionStatusError: Error)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
-	    }
-	    
-	    @discardableResult
 	    func didReceive<M1: Cuckoo.Matchable>(eraStakersInfo: M1) -> Cuckoo.__DoNotUse<(EraStakersInfo), Void> where M1.MatchedType == EraStakersInfo {
 	        let matchers: [Cuckoo.ParameterMatcher<(EraStakersInfo)>] = [wrap(matchable: eraStakersInfo) { $0 }]
 	        return cuckoo_manager.verify("didReceive(eraStakersInfo: EraStakersInfo)", callMatcher: callMatcher, parameterMatchers: matchers, sourceLocation: sourceLocation)
@@ -28499,10 +28473,6 @@ import SoraFoundation
     }
     
      func didReceive(validatorError: Error)   {
-        return DefaultValueRegistry.defaultValue(for: (Void).self)
-    }
-    
-     func didReceive(electionStatusError: Error)   {
         return DefaultValueRegistry.defaultValue(for: (Void).self)
     }
     
